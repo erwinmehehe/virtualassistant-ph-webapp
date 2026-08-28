@@ -14,3 +14,4 @@ create table if not exists public.workflow_reminders (
 
 create index if not exists workflow_reminders_due_idx on public.workflow_reminders(last_sent_at, reminder_count);
 revoke all on public.workflow_reminders from anon, authenticated;
+alter table public.workflow_reminders enable row level security;

@@ -5,6 +5,7 @@ import { Check, CheckCircle2, DollarSign, FileText, Sparkles } from "lucide-reac
 import { createJobAction } from "@/app/actions/jobs";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { mergeUniqueStrings } from "@/lib/collections";
+import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 
 const steps = ["Tell us what you need", "Shape the role", "Schedule & budget", "Review your brief"] as const;
 
@@ -50,6 +51,11 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
   const [data, setData] = useState<JobDraft>({ ...initial, ...initialData });
   const [errors, setErrors] = useState<Errors>({});
   const [savedAt, setSavedAt] = useState("");
+  const isBlankDraft = !data.title.trim() && !data.summary.trim() && !data.required_skills.trim() && !data.description.trim();
+  const applyTemplate = (template: RoleTemplate) => {
+    setData((prev) => ({ ...prev, ...template.values }));
+    setErrors({});
+  };
   const storageKey = useMemo(() => `va_job_draft_${jobId || "new"}`, [jobId]);
   const selectedCategories = data.categories.split(",").map((x) => x.trim()).filter(Boolean);
   const hours = Number(data.hours_per_week || 0);
@@ -169,6 +175,11 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
         <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Local autosave is on"}</span><button className="btn btn-sm" name="submit_mode" value="draft" type="submit">Save & exit</button></div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
+
+      {step === 0 && isBlankDraft ? <section className="role-template-picker">
+        <div><strong>Start from a common role</strong><p className="small muted">Fills in the title, specialty, skills, tools and a draft description. You can edit every field afterwards — or just start typing below to write your own.</p></div>
+        <div className="role-template-grid">{ROLE_TEMPLATES.map((template) => <button type="button" key={template.id} className="role-template-card" onClick={() => applyTemplate(template)}><strong>{template.label}</strong><small>{template.blurb}</small></button>)}</div>
+      </section> : null}
 
       {step === 0 ? <div className="form-grid">
         <div className="field span-2"><label>Role title</label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" autoFocus aria-invalid={Boolean(errors.title)}/>{error("title")}</div>

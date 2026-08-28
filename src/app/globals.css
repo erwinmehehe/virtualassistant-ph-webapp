@@ -2402,3 +2402,12 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .candidate-access-steps { margin:12px 0; padding-left:20px; display:grid; gap:5px; }
 .candidate-access-steps li { font-size:13.5px; color:var(--muted); }
 .candidate-access-note { margin:8px 0 0; }
+
+/* Role templates: a starting point for clients who have never written a job brief. */
+.role-template-picker { border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:18px; background:var(--surface); }
+.role-template-picker p { margin:4px 0 0; }
+.role-template-grid { display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); margin-top:14px; }
+.role-template-card { text-align:left; border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; display:grid; gap:3px; cursor:pointer; }
+.role-template-card:hover { border-color:#84caff; background:#f5faff; }
+.role-template-card strong { font-size:14px; }
+.role-template-card small { color:var(--muted); line-height:1.45; }

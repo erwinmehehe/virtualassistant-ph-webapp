@@ -1,9 +1,13 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import type { Role } from "./types";
 
-export async function getSessionProfile() {
+// Deduped per request: a workspace route resolves this in its layout AND its
+// page, and without cache() that is two auth.getUser() round trips, two profile
+// selects, and a duplicated last_active_at write on every navigation.
+export const getSessionProfile = cache(async function getSessionProfile() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -52,7 +56,7 @@ export async function getSessionProfile() {
     }
     return { user: null, profile: null };
   }
-}
+});
 
 export async function requireRole(role: Role) {
   const session = await getSessionProfile();

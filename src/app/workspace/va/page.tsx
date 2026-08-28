@@ -8,6 +8,8 @@ import { JobCard } from "@/components/job-card";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { getVettingReadiness, vettingStatusLabel } from "@/lib/vetting";
 import { matchScore } from "@/lib/matching";
+import { collectQueryIssues } from "@/lib/query-health";
+import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
@@ -19,18 +21,18 @@ export default async function VaDashboardPage(){
   const admin=createAdminClient();
 
   const [
-    {data:va},
+    {data:va,error:vaError},
     {data:accountProfile},
-    {data:apps},
-    {data:jobs},
-    {data:invites},
+    {data:apps,error:appsError},
+    {data:jobs,error:jobsError},
+    {data:invites,error:invitesError},
     {data:workrooms},
-    {data:vetting},
+    {data:vetting,error:vettingError},
     {data:attempt},
     {data:scorecard},
     {data:certifications},
-    {data:notifications},
-    {data:conversations}
+    {data:notifications,error:notificationsError},
+    {data:conversations,error:conversationsError}
   ]=await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("profiles").select("avatar_url").eq("id",user.id).single(),
@@ -47,9 +49,21 @@ export default async function VaDashboardPage(){
   ]);
 
   const conversationIds=(conversations||[]).map((row:any)=>row.id);
-  const {count:unreadMessages}=conversationIds.length
+  const {count:unreadMessages,error:messagesError}=conversationIds.length
     ? await supabase.from("messages").select("id",{count:"exact",head:true}).in("conversation_id",conversationIds).neq("sender_id",user.id).is("read_at",null)
-    : {count:0};
+    : {count:0,error:null};
+
+  // Surfaced above the dashboard: without this a failed query reads as a zero,
+  // and the next-best-action panel confidently recommends the wrong thing.
+  const issues=collectQueryIssues({
+    "your profile":vaError,
+    "your applications":appsError,
+    "job matches":jobsError,
+    "client invitations":invitesError,
+    "your vetting status":vettingError,
+    "your notifications":notificationsError,
+    "your messages":conversationsError||messagesError
+  });
 
   const completion=getVaCompletion(va,accountProfile?.avatar_url);
   const testScore=attempt?.final_score??attempt?.auto_score??null;
@@ -121,6 +135,7 @@ export default async function VaDashboardPage(){
   const onboardingDone=steps.every((step)=>step.done);
 
   return <>
+    <DashboardDegradedNotice issues={issues}/>
     <div className="page-head"><div><div className="kicker">VA workspace</div><h1>What should you do next?</h1><p>Keep your profile ready, respond to recruiter requests, and move promising applications forward.</p></div><Link className="btn btn-primary" href="/workspace/va/jobs">Browse jobs</Link></div>
 
     <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>

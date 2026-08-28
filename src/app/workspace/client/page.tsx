@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { collectQueryIssues } from "@/lib/query-health";
+import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof AlertCircle};
 
@@ -17,7 +19,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const supabase=await createClient();
   const admin=createAdminClient();
 
-  const [{data:company},{data:jobs},{data:workrooms},{count:savedCount},{data:requested},{data:conversations}]=await Promise.all([
+  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{count:savedCount},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
     supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
@@ -32,11 +34,23 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const jobIds=jobRows.map((job:any)=>job.id);
   const conversationIds=(conversations||[]).map((row:any)=>row.id);
 
-  const [{data:applications},{data:accessRows},{count:unreadMessages}]=await Promise.all([
+  const [{data:applications,error:applicationsError},{data:accessRows,error:accessError},{count:unreadMessages,error:messagesError}]=await Promise.all([
     jobIds.length?admin.from("applications").select("id,job_id,status,applied_at,match_score").in("job_id",jobIds).order("applied_at",{ascending:false}):Promise.resolve({data:[]} as any),
     jobIds.length?admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds):Promise.resolve({data:[]} as any),
     conversationIds.length?admin.from("messages").select("id",{count:"exact",head:true}).in("conversation_id",conversationIds).neq("sender_id",user.id).is("read_at",null):Promise.resolve({count:0} as any)
   ]);
+
+  // Surfaced above the dashboard: a failed query would otherwise render as a
+  // zero, and "All caught up" is the most dangerous thing this page can say to
+  // a client who actually has offers waiting.
+  const issues=collectQueryIssues({
+    "your company profile":companyError,
+    "your roles":jobsError,
+    "your hires":workroomsError,
+    "applicant data":applicationsError,
+    "candidate access status":accessError,
+    "your messages":conversationsError||messagesError
+  });
 
   const appRows=applications||[];
   const accessMap=new Map<string,string|null>((accessRows||[]).map((row:any)=>[String(row.job_id),row.access_status?String(row.access_status):null]));
@@ -95,6 +109,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   ] as const;
 
   return <>
+    <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this VA preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this VA</Link></div>:null}
 
     <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>

@@ -2397,3 +2397,8 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .priority-badge.high { background:#fffaeb; color:#b54708; border-color:#fedf89; }
 .priority-badge.medium { background:#eff8ff; color:#175cd3; border-color:#b2ddff; }
 .priority-badge.low { background:#f8f9fc; color:#475467; border-color:#e4e7ec; }
+
+/* A locked screen should read as a stage in a process, not a dead end. */
+.candidate-access-steps { margin:12px 0; padding-left:20px; display:grid; gap:5px; }
+.candidate-access-steps li { font-size:13.5px; color:var(--muted); }
+.candidate-access-note { margin:8px 0 0; }

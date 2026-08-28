@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { siteOrigin } from "@/lib/seo-url";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 const loginSchema = z.object({
@@ -59,16 +60,17 @@ export async function oauthAction(formData: FormData) {
   const callbackParams = new URLSearchParams({ next: destination });
   if (role) callbackParams.set("role", role);
   if (role === "client" && parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
-  // A missing NEXT_PUBLIC_APP_URL in production silently sends users to
-  // localhost after they authenticate with Google/Microsoft: the provider
-  // succeeds, the browser lands nowhere, and it reads as "SSO is broken".
-  // Fail loudly here instead of handing out a dead redirect.
-  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "";
-  const appUrlIsLocal = !configuredAppUrl || /localhost|127\.0\.0\.1/i.test(configuredAppUrl);
-  if (process.env.NODE_ENV === "production" && appUrlIsLocal) {
+  // These two auth callbacks were the only places in the app that fell back to
+  // localhost when NEXT_PUBLIC_APP_URL was unset -- everything else falls back
+  // to the canonical origin. In production that meant Google/Microsoft
+  // authenticated the user and then dropped the browser on localhost, which is
+  // indistinguishable from "SSO is broken". Use the same origin helper the rest
+  // of the app uses, and only refuse when it genuinely resolves to localhost.
+  const origin = siteOrigin();
+  if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
     redirect("/auth/login?error=Social%20login%20is%20not%20configured%20on%20this%20deployment%20yet.%20Use%20email%20and%20password%2C%20or%20contact%20support.");
   }
-  const callback = `${configuredAppUrl || "http://localhost:3000"}/auth/callback?${callbackParams.toString()}`;
+  const callback = `${origin}/auth/callback?${callbackParams.toString()}`;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -236,7 +238,7 @@ export async function requestPasswordResetAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   await limitOrRedirect("password_reset", email, 4, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
   const supabase = await createClient();
-  if (email) await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback?next=/auth/update-password` });
+  if (email) await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${siteOrigin()}/auth/callback?next=/auth/update-password` });
   redirect("/auth/login?message=If%20that%20email%20exists,%20a%20reset%20link%20has%20been%20sent");
 }
 

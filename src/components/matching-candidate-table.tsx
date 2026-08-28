@@ -18,6 +18,21 @@ type Row = {
   confidence: number;
 };
 
+function matchReasons(row: Row) {
+  const job = (row as any).job;
+  if (!job) return [];
+  const values = (items: string[] | null | undefined) => new Set((items || []).map((item) => item.toLowerCase()));
+  const skills = values(row.va.skills); const tools = values(row.va.tools);
+  const reasons: string[] = [];
+  if (([row.va.primary_category, ...(row.va.categories || [])].filter(Boolean) as string[]).some((item) => values(job.categories).has(item.toLowerCase()))) reasons.push("Relevant specialty");
+  const matchingSkills=(job.required_skills || []).filter((item:string)=>skills.has(item.toLowerCase())); if(matchingSkills.length) reasons.push(`${matchingSkills.slice(0,2).join(", ")} skill${matchingSkills.length>1?"s":""}`);
+  const matchingTools=(job.required_tools || []).filter((item:string)=>tools.has(item.toLowerCase())); if(matchingTools.length) reasons.push(`${matchingTools.slice(0,2).join(", ")} experience`);
+  if(row.va.availability_status==="available") reasons.push("Available now");
+  if(job.hours_per_week&&row.va.weekly_hours>=job.hours_per_week) reasons.push(`${row.va.weekly_hours} hrs/week available`);
+  if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Required overlap covered");
+  return reasons.slice(0,4);
+}
+
 /**
  * The full vetted VA pool now runs 60+ rows (grew a lot from a recent bulk
  * approval pass), which made the raw table a long, easy-to-get-lost-in
@@ -68,7 +83,7 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: {
         return <tr key={row.va.user_id} className={row.shortlist?.shortlist_status === "released" ? "released-match-row" : undefined}>
           <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={row.va.user_id} defaultChecked={selected}/><span className="sr-only">Select {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
-          <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div></td>
+          <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div><div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div></td>
           <td data-label="Match"><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div></td>
           <td data-label="Confidence"><strong>{row.confidence}%</strong><div className="small muted">criteria assessed</div></td>
           <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span>{row.va.directory_visible ? <div className="small muted">Public directory</div> : <div className="small muted">Private pool</div>}</td>

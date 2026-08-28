@@ -35,7 +35,7 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
     const assessment = matchAssessment(job, va);
     const account = profileMap.get(va.user_id) as any;
     const shortlist = shortlistMap.get(va.user_id) as any;
-    return { va, account, shortlist, ...assessment };
+    return { va, account, shortlist, job, ...assessment };
   }).sort((a: any, b: any) => {
     const availability = Number(b.va.availability_status === "available") - Number(a.va.availability_status === "available");
     return b.score - a.score || b.confidence - a.confidence || availability || Number(b.va.years_experience || 0) - Number(a.va.years_experience || 0);
@@ -44,18 +44,22 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
   const proposedCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "proposed").length;
   const releasedCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "released").length;
   const unlocked = candidateAccessUnlocked(access?.access_status);
+  const recommended = pool.filter((row:any)=>row.score>=60).slice(0,3);
 
   return <section className="card staff-matching-card">
     <div className="row-between wrap staff-matching-head">
       <div>
-        <div className="row wrap"><Sparkles size={18}/><h2>Assign VAs to this role</h2></div>
-        <p className="muted">The strongest approved and bench VAs are ranked for this role. Assign candidates internally first; release only the people you want the client to review.</p>
+        <div className="row wrap"><Sparkles size={18}/><h2>Match this role</h2></div>
+        <p className="muted">Step 1: review the brief. Step 2: choose recommended candidates. Step 3: save internally, then release a curated shortlist to the client.</p>
       </div>
       <div className="row wrap">
         <span className="badge">{pool.length} vetted VAs assessed</span>
         <span className="badge">{applicationsCount || 0} applications</span>
       </div>
     </div>
+
+    <div className="matching-workflow-steps"><span className="done">1. Understand role</span><span className="current">2. Choose candidates</span><span>3. Send to client</span></div>
+    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended action</span><h3>Start with the strongest {recommended.length} matches</h3><p>They have the best fit across the role’s category, required skills, tools, hours, and overlap requirements.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"VA candidate"}</strong> · {row.score}% match</span>)}</div></div>:null}
 
     <div className="matching-summary-grid">
       <div className="matching-summary-card"><span>Internal shortlist</span><strong>{proposedCount}</strong><small>Saved by staff</small></div>
@@ -80,7 +84,7 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
       <input type="hidden" name="job_id" value={job.id}/>
       <input type="hidden" name="return_to" value={returnTo}/>
       <div className="row-between wrap shortlist-controls">
-        <div><strong>Ranked VA pool</strong><div className="small muted">Select the VAs you want assigned to this role. Internal assignments stay recruiter-only; release sends the curated shortlist to the client. Client identity access remains protected until access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
+        <div><strong>Recommended candidates</strong><div className="small muted">Every candidate explains why they match below. Select the people you want assigned to this role. Internal assignments stay recruiter-only; release sends the curated shortlist to the client. Client identity access remains protected until access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
         <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Assign selected to role</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Release selected to client</button></div>
       </div>
       <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction}/>

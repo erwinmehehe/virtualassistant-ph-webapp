@@ -6,7 +6,7 @@ import { createJobAction } from "@/app/actions/jobs";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { mergeUniqueStrings } from "@/lib/collections";
 
-const steps = ["Role & skills", "Scope & schedule", "Budget & support", "Review"] as const;
+const steps = ["Tell us what you need", "Shape the role", "Schedule & budget", "Review your brief"] as const;
 
 const COMMON_SKILLS = [
   "Administrative support", "Calendar management", "Inbox management", "Customer service",
@@ -97,6 +97,17 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
   const hasCsvItem = (key: "required_skills" | "required_tools", item: string) =>
     data[key].split(",").some((x) => x.trim().toLowerCase() === item.toLowerCase());
 
+  function prepareBrief() {
+    const words = `${data.title} ${data.summary}`.toLowerCase();
+    const ecommerce = /shopify|ecommerce|e-commerce|product/.test(words);
+    const support = /support|customer|email|inbox/.test(words);
+    const admin = /calendar|admin|assistant|schedule/.test(words);
+    const category = ecommerce ? "Ecommerce" : support ? "Customer Support" : admin ? "Administrative Support" : "General Virtual Assistance";
+    const skills = ecommerce ? "Ecommerce operations, Customer service, Data entry" : support ? "Customer service, Written communication, Problem solving" : admin ? "Administrative support, Calendar management, Inbox management" : "Administrative support, Communication, Research";
+    const responsibilities = ecommerce ? "Maintain product listings\nRespond to customer questions\nKeep orders and inventory information current" : support ? "Respond to customer messages\nResolve routine requests and escalate exceptions\nKeep support records current" : admin ? "Manage calendars and scheduling\nOrganize inboxes and follow-ups\nPrepare weekly updates" : "Complete recurring administrative tasks\nMaintain accurate records\nEscalate questions and blockers";
+    setData((current) => ({ ...current, categories: current.categories || category, required_skills: current.required_skills || skills, responsibilities: current.responsibilities || responsibilities, description: current.description || `We need a reliable VA to help with: ${current.summary || "the responsibilities described above"}. The right person will communicate clearly, keep work organized, and raise blockers early.`, title: current.title || `${category} VA` }));
+  }
+
   function validate(targetStep = step) {
     const next: Errors = {};
     const overlap = Number(data.overlap_hours || 0);
@@ -143,6 +154,8 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
     {Object.entries(data).map(([key, value]) => typeof value === "boolean"
       ? <input key={key} type="hidden" name={key} value={value ? "on" : (key === "direct_feedback" ? "off" : "")}/>
       : <input key={key} type="hidden" name={key} value={value}/>) }
+
+    {step===0?<div className="brief-helper"><div><span className="small">Need a starting point?</span><strong>Describe the work in your own words, then we’ll help shape a clear hiring brief.</strong></div><button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button></div>:null}
 
     <aside className="wizard-steps" aria-label="Job form steps">
       {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined}>

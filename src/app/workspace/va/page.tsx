@@ -96,7 +96,7 @@ export default async function VaDashboardPage(){
   if(recruiterRequests.length){
     nextAction={title:"Your recruiter requested a profile update",copy:recruiterRequests[0]?.body||"Review the request and update your profile before the next matching round.",href:"/workspace/va/profile",label:"Update profile",icon:FileText};
   }else if(completion.score<100&&completion.next){
-    nextAction={title:`Your profile is ${completion.score}% complete`,copy:`Next: ${completion.next.label}. A stronger profile improves recruiter matching and public eligibility.`,href:completion.next.href,label:"Continue profile",icon:FileText};
+    nextAction={title:"You’re almost ready to be matched",copy:`Complete ${completion.next.label} to strengthen your profile and become easier for recruiters to match.`,href:completion.next.href,label:"Continue profile",icon:FileText};
   }else if(!vetted){
     nextAction={title:"Finish vetting to unlock applications",copy:`Your vetting readiness is ${vettingReadiness.score}%. Complete the remaining evidence so recruiters can approve you for roles.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
   }else if(pendingInvites.length){
@@ -126,7 +126,7 @@ export default async function VaDashboardPage(){
     <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
 
     <div className="va-status-grid">
-      <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile readiness</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`Next: ${completion.next.label}`:"Profile essentials complete"}</small></Link>
+      <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`Almost ready — add ${completion.next.label}`:"Ready for recruiter matching"}</small></Link>
       <Link className="status-summary-card" href="/workspace/va/vetting"><div className="row-between"><span>Vetting status</span><strong className="status-summary-text">{vettingStatusLabel(vetting?.stage)}</strong></div><div className="progress progress-green" aria-label={`Vetting ${vettingReadiness.score}% complete`}><span style={{width:`${vettingReadiness.score}%`}}/></div><small>{vettingReadiness.score}% of vetting requirements complete</small></Link>
       <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>
       <Link className="status-summary-card" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications.length}</strong><small>{unreadNotifications.length?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>

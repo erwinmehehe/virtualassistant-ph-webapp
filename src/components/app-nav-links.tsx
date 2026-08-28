@@ -34,6 +34,7 @@ const nav = {
     ["Vetting queue", "/workspace/recruiter/queue", FileText],
     ["VA directory", "/workspace/recruiter/talent", Search],
     ["Role matching", "/workspace/recruiter/matching", Sparkles],
+    ["Stalled work", "/workspace/recruiter/stalled", Flag],
     ["Talent pool", "/workspace/recruiter/bench", UsersRound],
     ["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],
     ["Activity", "/workspace/recruiter/activity", History]

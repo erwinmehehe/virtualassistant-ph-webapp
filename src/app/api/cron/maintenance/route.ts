@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendProfileCompletionReminderEmail, sendClaimDraftEmail } from "@/lib/email";
+import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 
 // Runs on Vercel's schedule (see vercel.json). Two jobs, both idempotent and
 // safe to run repeatedly:
@@ -21,6 +21,9 @@ const AUTO_RELEASE_SCORE_THRESHOLD = 80;
 const AUTO_RELEASE_CONFIDENCE_THRESHOLD = 70;
 const FALLBACK_SCORE_FLOOR = 40;
 const MAX_CANDIDATES = 3;
+const WORKFLOW_REMINDER_GRACE_DAYS = 3;
+const WORKFLOW_REMINDER_REPEAT_DAYS = 5;
+const MAX_WORKFLOW_REMINDERS = 3;
 
 function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
@@ -176,6 +179,47 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
   return { jobsChecked: jobs?.length || 0, jobsMatched, candidatesReleased };
 }
 
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: "job" | "application"; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string }) {
+  const repeatCutoff = daysAgo(WORKFLOW_REMINDER_REPEAT_DAYS);
+  const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
+  if (Number(previous?.reminder_count || 0) >= MAX_WORKFLOW_REMINDERS || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
+  const now = new Date().toISOString();
+  const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: Number(previous?.reminder_count || 0) + 1, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
+  if (error) return false;
+  await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href });
+  const { data: auth } = await admin.auth.admin.getUserById(args.recipientId);
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  try { await sendTransactionalEventEmail({ to: auth.user?.email, subject: args.title, heading: args.title, body: args.body, href: `${appUrl}${args.href}`, hrefLabel: "Open workspace" }); } catch (error) { console.error("[email] Workflow reminder delivery failed", error); }
+  return true;
+}
+
+async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>) {
+  const graceCutoff = daysAgo(WORKFLOW_REMINDER_GRACE_DAYS);
+  const [{ data: recruiters }, { data: jobs }, { data: shortlist }, { data: apps }] = await Promise.all([
+    admin.from("profiles").select("id").eq("role", "recruiter"),
+    admin.from("jobs").select("id,client_id,title,status,created_at,updated_at").in("status", ["pending", "published"]).lte("created_at", graceCutoff).limit(300),
+    admin.from("job_shortlist_candidates").select("job_id,shortlist_status,released_at").eq("shortlist_status", "released"),
+    admin.from("applications").select("id,job_id,va_id,status,updated_at").in("status", ["interview", "offered"]).lte("updated_at", graceCutoff).limit(300)
+  ]);
+  const shortlistByJob = new Map<string, any[]>(); for (const row of shortlist || []) { const rows = shortlistByJob.get(row.job_id) || []; rows.push(row); shortlistByJob.set(row.job_id, rows); }
+  const appJobIds = new Set((apps || []).map((row: any) => row.job_id));
+  let recruiterNudges = 0; let clientNudges = 0; let vaNudges = 0;
+  for (const job of jobs || []) {
+    const released = shortlistByJob.get(job.id) || [];
+    if (!released.length && !appJobIds.has(job.id)) for (const recruiter of recruiters || []) {
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: recruiter.id, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no assigned candidates yet. Open matching to review recommended VAs.", href: `/workspace/recruiter/matching/${job.id}` })) recruiterNudges++;
+    }
+    const releasedAt = released.map((row: any) => row.released_at).filter(Boolean).sort()[0];
+    if (job.client_id && releasedAt && releasedAt <= graceCutoff && !appJobIds.has(job.id)) {
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist", title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter has prepared candidates for this role. Review them and choose who should move forward.", href: `/workspace/client/jobs/${job.id}` })) clientNudges++;
+    }
+  }
+  for (const application of apps || []) {
+    if (await sendWorkflowReminder(admin, { subjectType: "application", subjectId: application.id, recipientId: application.va_id, action: "application_follow_up", title: "Your application has an update waiting", body: `Your application is still in the ${application.status} stage. Check the role and messages for any next steps.`, href: "/workspace/va/applications" })) vaNudges++;
+  }
+  return { recruiterNudges, clientNudges, vaNudges };
+}
+
 export async function GET(request: Request) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const authHeader = request.headers.get("authorization");
@@ -191,12 +235,13 @@ export async function GET(request: Request) {
   const { autoPublishStraightforwardJobs } = await import("@/lib/auto-publish");
   const publishResult = await autoPublishStraightforwardJobs();
 
-  const [nudgeResult, staleResult, leadNudgeResult, matchResult] = await Promise.all([
+  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult] = await Promise.all([
     runProfileNudges(admin),
     runStaleVaCleanup(admin),
     runLeadClaimNudges(admin),
-    runPendingJobMatching(admin)
+    runPendingJobMatching(admin),
+    runWorkflowReminders(admin)
   ]);
 
-  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult });
+  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult });
 }

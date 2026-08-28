@@ -75,6 +75,15 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {label:"Confirm a hire",description:"Create the workroom after final rate, schedule and start date are agreed.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
+  const currentAction=pipeline.offered
+    ? {title:`${pipeline.offered} hiring decision${pipeline.offered===1?"":"s"} waiting`,copy:"Review the final candidates and confirm who you want to hire.",href:"/workspace/client/candidates",label:"Review decisions",step:4}
+    : pipeline.interview
+      ? {title:`${pipeline.interview} interview${pipeline.interview===1?"":"s"} in progress`,copy:"Keep the process moving by reviewing interview-stage candidates.",href:"/workspace/client/candidates",label:"Review interviews",step:3}
+      : pipeline.shortlisted
+        ? {title:`${pipeline.shortlisted} candidate${pipeline.shortlisted===1?"":"s"} ready for review`,copy:"Your recruiter has prepared a shortlist for you.",href:"/workspace/client/candidates",label:"Review shortlist",step:2}
+        : jobRows.length
+          ? {title:"We’re finding candidates",copy:"Your recruiting team is reviewing the role and preparing the strongest matches.",href:"/workspace/client/jobs",label:"View role progress",step:1}
+          : {title:"Tell us who you need",copy:"Share the work in your own words. We’ll turn it into a clear hiring brief.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
 
   const quick=[
     ["Post a Job","Start a new hiring request","/workspace/client/jobs/new",Plus,true],
@@ -88,9 +97,11 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   return <>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this VA preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this VA</Link></div>:null}
 
-    <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>What needs your attention?</h1><p>Post roles, review candidates, respond to interviews, and make hiring decisions from one place.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Post a Job</Link></div>
+    <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
-    <section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>Define the work, rate range, schedule, timezone, and required skills. Your role becomes the source of truth for matching and recruiting.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Post a Job <ArrowRight size={17}/></Link></section>
+    <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We find candidates","Review shortlist","Interview","Hire & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on our recruiting team":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
+
+    {!jobRows.length?<section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>You do not need to write a perfect job description. Start with the work you want off your plate, then refine the brief with our guidance.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Create hiring brief <ArrowRight size={17}/></Link></section>:null}
 
     <div className="client-hiring-grid">{quick.map(([label,copy,href,Icon,primary])=><Link key={label} href={href} className={`client-hiring-card ${primary?"primary":""}`}><Icon size={20}/><span><strong>{label}</strong><small>{copy}</small></span></Link>)}</div>
 

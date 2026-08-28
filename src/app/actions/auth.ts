@@ -59,7 +59,16 @@ export async function oauthAction(formData: FormData) {
   const callbackParams = new URLSearchParams({ next: destination });
   if (role) callbackParams.set("role", role);
   if (role === "client" && parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
-  const callback = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback?${callbackParams.toString()}`;
+  // A missing NEXT_PUBLIC_APP_URL in production silently sends users to
+  // localhost after they authenticate with Google/Microsoft: the provider
+  // succeeds, the browser lands nowhere, and it reads as "SSO is broken".
+  // Fail loudly here instead of handing out a dead redirect.
+  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "";
+  const appUrlIsLocal = !configuredAppUrl || /localhost|127\.0\.0\.1/i.test(configuredAppUrl);
+  if (process.env.NODE_ENV === "production" && appUrlIsLocal) {
+    redirect("/auth/login?error=Social%20login%20is%20not%20configured%20on%20this%20deployment%20yet.%20Use%20email%20and%20password%2C%20or%20contact%20support.");
+  }
+  const callback = `${configuredAppUrl || "http://localhost:3000"}/auth/callback?${callbackParams.toString()}`;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({

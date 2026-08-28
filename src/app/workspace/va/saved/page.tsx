@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { requireRole } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { money } from "@/lib/format";
+import { saveJobAction } from "@/app/actions/applications";
+import { jobPublicHref } from "@/lib/public-routing";
+export default async function VaSavedPage(){const {user}=await requireRole("va");const supabase=await createClient();const {data:items}=await supabase.from("saved_jobs").select("job_id,jobs(id,slug,title,company_name,summary,hours_per_week,min_hourly_rate,timezone,status)").eq("va_id",user.id).order("created_at",{ascending:false});return <><div className="page-head"><div><h1>Saved jobs</h1><p>Keep interesting opportunities here while you compare them.</p></div></div><div className="stack">{items?.length?items.map((item:any)=>{const job=item.jobs;return <div className="card row-between" key={item.job_id}><div><div className="row wrap"><strong>{job?.title}</strong><span className="badge">{job?.status}</span></div><div className="small muted">{job?.company_name||"Confidential client"} · {job?.hours_per_week?`${job.hours_per_week} hrs/week`:"Flexible"} · from {money(job?.min_hourly_rate)}/hr</div></div><div className="row"><Link className="btn btn-sm btn-primary" href={jobPublicHref(job || {})}>View job</Link><form action={saveJobAction}><input type="hidden" name="job_id" value={item.job_id}/><button className="btn btn-sm" type="submit">Remove</button></form></div></div>}):<div className="card empty">No saved jobs yet.</div>}</div></>}

@@ -1,0 +1,3 @@
+import { SiteHeader } from "@/components/site-header";
+import { updatePasswordAction } from "@/app/actions/auth";
+export default async function UpdatePasswordPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){const p=await searchParams;return <><SiteHeader/><main className="auth-page"><div className="auth-card"><h1>Choose a new password</h1>{p.error?<p className="alert">{p.error}</p>:null}<form action={updatePasswordAction} className="stack"><div className="field"><label>New password</label><input type="password" name="password" minLength={8} required autoComplete="new-password"/></div><button className="btn btn-primary" type="submit">Update password</button></form></div></main></>}

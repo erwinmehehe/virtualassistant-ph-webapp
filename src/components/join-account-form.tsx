@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BriefcaseBusiness, CheckCircle2, UserRoundCheck } from "lucide-react";
 import { joinAction, oauthAction } from "@/app/actions/auth";
+import { socialLoginEnabled } from "@/lib/social-login";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export function JoinAccountForm({
@@ -43,7 +44,7 @@ export function JoinAccountForm({
       {benefits.map((item, index) => <div key={`${String(item)}-${index}`}><CheckCircle2 size={16}/><span>{item}</span></div>)}
     </div>
 
-    {client ? <><div className="auth-social-stack" aria-label="Social sign up options">
+    {client && socialLoginEnabled() ? <><div className="auth-social-stack" aria-label="Social sign up options">
       <form action={oauthAction}>
         <input type="hidden" name="provider" value="google"/>
         <input type="hidden" name="role" value="client"/>

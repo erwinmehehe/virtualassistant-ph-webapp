@@ -8,6 +8,7 @@ import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
+import { socialLoginEnabled } from "@/lib/social-login";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 const loginSchema = z.object({
@@ -66,6 +67,10 @@ export async function oauthAction(formData: FormData) {
   // authenticated the user and then dropped the browser on localhost, which is
   // indistinguishable from "SSO is broken". Use the same origin helper the rest
   // of the app uses, and only refuse when it genuinely resolves to localhost.
+  // The buttons are hidden when social login is off, but a stale page or a
+  // hand-made POST could still reach this action.
+  if (!socialLoginEnabled()) redirect("/auth/login?error=Social%20login%20is%20not%20available%20right%20now.%20Please%20use%20your%20email%20and%20password.");
+
   const origin = siteOrigin();
   if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
     redirect("/auth/login?error=Social%20login%20is%20not%20configured%20on%20this%20deployment%20yet.%20Use%20email%20and%20password%2C%20or%20contact%20support.");

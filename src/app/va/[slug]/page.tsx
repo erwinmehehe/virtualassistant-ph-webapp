@@ -7,21 +7,29 @@ import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionProfile } from "@/lib/auth";
-import { PUBLIC_VA_MIN_EXPERIENCE, publicDisplayName } from "@/lib/public-routing";
+import { PUBLIC_VA_MIN_EXPERIENCE, isUuid, publicDisplayName } from "@/lib/public-routing";
 import { dateShort } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { toggleSavedVaAction } from "@/app/actions/saved-vas";
 
+async function getPublicVaByRoute(slug: string, fields = "*") {
+  const supabase = await createClient();
+  const query = supabase.from("public_va_directory").select(fields).gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE);
+  const { data } = isUuid(slug)
+    ? await query.eq("user_id", slug).maybeSingle()
+    : await query.eq("slug", slug).maybeSingle();
+  return data as any;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{slug:string}> }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data: va } = await supabase.from("public_va_directory").select("full_name,headline,primary_category,bio,years_experience").eq("slug",slug).gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE).maybeSingle();
+  const va = await getPublicVaByRoute(slug, "user_id,slug,full_name,headline,primary_category,bio,years_experience");
   if (!va) return { title: "Vetted Virtual Assistant Profile" };
   const name = publicDisplayName(va.full_name);
   return {
     title: `${name} | ${va.headline || va.primary_category || "Virtual Assistant"}`,
     description: va.bio ? String(va.bio).slice(0, 155) : `View this approved ${va.primary_category || "Filipino virtual assistant"} profile with ${va.years_experience || 2}+ years of experience.`,
-    alternates: { canonical: `/va/${encodeURIComponent(slug)}` }
+    alternates: { canonical: `/va/${encodeURIComponent(va.slug || slug)}` }
   };
 }
 
@@ -31,10 +39,9 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
   let publicReviews: any[] | null = null;
   let certifications: any[] | null = null;
   try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("public_va_directory").select("*").eq("slug", slug).gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE).maybeSingle();
-    va = data;
+    va = await getPublicVaByRoute(slug);
     if (!va) notFound();
+    const supabase = await createClient();
     const { data: reviewsData } = await supabase.from("public_va_reviews").select("id,rating,body,created_at,reviewer_label").eq("reviewee_id", va.user_id).order("created_at", { ascending: false });
     publicReviews = reviewsData;
     const { data: certData } = await supabase.from("public_va_certifications").select("category,test_title,reviewed_at").eq("va_id", va.user_id).order("reviewed_at", { ascending: false });
@@ -61,7 +68,7 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
     name: displayName,
     jobTitle: va.headline || va.primary_category || "Virtual Assistant",
     description: va.bio || undefined,
-    url: `${base}/va/${encodeURIComponent(slug)}`,
+    url: `${base}/va/${encodeURIComponent(va.slug || slug)}`,
     image: va.avatar_url || undefined,
     knowsAbout: [...(va.skills || []), ...(va.tools || []), va.primary_category].filter(Boolean)
   };
@@ -106,7 +113,7 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
         </article>
 
         <aside className="public-talent-sidebar">
-          <div className="public-talent-action-card"><div className="public-talent-action-head"><span>Working fit</span><strong>{va.primary_category || "Virtual Assistant"}</strong></div><div className="public-fit-grid"><div><span>Experience</span><strong>{va.years_experience}+ years</strong></div><div><span>Availability</span><strong>{va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</strong></div><div><span>Schedule</span><strong>{va.schedule || "Flexible"}</strong></div><div><span>Live overlap</span><strong>{va.overlap_hours != null ? `Up to ${va.overlap_hours} hrs/day` : "Flexible"}</strong></div>{va.hourly_rate ? <div className="public-rate-row"><span>Preferred rate</span><strong>${Number(va.hourly_rate).toFixed(2)}/hr</strong></div> : null}</div><div className="public-talent-cta-copy"><Sparkles size={17}/><div><strong>Interested in {displayName}?</strong><span>Attach this profile to your private hiring request. We will confirm current availability and role fit.</span></div></div><Link className="btn btn-primary btn-lg" href={requestHref}>Request an introduction</Link>{profile?.role === "client" ? <form action={toggleSavedVaAction}><input type="hidden" name="va_id" value={va.user_id}/><input type="hidden" name="return_to" value={`/va/${slug}`}/><button className="btn" type="submit"><Heart size={15}/>{isSaved?" Remove from saved VAs":" Save VA"}</button></form> : null}<Link className="btn" href="/find-talent">Compare other VAs</Link></div>
+          <div className="public-talent-action-card"><div className="public-talent-action-head"><span>Working fit</span><strong>{va.primary_category || "Virtual Assistant"}</strong></div><div className="public-fit-grid"><div><span>Experience</span><strong>{va.years_experience}+ years</strong></div><div><span>Availability</span><strong>{va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</strong></div><div><span>Schedule</span><strong>{va.schedule || "Flexible"}</strong></div><div><span>Live overlap</span><strong>{va.overlap_hours != null ? `Up to ${va.overlap_hours} hrs/day` : "Flexible"}</strong></div>{va.hourly_rate ? <div className="public-rate-row"><span>Preferred rate</span><strong>${Number(va.hourly_rate).toFixed(2)}/hr</strong></div> : null}</div><div className="public-talent-cta-copy"><Sparkles size={17}/><div><strong>Interested in {displayName}?</strong><span>Attach this profile to your private hiring request. We will confirm current availability and role fit.</span></div></div><Link className="btn btn-primary btn-lg" href={requestHref}>Request an introduction</Link>{profile?.role === "client" ? <form action={toggleSavedVaAction}><input type="hidden" name="va_id" value={va.user_id}/><input type="hidden" name="return_to" value={`/va/${va.slug || slug}`}/><button className="btn" type="submit"><Heart size={15}/>{isSaved?" Remove from saved VAs":" Save VA"}</button></form> : null}<Link className="btn" href="/find-talent">Compare other VAs</Link></div>
           <div className="public-talent-note"><Clock3 size={16}/><span>Availability, rate, and schedule are self-reported and can change. Confirm the final working arrangement before hiring.</span></div>
           <div className="public-talent-note"><Globe2 size={16}/><span>Public identity is intentionally limited to first name + last initial until the hiring workflow permits more detail.</span></div>
         </aside>

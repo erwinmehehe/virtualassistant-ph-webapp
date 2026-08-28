@@ -47,6 +47,7 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
   const sort = params.sort || "recommended";
 
   let vas = (data || []).filter((va:any) => {
+    if (!va.slug) return false;
     const categories = [va.primary_category, ...(va.categories || [])].filter(Boolean);
     const matchesCategory = !category || categories.includes(category);
     const matchesQuery = !q || [va.full_name, va.headline, va.bio, va.primary_category].some((v) => includesText(v, q)) || [va.categories, va.skills, va.tools, va.industries, va.languages].some((v) => includesText(v, q));

@@ -9,10 +9,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const staticRoutes = [
     "", "/hire", "/find-talent", "/services", "/pricing", "/managed-vs-direct-hire", "/how-vetting-works", "/faq", "/about", "/privacy", "/terms", "/contact", "/jobs", "/industries", "/software", "/why-philippines",
-    "/blog/", "/tools/", "/tools/virtual-assistant-cost-calculator/", "/tools/virtual-assistant-hourly-to-monthly-calculator/", "/tools/virtual-assistant-job-description-generator/", "/tools/what-type-of-va-do-i-need/",
-    "/authors/christ-hemsworthy/", "/authors/editorial-team/", "/editorial-policy/"
+    "/blog", "/tools", "/tools/virtual-assistant-cost-calculator", "/tools/virtual-assistant-hourly-to-monthly-calculator", "/tools/virtual-assistant-job-description-generator", "/tools/what-type-of-va-do-i-need",
+    "/authors/christ-hemsworthy", "/authors/editorial-team", "/editorial-policy"
   ];
-  const blogTopicRoutes = Object.keys(BLOG_TOPICS).map((topic) => `/blog/topic/${topic}/`);
+  const blogTopicRoutes = Object.keys(BLOG_TOPICS).map((topic) => `/blog/topic/${topic}`);
   const supabase = await createClient();
   const [{ data: vas }, { data: jobs }] = await Promise.all([
     supabase.from("public_va_directory").select("slug").limit(500),
@@ -22,9 +22,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticRoutes.map((path) => ({ url: `${base}${path}`, changeFrequency: path === "" ? "weekly" as const : "monthly" as const, priority: path === "" ? 1 : .8 })),
     ...blogTopicRoutes.map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: .72 })),
     ...BLOG_POSTS.map((post) => ({ url: `${base}${blogHref(post)}`, lastModified: post.updatedAt, changeFrequency: "monthly" as const, priority: post.serviceSlug ? .76 : .68 })),
-    ...SERVICE_PAGES.map((page) => ({ url: `${base}/service/${page.slug}/`, changeFrequency: "monthly" as const, priority: .78 })),
-    ...INDUSTRIES.map((industry) => ({ url: `${base}/industries/${industry.slug}/`, changeFrequency: "monthly" as const, priority: .74 })),
-    ...softwarePages.map((page) => ({ url: `${base}/software/${page.slug}/`, changeFrequency: "monthly" as const, priority: .7 })),
+    ...SERVICE_PAGES.map((page) => ({ url: `${base}/service/${page.slug}`, changeFrequency: "monthly" as const, priority: .78 })),
+    ...INDUSTRIES.map((industry) => ({ url: `${base}/industries/${industry.slug}`, changeFrequency: "monthly" as const, priority: .74 })),
+    ...softwarePages.map((page) => ({ url: `${base}/software/${page.slug}`, changeFrequency: "monthly" as const, priority: .7 })),
     ...(vas || []).filter((x: any) => x.slug).map((x: any) => ({ url: `${base}/va/${x.slug}`, changeFrequency: "weekly" as const, priority: .7 })),
     ...(jobs || []).map((x: any) => ({ url: `${base}/jobs/${x.slug || x.id}`, lastModified: x.published_at || undefined, changeFrequency: "daily" as const, priority: .7 }))
   ];

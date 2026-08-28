@@ -24,7 +24,7 @@ export function generateStaticParams() { return Object.keys(authors).map((slug) 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
   const {slug}=await params; const author=authors[slug as keyof typeof authors];
   if(!author) return {};
-  return { title: `${author.name} | Author`, description: author.bio, alternates:{canonical:`/authors/${slug}/`} };
+  return { title: `${author.name} | Author`, description: author.bio, alternates:{canonical:`/authors/${slug}`} };
 }
 
 export default async function AuthorPage({params}:{params:Promise<{slug:string}>}) {

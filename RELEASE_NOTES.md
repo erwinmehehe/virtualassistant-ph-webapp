@@ -1,3 +1,13 @@
+# v4.12.3 - canonical and VA profile routing repair
+
+- Standardized canonical URLs and sitemap URLs to the site's no-trailing-slash format.
+- Kept service/software/industry titles absolute so the brand is not appended to those meta titles.
+- Public VA profile routes now resolve legacy UUID links and redirect `/talent/<slug>` to the current `/va/<slug>` route.
+- Public/service talent cards ignore records without a usable slug instead of generating broken links.
+- Recruiter VA directory now includes VA accounts even when their structured `va_profiles` row is incomplete.
+- Recruiter candidate pages show an incomplete-profile state instead of returning 404 when the account exists but its VA profile row is missing.
+- Added `20260828_v4123_va_profile_repair.sql` to create missing VA profile/vetting rows and backfill stable profile slugs.
+
 # v4.12.2 — Full `/service/` SEO editorial pass
 
 - Applied the direct, brand-free meta-title format across all 74 `/service/` pages, not only Real Estate.

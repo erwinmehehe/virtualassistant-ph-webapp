@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{slug:strin
   const { slug } = await params;
   const industry = industryBySlug(slug);
   if (!industry) return {};
-  const canonical = `/industries/${industry.slug}/`;
+  const canonical = `/industries/${industry.slug}`;
   return {
     title: { absolute: industry.metaTitle },
     description: industry.metaDescription,
@@ -36,7 +36,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const hub = page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined;
   const spokes = INDUSTRIES.filter((i) => i.clusterSlug === page.slug);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
-  const pageUrl = `${base}/industries/${page.slug}/`;
+  const pageUrl = `${base}/industries/${page.slug}`;
   const category = services[0]?.directoryCategory || "Administrative Support";
   const hireHref = `/hire?category=${encodeURIComponent(category)}`;
   const talentHref = `/find-talent?category=${encodeURIComponent(category)}`;
@@ -71,9 +71,9 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />
 
     <section className="section public-hero-small specialty-seo-hero"><div className="container">
-      <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/industries">Industries</Link>{hub ? <><span aria-hidden="true">/</span><Link href={`/industries/${hub.slug}/`}>{hub.label}</Link></> : null}<span aria-hidden="true">/</span><span aria-current="page">{page.label}</span></nav>
-      <div className="specialty-hero-grid industry-conversion-hero-grid"><div className="public-page-head industry-hero-copy">{hub ? <p className="small muted industry-hero-note" style={{marginBottom:6}}>A specialization within <Link href={`/industries/${hub.slug}/`}>{hub.label}</Link></p> : null}<h1 className="public-page-title">{page.h1}</h1><p className="public-lede">{page.intro}</p><div className="industry-hero-actions"><Link className="btn btn-lg" href={talentHref}>Browse VAs <ArrowRight size={16}/></Link><a className="text-link" href="#industry-workflows">See common workflows</a></div><p className="small muted industry-hero-note">Private match request · No account required to start · Define access and supervision before onboarding</p></div>
-      <IndustryMatchForm slug={page.slug} industryLabel={page.label} example={matchExample} talentHref={talentHref} workflows={page.workflows} sourcePath={`/industries/${page.slug}/`} /></div>
+      <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/industries">Industries</Link>{hub ? <><span aria-hidden="true">/</span><Link href={`/industries/${hub.slug}`}>{hub.label}</Link></> : null}<span aria-hidden="true">/</span><span aria-current="page">{page.label}</span></nav>
+      <div className="specialty-hero-grid industry-conversion-hero-grid"><div className="public-page-head industry-hero-copy">{hub ? <p className="small muted industry-hero-note" style={{marginBottom:6}}>A specialization within <Link href={`/industries/${hub.slug}`}>{hub.label}</Link></p> : null}<h1 className="public-page-title">{page.h1}</h1><p className="public-lede">{page.intro}</p><div className="industry-hero-actions"><Link className="btn btn-lg" href={talentHref}>Browse VAs <ArrowRight size={16}/></Link><a className="text-link" href="#industry-workflows">See common workflows</a></div><p className="small muted industry-hero-note">Private match request · No account required to start · Define access and supervision before onboarding</p></div>
+      <IndustryMatchForm slug={page.slug} industryLabel={page.label} example={matchExample} talentHref={talentHref} workflows={page.workflows} sourcePath={`/industries/${page.slug}`} /></div>
     </div></section>
 
     <section className="section section-white" id="industry-workflows"><div className="container"><div className="section-head specialty-section-head"><h2>Delegate repeatable execution without blurring decision ownership.</h2><p>Industry knowledge matters most when it helps the VA understand terminology, systems, customer expectations, handoffs, and what should be escalated.</p></div><div className="grid-4">{page.workflows.map((item,index)=><article className="card" key={`${String(item)}-${index}`}><CheckCircle2 size={19}/><h3>{titleCase(item)}</h3><p className="muted">Document the inputs, expected output, turnaround, and escalation rule for this workflow before handing it over.</p></article>)}</div></div></section>

@@ -18,7 +18,7 @@ export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string
 };
 
 export function blogHref(post: BlogPost) {
-  return post.legacyPath || `/blog/${post.slug}/`;
+  return (post.legacyPath || `/blog/${post.slug}`).replace(/\/$/, "");
 }
 
 export function blogPostBySlug(slug: string) {

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   if (!(slug in BLOG_TOPICS)) return {};
   const topic = BLOG_TOPICS[slug as BlogTopic];
-  return { title: `${topic.label} Virtual Assistant Guides`, description: topic.description, alternates: { canonical: `/blog/topic/${slug}/` } };
+  return { title: `${topic.label} Virtual Assistant Guides`, description: topic.description, alternates: { canonical: `/blog/topic/${slug}` } };
 }
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string }> }) {

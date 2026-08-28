@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const page = getSoftwarePage(slug);
   if (!page) return {};
-  const canonical = `/software/${page.slug}/`;
+  const canonical = `/software/${page.slug}`;
   return {
     title: { absolute: page.metaTitle },
     description: page.metaDescription,
@@ -62,7 +62,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const relatedServices = page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
-  const pageUrl = `${base}/software/${page.slug}/`;
+  const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
   const longForm = softwareLongFormCopy(page);

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const page = servicePageBySlug(slug);
   if (!page) return {};
-  const canonical = `/service/${page.slug}/`;
+  const canonical = `/service/${page.slug}`;
   return {
     title: { absolute: page.metaTitle },
     description: page.metaDescription,
@@ -276,7 +276,7 @@ async function getTalent(category: string) {
       .select("user_id,slug,full_name,headline,bio,avatar_url,primary_category,categories,skills,tools,years_experience,weekly_hours,overlap_hours")
       .limit(120);
     return (data || [])
-      .filter((va: any) => [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(category))
+      .filter((va: any) => Boolean(va.slug) && [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(category))
       .sort((a: any, b: any) => Number(b.years_experience || 0) - Number(a.years_experience || 0))
       .slice(0, 6);
   } catch {
@@ -297,7 +297,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const guides = serviceBlogPosts(s.slug, 6);
   const talent = await getTalent(s.directoryCategory);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
-  const pageUrl = `${base}/service/${s.slug}/`;
+  const pageUrl = `${base}/service/${s.slug}`;
   const regulated = complianceNote(s.slug, s.group);
   const editorial = serviceEditorial(s);
   const talentHref = `/find-talent?category=${encodeURIComponent(s.directoryCategory)}&q=${encodeURIComponent(roleName(s.name))}`;

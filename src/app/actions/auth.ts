@@ -82,9 +82,22 @@ export async function oauthAction(formData: FormData) {
   redirect(data.url);
 }
 
+// enforceActionRateLimit throws once the window is exhausted. Uncaught inside a
+// server action that is otherwise all redirects, that surfaced as a generic
+// error page -- so someone who mistyped their password a few times was told the
+// site had crashed rather than to wait a few minutes.
+async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: number, windowMinutes: number, errorPath: (message: string) => string) {
+  try {
+    await enforceActionRateLimit(actionKey, subject, maxAttempts, windowMinutes);
+  } catch (err) {
+    if (typeof (err as { digest?: unknown })?.digest === "string" && String((err as { digest: string }).digest).startsWith("NEXT_")) throw err;
+    redirect(errorPath((err as Error).message || "Too many attempts. Please wait a few minutes and try again."));
+  }
+}
+
 export async function loginAction(formData: FormData) {
   const rawEmail = String(formData.get("email") || "").trim().toLowerCase();
-  await enforceActionRateLimit("auth_login", rawEmail, 8, 15);
+  await limitOrRedirect("auth_login", rawEmail, 8, 15, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
   if (!(await verifyTurnstile(formData))) redirect("/auth/login?error=Please%20complete%20the%20security%20check");
   const rawNext = String(formData.get("next") || "").trim();
   const rawLead = String(formData.get("lead") || "").trim();
@@ -128,7 +141,7 @@ export async function loginAction(formData: FormData) {
 
 export async function joinAction(formData: FormData) {
   const rawEmailForLimit = String(formData.get("email") || "").trim().toLowerCase();
-  await enforceActionRateLimit("auth_join", rawEmailForLimit, 5, 60);
+  await limitOrRedirect("auth_join", rawEmailForLimit, 5, 60, (message) => joinErrorPath(String(formData.get("role")) === "client" ? "client" : "va", message));
   if (!(await verifyTurnstile(formData))) {
     const roleForError = String(formData.get("role")) === "client" ? "client" : "va";
     redirect(joinErrorPath(roleForError, "Please complete the security check"));
@@ -221,7 +234,7 @@ export async function logoutAction() {
 
 export async function requestPasswordResetAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
-  await enforceActionRateLimit("password_reset", email, 4, 60);
+  await limitOrRedirect("password_reset", email, 4, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
   const supabase = await createClient();
   if (email) await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback?next=/auth/update-password` });
   redirect("/auth/login?message=If%20that%20email%20exists,%20a%20reset%20link%20has%20been%20sent");

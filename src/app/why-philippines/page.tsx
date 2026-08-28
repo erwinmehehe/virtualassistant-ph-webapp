@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Why Hire a Virtual Assistant from the Philippines?",
   description: "A practical guide to evaluating Filipino virtual assistants by role fit, communication, tools, schedule overlap, and vetted evidence, not stereotypes.",
-  keywords: ["why hire virtual assistant philippines", "benefits of hiring filipino virtual assistant", "philippines outsourcing"]
+  keywords: ["why hire virtual assistant philippines", "benefits of hiring filipino virtual assistant", "philippines outsourcing"],
+  alternates: { canonical: canonicalPath("/why-philippines") }
 };
 
 const factors = [

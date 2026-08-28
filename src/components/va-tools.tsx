@@ -59,16 +59,16 @@ export function HourlyMonthlyCalculator() {
 }
 
 const roleOptions = [
-  ["Admin, inbox, calendar, research", "/service/admin-inbox/", "Admin & Inbox Virtual Assistant"],
-  ["SEO, content optimization, Search Console", "/service/seo/", "SEO Virtual Assistant"],
-  ["Medical scheduling, patient admin, records", "/service/medical-virtual-assistant/", "Medical Virtual Assistant"],
-  ["Law firm intake, matter admin, calendars", "/service/law-firm-virtual-assistant/", "Law Firm Virtual Assistant"],
-  ["Shopify, listings, orders, ecommerce support", "/service/ecommerce/", "Ecommerce Virtual Assistant"],
-  ["Real estate CRM, listings, lead follow-up", "/service/real-estate/", "Real Estate Virtual Assistant"],
-  ["Bookkeeping, invoicing, reconciliations", "/service/bookkeeping/", "Bookkeeping Virtual Assistant"],
-  ["Sales research, prospecting, appointments", "/service/lead-generation/", "Lead Generation Virtual Assistant"],
-  ["Customer email, chat, tickets, support", "/service/customer-service/", "Customer Service Virtual Assistant"],
-  ["Executive calendar, priorities, follow-up", "/service/executive-virtual-assistant/", "Executive Virtual Assistant"]
+  ["Admin, inbox, calendar, research", "/service/admin-inbox", "Admin & Inbox Virtual Assistant"],
+  ["SEO, content optimization, Search Console", "/service/seo", "SEO Virtual Assistant"],
+  ["Medical scheduling, patient admin, records", "/service/medical-virtual-assistant", "Medical Virtual Assistant"],
+  ["Law firm intake, matter admin, calendars", "/service/law-firm-virtual-assistant", "Law Firm Virtual Assistant"],
+  ["Shopify, listings, orders, ecommerce support", "/service/ecommerce", "Ecommerce Virtual Assistant"],
+  ["Real estate CRM, listings, lead follow-up", "/service/real-estate", "Real Estate Virtual Assistant"],
+  ["Bookkeeping, invoicing, reconciliations", "/service/bookkeeping", "Bookkeeping Virtual Assistant"],
+  ["Sales research, prospecting, appointments", "/service/lead-generation", "Lead Generation Virtual Assistant"],
+  ["Customer email, chat, tickets, support", "/service/customer-service", "Customer Service Virtual Assistant"],
+  ["Executive calendar, priorities, follow-up", "/service/executive-virtual-assistant", "Executive Virtual Assistant"]
 ] as const;
 
 export function RoleFinder() {

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionProfile, requireRole } from "@/lib/auth";
+import { getSessionProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
@@ -124,18 +124,22 @@ export async function markConversationReadAction(formData: FormData) {
 }
 
 export async function markNotificationReadAction(formData: FormData) {
-  const { user } = await requireRole("client");
+  const { user, profile } = await getSessionProfile();
+  if (!user || !profile || !["client", "va"].includes(profile.role)) return;
   const id = String(formData.get("notification_id") || "");
   const supabase = await createClient();
   await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id",id).eq("user_id",user.id);
-  revalidatePath("/workspace/client/notifications");
-  revalidatePath("/workspace/client");
+  const base = profile.role === "va" ? "/workspace/va" : "/workspace/client";
+  revalidatePath(`${base}/notifications`);
+  revalidatePath(base);
 }
 
 export async function markAllNotificationsReadAction() {
-  const { user } = await requireRole("client");
+  const { user, profile } = await getSessionProfile();
+  if (!user || !profile || !["client", "va"].includes(profile.role)) return;
   const supabase = await createClient();
   await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id",user.id).is("read_at",null);
-  revalidatePath("/workspace/client/notifications");
-  revalidatePath("/workspace/client");
+  const base = profile.role === "va" ? "/workspace/va" : "/workspace/client";
+  revalidatePath(`${base}/notifications`);
+  revalidatePath(base);
 }

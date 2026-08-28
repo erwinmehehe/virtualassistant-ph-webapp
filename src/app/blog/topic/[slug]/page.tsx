@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref, topicPosts, type BlogTopic } from "@/lib/blog";
+import { canonicalPath } from "@/lib/seo-url";
 
 export function generateStaticParams() { return Object.keys(BLOG_TOPICS).map((slug) => ({ slug })); }
 
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   if (!(slug in BLOG_TOPICS)) return {};
   const topic = BLOG_TOPICS[slug as BlogTopic];
-  return { title: `${topic.label} Virtual Assistant Guides`, description: topic.description, alternates: { canonical: `/blog/topic/${slug}` } };
+  return { title: `${topic.label} Virtual Assistant Guides`, description: topic.description, alternates: { canonical: canonicalPath(`/blog/topic/${slug}`) } };
 }
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string }> }) {

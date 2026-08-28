@@ -11,7 +11,7 @@ export async function getSessionProfile() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id, role, full_name, avatar_url, account_status")
+      .select("id, role, full_name, avatar_url, account_status, email_verified, last_active_at")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -22,6 +22,19 @@ export async function getSessionProfile() {
       if (profile.account_status === "banned") {
         await supabase.auth.signOut();
         return { user: null, profile: null, banned: true as const };
+      }
+
+      // Keep a lightweight activity signal for recruiter stale-account filters.
+      // We write at most once every six hours per active session, and failures
+      // never block authentication or page rendering.
+      const lastActiveMs = profile.last_active_at ? new Date(profile.last_active_at).getTime() : 0;
+      const shouldRefreshActivity = !lastActiveMs || Date.now() - lastActiveMs > 6 * 60 * 60 * 1000;
+      const shouldConfirmEmail = Boolean(user.email_confirmed_at) && !profile.email_verified;
+      if (shouldRefreshActivity || shouldConfirmEmail) {
+        const patch: Record<string, string | boolean> = {};
+        if (shouldRefreshActivity) patch.last_active_at = new Date().toISOString();
+        if (shouldConfirmEmail) patch.email_verified = true;
+        await supabase.from("profiles").update(patch).eq("id", user.id);
       }
       return { user, profile };
     }

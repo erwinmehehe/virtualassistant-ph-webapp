@@ -48,8 +48,8 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
   return <section className="card staff-matching-card">
     <div className="row-between wrap staff-matching-head">
       <div>
-        <div className="row wrap"><Sparkles size={18}/><h2>Pre-application matching</h2></div>
-        <p className="muted">Runs the role against the full approved/bench VA pool. Scores are computed before anyone applies, so staff can curate a shortlist proactively.</p>
+        <div className="row wrap"><Sparkles size={18}/><h2>Assign VAs to this role</h2></div>
+        <p className="muted">The strongest approved and bench VAs are ranked for this role. Assign candidates internally first; release only the people you want the client to review.</p>
       </div>
       <div className="row wrap">
         <span className="badge">{pool.length} vetted VAs assessed</span>
@@ -80,8 +80,8 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
       <input type="hidden" name="job_id" value={job.id}/>
       <input type="hidden" name="return_to" value={returnTo}/>
       <div className="row-between wrap shortlist-controls">
-        <div><strong>Ranked VA pool</strong><div className="small muted">Select candidates to save internally or release as a curated shortlist. Release does not expose identity until candidate access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
-        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Release selected</button></div>
+        <div><strong>Ranked VA pool</strong><div className="small muted">Select the VAs you want assigned to this role. Internal assignments stay recruiter-only; release sends the curated shortlist to the client. Client identity access remains protected until access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
+        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Assign selected to role</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Release selected to client</button></div>
       </div>
       <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction}/>
     </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench VAs are available to assess yet.</p></div>}

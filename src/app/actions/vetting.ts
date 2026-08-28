@@ -129,7 +129,6 @@ export async function submitScorecardAction(formData: FormData) {
   ]);
   if (!vetting || vetting.stage !== "recruiter_review") throw new Error("This candidate is not ready for a recruiter scorecard.");
   if (!vetting.video_url) throw new Error("The candidate must submit the required video introduction first.");
-  if (vetting.recruiter_id && vetting.recruiter_id !== user.id) throw new Error("This candidate is assigned to another recruiter.");
   const { test, attempt } = await getCurrentCategoryAttempt(admin, vaId, va?.primary_category);
   const testScore = attempt?.final_score ?? attempt?.auto_score ?? null;
   if (typeof testScore !== "number" || testScore < (test?.passing_score ?? VETTING_TEST_PASS)) throw new Error("The candidate must pass the current category skills test before recruiter review.");

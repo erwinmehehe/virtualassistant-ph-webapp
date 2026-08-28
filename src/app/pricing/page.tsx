@@ -6,9 +6,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { VaCostCalculator } from "@/components/va-tools";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "How Virtual Assistant Pricing Works", description: "Estimate VA compensation and understand curated placement and managed service pricing before you publish a role.", keywords: ["virtual assistant pricing philippines", "how much does a virtual assistant cost", "virtual assistant rates"] };
+export const metadata: Metadata = { title: "How Virtual Assistant Pricing Works", description: "Estimate VA compensation and understand curated placement and managed service pricing before you publish a role.", keywords: ["virtual assistant pricing philippines", "how much does a virtual assistant cost", "virtual assistant rates"] , alternates: { canonical: canonicalPath("/pricing") }};
 
 function money(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);

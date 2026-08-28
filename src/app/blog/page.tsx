@@ -4,12 +4,13 @@ import { ArrowRight, BookOpen, Calculator, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref, type BlogTopic } from "@/lib/blog";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Hiring & Management Blog",
   description: "Practical guides for hiring, pricing, onboarding, and managing virtual assistants from the Philippines, plus role-specific advice for SEO, medical, legal, ecommerce, real estate, and more.",
   keywords: ["virtual assistant blog", "how to hire a virtual assistant", "virtual assistant philippines guide", "managing remote virtual assistants"],
-  alternates: { canonical: "/blog" }
+  alternates: { canonical: canonicalPath("/blog") }
 };
 
 const featuredSlugs = [

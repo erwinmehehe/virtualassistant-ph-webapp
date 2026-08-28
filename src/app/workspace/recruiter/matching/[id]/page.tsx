@@ -1,37 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Sparkles } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StaffJobMatching } from "@/components/staff-job-matching";
+import { addRecruiterNoteAction } from "@/app/actions/recruiter";
 import { dateShort, money } from "@/lib/format";
 
-export default async function RecruiterJobMatchingDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
-  const { id } = await params;
-  const query = await searchParams;
-  await requireRole("recruiter");
-  const admin = createAdminClient();
-  const { data: job } = await admin.from("jobs").select("*").eq("id", id).single();
-  if (!job) notFound();
-  const { data: client } = job.client_id ? await admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle() : { data: null };
-
+export default async function RecruiterJobMatchingDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
+  const {id}=await params;const query=await searchParams;await requireRole("recruiter");const admin=createAdminClient();
+  const [{data:job},{data:notes},{data:activity}]=await Promise.all([
+    admin.from("jobs").select("*").eq("id",id).single(),
+    admin.from("recruiter_notes").select("id,note,created_at").eq("subject_type","job").eq("subject_id",id).order("created_at",{ascending:false}).limit(20),
+    admin.from("recruiter_activity").select("id,action,description,created_at,metadata").eq("subject_type","job").eq("subject_id",id).order("created_at",{ascending:false}).limit(40)
+  ]);
+  if(!job)notFound();const {data:client}=job.client_id?await admin.from("profiles").select("full_name").eq("id",job.client_id).maybeSingle():{data:null};
   return <>
-    {query.shortlist_saved ? <div className="success-banner" role="status">Internal shortlist saved.</div> : null}
-    {query.shortlist_released ? <div className="success-banner" role="status">Selected VAs released to the client shortlist. Identity remains protected until candidate access is active.</div> : null}
-    {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
-    <div className="page-head"><div><Link className="text-link small" href="/workspace/recruiter/matching">← Role matching</Link><h1 style={{ marginTop: 8 }}>{job.title}</h1><p>{job.company_name || "Client role"} · {job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible hours"} · from {money(job.min_hourly_rate)}/hr · submitted {dateShort(job.created_at)}</p></div><div className="row wrap"><span className={`badge ${job.status === "pending" ? "badge-warning" : job.status === "published" ? "badge-success" : ""}`}>{job.status}</span></div></div>
-    <section className="card role-match-brief">
-      <div><strong>Client</strong><p className="muted">{client?.full_name || (job.client_id ? "Client account" : "No account yet, from a lead")}</p></div>
-      <div><strong>Timezone</strong><p className="muted">{job.timezone || "Not set"}</p></div>
-      <div><strong>Pay range</strong><p className="muted">{money(job.min_hourly_rate)}{job.max_hourly_rate ? ` to ${money(job.max_hourly_rate)}` : "+"}/hr</p></div>
-      <div><strong>Engagement length</strong><p className="muted">{job.engagement_length || "Not set"}</p></div>
-      <div><strong>Start timing</strong><p className="muted">{job.start_timing || "Not set"}</p></div>
-      <div><strong>Categories</strong><p className="muted">{(job.categories || []).join(", ") || "Not set"}</p></div>
-      <div><strong>Required skills</strong><p className="muted">{(job.required_skills || []).join(", ") || "Not set"}</p></div>
-      <div><strong>Required tools</strong><p className="muted">{(job.required_tools || []).join(", ") || "Not set"}</p></div>
-      <div><strong>Overlap</strong><p className="muted">{job.overlap_hours != null ? `${job.overlap_hours} hrs/day` : "Not set"}</p></div>
-      {job.summary ? <div className="span-2"><strong>Summary</strong><p className="muted">{job.summary}</p></div> : null}
-      {job.description ? <div className="span-2"><strong>Description</strong><p className="muted" style={{whiteSpace:"pre-wrap"}}>{job.description}</p></div> : null}
-    </section>
-    <StaffJobMatching job={job} viewerRole="recruiter" returnTo={`/workspace/recruiter/matching/${job.id}`}/>
+    {query.shortlist_saved?<div className="success-banner">Internal assignments saved.</div>:null}{query.shortlist_released?<div className="success-banner">Selected VAs released to the client shortlist.</div>:null}{query.shortlist_error?<div className="alert">{query.shortlist_error}</div>:null}{query.note_saved?<div className="success-banner">Private role note saved.</div>:null}
+    <div className="page-head"><div><Link className="text-link small" href="/workspace/recruiter/matching">← Role board</Link><div className="row wrap" style={{marginTop:8}}><span className="badge">{job.status}</span><span className="badge"><Sparkles size={13}/> Recruiter matching</span></div><h1 style={{marginTop:8}}>{job.title}</h1><p>{job.company_name||"Client role"} · {job.hours_per_week?`${job.hours_per_week} hrs/week`:"Flexible hours"} · from {money(job.min_hourly_rate)}/hr · submitted {dateShort(job.created_at)}</p></div><a className="btn btn-primary" href="#matching">Find Matching VAs</a></div>
+    <section className="card role-match-brief"><div><strong>Client</strong><p className="muted">{client?.full_name||(job.client_id?"Client account":"No account yet, from a lead")}</p></div><div><strong>Timezone</strong><p className="muted">{job.timezone||"Not set"}</p></div><div><strong>Pay range</strong><p className="muted">{money(job.min_hourly_rate)}{job.max_hourly_rate?` to ${money(job.max_hourly_rate)}`:"+"}/hr</p></div><div><strong>Experience level</strong><p className="muted">{job.experience_level||"Not set"}</p></div><div><strong>Start timing</strong><p className="muted">{job.start_timing||"Not set"}</p></div><div><strong>Categories</strong><p className="muted">{(job.categories||[]).join(", ")||"Not set"}</p></div><div><strong>Required skills</strong><p className="muted">{(job.required_skills||[]).join(", ")||"Not set"}</p></div><div><strong>Required tools</strong><p className="muted">{(job.required_tools||[]).join(", ")||"Not set"}</p></div>{job.summary?<div className="span-2"><strong>Summary</strong><p className="muted">{job.summary}</p></div>:null}{job.description?<div className="span-2"><strong>Description</strong><p className="muted" style={{whiteSpace:"pre-wrap"}}>{job.description}</p></div>:null}</section>
+    <section className="card" style={{marginBottom:18}}><div className="row-between wrap"><div><h2 style={{margin:0}}>Private recruiter notes & role timeline</h2><p className="small muted">Keep role context, client feedback, and matching decisions in one place.</p></div></div><form action={addRecruiterNoteAction} className="row wrap recruiter-note-form"><input type="hidden" name="subject_type" value="job"/><input type="hidden" name="subject_id" value={job.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/matching/${job.id}`}/><textarea name="note" required minLength={2} maxLength={4000} placeholder="Client feedback, matching instruction, follow-up…"/><button className="btn btn-primary" type="submit">Add note</button></form><div className="grid-2" style={{marginTop:18}}><div>{notes?.length?<div className="notes-list">{notes.map((n:any)=><div className="note-card" key={n.id}><p>{n.note}</p><small>{dateShort(n.created_at)}</small></div>)}</div>:<div className="empty">No private notes yet.</div>}</div><div className="timeline-list">{(activity||[]).length?(activity||[]).map((row:any)=><div className="timeline-item" key={row.id}><span className="timeline-dot"/><div><strong>{String(row.action).replaceAll("_"," ")}</strong><p>{row.description||"Role activity"}</p><small>{dateShort(row.created_at)}</small></div></div>):<div className="empty">Assignment and client-stage activity will appear here.</div>}</div></div></section>
+    <div id="matching"><StaffJobMatching job={job} viewerRole="recruiter" returnTo={`/workspace/recruiter/matching/${job.id}`}/></div>
   </>;
 }

@@ -1,44 +1,118 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LockKeyhole } from "lucide-react";
+import { AlertCircle, ArrowRight, BriefcaseBusiness, Heart, LockKeyhole, MessageSquare, Plus, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
-import { candidateAccessUnlocked, protectedCandidateName } from "@/lib/candidate-access";
-import { dateShort } from "@/lib/format";
-import { matchLabel } from "@/lib/matching";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
+
+type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof AlertCircle};
+
+function countStatuses(rows:any[], statuses:string[]){return rows.filter((row)=>statuses.includes(row.status)).length;}
 
 export default async function ClientDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const params=await searchParams;const {user}=await requireRole("client");const supabase=await createClient();
-  const [{data:company},{data:jobs},{count:unread},{data:workrooms},{data:requested}]=await Promise.all([
+  const params=await searchParams;
+  const {user}=await requireRole("client");
+  const supabase=await createClient();
+  const admin=createAdminClient();
+
+  const [{data:company},{data:jobs},{data:workrooms},{count:savedCount},{data:requested},{data:conversations}]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
-    supabase.from("jobs").select("id,title,status,created_at").eq("client_id",user.id).order("created_at",{ascending:false}),
-    supabase.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",user.id).is("read_at",null),
-    supabase.from("workrooms").select("id").eq("client_id",user.id),
-    params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any)
+    supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
+    supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
+    supabase.from("saved_vas").select("va_id",{count:"exact",head:true}).eq("client_id",user.id),
+    params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
+    admin.from("conversations").select("id").eq("client_id",user.id)
   ]);
-  if (!company?.onboarding_completed_at && !(jobs||[]).length && !params.talent) redirect("/workspace/client/onboarding");
-  const jobIds=(jobs||[]).map((j:any)=>j.id); const jobMap=new Map((jobs||[]).map((j:any)=>[j.id,j.title])); const admin=createAdminClient();
-  const [{data:applications},{data:accessRows}]=jobIds.length?await Promise.all([
-    admin.from("applications").select("id,job_id,status,applied_at,match_score").in("job_id",jobIds).order("applied_at",{ascending:false}).limit(8),
-    admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds)
-  ]):[{data:[]},{data:[]} as any];
-  const accessMap=new Map<string,string>((accessRows||[]).map((row:any)=>[String(row.job_id),String(row.access_status)] as [string,string]));
-  const unlockedIds=(applications||[]).filter((a:any)=>candidateAccessUnlocked(accessMap.get(a.job_id))).map((a:any)=>a.id);
-  const {data:detailRows}=unlockedIds.length?await admin.from("applications").select("id,profile_snapshot").in("id",unlockedIds):{data:[]};
-  const detailMap=new Map((detailRows||[]).map((row:any)=>[row.id,row.profile_snapshot||{}]));
-  const active=(jobs||[]).filter((j:any)=>j.status==="published").length;const shortlisted=(applications||[]).filter((a:any)=>["shortlisted","interview","hired"].includes(a.status)).length;
+
+  if(!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
+
+  const jobRows=jobs||[];
+  const jobIds=jobRows.map((job:any)=>job.id);
+  const conversationIds=(conversations||[]).map((row:any)=>row.id);
+
+  const [{data:applications},{data:accessRows},{count:unreadMessages}]=await Promise.all([
+    jobIds.length?admin.from("applications").select("id,job_id,status,applied_at,match_score").in("job_id",jobIds).order("applied_at",{ascending:false}):Promise.resolve({data:[]} as any),
+    jobIds.length?admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds):Promise.resolve({data:[]} as any),
+    conversationIds.length?admin.from("messages").select("id",{count:"exact",head:true}).in("conversation_id",conversationIds).neq("sender_id",user.id).is("read_at",null):Promise.resolve({count:0} as any)
+  ]);
+
+  const appRows=applications||[];
+  const accessMap=new Map<string,string|null>((accessRows||[]).map((row:any)=>[String(row.job_id),row.access_status?String(row.access_status):null]));
+  const active=jobRows.filter((job:any)=>job.status==="published").length;
+  const hires=(workrooms||[]).length;
+  const applicants=appRows.length;
+  const pipeline={
+    applied:countStatuses(appRows,["new","reviewing"]),
+    shortlisted:countStatuses(appRows,["shortlisted"]),
+    interview:countStatuses(appRows,["interview"]),
+    offered:countStatuses(appRows,["offered"]),
+    hired:countStatuses(appRows,["hired"]),
+    rejected:countStatuses(appRows,["rejected"])
+  };
+
+  const appsByJob=new Map<string,any[]>();
+  for(const app of appRows){const list=appsByJob.get(app.job_id)||[];list.push(app);appsByJob.set(app.job_id,list);}
+  const lockedJobsWithApplicants=jobRows.filter((job:any)=>{
+    const count=(appsByJob.get(job.id)||[]).length;
+    return count>0&&!candidateAccessUnlocked(accessMap.get(job.id));
+  });
+
+  const attention:AttentionItem[]=[];
+  if(!jobRows.length) attention.push({title:"Post your first job",copy:"Tell us the role, budget, schedule, and skills. We can start recruiting from the brief.",href:"/workspace/client/jobs/new",count:1,icon:Plus});
+  if(pipeline.applied) attention.push({title:"New applicants to review",copy:"Review the newest applicants and move strong candidates into your shortlist.",href:"/workspace/client/candidates",count:pipeline.applied,icon:UsersRound});
+  if(pipeline.interview) attention.push({title:"Interviews in progress",copy:"Review interview-stage candidates and keep decisions moving.",href:"/workspace/client/candidates",count:pipeline.interview,icon:BriefcaseBusiness});
+  if(pipeline.offered) attention.push({title:"Offers awaiting a hiring decision",copy:"Open the candidate pipeline to confirm the final hire when terms are agreed.",href:"/workspace/client/candidates",count:pipeline.offered,icon:Sparkles});
+  if((unreadMessages||0)>0) attention.push({title:"Unread candidate messages",copy:"Reply to candidate questions, interview follow-ups, and hiring conversations.",href:"/workspace/client/messages",count:unreadMessages||0,icon:MessageSquare});
+  if(lockedJobsWithApplicants.length) attention.push({title:"Candidate details are still locked",copy:"Applicants are waiting on roles where candidate access has not yet been activated.",href:"/workspace/client/jobs",count:lockedJobsWithApplicants.length,icon:LockKeyhole});
+
   const steps=[
-    {label:"Complete your company profile",description:"Add your company, timezone, and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
-    {label:"Create your first role",description:"Use the guided role wizard with inline validation and autosave.",done:Boolean(jobs?.length),href:"/workspace/client/jobs/new"},
-    {label:"Publish a role",description:"Submitted roles are reviewed and pricing is accepted before publication.",done:Boolean((jobs||[]).some((j:any)=>j.status==="published")),href:"/workspace/client/jobs"},
-    {label:"Activate candidate access",description:"Applicant identity and private profile evidence unlock only after access is activated for a role.",done:Boolean((accessRows||[]).some((a:any)=>candidateAccessUnlocked(a.access_status))),href:"/workspace/client/jobs"},
-    {label:"Create a shortlist",description:"Move the strongest unlocked candidates to Shortlisted or Interview.",done:Boolean(shortlisted),href:"/workspace/client/candidates"},
-    {label:"Confirm a hire",description:"A workroom is created only after final rate, start date, and schedule confirmation.",done:Boolean(workrooms?.length),href:"/workspace/client/workroom"}
+    {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
+    {label:"Post your first job",description:"Tell us what you need and we will recruit and match for the role.",done:Boolean(jobRows.length),href:"/workspace/client/jobs/new"},
+    {label:"Review applicants and matches",description:"Use the applicant pipeline and curated shortlist.",done:Boolean(applicants),href:"/workspace/client/candidates"},
+    {label:"Activate candidate access",description:"Unlock identity, resume, contact details and direct messaging.",done:Boolean((accessRows||[]).some((a:any)=>candidateAccessUnlocked(a.access_status))),href:"/workspace/client/jobs"},
+    {label:"Confirm a hire",description:"Create the workroom after final rate, schedule and start date are agreed.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
-  return <>{requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this VA preference will stay attached to it.</p></div><div className="row wrap"><Link className="btn" href={`/va/${requested.slug}`} target="_blank">Review profile</Link><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this VA</Link></div></div>:null}
-  <div className="page-head"><div><h1>Hiring overview</h1><p>See the next decision across roles, protected candidate access, conversations, and active VA placements.</p></div><Link className="btn btn-primary" href="/workspace/client/jobs/new">Create a role</Link></div>
-  <div className="stats"><div className="stat-card"><span className="small muted">Active roles</span><strong>{active}</strong></div><div className="stat-card"><span className="small muted">Recent applicants</span><strong>{applications?.length||0}</strong></div><div className="stat-card"><span className="small muted">Shortlisted or later</span><strong>{shortlisted}</strong></div><Link className="stat-card stat-link" href="/workspace/client/notifications"><span className="small muted">Unread notifications</span><strong>{unread||0}</strong><span className="small text-link">View updates</span></Link></div>
-  <OnboardingChecklist title="Hiring setup" steps={steps}/><div className="dashboard-single dashboard-after-onboarding"><div className="card"><div className="row-between" style={{marginBottom:14}}><div><h3 style={{margin:0}}>Recent applicants</h3><span className="small muted">Identity is shown only for roles with active candidate access.</span></div><Link className="btn btn-sm" href="/workspace/client/candidates">View all</Link></div>{applications?.length?<div className="table-wrap responsive-table" style={{border:0}}><table><thead><tr><th>Applicant</th><th>Role</th><th>Fit</th><th>Status</th><th>Applied</th></tr></thead><tbody>{applications.map((a:any,index:number)=>{const unlocked=candidateAccessUnlocked(accessMap.get(a.job_id));const p=detailMap.get(a.id) as any || {};const score=Number(a.match_score||0);return <tr key={a.id}><td data-label="Applicant">{unlocked?<Link href={`/workspace/client/candidates/${a.id}`}><strong>{p.full_name||"VA applicant"}</strong></Link>:<strong className="protected-inline"><LockKeyhole size={13}/>{protectedCandidateName(index)}</strong>}<div className="small muted">{unlocked?(p.primary_category||"Virtual Assistant"):"Identity protected"}</div></td><td data-label="Role"><Link className="text-link" href={`/workspace/client/jobs/${a.job_id}`}>{jobMap.get(a.job_id)||"Role"}</Link></td><td data-label="Fit"><strong>{matchLabel(score)}</strong><div className="small muted">{score}/100</div></td><td data-label="Status"><span className={`badge ${a.status==="hired"?"badge-success":a.status==="interview"?"badge-warning":""}`}>{String(a.status).replaceAll("_"," ")}</span></td><td data-label="Applied">{dateShort(a.applied_at)}</td></tr>})}</tbody></table></div>:<div className="empty">Applications will appear here when VAs apply or accept an invitation.</div>}</div></div></>;
+  const onboardingDone=steps.every((step)=>step.done);
+
+  const quick=[
+    ["Post a Job","Start a new hiring request","/workspace/client/jobs/new",Plus,true],
+    ["Active Jobs",`${active} active role${active===1?"":"s"}`,"/workspace/client/jobs",BriefcaseBusiness,false],
+    ["Applicants",`${applicants} applicant${applicants===1?"":"s"}`,"/workspace/client/candidates",UsersRound,false],
+    ["Saved VAs",`${savedCount||0} saved profile${savedCount===1?"":"s"}`,"/workspace/client/saved",Heart,false],
+    ["Messages",`${unreadMessages||0} unread message${unreadMessages===1?"":"s"}`,"/workspace/client/messages",MessageSquare,false],
+    ["Hires",`${hires} placement${hires===1?"":"s"}`,"/workspace/client/workroom",UserRoundCheck,false]
+  ] as const;
+
+  return <>
+    {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this VA preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this VA</Link></div>:null}
+
+    <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>What needs your attention?</h1><p>Post roles, review candidates, respond to interviews, and make hiring decisions from one place.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Post a Job</Link></div>
+
+    <section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>Define the work, rate range, schedule, timezone, and required skills. Your role becomes the source of truth for matching and recruiting.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Post a Job <ArrowRight size={17}/></Link></section>
+
+    <div className="client-hiring-grid">{quick.map(([label,copy,href,Icon,primary])=><Link key={label} href={href} className={`client-hiring-card ${primary?"primary":""}`}><Icon size={20}/><span><strong>{label}</strong><small>{copy}</small></span></Link>)}</div>
+
+    <section className="card dashboard-section-card">
+      <div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>Only items that require a hiring decision or response appear here.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>
+      {attention.length?<div className="attention-grid">{attention.slice(0,6).map((item)=>{const Icon=item.icon;return <Link className="attention-card" href={item.href} key={item.title}><div className="attention-count">{item.count}</div><div><div className="row"><Icon size={16}/><strong>{item.title}</strong></div><p>{item.copy}</p></div><ArrowRight size={16}/></Link>})}</div>:<div className="dashboard-caught-up"><UserRoundCheck size={22}/><div><strong>No urgent hiring actions right now.</strong><p>Keep an eye on new applicants and messages, or post another role when you are ready.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs/new">Post another job</Link></div>}
+    </section>
+
+    <section className="card dashboard-section-card">
+      <div className="dashboard-section-head"><div><h2>Hiring pipeline</h2><p>Combined status across all of your current and past applications.</p></div><Link className="btn btn-sm" href="/workspace/client/candidates">Open candidates</Link></div>
+      <div className="pipeline-summary" aria-label="Client hiring pipeline">{[['Applied',pipeline.applied],['Shortlisted',pipeline.shortlisted],['Interview',pipeline.interview],['Offered',pipeline.offered],['Hired',pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
+      {pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} rejected candidate{pipeline.rejected===1?"":"s"} kept outside the active pipeline.</div>:null}
+    </section>
+
+    {!onboardingDone?<OnboardingChecklist title="Finish your hiring setup" steps={steps}/>:null}
+
+    <div className="grid-2 dashboard-after-onboarding">
+      <section className="card"><div className="dashboard-section-head"><div><h2>Your roles</h2><p>Applicant counts and pipeline stages are visible without opening every job.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs">View all</Link></div>
+        {jobRows.length?<div className="role-dashboard-list">{jobRows.slice(0,6).map((job:any)=>{const rows=appsByJob.get(job.id)||[];const locked=rows.length>0&&!candidateAccessUnlocked(accessMap.get(job.id));const counts={applied:countStatuses(rows,["new","reviewing"]),shortlisted:countStatuses(rows,["shortlisted"]),interview:countStatuses(rows,["interview"]),offered:countStatuses(rows,["offered"]),hired:countStatuses(rows,["hired"])};return <Link href={`/workspace/client/jobs/${job.id}`} key={job.id} className="role-dashboard-row"><div className="role-dashboard-main"><div className="row wrap"><strong>{job.title}</strong><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{String(job.status).replaceAll("_"," ")}</span>{locked?<span className="protected-inline"><LockKeyhole size={13}/> Contact locked</span>:null}</div><div className="role-dashboard-pipeline"><span><b>{rows.length}</b> applicants</span><span><b>{counts.shortlisted}</b> shortlisted</span><span><b>{counts.interview}</b> interview</span><span><b>{counts.offered}</b> offered</span><span><b>{counts.hired}</b> hired</span></div></div><ArrowRight size={16}/></Link>})}</div>:<div className="empty"><p>You have not posted a job yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Post your first job</Link></div>}
+      </section>
+
+      <section className="card"><div className="dashboard-section-head"><div><h2>Candidate access</h2><p>Private VA information stays intentionally locked until access is activated for that role.</p></div><LockKeyhole size={18}/></div><div className="unlock-benefits"><span>Full permitted VA identity and contact details</span><span>Private resume access</span><span>Direct candidate messaging</span><span>Comparison and hiring controls</span></div><Link className="btn" href="/workspace/client/jobs" style={{width:"100%"}}>Review role access</Link></section>
+    </div>
+  </>;
 }

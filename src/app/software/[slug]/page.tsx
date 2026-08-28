@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { softwarePages, getSoftwarePage } from "@/lib/software-pages";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { industryBySlug } from "@/lib/industries";
+import { canonicalPath } from "@/lib/seo-url";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const page = getSoftwarePage(slug);
   if (!page) return {};
-  const canonical = `/software/${page.slug}`;
+  const canonical = canonicalPath(`/software/${page.slug}`);
   return {
     title: { absolute: page.metaTitle },
     description: page.metaDescription,
@@ -152,11 +153,11 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     </div></section>
 
     {relatedServices.length ? <section className="section"><div className="container"><div className="section-head"><h2>Related roles.</h2></div>
-      <div className="grid-4">{relatedServices.map((service) => service ? <Link className="card card-hover related-service-card" href={`/service/${service.slug}/`} key={service.slug}><h3>{service.name}</h3><p className="muted small">{service.focus}</p><span className="text-link">View service guide <ArrowRight size={13}/></span></Link> : null)}</div>
+      <div className="grid-4">{relatedServices.map((service) => service ? <Link className="card card-hover related-service-card" href={`/service/${service.slug}`} key={service.slug}><h3>{service.name}</h3><p className="muted small">{service.focus}</p><span className="text-link">View service guide <ArrowRight size={13}/></span></Link> : null)}</div>
     </div></section> : null}
 
     {relatedIndustries.length ? <section className="section section-white"><div className="container"><div className="section-head"><h2>Related industries.</h2></div>
-      <div className="grid-3">{relatedIndustries.map((industry) => industry ? <Link className="card card-hover" href={`/industries/${industry.slug}/`} key={industry.slug}><h3>{industry.label}</h3><p className="muted small">{industry.metaDescription}</p></Link> : null)}</div>
+      <div className="grid-3">{relatedIndustries.map((industry) => industry ? <Link className="card card-hover" href={`/industries/${industry.slug}`} key={industry.slug}><h3>{industry.label}</h3><p className="muted small">{industry.metaDescription}</p></Link> : null)}</div>
     </div></section> : null}
 
     <section className="section"><div className="container faq-narrow"><div className="section-head specialty-section-head"><h2>{page.software} virtual assistant questions.</h2></div>

@@ -12,11 +12,11 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { uniqueStrings } from "@/lib/collections";
 import { recordProductEvent } from "@/lib/product-events";
 
-const statusOptions = [["new","New"],["reviewing","Reviewing"],["shortlisted","Shortlisted"],["interview","Interview"],["rejected","Rejected"]] as const;
+const statusOptions = [["new","Applied"],["reviewing","Reviewing"],["shortlisted","Shortlisted"],["interview","Interview"],["offered","Offered"],["rejected","Rejected"]] as const;
 
 export default async function CandidateReviewPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
   const {id}=await params; const query=await searchParams; const {user}=await requireRole("client"); const admin=createAdminClient();
-  const {data:summary}=await admin.from("applications").select("id,job_id,status,match_score,applied_at,jobs!inner(id,title,client_id,min_hourly_rate,start_timing,schedule_notes)").eq("id",id).eq("jobs.client_id",user.id).single();
+  const {data:summary}=await admin.from("applications").select("id,job_id,va_id,status,match_score,applied_at,jobs!inner(id,title,client_id,min_hourly_rate,start_timing,schedule_notes)").eq("id",id).eq("jobs.client_id",user.id).single();
   if(!summary)notFound();
   const job=Array.isArray(summary.jobs)?summary.jobs[0]:summary.jobs;
   const [{data:access},{count:applicantCount},{count:releasedCount}]=await Promise.all([
@@ -26,6 +26,13 @@ export default async function CandidateReviewPage({params,searchParams}:{params:
   ]);
   const unlocked=candidateAccessUnlocked(access?.access_status);
   await recordProductEvent("candidate_viewed", { userId: user.id, path: `/workspace/client/candidates/${id}`, metadata: { application_id: id, job_id: summary.job_id, unlocked } });
+  // Keep the recruiter timeline useful without flooding it on refresh: record at
+  // most one client-view event for this VA/application every six hours.
+  try {
+    const cutoff = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+    const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "va").eq("subject_id", summary.va_id).eq("action", "client_viewed").gte("created_at", cutoff).contains("metadata", { application_id: id });
+    if (!count) await admin.from("recruiter_activity").insert({ subject_type: "va", subject_id: summary.va_id, action: "client_viewed", description: `Client viewed candidate for ${job?.title || "role"}`, actor_id: user.id, metadata: { application_id: id, job_id: summary.job_id, unlocked } });
+  } catch {}
 
   if(!unlocked){
     const score=Number(summary.match_score||0);

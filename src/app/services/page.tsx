@@ -4,12 +4,13 @@ import { ArrowRight, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SERVICE_PAGES } from "@/lib/service-pages";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Services Philippines",
   description: "Browse Filipino virtual assistant services by workload, including admin, sales, marketing, healthcare, ecommerce, finance, legal, real estate, creative work, and more.",
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
-  alternates: { canonical: "/services" }
+  alternates: { canonical: canonicalPath("/services") }
 };
 
 const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [
@@ -30,7 +31,7 @@ export default function ServicesPage(){return <><SiteHeader/><main id="main-cont
 
   {SERVICE_CATEGORIES.map((category, index)=>{
     const pages = SERVICE_PAGES.filter((page)=>category.groups.some((group)=>group === page.group));
-    return <section className={`section service-category-section ${index % 2 ? "section-white" : ""}`} id={category.id} key={category.id}><div className="container"><div className="section-head"><h2>{category.label}</h2><p>{category.description} Choose the closest workload, then use the narrower role guide to define tasks, tools, and interview criteria.</p></div><div className="grid-3">{pages.map((page)=><Link className="card card-hover specialty-card service-seo-card" href={`/service/${page.slug}/`} key={page.slug}><h3>{page.name}</h3><p className="muted small">{page.focus.charAt(0).toUpperCase()+page.focus.slice(1)}.</p><div className="pill-list">{page.tasks.slice(0,2).map((task)=><span className="badge" key={task}>{task}</span>)}</div><span className="text-link">View hiring guide <ArrowRight size={14}/></span></Link>)}</div></div></section>;
+    return <section className={`section service-category-section ${index % 2 ? "section-white" : ""}`} id={category.id} key={category.id}><div className="container"><div className="section-head"><h2>{category.label}</h2><p>{category.description} Choose the closest workload, then use the narrower role guide to define tasks, tools, and interview criteria.</p></div><div className="grid-3">{pages.map((page)=><Link className="card card-hover specialty-card service-seo-card" href={`/service/${page.slug}`} key={page.slug}><h3>{page.name}</h3><p className="muted small">{page.focus.charAt(0).toUpperCase()+page.focus.slice(1)}.</p><div className="pill-list">{page.tasks.slice(0,2).map((task)=><span className="badge" key={task}>{task}</span>)}</div><span className="text-link">View hiring guide <ArrowRight size={14}/></span></Link>)}</div></div></section>;
   })}
 
   <section className="section section-white services-bottom-cta"><div className="container row-between wrap"><div><h2>Still comparing roles?</h2><p className="muted">Send the workload instead of guessing the title. Your request stays private until you review it.</p></div><div className="row wrap"><Link className="btn btn-primary" href="/hire">Get a managed VA</Link><Link className="btn" href="/pricing">See pricing</Link></div></div></section>

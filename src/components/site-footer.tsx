@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { StickyHireCta } from "@/components/sticky-hire-cta";
 
 export function SiteFooter() {
   return (
     <footer className="footer">
-      <StickyHireCta/>
       <div className="container footer-cta">
         <div><h2>Tell us the work you need covered. We will help you narrow the shortlist.</h2></div>
-        <div className="row wrap"><Link className="btn btn-white" href="/hire">Get a managed VA <ArrowRight size={15}/></Link><Link className="btn footer-outline-btn" href="/find-talent">Browse VAs</Link></div>
+        <div className="row wrap"><Link className="btn btn-white" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job <ArrowRight size={15}/></Link><Link className="btn footer-outline-btn" href="/find-talent">Hire a VA</Link><Link className="btn footer-outline-btn" href="/hire">Managed hiring</Link></div>
       </div>
       <div className="container footer-grid">
         <div className="footer-brand-block">

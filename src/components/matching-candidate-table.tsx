@@ -27,6 +27,7 @@ type Row = {
  */
 export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: { pool: Row[]; hideShortlistCandidateAction: (formData: FormData) => void | Promise<void> }) {
   const [query, setQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -43,8 +44,11 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: {
     });
   }, [pool, query]);
 
+  const visible = query || showAll ? filtered : filtered.slice(0, 20);
+
   return <>
-    <div className="field" style={{ margin: "0 0 12px" }}>
+    <div className="row-between wrap" style={{ margin: "0 0 12px", gap: 10 }}>
+      <div className="field" style={{ margin: 0, flex: "1 1 340px" }}>
       <input
         type="search"
         placeholder={`Search ${pool.length} candidates by name, category, or skill...`}
@@ -52,11 +56,13 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: {
         onChange={(e) => setQuery(e.target.value)}
         aria-label="Search candidates"
       />
-      {query ? <div className="small muted" style={{ marginTop: 6 }}>{filtered.length} of {pool.length} candidates match.</div> : null}
+        {query ? <div className="small muted" style={{ marginTop: 6 }}>{filtered.length} of {pool.length} candidates match.</div> : <div className="small muted" style={{ marginTop: 6 }}>Showing the top {Math.min(20, pool.length)} ranked candidates first.</div>}
+      </div>
+      {!query && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
     </div>
     <div className="table-wrap responsive-table matching-table"><table>
       <thead><tr><th><span className="sr-only">Select</span></th><th>Rank</th><th>VA</th><th>Match</th><th>Confidence</th><th>Availability</th><th>Hours</th><th>Rate</th><th>Shortlist</th></tr></thead>
-      <tbody>{filtered.map((row) => {
+      <tbody>{visible.map((row) => {
         const index = pool.indexOf(row);
         const selected = row.shortlist && ["proposed", "released"].includes(row.shortlist.shortlist_status);
         return <tr key={row.va.user_id} className={row.shortlist?.shortlist_status === "released" ? "released-match-row" : undefined}>

@@ -3,12 +3,13 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, X } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Managed VA vs. Direct Hire",
   description: "Compare Managed VA service and Direct Hire placement so you know exactly who handles recruiting, onboarding, ongoing support, and replacement.",
   keywords: ["managed virtual assistant vs direct hire", "managed va service philippines", "direct hire virtual assistant"],
-  alternates: { canonical: "/managed-vs-direct-hire" }
+  alternates: { canonical: canonicalPath("/managed-vs-direct-hire") }
 };
 
 const rows: [string, string, string][] = [

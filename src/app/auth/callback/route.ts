@@ -26,6 +26,12 @@ export async function GET(request: Request) {
       }
       const profile = user ? await getOrBootstrapProfile(user) : null;
 
+      if (user?.email_confirmed_at) {
+        // Social/OAuth and confirmed email sign-ins should immediately feed the
+        // trust signal used by internal/public profile badges.
+        await supabase.from("profiles").update({ email_verified: true, last_active_at: new Date().toISOString() }).eq("id", user.id);
+      }
+
       if (!user || !profile) {
         await supabase.auth.signOut();
         return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));

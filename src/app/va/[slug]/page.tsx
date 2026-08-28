@@ -11,6 +11,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE, isUuid, publicDisplayName } from "@/lib/publi
 import { dateShort } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { toggleSavedVaAction } from "@/app/actions/saved-vas";
+import { canonicalPath } from "@/lib/seo-url";
 
 async function getPublicVaByRoute(slug: string, fields = "*") {
   const supabase = await createClient();
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{slug:strin
   return {
     title: `${name} | ${va.headline || va.primary_category || "Virtual Assistant"}`,
     description: va.bio ? String(va.bio).slice(0, 155) : `View this approved ${va.primary_category || "Filipino virtual assistant"} profile with ${va.years_experience || 2}+ years of experience.`,
-    alternates: { canonical: `/va/${encodeURIComponent(va.slug || slug)}` }
+    alternates: { canonical: canonicalPath(`/va/${encodeURIComponent(va.slug || slug)}`) }
   };
 }
 
@@ -94,7 +95,7 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
         <article className="public-talent-main">
           <header className="public-talent-hero-card">
             <div className="public-talent-avatar"><PublicAvatar name={displayName} src={va.avatar_url}/></div>
-            <div className="public-talent-identity"><div className="public-talent-status"><span><CheckCircle2 size={15}/> Approved VA profile</span><span className="availability-dot">Available</span></div><h1>{displayName}</h1><p className="public-talent-headline">{va.headline || va.primary_category || "Virtual Assistant"}</p><div className="pill-list">{categories.slice(0,4).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
+            <div className="public-talent-identity"><div className="public-talent-status"><span><CheckCircle2 size={15}/> Approved VA profile</span><span className="availability-dot">Available now</span>{va.email_verified?<span><CheckCircle2 size={14}/> Email verified</span>:null}{va.identity_verified_at?<span><ShieldCheck size={14}/> Identity verified</span>:null}</div><h1>{displayName}</h1><p className="public-talent-headline">{va.headline || va.primary_category || "Virtual Assistant"}</p><div className="public-profile-quickfacts"><span><strong>{va.years_experience}+ yrs</strong> experience</span><span><strong>{va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</strong> availability</span>{va.hourly_rate?<span><strong>${Number(va.hourly_rate).toFixed(2)}/hr</strong> preferred</span>:null}<span><strong>{va.preferred_timezone || va.schedule || "Flexible"}</strong> timezone / schedule</span></div><div className="pill-list">{skills.slice(0,5).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
           </header>
 
           <section className="public-profile-section"><h2>Overview</h2><p className="public-profile-copy">{va.bio || "This approved VA has completed the platform vetting workflow. Ask for an introduction to discuss role-specific experience and fit."}</p></section>

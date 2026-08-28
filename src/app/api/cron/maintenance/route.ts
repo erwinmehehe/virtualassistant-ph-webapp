@@ -1,19 +1,22 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendVettingNudgeEmail, sendClaimDraftEmail } from "@/lib/email";
+import { sendProfileCompletionReminderEmail, sendClaimDraftEmail } from "@/lib/email";
 
 // Runs on Vercel's schedule (see vercel.json). Two jobs, both idempotent and
 // safe to run repeatedly:
-//   1. Nudge VAs stuck at "profile" stage -- but only once every 3 days per
-//      person, and only after they've had 2 days to finish on their own.
+//   1. Remind incomplete active VA profiles at most once every 7 days,
+//      starting after a 2-day grace period, with a maximum of three reminders.
 //   2. Run pre-application matching against any pending job that doesn't
 //      have a shortlist yet, releasing the best available candidate(s).
 // Both mirror the manual admin actions built for the one-time backlog
 // clear, but run automatically so new signups don't pile up again.
 
 const NUDGE_GRACE_DAYS = 2;
-const NUDGE_REPEAT_DAYS = 3;
+const NUDGE_REPEAT_DAYS = 7;
+const MAX_PROFILE_REMINDERS = 3;
+const STALE_HIDE_DAYS = 90;
+const STALE_HIDE_GRACE_AFTER_REMINDER_DAYS = 14;
 const AUTO_RELEASE_SCORE_THRESHOLD = 80;
 const AUTO_RELEASE_CONFIDENCE_THRESHOLD = 70;
 const FALLBACK_SCORE_FLOOR = 40;
@@ -26,26 +29,90 @@ function daysAgo(days: number) {
 async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
   const graceCutoff = daysAgo(NUDGE_GRACE_DAYS);
   const repeatCutoff = daysAgo(NUDGE_REPEAT_DAYS);
-
-  const { data: stuck } = await admin.from("va_vetting").select("va_id,nudged_at,created_at").eq("stage", "profile").lte("created_at", graceCutoff);
-  const due = (stuck || []).filter((row: any) => !row.nudged_at || row.nudged_at <= repeatCutoff);
-
-  const { data: profiles } = due.length ? await admin.from("profiles").select("id,full_name").in("id", due.map((r: any) => r.va_id)) : { data: [] as any[] };
-  const nameMap = new Map((profiles || []).map((p: any) => [p.id, p.full_name]));
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
 
+  // Recruiter directory already computes readiness and missing items in one
+  // private, service-role-only view. This keeps reminder copy specific rather
+  // than sending every incomplete VA the same generic email.
+  const { data: candidates } = await admin
+    .from("recruiter_va_directory")
+    .select("user_id,full_name,completion_score,missing_items,account_created_at,account_status")
+    .eq("account_status", "active")
+    .lt("completion_score", 100)
+    .lte("account_created_at", graceCutoff)
+    .limit(500);
+
+  const ids = (candidates || []).map((row: any) => row.user_id);
+  const { data: reminders } = ids.length
+    ? await admin.from("va_profile_reminders").select("va_id,reminder_count,last_sent_at").in("va_id", ids)
+    : { data: [] as any[] };
+  const reminderMap = new Map((reminders || []).map((row: any) => [row.va_id, row]));
+
   let sent = 0;
-  for (const row of due) {
-    const { data } = await admin.auth.admin.getUserById(row.va_id);
+  for (const row of candidates || []) {
+    const previous: any = reminderMap.get(row.user_id);
+    if (Number(previous?.reminder_count || 0) >= MAX_PROFILE_REMINDERS) continue;
+    if (previous?.last_sent_at && previous.last_sent_at > repeatCutoff) continue;
+
+    const { data } = await admin.auth.admin.getUserById(row.user_id);
     const email = data.user?.email;
     if (!email) continue;
-    const result = await sendVettingNudgeEmail({ to: email, fullName: nameMap.get(row.va_id), appUrl });
-    if (result.sent) {
-      await admin.from("va_vetting").update({ nudged_at: new Date().toISOString() }).eq("va_id", row.va_id);
-      sent += 1;
-    }
+    const result = await sendProfileCompletionReminderEmail({
+      to: email,
+      fullName: row.full_name,
+      score: Number(row.completion_score || 0),
+      missing: Array.isArray(row.missing_items) ? row.missing_items : [],
+      appUrl
+    });
+    if (!result.sent) continue;
+
+    await admin.from("va_profile_reminders").upsert({
+      va_id: row.user_id,
+      reminder_count: Number(previous?.reminder_count || 0) + 1,
+      last_score: Number(row.completion_score || 0),
+      last_sent_at: new Date().toISOString(),
+      last_sent_by: null,
+      updated_at: new Date().toISOString()
+    }, { onConflict: "va_id" });
+    sent += 1;
   }
-  return { checked: stuck?.length || 0, sent };
+  return { checked: candidates?.length || 0, sent };
+}
+
+async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {
+  const staleCutoff = daysAgo(STALE_HIDE_DAYS);
+  const reminderGraceCutoff = daysAgo(STALE_HIDE_GRACE_AFTER_REMINDER_DAYS);
+  const { data: stale } = await admin
+    .from("recruiter_va_directory")
+    .select("user_id,last_activity_at,directory_visible,account_status")
+    .eq("account_status", "active")
+    .eq("directory_visible", true)
+    .not("last_activity_at", "is", null)
+    .lte("last_activity_at", staleCutoff)
+    .limit(500);
+  const ids = (stale || []).map((row: any) => row.user_id);
+  const { data: reminders } = ids.length
+    ? await admin.from("va_profile_reminders").select("va_id,reminder_count,last_sent_at").in("va_id", ids)
+    : { data: [] as any[] };
+  const eligible = new Set((reminders || [])
+    .filter((row: any) => Number(row.reminder_count || 0) >= 2 && row.last_sent_at && row.last_sent_at <= reminderGraceCutoff)
+    .map((row: any) => row.va_id));
+  const hideIds = ids.filter((id: string) => eligible.has(id));
+  if (!hideIds.length) return { checked: stale?.length || 0, hidden: 0 };
+
+  const now = new Date().toISOString();
+  const { error } = await admin.from("va_profiles").update({ directory_visible: false, updated_at: now }).in("user_id", hideIds);
+  if (error) throw error;
+  await admin.from("notifications").insert(hideIds.map((id: string) => ({
+    user_id: id,
+    title: "Your VA profile is hidden until you update it",
+    body: "Your profile was inactive for 90+ days after profile reminders. Update your availability and profile to return to recruiter/public consideration.",
+    href: "/workspace/va/profile"
+  })));
+  await admin.from("recruiter_activity").insert(hideIds.map((id: string) => ({
+    subject_type: "va", subject_id: id, action: "auto_hidden_stale", description: "Automatically hidden after 90+ days inactive and two profile reminders", actor_id: null, metadata: {}
+  })));
+  return { checked: stale?.length || 0, hidden: hideIds.length };
 }
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
@@ -124,7 +191,12 @@ export async function GET(request: Request) {
   const { autoPublishStraightforwardJobs } = await import("@/lib/auto-publish");
   const publishResult = await autoPublishStraightforwardJobs();
 
-  const [nudgeResult, leadNudgeResult, matchResult] = await Promise.all([runProfileNudges(admin), runLeadClaimNudges(admin), runPendingJobMatching(admin)]);
+  const [nudgeResult, staleResult, leadNudgeResult, matchResult] = await Promise.all([
+    runProfileNudges(admin),
+    runStaleVaCleanup(admin),
+    runLeadClaimNudges(admin),
+    runPendingJobMatching(admin)
+  ]);
 
-  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, leadNudges: leadNudgeResult, matching: matchResult });
+  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult });
 }

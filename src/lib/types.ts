@@ -1,5 +1,5 @@
 export type Role = "client" | "va" | "recruiter" | "admin";
-export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "hired" | "rejected" | "withdrawn";
+export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "offered" | "hired" | "rejected" | "withdrawn";
 export type JobStatus = "draft" | "pending" | "published" | "closed";
 export type VettingStage = "profile" | "test" | "video" | "recruiter_review" | "finalist" | "approved" | "bench" | "rejected";
 

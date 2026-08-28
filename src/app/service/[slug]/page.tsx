@@ -21,6 +21,7 @@ import { SERVICE_PAGES, servicePageBySlug, type ServiceSeoPage } from "@/lib/ser
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const revalidate = 3600;
 
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const page = servicePageBySlug(slug);
   if (!page) return {};
-  const canonical = `/service/${page.slug}`;
+  const canonical = canonicalPath(`/service/${page.slug}`);
   return {
     title: { absolute: page.metaTitle },
     description: page.metaDescription,
@@ -562,11 +563,11 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       </section> : null}
 
       <section className="section">
-        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Related services</div><h2>Build support around the workflow, not just the title.</h2><p>These roles often overlap with or complement {s.name.toLowerCase()} responsibilities.</p></div><div className="grid-4">{related.map((item) => item ? <Link className="card card-hover related-service-card" href={`/service/${item.slug}/`} key={item.slug}><Search size={18}/><h3>{item.name}</h3><span className="text-link">Explore this service <ArrowRight size={13}/></span></Link> : null)}</div></div>
+        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Related services</div><h2>Build support around the workflow, not just the title.</h2><p>These roles often overlap with or complement {s.name.toLowerCase()} responsibilities.</p></div><div className="grid-4">{related.map((item) => item ? <Link className="card card-hover related-service-card" href={`/service/${item.slug}`} key={item.slug}><Search size={18}/><h3>{item.name}</h3><span className="text-link">Explore this service <ArrowRight size={13}/></span></Link> : null)}</div></div>
       </section>
 
       {relatedIndustries.length ? <section className="section section-white">
-        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Industry guides</div><h2>See how this role fits specific business workflows.</h2><p>Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type.</p></div><div className="grid-4">{relatedIndustries.map((industry) => <Link className="card card-hover related-service-card" href={`/industries/${industry.slug}/`} key={industry.slug}><UsersRound size={18}/><h3>{industry.label}</h3><span className="text-link">View industry guide <ArrowRight size={13}/></span></Link>)}</div></div>
+        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Industry guides</div><h2>See how this role fits specific business workflows.</h2><p>Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type.</p></div><div className="grid-4">{relatedIndustries.map((industry) => <Link className="card card-hover related-service-card" href={`/industries/${industry.slug}`} key={industry.slug}><UsersRound size={18}/><h3>{industry.label}</h3><span className="text-link">View industry guide <ArrowRight size={13}/></span></Link>)}</div></div>
       </section> : null}
 
     </main>

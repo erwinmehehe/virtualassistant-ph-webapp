@@ -8,18 +8,19 @@ import { VA_CATEGORIES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import { PublicAvatar } from "@/components/public-avatar";
 import { AttributionFields } from "@/components/attribution-fields";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Hire a Virtual Assistant from the Philippines",
   description: "Tell us the role, hours, timezone, and budget. VirtualAssistant.com.ph uses your brief to help you meet vetted Filipino virtual assistants.",
   keywords: ["hire a virtual assistant", "hire filipino virtual assistant", "get matched with a virtual assistant"]
-};
+, alternates: { canonical: canonicalPath("/hire") }};
 
 export default async function HirePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
   const talent = params.talent?.trim();
   const lead = params.lead?.trim();
-  const sourcePath = params.source?.startsWith("/") && !params.source.startsWith("//") ? params.source : "/hire/";
+  const sourcePath = params.source?.startsWith("/") && !params.source.startsWith("//") ? params.source : "/hire";
   const supabase = await createClient();
   const { data: requested } = talent ? await supabase.from("public_va_directory").select("slug,full_name,avatar_url,headline,primary_category").eq("slug", talent).maybeSingle() : { data: null };
 

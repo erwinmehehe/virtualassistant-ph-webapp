@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
+import { canonicalPath } from "@/lib/seo-url";
 
 const authors = {
   "christ-hemsworthy": {
@@ -24,7 +25,7 @@ export function generateStaticParams() { return Object.keys(authors).map((slug) 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
   const {slug}=await params; const author=authors[slug as keyof typeof authors];
   if(!author) return {};
-  return { title: `${author.name} | Author`, description: author.bio, alternates:{canonical:`/authors/${slug}`} };
+  return { title: `${author.name} | Author`, description: author.bio, alternates:{canonical:canonicalPath(`/authors/${slug}`)} };
 }
 
 export default async function AuthorPage({params}:{params:Promise<{slug:string}>}) {

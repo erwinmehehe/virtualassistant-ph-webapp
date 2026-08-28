@@ -239,3 +239,17 @@ export async function sendSystemTestEmailAction() {
   revalidatePath("/workspace/admin/system");
   redirect("/workspace/admin/system?email_test=sent");
 }
+
+export async function setClientCompanyVerificationAction(formData: FormData) {
+  const { user } = await requireRole("admin");
+  const clientId = String(formData.get("client_id") || "");
+  const verified = String(formData.get("verified") || "") === "1";
+  if (!clientId) throw new Error("Client account is required.");
+  const admin = createAdminClient();
+  const { error } = await admin.from("client_profiles").update({ verified_at: verified ? new Date().toISOString() : null }).eq("user_id", clientId);
+  if (error) throw error;
+  const { writeAdminAudit } = await import("@/lib/admin-audit");
+  await writeAdminAudit({ actorId: user.id, action: verified ? "client_company_verified" : "client_company_unverified", targetType: "client", targetId: clientId });
+  revalidatePath("/workspace/admin/users");
+  revalidatePath("/jobs");
+}

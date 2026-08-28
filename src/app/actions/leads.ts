@@ -419,7 +419,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const budgetContext = `VA budget: ${parsed.data.budget}.`;
   const message = [candidateContext, budgetContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
   const admin = createAdminClient();
-  const sourcePath = parsed.data.source_path || "/hire/";
+  const sourcePath = parsed.data.source_path || "/hire";
   const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
   const sourcePage = parsed.data.talent
     ? "talent_introduction_request"

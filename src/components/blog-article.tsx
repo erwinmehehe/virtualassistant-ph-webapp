@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, BookOpen, Calculator, CalendarDays, CheckCircle
 import { ServiceMatchForm } from "@/components/service-match-form";
 import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
+import { canonicalPath } from "@/lib/seo-url";
 
 
 function articleFor(value: string) {
@@ -36,7 +37,7 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
   return <aside className="blog-context-links" aria-label="Related next steps">
     <div className="blog-context-label">Useful next steps</div>
     <div className="blog-context-grid">
-      {links.map((link) => <Link href={link.href} key={link.href} data-track="blog_context_link">
+      {links.map((link) => <Link href={canonicalPath(link.href)} key={link.href} data-track="blog_context_link">
         <strong>{link.label}</strong>
         <span>{link.description}</span>
         <em>Open <ArrowRight size={13}/></em>
@@ -49,7 +50,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const related = relatedBlogPosts(post, 4);
   const topic = BLOG_TOPICS[post.topic];
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
-  const serviceHref = service ? `/service/${service.slug}/` : "/services";
+  const serviceHref = service ? `/service/${service.slug}` : "/services";
   const sourceHireHref = `/hire?source=${encodeURIComponent(blogHref(post))}`;
   const matchHref = service ? `${serviceHref}#match-request` : sourceHireHref;
   const roleLabel = service?.name.replace(/ Virtual Assistant$/i, "") || "virtual assistant";
@@ -72,7 +73,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <h1>{post.title}</h1>
           <p className="blog-deck">{post.excerpt}</p>
           <div className="blog-byline" aria-label="Article details">
-            <span><UserRound size={15}/><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy/" : "/authors/editorial-team/"}>{post.author}</Link></span>
+            <span><UserRound size={15}/><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></span>
             <span><CalendarDays size={15}/>Updated {updated.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
             <span><BookOpen size={15}/>{readTime(post)} min read</span>
           </div>
@@ -143,7 +144,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <div className="kicker">Continue from here</div>
             <h2 id="internal-reading-heading">Related pages worth opening next</h2>
             <div className="blog-internal-reading-grid">
-              {post.internalLinks.map((link) => <Link href={link.href} key={link.href} data-track="blog_context_link">
+              {post.internalLinks.map((link) => <Link href={canonicalPath(link.href)} key={link.href} data-track="blog_context_link">
                 <strong>{link.label}</strong>
                 <span>{link.description}</span>
                 <em>Read next <ArrowRight size={13}/></em>
@@ -151,13 +152,13 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             </div>
           </section>
 
-          {post.sources?.length ? <section className="blog-sources" aria-labelledby="sources-heading"><h2 id="sources-heading">Sources and further reading</h2><p>For legal, compliance, tax, health, and employment questions, check the current official guidance that applies to your situation.</p><ul>{post.sources.map((source) => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label} <ExternalLink size={13}/></a></li>)}</ul><Link className="text-link" href="/editorial-policy/">How we review high-stakes content <ArrowRight size={13}/></Link></section> : null}
+          {post.sources?.length ? <section className="blog-sources" aria-labelledby="sources-heading"><h2 id="sources-heading">Sources and further reading</h2><p>For legal, compliance, tax, health, and employment questions, check the current official guidance that applies to your situation.</p><ul>{post.sources.map((source) => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label} <ExternalLink size={13}/></a></li>)}</ul><Link className="text-link" href="/editorial-policy">How we review high-stakes content <ArrowRight size={13}/></Link></section> : null}
 
-          {showPlanningTools ? <section className="blog-planning-tools" aria-labelledby="planning-tools-heading"><div className="kicker">Free planning tools</div><h2 id="planning-tools-heading">Turn the guide into a clearer hiring plan.</h2><div className="blog-planning-tool-grid"><Link href="/tools/virtual-assistant-cost-calculator/" data-track="blog_tool_click"><Calculator size={20}/><div><strong>VA cost calculator</strong><span>Model weekly hours, a VA rate, and a local comparison.</span></div></Link><Link href="/tools/virtual-assistant-job-description-generator/" data-track="blog_tool_click"><ClipboardList size={20}/><div><strong>Job description generator</strong><span>Turn the workload into a usable first-draft role brief.</span></div></Link><Link href="/tools/what-type-of-va-do-i-need/" data-track="blog_tool_click"><ListChecks size={20}/><div><strong>VA role finder</strong><span>Start with the workload when the job title is still unclear.</span></div></Link></div></section> : null}
+          {showPlanningTools ? <section className="blog-planning-tools" aria-labelledby="planning-tools-heading"><div className="kicker">Free planning tools</div><h2 id="planning-tools-heading">Turn the guide into a clearer hiring plan.</h2><div className="blog-planning-tool-grid"><Link href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={20}/><div><strong>VA cost calculator</strong><span>Model weekly hours, a VA rate, and a local comparison.</span></div></Link><Link href="/tools/virtual-assistant-job-description-generator" data-track="blog_tool_click"><ClipboardList size={20}/><div><strong>Job description generator</strong><span>Turn the workload into a usable first-draft role brief.</span></div></Link><Link href="/tools/what-type-of-va-do-i-need" data-track="blog_tool_click"><ListChecks size={20}/><div><strong>VA role finder</strong><span>Start with the workload when the job title is still unclear.</span></div></Link></div></section> : null}
 
           <div className="blog-author-card">
             <div className="blog-author-avatar" aria-hidden="true">{post.author === "Christ Hemsworthy" ? "CH" : "VA"}</div>
-            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy/" : "/authors/editorial-team/"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, VA operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from the workflows used across the platform."}</p></div>
+            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, VA operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from the workflows used across the platform."}</p></div>
           </div>
 
           <div className="blog-bottom-conversion">

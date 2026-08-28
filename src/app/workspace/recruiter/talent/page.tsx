@@ -1,58 +1,50 @@
 import Link from "next/link";
-import { Search, ShieldCheck } from "lucide-react";
+import { Search, ShieldCheck, Mail, Clock3 } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getVaCompletion } from "@/lib/profile-completeness";
+import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
 import { vettingStatusLabel } from "@/lib/vetting";
 
+const PAGE_SIZE=25;
+function num(v:string|undefined){const n=Number(v);return Number.isFinite(n)?n:null}
+function qs(params:Record<string,string|undefined>,overrides:Record<string,string|number|undefined>){const out=new URLSearchParams();for(const [k,v] of Object.entries({...params,...overrides}))if(v!==undefined&&String(v)!=="")out.set(k,String(v));return `?${out.toString()}`}
+
 export default async function RecruiterTalentDirectory({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   await requireRole("recruiter");
-  const params = await searchParams;
-  const q = String(params.q || "").trim().toLowerCase();
-  const stage = String(params.stage || "").trim();
-  const admin = createAdminClient();
-
-  const [{ data: profiles }, { data: vas }, { data: vettingRows }] = await Promise.all([
-    admin.from("profiles").select("id,full_name,avatar_url,created_at").eq("role","va").order("created_at",{ascending:false}).limit(500),
-    admin.from("va_profiles").select("user_id,headline,primary_category,categories,skills,years_experience,weekly_hours,hourly_rate,availability_status,directory_visible,resume_path,slug").limit(500),
-    admin.from("va_vetting").select("va_id,stage,recruiter_id,updated_at").limit(500)
+  const params=await searchParams;const admin=createAdminClient();
+  const page=Math.max(1,num(params.page)||1);const q=String(params.q||"").trim().replace(/[,%()]/g," ");
+  let query:any=admin.from("recruiter_va_directory").select("*",{count:"exact"}).order("last_activity_at",{ascending:false,nullsFirst:false});
+  if(params.stage)query=query.eq("stage",params.stage);
+  if(params.availability)query=query.eq("availability_status",params.availability);
+  if(params.readiness==="ready")query=query.gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null);
+  if(params.readiness==="incomplete")query=query.lt("completion_score",100);
+  if(params.readiness==="zero")query=query.eq("completion_score",0);
+  if(params.photo==="yes")query=query.not("avatar_url","is",null);if(params.photo==="no")query=query.is("avatar_url",null);
+  if(params.resume==="yes")query=query.not("resume_path","is",null);if(params.resume==="no")query=query.is("resume_path",null);
+  if(num(params.min_experience)!=null)query=query.gte("years_experience",num(params.min_experience));
+  if(num(params.max_rate)!=null)query=query.lte("hourly_rate",num(params.max_rate));
+  if(params.skill)query=query.contains("skills",[params.skill]);
+  if(num(params.stale))query=query.lt("last_activity_at",new Date(Date.now()-(num(params.stale) as number)*86400000).toISOString());
+  if(q)query=query.or(`full_name.ilike.%${q}%,headline.ilike.%${q}%,primary_category.ilike.%${q}%`);
+  const from=(page-1)*PAGE_SIZE;const [{data:rows,count,error},{data:roles}]=await Promise.all([
+    query.range(from,from+PAGE_SIZE-1),
+    admin.from("jobs").select("id,title,company_name,status").in("status",["pending","published"]).order("created_at",{ascending:false}).limit(100)
   ]);
-
-  const vaMap = new Map((vas || []).map((row:any) => [row.user_id,row]));
-  const vettingMap = new Map((vettingRows || []).map((row:any) => [row.va_id,row]));
-  const rows = (profiles || []).map((profile:any) => ({ profile, va: vaMap.get(profile.id) as any, vetting: vettingMap.get(profile.id) as any }))
-    .filter(({profile,va,vetting}) => {
-      if (stage && String(vetting?.stage || "profile") !== stage) return false;
-      if (!q) return true;
-      const haystack = [profile.full_name,va?.headline,va?.primary_category,...(va?.categories||[]),...(va?.skills||[])].filter(Boolean).join(" ").toLowerCase();
-      return haystack.includes(q);
-    });
-
-  const stages = ["profile","test","video","recruiter_review","finalist","approved","bench","rejected"];
+  if(error)throw error;
+  const ids=(rows||[]).map((r:any)=>r.user_id);const {data:reminders}=ids.length?await admin.from("va_profile_reminders").select("va_id,last_sent_at,reminder_count").in("va_id",ids):{data:[]};
+  const reminderMap=new Map((reminders||[]).map((r:any)=>[r.va_id,r]));const total=count||0;const pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  const currentUrl=`/workspace/recruiter/talent${qs(params,{page})}`;
+  const filterHidden=<>{Object.entries({filter_q:params.q,filter_stage:params.stage,filter_readiness:params.readiness,filter_photo:params.photo,filter_resume:params.resume,filter_skill:params.skill,filter_min_experience:params.min_experience,filter_max_rate:params.max_rate,filter_availability:params.availability,filter_stale:params.stale}).map(([name,value])=><input key={name} type="hidden" name={name} value={value||""}/>)}</>;
+  const stages=["profile","test","video","recruiter_review","finalist","approved","bench","rejected"];
   return <>
-    <div className="page-head"><div><h1>VA directory</h1><p>Recruiter-only access to every VA account, including profiles that are not yet in the vetting queue or are already approved.</p></div></div>
-    <form className="directory-filterbar recruiter-directory-filters" method="get">
-      <div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} placeholder="Search name, skill, or category" aria-label="Search VA directory"/></div>
-      <select name="stage" defaultValue={stage} aria-label="Vetting stage"><option value="">All stages</option>{stages.map((value)=><option value={value} key={value}>{vettingStatusLabel(value)}</option>)}</select>
-      <button className="btn btn-primary" type="submit">Filter</button>
-      <Link className="btn" href="/workspace/recruiter/talent">Reset</Link>
+    <div className="page-head"><div><div className="kicker">Master VA directory</div><h1>All VA accounts</h1><p>Recruiter-only view of every VA, regardless of public visibility. Filter the backlog, identify what is missing, and act in bulk.</p></div><div className="row wrap"><Link className="btn" href="/workspace/recruiter/queue">Vetting queue</Link><Link className="btn btn-primary" href="/workspace/recruiter/matching">Match roles</Link></div></div>
+    {params.bulk_done?<div className="success-banner">Bulk action complete: {String(params.bulk_done).replaceAll("_"," ")} · {params.affected||0} affected.</div>:null}{params.bulk_error?<div className="alert">{params.bulk_error}</div>:null}
+    <form className="recruiter-filter-panel" method="get"><div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} placeholder="Search name, headline, category"/></div><select name="stage" defaultValue={params.stage||""}><option value="">All stages</option>{stages.map(v=><option key={v} value={v}>{vettingStatusLabel(v)}</option>)}</select><select name="readiness" defaultValue={params.readiness||""}><option value="">Any readiness</option><option value="zero">0% profiles</option><option value="incomplete">Incomplete</option><option value="ready">90%+ ready to approve</option></select><select name="photo" defaultValue={params.photo||""}><option value="">Photo: any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select><select name="resume" defaultValue={params.resume||""}><option value="">Resume: any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select><input name="skill" defaultValue={params.skill} placeholder="Skill contains"/><input type="number" min="0" name="min_experience" defaultValue={params.min_experience} placeholder="Min years"/><input type="number" min="5" step="1" name="max_rate" defaultValue={params.max_rate} placeholder="Max $/hr"/><select name="availability" defaultValue={params.availability||""}><option value="">Availability: any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select><select name="stale" defaultValue={params.stale||""}><option value="">Activity: any</option><option value="30">Stale 30+ days</option><option value="60">Stale 60+ days</option><option value="90">Stale 90+ days</option></select><button className="btn btn-primary" type="submit">Apply filters</button><Link className="btn" href="/workspace/recruiter/talent">Reset</Link></form>
+    <div className="row-between wrap" style={{margin:"16px 0"}}><span className="small muted"><strong>{total}</strong> matching VA{total===1?"":"s"} · page {page} of {pages}</span><span className="small muted"><ShieldCheck size={14} style={{verticalAlign:"-2px"}}/> Internal recruiter data</span></div>
+    <form action={bulkRecruiterVaAction} className="stack"><input type="hidden" name="return_to" value={currentUrl}/>{filterHidden}<div className="bulk-action-bar"><label className="bulk-scope"><input type="checkbox" name="selection_scope" value="filtered"/><span><strong>Select all {total} filtered results</strong><small>Unchecked = only row checkboxes below</small></span></label><select name="bulk_action" required defaultValue=""><option value="" disabled>Bulk action…</option><option value="approve">Approve eligible (90% + required fields)</option><option value="bench">Move approved to Bench</option><option value="request_changes">Request profile changes</option><option value="remind">Email completion reminder</option><option value="hide">Hide from public directory</option><option value="reject">Reject</option><option value="assign">Assign to role</option></select><select name="job_id" defaultValue=""><option value="">Role for assignment…</option>{(roles||[]).map((job:any)=><option key={job.id} value={job.id}>{job.title} — {job.company_name||job.status}</option>)}</select><button className="btn btn-primary" type="submit">Apply</button></div>
+      <div className="table-wrap responsive-table"><table><thead><tr><th></th><th>VA</th><th>Stage</th><th>Readiness</th><th>Missing</th><th>Experience / rate</th><th>Activity</th><th>Reminder</th><th></th></tr></thead><tbody>{(rows||[]).length?(rows||[]).map((row:any)=>{const missing=Array.isArray(row.missing_items)?row.missing_items:[];const reminder:any=reminderMap.get(row.user_id);const activity=row.last_activity_at?Math.floor((Date.now()-new Date(row.last_activity_at).getTime())/86400000):null;return <tr key={row.user_id}><td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name||"VA"}`}/></td><td data-label="VA"><strong>{row.full_name||"VA account"}</strong><div className="small muted">{row.headline||row.primary_category||"Profile setup not started"}</div><div className="small muted">{row.availability_status||"Not set"}{row.directory_visible?" · Public":" · Private"}</div></td><td data-label="Stage"><span className="badge">{vettingStatusLabel(row.stage||"profile")}</span></td><td data-label="Readiness"><div className="readiness-cell"><strong>{row.completion_score||0}% ready</strong><div className="progress mini"><span style={{width:`${row.completion_score||0}%`}}/></div></div></td><td data-label="Missing"><div className="pill-list compact-pills">{missing.length?missing.slice(0,4).map((x:string)=><span className="badge badge-warning" key={x}>{x}</span>):<span className="badge badge-success">Complete</span>}{missing.length>4?<span className="small muted">+{missing.length-4}</span>:null}</div></td><td data-label="Experience / rate">{row.years_experience??0} yrs<div className="small muted">{row.hourly_rate?`USD ${Number(row.hourly_rate).toFixed(2)}/hr`:"Rate missing"}</div></td><td data-label="Activity">{activity==null?<span className="small muted">Unknown</span>:<span className={activity>=60?"badge badge-warning":"small"}><Clock3 size={13}/> {activity}d ago</span>}</td><td data-label="Reminder">{reminder?.last_sent_at?<span className="small"><Mail size={13}/> {dateShort(reminder.last_sent_at)} · #{reminder.reminder_count}</span>:<span className="small muted">Never</span>}</td><td data-label="Action"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/candidates/${row.user_id}`}>Internal profile</Link></td></tr>}):<tr><td colSpan={9}><div className="empty">No VAs match those filters.</div></td></tr>}</tbody></table></div>
     </form>
-    <div className="row-between wrap" style={{margin:"14px 0"}}><span className="small muted">{rows.length} VA profile{rows.length===1?"":"s"}</span><span className="small muted"><ShieldCheck size={14} style={{verticalAlign:"-2px"}}/> Recruiter-only private workspace</span></div>
-    <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Stage</th><th>Profile</th><th>Experience</th><th>Availability</th><th>Visibility</th><th>Joined</th><th></th></tr></thead><tbody>
-      {rows.length ? rows.map(({profile,va,vetting}:any) => {
-        const completion=getVaCompletion(va, profile.avatar_url).score;
-        return <tr key={profile.id}>
-          <td data-label="VA"><strong>{profile.full_name||"VA account"}</strong><div className="small muted">{va?.headline||va?.primary_category||(va ? "Virtual Assistant" : "Profile setup not started")}</div></td>
-          <td data-label="Stage"><span className="badge">{vettingStatusLabel(vetting?.stage||"profile")}</span></td>
-          <td data-label="Profile">{completion}%</td>
-          <td data-label="Experience">{va?.years_experience != null ? `${va.years_experience} yrs` : "Not set"}</td>
-          <td data-label="Availability">{va?.weekly_hours?`${va.weekly_hours} hrs/week`:va?.availability_status||"Not set"}</td>
-          <td data-label="Visibility">{va?.directory_visible?<span className="badge badge-success">Public</span>:va?<span className="badge">Private</span>:<span className="badge badge-warning">Incomplete</span>}</td>
-          <td data-label="Joined">{dateShort(profile.created_at)}</td>
-          <td data-label="Action"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/candidates/${profile.id}`}>View profile</Link></td>
-        </tr>;
-      }) : <tr><td colSpan={8}><div className="empty">No VA profiles match those filters.</div></td></tr>}
-    </tbody></table></div>
+    <div className="pagination">{page>1?<Link className="btn btn-sm" href={`/workspace/recruiter/talent${qs(params,{page:page-1})}`}>← Previous</Link>:<span/>}<span className="small muted">{from+1}-{Math.min(from+PAGE_SIZE,total)} of {total}</span>{page<pages?<Link className="btn btn-sm" href={`/workspace/recruiter/talent${qs(params,{page:page+1})}`}>Next →</Link>:<span/>}</div>
   </>;
 }

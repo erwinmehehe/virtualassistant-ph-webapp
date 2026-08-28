@@ -69,12 +69,13 @@ export async function SiteHeader() {
         <div className="nav-actions">
           {!user || !profile ? (
             <>
-              <Link className="btn btn-ghost login-text" href="/auth/login">Log in</Link>
-              <Link className="btn btn-primary desktop-hire-cta" href="/hire" data-track="header_hire_va">Get a managed VA</Link>
+              <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Log in</Link>
+              <Link className="btn btn-primary desktop-hire-cta" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew" data-track="header_post_job">Post a Job</Link>
               <details className="mobile-menu">
                 <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
                 <nav className="mobile-menu-panel" aria-label="Mobile navigation">
-                  <Link className="mobile-menu-primary" href="/hire">Get a managed VA</Link>
+                  <Link className="mobile-menu-primary" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
+                  <Link href="/hire">Managed hiring</Link>
                   {mobilePublicLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
                   <span className="mobile-menu-section-label">For VAs</span>
@@ -86,14 +87,14 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              {profile.role === "client" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/client/jobs/new">Post a job</Link> : profile.role === "va" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/va/jobs">Browse jobs</Link> : null}
-              <Link className={profile.role === "client" ? "btn btn-ghost" : "btn btn-primary"} href={`/workspace/${profile.role}`}>Open workspace</Link>
+              {profile.role === "client" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/client/jobs/new">Post a Job</Link> : profile.role === "va" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/va/jobs">Browse jobs</Link> : profile.role === "recruiter" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/recruiter">Recruiter Dashboard</Link> : <Link className="btn btn-primary desktop-hire-cta" href="/workspace/admin">Admin Dashboard</Link>}
+              {profile.role === "client" || profile.role === "va" ? <Link className="btn btn-ghost" href={`/workspace/${profile.role}`}>Open workspace</Link> : null}
               <form action={logoutAction} className="desktop-logout"><button className="btn btn-ghost" type="submit">Log out</button></form>
               <details className="mobile-menu">
                 <summary className="btn" aria-label="Open account menu"><Menu size={18}/><span>Menu</span></summary>
                 <nav className="mobile-menu-panel" aria-label="Account navigation">
-                  {profile.role === "client" ? <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a job</Link> : profile.role === "va" ? <Link className="mobile-menu-primary" href="/workspace/va/jobs">Browse jobs</Link> : null}
-                  <Link className="mobile-menu-primary" href={`/workspace/${profile.role}`}>Open workspace</Link>
+                  {profile.role === "client" ? <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a Job</Link> : profile.role === "va" ? <Link className="mobile-menu-primary" href="/workspace/va/jobs">Browse jobs</Link> : profile.role === "recruiter" ? <Link className="mobile-menu-primary" href="/workspace/recruiter">Recruiter Dashboard</Link> : <Link className="mobile-menu-primary" href="/workspace/admin">Admin Dashboard</Link>}
+                  {(profile.role === "client" || profile.role === "va") ? <Link href={`/workspace/${profile.role}`}>Open workspace</Link> : null}
                   {mobilePublicLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
                   <span className="mobile-menu-section-label">For VAs</span>

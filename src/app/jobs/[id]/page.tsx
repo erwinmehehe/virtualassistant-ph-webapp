@@ -10,6 +10,7 @@ import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
 import { money, dateShort } from "@/lib/format";
 import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
+import { canonicalPath } from "@/lib/seo-url";
 
 async function getPublishedJob(key: string) {
   try {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const { id } = await params;
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job" };
-  return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${job.company_name ? ` with ${job.company_name}` : ""}.`, alternates: { canonical: jobPublicHref(job) } };
+  return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${job.company_name ? ` with ${job.company_name}` : ""}.`, alternates: { canonical: canonicalPath(jobPublicHref(job)) } };
 }
 
 export default async function JobPage({ params, searchParams }: { params: Promise<{id:string}>; searchParams: Promise<Record<string,string|undefined>> }) {
@@ -40,7 +41,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
 
   const { user, profile } = await getSessionProfile();
   let company: any = null;
-  if (job.client_id) { try { const publicDb = await createClient(); const { data } = await publicDb.from("public_company_profiles").select("company_name,logo_url,website,industry,location,team_size,company_description").eq("user_id",job.client_id).maybeSingle(); company=data; } catch {} }
+  if (job.client_id) { try { const publicDb = await createClient(); const { data } = await publicDb.from("public_company_profiles").select("company_name,logo_url,website,industry,location,team_size,company_description,verified_at,hires_count").eq("user_id",job.client_id).maybeSingle(); company=data; } catch {} }
   let applied = false;
   let vetted = false;
   let saved = false;
@@ -66,7 +67,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     datePosted: job.published_at || job.created_at,
     employmentType: job.hours_per_week && job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME",
     jobLocationType: "TELECOMMUTE",
-    hiringOrganization: { "@type": "Organization", name: job.company_name || "Confidential client" },
+    hiringOrganization: { "@type": "Organization", name: company?.company_name || job.company_name || "Confidential client" },
     baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
   };
 
@@ -76,7 +77,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     {query.applied ? <div className="success-banner" role="status">Application sent. Track it from your VA workspace.</div> : null}
     <div className="public-job-grid">
       <article className="public-job-main">
-        <header className="public-job-hero-card"><div className="job-detail-badges"><span className="badge badge-success"><ShieldCheck size={14}/> Reviewed role</span>{job.engagement_length ? <span className="badge">{job.engagement_length}</span> : null}</div><h1>{job.title}</h1><div className="public-job-company"><BriefcaseBusiness size={16}/><strong>{job.company_name || "Confidential client"}</strong>{job.published_at ? <span>Posted {dateShort(job.published_at)}</span> : null}</div>{job.summary ? <p>{job.summary}</p> : null}<div className="job-detail-facts"><div><WalletCards size={18}/><span>Compensation<strong>{rateText}</strong></span></div><div><Clock3 size={18}/><span>Hours<strong>{job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible"}</strong></span></div><div><Globe2 size={18}/><span>Working region<strong>{job.timezone || "Flexible"}</strong></span></div></div></header>
+        <header className="public-job-hero-card"><div className="job-detail-badges"><span className="badge badge-success"><ShieldCheck size={14}/> Reviewed role</span>{job.engagement_length ? <span className="badge">{job.engagement_length}</span> : null}</div><h1>{job.title}</h1><div className="public-job-company"><BriefcaseBusiness size={16}/><strong>{company?.company_name || job.company_name || "Confidential client"}</strong>{company?.verified_at ? <span className="badge badge-success">Verified client</span> : null}{Number(company?.hires_count||0)>0 ? <span>{company.hires_count} hire{company.hires_count===1?"":"s"}</span> : null}{job.published_at ? <span>Posted {dateShort(job.published_at)}</span> : null}</div>{job.summary ? <p>{job.summary}</p> : null}<div className="job-detail-facts"><div><WalletCards size={18}/><span>Compensation<strong>{rateText}</strong></span></div><div><Clock3 size={18}/><span>Hours<strong>{job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible"}</strong></span></div><div><Globe2 size={18}/><span>Working region<strong>{job.timezone || "Flexible"}</strong></span></div></div></header>
 
         <section className="job-detail-section"><h2>About the role</h2><p>{job.description || "The client will share additional context during the hiring process."}</p></section>{company?<section className="job-detail-section company-public-card"><div className="row wrap">{company.logo_url?<img className="company-logo-public" src={company.logo_url} alt={`${company.company_name} logo`}/>:null}<div><h2>About {company.company_name}</h2><p className="small muted">{[company.industry,company.location,company.team_size?`${company.team_size} people`:null].filter(Boolean).join(" · ")}</p></div></div>{company.company_description?<p>{company.company_description}</p>:null}{company.website?<a className="text-link" href={company.website} target="_blank" rel="noreferrer">Visit company website</a>:null}</section>:null}
         <section className="job-detail-section"><h2>What you will own</h2>{uniqueStrings(job.responsibilities).length ? <ul className="job-responsibility-list">{uniqueStrings(job.responsibilities).map((x,index)=><li key={`${String(x)}-${index}`}><CheckCircle2 size={17}/><span>{x}</span></li>)}</ul> : <p className="muted">Responsibilities will be discussed with shortlisted candidates.</p>}</section>

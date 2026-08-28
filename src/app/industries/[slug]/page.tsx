@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { IndustryMatchForm } from "@/components/industry-match-form";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
 import { servicePageBySlug } from "@/lib/service-pages";
+import { canonicalPath } from "@/lib/seo-url";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -62,7 +63,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
       { "@type": "ListItem", position: 2, name: "Industries", item: `${base}/industries` },
-      ...(hub ? [{ "@type": "ListItem", position: 3, name: hub.label, item: `${base}/industries/${hub.slug}/` }] : []),
+      ...(hub ? [{ "@type": "ListItem", position: 3, name: hub.label, item: `${base}/industries/${hub.slug}` }] : []),
       { "@type": "ListItem", position: hub ? 4 : 3, name: page.label, item: pageUrl }
     ] }
   ];
@@ -78,9 +79,9 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
 
     <section className="section section-white" id="industry-workflows"><div className="container"><div className="section-head specialty-section-head"><h2>Delegate repeatable execution without blurring decision ownership.</h2><p>Industry knowledge matters most when it helps the VA understand terminology, systems, customer expectations, handoffs, and what should be escalated.</p></div><div className="grid-4">{page.workflows.map((item,index)=><article className="card" key={`${String(item)}-${index}`}><CheckCircle2 size={19}/><h3>{titleCase(item)}</h3><p className="muted">Document the inputs, expected output, turnaround, and escalation rule for this workflow before handing it over.</p></article>)}</div></div></section>
 
-    {spokes.length ? <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>More specialized roles within {page.label.toLowerCase()}</h2><p>If your need is narrower than general {page.label.toLowerCase()} support, one of these dedicated guides is likely a closer fit.</p></div><div className="grid-3">{spokes.map((spoke)=><Link className="card card-hover" href={`/industries/${spoke.slug}/`} key={spoke.slug}><h3>{spoke.label}</h3><p className="muted small">{spoke.metaDescription}</p><span className="text-link">View guide <ArrowRight size={13}/></span></Link>)}</div></div></section> : null}
+    {spokes.length ? <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>More specialized roles within {page.label.toLowerCase()}</h2><p>If your need is narrower than general {page.label.toLowerCase()} support, one of these dedicated guides is likely a closer fit.</p></div><div className="grid-3">{spokes.map((spoke)=><Link className="card card-hover" href={`/industries/${spoke.slug}`} key={spoke.slug}><h3>{spoke.label}</h3><p className="muted small">{spoke.metaDescription}</p><span className="text-link">View guide <ArrowRight size={13}/></span></Link>)}</div></div></section> : null}
 
-    <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>Roles that commonly support {page.audience}</h2><p>Choose the service page closest to the work you need, or combine compatible responsibilities into one clearly scoped role.</p></div><div className="grid-4">{services.map((service)=>service?<Link className="card card-hover related-service-card" href={`/service/${service.slug}/`} key={service.slug}><Search size={18}/><h3>{service.name}</h3><p className="muted small">{service.focus}</p><span className="text-link">View service guide <ArrowRight size={13}/></span></Link>:null)}</div></div></section>
+    <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>Roles that commonly support {page.audience}</h2><p>Choose the service page closest to the work you need, or combine compatible responsibilities into one clearly scoped role.</p></div><div className="grid-4">{services.map((service)=>service?<Link className="card card-hover related-service-card" href={`/service/${service.slug}`} key={service.slug}><Search size={18}/><h3>{service.name}</h3><p className="muted small">{service.focus}</p><span className="text-link">View service guide <ArrowRight size={13}/></span></Link>:null)}</div></div></section>
 
     <section className="section section-white"><div className="container public-content-grid"><div><div className="section-head"><h2>Match the hire to the systems your team already uses.</h2><p>A candidate does not need every tool on this list. Prioritize the software that is central to the first 30 days, then test practical familiarity rather than relying on profile keywords.</p></div><div className="tool-cloud">{page.tools.map((tool,index)=><span className="tool-chip" key={`${String(tool)}-${index}`}><Wrench size={14}/>{tool}</span>)}</div></div><aside className="card stack"><div><h3>Define the operating rules.</h3></div>{page.hiringNotes.map((item,index)=><div className="review-answer" key={`${String(item)}-${index}`}>{item}</div>)}<div className="review-answer"><ShieldCheck size={16}/> Access, compliance, licensing, and supervision remain the client organization's responsibility.</div></aside></div></section>
 

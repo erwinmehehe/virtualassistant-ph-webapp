@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BlogArticle } from "@/components/blog-article";
 import { BLOG_POSTS, blogHref, blogPostBySlug } from "@/lib/blog";
+import { canonicalPath } from "@/lib/seo-url";
 
 export function generateStaticParams() {
   return BLOG_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug }));
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: post.metaTitle },
     description: post.description,
     keywords: [post.title.toLowerCase(), post.clusterLabel.toLowerCase(), `${post.clusterLabel.toLowerCase()} philippines`, "virtual assistant philippines"],
-    alternates: { canonical: blogHref(post) },
+    alternates: { canonical: canonicalPath(blogHref(post)) },
     openGraph: { type: "article", title: post.title, description: post.description, publishedTime: post.publishedAt, modifiedTime: post.updatedAt }
   };
 }
@@ -45,9 +46,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         author: {
           "@type": post.author.includes("Editorial") ? "Organization" : "Person",
           name: post.author,
-          url: `${base}${post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy/" : "/authors/editorial-team/"}`
+          url: `${base}${post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}`
         },
-        ...(post.reviewedBy ? { reviewedBy: { "@type": "Organization", name: post.reviewedBy, url: `${base}/authors/editorial-team/` } } : {}),
+        ...(post.reviewedBy ? { reviewedBy: { "@type": "Organization", name: post.reviewedBy, url: `${base}/authors/editorial-team` } } : {}),
         publisher: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }
       },
       {

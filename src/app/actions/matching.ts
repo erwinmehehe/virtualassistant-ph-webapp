@@ -152,6 +152,11 @@ export async function saveJobShortlistAction(formData: FormData) {
     };
   });
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
+  if (!error) {
+    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: mode === "release" ? "shortlist_released" : "candidates_assigned", description: `${selected.length} VA${selected.length === 1 ? "" : "s"} ${mode === "release" ? "released to the client" : "assigned internally"}`, actorId: user.id, metadata: { va_ids: selected } });
+    await Promise.all(selected.map((vaId) => writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: mode === "release" ? "released_to_client" : "assigned_to_role", description: `${mode === "release" ? "Released" : "Assigned"} to ${job.title}`, actorId: user.id, metadata: { job_id: jobId } })));
+  }
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
     return fail("Could not save the shortlist. Please try again.");

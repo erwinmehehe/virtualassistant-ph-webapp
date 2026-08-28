@@ -1,3 +1,34 @@
+# v4.13.1 — action-oriented VA and client dashboards
+
+- Rebuilt the VA overview around a single **Next best action** so profile updates, recruiter requests, vetting, invitations, offers, unread messages, interviews, and job matching are prioritized instead of competing for attention.
+- Added VA profile-readiness, vetting, public-visibility, and unread-update status cards plus a visual application pipeline.
+- Added a VA Notifications workspace for recruiter requests and hiring updates; notification read actions now work for both client and VA accounts.
+- Added recruiter-request surfacing, availability status, pending invitations, unread messages, and certification signals to the VA dashboard.
+- Rebuilt the client overview around **Post a Job**, a focused **Needs your attention** queue, and a visual hiring pipeline.
+- Client role cards now show applicant, shortlist, interview, offer, and hire counts without opening each role.
+- Candidate-access states are explained with a clearer locked-details benefits panel rather than appearing as missing information.
+- Completed onboarding checklists stop occupying dashboard space once all setup steps are done.
+- Added responsive dashboard layouts for status cards, attention cards, pipeline stages, and primary hiring actions.
+- No new database migration is introduced by v4.13.1 itself. It is built on v4.13.0 recruiter operations and therefore still requires `20260828_v4130_recruiter_operations.sql` if that migration has not yet been applied.
+
+# v4.13.0 — recruiter operations control center
+
+- Added the recruiter control center, master VA directory, readiness filters, bulk cleanup actions, direct VA-to-role assignment, cleaned role matching, recruiter notes/activity, profile reminders, stale-account handling, and admin health/repair tooling.
+- Added the `offered` hiring stage plus operational logging and private recruiter data tables.
+- Requires `supabase/migrations/20260828_v4130_recruiter_operations.sql`.
+
+# v4.12.4 — client Post a Job CTA + recruiter queue cleanup
+
+- Public desktop and mobile navigation now show **Post a Job** as the primary client CTA.
+- Logged-out visitors are sent to client signup/login with the destination preserved, then continue to `/workspace/client/jobs/new`.
+- Homepage and sticky CTA now prioritize **Post a Job**.
+- Client dashboard uses the same **Post a Job** wording.
+- Job wizard explains that submitted roles go to the recruiting team for review and matching.
+- Recruiter Role Matching defaults to **Needs matching**, hides exact duplicate role rows without deleting data, and offers Matched/All views plus search.
+- Matching candidate lists show the top 20 by default with a Show all control.
+- Recruiter shortlist wording is simplified to **Assign selected to role** and **Release selected to client**.
+- Single-recruiter vetting queue removes the extra Claim button; opening a ready candidate is enough to start review.
+
 # v4.12.3 - canonical and VA profile routing repair
 
 - Standardized canonical URLs and sitemap URLs to the site's no-trailing-slash format.

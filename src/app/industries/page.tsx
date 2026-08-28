@@ -4,12 +4,13 @@ import { ArrowRight, BriefcaseBusiness, CheckCircle2, Search, ShieldCheck, Users
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Hire Virtual Assistants by Industry Philippines",
   description: "Find Philippines-based virtual assistants by industry. Explore hiring guides for healthcare, legal, real estate, construction, ecommerce, finance, trades, and more.",
   keywords: ["virtual assistant by industry", "industry-specific virtual assistant philippines", "hire virtual assistant for my industry"],
-  alternates: { canonical: "/industries" }
+  alternates: { canonical: canonicalPath("/industries") }
 };
 
 function IndustryCard({ industry, compact }: { industry: IndustryPage; compact?: boolean }) {
@@ -24,7 +25,7 @@ function IndustryCard({ industry, compact }: { industry: IndustryPage; compact?:
     <div className="industry-workflow-list" aria-label={`Common ${industry.label} workflows`}>
       {industry.workflows.slice(0, compact ? 2 : 4).map((workflow, index) => <span key={`${workflow}-${index}`}><CheckCircle2 size={13}/>{workflow}</span>)}
     </div>
-    <Link className="industry-card-link" href={`/industries/${industry.slug}/`}>Explore {industry.label} <ArrowRight size={14}/></Link>
+    <Link className="industry-card-link" href={`/industries/${industry.slug}`}>Explore {industry.label} <ArrowRight size={14}/></Link>
   </article>;
 }
 
@@ -50,7 +51,7 @@ export default function IndustriesPage() {
           <p>Start with your workflow, not a generic VA job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>
           <div className="industries-hero-actions">
             <Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
-            <Link className="btn btn-lg" href="/workspace/client/jobs/new">Post a Job</Link>
+            <Link className="btn btn-lg" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
           </div>
           <div className="industries-proof-row">
             <span><ShieldCheck size={16}/>Approved talent</span>

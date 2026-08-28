@@ -4,12 +4,13 @@ import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { softwarePages } from "@/lib/software-pages";
+import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Virtual Assistants by Software & Platform",
   description: "Hire a Filipino virtual assistant already trained on your software -- ApplyOnline, PropertyMe, ServiceM8, Cliniko, Xero, Revit, and more.",
   keywords: ["virtual assistant by software", "software-specific virtual assistant philippines", "hire virtual assistant for my platform"],
-  alternates: { canonical: "/software" }
+  alternates: { canonical: canonicalPath("/software") }
 };
 
 export default function SoftwareIndexPage() {
@@ -23,7 +24,7 @@ export default function SoftwareIndexPage() {
       <div className="section-head"><h2>Choose the platform your team runs on.</h2><p>Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority.</p></div>
       <div className="grid-3">{softwarePages.map((page) => <article className="card card-hover stack" key={page.slug}>
         <div><span className="badge">{page.category}</span><h2 style={{ marginTop: 10 }}>{page.software}</h2><p className="muted">{page.metaDescription}</p></div>
-        <Link className="btn btn-primary" href={`/software/${page.slug}/`}>View {page.software} guide <ArrowRight size={16}/></Link>
+        <Link className="btn btn-primary" href={`/software/${page.slug}`}>View {page.software} guide <ArrowRight size={16}/></Link>
       </article>)}</div>
     </div></section>
   </main><SiteFooter/></>;

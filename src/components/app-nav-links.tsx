@@ -25,6 +25,7 @@ const nav = {
     ["Applications", "/workspace/va/applications", FileText],
     ["Saved jobs", "/workspace/va/saved", Heart],
     ["Messages", "/workspace/va/messages", MessageSquare],
+    ["Notifications", "/workspace/va/notifications", Bell],
     ["Workroom", "/workspace/va/workroom", Wrench],
     ["Payouts", "/workspace/va/payments", CircleDollarSign]
   ],
@@ -33,7 +34,9 @@ const nav = {
     ["Vetting queue", "/workspace/recruiter/queue", FileText],
     ["VA directory", "/workspace/recruiter/talent", Search],
     ["Role matching", "/workspace/recruiter/matching", Sparkles],
-    ["Talent pool", "/workspace/recruiter/bench", UsersRound]
+    ["Talent pool", "/workspace/recruiter/bench", UsersRound],
+    ["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],
+    ["Activity", "/workspace/recruiter/activity", History]
   ],
   admin: [
     ["Overview", "/workspace/admin", ShieldCheck],
@@ -46,7 +49,8 @@ const nav = {
     ["Users", "/workspace/admin/users", UsersRound],
     ["Audit log", "/workspace/admin/audit", History],
     ["Marketplace settings", "/workspace/admin/settings", Settings],
-    ["System setup", "/workspace/admin/system", Wrench]
+    ["System setup", "/workspace/admin/system", Wrench],
+    ["Health & repair", "/workspace/admin/health", ShieldCheck]
   ]
 } as const;
 

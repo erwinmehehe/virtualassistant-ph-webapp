@@ -2390,3 +2390,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .dashboard-degraded strong { display:block; margin-bottom:2px; }
 .dashboard-degraded p { margin:0; font-size:13.5px; }
 .dashboard-degraded svg { flex:none; margin-top:2px; }
+
+/* Priority is meaningful ordering, so name it instead of encoding it only in colour. */
+.priority-badge { text-transform:capitalize; font-size:11px; letter-spacing:.02em; }
+.priority-badge.urgent { background:#fef3f2; color:#b42318; border-color:#fecdca; }
+.priority-badge.high { background:#fffaeb; color:#b54708; border-color:#fedf89; }
+.priority-badge.medium { background:#eff8ff; color:#175cd3; border-color:#b2ddff; }
+.priority-badge.low { background:#f8f9fc; color:#475467; border-color:#e4e7ec; }

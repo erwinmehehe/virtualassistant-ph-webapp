@@ -99,10 +99,10 @@ export default async function VaDashboardPage(){
   const visibilityCopy=directoryVisible
     ? "Your approved profile is eligible for public discovery."
     : !vetted
-      ? "Complete vetting before your profile can be published."
+      ? "Clients cannot find you yet. Finish vetting first, then you can switch your profile on."
       : missingPublic.length
         ? `Complete ${missingPublic.slice(0,3).join(", ")}${missingPublic.length>3?` +${missingPublic.length-3} more`:""}.`
-        : "Turn on directory visibility from your profile when you are ready.";
+        : "Clients cannot find you yet. Switch on \"Show my profile to clients\" in your profile.";
 
   const matches=(jobs||[]).map((job:any)=>({job,score:matchScore(job,va||{})})).sort((a,b)=>b.score-a.score).slice(0,3);
 
@@ -112,7 +112,7 @@ export default async function VaDashboardPage(){
   }else if(completion.score<100&&completion.next){
     nextAction={title:"You’re almost ready to be matched",copy:`Complete ${completion.next.label} to strengthen your profile and become easier for recruiters to match.`,href:completion.next.href,label:"Continue profile",icon:FileText};
   }else if(!vetted){
-    nextAction={title:"Finish vetting to unlock applications",copy:`Your vetting readiness is ${vettingReadiness.score}%. Complete the remaining evidence so recruiters can approve you for roles.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
+    nextAction={title:"Finish vetting to unlock applications",copy:`Vetting is 4 steps -- skills test, short video intro, recruiter review, final approval -- and takes about 45 minutes. You are ${vettingReadiness.score}% through it. Approved VAs can apply to roles and be seen by clients.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
   }else if(pendingInvites.length){
     nextAction={title:`You have ${pendingInvites.length} client invitation${pendingInvites.length===1?"":"s"}`,copy:"Review the role details and accept only the opportunities that fit your schedule and experience.",href:"/workspace/va/applications",label:"Review invitations",icon:BriefcaseBusiness};
   }else if(pipeline.offered){
@@ -128,7 +128,7 @@ export default async function VaDashboardPage(){
 
   const steps=[
     ...completion.items.slice(0,4).map((x)=>({label:x.label,done:x.done,href:x.href,description:undefined})),
-    {label:"Complete VA vetting",description:"Pass your skills test, video intro, recruiter review, and final approval.",done:vetted,href:"/workspace/va/vetting"},
+    {label:"Complete VA vetting (about 45 minutes)",description:"Four steps: skills test, short video intro, recruiter review, then final approval. You cannot apply to roles until this is done.",done:vetted,href:"/workspace/va/vetting"},
     {label:"Apply to your first job",description:"Approved VAs can apply with their vetted profile.",done:Boolean(applicationRows.length),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
     {label:"Start your first workroom",description:"A workroom opens after a client hires you.",done:Boolean(workrooms?.length),href:"/workspace/va/workroom"}
   ];
@@ -141,14 +141,14 @@ export default async function VaDashboardPage(){
     <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
 
     <div className="va-status-grid">
-      <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`Almost ready — add ${completion.next.label}`:"Ready for recruiter matching"}</small></Link>
+      <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`Almost ready — add ${completion.next.label}. Recruiters usually shortlist profiles above 80%.`:"Ready for recruiter matching"}</small></Link>
       <Link className="status-summary-card" href="/workspace/va/vetting"><div className="row-between"><span>Vetting status</span><strong className="status-summary-text">{vettingStatusLabel(vetting?.stage)}</strong></div><div className="progress progress-green" aria-label={`Vetting ${vettingReadiness.score}% complete`}><span style={{width:`${vettingReadiness.score}%`}}/></div><small>{vettingReadiness.score}% of vetting requirements complete</small></Link>
       <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>
       <Link className="status-summary-card" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications.length}</strong><small>{unreadNotifications.length?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>
     </div>
 
     <section className="card dashboard-section-card">
-      <div className="dashboard-section-head"><div><h2>Application pipeline</h2><p>See where your active applications stand without opening every role.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">Open applications</Link></div>
+      <div className="dashboard-section-head"><div><h2>Application pipeline</h2><p>Where each application stands. Clients usually reply within about 5 working days, so quiet first days are normal.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">Open applications</Link></div>
       <div className="pipeline-summary" aria-label="Application pipeline">
         {[['Applied',pipeline.applied],['Shortlisted',pipeline.shortlisted],['Interview',pipeline.interview],['Offered',pipeline.offered],['Hired',pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}
       </div>
@@ -161,7 +161,7 @@ export default async function VaDashboardPage(){
 
     <div className="dashboard-grid dashboard-after-onboarding">
       <div className="stack">
-        <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>Ranked from your skills, categories, tools, schedule, availability, and role requirements.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div>{vetted?<div className="stack">{matches.length?matches.map(({job,score}:any)=><JobCard key={job.id} job={job} match={score}/>):<div className="empty">No strong matches are available right now. Keep your profile and availability current.</div>}</div>:<div className="empty"><p>Your job matches will unlock after vetting.</p><Link className="btn btn-primary" href="/workspace/va/vetting">Complete vetting</Link></div>}</div>
+        <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>The % shows how well your skills, tools, availability and rate fit the role. It is a guide, not a gate — you can apply to any open role.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div>{vetted?<div className="stack">{matches.length?matches.map(({job,score}:any)=><JobCard key={job.id} job={job} match={score}/>):<div className="empty">No strong matches are available right now. Keep your profile and availability current.</div>}</div>:<div className="empty"><p>Your job matches will unlock after vetting.</p><Link className="btn btn-primary" href="/workspace/va/vetting">Complete vetting</Link></div>}</div>
       </div>
       <div className="stack">
         <div className="card"><div className="dashboard-section-head"><div><h3>Availability</h3><p>Keep this current so recruiters do not match you to roles you cannot take.</p></div><Clock3 size={18}/></div><div className="availability-summary"><strong>{String(va?.availability_status||"available").replaceAll("_"," ")}</strong><span>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Weekly hours not set"}</span><span>{(va as any)?.preferred_timezone||va?.schedule||"Timezone/schedule not set"}</span></div><Link className="btn" href="/workspace/va/profile#availability" style={{width:"100%"}}>Update availability</Link></div>

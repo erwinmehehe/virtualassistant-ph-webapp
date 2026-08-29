@@ -9,8 +9,8 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Jobs for Filipino VAs",
-  description: "Browse reviewed remote virtual assistant jobs for Filipino professionals. Filter by specialty, hours, rate, and working region.",
+  title: "Virtual Assistant Jobs Philippines",
+  description: "Browse virtual assistant jobs in the Philippines. Remote roles with published pay, clear scope, and a reviewed client brief. Apply with one vetted profile.",
   keywords: ["virtual assistant jobs philippines", "remote va jobs", "work from home virtual assistant jobs", "filipino virtual assistant jobs"],
   alternates: { canonical: canonicalPath("/jobs") }
 };
@@ -65,7 +65,7 @@ export default async function PublicJobsPage({ searchParams }: { searchParams: P
   const page = Math.min(requestedPage,pages);
 
   return <><SiteHeader/><main id="main-content" className="public-jobs-page">
-    <section className="jobs-hero"><div className="container"><div className="jobs-hero-grid"><div><span className="jobs-eyeline"><ShieldCheck size={15}/> Reviewed client opportunities</span><h1>Virtual assistant jobs for Filipino professionals.</h1><p>Find remote roles with clear scope, published compensation, and a reviewed client brief. Build one VA profile, complete vetting, and apply with the same approved profile.</p></div><div className="jobs-hero-side"><BriefcaseBusiness size={25}/><strong>{total} open role{total===1?"":"s"}</strong><span>New roles appear after client review and commercial approval.</span></div></div></div></section>
+    <section className="jobs-hero"><div className="container"><div className="jobs-hero-grid"><div><span className="jobs-eyeline"><ShieldCheck size={15}/> Reviewed client opportunities</span><h1>Virtual assistant jobs in the Philippines</h1><p>Remote virtual assistant jobs with published pay, clear scope, and a reviewed client brief behind every listing. Build one VA profile, complete vetting, and apply to any role with the same approved profile.</p></div><div className="jobs-hero-side"><BriefcaseBusiness size={25}/><strong>{total} open role{total===1?"":"s"}</strong><span>New roles appear after client review and commercial approval.</span></div></div></div></section>
 
     <section className="section jobs-directory"><div className="container">
       <form className="jobs-filterbar" method="get"><div className="jobs-search"><Search size={17}/><input name="q" defaultValue={params.q} placeholder="Search title, company, or description" aria-label="Search jobs"/></div><select name="category" defaultValue={category} aria-label="Specialty"><option value="">All specialties</option>{VA_CATEGORIES.map((x,index)=><option key={`${String(x)}-${index}`}>{x}</option>)}</select><select name="hours" defaultValue={hours} aria-label="Hours"><option value="">Any hours</option><option value="full">35+ hrs/week</option><option value="part">Under 35 hrs/week</option></select><select name="min_rate" defaultValue={params.min_rate || ""} aria-label="Minimum rate"><option value="">Any rate</option><option value={MIN_HOURLY_RATE}>${MIN_HOURLY_RATE}+/hr</option><option value="8">$8+/hr</option><option value="10">$10+/hr</option><option value="12">$12+/hr</option></select><select name="sort" defaultValue={sort} aria-label="Sort"><option value="newest">Newest</option><option value="rate">Highest rate</option><option value="hours">Most hours</option></select><button className="btn btn-primary" type="submit">Search</button><Link className="directory-reset" href="/jobs">Reset</Link></form>

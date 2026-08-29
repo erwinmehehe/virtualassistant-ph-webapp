@@ -5,7 +5,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 import { PublicAvatar } from "@/components/public-avatar";
-import { JobCard } from "@/components/job-card";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
@@ -29,9 +28,8 @@ function safeJson(value: unknown) { return JSON.stringify(value).replace(/</g, "
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [{ data: featured }, { data: latestJobs }] = await Promise.all([
+  const [{ data: featured }] = await Promise.all([
     supabase.from("public_va_directory").select("user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate").gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE).not("avatar_url", "is", null).limit(9),
-    supabase.from("jobs").select("id,slug,title,company_name,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at").eq("status","published").order("published_at",{ascending:false}).limit(3)
   ]);
 
   const featuredWithPhotos = (featured ?? []).filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim()).slice(0, 3);
@@ -77,7 +75,6 @@ export default async function HomePage() {
 
     <section className="section product-paths-section"><div className="container"><div className="section-head"><h2>A guided workflow for both sides of the marketplace.</h2><p>The workspace now makes the next action obvious instead of dropping clients or VAs into a blank dashboard.</p></div><div className="grid-2 product-path-grid"><div className="card product-path-card"><div className="product-path-icon"><WandSparkles size={20}/></div><h3>For clients: create a role in 4 steps</h3><p>Role & skills → scope & schedule → budget & support → review. Skill chips, budget guidance, local autosave, and a final review screen keep job posts clear without turning the form into a wall of fields.</p><div className="mini-step-row"><span>1 Role</span><span>2 Scope</span><span>3 Budget</span><span>4 Review</span></div><Link className="btn btn-primary" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post your first job</Link></div><div className="card product-path-card"><div className="product-path-icon"><ShieldCheck size={20}/></div><h3>For VAs: know exactly what to finish</h3><p>Your overview includes an onboarding checklist and profile-strength meter. The profile editor updates strength live while you add experience, skills, tools, availability, rate, and proof.</p><div className="mini-strength"><div className="row-between"><strong>Profile strength</strong><span>80%</span></div><div className="progress"><span style={{width:"80%"}}/></div><small>Public discovery also requires 2+ years of experience and final approval.</small></div><Link className="btn" href="/auth/join/va">Build a VA profile</Link></div></div></div></section>
 
-    <section className="section section-white"><div className="container"><div className="section-head row-between wrap"><div><h2>Latest reviewed VA jobs.</h2><p>Clear role scope, published VA compensation, and one reusable vetted profile for applications.</p></div><Link className="btn" href="/jobs">Browse all jobs <ArrowRight size={16}/></Link></div><div className="jobs-list homepage-jobs-list">{latestJobs?.length ? latestJobs.map((job:any)=><JobCard key={job.id} job={job}/>) : <div className="card empty">Reviewed client roles will appear here after publication.</div>}</div></div></section>
 
     <section className="section" id="how-it-works"><div className="container"><div className="section-head"><h2>From workload to shortlist in three steps.</h2><p>Start with a private match request or a specific VA profile. Create an account only when you are ready to manage the hiring process.</p></div><div className="process-grid">{[["01","Describe the work","Share the specialty, hours, timezone, budget, and recurring work this person should own."],["02","Compare focused candidates","Review approved profiles, staff-ranked matches, applications, or invites, then move the strongest fits into interviews."],["03","Confirm the hire","Agree the final rate, start date, schedule, and responsibilities before onboarding begins."]].map(([n,title,copy])=><div className="process-step" key={n}><div className="process-number">{n}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}</div></div></section>
 

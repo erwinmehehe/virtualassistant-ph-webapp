@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { SERVICE_PAGES } from "@/lib/service-pages";
+import { INDUSTRIES } from "@/lib/industries";
+import { softwarePages } from "@/lib/software-pages";
 
 export function SiteFooter() {
   return (
@@ -18,6 +21,24 @@ export function SiteFooter() {
         <div className="footer-links"><strong>Company</strong><Link href="/about">About</Link><Link href="/faq">FAQ</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
         <div className="footer-links"><strong>Account</strong><Link href="/auth/login">Log in</Link><Link href="/auth/join/va">Apply as a VA</Link><Link href="/jobs">VA jobs</Link></div>
       </div>
+      <div className="container footer-directory">
+        <div>
+          <strong>Virtual assistant services</strong>
+          <div className="footer-directory-links">{SERVICE_PAGES.slice(0, 12).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
+          <Link className="footer-directory-all" href="/services">All {SERVICE_PAGES.length} services →</Link>
+        </div>
+        <div>
+          <strong>By industry</strong>
+          <div className="footer-directory-links">{INDUSTRIES.slice(0, 12).map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}</div>
+          <Link className="footer-directory-all" href="/industries">All {INDUSTRIES.length} industries →</Link>
+        </div>
+        <div>
+          <strong>By software</strong>
+          <div className="footer-directory-links">{softwarePages.slice(0, 12).map((page) => <Link href={`/software/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
+          <Link className="footer-directory-all" href="/software">All {softwarePages.length} software guides →</Link>
+        </div>
+      </div>
+
       <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span className="footer-legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
     </footer>
   );

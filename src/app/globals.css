@@ -2445,11 +2445,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .nav-mega-all { margin-top:14px; padding-top:12px !important; border-top:1px solid var(--line); font-weight:650; color:var(--brand) !important; }
 @media (max-width: 1024px) { .nav-mega-menu { display:none; } }
 
-/* Homepage internal-link hub: surfaces the service/industry/software pages that
-   previously had no link from the site's strongest page. */
-.seo-link-grid { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
-.seo-link-grid h3 { margin:0 0 10px; font-size:15px; }
-.seo-link-grid ul { list-style:none; margin:0 0 12px; padding:0; display:grid; gap:5px; }
-.seo-link-grid a { font-size:13.5px; color:var(--text); }
-.seo-link-grid a:hover { color:var(--brand); }
-.seo-link-grid .text-link { font-weight:650; color:var(--brand); }
+/* Footer directory: puts the service/industry/software pages on every page of
+   the site rather than only the homepage. */
+.footer-directory { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); padding-top:28px; margin-top:28px; border-top:1px solid rgba(255,255,255,.12); }
+.footer-directory > div > strong { display:block; margin-bottom:10px; font-size:13px; }
+.footer-directory-links { display:grid; gap:4px; margin-bottom:10px; }
+.footer-directory-links a { font-size:13px; }
+.footer-directory-all { font-weight:650; font-size:13px; }

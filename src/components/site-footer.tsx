@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { FloatingCta } from "@/components/floating-cta";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
 
 export function SiteFooter() {
   return (
+    <><FloatingCta/>
     <footer className="footer">
       <div className="container footer-cta">
         <div><h2>Tell us the work you need covered. We will help you narrow the shortlist.</h2></div>
@@ -40,6 +42,6 @@ export function SiteFooter() {
       </div>
 
       <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span className="footer-legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
-    </footer>
+    </footer></>
   );
 }

@@ -2467,3 +2467,20 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .hiring-compare-ours { border-color:#84caff; background:var(--brand-soft,#eff6ff); }
 .hiring-compare-ours p { color:var(--text); }
 .hiring-compare-actions { margin-top:22px; }
+
+/* Closing link from every guide back to the homepage. */
+.blog-home-cta { margin:0 0 18px; font-size:15px; line-height:1.65; }
+.blog-home-cta a { font-weight:650; text-decoration:underline; }
+
+/* Floating discovery-call prompt on public pages. */
+.floating-cta { position:fixed; right:18px; bottom:18px; z-index:70; display:flex; align-items:center; gap:14px; max-width:min(430px, calc(100vw - 36px)); padding:14px 16px; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 18px 44px rgba(16,24,40,.18); }
+.floating-cta-copy { display:grid; gap:2px; min-width:0; }
+.floating-cta-copy strong { font-size:14px; }
+.floating-cta-copy span { font-size:12.5px; color:var(--muted); line-height:1.45; }
+.floating-cta .btn { flex:none; white-space:nowrap; }
+.floating-cta-close { flex:none; width:26px; height:26px; display:grid; place-items:center; border:none; background:transparent; color:var(--muted); cursor:pointer; border-radius:7px; }
+.floating-cta-close:hover { background:#f2f4f7; color:var(--text); }
+@media (max-width: 640px) {
+  .floating-cta { left:12px; right:12px; bottom:76px; max-width:none; flex-wrap:wrap; }
+  .floating-cta .btn { width:100%; }
+}

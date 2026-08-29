@@ -47,6 +47,12 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
 }
 
 export function BlogArticle({ post }: { post: BlogPost }) {
+  const CLOSING_CTAS = [
+    { before: "Ready to start? Visit ", after: " to browse vetted profiles and see how the hiring process works." },
+    { before: "When you are ready to hire, ", after: " lists approved talent you can compare and shortlist today." },
+    { before: "See how it works in practice at ", after: " — vetted profiles, published rates, and a clear brief behind every role." }
+  ];
+  const closingCta = CLOSING_CTAS[post.slug.length % CLOSING_CTAS.length];
   const related = relatedBlogPosts(post, 4);
   const topic = BLOG_TOPICS[post.topic];
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
@@ -162,7 +168,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </div>
 
           <div className="blog-bottom-conversion">
-            <div className="blog-bottom-copy"><div className="kicker">Ready to hire</div><h2>{service ? "Stop researching and start comparing relevant talent." : "Turn the research into a role you can actually hire for."}</h2><p>{service ? "Use the service page connected to this guide to browse approved profiles or send a short private brief." : "Share the workload, schedule, and budget. You can send a private role brief without creating an account or publishing a job."}</p><div className="row wrap"><Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} VAs` : "Explore VA services"}</Link></div></div>
+            <div className="blog-bottom-copy"><div className="kicker">Ready to hire</div><h2>{service ? "Stop researching and start comparing relevant talent." : "Turn the research into a role you can actually hire for."}</h2><p>{service ? "Use the service page connected to this guide to browse approved profiles or send a short private brief." : "Share the workload, schedule, and budget. You can send a private role brief without creating an account or publishing a job."}</p><p className="blog-home-cta">{closingCta.before}<Link href="/">Virtual Assistant Philippines</Link>{closingCta.after}</p><div className="row wrap"><Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} VAs` : "Explore VA services"}</Link></div></div>
           </div>
         </article>
       </div>

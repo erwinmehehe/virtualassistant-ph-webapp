@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
+      { source: "/why-philippines", destination: "/#hiring-in-the-philippines", permanent: true },
+      { source: "/why-philippines/", destination: "/#hiring-in-the-philippines", permanent: true },
       { source: "/hire-a-va/", destination: "/find-talent", permanent: true },
       { source: "/virtual-assistant-jobs/", destination: "/jobs", permanent: true },
       { source: "/client-dashboard/", destination: "/workspace/client", permanent: false },

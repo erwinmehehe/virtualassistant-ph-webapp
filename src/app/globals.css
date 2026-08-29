@@ -2497,3 +2497,22 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .role-area-footer p { margin:0; color:var(--muted); font-size:14.5px; }
 .status-summary-action { display:grid; gap:6px; align-content:start; }
 .status-summary-action button { margin-top:8px; width:100%; }
+
+/* Homepage SEO content block: prose column with a sticky facts panel. */
+.seo-content-section { background:var(--surface); }
+.seo-content-layout { display:grid; gap:40px; grid-template-columns:minmax(0,1.6fr) minmax(280px,.9fr); align-items:start; }
+.seo-content-main h2 { margin:0 0 14px; font-size:30px; line-height:1.2; letter-spacing:-.01em; }
+.seo-content-lede { font-size:17px; line-height:1.65; color:var(--muted); margin:0 0 30px; }
+.seo-content-main h3 { margin:30px 0 10px; font-size:17.5px; }
+.seo-content-main h3:first-of-type { margin-top:0; }
+.seo-content-main p { margin:0 0 14px; line-height:1.75; font-size:15.5px; color:#344054; }
+.seo-content-aside { position:sticky; top:100px; }
+.seo-fact-card { border:1px solid var(--line); border-radius:16px; padding:22px; background:#fff; box-shadow:var(--shadow); display:grid; gap:10px; }
+.seo-fact-card dl { margin:6px 0 8px; display:grid; gap:14px; }
+.seo-fact-card dt { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+.seo-fact-card dd { margin:0; font-size:14px; line-height:1.55; }
+@media (max-width: 980px) {
+  .seo-content-layout { grid-template-columns:1fr; gap:28px; }
+  .seo-content-aside { position:static; }
+  .seo-content-main h2 { font-size:25px; }
+}

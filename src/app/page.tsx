@@ -123,6 +123,43 @@ export default async function HomePage() {
       </div>
     </div></section>
 
+    <section className="section seo-content-section"><div className="container">
+      <div className="seo-content-layout">
+        <div className="seo-content-main">
+          <h2>Virtual assistant Philippines: what you get, and what it costs</h2>
+          <p className="seo-content-lede">The Philippines is the largest source of English-speaking remote support staff in the world, and for good reason — but the country is not the hard part. Finding the right person in it is.</p>
+
+          <h3>Why businesses hire virtual assistants in the Philippines</h3>
+          <p>Filipino professionals work in English every day, in business cultures built around Western clients. Most have spent years inside the same tools your team already uses — Google Workspace, Slack, HubSpot, Xero, Shopify, Canva — so the ramp-up is about your process, not the software. The country runs on UTC+8, which gives you a working morning that overlaps Australia and Asia, and an overnight shift that means US and UK work is done before you open your laptop.</p>
+          <p>The economics matter too, and they are honest ones: a skilled virtual assistant in the Philippines earns a good local living at a rate that is a fraction of a Western hire, because the cost of living differs — not because the work is worth less. Roles priced properly last for years. Roles priced at the floor churn in months.</p>
+
+          <h3>What a virtual assistant actually takes off your plate</h3>
+          <p>The work that suits this best is the work that repeats. Inbox and calendar control, so your day is not decided by whoever emailed last. Customer email and chat handled from a playbook, with the odd cases escalated rather than guessed. Bookkeeping kept current instead of reconstructed each quarter. Product listings, orders and returns. Prospect research, outreach follow-up and a CRM that stays accurate. Content calendars, scheduling, reporting.</p>
+          <p>What does not suit it: one-off specialist judgment, or any process that does not exist yet. If nobody on your team could write down how the task is done, a new hire cannot pick it up remotely. Settle the process first, then hand over the layer around it.</p>
+
+          <h3>What it costs to hire</h3>
+          <p>General administrative, inbox and data work sits at roughly $5–8 an hour. Experienced specialists — executive assistants, customer support leads, ecommerce operations, bookkeepers — run about $8–12. Senior or heavily tool-specific roles go above that. Ongoing hourly roles cannot be posted below $5 an hour on this platform, and VA pay is always shown separately from our service fee, so you can see exactly what reaches the person doing the work.</p>
+
+          <h3>How we screen before you meet anyone</h3>
+          <p>Every virtual assistant listed here has completed a skills test in their category, recorded a video introduction, passed a recruiter review, and been approved before their profile becomes visible. That is four pieces of evidence gathered before you spend a minute interviewing. You still run the interview and you still make the decision — but you start from a shortlist that has already been filtered by someone whose job is filtering.</p>
+        </div>
+
+        <aside className="seo-content-aside">
+          <div className="seo-fact-card">
+            <span className="kicker">At a glance</span>
+            <dl>
+              <div><dt>Timezone</dt><dd>UTC+8 — overnight cover for the US and UK, same-day for Australia</dd></div>
+              <div><dt>Typical rates</dt><dd>$5–8 admin · $8–12 specialist · $12+ senior</dd></div>
+              <div><dt>Screening</dt><dd>Skills test, video intro, recruiter review, final approval</dd></div>
+              <div><dt>After the hire</dt><dd>Ongoing placement support and 30-day replacement cover</dd></div>
+            </dl>
+            <Link className="btn btn-primary" href="/find-talent">Browse vetted VAs <ArrowRight size={15}/></Link>
+            <Link className="btn" href="/pricing">See pricing</Link>
+          </div>
+        </aside>
+      </div>
+    </div></section>
+
     <section className="section section-white"><div className="container"><div className="section-head"><h2>Choose the level of hiring support you need.</h2><p>VA compensation and the VirtualAssistant.com.ph service fee are separate. Pricing is shown before you publish a role.</p></div><div className="grid-2"><div className="card service-card"><h3>Managed VA service <span className="badge badge-success">Recommended</span></h3><p>Recruiting and vetting plus a structured operating layer after the VA starts -- your VA is backed by our team for as long as you work together, not left on their own after day one.</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured onboarding workroom</li><li>Ongoing placement support</li><li>30-day replacement support at no extra placement fee</li></ul><Link className="btn btn-primary" href="/hire">Get a managed VA <ArrowRight size={16}/></Link></div><div className="card service-card"><h3>Direct hire</h3><p>Prefer to manage the VA yourself after the hire? We still handle the recruiting, screening, and matching -- your team takes it from there.</p><ul className="check-list"><li>Role review and candidate screening</li><li>Approved talent and matching support</li><li>Client-led interviews and final selection</li><li>One-time placement fee, no ongoing support included</li></ul></div></div><div className="pricing-note"><strong>VA compensation:</strong> ongoing hourly roles cannot be posted below USD 5/hour. <Link href="/pricing">See pricing and estimate monthly cost.</Link> · <Link href="/managed-vs-direct-hire">Compare Managed VA vs. Direct Hire.</Link></div></div></section>
 
     <section className="section"><div className="container"><div className="section-head"><h2>Common questions before you get matched.</h2></div><div className="faq-list">{faqs.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div><div style={{marginTop:20}}><Link className="btn" href="/faq">View all FAQs</Link></div></div></section>

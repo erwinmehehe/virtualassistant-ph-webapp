@@ -142,6 +142,25 @@ export default async function HomePage() {
 
           <h3>How we screen before you meet anyone</h3>
           <p>Every virtual assistant listed here has completed a skills test in their category, recorded a video introduction, passed a recruiter review, and been approved before their profile becomes visible. That is four pieces of evidence gathered before you spend a minute interviewing. You still run the interview and you still make the decision — but you start from a shortlist that has already been filtered by someone whose job is filtering.</p>
+
+          <h3>Full-time, part-time, or project support</h3>
+          <p>Most virtual assistant roles in the Philippines are hired full-time at 40 hours a week, and that is usually the right call when the work is genuinely daily — an inbox, a support queue, a storefront. Part-time at 20 hours suits bookkeeping, social media, and anything that runs in defined bursts. Below about 15 hours a week you are competing for someone's attention against their other clients, and reliability drops accordingly. If the work is genuinely small, it is often better to define it tightly and pay for a short, well-scoped engagement than to stretch a few hours across five days.</p>
+
+          <h3>Working hours, overlap, and how communication really works</h3>
+          <p>The most common mistake is assuming you need someone online whenever you are. You rarely do. What you need is an agreed overlap window — commonly four hours — where questions get answered in real time, and clear rules for everything outside it. A well-run remote role has a daily written handover, a place where status lives that is not a chat thread, and an explicit list of what the VA can decide alone versus what waits for you.</p>
+          <p>Filipino professionals are widely used to night-shift schedules for US clients, and many prefer them. That said, a permanent overnight shift carries a real cost in retention. If your work genuinely allows it, a partial overlap that lets someone keep a normal life is the cheaper decision over two years.</p>
+
+          <h3>What separates a good hire from a bad one</h3>
+          <p>Not the résumé. The strongest signal is whether someone can describe a real piece of work end to end: where the request came from, what they did with it, what they did when it went wrong, and how they knew it was finished. Ask for a specific example rather than a rating out of ten. Ask what they escalated recently and why. Someone who has genuinely owned a process will answer in concrete detail; someone who has only assisted will answer in generalities.</p>
+          <p>Tool familiarity is worth less than people expect. Knowing the name of your CRM is not the same as knowing your pipeline stages. Screen for judgment and communication first — those transfer. Tools can be taught in a fortnight.</p>
+
+          <h3>How hiring works here</h3>
+          <p>You post a role describing the work, the schedule, the timezone overlap you need, and your budget range. That brief becomes the source of truth we recruit against. Candidates who match are screened and shortlisted, and you review them in your workspace — application status, match score, and interview stage all in one place, without a spreadsheet. When you are ready to speak to people, you activate candidate access for that role, which unlocks full identity, résumé, and direct messaging.</p>
+          <p>From there you interview, choose, and agree terms. A workroom opens for the hire so onboarding tasks, time, and payments have somewhere to live. If the placement does not work out in the first 30 days, replacement is covered without a second placement fee.</p>
+
+          <h3>Getting the first 30 days right</h3>
+          <p>Start narrower than feels necessary. Two or three recurring tasks, real examples of finished work, and access only to the systems those tasks need. Keep a short daily check-in while the process is new, then step it down to weekly once the basics are consistent. Ask your VA to write down every recurring question and turn the repeat answers into a checklist — after a month, that document is worth more than any onboarding plan you could have written in advance, because it was built from the questions that actually came up.</p>
+          <p>By the end of the first month you should be reviewing the role through outputs rather than activity: what was completed, what is blocked, what is waiting on a decision from you. If you still need to watch how someone spends their hours, the problem is usually the scope, not the person.</p>
         </div>
 
         <aside className="seo-content-aside">

@@ -14,8 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
   const blogTopicRoutes = Object.keys(BLOG_TOPICS).map((topic) => `/blog/topic/${topic}`);
   const supabase = await createClient();
-  const [{ data: vas }, { data: jobs }] = await Promise.all([
-    supabase.from("public_va_directory").select("slug").limit(500),
+  // VA profiles are deliberately noindex, so they are not listed here.
+  const [{ data: jobs }] = await Promise.all([
     supabase.from("jobs").select("id,slug,published_at").eq("status", "published").limit(500)
   ]);
   return [
@@ -25,7 +25,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...SERVICE_PAGES.map((page) => ({ url: `${base}/service/${page.slug}`, changeFrequency: "monthly" as const, priority: .78 })),
     ...INDUSTRIES.map((industry) => ({ url: `${base}/industries/${industry.slug}`, changeFrequency: "monthly" as const, priority: .74 })),
     ...softwarePages.map((page) => ({ url: `${base}/software/${page.slug}`, changeFrequency: "monthly" as const, priority: .7 })),
-    ...(vas || []).filter((x: any) => x.slug).map((x: any) => ({ url: `${base}/va/${x.slug}`, changeFrequency: "weekly" as const, priority: .7 })),
     ...(jobs || []).map((x: any) => ({ url: `${base}/jobs/${x.slug || x.id}`, lastModified: x.published_at || undefined, changeFrequency: "daily" as const, priority: .7 }))
   ];
 }

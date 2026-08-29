@@ -25,12 +25,13 @@ async function getPublicVaByRoute(slug: string, fields = "*") {
 export async function generateMetadata({ params }: { params: Promise<{slug:string}> }): Promise<Metadata> {
   const { slug } = await params;
   const va = await getPublicVaByRoute(slug, "user_id,slug,full_name,headline,primary_category,bio,years_experience");
-  if (!va) return { title: "Vetted Virtual Assistant Profile" };
+  if (!va) return { title: "Vetted Virtual Assistant Profile", robots: { index: false, follow: true } };
   const name = publicDisplayName(va.full_name);
   return {
     title: `${name} | ${va.headline || va.primary_category || "Virtual Assistant"}`,
     description: va.bio ? String(va.bio).slice(0, 155) : `View this approved ${va.primary_category || "Filipino virtual assistant"} profile with ${va.years_experience || 2}+ years of experience.`,
-    alternates: { canonical: canonicalPath(`/va/${encodeURIComponent(va.slug || slug)}`) }
+    alternates: { canonical: canonicalPath(`/va/${encodeURIComponent(va.slug || slug)}`) },
+    robots: { index: false, follow: true }
   };
 }
 

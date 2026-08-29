@@ -2495,3 +2495,5 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .role-area-links a:hover { color:var(--brand); }
 .role-area-footer { margin-top:24px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
 .role-area-footer p { margin:0; color:var(--muted); font-size:14.5px; }
+.status-summary-action { display:grid; gap:6px; align-content:start; }
+.status-summary-action button { margin-top:8px; width:100%; }

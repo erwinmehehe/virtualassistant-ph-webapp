@@ -244,3 +244,49 @@ export async function completeClientOnboardingAction(formData: FormData) {
   try { await admin.from("analytics_events").insert({ event_name: "client_onboarding_completed", path: "/workspace/client/onboarding", user_id: user.id, metadata: { budget_min: budgetMin, budget_max: budgetMax } }); } catch {}
   redirect("/workspace/client/jobs/new?onboarded=1");
 }
+
+/**
+ * One-click publish for an approved VA whose profile already meets every
+ * public-directory requirement.
+ *
+ * directory_visible defaults to false and is otherwise only reachable as a
+ * checkbox inside the long profile form, so approved, complete profiles sat
+ * invisible indefinitely -- 10 of 151 accounts were public. Every gate in the
+ * public_va_directory view is re-checked here on the server, so this can only
+ * ever publish a profile the view would accept anyway.
+ */
+export async function publishVaProfileAction() {
+  const { user } = await requireRole("va");
+  const admin = createAdminClient();
+
+  const [{ data: va }, { data: account }, { data: vetting }] = await Promise.all([
+    admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
+    admin.from("profiles").select("avatar_url").eq("id", user.id).single(),
+    admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle()
+  ]);
+
+  const avatar = account?.avatar_url?.trim() || "";
+  const eligible = Boolean(
+    va
+    && ["approved", "bench"].includes(vetting?.stage || "")
+    && va.availability_status === "available"
+    && Number(va.years_experience || 0) >= PUBLIC_VA_MIN_EXPERIENCE
+    && avatar
+    && (va.headline || "").trim().length >= 8
+    && (va.bio || "").trim().length >= 80
+    && (va.skills || []).length >= 5
+    && Number(va.weekly_hours || 0) >= 1
+    && Number(va.hourly_rate || 0) >= MIN_HOURLY_RATE
+    && va.resume_path
+  );
+
+  if (!eligible) {
+    redirect("/workspace/va/profile?error=Your%20profile%20is%20not%20eligible%20for%20the%20public%20directory%20yet.%20Finish%20the%20remaining%20items%20below.");
+  }
+
+  await admin.from("va_profiles").update({ directory_visible: true }).eq("user_id", user.id);
+  revalidatePath("/workspace/va");
+  revalidatePath("/workspace/va/profile");
+  revalidatePath("/find-talent");
+  redirect("/workspace/va?published=1");
+}

@@ -8,6 +8,7 @@ import { JobCard } from "@/components/job-card";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { getVettingReadiness, vettingStatusLabel } from "@/lib/vetting";
 import { matchScore } from "@/lib/matching";
+import { publishVaProfileAction } from "@/app/actions/profile";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 
@@ -95,6 +96,7 @@ export default async function VaDashboardPage(){
   ];
   const missingPublic=publicRequirements.filter((item)=>!item.done).map((item)=>item.label);
   const directoryVisible=Boolean(vetted&&va?.directory_visible&&!missingPublic.length);
+  const readyToPublish=Boolean(vetted&&!missingPublic.length&&!va?.directory_visible);
   const visibilityLabel=directoryVisible?"Visible to clients":vetted?"Not public yet":"Waiting for vetting";
   const visibilityCopy=directoryVisible
     ? "Your approved profile is eligible for public discovery."
@@ -113,6 +115,8 @@ export default async function VaDashboardPage(){
     nextAction={title:"You’re almost ready to be matched",copy:`Complete ${completion.next.label} to strengthen your profile and become easier for recruiters to match.`,href:completion.next.href,label:"Continue profile",icon:FileText};
   }else if(!vetted){
     nextAction={title:"Finish vetting to unlock applications",copy:`Vetting is 4 steps -- skills test, short video intro, recruiter review, final approval -- and takes about 45 minutes. You are ${vettingReadiness.score}% through it. Approved VAs can apply to roles and be seen by clients.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
+  }else if(readyToPublish){
+    nextAction={title:"Your profile is ready — switch it on",copy:"You are approved and your profile is complete, but it is still hidden from clients. Turning it on lists you in the public directory where clients search.",href:"/workspace/va/profile#visibility",label:"Go to profile",icon:Eye};
   }else if(pendingInvites.length){
     nextAction={title:`You have ${pendingInvites.length} client invitation${pendingInvites.length===1?"":"s"}`,copy:"Review the role details and accept only the opportunities that fit your schedule and experience.",href:"/workspace/va/applications",label:"Review invitations",icon:BriefcaseBusiness};
   }else if(pipeline.offered){
@@ -143,7 +147,9 @@ export default async function VaDashboardPage(){
     <div className="va-status-grid">
       <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`Almost ready — add ${completion.next.label}. Recruiters usually shortlist profiles above 80%.`:"Ready for recruiter matching"}</small></Link>
       <Link className="status-summary-card" href="/workspace/va/vetting"><div className="row-between"><span>Vetting status</span><strong className="status-summary-text">{vettingStatusLabel(vetting?.stage)}</strong></div><div className="progress progress-green" aria-label={`Vetting ${vettingReadiness.score}% complete`}><span style={{width:`${vettingReadiness.score}%`}}/></div><small>{vettingReadiness.score}% of vetting requirements complete</small></Link>
-      <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>
+      {readyToPublish
+        ? <form action={publishVaProfileAction} className="status-summary-card status-summary-action"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">Hidden from clients</strong><small>You are approved and complete. One click lists you where clients search.</small><button className="btn btn-primary btn-sm" type="submit">Show my profile to clients</button></form>
+        : <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>}
       <Link className="status-summary-card" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications.length}</strong><small>{unreadNotifications.length?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>
     </div>
 

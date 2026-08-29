@@ -2460,3 +2460,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .home-explainer-note h3 { margin:0 0 10px; font-size:17px; }
 .home-explainer-note p { margin:0 0 12px; color:var(--muted); line-height:1.7; font-size:14.5px; }
 .home-explainer-note p:last-child { margin-bottom:0; }
+
+/* Homepage category comparison: marketplaces vs agencies vs this platform. */
+.hiring-compare-grid article h3 { margin:0 0 10px; font-size:16px; }
+.hiring-compare-grid article p { margin:0; color:var(--muted); line-height:1.65; font-size:14.5px; }
+.hiring-compare-ours { border-color:#84caff; background:var(--brand-soft,#eff6ff); }
+.hiring-compare-ours p { color:var(--text); }
+.hiring-compare-actions { margin-top:22px; }

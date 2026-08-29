@@ -78,6 +78,28 @@ export default async function HomePage() {
 
     <section className="section" id="how-it-works"><div className="container"><div className="section-head"><h2>From workload to shortlist in three steps.</h2><p>Start with a private match request or a specific VA profile. Create an account only when you are ready to manage the hiring process.</p></div><div className="process-grid">{[["01","Describe the work","Share the specialty, hours, timezone, budget, and recurring work this person should own."],["02","Compare focused candidates","Review approved profiles, staff-ranked matches, applications, or invites, then move the strongest fits into interviews."],["03","Confirm the hire","Agree the final rate, start date, schedule, and responsibilities before onboarding begins."]].map(([n,title,copy])=><div className="process-step" key={n}><div className="process-number">{n}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}</div></div></section>
 
+    <section className="section section-alt"><div className="container">
+      <div className="section-head"><h2>Hire a Filipino virtual assistant without sorting through 200 applicants.</h2><p>Most ways to hire a Filipino virtual assistant put the screening on you. This one does not — but you still choose the person.</p></div>
+      <div className="grid-3 hiring-compare-grid">
+        <article className="card">
+          <h3>Job marketplaces</h3>
+          <p>Post a role and get a hundred applications, most of them irrelevant. Profiles are self-reported, so screening, testing, and reference-checking are your problem. Cheapest upfront, most expensive in your time.</p>
+        </article>
+        <article className="card">
+          <h3>Traditional agencies</h3>
+          <p>Someone is assigned to you. You rarely meet alternatives, rates are bundled into one monthly figure, and swapping people means restarting the conversation.</p>
+        </article>
+        <article className="card hiring-compare-ours">
+          <h3>VirtualAssistant.com.ph</h3>
+          <p>Every Filipino virtual assistant here has passed a skills test in their category, recorded a video introduction, and cleared a recruiter review before you see them. You interview and decide. VA pay and our service fee are shown separately, before you publish the role.</p>
+        </article>
+      </div>
+      <div className="row wrap hiring-compare-actions">
+        <Link className="btn btn-primary" href="/find-talent">Browse VAs <ArrowRight size={16}/></Link>
+        <Link className="btn" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
+      </div>
+    </div></section>
+
     <section className="section section-white"><div className="container"><div className="section-head"><h2>Choose the level of hiring support you need.</h2><p>VA compensation and the VirtualAssistant.com.ph service fee are separate. Pricing is shown before you publish a role.</p></div><div className="grid-2"><div className="card service-card"><h3>Managed VA service <span className="badge badge-success">Recommended</span></h3><p>Recruiting and vetting plus a structured operating layer after the VA starts -- your VA is backed by our team for as long as you work together, not left on their own after day one.</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured onboarding workroom</li><li>Ongoing placement support</li><li>30-day replacement support at no extra placement fee</li></ul><Link className="btn btn-primary" href="/hire">Get a managed VA <ArrowRight size={16}/></Link></div><div className="card service-card"><h3>Direct hire</h3><p>Prefer to manage the VA yourself after the hire? We still handle the recruiting, screening, and matching -- your team takes it from there.</p><ul className="check-list"><li>Role review and candidate screening</li><li>Approved talent and matching support</li><li>Client-led interviews and final selection</li><li>One-time placement fee, no ongoing support included</li></ul></div></div><div className="pricing-note"><strong>VA compensation:</strong> ongoing hourly roles cannot be posted below USD 5/hour. <Link href="/pricing">See pricing and estimate monthly cost.</Link> · <Link href="/managed-vs-direct-hire">Compare Managed VA vs. Direct Hire.</Link></div></div></section>
 
     <section className="section"><div className="container"><div className="section-head"><h2>Common questions before you get matched.</h2></div><div className="faq-list">{faqs.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div><div style={{marginTop:20}}><Link className="btn" href="/faq">View all FAQs</Link></div></div></section>

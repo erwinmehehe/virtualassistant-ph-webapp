@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ChevronDown, Menu } from "lucide-react";
 import { getSessionProfile } from "@/lib/auth";
+import { SERVICE_PAGES } from "@/lib/service-pages";
+import { INDUSTRIES } from "@/lib/industries";
+import { softwarePages } from "@/lib/software-pages";
 import { logoutAction } from "@/app/actions/auth";
 
 // Employer-facing track only -- candidate/jobseeker links (Jobs, Apply as a
@@ -8,11 +11,22 @@ import { logoutAction } from "@/app/actions/auth";
 // owner and a jobseeker never see the same nav items mixed together.
 const primaryPublicLinks = [
   ["Find VAs", "/find-talent"],
-  ["Services", "/services"],
-  ["Industries", "/industries"],
-  ["Software", "/software"],
   ["Pricing", "/pricing"]
 ] as const;
+
+// Largest service groups first, so the menu leads with the areas that have the
+// most depth behind them.
+const serviceGroups = Array.from(
+  SERVICE_PAGES.reduce((groups, page) => {
+    const list = groups.get(page.group) || [];
+    list.push(page);
+    groups.set(page.group, list);
+    return groups;
+  }, new Map<string, typeof SERVICE_PAGES>())
+).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
+
+const industryLinks = INDUSTRIES.slice(0, 16);
+const softwareLinks = softwarePages.slice(0, 16);
 
 const resourceLinks = [
   ["How vetting works", "/how-vetting-works"],
@@ -25,7 +39,7 @@ const forVaLinks = [
   ["Apply as a VA", "/auth/join/va"]
 ] as const;
 
-const mobilePublicLinks = [...primaryPublicLinks, ...resourceLinks] as const;
+const mobilePublicLinks = [["Find VAs", "/find-talent"], ["Services", "/services"], ["Industries", "/industries"], ["Software", "/software"], ["Pricing", "/pricing"], ...resourceLinks] as const;
 
 export async function SiteHeader() {
   const { user, profile } = await getSessionProfile();
@@ -38,9 +52,44 @@ export async function SiteHeader() {
         </Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          {primaryPublicLinks.map(([label, href]) => (
-            <Link href={href} key={href}>{label}</Link>
-          ))}
+          <Link href="/find-talent">Find VAs</Link>
+
+          <div className="nav-mega-menu">
+            <Link href="/services" className="nav-mega-trigger">Services <ChevronDown size={14} aria-hidden="true"/></Link>
+            <div className="nav-mega-panel nav-mega-wide">
+              <div className="nav-mega-columns">
+                {serviceGroups.map(([group, pages]) => (
+                  <div key={group}>
+                    <span className="nav-mega-heading">{group}</span>
+                    {pages.map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}
+                  </div>
+                ))}
+              </div>
+              <Link href="/services" className="nav-mega-all">View all {SERVICE_PAGES.length} services →</Link>
+            </div>
+          </div>
+
+          <div className="nav-mega-menu">
+            <Link href="/industries" className="nav-mega-trigger">Industries <ChevronDown size={14} aria-hidden="true"/></Link>
+            <div className="nav-mega-panel">
+              <div className="nav-mega-columns nav-mega-columns-flat">
+                {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
+              </div>
+              <Link href="/industries" className="nav-mega-all">View all {INDUSTRIES.length} industries →</Link>
+            </div>
+          </div>
+
+          <div className="nav-mega-menu">
+            <Link href="/software" className="nav-mega-trigger">Software <ChevronDown size={14} aria-hidden="true"/></Link>
+            <div className="nav-mega-panel">
+              <div className="nav-mega-columns nav-mega-columns-flat">
+                {softwareLinks.map((page) => <Link href={`/software/${page.slug}`} key={page.slug}>{page.name}</Link>)}
+              </div>
+              <Link href="/software" className="nav-mega-all">View all {softwarePages.length} software guides →</Link>
+            </div>
+          </div>
+
+          <Link href="/pricing">Pricing</Link>
           <details className="nav-resource-menu">
             <summary>
               Resources <ChevronDown size={14} aria-hidden="true" />

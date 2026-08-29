@@ -115,10 +115,30 @@ function experienceCopy(s: ServiceSeoPage) {
 }
 
 
+const GENERIC_COST_FACTORS = [
+  "Full-time or part-time schedule",
+  "Relevant experience and independence",
+  "Required live overlap and response times",
+  "Tool or platform specialization",
+  "Scope, complexity, and decision ownership"
+];
+
+function costFactorsFor(s: ServiceSeoPage) {
+  const specific = s.costFactors.filter((factor) => !GENERIC_COST_FACTORS.includes(factor));
+  const derived = [
+    `How much ${s.tasks[0]} you need each week, and whether it is steady or seasonal`,
+    `Depth in ${s.tools.slice(0, 2).join(" and ")} rather than general familiarity`,
+    `Whether the role owns ${s.tasks[1]} end to end or hands it back for review`,
+    `Live overlap with your hours, which matters more for ${s.focus.toLowerCase()}`
+  ];
+  return [...specific, ...derived].slice(0, 4);
+}
+
 function serviceEditorial(s: ServiceSeoPage) {
   const tasks = s.tasks;
   const tools = s.tools;
   const skills = s.skills;
+  const outcomes = s.outcomes;
   const role = roleName(s.name).toLowerCase();
   const groupNotes: Record<string, { operating: string; quality: string; handoff: string }> = {
     "Marketing & Growth": {
@@ -229,27 +249,27 @@ function serviceEditorial(s: ServiceSeoPage) {
     handoff: note.handoff,
     weekOne: `Start with ${tasks[0]}, ${tasks[1]}, and ${tasks[2]}. Give the VA examples of good completed work, access only to the systems needed for those tasks, and a short daily check-in while the process is still new.`,
     weekTwo: `Once the basics are consistent, add ${tasks[3] || tasks[0]} and ${tasks[4] || tasks[1]}. Ask the VA to document recurring questions and turn repeat answers into a checklist or SOP instead of relying on chat history.`,
-    monthOne: `By the end of the first month, you should be able to review the role through outputs rather than constant supervision: completed work, open exceptions, response times, and a short list of decisions waiting on the client.`,
+    monthOne: `By the end of the first month you should be judging this role by ${outcomes[0] ? outcomes[0].toLowerCase() : "the agreed outputs"} rather than by supervision: ${tasks[0]} running to schedule, exceptions recorded instead of hidden, and a short list of decisions still waiting on you.`,
     evidence: [
       `A real example of ${tasks[0]} and how accuracy was checked`,
       `A clear explanation of how they use ${tools[0]}${tools[1] ? ` and ${tools[1]}` : ""} in day-to-day work`,
       `A practical example showing ${skills[0]} rather than a self-rating`,
-      `A situation where they escalated an exception instead of guessing`
+      `A time they escalated an unclear ${tasks[1]} case instead of guessing`
     ],
     avoid: [
       `Do not combine ${tasks[0]}, ${tasks[1]}, and unrelated specialist work into one role without setting priorities.`,
-      `Do not give broad system access simply because the role is remote; use the minimum permissions needed for the agreed scope.`,
-      `Do not measure the role only by activity counts. Review accuracy, unresolved exceptions, and the quality of handoffs as well.`
+      `Do not hand over full ${tools[0]} access on day one. Give the minimum permissions ${tasks[0]} actually needs, and widen it as the work proves out.`,
+      `Do not judge this role on activity counts. For ${role} work, accuracy on ${tasks[1]} and the state of unresolved exceptions matter far more than hours logged.`
     ],
     context: `For ${s.bestFor.slice(0, 2).join(" and ")}, the strongest ${role} setup is usually a defined operating role rather than a loose list of errands. The client owns the process and decisions; the VA owns the recurring execution that has been clearly delegated.`,
     scorecard: [
       `${toTitle(tasks[0])}: completed on time, with exceptions recorded instead of hidden`,
       `${toTitle(tasks[1])}: accuracy or rework rate based on a sample the manager actually reviews`,
       `${toTitle(tasks[2])}: turnaround time from a complete request to a usable result`,
-      `Open items: anything blocked past the agreed response window, with the blocker and next owner named`,
-      `Documentation: notes, files, and status fields are current enough for another team member to pick up the work`
+      `Open items: any ${tasks[0]} blocked past the agreed response window, with the blocker and next owner named`,
+      `Documentation: ${tools[0]} records current enough that someone else could pick up ${tasks[0]} tomorrow`
     ],
-    notFit: `A virtual assistant is not the right answer when the work is mostly one-off specialist judgment, there is no repeatable process to delegate, or the client expects the person to make regulated, financial, legal, clinical, or technical decisions outside their authority. Fix the process or hire the appropriate specialist first. Then delegate the repeatable administrative or production layer around that work.`
+    notFit: `${toTitle(role)} support is the wrong answer when ${tasks[0]} has no repeatable process behind it yet, when the work is mostly one-off specialist judgment, or when you need someone to own regulated or financial decisions outside their authority. Settle the process first, then delegate the recurring layer around it.`
   };
 }
 
@@ -540,7 +560,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       <section className="section section-white">
         <div className="container public-content-grid service-context-grid">
           <div><div className="section-head"><div className="kicker">Why the Philippines?</div><h2>Hire for role fit, communication, and execution quality.</h2></div><p>Philippines-based remote professionals work across international teams and common cloud tools, but location alone does not guarantee fit. Evaluate relevant experience, communication, work evidence, schedule, and judgment for the workflow you need.</p><p>VirtualAssistant.com.ph gives you a structured path from private role brief to approved profiles, candidate review, interview, and confirmed hiring terms.</p><Link className="text-link" href="/why-philippines">Read the Philippines hiring guide <ArrowRight size={14}/></Link></div>
-          <aside className="service-cost-panel"><CircleDollarSign size={22}/><div className="kicker">Cost and scope</div><h2>How much does {article} {s.name.toLowerCase()} cost?</h2><p>Rates vary by responsibility, experience, independence, schedule, and specialization. Compare the work you need and the evidence of fit before comparing hourly numbers.</p><ul className="plain-list">{s.costFactors.map((factor) => <li key={factor}>{factor}</li>)}</ul><Link className="text-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link></aside>
+          <aside className="service-cost-panel"><CircleDollarSign size={22}/><div className="kicker">Cost and scope</div><h2>How much does {article} {s.name.toLowerCase()} cost?</h2><p>There is no single rate for this role. What moves the number for {article} {s.name.toLowerCase()} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p><ul className="plain-list">{costFactorsFor(s).map((factor) => <li key={factor}>{factor}</li>)}</ul><Link className="text-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link></aside>
         </div>
       </section>
 

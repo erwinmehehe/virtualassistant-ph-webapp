@@ -2411,3 +2411,13 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .role-template-card:hover { border-color:#84caff; background:#f5faff; }
 .role-template-card strong { font-size:14px; }
 .role-template-card small { color:var(--muted); line-height:1.45; }
+
+/* Role board view tabs. The class was in the markup but never styled, so the
+   links ran together as one unreadable string. */
+.role-filter-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 4px; }
+.role-filter-tabs a { display:inline-flex; align-items:center; padding:7px 13px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--muted); font-size:13px; font-weight:600; white-space:nowrap; }
+.role-filter-tabs a:hover { border-color:#84caff; color:var(--text); background:#f5faff; }
+.role-filter-tabs a.active { background:var(--brand,#0a4da8); border-color:var(--brand,#0a4da8); color:#fff; }
+@media (max-width: 720px) {
+  .role-filter-tabs { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+}

@@ -5,6 +5,15 @@ import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
 
+const footerRoleGroups = Array.from(
+  SERVICE_PAGES.reduce((groups, page) => {
+    const list = groups.get(page.group) || [];
+    list.push(page);
+    groups.set(page.group, list);
+    return groups;
+  }, new Map<string, typeof SERVICE_PAGES>())
+).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
+
 export function SiteFooter() {
   return (
     <><FloatingCta/>
@@ -24,9 +33,13 @@ export function SiteFooter() {
         <div className="footer-links"><strong>Account</strong><Link href="/auth/login">Log in</Link><Link href="/auth/join/va">Apply as a VA</Link><Link href="/jobs">VA jobs</Link></div>
       </div>
       <div className="container footer-directory">
+        {footerRoleGroups.map(([group, pages]) => <div key={group}>
+          <strong>{group}</strong>
+          <div className="footer-directory-links">{pages.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
+        </div>)}
         <div>
-          <strong>Virtual assistant services</strong>
-          <div className="footer-directory-links">{SERVICE_PAGES.slice(0, 12).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
+          <strong>All services</strong>
+          <div className="footer-directory-links">{SERVICE_PAGES.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
           <Link className="footer-directory-all" href="/services">All {SERVICE_PAGES.length} services →</Link>
         </div>
         <div>

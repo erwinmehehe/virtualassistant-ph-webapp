@@ -8,6 +8,7 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import { SERVICE_PAGES } from "@/lib/service-pages";
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -15,6 +16,28 @@ export const metadata: Metadata = {
   keywords: ["virtual assistant philippines", "hire filipino virtual assistant", "filipino va", "virtual assistant services philippines", "outsource to the philippines"],
   alternates: { canonical: canonicalPath("/") }
 };
+
+const GROUP_BLURBS: Record<string, string> = {
+  "Admin & Operations": "Inbox, calendar, data, and the recurring coordination that quietly eats a founder's week.",
+  "Healthcare": "Patient scheduling, records, insurance follow-up, and front-desk cover for clinics and practices.",
+  "Marketing & Growth": "Content calendars, campaign execution, reporting, and the steady work between strategy reviews.",
+  "Finance & Accounting": "Bookkeeping, invoicing, reconciliations, and month-end reporting kept current without chasing.",
+  "Sales & CRM": "Prospect research, outreach sequences, appointment setting, and CRM records that stay accurate.",
+  "Ecommerce": "Listings, orders, returns, supplier follow-up, and the stock detail that keeps a storefront honest.",
+  "Real Estate": "Listing coordination, transaction paperwork, lead follow-up, and calendar management for agents.",
+  "Customer & Front Desk": "Email, chat, and phone cover with response times you can actually hold people to.",
+  "Creative & Content": "Editing, design support, and production work that keeps a publishing schedule moving.",
+  "Executive Support": "Diary control, travel, briefing notes, and the follow-through after the meeting ends."
+};
+
+const roleGroups = Array.from(
+  SERVICE_PAGES.reduce((groups, page) => {
+    const list = groups.get(page.group) || [];
+    list.push(page);
+    groups.set(page.group, list);
+    return groups;
+  }, new Map<string, typeof SERVICE_PAGES>())
+).filter(([group]) => GROUP_BLURBS[group]).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
 
 const faqs = [
   ["What does “vetted” mean?", "A public VA profile only appears after the candidate completes the required profile, category skills test, video introduction, recruiter review, and final approval workflow."],
@@ -97,6 +120,21 @@ export default async function HomePage() {
       <div className="row wrap hiring-compare-actions">
         <Link className="btn btn-primary" href="/find-talent">Browse VAs <ArrowRight size={16}/></Link>
         <Link className="btn" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
+      </div>
+    </div></section>
+
+    <section className="section"><div className="container">
+      <div className="section-head"><h2>The virtual assistant roles we place most often.</h2><p>Most clients start with one of these. Each page covers what the role owns day to day, the tools it usually involves, and what to look for before you interview.</p></div>
+      <div className="role-area-grid">
+        {roleGroups.map(([group, pages]) => <article className="role-area-card" key={group}>
+          <h3>{group}</h3>
+          <p>{GROUP_BLURBS[group]}</p>
+          <div className="role-area-links">{pages.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>
+        </article>)}
+      </div>
+      <div className="role-area-footer">
+        <p><strong>Not sure which role you need?</strong> Describe the work and we will suggest the shape of the role, or browse all {SERVICE_PAGES.length} services.</p>
+        <div className="row wrap"><Link className="btn btn-primary" href="/tools/what-type-of-va-do-i-need">Find the right role <ArrowRight size={16}/></Link><Link className="btn" href="/services">All services</Link></div>
       </div>
     </div></section>
 

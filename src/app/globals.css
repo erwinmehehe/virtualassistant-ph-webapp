@@ -2484,3 +2484,14 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .floating-cta { left:12px; right:12px; bottom:76px; max-width:none; flex-wrap:wrap; }
   .floating-cta .btn { width:100%; }
 }
+
+/* Homepage role areas: the most-placed roles, linking to their service pages. */
+.role-area-grid { display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.role-area-card { border:1px solid var(--line); border-radius:14px; padding:18px 20px; background:var(--surface); }
+.role-area-card h3 { margin:0 0 6px; font-size:16px; }
+.role-area-card p { margin:0 0 12px; color:var(--muted); font-size:13.5px; line-height:1.6; }
+.role-area-links { display:grid; gap:4px; }
+.role-area-links a { font-size:13.5px; color:var(--text); }
+.role-area-links a:hover { color:var(--brand); }
+.role-area-footer { margin-top:24px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
+.role-area-footer p { margin:0; color:var(--muted); font-size:14.5px; }

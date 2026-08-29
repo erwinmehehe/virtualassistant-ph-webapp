@@ -33,7 +33,7 @@ for (const page of pages) {
   seenSlugs.add(page.slug);
   if (seenTitles.has(page.metaTitle)) failures.push(`${page.slug}: duplicate meta title`);
   seenTitles.add(page.metaTitle);
-  if (!page.metaTitle.startsWith('Hire ')) failures.push(`${page.slug}: title must start with "Hire "`);
+  if (/^Hire /i.test(page.metaTitle)) failures.push(`${page.slug}: meta title should not start with "Hire"`);
   if (!page.metaTitle.endsWith(' Philippines')) failures.push(`${page.slug}: title must end with " Philippines"`);
   if (/virtualassistant\.com\.ph/i.test(page.metaTitle)) failures.push(`${page.slug}: brand found in meta title`);
   if (/\bVA\b/.test(page.metaTitle)) failures.push(`${page.slug}: standalone VA abbreviation found in meta title`);

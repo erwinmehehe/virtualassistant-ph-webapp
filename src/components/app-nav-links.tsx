@@ -68,22 +68,27 @@ function activeFor(pathname: string, href: string) {
   return pathname.startsWith(`${href}/`);
 }
 
-export function AppNavLinks({ role }: { role: Role }) {
+function Badge({ count }: { count: number }) {
+  if (!count) return null;
+  return <span className="nav-badge" aria-label={`${count} unread`}>{count > 99 ? "99+" : count}</span>;
+}
+
+export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record<string, number> }) {
   const pathname = usePathname();
   const items = nav[role];
   return <>
     <nav className="app-nav app-nav-desktop" aria-label="Workspace navigation">
       {items.map(([label, href, Icon]) => {
         const active = activeFor(pathname, href);
-        return <Link href={href} key={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}><Icon size={17}/><span>{label}</span></Link>;
+        return <Link href={href} key={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}><Icon size={17}/><span>{label}</span><Badge count={badges[href] || 0}/></Link>;
       })}
     </nav>
     <nav className="app-nav-mobile" aria-label="Mobile workspace navigation">
       {items.filter(([,href]) => mobilePrimary[role].includes(href)).map(([label, href, Icon]) => {
         const active = activeFor(pathname, href);
-        return <Link href={href} key={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}><Icon size={19}/><span>{label}</span></Link>;
+        return <Link href={href} key={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}><Icon size={19}/><span>{label}</span><Badge count={badges[href] || 0}/></Link>;
       })}
-      {items.some(([,href]) => !mobilePrimary[role].includes(href)) ? <details className="mobile-more"><summary><CircleEllipsis size={19}/><span>More</span></summary><div className="mobile-more-panel">{items.filter(([,href]) => !mobilePrimary[role].includes(href)).map(([label,href,Icon]) => {const active=activeFor(pathname,href);return <Link href={href} key={href} className={active?"active":undefined} aria-current={active?"page":undefined}><Icon size={18}/><span>{label}</span></Link>;})}</div></details> : null}
+      {items.some(([,href]) => !mobilePrimary[role].includes(href)) ? <details className="mobile-more"><summary><CircleEllipsis size={19}/><span>More</span></summary><div className="mobile-more-panel">{items.filter(([,href]) => !mobilePrimary[role].includes(href)).map(([label,href,Icon]) => {const active=activeFor(pathname,href);return <Link href={href} key={href} className={active?"active":undefined} aria-current={active?"page":undefined}><Icon size={18}/><span>{label}</span><Badge count={badges[href]||0}/></Link>;})}</div></details> : null}
     </nav>
   </>;
 }

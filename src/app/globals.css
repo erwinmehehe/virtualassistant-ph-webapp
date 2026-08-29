@@ -2421,3 +2421,9 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 @media (max-width: 720px) {
   .role-filter-tabs { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
 }
+
+/* Unread counts in the workspace nav. Previously these existed only on the
+   dashboard, so activity was invisible from every other page. */
+.nav-badge { margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:#d92d20; color:#fff; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+.app-nav-mobile a { position:relative; }
+.app-nav-mobile .nav-badge { position:absolute; top:4px; left:calc(50% + 4px); margin-left:0; min-width:17px; height:17px; font-size:10px; padding:0 4px; }

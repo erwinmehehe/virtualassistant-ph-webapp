@@ -7,10 +7,11 @@ export default async function RecruiterDashboard(){
   await requireRole("recruiter");
   const admin=createAdminClient();
   const since=new Date(Date.now()-7*86400000).toISOString();
-  const [unreviewedRes,incompleteRes,readyRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,shortlistRes,appsByJobRes]=await Promise.all([
+  const [unreviewedRes,incompleteRes,readyRes,vettedHiddenRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,shortlistRes,appsByJobRes]=await Promise.all([
     admin.from("va_vetting").select("va_id",{count:"exact",head:true}).eq("stage","recruiter_review"),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null).not("stage","in","(approved,bench,rejected)"),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).eq("directory_visible",false),
     admin.from("jobs").select("id",{count:"exact",head:true}).in("status",["pending","published"]),
     admin.from("applications").select("id",{count:"exact",head:true}).eq("status","new"),
     admin.from("messages").select("id",{count:"exact",head:true}).is("read_at",null),
@@ -25,6 +26,7 @@ export default async function RecruiterDashboard(){
     ["VAs waiting for your review",unreviewedRes.count||0,"/workspace/recruiter/queue",ClipboardList,"Candidates waiting for screening"],
     ["Incomplete profiles",incompleteRes.count||0,"/workspace/recruiter/talent?readiness=incomplete",AlertCircle,"Missing details clients need before hiring"],
     ["Waiting for your approval",readyRes.count||0,"/workspace/recruiter/talent?readiness=ready",UserRoundCheck,"Profile 90%+ complete, with photo and resume"],
+    ["Vetted but not listed",vettedHiddenRes.count||0,"/workspace/recruiter/talent?readiness=vetted_hidden",UserRoundCheck,"Screened VAs still missing profile items"],
     ["Active client roles",activeJobsRes.count||0,"/workspace/recruiter/matching",BriefcaseBusiness,"Pending and published roles"],
     ["Roles with no candidates",noCandidates.length,"/workspace/recruiter/matching?view=needs_candidates",Sparkles,"Roles that need matching first"],
     ["New applications",newAppsRes.count||0,"/workspace/recruiter/matching?view=applications",CheckCircle2,"Fresh VA applications across roles"],
@@ -34,6 +36,7 @@ export default async function RecruiterDashboard(){
   const today=[
     {priority:"urgent",title:"New client roles",count:(jobsRes.data||[]).filter((job:any)=>job.status==="pending").length,copy:"Review new hiring requests and begin matching.",href:"/workspace/recruiter/matching"},
     {priority:"high",title:"Roles waiting for candidates",count:noCandidates.length,copy:"Open the role and work from the recommended candidate list.",href:"/workspace/recruiter/matching?view=needs_candidates"},
+    {priority:"medium",title:"Vetted VAs not yet listed",count:vettedHiddenRes.count||0,copy:"Screening is done but the profile is incomplete. Send a reminder naming what is missing.",href:"/workspace/recruiter/talent?readiness=vetted_hidden"},
     {priority:"medium",title:"VAs waiting for review",count:unreviewedRes.count||0,copy:"Complete screening so strong talent can become matchable.",href:"/workspace/recruiter/queue"},
     {priority:"low",title:"Client decisions to follow up",count:(shortlistRes.data||[]).filter((row:any)=>row.shortlist_status==="released").length,copy:"Check released shortlists and unblock the next hiring step.",href:"/workspace/recruiter/matching"}
   ];

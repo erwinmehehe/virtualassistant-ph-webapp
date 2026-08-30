@@ -2516,3 +2516,15 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .seo-content-aside { position:static; }
   .seo-content-main h2 { font-size:25px; }
 }
+
+/* Contact page audience split: VAs kept applying through the client form. */
+.contact-routing { display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-bottom:26px; }
+.contact-routing-card { display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); border-radius:14px; padding:18px; background:var(--surface); }
+.contact-routing-card:hover { border-color:#84caff; background:#f5faff; }
+.contact-routing-card > span:last-child { display:grid; gap:5px; }
+.contact-routing-card strong { font-size:15px; }
+.contact-routing-card small { color:var(--muted); font-size:13px; line-height:1.55; }
+.contact-routing-icon { width:42px; height:42px; flex:none; display:grid; place-items:center; border-radius:11px; background:var(--brand-soft,#eff6ff); color:var(--brand); }
+.contact-routing-link { font-weight:650; font-size:13.5px; color:var(--brand); display:inline-flex; align-items:center; gap:5px; }
+.contact-form-divider { display:flex; align-items:center; gap:12px; margin:0 0 20px; color:var(--muted); font-size:13px; }
+.contact-form-divider::before, .contact-form-divider::after { content:""; flex:1; height:1px; background:var(--line); }

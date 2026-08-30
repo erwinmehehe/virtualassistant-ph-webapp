@@ -274,7 +274,7 @@ export async function publishVaProfileAction() {
     && avatar
     && (va.headline || "").trim().length >= 8
     && (va.bio || "").trim().length >= 80
-    && (va.skills || []).length >= 3
+    && (va.skills || []).length >= 5
     && Number(va.weekly_hours || 0) >= 1
     && Number(va.hourly_rate || 0) >= MIN_HOURLY_RATE
     && va.resume_path

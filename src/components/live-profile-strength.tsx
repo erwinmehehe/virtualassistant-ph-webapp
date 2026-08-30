@@ -26,7 +26,7 @@ export function LiveProfileStrength({ formId, initial }: { formId: string; initi
         [Boolean(String(fd.get("headline") || "").trim()), 10, "Add a professional headline"],
         [String(fd.get("bio") || "").trim().length >= 80, 15, "Write a stronger professional summary"],
         [Boolean(String(fd.get("primary_category") || "").trim()), 10, "Choose your VA category"],
-        [split(fd.get("skills")).length >= 3, 15, "Add at least 3 skills"],
+        [split(fd.get("skills")).length >= 5, 15, "Add at least 5 skills"],
         [split(fd.get("tools")).length >= 3, 10, "Add at least 3 tools"],
         [String(fd.get("years_experience") || "").trim() !== "", 5, "Add your years of experience"],
         [Number(fd.get("weekly_hours") || 0) > 0, 10, "Set weekly availability"],

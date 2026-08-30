@@ -9,7 +9,7 @@ export function getVaCompletion(profile: Partial<VaProfile> | null, avatarUrl?: 
     { label: "Add a professional headline", done: Boolean(p.headline && p.headline.length >= 8), weight: 10, href: "/workspace/va/profile#basics" },
     { label: "Write your professional summary", done: Boolean(p.bio && p.bio.length >= 80), weight: 15, href: "/workspace/va/profile#basics" },
     { label: "Choose your VA category", done: Boolean(p.primary_category), weight: 5, href: "/workspace/va/profile#expertise" },
-    { label: "Add at least 3 skills", done: Boolean(p.skills && p.skills.length >= 3), weight: 15, href: "/workspace/va/profile#expertise" },
+    { label: "Add at least 5 skills", done: Boolean(p.skills && p.skills.length >= 5), weight: 15, href: "/workspace/va/profile#expertise" },
     { label: "Add at least 3 tools", done: Boolean(p.tools && p.tools.length >= 3), weight: 5, href: "/workspace/va/profile#expertise" },
     { label: "Add your years of experience", done: Number(p.years_experience || 0) >= 1, weight: 10, href: "/workspace/va/profile#expertise" },
     { label: "Set weekly availability", done: Number(p.weekly_hours || 0) >= 1, weight: 10, href: "/workspace/va/profile#availability" },

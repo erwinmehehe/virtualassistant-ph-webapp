@@ -88,7 +88,7 @@ export default async function VaDashboardPage(){
     {label:"photo",done:Boolean(accountProfile?.avatar_url)},
     {label:"headline",done:Boolean(va?.headline&&va.headline.length>=8)},
     {label:"summary",done:Boolean(va?.bio&&va.bio.length>=80)},
-    {label:"3 skills",done:Boolean(va?.skills&&va.skills.length>=3)},
+    {label:"5 skills",done:Boolean(va?.skills&&va.skills.length>=5)},
     {label:"2+ years experience",done:Number(va?.years_experience||0)>=2},
     {label:"availability",done:Number(va?.weekly_hours||0)>=1},
     {label:"rate",done:Number(va?.hourly_rate||0)>=5},

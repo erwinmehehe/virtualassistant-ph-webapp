@@ -6,14 +6,17 @@ import { CalendarClock, X } from "lucide-react";
 
 const DISMISS_KEY = "va_discovery_cta_dismissed";
 
+// Google Calendar appointment schedule. NEXT_PUBLIC_DISCOVERY_CALL_URL
+// overrides it without touching this file.
+const DISCOVERY_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+
 /**
  * Floating discovery-call prompt for public pages.
  *
  * Appears after the visitor has scrolled a little, so it does not cover the
  * hero on arrival, and stays dismissed for the rest of the browser session
- * once closed. Set NEXT_PUBLIC_DISCOVERY_CALL_URL to a booking link
- * (Calendly, Cal.com, Google Calendar) to send people straight there;
- * without it the button falls back to the contact page.
+ * once closed. Sends people to the booking page above; set
+ * NEXT_PUBLIC_DISCOVERY_CALL_URL to point it elsewhere without a code change.
  */
 export function FloatingCta() {
   const [visible, setVisible] = useState(false);
@@ -33,7 +36,7 @@ export function FloatingCta() {
 
   if (dismissed || !visible) return null;
 
-  const href = process.env.NEXT_PUBLIC_DISCOVERY_CALL_URL?.trim() || "/contact";
+  const href = process.env.NEXT_PUBLIC_DISCOVERY_CALL_URL?.trim() || DISCOVERY_CALL_URL;
   const external = href.startsWith("http");
 
   const close = () => {

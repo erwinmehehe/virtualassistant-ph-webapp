@@ -87,7 +87,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
       const { error } = await admin.from("va_vetting").update({ stage: "approved", recruiter_id: user.id, approved_at: now, updated_at: now }).in("va_id", eligible);
       if (error) throw error;
       affected = eligible.length;
-      await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, title: "Your VA profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
+      await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, type: "profile_approved", title: "Your VA profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
     }
   } else if (action === "bench") {
     const eligible = rows.filter((row) => ["approved", "bench"].includes(String(row.stage)) && row.primary_category);
@@ -104,7 +104,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
     const { error } = await admin.from("va_vetting").update({ stage: "profile", recruiter_id: user.id, changes_requested_at: now, updated_at: now }).in("va_id", ids);
     if (error) throw error;
     await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);
-    await admin.from("notifications").insert(ids.map((id) => ({ user_id: id, title: "Please update your VA profile", body: "Your recruiter requested profile updates before the next review. Open your profile to see what is incomplete.", href: "/workspace/va/profile" })));
+    await admin.from("notifications").insert(ids.map((id) => ({ user_id: id, type: "profile_update_request", title: "Please update your VA profile", body: "Your recruiter requested profile updates before the next review. Open your profile to see what is incomplete.", href: "/workspace/va/profile" })));
     affected = ids.length;
   } else if (action === "hide") {
     const { error } = await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);

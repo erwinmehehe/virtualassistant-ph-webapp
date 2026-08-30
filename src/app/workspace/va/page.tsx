@@ -45,7 +45,7 @@ export default async function VaDashboardPage(){
     admin.from("va_test_attempts").select("final_score,auto_score").eq("va_id",user.id).order("submitted_at",{ascending:false}).limit(1).maybeSingle(),
     admin.from("vetting_scorecards").select("total_score").eq("va_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle(),
     supabase.from("public_va_certifications").select("category").eq("va_id",user.id),
-    supabase.from("notifications").select("id,title,body,href,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
+    supabase.from("notifications").select("id,type,title,body,href,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
     supabase.from("conversations").select("id").eq("va_id",user.id)
   ]);
 
@@ -73,7 +73,10 @@ export default async function VaDashboardPage(){
   const applicationRows=apps||[];
   const pendingInvites=(invites||[]).filter((row:any)=>row.status==="pending");
   const unreadNotifications=(notifications||[]).filter((row:any)=>!row.read_at);
-  const recruiterRequests=unreadNotifications.filter((row:any)=>String(row.href||"").startsWith("/workspace/va/profile")||/update|profile|recruiter/i.test(`${row.title||""} ${row.body||""}`));
+  // Previously matched /update|profile|recruiter/i against the text, so any
+  // notification containing "update" was promoted over real offers and
+  // interviews. Untyped legacy rows are backfilled by migration v4138.
+  const recruiterRequests=unreadNotifications.filter((row:any)=>row.type==="profile_update_request");
 
   const pipeline={
     applied:statusCount(applicationRows,["new","reviewing"]),

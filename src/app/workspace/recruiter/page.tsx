@@ -7,7 +7,7 @@ export default async function RecruiterDashboard(){
   await requireRole("recruiter");
   const admin=createAdminClient();
   const since=new Date(Date.now()-7*86400000).toISOString();
-  const [unreviewedRes,incompleteRes,readyRes,vettedHiddenRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,shortlistRes,appsByJobRes]=await Promise.all([
+  const [unreviewedRes,incompleteRes,readyRes,vettedHiddenRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,releasedRes]=await Promise.all([
     admin.from("va_vetting").select("va_id",{count:"exact",head:true}).eq("stage","recruiter_review"),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null).not("stage","in","(approved,bench,rejected)"),
@@ -17,9 +17,19 @@ export default async function RecruiterDashboard(){
     admin.from("messages").select("id",{count:"exact",head:true}).is("read_at",null),
     admin.from("lead_intake").select("id",{count:"exact",head:true}).eq("status","new").gte("created_at",since),
     admin.from("jobs").select("id,title,company_name,status,created_at").in("status",["pending","published"]).order("created_at",{ascending:false}).limit(100),
-    admin.from("job_shortlist_candidates").select("job_id,shortlist_status").in("shortlist_status",["proposed","released"]),
-    admin.from("applications").select("job_id")
+    admin.from("job_shortlist_candidates").select("id",{count:"exact",head:true}).eq("shortlist_status","released")
   ]);
+
+  // Both of these previously scanned their whole table -- every shortlist row
+  // and every application ever created -- purely to work out which of the
+  // hundred listed roles have no candidate yet. Scope them to those roles.
+  const activeJobIds=(jobsRes.data||[]).map((job:any)=>job.id);
+  const [shortlistRes,appsByJobRes]=activeJobIds.length
+    ? await Promise.all([
+        admin.from("job_shortlist_candidates").select("job_id").in("job_id",activeJobIds).in("shortlist_status",["proposed","released"]),
+        admin.from("applications").select("job_id").in("job_id",activeJobIds)
+      ])
+    : [{data:[]} as any,{data:[]} as any];
   const candidateJobIds=new Set([...(shortlistRes.data||[]).map((r:any)=>r.job_id),...(appsByJobRes.data||[]).map((r:any)=>r.job_id)]);
   const noCandidates=(jobsRes.data||[]).filter((j:any)=>!candidateJobIds.has(j.id));
   const cards=[
@@ -38,7 +48,7 @@ export default async function RecruiterDashboard(){
     {priority:"high",title:"Roles waiting for candidates",count:noCandidates.length,copy:"Open the role and work from the recommended candidate list.",href:"/workspace/recruiter/matching?view=needs_candidates"},
     {priority:"medium",title:"Vetted VAs not yet listed",count:vettedHiddenRes.count||0,copy:"Screening is done but the profile is incomplete. Send a reminder naming what is missing.",href:"/workspace/recruiter/talent?readiness=vetted_hidden"},
     {priority:"medium",title:"VAs waiting for review",count:unreviewedRes.count||0,copy:"Complete screening so strong talent can become matchable.",href:"/workspace/recruiter/queue"},
-    {priority:"low",title:"Client decisions to follow up",count:(shortlistRes.data||[]).filter((row:any)=>row.shortlist_status==="released").length,copy:"Check released shortlists and unblock the next hiring step.",href:"/workspace/recruiter/matching"}
+    {priority:"low",title:"Client decisions to follow up",count:releasedRes.count||0,copy:"Check released shortlists and unblock the next hiring step.",href:"/workspace/recruiter/matching"}
   ];
   return <>
     <div className="page-head"><div><div className="kicker">Recruiter control center</div><h1>Today’s work</h1><p>Start at the top of the action queue. Each item is blocking a client, a candidate, or an open role.</p></div><div className="row wrap"><Link className="btn" href="/workspace/recruiter/talent">Open VA directory</Link><Link className="btn btn-primary" href="/workspace/recruiter/matching">Match active roles</Link></div></div>

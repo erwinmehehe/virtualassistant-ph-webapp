@@ -9,6 +9,7 @@ import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
 import { socialLoginEnabled } from "@/lib/social-login";
+import { isDisposableEmail } from "@/lib/disposable-email";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 const loginSchema = z.object({
@@ -161,6 +162,10 @@ export async function joinAction(formData: FormData) {
   const parsed = joinSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     redirect(joinErrorPath(role, "Please complete all required fields", { talent, lead, next }));
+  }
+
+  if (isDisposableEmail(parsed.data.email)) {
+    redirect(joinErrorPath(role, "Please use a permanent email address. Temporary inbox providers cannot receive account or hiring notifications.", { talent, lead, next }));
   }
 
   const avatar = formData.get("avatar");

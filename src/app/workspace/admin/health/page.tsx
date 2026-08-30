@@ -12,13 +12,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
   const [
     vaAccountsRes,
     vaProfilesRes,
-    vaProfileRowsRes,
-    vettingRowsRes,
-    jobsRes,
-    allJobsRes,
-    vaIdsRes,
-    shortlistRes,
-    appsRes,
+    summaryRes,
     errorsRes,
     errorRowsRes,
     failedPaymentsRes,
@@ -28,13 +22,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
   ] = await Promise.all([
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "va"),
     admin.from("va_profiles").select("user_id", { count: "exact", head: true }),
-    admin.from("va_profiles").select("user_id,slug"),
-    admin.from("va_vetting").select("va_id"),
-    admin.from("jobs").select("id,title,status,updated_at").in("status", ["pending", "published"]),
-    admin.from("jobs").select("id").limit(5000),
-    admin.from("profiles").select("id").eq("role", "va").limit(5000),
-    admin.from("job_shortlist_candidates").select("job_id").in("shortlist_status", ["proposed", "released"]),
-    admin.from("applications").select("id,job_id,va_id").limit(5000),
+    admin.rpc("admin_health_summary"),
     admin.from("app_error_events").select("id", { count: "exact", head: true }).is("resolved_at", null),
     admin.from("app_error_events").select("id,message,path,role,created_at").is("resolved_at", null).order("created_at", { ascending: false }).limit(20),
     admin.from("payments").select("id", { count: "exact", head: true }).in("status", ["failed", "disputed"]),
@@ -45,24 +33,19 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
 
   const vaAccounts = vaAccountsRes.count || 0;
   const vaProfiles = vaProfilesRes.count || 0;
-  const vaProfileRows = vaProfileRowsRes.data || [];
-  const vettingIds = new Set((vettingRowsRes.data || []).map((row: any) => row.va_id));
-  const missingSlugs = vaProfileRows.filter((row: any) => !String(row.slug || "").trim()).length;
-  const missingVetting = vaProfileRows.filter((row: any) => !vettingIds.has(row.user_id)).length;
-  const allJobIds = new Set((allJobsRes.data || []).map((row: any) => row.id));
-  const allVaIds = new Set((vaIdsRes.data || []).map((row: any) => row.id));
-  const orphanedApplications = (appsRes.data || []).filter((row: any) => !allJobIds.has(row.job_id) || !allVaIds.has(row.va_id)).length;
-  const candidateJobs = new Set([
-    ...(shortlistRes.data || []).map((row: any) => row.job_id),
-    ...(appsRes.data || []).map((row: any) => row.job_id)
-  ]);
-  const unassigned = (jobsRes.data || []).filter((job: any) => !candidateJobs.has(job.id));
+  // These four are anti-joins, now computed in the database rather than by
+  // pulling thousands of rows here to compare them in Sets.
+  const summary = (summaryRes.data || {}) as Record<string, number>;
+  const missingSlugs = Number(summary.missing_slugs || 0);
+  const missingVetting = Number(summary.missing_vetting || 0);
+  const orphanedApplications = Number(summary.orphaned_applications || 0);
+  const rolesWithoutCandidates = Number(summary.roles_without_candidates || 0);
 
   const health = [
     ["VA accounts", vaAccounts, `${vaProfiles} structured VA profiles`, vaAccounts === vaProfiles],
     ["Broken profile URL records", missingSlugs, "Missing VA slugs should stay at zero", missingSlugs === 0],
     ["Missing vetting", missingVetting, "Should stay at zero", missingVetting === 0],
-    ["Roles without candidates", unassigned.length, "Active roles needing matching", unassigned.length === 0],
+    ["Roles without candidates", rolesWithoutCandidates, "Active roles needing matching", rolesWithoutCandidates === 0],
     ["Orphaned applications", orphanedApplications, "Application job/VA references should stay valid", orphanedApplications === 0],
     ["Incomplete profiles marked public", incompletePublicRes.count || 0, "Should be hidden", (incompletePublicRes.count || 0) === 0],
     ["Unresolved app errors", errorsRes.count || 0, "Captured by internal error monitor", (errorsRes.count || 0) === 0],

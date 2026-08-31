@@ -52,7 +52,6 @@ export async function createJobAction(formData: FormData) {
     if (!String(formData.get("title") ?? "").trim()) throw new Error("Job title is required.");
     if (minRate == null) throw new Error(`Budget must be at least USD ${MIN_HOURLY_RATE} per hour.`);
     if (overlap > 4 && !exception) throw new Error("Live overlap above 4 hours requires a time-dependent role exception.");
-    if (!String(formData.get("onboarding_plan") ?? "").trim()) throw new Error("Add an onboarding and training plan.");
   }
 
   let requestedVaId: string | null = null;

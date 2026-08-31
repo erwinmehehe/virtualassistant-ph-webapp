@@ -140,7 +140,6 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
     if (targetStep >= 2) {
       if (!Number.isFinite(minRate) || minRate < MIN_HOURLY_RATE) next.min_hourly_rate = `Minimum rate must be at least USD ${MIN_HOURLY_RATE}/hour.`;
       if (data.max_hourly_rate && (!Number.isFinite(maxRate) || maxRate < minRate)) next.max_hourly_rate = "Maximum rate must be at least the minimum rate.";
-      if (data.onboarding_plan.trim().length < 30) next.onboarding_plan = "Add a short first-week onboarding plan.";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -216,7 +215,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
         </div>
         {monthlyLow ? <div className="estimate-strip"><span>Estimated VA compensation</span><strong>${monthlyLow.toLocaleString()}{monthlyHigh > monthlyLow ? `–$${monthlyHigh.toLocaleString()}` : "+"}/month</strong><small>Based on {hours} hrs/week × 4.33 weeks. Service fees are separate.</small></div> : null}
         <div><h3 className="wizard-subhead">Choose your hiring support</h3><div className="service-model-grid"><label className={`service-model-card ${data.service_model === "curated_placement" ? "selected" : ""}`}><input type="radio" checked={data.service_model === "curated_placement"} onChange={() => set("service_model", "curated_placement")}/><span><strong>Curated placement</strong><small>We recruit and vet. Your team manages the VA after hiring.</small></span></label><label className={`service-model-card ${data.service_model === "managed_service" ? "selected" : ""}`}><input type="radio" checked={data.service_model === "managed_service"} onChange={() => set("service_model", "managed_service")}/><span><strong>Managed VA service</strong><small>Recruiting plus continued placement and operating support.</small></span></label></div></div>
-        <div className="field"><label>First-week onboarding plan</label><textarea className="textarea-compact" value={data.onboarding_plan} onChange={(e) => set("onboarding_plan", e.target.value)} placeholder="Day 1: tools and access. Days 2–3: SOP walkthrough and examples. End of week: review priorities, questions, and feedback." aria-invalid={Boolean(errors.onboarding_plan)}/>{error("onboarding_plan")}</div>
+        
         <label className="inline-check"><input type="checkbox" checked={data.direct_feedback} onChange={(e) => set("direct_feedback", e.target.checked)}/><span>The VA will have direct access to a manager for priorities and feedback.</span></label>
       </div> : null}
 

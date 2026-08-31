@@ -2577,3 +2577,8 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .public-profile-quickfacts span { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface); font-size:13.5px; color:var(--muted); white-space:nowrap; }
 .public-profile-quickfacts strong { color:var(--text); font-weight:650; }
 @media (max-width: 560px) { .public-profile-quickfacts span { white-space:normal; } }
+
+/* Candidate video introduction, shown once candidate access is active. */
+.candidate-video-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface); margin-bottom:18px; }
+.candidate-video-row > div { display:grid; gap:2px; flex:1; min-width:180px; }
+.candidate-video-row svg { color:var(--brand); flex:none; }

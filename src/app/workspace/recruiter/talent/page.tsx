@@ -20,7 +20,7 @@ export default async function RecruiterTalentDirectory({ searchParams }: { searc
   if(params.readiness==="ready")query=query.gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null);
   if(params.readiness==="incomplete")query=query.lt("completion_score",100);
   if(params.readiness==="zero")query=query.eq("completion_score",0);
-  if(params.readiness==="vetted_hidden")query=query.in("stage",["approved","bench"]).eq("directory_visible",false);
+  if(params.readiness==="vetted_hidden")query=query.in("stage",["approved","bench"]).lt("completion_score",100);
   if(params.photo==="yes")query=query.not("avatar_url","is",null);if(params.photo==="no")query=query.is("avatar_url",null);
   if(params.resume==="yes")query=query.not("resume_path","is",null);if(params.resume==="no")query=query.is("resume_path",null);
   if(num(params.min_experience)!=null)query=query.gte("years_experience",num(params.min_experience));

@@ -11,7 +11,7 @@ export default async function RecruiterDashboard(){
     admin.from("va_vetting").select("va_id",{count:"exact",head:true}).eq("stage","recruiter_review"),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null).not("stage","in","(approved,bench,rejected)"),
-    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).eq("directory_visible",false),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).lt("completion_score",100),
     admin.from("jobs").select("id",{count:"exact",head:true}).in("status",["pending","published"]),
     admin.from("applications").select("id",{count:"exact",head:true}).eq("status","new"),
     admin.from("messages").select("id",{count:"exact",head:true}).is("read_at",null),

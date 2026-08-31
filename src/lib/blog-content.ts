@@ -28466,5 +28466,173 @@ export const BLOG_POSTS: BlogPost[] = [
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
+  },
+  {
+    "slug": "project-manager-virtual-assistant-rate-philippines",
+    "legacyPath": "/rate-project-manager-virtual-assistant/",
+    "title": "Project Manager Virtual Assistant Rates in the Philippines: 2026 Guide",
+    "metaTitle": "Project Manager VA Rates Philippines 2026",
+    "description": "What a project manager virtual assistant in the Philippines costs in 2026, what separates a coordinator from a manager, and how to budget for the role.",
+    "excerpt": "Project coordination sits at the upper end of virtual assistant pricing, and for good reason. Here is what the role costs in 2026, what drives the range, and how to tell a coordinator from a manager before you hire.",
+    "topic": "pricing",
+    "clusterLabel": "VA pricing and budgets",
+    "serviceSlug": "project-coordination",
+    "intent": "commercial",
+    "publishedAt": "2026-08-30",
+    "updatedAt": "2026-08-30",
+    "author": "VirtualAssistant.com.ph Editorial Team",
+    "keyTakeaways": [
+      "Project coordination sits above general administrative support because the role owns outcomes across other people's work, not just its own task list.",
+      "Most project manager virtual assistant roles in the Philippines are filled between USD 8 and USD 15 an hour, with the spread driven by scope and decision authority rather than years on a resume.",
+      "The single biggest cost factor is whether the person chases a plan somebody else made or builds and defends the plan themselves.",
+      "Tool fluency in Asana, ClickUp, Jira or Monday matters far less than the ability to surface a slipping deadline before it slips.",
+      "Ongoing hourly roles cannot be posted below USD 5 an hour on this platform, and coordination work rarely succeeds anywhere near that floor."
+    ],
+    "sections": [
+      {
+        "heading": "What a project manager virtual assistant actually does",
+        "paragraphs": [
+          "The title covers a wide range, which is the first reason quoted rates look inconsistent. At the lower end, the role is coordination: keeping a board current, chasing updates, scheduling the standup, formatting the weekly report, and making sure nobody has to ask where a task stands. At the upper end, the role is closer to delivery management: breaking scope into a plan, sequencing dependencies, flagging risk early, and holding other people to dates they agreed to.",
+          "Both versions are legitimate hires. They are not the same job, and paying coordinator rates for delivery management is the most common reason these roles fail quietly. The person keeps the board tidy, everybody feels organised, and the project still lands late because nobody was accountable for the plan itself."
+        ]
+      },
+      {
+        "heading": "Rate bands for 2026",
+        "paragraphs": [
+          "These are the bands roles are typically filled at on this platform. They describe scope, not seniority, and a candidate can move between them depending on what the role actually asks for."
+        ],
+        "table": {
+          "headers": [
+            "Band",
+            "Typical hourly rate",
+            "What the role owns"
+          ],
+          "rows": [
+            [
+              "Project coordinator",
+              "USD 7 to USD 9",
+              "Board hygiene, status chasing, meeting notes, recurring reports. Follows a plan somebody else set."
+            ],
+            [
+              "Project manager virtual assistant",
+              "USD 9 to USD 13",
+              "Owns the schedule, tracks dependencies, runs the standup, raises risks early, keeps stakeholders informed without being prompted."
+            ],
+            [
+              "Senior or specialist delivery support",
+              "USD 13 to USD 18",
+              "Multi workstream or client facing delivery, budget tracking, process design, and authority to push back on scope."
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "What actually moves the number",
+        "bullets": [
+          "Decision authority. A person who can reschedule, reassign, and say no to late scope is worth more than one who escalates every choice.",
+          "Number of moving parts. One internal team is straightforward. Three workstreams, two agencies, and a client with opinions is a different job.",
+          "Client or stakeholder exposure. Written updates that go to a paying customer carry more risk than an internal Slack post.",
+          "Domain context. Construction, software delivery, and marketing campaigns each have their own vocabulary and failure modes.",
+          "Overlap requirements. A role that needs live presence at a fixed daily standup narrows the candidate pool and raises the rate.",
+          "Reporting depth. Turning raw task data into a picture a founder can act on is a genuinely different skill from updating a board."
+        ]
+      },
+      {
+        "heading": "Reading a rate against the work",
+        "paragraphs": [
+          "A candidate quoting USD 8 who has run a fortnightly release cycle for a software team is often a better outcome than one quoting USD 14 whose experience is updating cards for a manager who did the thinking. Rate correlates loosely with capability and closely with what the last employer needed. Ask what the person owned rather than what they used.",
+          "Where a rate genuinely signals something is at the extremes. Below USD 6 an hour, you are almost certainly buying admin support that will need a real manager above it. Above USD 18, you are usually paying for delivery management that many small businesses do not have enough concurrent work to justify."
+        ]
+      },
+      {
+        "heading": "Monthly cost, which is the number that matters",
+        "paragraphs": [
+          "Hourly rates make comparison easy and budgeting misleading. A full time role at 40 hours a week works out to roughly 173 hours a month. At USD 11 an hour that is close to USD 1,900 a month before any platform or service fee.",
+          "Many coordination roles do not need full time hours. Twenty hours a week is often enough to keep two or three workstreams honest, which puts the same person near USD 950 a month. Deciding hours honestly is usually a bigger lever on budget than negotiating the rate."
+        ]
+      },
+      {
+        "heading": "How to scope the role before you post it",
+        "numbered": [
+          "Write down the three things that go wrong today. Missed deadlines, unclear ownership, and status chasing each point to a different hire.",
+          "Name the tools already in use, and accept that a strong candidate will learn a new one in a fortnight.",
+          "Decide what the person can settle alone. This single line determines your band more than any other part of the brief.",
+          "Set the overlap window you genuinely need, not the one that feels safest.",
+          "State how success is measured. On time delivery, forecast accuracy, or simply that you stop chasing people yourself."
+        ]
+      },
+      {
+        "heading": "Common ways this hire goes wrong",
+        "bullets": [
+          "Hiring a coordinator and expecting delivery management, then concluding that offshore project management does not work.",
+          "Giving the role responsibility for dates without the authority to move them.",
+          "Measuring the person on activity in the tool rather than on whether work landed.",
+          "Skipping the handover of context, then reading slow first month progress as a capability problem.",
+          "Paying at the top of the band for a role with one workstream and no stakeholder exposure."
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What is the average hourly rate for a project manager virtual assistant in the Philippines in 2026?",
+        "answer": "Most roles are filled between USD 9 and USD 13 an hour. Pure coordination sits lower, around USD 7 to USD 9, and senior delivery support with multiple workstreams or client exposure runs USD 13 to USD 18. The band is set by what the role owns rather than by the candidate's years of experience."
+      },
+      {
+        "question": "Why does project coordination cost more than general admin support?",
+        "answer": "General admin work is measured by whether the assistant's own task list is complete. Coordination is measured by whether other people's work landed on time, which requires judgement about sequencing, risk, and when to escalate. That accountability is what the extra few dollars an hour buys."
+      },
+      {
+        "question": "Do I need someone certified in Scrum or PMP?",
+        "answer": "Rarely, for a role of this size. Certification signals familiarity with a framework, not the ability to run your particular delivery. Ask a candidate to walk through a project that slipped, what they noticed first, and what they changed. That answer tells you more than a certificate."
+      },
+      {
+        "question": "Can one person manage projects and handle admin work too?",
+        "answer": "Yes, and many small businesses hire exactly that blend. Be explicit about the split, because coordination work is interruptible and admin work expands to fill available time. Without a stated priority, the urgent inbox tends to win and the project drifts."
+      },
+      {
+        "question": "How many hours a week does the role usually need?",
+        "answer": "Twenty hours is often enough for two or three workstreams that are already running. Full time makes sense when the person is building plans from scratch, coordinating external parties, or acting as the main point of contact for a client."
+      },
+      {
+        "question": "What is the lowest rate worth considering?",
+        "answer": "$5 per hour is the minimum allowed for ongoing hourly roles on VirtualAssistant.com.ph. For coordination specifically, roles priced near that floor usually attract candidates who have followed instructions rather than owned outcomes, and the gap shows up in the first month."
+      },
+      {
+        "question": "How should I compare two candidates with very different rates?",
+        "answer": "Put both against the same scenario. Describe a dependency that slipped by a week and ask what they would do in the next hour, the next day, and before the next status update. The stronger answer usually justifies the higher rate, and sometimes the cheaper candidate gives it."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "Hire a Project Coordination Virtual Assistant",
+        "href": "/service/project-coordination/",
+        "description": "See the scope of the role, the tools involved, and what to look for before you interview."
+      },
+      {
+        "label": "Pricing guides and budget planning",
+        "href": "/blog/topic/pricing/",
+        "description": "Cost breakdowns for other virtual assistant roles, with the factors that move each range."
+      },
+      {
+        "label": "Average Hourly Rate for Virtual Assistants in the Philippines",
+        "href": "/average-hourly-rate-virtual-assistants-philippines/",
+        "description": "The wider rate picture across every category, useful for sanity checking a coordination budget."
+      },
+      {
+        "label": "Virtual Assistant Cost Calculator",
+        "href": "/tools/virtual-assistant-cost-calculator/",
+        "description": "Turn an hourly band into the monthly figure your budget actually needs to cover."
+      },
+      {
+        "label": "Customer Service Virtual Assistant Cost",
+        "href": "/blog/customer-service-cost-philippines/",
+        "description": "A neighbouring role priced lower, useful for seeing how ownership changes a rate."
+      },
+      {
+        "label": "Virtual Assistant Job Description Generator",
+        "href": "/tools/virtual-assistant-job-description-generator/",
+        "description": "Turn the scoping questions above into a first draft brief you can post."
+      }
+    ]
   }
 ];

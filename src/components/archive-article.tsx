@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import type { ArchivePost } from "@/lib/archive-types";
+import { RoleBriefForm } from "@/components/role-brief-form";
 
 /**
  * Renders a post recovered from the previous WordPress site.
@@ -10,7 +11,7 @@ import type { ArchivePost } from "@/lib/archive-types";
  * internal links. The HTML was sanitized at import: script, style, iframe,
  * object and embed elements and inline event handlers were removed.
  */
-export function ArchiveArticle({ post }: { post: ArchivePost }) {
+export function ArchiveArticle({ post, sourcePath, error, sent }: { post: ArchivePost; sourcePath: string; error?: string; sent?: boolean }) {
   return <>
     <article className="section blog-article-shell"><div className="container blog-article-column">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -29,15 +30,18 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
     </div></article>
 
     <section className="section section-white"><div className="container">
-      <div className="archive-cta">
-        <div>
-          <h2>Looking for a virtual assistant?</h2>
-          <p>Browse vetted Filipino VAs, or tell us the role and we will shortlist against it.</p>
+      <div className="home-lead-grid">
+        <div className="home-lead-copy">
+          <div className="kicker">Ready to hire</div>
+          <h2>Tell us the role and we will shortlist against it.</h2>
+          <p>Describe the work, the hours and the overlap you need. Every candidate you see has already passed a skills test, a video introduction and a recruiter review.</p>
+          <ul className="home-lead-points">
+            <li>No account required, and nothing is published</li>
+            <li>VA pay and our service fee shown separately</li>
+            <li>Prefer to look first? <Link className="text-link" href="/find-talent">Browse approved VAs <ArrowRight size={13}/></Link></li>
+          </ul>
         </div>
-        <div className="row wrap">
-          <Link className="btn btn-primary btn-lg" href="/find-talent">Browse VAs <ArrowRight size={16}/></Link>
-          <Link className="btn btn-lg" href="/hire">Get a managed VA</Link>
-        </div>
+        <RoleBriefForm sourcePath={sourcePath} error={error} sent={sent} heading="Get matched" subheading="About 60 seconds. Required fields are marked." />
       </div>
     </div></section>
   </>;

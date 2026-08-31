@@ -38,13 +38,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { slug } = await params;
+  const query = await searchParams;
   const post = blogPostBySlug(slug);
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) notFound();
-    return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived}/></main><SiteFooter/></>;
+    return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived} sourcePath={`/blog/${archived.slug}`} error={query.error} sent={Boolean(query.sent)}/></main><SiteFooter/></>;
   }
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const url = `${base}${blogHref(post)}`;

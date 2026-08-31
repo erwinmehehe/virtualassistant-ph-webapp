@@ -161,8 +161,6 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
       ? <input key={key} type="hidden" name={key} value={value ? "on" : (key === "direct_feedback" ? "off" : "")}/>
       : <input key={key} type="hidden" name={key} value={value}/>) }
 
-    {step===0?<div className="brief-helper"><div><span className="small">Need a starting point?</span><strong>Describe the work in your own words, then we’ll help shape a clear hiring brief.</strong></div><button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button></div>:null}
-
     <aside className="wizard-steps" aria-label="Job form steps">
       {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined}>
         <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span><span>{label}</span>
@@ -175,6 +173,8 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
         <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Local autosave is on"}</span><button className="btn btn-sm" name="submit_mode" value="draft" type="submit">Save & exit</button></div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
+
+      {step===0?<div className="brief-helper"><div><span className="small">Need a starting point?</span><strong>Describe the work in your own words, then we’ll help shape a clear hiring brief.</strong></div><button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button></div>:null}
 
       {step === 0 && isBlankDraft ? <section className="role-template-picker">
         <div><strong>Start from a common role</strong><p className="small muted">Fills in the title, specialty, skills, tools and a draft description. You can edit every field afterwards — or just start typing below to write your own.</p></div>

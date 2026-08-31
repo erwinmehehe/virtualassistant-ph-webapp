@@ -2594,3 +2594,7 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .role-brief-sent { text-align:center; }
 .role-brief-sent h2 { margin:0 0 8px; }
 @media (max-width: 900px) { .home-lead-grid { grid-template-columns:1fr; gap:24px; } .home-lead-copy h2 { font-size:24px; } }
+
+/* The wizard is a two column grid (steps, panel). Anything else placed directly
+   inside it used to wrap into the steps column and crush the layout. */
+.wizard > *:not(.wizard-steps):not(.wizard-panel) { grid-column: 1 / -1; }

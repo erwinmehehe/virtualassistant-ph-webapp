@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticRoutes.map((path) => ({ url: `${base}${path}`, changeFrequency: path === "" ? "weekly" as const : "monthly" as const, priority: path === "" ? 1 : .8 })),
     ...blogTopicRoutes.map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: .72 })),
     ...BLOG_POSTS.map((post) => ({ url: `${base}${blogHref(post)}`, lastModified: post.updatedAt, changeFrequency: "monthly" as const, priority: post.serviceSlug ? .76 : .68 })),
-    ...ARCHIVE_POSTS.map((post) => ({ url: `${base}/blog/${post.slug}`, changeFrequency: "monthly" as const, priority: .6 })),
+    ...ARCHIVE_POSTS.map((post) => ({ url: `${base}${post.legacyPath ? post.legacyPath.replace(/\/$/, "") : `/blog/${post.slug}`}`, changeFrequency: "monthly" as const, priority: .6 })),
     ...SERVICE_PAGES.map((page) => ({ url: `${base}/service/${page.slug}`, changeFrequency: "monthly" as const, priority: .78 })),
     ...INDUSTRIES.map((industry) => ({ url: `${base}/industries/${industry.slug}`, changeFrequency: "monthly" as const, priority: .74 })),
     ...softwarePages.map((page) => ({ url: `${base}/software/${page.slug}`, changeFrequency: "monthly" as const, priority: .7 })),

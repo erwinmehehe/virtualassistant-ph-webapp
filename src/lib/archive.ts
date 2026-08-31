@@ -6,6 +6,11 @@ export function archivePostBySlug(slug: string) {
   return ARCHIVE_POSTS.find((post) => post.slug === slug);
 }
 
+export function archivePostByLegacyPath(path: string) {
+  const normalized = path.endsWith("/") ? path : `${path}/`;
+  return ARCHIVE_POSTS.find((post) => post.legacyPath === normalized);
+}
+
 // Recovered posts are dated text from the previous site, so the date is parsed
 // back into an ISO value for schema and for the visible byline.
 export function archivePublishedIso(post: { date: string }) {

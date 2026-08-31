@@ -5,15 +5,30 @@ import { SiteFooter } from "@/components/site-footer";
 import { BlogArticle } from "@/components/blog-article";
 import { BLOG_POSTS, blogHref, blogPostByLegacyPath } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
+import { ARCHIVE_POSTS, archivePostByLegacyPath, archivePublishedIso } from "@/lib/archive";
+import { ArchiveArticle } from "@/components/archive-article";
 
 export function generateStaticParams() {
-  return BLOG_POSTS.filter((post) => post.legacyPath).map((post) => ({ legacy: post.legacyPath!.replace(/^\//, "").replace(/\/$/, "") }));
+  return [
+    ...BLOG_POSTS.filter((post) => post.legacyPath),
+    ...ARCHIVE_POSTS.filter((post) => post.legacyPath)
+  ].map((post) => ({ legacy: post.legacyPath!.replace(/^\//, "").replace(/\/$/, "") }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ legacy: string }> }): Promise<Metadata> {
   const { legacy } = await params;
   const post = blogPostByLegacyPath(`/${legacy}/`);
-  if (!post) return {};
+  if (!post) {
+    // Recovered posts the old site served at the site root.
+    const archived = archivePostByLegacyPath(`/${legacy}/`);
+    if (!archived) return {};
+    return {
+      title: { absolute: archived.title },
+      description: archived.excerpt.slice(0, 160),
+      alternates: { canonical: canonicalPath(`/${legacy}`) },
+      openGraph: { type: "article", title: archived.title, description: archived.excerpt.slice(0, 160), publishedTime: archivePublishedIso(archived) }
+    };
+  }
   return {
     title: { absolute: post.metaTitle },
     description: post.description,
@@ -25,7 +40,11 @@ export async function generateMetadata({ params }: { params: Promise<{ legacy: s
 export default async function LegacyArticlePage({ params }: { params: Promise<{ legacy: string }> }) {
   const { legacy } = await params;
   const post = blogPostByLegacyPath(`/${legacy}/`);
-  if (!post) notFound();
+  if (!post) {
+    const archived = archivePostByLegacyPath(`/${legacy}/`);
+    if (!archived) notFound();
+    return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived}/></main><SiteFooter/></>;
+  }
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const schema = {
     "@context": "https://schema.org",

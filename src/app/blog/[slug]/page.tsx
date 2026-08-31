@@ -11,7 +11,7 @@ import { ArchiveArticle } from "@/components/archive-article";
 export function generateStaticParams() {
   return [
     ...BLOG_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug })),
-    ...ARCHIVE_POSTS.map((post) => ({ slug: post.slug }))
+    ...ARCHIVE_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug }))
   ];
 }
 
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post || post.legacyPath) {
     // Recovered posts from the previous site live at the same /blog/ paths.
     const archived = archivePostBySlug(slug);
-    if (!archived) return {};
+    if (!archived || archived.legacyPath) return {};
     return {
       title: { absolute: archived.title },
       description: archived.excerpt.slice(0, 160),
@@ -43,7 +43,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = blogPostBySlug(slug);
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
-    if (!archived) notFound();
+    if (!archived || archived.legacyPath) notFound();
     return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived}/></main><SiteFooter/></>;
   }
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";

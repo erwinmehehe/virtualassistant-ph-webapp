@@ -2608,3 +2608,12 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .candidate-access-counts strong { color:var(--text); }
 .candidate-access-gate-copy p { margin:0 0 4px; line-height:1.6; }
 .candidate-access-gate-action { display:grid; gap:10px; align-content:start; }
+
+/* Client-side VA browsing. Clients could only wait for applicants; they can now
+   look through approved profiles and invite someone to a published role. */
+.browse-va-grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+.browse-va-card { display:grid; gap:10px; align-content:start; padding:18px; }
+.browse-va-card strong { font-size:15px; }
+.browse-va-facts { line-height:1.5; }
+.browse-va-actions { gap:8px; margin-top:2px; }
+.browse-va-actions .invite-details { position:relative; }

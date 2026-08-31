@@ -179,6 +179,48 @@ export default async function HomePage() {
       </div>
     </div></section>
 
+    <section className="section"><div className="container">
+      <div className="section-head"><h2>What a full time hire actually costs, side by side.</h2><p>An illustrative example for a 40 hour a week role, showing the overhead that never appears on a local salary line.</p></div>
+      <div className="cost-compare-wrap">
+        <table className="cost-compare-table">
+          <thead><tr><th>Cost item</th><th>Filipino virtual assistant</th><th>Local full time hire</th></tr></thead>
+          <tbody>
+            <tr><td>Hourly rate</td><td>Around $9</td><td>$25 to $35</td></tr>
+            <tr><td>Annual cost at 40 hours</td><td>Around $16,800</td><td>$52,000 to $72,000</td></tr>
+            <tr><td>Benefits and superannuation</td><td>Not required</td><td>Required</td></tr>
+            <tr><td>Office space and equipment</td><td>Not required</td><td>Required</td></tr>
+            <tr><td>Recruitment cost</td><td>Included</td><td>Agency fee or your time</td></tr>
+            <tr><td>Time to start</td><td>Days</td><td>Weeks to months</td></tr>
+            <tr><td>Flexibility</td><td>Part time or full time</td><td>Fixed salary commitment</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="small muted cost-compare-note">Illustrative only. Actual virtual assistant rates run $5 to $20 an hour depending on scope and experience, and local salaries vary by market. Compare the work you need before comparing hourly numbers. <Link className="text-link" href="/tools/virtual-assistant-cost-calculator">Estimate your own numbers</Link></p>
+
+      <div className="hiring-option-grid">
+        <article className="hiring-option-card"><h3>Local full time staff</h3><p>Highest total cost once salary, benefits, office and recruitment are counted. Slowest to start, hardest to scale down.</p></article>
+        <article className="hiring-option-card best"><span className="badge badge-success">Best value for most</span><h3>Filipino virtual assistant</h3><p>One vetted person, part time or full time, with no benefits, office or recruitment overhead. Live in days rather than months.</p></article>
+        <article className="hiring-option-card"><h3>Multiple freelancers</h3><p>Cheapest per task and the least predictable. Fragmented communication, no guaranteed availability, and onboarding repeated for every provider.</p></article>
+      </div>
+    </div></section>
+
+    <section className="section section-alt"><div className="container">
+      <div className="section-head"><h2>Virtual assistants for every industry.</h2><p>Each page covers the workflows that matter in that sector, the tools involved, and what to keep in house.</p></div>
+      <div className="industry-segment-grid">
+        {[["entrepreneurs","Entrepreneurs and startups","Keep building while the daily operations run without you"],
+          ["coaches","Coaches and consultants","Admin, scheduling and client support handled"],
+          ["ecommerce-stores","Ecommerce brands","Listings, orders, customers and store management"],
+          ["real-estate-agents","Real estate","Listings, CRM, appointments and lead follow up"],
+          ["professional-services-growth","Digital agencies","Research, reporting, content and client support"],
+          ["medical-practices","Healthcare providers","Appointment booking, records and patient communication"],
+          ["construction-companies","Trades and construction","Quotes, scheduling, invoicing and admin support"],
+          ["accountants-cpas","Accountants and CPAs","Bookkeeping support, reconciliations and client chasing"],
+          ["law-firms","Legal and law firms","Case files, intake, scheduling and document preparation"]].map(([slug,label,copy]) =>
+          <Link className="industry-segment-card" href={`/industries/${slug}`} key={slug}><strong>{label}</strong><small>{copy}</small></Link>)}
+      </div>
+      <div className="row wrap" style={{marginTop:20}}><Link className="btn" href="/industries">View all industries</Link></div>
+    </div></section>
+
     <section className="section section-white"><div className="container"><div className="section-head"><h2>Choose the level of hiring support you need.</h2><p>VA compensation and the VirtualAssistant.com.ph service fee are separate. Pricing is shown before you publish a role.</p></div><div className="grid-2"><div className="card service-card"><h3>Managed VA service <span className="badge badge-success">Recommended</span></h3><p>Recruiting and vetting plus a structured operating layer after the VA starts -- your VA is backed by our team for as long as you work together, not left on their own after day one.</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured onboarding workroom</li><li>Ongoing placement support</li><li>30-day replacement support at no extra placement fee</li></ul><Link className="btn btn-primary" href="/hire">Get a managed VA <ArrowRight size={16}/></Link></div><div className="card service-card"><h3>Direct hire</h3><p>Prefer to manage the VA yourself after the hire? We still handle the recruiting, screening, and matching -- your team takes it from there.</p><ul className="check-list"><li>Role review and candidate screening</li><li>Approved talent and matching support</li><li>Client-led interviews and final selection</li><li>One-time placement fee, no ongoing support included</li></ul></div></div><div className="pricing-note"><strong>VA compensation:</strong> ongoing hourly roles cannot be posted below USD 5/hour. <Link href="/pricing">See pricing and estimate monthly cost.</Link> · <Link href="/managed-vs-direct-hire">Compare Managed VA vs. Direct Hire.</Link></div></div></section>
 
     <section className="section"><div className="container"><div className="section-head"><h2>Common questions before you get matched.</h2></div><div className="faq-list">{faqs.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div><div style={{marginTop:20}}><Link className="btn" href="/faq">View all FAQs</Link></div></div></section>

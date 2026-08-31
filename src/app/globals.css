@@ -2570,3 +2570,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .industry-segment-card:hover { border-color:#84caff; background:#f5faff; }
 .industry-segment-card strong { font-size:14.5px; }
 .industry-segment-card small { color:var(--muted); font-size:13px; line-height:1.5; }
+
+/* Profile quick facts. The class was in the markup but never styled, so the
+   values and their labels ran together as one unbroken line. */
+.public-profile-quickfacts { display:flex; flex-wrap:wrap; gap:8px 10px; margin:14px 0 16px; }
+.public-profile-quickfacts span { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface); font-size:13.5px; color:var(--muted); white-space:nowrap; }
+.public-profile-quickfacts strong { color:var(--text); font-weight:650; }
+@media (max-width: 560px) { .public-profile-quickfacts span { white-space:normal; } }

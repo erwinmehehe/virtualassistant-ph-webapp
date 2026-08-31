@@ -5,15 +5,30 @@ import { SiteFooter } from "@/components/site-footer";
 import { BlogArticle } from "@/components/blog-article";
 import { BLOG_POSTS, blogHref, blogPostBySlug } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
+import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso } from "@/lib/archive";
+import { ArchiveArticle } from "@/components/archive-article";
 
 export function generateStaticParams() {
-  return BLOG_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug }));
+  return [
+    ...BLOG_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug })),
+    ...ARCHIVE_POSTS.map((post) => ({ slug: post.slug }))
+  ];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = blogPostBySlug(slug);
-  if (!post || post.legacyPath) return {};
+  if (!post || post.legacyPath) {
+    // Recovered posts from the previous site live at the same /blog/ paths.
+    const archived = archivePostBySlug(slug);
+    if (!archived) return {};
+    return {
+      title: { absolute: archived.title },
+      description: archived.excerpt.slice(0, 160),
+      alternates: { canonical: canonicalPath(`/blog/${archived.slug}`) },
+      openGraph: { type: "article", title: archived.title, description: archived.excerpt.slice(0, 160), publishedTime: archivePublishedIso(archived) }
+    };
+  }
   return {
     title: { absolute: post.metaTitle },
     description: post.description,
@@ -26,7 +41,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = blogPostBySlug(slug);
-  if (!post || post.legacyPath) notFound();
+  if (!post || post.legacyPath) {
+    const archived = archivePostBySlug(slug);
+    if (!archived) notFound();
+    return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived}/></main><SiteFooter/></>;
+  }
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const url = `${base}${blogHref(post)}`;
   const articleKeywords = [post.title, post.clusterLabel, `${post.clusterLabel} Philippines`, "Virtual Assistant Philippines", ...(post.industrySlugs || [])].join(", ");

@@ -2582,3 +2582,15 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .candidate-video-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface); margin-bottom:18px; }
 .candidate-video-row > div { display:grid; gap:2px; flex:1; min-width:180px; }
 .candidate-video-row svg { color:var(--brand); flex:none; }
+
+/* Homepage lead capture. The highest intent page previously had no form at all. */
+.home-lead-grid { display:grid; gap:36px; grid-template-columns:minmax(0,1fr) minmax(320px,460px); align-items:start; }
+.home-lead-copy h2 { margin:8px 0 12px; font-size:28px; line-height:1.25; }
+.home-lead-copy p { margin:0 0 18px; color:var(--muted); line-height:1.7; font-size:15.5px; max-width:520px; }
+.home-lead-points { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.home-lead-points li { position:relative; padding-left:22px; color:var(--muted); font-size:14.5px; line-height:1.6; }
+.home-lead-points li::before { content:"✓"; position:absolute; left:0; color:var(--brand); font-weight:700; }
+.role-brief-note { margin:10px 0 0; text-align:center; }
+.role-brief-sent { text-align:center; }
+.role-brief-sent h2 { margin:0 0 8px; }
+@media (max-width: 900px) { .home-lead-grid { grid-template-columns:1fr; gap:24px; } .home-lead-copy h2 { font-size:24px; } }

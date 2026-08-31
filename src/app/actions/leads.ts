@@ -404,15 +404,19 @@ const roleBriefFieldLabels: Record<string, string> = {
 
 export async function submitRoleBriefAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
+  // Return the visitor to the page they submitted from. Validated the same way
+  // as source_path, so it can only ever be a path on this site.
+  const rawReturn = String(formData.get("source_path") || "").trim();
+  const returnTo = rawReturn.startsWith("/") && !rawReturn.startsWith("//") ? rawReturn : "/hire";
   const parsed = roleBriefSchema.safeParse(raw);
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0];
     const field = String(firstIssue?.path?.[0] ?? "");
     const label = roleBriefFieldLabels[field];
     const message = label ? `Please fill in: ${label}` : "Please complete the required role details";
-    redirect(`/hire?error=${encodeURIComponent(message)}`);
+    redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
-  if (parsed.data.website) redirect("/hire?sent=1");
+  if (parsed.data.website) redirect(`${returnTo}?sent=1`);
 
   const category = VA_CATEGORIES.includes(parsed.data.category as (typeof VA_CATEGORIES)[number]) ? parsed.data.category : parsed.data.category.trim();
   const candidateContext = parsed.data.talent ? `Requested talent profile: ${parsed.data.talent}.` : "";
@@ -429,7 +433,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const pageUrl = `${base}${sourcePath}`;
 
   const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category);
-  if (duplicate) redirect("/hire?sent=1");
+  if (duplicate) redirect(`${returnTo}?sent=1`);
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name?.trim() || null,
@@ -444,7 +448,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     page_url: pageUrl,
     session_id: parsed.data.session_id || null
   }).select("id").single();
-  if (error || !lead?.id) redirect(`/hire?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
+  if (error || !lead?.id) redirect(`${returnTo}?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
 
   const requestedVaId = await resolveRequestedVaId(admin, parsed.data.talent);
   const clientId = await currentClientId();
@@ -466,7 +470,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     });
   } catch {
     await admin.from("lead_intake").update({ status: "new" }).eq("id", lead.id);
-    redirect(`/hire?error=${encodeURIComponent("We saved your request but could not prepare the job draft. Please try again.")}`);
+    redirect(`${returnTo}?error=${encodeURIComponent("We saved your request but could not prepare the job draft. Please try again.")}`);
   }
 
   await recordLeadAnalytics(admin, {
@@ -497,7 +501,7 @@ export async function submitRoleBriefAction(formData: FormData) {
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";
-  redirect(`/hire?sent=1&lead=${encodeURIComponent(lead.id)}${talent}`);
+  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}${talent}`);
 }
 
 const contactSchema = z.object({

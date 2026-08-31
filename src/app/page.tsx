@@ -9,6 +9,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
+import { RoleBriefForm } from "@/components/role-brief-form";
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -49,7 +50,8 @@ const faqs = [
 
 function safeJson(value: unknown) { return JSON.stringify(value).replace(/</g, "\\u003c"); }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const query = await searchParams;
   const supabase = await createClient();
   const [{ data: featured }] = await Promise.all([
     supabase.from("public_va_directory").select("user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate").gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE).not("avatar_url", "is", null).limit(9),
@@ -100,6 +102,22 @@ export default async function HomePage() {
 
 
     <section className="section" id="how-it-works"><div className="container"><div className="section-head"><h2>From workload to shortlist in three steps.</h2><p>Start with a private match request or a specific VA profile. Create an account only when you are ready to manage the hiring process.</p></div><div className="process-grid">{[["01","Describe the work","Share the specialty, hours, timezone, budget, and recurring work this person should own."],["02","Compare focused candidates","Review approved profiles, staff-ranked matches, applications, or invites, then move the strongest fits into interviews."],["03","Confirm the hire","Agree the final rate, start date, schedule, and responsibilities before onboarding begins."]].map(([n,title,copy])=><div className="process-step" key={n}><div className="process-number">{n}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}</div></div></section>
+
+    <section className="section section-white" id="get-matched"><div className="container">
+      <div className="home-lead-grid">
+        <div className="home-lead-copy">
+          <div className="kicker">Tell us the role</div>
+          <h2>Describe the work. We shortlist against it.</h2>
+          <p>Give us the specialty, the hours, the overlap you need and your budget. We recruit and screen against that brief, then send you candidates worth interviewing. No account required, and nothing is published.</p>
+          <ul className="home-lead-points">
+            <li>Every candidate has passed a skills test, a video introduction and a recruiter review</li>
+            <li>VA pay and our service fee are shown separately before anything is agreed</li>
+            <li>Prefer to browse first? <Link className="text-link" href="/find-talent">See approved VAs</Link></li>
+          </ul>
+        </div>
+        <RoleBriefForm sourcePath="/" error={query.error} sent={Boolean(query.sent)} heading="Get matched" subheading="About 60 seconds. Required fields are marked." />
+      </div>
+    </div></section>
 
     <section className="section section-alt"><div className="container">
       <div className="section-head"><h2>Hire a Filipino virtual assistant without sorting through 200 applicants.</h2><p>Most ways to hire a Filipino virtual assistant put the screening on you. This one does not — but you still choose the person.</p></div>

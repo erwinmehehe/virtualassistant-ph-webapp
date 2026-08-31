@@ -57,7 +57,9 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
     setErrors({});
   };
   const storageKey = useMemo(() => `va_job_draft_${jobId || "new"}`, [jobId]);
-  const selectedCategories = data.categories.split(",").map((x) => x.trim()).filter(Boolean);
+  const categoryOptions = new Set<string>(VA_CATEGORIES as readonly string[]);
+  const rawCategories = data.categories.split(",").map((x) => x.trim()).filter(Boolean);
+  const selectedCategories = rawCategories.filter((x) => categoryOptions.has(x));
   const hours = Number(data.hours_per_week || 0);
   const minRate = Number(data.min_hourly_rate || 0);
   const maxRate = Number(data.max_hourly_rate || 0);
@@ -86,6 +88,10 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
     }, 400);
     return () => window.clearTimeout(timer);
   }, [data, storageKey]);
+
+  useEffect(() => {
+    if (rawCategories.length !== selectedCategories.length) set("categories", selectedCategories.join(", "));
+  }, [rawCategories.length, selectedCategories.length]);
 
   function toggleCategory(category: string) {
     const current = new Set(selectedCategories);

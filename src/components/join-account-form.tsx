@@ -71,7 +71,6 @@ export function JoinAccountForm({
       <div className="field"><label htmlFor={`${role}-full-name`}>Full name</label><input id={`${role}-full-name`} name="full_name" required minLength={2} autoComplete="name"/></div>
       <div className="field"><label htmlFor={`${role}-email`}>{client ? "Work email" : "Email"}</label><input id={`${role}-email`} type="email" name="email" required autoComplete="email"/></div>
       <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={8} required autoComplete="new-password"/><span className="small muted">At least 8 characters.</span></div>
-      {!client ? <div className="field"><label htmlFor="va-avatar">Profile photo</label><input id="va-avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required/><span className="small muted">Required. JPG, PNG, or WEBP, max 3 MB.</span></div> : null}
       <TurnstileWidget/>
       <button className="btn btn-primary btn-lg" type="submit">{client ? "Create client account" : "Create VA account"}</button>
     </form>

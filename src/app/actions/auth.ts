@@ -168,9 +168,10 @@ export async function joinAction(formData: FormData) {
     redirect(joinErrorPath(role, "Please use a permanent email address. Temporary inbox providers cannot receive account or hiring notifications.", { talent, lead, next }));
   }
 
+  // A photo is optional at signup and is collected on the profile instead. If
+  // one is supplied anyway, it still has to be a sane image.
   const avatar = formData.get("avatar");
-  if (parsed.data.role === "va") {
-    if (!(avatar instanceof File) || avatar.size <= 0) redirect(joinErrorPath("va", "A profile photo is required to create a VA account", { next }));
+  if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
     if (avatar.size > 3 * 1024 * 1024) redirect(joinErrorPath("va", "Profile photo must be 3 MB or smaller", { next }));
     if (!["image/jpeg", "image/png", "image/webp"].includes(avatar.type)) redirect(joinErrorPath("va", "Upload a JPG, PNG, or WEBP profile photo", { next }));
   }

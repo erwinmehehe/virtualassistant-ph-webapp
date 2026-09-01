@@ -86,7 +86,8 @@ export async function createJobAction(formData: FormData) {
     experience_level: ["entry","intermediate","senior","expert"].includes(String(formData.get("experience_level") ?? "")) ? String(formData.get("experience_level")) : "intermediate",
     start_timing: String(formData.get("start_timing") ?? "").trim() || null,
     service_model: String(formData.get("service_model") ?? "curated_placement") === "managed_service" ? "managed_service" : "curated_placement",
-    status: submitMode === "draft" ? "draft" : "pending"
+    status: submitMode === "draft" ? "draft" : "published",
+    ...(submitMode === "draft" ? {} : { published_at: new Date().toISOString() })
   };
 
   const jobId = String(formData.get("job_id") ?? "").trim();
@@ -114,7 +115,7 @@ export async function createJobAction(formData: FormData) {
   // an already-pending job, which would just be repeat noise.
   await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: payload.status, submit_mode: submitMode } });
 
-  if (payload.status === "pending" && previousStatus !== "pending") {
+  if (payload.status === "published" && previousStatus !== "published") {
     try {
       const { data: clientProfile } = await admin.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
       const admins = await admin.from("profiles").select("id").eq("role", "admin");
@@ -124,8 +125,8 @@ export async function createJobAction(formData: FormData) {
       if (admins.data?.length) {
         await admin.from("notifications").insert(admins.data.map((a) => ({
           user_id: a.id,
-          title: "Job submitted for review",
-          body: `${clientProfile?.full_name || "A client"} submitted "${title}" for review.`,
+          title: "New role published",
+          body: `${clientProfile?.full_name || "A client"} published "${title}". It is live and open to applications.`,
           href: `/workspace/admin/jobs/${savedId}`
         })));
       }

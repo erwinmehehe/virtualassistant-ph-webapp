@@ -220,7 +220,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
       </div> : null}
 
       {step === 3 ? <div className="stack">
-        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Ready for review</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
+        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Ready to publish</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
         <div className="review-grid">
           <div><span>Specialty</span><strong>{selectedCategories.join(" · ") || "Not set"}</strong></div>
           <div><span>Schedule</span><strong>{data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible"}</strong></div><div><span>Experience</span><strong>{data.experience_level.charAt(0).toUpperCase()+data.experience_level.slice(1)}</strong></div>
@@ -233,7 +233,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">Post job for recruiting review</button>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">Publish this role</button>}</div>
       </div>
     </div>
   </form>;

@@ -57,7 +57,7 @@ export default async function ClientCandidatesPage(){
                   <div className="field"><label htmlFor={`note-${va.user_id}`}>Personal note</label><textarea id={`note-${va.user_id}`} name="note" maxLength={500} placeholder="Your background looks relevant to this role. Would you like to review it?"/></div>
                   <button className="btn btn-primary btn-sm" type="submit">Send invitation</button>
                 </form></details>
-              :<span className="small muted">Publish a role to invite</span>}
+              :<Link className="btn btn-sm" href="/workspace/client/jobs/new">Publish a role to invite</Link>}
           </div>
         </article>;
       })}</div>:<div className="empty">No approved VAs are publicly listed yet. Our recruiting team can still match candidates to your role.</div>}

@@ -24,9 +24,13 @@ create index if not exists messages_unread_idx
 
 -- Client dashboard lists a client's roles; recruiter and public pages filter by
 -- status. Neither column was indexed.
-create index if not exists jobs_client_idx        on public.jobs(client_id);
-create index if not exists jobs_status_idx        on public.jobs(status);
+-- jobs(client_id) and jobs(status) already existed as jobs_client_id_idx and
+-- jobs_status_idx; only the composite is new.
 create index if not exists jobs_client_status_idx on public.jobs(client_id, status);
+
+-- Remove the duplicate of jobs_client_id_idx added by an earlier run of this
+-- migration. A second index on the same column costs writes and disk.
+drop index if exists public.jobs_client_idx;
 
 -- Recruiter dashboard counts VAs by vetting stage.
 create index if not exists va_vetting_stage_idx on public.va_vetting(stage);

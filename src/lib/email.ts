@@ -4,6 +4,21 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const applicationCcEmail = process.env.APPLICATION_CC_EMAIL || "";
 
+// Blind-copied on every outgoing email so the team keeps a full record of what
+// the platform sends. BCC rather than CC deliberately: a CC would publish this
+// address to every VA and client who receives a transactional email, and invite
+// reply-all. Comma-separated for more than one watcher.
+const archiveRecipients = (process.env.EMAIL_ARCHIVE_BCC || "").split(",").map((e) => e.trim()).filter(Boolean);
+
+// Recipients already on the message must not be repeated in the BCC.
+function bccFor(payload: any) {
+  const addressed = new Set<string>(
+    [payload.to, payload.cc].flat().filter(Boolean).map((e: string) => String(e).toLowerCase())
+  );
+  const extra = archiveRecipients.filter((e) => !addressed.has(e.toLowerCase()));
+  return extra.length ? extra : undefined;
+}
+
 function configuredSender() {
   const value = process.env.EMAIL_FROM?.trim() || "";
   if (!value || !value.includes("@") || value.toLowerCase().includes("example.com")) return null;
@@ -33,6 +48,8 @@ async function logEmailEvent(eventType: string, recipient: string | string[] | u
 }
 
 async function trackedSend(config: NonNullable<ReturnType<typeof resendConfig>>, payload: any, eventType: string) {
+  const bcc = bccFor(payload);
+  if (bcc) payload = { ...payload, bcc: [...(payload.bcc ? [payload.bcc].flat() : []), ...bcc] };
   try {
     const result: any = await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
@@ -115,11 +132,11 @@ export async function sendLeadNotificationEmail(args: {
  */
 export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobTitle: string; clientName?: string | null; appUrl: string }) {
   const config = resendConfig();
-  const recipient = process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL;
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "no_recipient_configured" : "email_not_configured" };
+  const recipients = (process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL || "").split(",").map((e) => e.trim()).filter(Boolean);
+  if (!config || !recipients.length) return { sent: false as const, reason: !recipients.length ? "no_recipient_configured" : "email_not_configured" };
   await trackedSend(config, {
     from: config.from,
-    to: [recipient],
+    to: recipients,
     subject: `Job ready for review: ${args.jobTitle}`,
     html: `<h2>A client submitted a job for review</h2><p><strong>Title:</strong> ${escapeHtml(args.jobTitle)}</p>${args.clientName ? `<p><strong>Client:</strong> ${escapeHtml(args.clientName)}</p>` : ""}<p><a href="${args.appUrl}/workspace/admin/jobs/${args.jobId}">Open the job review page</a></p>`
   }, "job_submitted");

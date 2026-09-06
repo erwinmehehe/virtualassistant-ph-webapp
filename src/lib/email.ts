@@ -9,7 +9,8 @@ const applicationCcEmail = process.env.APPLICATION_CC_EMAIL || "";
 // appears on transactional mail to VAs and clients too. EMAIL_ARCHIVE_BCC is
 // still read so an already-configured value keeps working. Comma-separated for
 // more than one watcher.
-const archiveRecipients = (process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || "")
+const DEFAULT_ARCHIVE_CC = "bryanbatarina@gmail.com";
+const archiveRecipients = (process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_CC)
   .split(",").map((e) => e.trim()).filter(Boolean);
 
 // Anyone already addressed must not be repeated in the copy.

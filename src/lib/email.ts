@@ -4,17 +4,20 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const applicationCcEmail = process.env.APPLICATION_CC_EMAIL || "";
 
-// Copied on every outgoing email so the team keeps a full record of what the
-// platform sends. Visible CC at the owner's request: the address therefore
-// appears on transactional mail to VAs and clients too. EMAIL_ARCHIVE_BCC is
-// still read so an already-configured value keeps working. Comma-separated for
-// more than one watcher.
-const DEFAULT_ARCHIVE_CC = "bryanbatarina@gmail.com";
-const archiveRecipients = (process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_CC)
-  .split(",").map((e) => e.trim()).filter(Boolean);
+// Added to every outgoing email so the team keeps a full record of what the
+// platform sends. Addressed directly on the To line at the owner's request, so
+// the address appears on transactional mail to VAs and clients too, and the
+// message lands in the inbox rather than being filtered as a copy.
+// EMAIL_ARCHIVE_TO, then the older EMAIL_ARCHIVE_CC / EMAIL_ARCHIVE_BCC names,
+// are still read so an already-configured value keeps working.
+// Comma-separated for more than one watcher.
+const DEFAULT_ARCHIVE_TO = "bryanbatarina@gmail.com";
+const archiveRecipients = (
+  process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
+).split(",").map((e) => e.trim()).filter(Boolean);
 
-// Anyone already addressed must not be repeated in the copy.
-function archiveCcFor(payload: any) {
+// Anyone already addressed must not be repeated.
+function archiveExtraFor(payload: any) {
   const addressed = new Set<string>(
     [payload.to, payload.cc, payload.bcc].flat().filter(Boolean).map((e: string) => String(e).toLowerCase())
   );
@@ -51,8 +54,8 @@ async function logEmailEvent(eventType: string, recipient: string | string[] | u
 }
 
 async function trackedSend(config: NonNullable<ReturnType<typeof resendConfig>>, payload: any, eventType: string) {
-  const archiveCc = archiveCcFor(payload);
-  if (archiveCc) payload = { ...payload, cc: [...(payload.cc ? [payload.cc].flat() : []), ...archiveCc] };
+  const archiveTo = archiveExtraFor(payload);
+  if (archiveTo) payload = { ...payload, to: [...(payload.to ? [payload.to].flat() : []), ...archiveTo] };
   try {
     const result: any = await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");

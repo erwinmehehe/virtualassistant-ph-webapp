@@ -9,7 +9,7 @@ import { sendProfileCompletionReminderEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 
-const allowedBulkActions = new Set(["approve", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
+const allowedBulkActions = new Set(["approve", "approve_publish", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -23,7 +23,7 @@ function numberParam(value: FormDataEntryValue | null) {
 
 async function filteredVaIds(formData: FormData) {
   const admin = createAdminClient();
-  let query: any = admin.from("recruiter_va_directory").select("user_id,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").limit(500);
+  let query: any = admin.from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").limit(500);
   const stage = String(formData.get("filter_stage") || "");
   const readiness = String(formData.get("filter_readiness") || "");
   const photo = String(formData.get("filter_photo") || "");
@@ -59,7 +59,7 @@ async function resolveBulkRows(formData: FormData) {
   const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 500);
   if (String(formData.get("selection_scope") || "selected") === "filtered") return filteredVaIds(formData);
   if (!selected.length) return [];
-  const { data, error } = await createAdminClient().from("recruiter_va_directory").select("user_id,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").in("user_id", selected);
+  const { data, error } = await createAdminClient().from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").in("user_id", selected);
   if (error) throw error;
   return data || [];
 }
@@ -76,18 +76,33 @@ export async function bulkRecruiterVaAction(formData: FormData) {
   const admin = createAdminClient();
   const now = new Date().toISOString();
   let affected = 0;
+  let published = 0;
+  let skippedNames: string[] = [];
 
-  if (action === "approve") {
-    const eligible = rows.filter((row) => {
+  if (action === "approve" || action === "approve_publish") {
+    const isEligible = (row: any) => {
       const missing = Array.isArray(row.missing_items) ? row.missing_items : [];
       const criticalMissing = missing.filter((item: string) => !["portfolio", "tools"].includes(item));
       return Number(row.completion_score || 0) >= 90 && criticalMissing.length === 0;
-    }).map((row) => row.user_id);
+    };
+    const eligible = rows.filter(isEligible).map((row) => row.user_id);
+    // Anyone the guard turned down is reported back by name. Silently dropping
+    // them is why an earlier bulk run looked like it had done nothing.
+    skippedNames = rows.filter((row) => !isEligible(row)).map((row) => String(row.full_name || "Unnamed VA"));
     if (eligible.length) {
       const { error } = await admin.from("va_vetting").update({ stage: "approved", recruiter_id: user.id, approved_at: now, updated_at: now }).in("va_id", eligible);
       if (error) throw error;
       affected = eligible.length;
       await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, type: "profile_approved", title: "Your VA profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
+      if (action === "approve_publish") {
+        // directory_visible is necessary but not sufficient: public_va_directory
+        // still enforces photo, resume, bio, skills, rate and the 2-year
+        // minimum, so setting it on a profile that falls short is harmless.
+        const { error: publishError } = await admin.from("va_profiles").update({ directory_visible: true }).in("user_id", eligible);
+        if (publishError) throw publishError;
+        const { count } = await admin.from("public_va_directory").select("user_id", { count: "exact", head: true }).in("user_id", eligible);
+        published = count || 0;
+      }
     }
   } else if (action === "bench") {
     const eligible = rows.filter((row) => ["approved", "bench"].includes(String(row.stage)) && row.primary_category);
@@ -150,12 +165,18 @@ export async function bulkRecruiterVaAction(formData: FormData) {
     }
   }
 
-  await writeAdminAudit({ actorId: user.id, action: `recruiter_bulk_${action}`, targetType: "va", metadata: { requested: ids.length, affected } });
+  await writeAdminAudit({ actorId: user.id, action: `recruiter_bulk_${action}`, targetType: "va", metadata: { requested: ids.length, affected, published, skipped: skippedNames.length } });
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/talent");
   revalidatePath("/workspace/recruiter/queue");
   revalidatePath("/workspace/recruiter/matching");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_done=${action}&affected=${affected}`);
+  revalidatePath("/find-talent");
+  const extra = new URLSearchParams();
+  extra.set("bulk_done", action);
+  extra.set("affected", String(affected));
+  if (action === "approve_publish") extra.set("published", String(published));
+  if (skippedNames.length) extra.set("skipped", skippedNames.slice(0, 5).join(", ") + (skippedNames.length > 5 ? ` and ${skippedNames.length - 5} more` : ""));
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${extra.toString()}`);
 }
 
 export async function addRecruiterNoteAction(formData: FormData) {

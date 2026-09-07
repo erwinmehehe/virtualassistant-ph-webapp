@@ -2186,6 +2186,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .directory-filter-search { display:flex; align-items:center; gap:8px; min-height:42px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:0 10px; }
 .directory-filter-search input { min-width:0; border:0 !important; outline:0; padding-left:0; }
 .bulk-action-bar { position:sticky; top:74px; z-index:20; display:grid; grid-template-columns:minmax(230px,1fr) minmax(180px,.75fr) minmax(230px,1fr) auto; gap:10px; align-items:center; padding:12px; border:1px solid #cbdaf0; border-radius:14px; background:rgba(247,250,255,.97); box-shadow:0 10px 30px rgba(16,24,40,.08); backdrop-filter:blur(10px); }
+/* The vetting queue's bar has no role picker, so it needs three columns
+   rather than the directory's four. */
+.bulk-action-bar-compact { grid-template-columns:minmax(230px,1fr) minmax(230px,1fr) auto; }
+@media (max-width: 900px) { .bulk-action-bar-compact { grid-template-columns:1fr; } }
 .bulk-scope { display:flex; gap:9px; align-items:flex-start; cursor:pointer; }
 .bulk-scope input { margin-top:3px; }
 .bulk-scope strong,.bulk-scope small { display:block; }

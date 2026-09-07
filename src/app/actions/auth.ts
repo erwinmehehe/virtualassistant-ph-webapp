@@ -261,6 +261,6 @@ export async function updatePasswordAction(formData: FormData) {
   if (error) redirect(`/auth/update-password?error=${encodeURIComponent(error.message)}`);
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
-  if (user?.email) { try { const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: user.email, subject: "Your password was changed", heading: "Password updated", body: "The password for your VirtualAssistant.com.ph account was changed. If you did not do this, contact support immediately." }); } catch {} }
+  if (user?.email) { try { const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: user.email, subject: "Your password was changed", heading: "Password updated", body: "The password for your VirtualAssistant.com.ph account was changed. If you did not do this, contact support immediately.", archive: false }); } catch {} }
   redirect(profile?.role ? `/workspace/${profile.role}` : "/auth/login?error=Your%20workspace%20role%20could%20not%20be%20loaded");
 }

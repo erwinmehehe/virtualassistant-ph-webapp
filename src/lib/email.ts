@@ -53,8 +53,15 @@ async function logEmailEvent(eventType: string, recipient: string | string[] | u
   }
 }
 
-async function trackedSend(config: NonNullable<ReturnType<typeof resendConfig>>, payload: any, eventType: string) {
-  const archiveTo = archiveExtraFor(payload);
+async function trackedSend(
+  config: NonNullable<ReturnType<typeof resendConfig>>,
+  payload: any,
+  eventType: string,
+  options?: { archive?: boolean }
+) {
+  // Account security mail is the one exception to the archive: nobody outside
+  // the account holder should be told their password changed.
+  const archiveTo = options?.archive === false ? undefined : archiveExtraFor(payload);
   if (archiveTo) payload = { ...payload, to: [...(payload.to ? [payload.to].flat() : []), ...archiveTo] };
   try {
     const result: any = await config.client.emails.send(payload);
@@ -218,7 +225,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
   return { sent: true as const };
 }
 
-export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string }) {
+export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
   const link = args.href ? `<p><a href="${escapeHtml(args.href)}">${escapeHtml(args.hrefLabel || "Open VirtualAssistant.com.ph")}</a></p>` : "";
@@ -227,7 +234,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
     to: [args.to],
     subject: args.subject,
     html: `<h2>${escapeHtml(args.heading)}</h2><p>${escapeHtml(args.body)}</p>${link}`
-  }, "transactional_event");
+  }, "transactional_event", { archive: args.archive !== false });
   return { sent: true as const };
 }
 

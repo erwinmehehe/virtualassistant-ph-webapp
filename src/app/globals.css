@@ -2664,7 +2664,10 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 /* Small chips and trust markers. */
 .tool-chip { display:inline-flex; align-items:center; padding:5px 10px; border:1px solid var(--line); border-radius:999px; font-size:12.5px; background:var(--surface); }
 .verified-client { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:#067647; font-weight:650; }
-.hero-trust-row { margin-top:14px; }
+/* The hero positioning line. Replaces the old trust row, which was fine print;
+   this is a statement, so it reads at body size rather than .small muted. */
+.hero-positioning { margin-top:16px; font-size:1.05rem; line-height:1.45; color:#344054; max-width:34ch; }
+@media (max-width:640px){ .hero-positioning { font-size:1rem; max-width:none; } }
 
 /* Success variant. .alert is amber, so an "alert alert-success" element was
    showing confirmations in warning colours. */

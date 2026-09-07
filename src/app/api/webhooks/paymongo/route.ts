@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       }).eq("id", paymentId).eq("status", "awaiting_payment").select("id,client_id,description,amount_total").maybeSingle();
       if (payment) {
         await recordProductEvent("payment_completed", { userId: payment.client_id, path: "/workspace/client/payments", metadata: { payment_id: payment.id, provider: "paymongo", amount_total: payment.amount_total } });
-        try { const auth = await admin.auth.admin.getUserById(payment.client_id); const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: auth.data.user?.email, subject: "Payment received", heading: "Payment successful", body: `We received your payment for ${payment.description || "your VirtualAssistant.com.ph invoice"}.`, href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/payments`, hrefLabel: "View payments" }); } catch {}
+        try { const auth = await admin.auth.admin.getUserById(payment.client_id); const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: auth.data.user?.email, subject: "Payment received", heading: "Payment successful", body: `We received your payment for ${payment.description || "your VirtualAssistant.com.ph invoice"}.`, href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/payments`, hrefLabel: "View payments", archive: false }); } catch {}
       }
     }
   }

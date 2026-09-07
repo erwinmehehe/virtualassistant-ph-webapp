@@ -106,7 +106,7 @@ export async function sendMessageAction(formData: FormData) {
   try {
     const recipientAuth = await admin.auth.admin.getUserById(recipient);
     const { sendTransactionalEventEmail } = await import("@/lib/email");
-    await sendTransactionalEventEmail({ to: recipientAuth.data.user?.email, subject: notificationTitle, heading: notificationTitle, body: notificationBody, href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}${notificationHref}`, hrefLabel: "Open conversation" });
+    await sendTransactionalEventEmail({ to: recipientAuth.data.user?.email, subject: notificationTitle, heading: notificationTitle, body: notificationBody, href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}${notificationHref}`, hrefLabel: "Open conversation", archive: false });
   } catch { /* email is best-effort */ }
 
   revalidatePath(profile.role === "client" ? "/workspace/client/messages" : "/workspace/va/messages");

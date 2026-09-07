@@ -59,8 +59,9 @@ async function trackedSend(
   eventType: string,
   options?: { archive?: boolean }
 ) {
-  // Account security mail is the one exception to the archive: nobody outside
-  // the account holder should be told their password changed.
+  // Callers pass archive:false for mail that is private to the recipient --
+  // password changes, application decisions, direct messages, payment receipts.
+  // Lead, recruiting and account-lifecycle mail is still archived.
   const archiveTo = options?.archive === false ? undefined : archiveExtraFor(payload);
   if (archiveTo) payload = { ...payload, to: [...(payload.to ? [payload.to].flat() : []), ...archiveTo] };
   try {
@@ -221,7 +222,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
     to: [args.to],
     subject: `Application update: ${args.jobTitle}`,
     html: `<p>Your application for <strong>${escapeHtml(args.jobTitle)}</strong> is now <strong>${escapeHtml(label)}</strong>.</p><p><a href="${args.appUrl}/workspace/va/applications">View your applications</a></p>`
-  }, "application_status");
+  }, "application_status", { archive: false });
   return { sent: true as const };
 }
 

@@ -92,6 +92,7 @@ export async function updateCandidateAccessAction(formData: FormData) {
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/candidates");
   revalidatePath("/workspace/client/messages");
 }
@@ -178,6 +179,8 @@ export async function saveJobShortlistAction(formData: FormData) {
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath("/workspace/client");
+  revalidatePath("/workspace/client/candidates");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${mode === "release" ? "shortlist_released" : "shortlist_saved"}=1`);
 }
 
@@ -192,5 +195,7 @@ export async function hideShortlistCandidateAction(formData: FormData) {
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath("/workspace/client");
+  revalidatePath("/workspace/client/candidates");
   redirect(returnTo);
 }

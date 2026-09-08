@@ -9,14 +9,15 @@ const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"),
   title: { default: "Hire Vetted Filipino Virtual Assistants | VirtualAssistant.com.ph", template: "%s | VirtualAssistant.com.ph" },
-  description: "Hire vetted virtual assistants from the Philippines. Browse screened talent or send a role brief and get help shortlisting the right fit.",
+  description: "Hire vetted virtual assistants from the Philippines. Get recruiting, screening, onboarding and ongoing placement support for your next hire.",
   openGraph: {
     type: "website",
     siteName: "VirtualAssistant.com.ph",
     title: "Hire Vetted Filipino Virtual Assistants",
-    description: "Skip the open-marketplace resume pile. Meet screened Filipino VAs and move from role brief to hire with a clearer process."
+    description: "Recruiting, screening and placement support for your next Filipino virtual assistant.",
+    images: [{url:"/opengraph-image",width:1200,height:630,alt:"VirtualAssistant.com.ph — Filipino talent. A team behind every hire."}]
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images:["/opengraph-image"] },
   ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {})
 };
 

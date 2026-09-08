@@ -69,7 +69,7 @@ export function RoleBriefForm({
         </div>
       </details>
 
-      <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>
+      <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">Get matched</button>
       <p className="small muted role-brief-note">Private request. No account needed, and nothing is published.</p>
     </form>
   );

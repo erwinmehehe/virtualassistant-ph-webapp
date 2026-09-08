@@ -2,14 +2,32 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { convertLeadToJobAction } from "@/app/actions/admin";
+import { updateLeadPipelineAction } from "@/app/actions/agency-leads";
+import { LEAD_STAGES, isLeadStage } from "@/lib/agency-pipeline";
 import { dateShort } from "@/lib/format";
 
-export default async function AdminLeadsPage(){
+export default async function AdminLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   await requireRole("admin");
-  const admin=createAdminClient();
-  const [{data:leads},{data:clients}]=await Promise.all([
-    admin.from("lead_intake").select("*").order("created_at",{ascending:false}).limit(100),
-    admin.from("profiles").select("id,full_name,client_profiles(company_name)").eq("role","client").order("full_name")
-  ]);
-  return <><div className="page-head"><div><h1>Lead inbox</h1><p>Match requests now create private pending job drafts automatically. Older or contact-only leads can still be converted manually.</p></div></div><div className="stack">{leads?.length?leads.map((lead:any)=><div className="card" key={lead.id}><div className="row-between wrap"><div><div className="row wrap"><span className="badge">{lead.status}</span><span className="small muted">{dateShort(lead.created_at)}</span>{lead.job_id?<span className="badge badge-success">Job draft created</span>:null}</div><h3 style={{margin:"8px 0 3px"}}>{lead.service||"VA request"}</h3><div className="small muted">{lead.company||lead.name||"Lead"} · {lead.hours||"Hours not set"} · {lead.timezone||"Timezone not set"}</div></div>{lead.job_id?<Link className="btn btn-sm" href={`/workspace/admin/jobs/${lead.job_id}`}>Open job draft</Link>:lead.status==="new"?<form action={convertLeadToJobAction} className="row wrap"><input type="hidden" name="lead_id" value={lead.id}/><select name="client_id" style={{border:"1px solid var(--line)",borderRadius:8,padding:"8px 9px"}}><option value="">No client account yet</option>{(clients||[]).map((c:any)=><option key={c.id} value={c.id}>{c.client_profiles?.company_name||c.full_name||c.id}</option>)}</select><button className="btn btn-primary btn-sm" type="submit">Create pending job</button></form>:null}</div><p>{lead.message||"No message provided."}</p><div className="small muted"><strong>Private contact:</strong> {lead.name||""} · {lead.email}{lead.phone?` · ${lead.phone}`:""}</div></div>):<div className="card empty">No leads received yet.</div>}</div></>;
+  const params=await searchParams;
+  const stage=isLeadStage(params.stage||"")?params.stage:"";
+  const page=Math.max(1,Math.min(10000,Math.floor(Number(params.page)||1)));
+  let query=createAdminClient().from("lead_intake").select("*",{count:"exact"}).neq("status","archived");
+  if(stage) query=query.eq("sales_stage",stage);
+  if(params.lead&&/^[0-9a-f-]{36}$/i.test(params.lead)) query=query.eq("id",params.lead);
+  const {data:leads,count,error}=await query.order("created_at",{ascending:false}).range((page-1)*30,page*30-1);
+  const hasPipeline=leads?.every(lead=>"sales_stage" in lead)??true;
+  const pageHref=(next:number)=>`/workspace/admin/leads?${new URLSearchParams({...(stage?{stage}:{}),page:String(next)})}`;
+  return <>
+    <div className="page-head agency-page-head"><div><div className="kicker">Employer relationships</div><h1>Your lead pipeline</h1><p>Qualify the work, agree the next step, and keep the conversation moving.</p></div><Link className="btn" href="/workspace/admin">Agency overview</Link></div>
+    {params.saved?<div className="success-banner" role="status">Lead updated. Your next step is saved.</div>:null}
+    {params.error?<div className="alert" role="alert">{params.error}</div>:null}
+    {!hasPipeline?<div className="alert" role="alert">Sales tracking is not available yet. Complete the agency lead pipeline database migration before editing stages or follow-ups.</div>:null}
+    <nav className="agency-filter-tabs" aria-label="Filter lead stage"><Link href="/workspace/admin/leads" aria-current={!stage?"page":undefined}>All enquiries</Link>{LEAD_STAGES.map(([value,label])=><Link key={value} href={`/workspace/admin/leads?stage=${value}`} aria-current={stage===value?"page":undefined}>{label}</Link>)}</nav>
+    <p className="small muted">{error?"Could not load enquiries.":`${count||0} enquiries${stage?" in this stage":""}`} · Follow-up dates use Philippine time</p>
+    <div className="stack">{error?<div className="card empty" role="alert">The lead pipeline could not be loaded. Refresh the page or check database setup.</div>:leads?.length?leads.map(lead=><article className="card agency-lead" id={`lead-${lead.id}`} key={lead.id}>
+      <div className="agency-lead-brief"><div className="row wrap"><span className="badge">{LEAD_STAGES.find(([value])=>value===lead.sales_stage)?.[1]||"New enquiry"}</span><span className="small muted">Received {dateShort(lead.created_at)}</span></div><h2>{lead.company||lead.name||"Employer enquiry"}</h2><strong>{lead.service||"VA hiring request"}</strong><p className="small muted">{lead.hours||"Hours to confirm"} · {lead.timezone||"Timezone to confirm"}</p><p className="lead-message">{lead.message||"Discuss the workload with this employer."}</p><div className="lead-contact"><span>{lead.name}</span><a className="text-link" href={`mailto:${lead.email}`}>{lead.email}</a>{lead.phone?<span>{lead.phone}</span>:null}</div><div className="row wrap" style={{marginTop:18}}>{lead.job_id?<Link className="btn" href={`/workspace/admin/jobs/${lead.job_id}`}>Open hiring brief →</Link>:lead.status==="new"?<form action={convertLeadToJobAction}><input type="hidden" name="lead_id" value={lead.id}/><button className="btn" type="submit">Create hiring brief</button></form>:null}</div></div>
+      <form action={updateLeadPipelineAction} className="agency-lead-next stack"><strong>Next step</strong><input type="hidden" name="lead_id" value={lead.id}/><div className="field"><label htmlFor={`stage-${lead.id}`}>Sales stage</label><select id={`stage-${lead.id}`} name="sales_stage" defaultValue={lead.sales_stage||"new"}>{LEAD_STAGES.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></div><div className="field"><label htmlFor={`follow-${lead.id}`}>Next follow-up date</label><input id={`follow-${lead.id}`} type="date" name="follow_up_on" defaultValue={lead.follow_up_on||""}/><span className="small muted">Cleared when marked won or lost.</span></div><div className="field"><label htmlFor={`notes-${lead.id}`}>Private sales notes</label><textarea id={`notes-${lead.id}`} name="sales_notes" rows={3} maxLength={4000} defaultValue={lead.sales_notes||""} placeholder="Budget confirmed? Who decides? What happens next?"/></div><button className="btn btn-primary" type="submit" disabled={!hasPipeline}>Save next step</button></form>
+    </article>):<div className="card agency-empty"><h2>No enquiries in this view</h2><p>New employer requests will appear here. Check the other stages for existing conversations.</p><Link className="btn" href="/workspace/admin/leads">View all enquiries</Link></div>}</div>
+    {(count||0)>30?<div className="row-between" style={{marginTop:24}}>{page>1?<Link className="btn" href={pageHref(page-1)}>Previous</Link>:<span/>}<span className="small">Page {page} of {Math.ceil((count||0)/30)}</span>{page*30<(count||0)?<Link className="btn" href={pageHref(page+1)}>Next</Link>:<span/>}</div>:null}
+  </>;
 }

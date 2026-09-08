@@ -12,10 +12,12 @@ import { SERVICE_PAGES } from "@/lib/service-pages";
 import { RoleBriefForm } from "@/components/role-brief-form";
 
 export const metadata: Metadata = {
-  title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
-  description: "Virtual Assistant Philippines — hire vetted, screened Filipino VAs matched to your role. Browse approved talent or request a private shortlist today.",
+  title: { absolute: "Virtual Assistant Agency Philippines | Managed VA Hiring" },
+  description: "Hire a Filipino virtual assistant with recruiting, screening, onboarding and ongoing placement support. Tell us your workload and get a tailored shortlist.",
   keywords: ["virtual assistant philippines", "hire filipino virtual assistant", "filipino va", "virtual assistant services philippines", "outsource to the philippines"],
-  alternates: { canonical: canonicalPath("/") }
+  alternates: { canonical: canonicalPath("/") },
+  openGraph: { title: "Your next great hire starts in the Philippines", description: "Managed VA hiring, from a clear brief to a supported start.", url: "/", type: "website", images: [{url:"/opengraph-image",width:1200,height:630,alt:"VirtualAssistant.com.ph — Filipino talent. A team behind every hire."}] },
+  twitter: {card:"summary_large_image",title:"Managed VA Hiring | VirtualAssistant.com.ph",description:"Recruiting, screening and placement support for your next Filipino VA.",images:["/opengraph-image"]}
 };
 
 const GROUP_BLURBS: Record<string, string> = {
@@ -63,6 +65,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const schema = [
     {
       "@context": "https://schema.org",
+      "@type": "Service",
+      "@id": `${base}/#managed-hiring`,
+      name: "Managed Filipino virtual assistant hiring",
+      serviceType: "Virtual assistant recruiting and placement support",
+      url: `${base}/hire`,
+      provider: { "@id": `${base}/#organization` },
+      areaServed: ["Australia", "United States", "United Kingdom"].map(name => ({ "@type": "Country", name })),
+      description: "Recruiting, screening, shortlisting, onboarding and ongoing placement support for businesses hiring Filipino virtual assistants."
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "Organization",
       "@id": `${base}/#organization`,
       name: "VirtualAssistant.com.ph",
@@ -91,15 +104,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     }
   ];
 
-  return <><SiteHeader/><main id="main-content">
+  return <><SiteHeader/><main id="main-content" className="agency-home">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />
-    <section className="hero"><div className="container hero-grid hero-grid-form"><div><h1>Virtual Assistant Philippines</h1><p>We recruit, screen, and match experienced Filipino virtual assistants to your business — with ongoing placement support after they start, not just an introduction.</p><p className="hero-positioning">The easiest way for an Australian/US/UK business to build a Filipino remote team.</p><div className="row wrap hero-actions"><Link className="btn btn-primary btn-lg" href="/hire">See managed hiring <ArrowRight size={17}/></Link></div></div>
-      <RoleBriefForm sourcePath="/" error={query.error} sent={Boolean(query.sent)} heading="Get matched" subheading="About 60 seconds. Required fields are marked." /></div></section>
+    <section className="hero agency-hero"><div className="container hero-grid hero-grid-form"><div className="agency-hero-copy"><div className="kicker">Your people. Our hiring expertise.</div><h1>Great Filipino talent.<br/><span>A team behind<br/>every hire.</span></h1><p>Get the right virtual assistant for the work that matters. We recruit, screen, and shortlist. You choose your VA, with onboarding and ongoing placement support from our team.</p><div className="row wrap hero-actions"><a className="btn btn-primary btn-lg" href="#hire-brief">Find my VA <ArrowRight size={17}/></a><Link className="text-link" href="/pricing">Explore pricing →</Link></div><div className="agency-hero-proof"><span><CheckCircle2 size={17}/> Screened for your role</span><span><CheckCircle2 size={17}/> Transparent service fees</span><span><CheckCircle2 size={17}/> Ongoing placement support</span></div><p className="agency-market-note">Filipino virtual assistants for businesses in Australia, the US, and the UK.</p></div>
+      <div id="hire-brief" className="agency-brief"><div className="agency-brief-label"><span>LET’S BUILD YOUR TEAM</span><span>01 / YOUR BRIEF</span></div><RoleBriefForm sourcePath="/" error={query.error} sent={Boolean(query.sent)} heading="What can we take off your plate?" subheading="Tell us the work. We’ll help you find the right person." /></div></div></section>
+    <div className="agency-service-strip"><div className="container"><span>More room to focus.</span><Link href="/services">Admin & operations</Link><Link href="/services">Customer support</Link><Link href="/services">Marketing & growth</Link><Link href="/services">Explore all services →</Link></div></div>
 
     <section className="section section-white"><div className="container"><div className="section-head row-between wrap"><div><h2>Meet experienced, approved talent.</h2><p>Public discovery is limited to approved, available VAs with at least 2 years of professional experience.</p></div><Link className="btn" href="/find-talent">Browse all VAs <ArrowRight size={16}/></Link></div>{featuredWithPhotos.length ? <div className="grid-3">{featuredWithPhotos.map((va:any)=><article className="card talent-card homepage-talent-card" key={va.user_id}><div className="row"><PublicAvatar name={va.full_name} src={va.avatar_url}/><div><h3>{va.full_name}</h3><div className="muted small">{va.headline || va.primary_category || "Virtual Assistant"}</div></div></div><div className="pill-list">{mergeUniqueStrings(va.primary_category, va.categories).slice(0,2).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div><div className="talent-facts"><span>{va.years_experience}+ yrs experience</span><span>{va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Flexible availability"}</span>{va.hourly_rate ? <span>${Number(va.hourly_rate).toFixed(0)}/hr preferred</span> : null}</div><Link className="btn btn-primary" href={`/va/${va.slug}`}>View profile</Link></article>)}</div> : <div className="card empty">Approved public profiles will appear here as experienced talent becomes available.</div>}</div></section>
 
-    <section className="section product-paths-section"><div className="container"><div className="section-head"><h2>A guided workflow for both sides of the marketplace.</h2><p>The workspace now makes the next action obvious instead of dropping clients or VAs into a blank dashboard.</p></div><div className="grid-2 product-path-grid"><div className="card product-path-card"><div className="product-path-icon"><WandSparkles size={20}/></div><h3>For clients: create a role in 4 steps</h3><p>Role & skills → scope & schedule → budget & support → review. Skill chips, budget guidance, local autosave, and a final review screen keep job posts clear without turning the form into a wall of fields.</p><div className="mini-step-row"><span>1 Role</span><span>2 Scope</span><span>3 Budget</span><span>4 Review</span></div><Link className="btn btn-primary" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post your first job</Link></div><div className="card product-path-card"><div className="product-path-icon"><ShieldCheck size={20}/></div><h3>For VAs: know exactly what to finish</h3><p>Your overview includes an onboarding checklist and profile-strength meter. The profile editor updates strength live while you add experience, skills, tools, availability, rate, and proof.</p><div className="mini-strength"><div className="row-between"><strong>Profile strength</strong><span>80%</span></div><div className="progress"><span style={{width:"80%"}}/></div><small>Public discovery also requires 2+ years of experience and final approval.</small></div><Link className="btn" href="/auth/join/va">Build a VA profile</Link></div></div></div></section>
-
+    <section className="section agency-service-promise"><div className="container"><div className="section-head"><div className="kicker">A service built around your business</div><h2>You bring the work.<br/>We help you build the team.</h2><p>A clear hiring process, a focused shortlist, and support beyond the introduction.</p></div><div className="grid-3">{[["01","Recruiting with context","We start with your workload, tools, schedule, and budget, then screen candidates against the brief."],["02","A choice you can feel confident about","Review selected candidates and interview the people who fit. You make the final hiring decision."],["03","A supported start","Agree the role and schedule, organize onboarding, and get ongoing placement support with our managed service."]].map(([number,title,copy])=><article className="agency-promise" key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div><Link className="text-link" href="/managed-vs-direct-hire">Compare managed hiring and direct hire →</Link></div></section>
 
     <section className="section" id="how-it-works"><div className="container"><div className="section-head"><h2>From workload to shortlist in three steps.</h2><p>Start with a private match request or a specific VA profile. Create an account only when you are ready to manage the hiring process.</p></div><div className="process-grid">{[["01","Describe the work","Share the specialty, hours, timezone, budget, and recurring work this person should own."],["02","Compare focused candidates","Review approved profiles, staff-ranked matches, applications, or invites, then move the strongest fits into interviews."],["03","Confirm the hire","Agree the final rate, start date, schedule, and responsibilities before onboarding begins."]].map(([n,title,copy])=><div className="process-step" key={n}><div className="process-number">{n}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}</div></div></section>
 
@@ -121,15 +134,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </div></section>
 
     <section className="section section-alt"><div className="container">
-      <div className="section-head"><h2>Hire a Filipino virtual assistant without sorting through 200 applicants.</h2><p>Most ways to hire a Filipino virtual assistant put the screening on you. This one does not — but you still choose the person.</p></div>
+      <div className="section-head"><h2>Choose the hiring support your business needs.</h2><p>Most ways to hire a Filipino virtual assistant put the screening on you. This one does not — but you still choose the person.</p></div>
       <div className="grid-3 hiring-compare-grid">
         <article className="card">
           <h3>Job marketplaces</h3>
-          <p>Post a role and get a hundred applications, most of them irrelevant. Profiles are self-reported, so screening, testing, and reference-checking are your problem. Cheapest upfront, most expensive in your time.</p>
+          <p>Self-service marketplaces let you source candidates directly. Plan time for reviewing applications, interviewing, and checking role fit, and compare any platform fees.</p>
         </article>
         <article className="card">
           <h3>Traditional agencies</h3>
-          <p>Someone is assigned to you. You rarely meet alternatives, rates are bundled into one monthly figure, and swapping people means restarting the conversation.</p>
+          <p>Agency models vary in how they select talent, price services, and support a placement. Ask who manages the work, how fees are calculated, and what happens if the fit changes.</p>
         </article>
         <article className="card hiring-compare-ours">
           <h3>VirtualAssistant.com.ph</h3>
@@ -146,7 +159,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <div className="seo-content-layout">
         <div className="seo-content-main">
           <h2>Virtual assistant Philippines: what you get, and what it costs</h2>
-          <p className="seo-content-lede">The Philippines is the largest source of English-speaking remote support staff in the world, and for good reason — but the country is not the hard part. Finding the right person in it is.</p>
+          <p className="seo-content-lede">Hiring a virtual assistant in the Philippines starts with a clear role, a realistic budget, and a screening process that reflects the work. Here is how to plan your hire.</p>
 
           <h3>Why businesses hire virtual assistants in the Philippines</h3>
           <p>Filipino professionals work in English every day, in business cultures built around Western clients. Most have spent years inside the same tools your team already uses — Google Workspace, Slack, HubSpot, Xero, Shopify, Canva — so the ramp-up is about your process, not the software. The country runs on UTC+8, which gives you a working morning that overlaps Australia and Asia, and an overnight shift that means US and UK work is done before you open your laptop.</p>

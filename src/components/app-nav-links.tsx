@@ -41,7 +41,7 @@ const nav = {
   ],
   admin: [
     ["Overview", "/workspace/admin", ShieldCheck],
-    ["Lead inbox", "/workspace/admin/leads", MessageSquare],
+    ["Lead pipeline", "/workspace/admin/leads", MessageSquare],
     ["Job review", "/workspace/admin/jobs", BriefcaseBusiness],
     ["Payments", "/workspace/admin/payments", CircleDollarSign],
     ["Moderation", "/workspace/admin/moderation", Flag],
@@ -49,7 +49,7 @@ const nav = {
     ["Vetting finalists", "/workspace/admin/vetting", FileText],
     ["Users", "/workspace/admin/users", UsersRound],
     ["Audit log", "/workspace/admin/audit", History],
-    ["Marketplace settings", "/workspace/admin/settings", Settings],
+    ["Service settings", "/workspace/admin/settings", Settings],
     ["System setup", "/workspace/admin/system", Wrench],
     ["Health & repair", "/workspace/admin/health", ShieldCheck]
   ]

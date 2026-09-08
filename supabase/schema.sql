@@ -68,6 +68,9 @@ create table public.lead_intake (
   page_url text,
   session_id uuid,
   status text not null default 'new' check (status in ('new','converted','archived')),
+  sales_stage text not null default 'new' check (sales_stage in ('new','contacted','qualified','proposal','won','lost')),
+  follow_up_on date,
+  sales_notes text check (char_length(sales_notes) <= 4000),
   client_id uuid references public.profiles(id) on delete set null,
   job_id uuid,
   created_at timestamptz not null default now()

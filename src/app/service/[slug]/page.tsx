@@ -286,7 +286,38 @@ function useCaseCopy(item: string, s: ServiceSeoPage) {
   return `A good fit when ${item} need reliable ownership for ${s.tasks.slice(0, 3).join(", ")} while keeping higher-risk decisions with the right manager or specialist.`;
 }
 
-async function getTalent(category: string) {
+const TALENT_MATCH_STOP_WORDS = new Set(["virtual","assistant","support","specialist","manager","management","service","services","philippines","the","and","for","with"]);
+
+function talentRelevanceScore(va: any, service: ServiceSeoPage) {
+  const normalize = (value: unknown) => String(value ?? "").toLowerCase().replace(/[^a-z0-9+#.& -]+/g, " ").replace(/\s+/g, " ").trim();
+  const role = normalize(roleName(service.name));
+  const headline = normalize(va.headline);
+  const categoryText = normalize([va.primary_category, ...(va.categories || [])].join(" "));
+  const skillsText = normalize((va.skills || []).join(" "));
+  const toolsText = normalize((va.tools || []).join(" "));
+  const bio = normalize(va.bio);
+  const haystack = [headline, categoryText, skillsText, toolsText, bio].join(" ");
+  let score = 0;
+
+  if (role.length >= 3 && haystack.includes(role)) score += 8;
+
+  const roleTokens = role.split(/\s+/).filter((token) => token.length >= 3 && !TALENT_MATCH_STOP_WORDS.has(token));
+  for (const token of roleTokens) if (haystack.includes(token)) score += 2;
+
+  for (const skill of service.skills.slice(0, 6)) {
+    const target = normalize(skill);
+    if (target.length >= 4 && (skillsText.includes(target) || target.split(/\s+/).some((token) => token.length >= 5 && skillsText.includes(token)))) score += 2;
+  }
+
+  for (const tool of service.tools.slice(0, 6)) {
+    const target = normalize(tool);
+    if (target.length >= 3 && toolsText.includes(target)) score += 1;
+  }
+
+  return score;
+}
+
+async function getTalent(service: ServiceSeoPage) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return [];
@@ -297,8 +328,10 @@ async function getTalent(category: string) {
       .select("user_id,slug,full_name,headline,bio,avatar_url,primary_category,categories,skills,tools,years_experience,weekly_hours,overlap_hours")
       .limit(120);
     return (data || [])
-      .filter((va: any) => Boolean(va.slug) && [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(category))
-      .sort((a: any, b: any) => Number(b.years_experience || 0) - Number(a.years_experience || 0))
+      .filter((va: any) => Boolean(va.slug) && [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(service.directoryCategory))
+      .map((va: any) => ({ ...va, _serviceRelevance: talentRelevanceScore(va, service) }))
+      .filter((va: any) => va._serviceRelevance >= 4)
+      .sort((a: any, b: any) => Number(b._serviceRelevance) - Number(a._serviceRelevance) || Number(b.years_experience || 0) - Number(a.years_experience || 0))
       .slice(0, 6);
   } catch {
     return [];
@@ -316,7 +349,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const related = s.relatedSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4);
   const guides = serviceBlogPosts(s.slug, 6);
-  const talent = await getTalent(s.directoryCategory);
+  const talent = await getTalent(s);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/service/${s.slug}`;
   const regulated = complianceNote(s.slug, s.group);

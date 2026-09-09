@@ -189,7 +189,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
       };
     }
 
@@ -249,7 +249,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       clientLinked: Boolean(clientId),
       message: clientId
         ? `Your ${service.name.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
-        : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
@@ -316,7 +316,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: "Your hiring request is with our recruiting team. We will review the role and follow up using the email you provided."
+        message: "Your hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided."
       };
     }
 
@@ -376,7 +376,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       clientLinked: Boolean(clientId),
       message: clientId
         ? `Your ${industry.label.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
-        : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };

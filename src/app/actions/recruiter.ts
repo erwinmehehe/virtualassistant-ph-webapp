@@ -396,8 +396,10 @@ export async function updateLeadCrmAction(formData: FormData) {
 
   let nextFollowUpAt: string | null = null;
   if (followUpRaw) {
-    const parsed = new Date(followUpRaw);
-    if (!Number.isFinite(parsed.getTime())) return fail("Choose a valid follow-up date and time.");
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)
+      ? new Date(`${followUpRaw}T09:00:00+08:00`)
+      : new Date(followUpRaw);
+    if (!Number.isFinite(parsed.getTime())) return fail("Choose a valid follow-up date.");
     nextFollowUpAt = parsed.toISOString();
   }
 

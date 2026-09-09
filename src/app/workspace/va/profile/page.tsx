@@ -7,12 +7,15 @@ import { LiveProfileStrength } from "@/components/live-profile-strength";
 import { ResumeAutoFill } from "@/components/resume-autofill";
 import { VA_CATEGORIES } from "@/lib/constants";
 
-export default async function VaProfilePage() {
+export default async function VaProfilePage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
+  const params = await searchParams;
   const { user, profile } = await requireRole("va");
   const supabase = await createClient();
   const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).single();
 
   return <>
+    {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
+    {params.saved ? <div className="success-banner" role="status">Profile saved successfully.</div> : null}
     <div className="page-head"><div><h1>Build your VA profile</h1><p>Keep one strong profile for matching, applications, and your public page after approval.</p></div><Link className="btn" href="/workspace/va/profile/preview" target="_blank"><Eye size={16}/> Preview profile</Link></div>
     <ResumeAutoFill formId="va-profile-form" />
     <div className="profile-editor-layout">

@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VETTING_PROFILE_MIN } from "@/lib/constants";
+import { isPubliclyEligible } from "@/lib/public-visibility";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
@@ -175,8 +176,8 @@ export async function updateVaProfileAction(formData: FormData) {
 
   const { data: refreshed } = await admin.from("va_profiles").select("*").eq("user_id", user.id).single();
   if (refreshed && refreshed.directory_visible) {
-    const completion = getVaCompletion(refreshed);
-    if (!hasProfilePhoto || completion.score < VETTING_PROFILE_MIN || refreshed.availability_status !== "available" || Number(refreshed.years_experience || 0) < PUBLIC_VA_MIN_EXPERIENCE) {
+    const { data: refreshedAccount } = await admin.from("profiles").select("avatar_url").eq("id", user.id).single();
+    if (!isPubliclyEligible(refreshed, refreshedAccount?.avatar_url, vetting?.stage)) {
       await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
     }
   }
@@ -266,19 +267,7 @@ export async function publishVaProfileAction() {
   ]);
 
   const avatar = account?.avatar_url?.trim() || "";
-  const eligible = Boolean(
-    va
-    && ["approved", "bench"].includes(vetting?.stage || "")
-    && va.availability_status === "available"
-    && Number(va.years_experience || 0) >= PUBLIC_VA_MIN_EXPERIENCE
-    && avatar
-    && (va.headline || "").trim().length >= 8
-    && (va.bio || "").trim().length >= 80
-    && (va.skills || []).length >= 5
-    && Number(va.weekly_hours || 0) >= 1
-    && Number(va.hourly_rate || 0) >= MIN_HOURLY_RATE
-    && va.resume_path
-  );
+  const eligible = isPubliclyEligible(va, avatar, vetting?.stage);
 
   if (!eligible) {
     redirect("/workspace/va/profile?error=Your%20profile%20is%20not%20eligible%20for%20the%20public%20directory%20yet.%20Finish%20the%20remaining%20items%20below.");

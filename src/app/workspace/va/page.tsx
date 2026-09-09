@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Bell, BriefcaseBusiness, CheckCircle2, Clock3, Eye, FileText, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { missingForPublic } from "@/lib/public-visibility";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -87,17 +88,7 @@ export default async function VaDashboardPage(){
     rejected:statusCount(applicationRows,["rejected"])
   };
 
-  const publicRequirements=[
-    {label:"photo",done:Boolean(accountProfile?.avatar_url)},
-    {label:"headline",done:Boolean(va?.headline&&va.headline.length>=8)},
-    {label:"summary",done:Boolean(va?.bio&&va.bio.length>=80)},
-    {label:"5 skills",done:Boolean(va?.skills&&va.skills.length>=5)},
-    {label:"2+ years experience",done:Number(va?.years_experience||0)>=2},
-    {label:"availability",done:Number(va?.weekly_hours||0)>=1},
-    {label:"rate",done:Number(va?.hourly_rate||0)>=5},
-    {label:"resume",done:Boolean(va?.resume_path)}
-  ];
-  const missingPublic=publicRequirements.filter((item)=>!item.done).map((item)=>item.label);
+  const missingPublic=missingForPublic(va,accountProfile?.avatar_url);
   const directoryVisible=Boolean(vetted&&va?.directory_visible&&!missingPublic.length);
   const readyToPublish=Boolean(vetted&&!missingPublic.length&&!va?.directory_visible);
   const visibilityLabel=directoryVisible?"Visible to clients":vetted?"Not public yet":"Waiting for vetting";

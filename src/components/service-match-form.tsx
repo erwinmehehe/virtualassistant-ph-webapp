@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, LockKeyhole } from "lucide-react";
 import { submitServiceMatchAction, type ServiceMatchState } from "@/app/actions/leads";
+import { getBrowserSessionId } from "@/lib/browser-session";
 
 const initialState: ServiceMatchState = { status: "idle" };
 
@@ -28,35 +29,21 @@ export function ServiceMatchForm({
   const [sessionId, setSessionId] = useState("");
 
   useEffect(() => {
-    try {
-      const key = "va_ph_session";
-      let value = window.sessionStorage.getItem(key);
-      if (!value) {
-        value = crypto.randomUUID();
-        window.sessionStorage.setItem(key, value);
-      }
-      setSessionId(value);
-    } catch {
-      // The form works without analytics/session storage.
-    }
+    setSessionId(getBrowserSessionId());
   }, []);
 
   if (state.status === "success") {
     return <aside className="service-match-card service-match-success" id="match-request" aria-live="polite">
       <div className="service-match-success-icon"><CheckCircle2 size={28} /></div>
       <div className="kicker">Request received</div>
-      <h2>Your private job draft is ready.</h2>
+      <h2>Your hiring request is with our recruiting team.</h2>
       <p>{state.message || "We will use your request to identify relevant approved talent and the next best step."}</p>
       <div className="stack service-match-success-actions">
-        {state.clientLinked && state.jobId ? (
-          <Link className="btn btn-primary btn-lg" href={`/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1`}>Open private job draft <ArrowRight size={16} /></Link>
-        ) : (
-          <Link className="btn btn-primary btn-lg" href={`/auth/join/client${state.leadId ? `?lead=${encodeURIComponent(state.leadId)}` : ""}`}>Create client account and claim job <ArrowRight size={16} /></Link>
-        )}
-        <Link className="btn btn-lg" href={talentHref}>Browse relevant Virtual Assistants</Link>
-        {!state.clientLinked && state.leadId ? <Link className="small text-link service-match-login" href={`/auth/login?lead=${encodeURIComponent(state.leadId)}&next=${encodeURIComponent("/workspace/client")}`}>Already have a client account? Log in</Link> : null}
+        {state.clientLinked && state.jobId ? <Link className="btn btn-lg" href={`/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1`}>Open role in Client Portal <ArrowRight size={16} /></Link> : null}
+        <Link className="btn btn-primary btn-lg" href={talentHref}>Browse relevant Virtual Assistants while we review <ArrowRight size={16} /></Link>
+        {!state.clientLinked ? <Link className="small text-link service-match-login" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}
       </div>
-      <div className="service-match-privacy"><LockKeyhole size={14} /><span>Your job draft stays private until you review and publish it.</span></div>
+      <div className="service-match-privacy"><LockKeyhole size={14} /><span>Your hiring request stays private while our team reviews it.</span></div>
     </aside>;
   }
 
@@ -64,7 +51,7 @@ export function ServiceMatchForm({
     <div className="service-match-head">
       <div className="kicker">Free match request</div>
       <h2>Tell us what you need handled.</h2>
-      <p>Share the workload. We will use it to match you with relevant approved talent.</p>
+      <p>Share the workload. Our recruiting team will review it and screen relevant approved Virtual Assistants.</p>
     </div>
 
     <div className="service-match-divider" />
@@ -108,7 +95,7 @@ export function ServiceMatchForm({
       </div>
 
       <button className="btn btn-lg service-match-submit" type="submit" disabled={pending} data-track={`service_${slug.replaceAll("-", "_")}_match`}>
-        {pending ? "Sending request..." : "Get matched"} {!pending ? <ArrowRight size={17} /> : null}
+        {pending ? "Sending request..." : "Start my search"} {!pending ? <ArrowRight size={17} /> : null}
       </button>
       <div className="service-match-privacy"><LockKeyhole size={14} /><span>No obligation. No spam. Your details stay confidential.</span></div>
     </form>

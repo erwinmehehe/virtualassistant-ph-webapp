@@ -2,7 +2,38 @@ import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const applicationCcEmail = process.env.APPLICATION_CC_EMAIL || "";
+const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+
+function normalizeEmailAddress(value: unknown) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const named = raw.match(/^([^<>]+)<([^<>]+)>$/);
+  if (named) {
+    const email = named[2].trim();
+    return SIMPLE_EMAIL_RE.test(email) ? `${named[1].trim()} <${email}>` : null;
+  }
+  return SIMPLE_EMAIL_RE.test(raw) ? raw : null;
+}
+
+function normalizeEmailList(value: unknown): string[] {
+  const rawValues = Array.isArray(value) ? value : [value];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of rawValues) {
+    for (const piece of String(raw ?? "").split(/[;,\n\r]+/)) {
+      const address = normalizeEmailAddress(piece);
+      if (!address) continue;
+      const key = address.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(address);
+      }
+    }
+  }
+  return out;
+}
+
+const applicationCcRecipients = normalizeEmailList(process.env.APPLICATION_CC_EMAIL);
 
 // Added to every outgoing email so the team keeps a full record of what the
 // platform sends. Addressed directly on the To line at the owner's request, so
@@ -12,14 +43,14 @@ const applicationCcEmail = process.env.APPLICATION_CC_EMAIL || "";
 // are still read so an already-configured value keeps working.
 // Comma-separated for more than one watcher.
 const DEFAULT_ARCHIVE_TO = "bryanbatarina@gmail.com";
-const archiveRecipients = (
+const archiveRecipients = normalizeEmailList(
   process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
-).split(",").map((e) => e.trim()).filter(Boolean);
+);
 
 // Anyone already addressed must not be repeated.
 function archiveExtraFor(payload: any) {
   const addressed = new Set<string>(
-    [payload.to, payload.cc, payload.bcc].flat().filter(Boolean).map((e: string) => String(e).toLowerCase())
+    normalizeEmailList([payload.to, payload.cc, payload.bcc]).map((e) => e.toLowerCase())
   );
   const extra = archiveRecipients.filter((e) => !addressed.has(e.toLowerCase()));
   return extra.length ? extra : undefined;
@@ -63,8 +94,19 @@ async function trackedSend(
   // password changes, application decisions, direct messages, payment receipts.
   // Lead, recruiting and account-lifecycle mail is still archived.
   const archiveTo = options?.archive === false ? undefined : archiveExtraFor(payload);
-  if (archiveTo) payload = { ...payload, to: [...(payload.to ? [payload.to].flat() : []), ...archiveTo] };
+  const to = normalizeEmailList([payload.to, archiveTo]);
+  const cc = normalizeEmailList(payload.cc);
+  const bcc = normalizeEmailList(payload.bcc);
+  const replyTo = normalizeEmailList(payload.replyTo);
+  payload = {
+    ...payload,
+    to,
+    cc: cc.length ? cc : undefined,
+    bcc: bcc.length ? bcc : undefined,
+    replyTo: replyTo.length ? replyTo : undefined
+  };
   try {
+    if (!to.length) throw new Error("No valid email recipients were configured.");
     const result: any = await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
     await logEmailEvent(eventType, payload.to, "sent", result?.data?.id || null, null);
@@ -86,7 +128,7 @@ export async function sendApplicationEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    cc: !applicationCcEmail || args.to.toLowerCase() === applicationCcEmail.toLowerCase() ? undefined : [applicationCcEmail],
+    cc: applicationCcRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
     subject: `New application: ${args.jobTitle}`,
     html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
   }, "new_application");
@@ -112,7 +154,7 @@ export async function sendLeadNotificationEmail(args: {
   // LEAD_NOTIFICATION_EMAIL accepts a comma-separated list so more than one
   // person on the team can get lead notifications -- explicit and
   // configurable here, unlike the hardcoded forced-CC this replaced.
-  const recipients = (process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL || "").split(",").map((e) => e.trim()).filter(Boolean);
+  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
   if (!recipients.length) return { sent: false as const, reason: "no_recipient_configured" };
   const subjectLabel = args.service?.trim() || "VA enquiry";
   const rows = [
@@ -146,7 +188,7 @@ export async function sendLeadNotificationEmail(args: {
  */
 export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobTitle: string; clientName?: string | null; appUrl: string }) {
   const config = resendConfig();
-  const recipients = (process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL || "").split(",").map((e) => e.trim()).filter(Boolean);
+  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
   if (!config || !recipients.length) return { sent: false as const, reason: !recipients.length ? "no_recipient_configured" : "email_not_configured" };
   await trackedSend(config, {
     from: config.from,

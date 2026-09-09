@@ -2,6 +2,8 @@ import { submitRoleBriefAction } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
 import { VA_CATEGORIES } from "@/lib/constants";
 
+const HIRING_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+
 /**
  * The role brief form, extracted so pages other than /hire can carry it.
  *
@@ -27,6 +29,7 @@ export function RoleBriefForm({
       <div className="card compact-hire-form role-brief-sent" role="status">
         <h2>Hiring request received</h2>
         <p className="muted">Our recruiting team will review the role, screen for fit, and follow up using the email you provided. You do not need to create an account to get started.</p>
+        <a className="btn btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call</a>
       </div>
     );
   }

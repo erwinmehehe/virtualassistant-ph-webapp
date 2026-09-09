@@ -1,8 +1,9 @@
 import { CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
-import { acceptLeadProposalAction } from "@/app/actions/proposals";
+import { acceptLeadProposalAction, respondToLeadProposalAction } from "@/app/actions/proposals";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { proposalClientMonthlyTotal, proposalMonthlyVaCost, proposalStatusLabel } from "@/lib/proposals";
+import { ProposalViewTracker } from "@/components/proposal-view-tracker";
 
 export const metadata = {
   title: "Hiring Proposal | VirtualAssistant.com.ph",
@@ -46,6 +47,7 @@ export default async function ProposalPage({
     : null;
 
   return <main className="proposal-page">
+    {status === "sent" ? <ProposalViewTracker token={token}/> : null}
     <section className="proposal-shell">
       <div className="proposal-brand">VirtualAssistant.com.ph</div>
 
@@ -55,8 +57,22 @@ export default async function ProposalPage({
           <span className="small">Proposal accepted</span>
           <h1>Your hiring request is confirmed.</h1>
           <p>{job?.status === "published"
-            ? "Our recruiting team can now begin preparing your shortlist. You can follow progress from your client workspace."
-            : "Your recruiter has your approval and will connect this request to your client workspace before the shortlist is released."}</p>
+            ? "Your role is active and our recruiting team can begin preparing your shortlist. Check your email for a secure link to your client workspace."
+            : "Your recruiter has your approval and will complete any remaining workspace handoff."}</p>
+        </div>
+      </div> : query.changes_requested || status === "changes_requested" ? <div className="proposal-success proposal-revision-state">
+        <CheckCircle2 size={34}/>
+        <div>
+          <span className="small">Changes requested</span>
+          <h1>Your recruiter has your feedback.</h1>
+          <p>We will revise the proposal and send a new version. You do not need to submit another hiring request.</p>
+        </div>
+      </div> : query.declined || status === "declined" ? <div className="proposal-success proposal-declined-state">
+        <CheckCircle2 size={34}/>
+        <div>
+          <span className="small">Response received</span>
+          <h1>We have recorded your decision.</h1>
+          <p>Your recruiter has the reason you provided. If your hiring plans change, reply to the original email and we can reopen the conversation.</p>
         </div>
       </div> : <>
         <div className="proposal-head">
@@ -106,22 +122,39 @@ export default async function ProposalPage({
           </p>
         </section>
 
-        {status === "sent" ? <section className="proposal-accept-card">
-          <div>
-            <h2>Approve and start recruiting</h2>
-            <p>Accepting confirms the hiring brief and service terms. No payment is taken on this page.</p>
-          </div>
-          {query.error ? <div className="alert" role="alert">{query.error}</div> : null}
-          <form action={acceptLeadProposalAction} className="stack">
-            <input type="hidden" name="token" value={token}/>
-            <div className="field"><label>Your name</label><input name="acceptance_name" required minLength={2} maxLength={160} defaultValue={lead?.name || ""}/></div>
-            <label className="confirmation-check">
-              <input type="checkbox" name="fee_ack" required/>
-              <span>I approve this hiring proposal and understand the service fee is separate from Virtual Assistant compensation unless this is a managed-service plan.</span>
-            </label>
-            <button className="btn btn-primary btn-lg" type="submit">Accept proposal and start recruiting</button>
-          </form>
-        </section> : status === "expired" ? <div className="alert">This proposal has expired. Reply to your recruiter for an updated version.</div> : status === "declined" ? <div className="alert">This proposal is no longer active. Contact your recruiter if you want to reopen the hiring request.</div> : null}
+        {status === "sent" ? <>
+          <section className="proposal-accept-card">
+            <div>
+              <h2>Approve and start recruiting</h2>
+              <p>Accepting confirms the hiring brief and service terms. No payment is taken on this page.</p>
+            </div>
+            {query.error ? <div className="alert" role="alert">{query.error}</div> : null}
+            <form action={acceptLeadProposalAction} className="stack">
+              <input type="hidden" name="token" value={token}/>
+              <div className="field"><label>Your name</label><input name="acceptance_name" required minLength={2} maxLength={160} defaultValue={lead?.name || ""}/></div>
+              <label className="confirmation-check">
+                <input type="checkbox" name="fee_ack" required/>
+                <span>I approve this hiring proposal and understand the service fee is separate from Virtual Assistant compensation unless this is a managed-service plan.</span>
+              </label>
+              <button className="btn btn-primary btn-lg" type="submit">Accept proposal and start recruiting</button>
+            </form>
+          </section>
+
+          <section className="proposal-change-card">
+            <div>
+              <h2>Need something changed?</h2>
+              <p>Send one clear note. Your recruiter can revise the scope, hours, rate range, fee, or timing without making you start over.</p>
+            </div>
+            <form action={respondToLeadProposalAction} className="stack">
+              <input type="hidden" name="token" value={token}/>
+              <div className="field"><label>What should change?</label><textarea name="reason" required minLength={5} maxLength={2000} placeholder="Example: We need 20 hours instead of 40, and the role should start next month."/></div>
+              <div className="row wrap">
+                <button className="btn" type="submit" name="decision" value="changes">Request changes</button>
+                <button className="btn btn-danger" type="submit" name="decision" value="decline">Decline proposal</button>
+              </div>
+            </form>
+          </section>
+        </> : status === "expired" ? <div className="alert">This proposal has expired. Reply to your recruiter for an updated version.</div> : null}
       </>}
 
       <div className="proposal-footer">

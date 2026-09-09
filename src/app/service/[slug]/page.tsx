@@ -447,7 +447,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
           <div className="service-trust-bar" aria-label="Hiring safeguards">
             <div><BadgeCheck size={20}/><span><strong>Approved profiles</strong><small>Review profile evidence, skills, tools, experience, and current availability.</small></span></div>
-            <div><ShieldCheck size={20}/><span><strong>Your request stays private</strong><small>The match request creates a private pending job draft. Nothing is published publicly until the client claims and reviews it.</small></span></div>
+            <div><ShieldCheck size={20}/><span><strong>Your request stays private</strong><small>Your hiring request goes to our recruiting team and stays private. We use it to refine the role and screen relevant candidates before the next step.</small></span></div>
             <div><CheckCircle2 size={20}/><span><strong>You decide who to interview</strong><small>Compare candidates first, then confirm rate, schedule, scope, and start date before hiring.</small></span></div>
           </div>
         </div>

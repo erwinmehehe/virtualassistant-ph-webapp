@@ -140,7 +140,7 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
 
     {applications.length ? <form id="candidate-list" action="/workspace/client/compare" method="get">
       <div className="row-between wrap" style={{ marginBottom: 12 }}>
-        <p className="small muted" style={{ margin: 0 }}>{unlockedApplications.length >= 2 ? "Select 2 to 4 unlocked candidates to compare their role fit side by side." : "Comparison becomes available after candidate access is active for at least two applicants."}</p>
+        <p className="small muted" style={{ margin: 0 }}>{unlockedApplications.length >= 2 ? "Select 2 to 4 candidates with access active to compare their role fit side by side." : "Comparison becomes available after candidate access is active for at least two applicants."}</p>
         {unlockedApplications.length >= 2 ? <button className="btn btn-sm" type="submit">Compare selected</button> : null}
       </div>
       <div className="table-wrap responsive-table candidate-review-table">
@@ -152,13 +152,13 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
             const p = detailMap.get(a.id) as any || {};
             const score = Number(a.match_score || 0);
             return <tr key={a.id}>
-              <td data-label="Compare">{unlocked ? <label className="compare-check"><input type="checkbox" name="ids" value={a.id}/><span className="sr-only">Compare {p.full_name || "candidate"}</span></label> : <LockKeyhole size={14} aria-label="Locked"/>}</td>
+              <td data-label="Compare">{unlocked ? <label className="compare-check"><input type="checkbox" name="ids" value={a.id}/><span className="sr-only">Compare {p.full_name || "candidate"}</span></label> : <LockKeyhole size={14} aria-label="Candidate identity protected"/>}</td>
               <td data-label="Candidate"><strong>{unlocked ? (p.full_name || "Virtual Assistant applicant") : protectedCandidateName(index)}</strong><div className="small muted">{unlocked ? (p.primary_category || "Virtual Assistant") : "Identity protected"}</div></td>
               <td data-label="Job"><Link className="text-link" href={`/workspace/client/jobs/${a.job_id}`}>{jobMap.get(a.job_id) || "Role"}</Link></td>
               <td data-label="Fit"><div className="candidate-fit"><strong>{score}%</strong><span>{matchLabel(score)}</span></div></td>
               <td data-label="Status"><span className={`badge ${a.status === "hired" ? "badge-success" : ""}`}>{String(a.status).replaceAll("_", " ")}</span></td>
               <td data-label="Applied">{dateShort(a.applied_at)}</td>
-              <td>{unlocked ? <Link className="btn btn-sm" href={`/workspace/client/candidates/${a.id}`}>{a.status === "hired" ? "View hire" : "Review candidate"}</Link> : <Link className="btn btn-sm" href={`/workspace/client/jobs/${a.job_id}`}>Unlock details</Link>}</td>
+              <td>{unlocked ? <Link className="btn btn-sm" href={`/workspace/client/candidates/${a.id}`}>{a.status === "hired" ? "View hire" : "Review candidate"}</Link> : <Link className="btn btn-sm" href={`/workspace/client/jobs/${a.job_id}`}>Review access options</Link>}</td>
             </tr>;
           })}</tbody>
         </table>

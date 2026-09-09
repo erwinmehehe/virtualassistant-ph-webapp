@@ -182,6 +182,29 @@ export async function sendLeadNotificationEmail(args: {
   return { sent: true as const };
 }
 
+
+export async function sendLeadAcknowledgementEmail(args: {
+  to: string;
+  name?: string | null;
+  service?: string | null;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const firstName = args.name?.trim().split(/\s+/)[0] || "there";
+  const service = args.service?.trim() || "Virtual Assistant role";
+  const hiringCallUrl = "https://calendar.app.google/FxedmioyeJhKras87";
+
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: `We received your Virtual Assistant hiring request`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Thanks for sending your hiring request for <strong>${escapeHtml(service)}</strong>. Our recruiting team will review the role details and use them to screen relevant Filipino Virtual Assistants.</p><p>You do not need to create an account to get started.</p><p>If you would rather talk through the role, schedule, budget, or must-have experience, you can book a short hiring call here:</p><p><a href="${hiringCallUrl}">Book a 15-minute hiring call</a></p><p>VirtualAssistant.com.ph Hiring Team</p>`
+  }, "lead_acknowledgement");
+  return { sent: true as const };
+}
+
 /**
  * Notifies you when a client directly posts a job for review (as opposed to
  * a public match-request lead, which goes through sendLeadNotificationEmail

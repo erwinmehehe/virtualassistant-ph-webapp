@@ -8,7 +8,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendLeadNotificationEmail } from "@/lib/email";
+import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail } from "@/lib/email";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 
 export type ServiceMatchState = {
@@ -241,6 +241,15 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     } catch {
       // Lead and pending job creation must not fail because email delivery is unavailable.
     }
+    try {
+      await sendLeadAcknowledgementEmail({
+        to: parsed.data.email,
+        name: parsed.data.name,
+        service: service.name
+      });
+    } catch {
+      // Lead storage is the source of truth; acknowledgement email is best effort.
+    }
 
     return {
       status: "success",
@@ -367,6 +376,15 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       });
     } catch {
       // Lead and pending job creation remain successful if email delivery is unavailable.
+    }
+    try {
+      await sendLeadAcknowledgementEmail({
+        to: parsed.data.email,
+        name: parsed.data.name,
+        service: `${industry.label} Virtual Assistant support`
+      });
+    } catch {
+      // Lead storage is the source of truth; acknowledgement email is best effort.
     }
 
     return {
@@ -506,6 +524,15 @@ export async function submitRoleBriefAction(formData: FormData) {
     });
   } catch {
     // Lead and job creation remain successful even if notification delivery fails.
+  }
+  try {
+    await sendLeadAcknowledgementEmail({
+      to: parsed.data.email,
+      name: parsed.data.name?.trim() || null,
+      service: jobTitleForCategory(category)
+    });
+  } catch {
+    // Lead storage is the source of truth; acknowledgement email is best effort.
   }
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);

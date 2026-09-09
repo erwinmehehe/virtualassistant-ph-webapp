@@ -103,8 +103,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <section className="section product-paths-section"><div className="container"><div className="section-head"><h2>A recruiting service built around the work you need done.</h2><p>You do not need to learn a marketplace or manage a complicated hiring app. Tell us the role, then our team helps recruit, screen, shortlist, and support the placement.</p></div><div className="grid-2 product-path-grid"><div className="card product-path-card product-path-card-primary"><div className="product-path-icon"><WandSparkles size={20}/></div><h3>Tell us what you need</h3><p>Share the responsibilities, hours, timezone, budget, and the systems your new Virtual Assistant will use. A short private brief is enough to start.</p><div className="mini-step-row"><span>1 Brief</span><span>2 Recruit</span><span>3 Interview</span><span>4 Hire</span></div><Link className="btn btn-primary" href="/hire">Start your hiring request</Link></div><div className="card product-path-card product-path-card-secondary"><div className="product-path-icon"><ShieldCheck size={20}/></div><h3>We do the screening before you interview</h3><p>Our recruiting team checks relevant experience, practical skills, communication, availability, and role fit. You receive a focused shortlist instead of a pile of unqualified applications.</p><div className="mini-strength"><div className="row-between"><strong>Your final decision</strong><span>100%</span></div><div className="progress"><span style={{width:"100%"}}/></div><small>You interview the strongest matches and choose who joins your team.</small></div><Link className="btn" href="/how-vetting-works">See how screening works</Link></div></div></div></section>
 
 
-    <section className="section" id="how-it-works"><div className="container"><div className="section-head"><h2>From workload to shortlist in three steps.</h2><p>Start with a private match request or a specific Virtual Assistant profile. Create an account only when you are ready to manage the hiring process.</p></div><div className="process-grid">{[["01","Describe the work","Share the specialty, hours, timezone, budget, and recurring work this person should own."],["02","Compare focused candidates","Review approved profiles, staff-ranked matches, applications, or invites, then move the strongest fits into interviews."],["03","Confirm the hire","Agree the final rate, start date, schedule, and responsibilities before onboarding begins."]].map(([n,title,copy])=><div className="process-step" key={n}><div className="process-number">{n}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}</div></div></section>
-
     <section className="section section-white" id="get-matched"><div className="container">
       <div className="home-lead-grid">
         <div className="home-lead-copy">
@@ -197,31 +195,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <Link className="btn" href="/pricing">See pricing</Link>
           </div>
         </aside>
-      </div>
-    </div></section>
-
-    <section className="section"><div className="container">
-      <div className="section-head"><h2>What a full time hire actually costs, side by side.</h2><p>An illustrative example for a 40 hour a week role, showing the overhead that never appears on a local salary line.</p></div>
-      <div className="cost-compare-wrap">
-        <table className="cost-compare-table">
-          <thead><tr><th>Cost item</th><th>Filipino virtual assistant</th><th>Local full time hire</th></tr></thead>
-          <tbody>
-            <tr><td>Hourly rate</td><td>Around $9</td><td>$25 to $35</td></tr>
-            <tr><td>Annual cost at 40 hours</td><td>Around $16,800</td><td>$52,000 to $72,000</td></tr>
-            <tr><td>Benefits and superannuation</td><td>Not required</td><td>Required</td></tr>
-            <tr><td>Office space and equipment</td><td>Not required</td><td>Required</td></tr>
-            <tr><td>Recruitment cost</td><td>Included</td><td>Agency fee or your time</td></tr>
-            <tr><td>Time to start</td><td>Days</td><td>Weeks to months</td></tr>
-            <tr><td>Flexibility</td><td>Part time or full time</td><td>Fixed salary commitment</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p className="small muted cost-compare-note">Illustrative only. Actual virtual assistant rates run $5 to $20 an hour depending on scope and experience, and local salaries vary by market. Compare the work you need before comparing hourly numbers. <Link className="text-link" href="/tools/virtual-assistant-cost-calculator">Estimate your own numbers</Link></p>
-
-      <div className="hiring-option-grid">
-        <article className="hiring-option-card"><h3>Local full time staff</h3><p>Highest total cost once salary, benefits, office and recruitment are counted. Slowest to start, hardest to scale down.</p></article>
-        <article className="hiring-option-card best"><span className="badge badge-success">Best value for most</span><h3>Filipino virtual assistant</h3><p>One vetted person, part time or full time, with no benefits, office or recruitment overhead. Live in days rather than months.</p></article>
-        <article className="hiring-option-card"><h3>Multiple freelancers</h3><p>Cheapest per task and the least predictable. Fragmented communication, no guaranteed availability, and onboarding repeated for every provider.</p></article>
       </div>
     </div></section>
 

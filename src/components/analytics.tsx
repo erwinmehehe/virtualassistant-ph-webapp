@@ -41,30 +41,66 @@ export function Analytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (trackablePath(pathname)) send("page_view");
+    if (!trackablePath(pathname)) return;
+    send("page_view");
+    if (pathname === "/pricing") send("pricing_view");
+    if (pathname === "/hire") send("hire_page_view");
+    if (pathname.startsWith("/va/")) send("candidate_view");
   }, [pathname]);
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;
+    const startedForms = new WeakSet<HTMLFormElement>();
+
+    const handleFocus = (event: FocusEvent) => {
+      const form = event.target instanceof Element ? event.target.closest("form") : null;
+      if (!form || startedForms.has(form)) return;
+      startedForms.add(form);
+      send("form_start", {
+        form_id: form.id || null,
+        action: form.getAttribute("action") || window.location.pathname
+      });
+    };
+
+    const handleSubmit = (event: SubmitEvent) => {
+      const form = event.target instanceof HTMLFormElement ? event.target : null;
+      if (!form) return;
+      send("form_submit_attempt", {
+        form_id: form.id || null,
+        action: form.getAttribute("action") || window.location.pathname
+      });
+    };
+
     const handleClick = (event: MouseEvent) => {
-      const target = event.target instanceof Element ? event.target.closest<HTMLElement>("[data-track]") : null;
-      if (!target) return;
+      const clicked = event.target instanceof Element ? event.target.closest<HTMLElement>("a,button,[data-track]") : null;
+      if (!clicked) return;
       let href: string | null = null;
-      if (target instanceof HTMLAnchorElement) {
+      if (clicked instanceof HTMLAnchorElement) {
         try {
-          const url = new URL(target.href, window.location.origin);
+          const url = new URL(clicked.href, window.location.origin);
           href = url.origin === window.location.origin ? url.pathname : url.origin;
+          if (url.hostname === "calendar.app.google") {
+            send("booking_click", { href: url.origin });
+          }
         } catch {
           href = null;
         }
       }
-      send(String(target.dataset.track), {
-        label: target.textContent?.trim().slice(0, 120) || null,
+      if (!clicked.dataset.track) return;
+      send(String(clicked.dataset.track), {
+        label: clicked.textContent?.trim().slice(0, 120) || null,
         href
       });
     };
+
+    document.addEventListener("focusin", handleFocus);
+    document.addEventListener("submit", handleSubmit);
     document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("focusin", handleFocus);
+      document.removeEventListener("submit", handleSubmit);
+      document.removeEventListener("click", handleClick);
+    };
   }, [pathname]);
 
   return null;

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "VirtualAssistant.com.ph",
     title: "Hire Vetted Filipino Virtual Assistants",
-    description: "Skip the open-marketplace resume pile. Meet screened Filipino VAs and move from role brief to hire with a clearer process."
+    description: "Skip the open-marketplace resume pile. Meet screened Filipino Virtual Assistants and move from role brief to hire with a clearer process."
   },
   twitter: { card: "summary_large_image" },
   ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {})

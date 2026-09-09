@@ -1,6 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DISCOVERY_CALL_URL } from "@/lib/site-links";
 
 const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
@@ -156,7 +157,7 @@ export async function sendLeadNotificationEmail(args: {
   // configurable here, unlike the hardcoded forced-CC this replaced.
   const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
   if (!recipients.length) return { sent: false as const, reason: "no_recipient_configured" };
-  const subjectLabel = args.service?.trim() || "VA enquiry";
+  const subjectLabel = args.service?.trim() || "Virtual Assistant enquiry";
   const rows = [
     ["Name", args.name],
     ["Email", args.email],
@@ -177,6 +178,24 @@ export async function sendLeadNotificationEmail(args: {
     subject: `New lead: ${subjectLabel}`,
     html: `<h2>New VirtualAssistant.com.ph lead</h2>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}${args.message ? `<hr><p><strong>Request</strong></p><p>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>` : ""}`
   }, "new_lead");
+  return { sent: true as const };
+}
+
+export async function sendLeadAcknowledgementEmail(args: {
+  to: string;
+  name?: string | null;
+  roleLabel?: string | null;
+}) {
+  const config = resendConfig();
+  if (!config) return { sent: false as const, reason: "email_not_configured" };
+  const firstName = args.name?.trim().split(" ")[0] || "there";
+  const role = args.roleLabel?.trim() || "your Virtual Assistant role";
+  await trackedSend(config, {
+    from: config.from,
+    to: [args.to],
+    subject: "We received your Virtual Assistant hiring request",
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Thanks for sending your hiring request for <strong>${escapeHtml(role)}</strong>.</p><p>Our recruiting team will review the responsibilities, schedule, budget, and experience you need, then use that brief to screen for relevant Filipino Virtual Assistants.</p><p><strong>You do not need to create an account for us to start reviewing the role.</strong></p><p>If you would rather talk through the role, you can <a href="${DISCOVERY_CALL_URL}">book a 15-minute call</a>.</p><p>VirtualAssistant.com.ph</p>`
+  }, "lead_acknowledgement");
   return { sent: true as const };
 }
 
@@ -213,29 +232,28 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
     from: config.from,
     to: [args.to],
     subject: "Finish your VirtualAssistant.com.ph profile",
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You started creating a VA profile on VirtualAssistant.com.ph but haven't finished the first step yet -- a complete profile is what unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p>It only takes a few minutes.</p><p><a href="${args.appUrl}/workspace/va/profile">Finish your profile</a></p><p>If you have questions about the process, just reply to this email.</p>`
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You started creating a Virtual Assistant profile on VirtualAssistant.com.ph but haven't finished the first step yet -- a complete profile is what unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p>It only takes a few minutes.</p><p><a href="${args.appUrl}/workspace/va/profile">Finish your profile</a></p><p>If you have questions about the process, just reply to this email.</p>`
   }, "profile_stage_nudge");
   return { sent: true as const };
 }
 
 /**
- * Nudges someone who submitted a private match-request lead (via /hire or a
- * service page) but never came back to create a client account -- their
- * draft job just sits with no client_id, invisible to them and unable to
- * receive a released shortlist notification, until they sign up with the
- * same email. Without this email, that only ever happens if they happen to
- * return on their own; most don't.
+ * One follow-up for a hiring request that is still unlinked to a client
+ * account. The account is optional: the purpose of this email is to reopen
+ * the human recruiting conversation, not to push the visitor into the app.
+ *
+ * The legacy function and event names are retained so existing cron code and
+ * historical email reporting keep working.
  */
 export async function sendClaimDraftEmail(args: { to: string; name?: string | null; jobTitle: string; leadId: string; appUrl: string }) {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
-  const joinUrl = `${args.appUrl}/auth/join/client?lead=${encodeURIComponent(args.leadId)}`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    subject: `Your VA request is ready -- ${args.jobTitle}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. We've kept that request as a private draft -- create a free client account with this same email address (${escapeHtml(args.to)}) and it'll be waiting for you, ready to review matched candidates.</p><p><a href="${joinUrl}">Create your client account</a></p><p>If you no longer need this, no action is needed -- just ignore this email.</p>`
+    subject: `Still looking for a Virtual Assistant for ${args.jobTitle}?`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You recently asked us about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>If the role is still open, our recruiting team can help refine the brief and screen relevant Filipino Virtual Assistants. You do not need to create an account to continue.</p><p><a href="${DISCOVERY_CALL_URL}">Book a 15-minute call</a></p><p>If your plans changed, no action is needed.</p><p>VirtualAssistant.com.ph</p>`
   }, "lead_claim_nudge");
   return { sent: true as const };
 }

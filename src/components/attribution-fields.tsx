@@ -1,22 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getBrowserSessionId } from "@/lib/browser-session";
 
 export function AttributionFields({ sourcePath }: { sourcePath: string }) {
   const [sessionId, setSessionId] = useState("");
 
   useEffect(() => {
-    try {
-      const key = "va_ph_session";
-      let value = window.sessionStorage.getItem(key);
-      if (!value) {
-        value = crypto.randomUUID();
-        window.sessionStorage.setItem(key, value);
-      }
-      setSessionId(value);
-    } catch {
-      // Attribution is best-effort and must never block form submission.
-    }
+    setSessionId(getBrowserSessionId());
   }, []);
 
   return <>

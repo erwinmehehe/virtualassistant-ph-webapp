@@ -3,19 +3,8 @@ import { ChevronDown, Menu } from "lucide-react";
 import { getSessionProfile } from "@/lib/auth";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
-import { softwarePages } from "@/lib/software-pages";
 import { logoutAction } from "@/app/actions/auth";
 
-// Employer-facing track only -- candidate/jobseeker links (Jobs, Apply as a
-// VA) live in forVaLinks below, kept structurally separate so a business
-// owner and a jobseeker never see the same nav items mixed together.
-const primaryPublicLinks = [
-  ["Find VAs", "/find-talent"],
-  ["Pricing", "/pricing"]
-] as const;
-
-// Largest service groups first, so the menu leads with the areas that have the
-// most depth behind them.
 const serviceGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
     const list = groups.get(page.group) || [];
@@ -25,11 +14,11 @@ const serviceGroups = Array.from(
   }, new Map<string, typeof SERVICE_PAGES>())
 ).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
 
-const industryLinks = INDUSTRIES.slice(0, 16);
-const softwareLinks = softwarePages.slice(0, 16);
+const industryLinks = INDUSTRIES.slice(0, 12);
 
 const resourceLinks = [
   ["How vetting works", "/how-vetting-works"],
+  ["Software guides", "/software"],
   ["Blog", "/blog"],
   ["Free tools", "/tools"]
 ] as const;
@@ -39,7 +28,13 @@ const forVaLinks = [
   ["Apply as a VA", "/auth/join/va"]
 ] as const;
 
-const mobilePublicLinks = [["Find VAs", "/find-talent"], ["Services", "/services"], ["Industries", "/industries"], ["Software", "/software"], ["Pricing", "/pricing"], ...resourceLinks] as const;
+const mobilePublicLinks = [
+  ["Find VAs", "/find-talent"],
+  ["Services", "/services"],
+  ["Industries", "/industries"],
+  ["Pricing", "/pricing"],
+  ...resourceLinks
+] as const;
 
 export async function SiteHeader() {
   const { user, profile } = await getSessionProfile();
@@ -55,13 +50,17 @@ export async function SiteHeader() {
           <Link href="/find-talent">Find VAs</Link>
 
           <div className="nav-mega-menu">
-            <Link href="/services" className="nav-mega-trigger">Services <ChevronDown size={14} aria-hidden="true"/></Link>
+            <Link href="/services" className="nav-mega-trigger">
+              Services <ChevronDown size={14} aria-hidden="true" />
+            </Link>
             <div className="nav-mega-panel nav-mega-wide">
               <div className="nav-mega-columns">
                 {serviceGroups.map(([group, pages]) => (
                   <div key={group}>
                     <span className="nav-mega-heading">{group}</span>
-                    {pages.map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}
+                    {pages.slice(0, 6).map((page) => (
+                      <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -70,26 +69,21 @@ export async function SiteHeader() {
           </div>
 
           <div className="nav-mega-menu">
-            <Link href="/industries" className="nav-mega-trigger">Industries <ChevronDown size={14} aria-hidden="true"/></Link>
+            <Link href="/industries" className="nav-mega-trigger">
+              Industries <ChevronDown size={14} aria-hidden="true" />
+            </Link>
             <div className="nav-mega-panel">
               <div className="nav-mega-columns nav-mega-columns-flat">
-                {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
+                {industryLinks.map((industry) => (
+                  <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>
+                ))}
               </div>
               <Link href="/industries" className="nav-mega-all">View all {INDUSTRIES.length} industries →</Link>
             </div>
           </div>
 
-          <div className="nav-mega-menu">
-            <Link href="/software" className="nav-mega-trigger">Software <ChevronDown size={14} aria-hidden="true"/></Link>
-            <div className="nav-mega-panel">
-              <div className="nav-mega-columns nav-mega-columns-flat">
-                {softwareLinks.map((page) => <Link href={`/software/${page.slug}`} key={page.slug}>{page.name}</Link>)}
-              </div>
-              <Link href="/software" className="nav-mega-all">View all {softwarePages.length} software guides →</Link>
-            </div>
-          </div>
-
           <Link href="/pricing">Pricing</Link>
+
           <details className="nav-resource-menu">
             <summary>
               Resources <ChevronDown size={14} aria-hidden="true" />
@@ -102,32 +96,19 @@ export async function SiteHeader() {
           </details>
         </nav>
 
-        <nav className="nav-forva" aria-label="For virtual assistants">
-          <details className="nav-resource-menu nav-forva-menu">
-            <summary>
-              For VAs <ChevronDown size={14} aria-hidden="true" />
-            </summary>
-            <div className="nav-resource-panel">
-              {forVaLinks.map(([label, href]) => (
-                <Link href={href} key={href}>{label}</Link>
-              ))}
-            </div>
-          </details>
-        </nav>
-
         <div className="nav-actions">
           {!user || !profile ? (
             <>
+              <Link className="header-va-link" href="/jobs">For VAs</Link>
               <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Log in</Link>
-              <Link className="btn btn-primary desktop-hire-cta" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew" data-track="header_post_job">Post a Job</Link>
+              <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_va">Hire a VA</Link>
               <details className="mobile-menu">
                 <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
                 <nav className="mobile-menu-panel" aria-label="Mobile navigation">
-                  <Link className="mobile-menu-primary" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
-                  <Link href="/hire">Managed hiring</Link>
+                  <Link className="mobile-menu-primary" href="/hire">Hire a VA</Link>
                   {mobilePublicLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
-                  <span className="mobile-menu-section-label">For VAs</span>
+                  <span className="mobile-menu-section-label">For virtual assistants</span>
                   {forVaLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
                   <Link href="/auth/login">Log in</Link>
@@ -136,17 +117,39 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              {profile.role === "client" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/client/jobs/new">Post a Job</Link> : profile.role === "va" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/va/jobs">Browse jobs</Link> : profile.role === "recruiter" ? <Link className="btn btn-primary desktop-hire-cta" href="/workspace/recruiter">Recruiter Dashboard</Link> : <Link className="btn btn-primary desktop-hire-cta" href="/workspace/admin">Admin Dashboard</Link>}
-              {profile.role === "client" || profile.role === "va" ? <Link className="btn btn-ghost" href={`/workspace/${profile.role}`}>Open workspace</Link> : null}
-              <form action={logoutAction} className="desktop-logout"><button className="btn btn-ghost" type="submit">Log out</button></form>
+              {profile.role === "client" ? (
+                <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/client/jobs/new">Post a Job</Link>
+              ) : profile.role === "va" ? (
+                <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/va/jobs">Browse jobs</Link>
+              ) : profile.role === "recruiter" ? (
+                <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/recruiter">Recruiter Dashboard</Link>
+              ) : (
+                <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/admin">Admin Dashboard</Link>
+              )}
+              {profile.role === "client" || profile.role === "va" ? (
+                <Link className="btn btn-ghost" href={`/workspace/${profile.role}`}>Open workspace</Link>
+              ) : null}
+              <form action={logoutAction} className="desktop-logout">
+                <button className="btn btn-ghost" type="submit">Log out</button>
+              </form>
               <details className="mobile-menu">
                 <summary className="btn" aria-label="Open account menu"><Menu size={18}/><span>Menu</span></summary>
                 <nav className="mobile-menu-panel" aria-label="Account navigation">
-                  {profile.role === "client" ? <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a Job</Link> : profile.role === "va" ? <Link className="mobile-menu-primary" href="/workspace/va/jobs">Browse jobs</Link> : profile.role === "recruiter" ? <Link className="mobile-menu-primary" href="/workspace/recruiter">Recruiter Dashboard</Link> : <Link className="mobile-menu-primary" href="/workspace/admin">Admin Dashboard</Link>}
-                  {(profile.role === "client" || profile.role === "va") ? <Link href={`/workspace/${profile.role}`}>Open workspace</Link> : null}
+                  {profile.role === "client" ? (
+                    <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a Job</Link>
+                  ) : profile.role === "va" ? (
+                    <Link className="mobile-menu-primary" href="/workspace/va/jobs">Browse jobs</Link>
+                  ) : profile.role === "recruiter" ? (
+                    <Link className="mobile-menu-primary" href="/workspace/recruiter">Recruiter Dashboard</Link>
+                  ) : (
+                    <Link className="mobile-menu-primary" href="/workspace/admin">Admin Dashboard</Link>
+                  )}
+                  {(profile.role === "client" || profile.role === "va") ? (
+                    <Link href={`/workspace/${profile.role}`}>Open workspace</Link>
+                  ) : null}
                   {mobilePublicLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
-                  <span className="mobile-menu-section-label">For VAs</span>
+                  <span className="mobile-menu-section-label">For virtual assistants</span>
                   {forVaLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />
                   <form action={logoutAction}><button className="mobile-menu-button" type="submit">Log out</button></form>

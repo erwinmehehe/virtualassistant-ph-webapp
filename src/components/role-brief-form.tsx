@@ -28,7 +28,7 @@ export function RoleBriefForm({
     return (
       <div className="card compact-hire-form role-brief-sent" role="status">
         <h2>Hiring request received</h2>
-        <p className="muted">Our recruiting team will review the role, screen for fit, and follow up using the email you provided. You do not need to create an account to get started.</p>
+        <p className="muted">Our recruiting team will review the role, screen for fit, and follow up using the contact details you provide. You do not need to create an account to get started.</p>
         <a className="btn btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call</a>
       </div>
     );
@@ -65,11 +65,12 @@ export function RoleBriefForm({
       <div className="field"><label htmlFor="rb-message">What should this Virtual Assistant own? *</label><textarea id="rb-message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience, for example inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
 
       <details className="hire-optional-details">
-        <summary>Add name &amp; company <span>(optional)</span></summary>
+        <summary>Add contact details <span>(optional)</span></summary>
         <div className="form-grid compact-form-grid">
           <div className="field"><label htmlFor="rb-name">Your name</label><input id="rb-name" name="name" autoComplete="name"/></div>
           <div className="field"><label htmlFor="rb-company">Company</label><input id="rb-company" name="company" autoComplete="organization"/></div>
         </div>
+        <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp</label><input id="rb-phone" name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
       </details>
 
       <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>

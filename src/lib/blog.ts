@@ -6,8 +6,8 @@ export { BLOG_POSTS } from "@/lib/blog-content";
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },
-  pricing: { label: "Pricing", description: "VA budgets, hourly and monthly cost planning, marketplace rates, and compensation decisions." },
-  managing: { label: "Managing VAs", description: "Delegation, SOPs, communication, access controls, training, and ongoing performance management." },
+  pricing: { label: "Pricing", description: "Virtual Assistant budgets, hourly and monthly cost planning, marketplace rates, and compensation decisions." },
+  managing: { label: "Managing Virtual Assistants", description: "Delegation, SOPs, communication, access controls, training, and ongoing performance management." },
   philippines: { label: "Philippines Hiring", description: "Practical guidance for businesses hiring and working with remote professionals in the Philippines." },
   "seo-marketing": { label: "SEO & Marketing", description: "SEO, content, paid media, social, email, and marketing operations support." },
   ecommerce: { label: "Ecommerce", description: "Amazon, Shopify, marketplace operations, customer support, listings, and order workflows." },

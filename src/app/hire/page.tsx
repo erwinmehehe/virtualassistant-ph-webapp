@@ -12,7 +12,7 @@ import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
   title: "Hire a Virtual Assistant from the Philippines",
-  description: "Tell us the role, hours, timezone, and budget. VirtualAssistant.com.ph uses your brief to help you meet vetted Filipino virtual assistants.",
+  description: "Tell us the role, hours, timezone, and budget. Our recruiting team screens and matches vetted Filipino Virtual Assistants for your business.",
   keywords: ["hire a virtual assistant", "hire filipino virtual assistant", "get matched with a virtual assistant"]
 , alternates: { canonical: canonicalPath("/hire") }};
 
@@ -27,17 +27,17 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
   return <><SiteHeader/><main id="main-content" className="section"><div className="container hire-layout">
     <section>
       
-      <h1 className="public-page-title">Get matched with the right Virtual Assistant.</h1>
-      <p className="public-lede">Share the role, schedule, and budget. We will turn it into a private draft and use it to match you with vetted Filipino virtual assistants.</p>
+      <h1 className="public-page-title">Tell us who you need. We will help you hire them.</h1>
+      <p className="public-lede">Share the role, schedule, and budget. Our recruiting team will review the work, screen for fit, and help you meet vetted Filipino Virtual Assistants.</p>
       <div className="trust-list">
-        {["Private by default. Nothing is published until you review it.", "No account required to send your brief; create one later to manage matches."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
+        {["Private by default. Your hiring request is reviewed by our team.", "No account required to start. A recruiter can follow up using your work email."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
       </div>
       {requested ? <div className="card requested-talent"><div className="row"><PublicAvatar name={requested.full_name} src={requested.avatar_url} size="sm"/><div><div className="small muted">Introduction requested for</div><strong>{requested.full_name}</strong><div className="small muted">{requested.headline || requested.primary_category}</div></div></div><Link className="small text-link" href={`/va/${requested.slug}`}>Review profile again</Link></div> : talent ? <div className="alert">We could not find that talent profile, but you can still send your role brief.</div> : null}
     </section>
 
     <section className="card lead-form-card">
-      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your private job draft is ready</h2><p>We saved your hiring request and created a private pending job draft. Create a client account to claim it, review the details, and manage candidates.</p><div className="stack"><Link className="btn btn-primary" href={`/auth/join/client?${new URLSearchParams({...(lead ? {lead} : {}), ...(talent ? {talent} : {})}).toString()}`} data-track="role_brief_create_account">Create client account and claim job</Link><Link className="btn" href="/find-talent">Keep browsing vetted Virtual Assistants</Link></div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
-        <div className="compact-hire-form-head"><h2>Get matched</h2><p className="small muted">About 60 seconds. Required fields are marked.</p></div>
+      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your hiring request is with our team</h2><p>A recruiter will review the role and use it to screen for relevant candidates. You do not need to create an account before we start helping.</p><div className="stack"><div className="card" style={{textAlign:"left"}}><strong>What happens next</strong><ol className="small muted" style={{marginBottom:0}}><li>We review the responsibilities, schedule, and budget.</li><li>We screen for relevant skills, communication, availability, and fit.</li><li>We follow up with the strongest next step for your role.</li></ol></div><Link className="btn" href="/find-talent">Browse vetted Virtual Assistants while we review</Link>{lead ? <Link className="small text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}</div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
+        <div className="compact-hire-form-head"><h2>Tell us who you need</h2><p className="small muted">About 60 seconds. Our recruiting team will review the role.</p></div>
         {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
         {talent ? <input type="hidden" name="talent" value={talent}/> : null}
         <AttributionFields sourcePath={sourcePath} />
@@ -60,8 +60,8 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
             <div className="field"><label htmlFor="company">Company</label><input id="company" name="company" autoComplete="organization"/></div>
           </div>
         </details>
-        <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">Get matched</button>
-        <p className="small muted compact-hire-fineprint">This creates a private draft only. Nothing is published until you review it.</p>
+        <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">Start my hiring request</button>
+        <p className="small muted compact-hire-fineprint">Private hiring request. No account is required to start the search.</p>
       </form>}
     </section>
   </div></main><SiteFooter/></>;

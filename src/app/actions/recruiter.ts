@@ -85,12 +85,12 @@ export async function bulkRecruiterVaAction(formData: FormData) {
     const eligible = rows.filter(isRowApprovable).map((row) => row.user_id);
     // Anyone the guard turned down is reported back by name. Silently dropping
     // them is why an earlier bulk run looked like it had done nothing.
-    skippedNames = rows.filter((row) => !isRowApprovable(row)).map((row) => String(row.full_name || "Unnamed VA"));
+    skippedNames = rows.filter((row) => !isRowApprovable(row)).map((row) => String(row.full_name || "Unnamed Virtual Assistant"));
     if (eligible.length) {
       const { error } = await admin.from("va_vetting").update({ stage: "approved", recruiter_id: user.id, approved_at: now, updated_at: now }).in("va_id", eligible);
       if (error) throw error;
       affected = eligible.length;
-      await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, type: "profile_approved", title: "Your VA profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
+      await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, type: "profile_approved", title: "Your Virtual Assistant profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
       if (action === "approve_publish") {
         // directory_visible is necessary but not sufficient: public_va_directory
         // still enforces photo, resume, bio, skills, rate and the 2-year
@@ -122,7 +122,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
     const { error } = await admin.from("va_vetting").update({ stage: "profile", recruiter_id: user.id, changes_requested_at: now, updated_at: now }).in("va_id", ids);
     if (error) throw error;
     await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);
-    await admin.from("notifications").insert(ids.map((id) => ({ user_id: id, type: "profile_update_request", title: "Please update your VA profile", body: "Your recruiter requested profile updates before the next review. Open your profile to see what is incomplete.", href: "/workspace/va/profile" })));
+    await admin.from("notifications").insert(ids.map((id) => ({ user_id: id, type: "profile_update_request", title: "Please update your Virtual Assistant profile", body: "Your recruiter requested profile updates before the next review. Open your profile to see what is incomplete.", href: "/workspace/va/profile" })));
     affected = ids.length;
   } else if (action === "hide") {
     const { error } = await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);
@@ -204,6 +204,103 @@ export async function addRecruiterNoteAction(formData: FormData) {
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}note_saved=1`);
 }
 
+export async function recordLeadContactAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "");
+  const contactType = String(formData.get("contact_type") || "");
+  const note = String(formData.get("note") || "").trim().slice(0, 1000);
+  const allowed = new Set(["email", "call", "meeting", "follow_up"]);
+  if (!leadId || !allowed.has(contactType)) throw new Error("Choose a valid client contact update.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin.from("lead_intake").select("id,job_id,name,email").eq("id", leadId).maybeSingle();
+  if (!lead) throw new Error("Lead not found.");
+
+  const labels: Record<string, string> = {
+    email: "Client emailed",
+    call: "Client called",
+    meeting: "Client meeting completed",
+    follow_up: "Client follow-up recorded"
+  };
+  const description = note || labels[contactType];
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: `client_contact_${contactType}`,
+    description,
+    actorId: user.id,
+    metadata: { contact_type: contactType, client_email: lead.email || null, client_name: lead.name || null, job_id: lead.job_id || null }
+  });
+
+  if (lead.job_id) {
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: lead.job_id,
+      action: `client_contact_${contactType}`,
+      description,
+      actorId: user.id,
+      metadata: { contact_type: contactType, lead_id: leadId }
+    });
+    revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  }
+
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+}
+
+export async function updateLeadStatusAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "");
+  const status = String(formData.get("status") || "");
+  if (!leadId || !["new", "converted", "archived"].includes(status)) throw new Error("Choose a valid lead status.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin
+    .from("lead_intake")
+    .select("id,status,job_id,session_id,page_url,service")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (!lead) throw new Error("Lead not found.");
+  if (lead.status === status) return;
+
+  const { error } = await admin.from("lead_intake").update({ status }).eq("id", leadId);
+  if (error) throw error;
+
+  const labels: Record<string, string> = {
+    new: "Lead reopened for follow-up",
+    converted: "Lead marked qualified",
+    archived: "Lead archived"
+  };
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: `lead_status_${status}`,
+    description: labels[status],
+    actorId: user.id,
+    metadata: { previous_status: lead.status, job_id: lead.job_id || null }
+  });
+
+  if (status === "converted") {
+    let path = "/hire";
+    try {
+      if (lead.page_url) path = new URL(lead.page_url).pathname;
+    } catch {
+      // Keep the safe fallback for imported or malformed lead URLs.
+    }
+    await admin.from("analytics_events").insert({
+      event_name: "qualified_lead",
+      path,
+      session_id: lead.session_id || null,
+      metadata: { lead_id: leadId, job_id: lead.job_id || null, service: lead.service || null }
+    });
+  }
+
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+}
+
 export async function markVaReviewEvidenceAction(formData: FormData) {
   const { user } = await requireRole("recruiter");
   const vaId = String(formData.get("va_id") || "");
@@ -231,12 +328,12 @@ export async function assignVaToRoleAction(formData: FormData) {
     admin.from("va_profiles").select("*").eq("user_id", vaId).maybeSingle(),
     admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle()
   ]);
-  if (!job || !va || !vetting || !["approved", "bench"].includes(vetting.stage)) throw new Error("This VA must be approved or benched before role assignment.");
+  if (!job || !va || !vetting || !["approved", "bench"].includes(vetting.stage)) throw new Error("This Virtual Assistant must be approved or benched before role assignment.");
   const assessment = matchAssessment(job, va);
   const { error } = await admin.from("job_shortlist_candidates").upsert({ job_id: jobId, va_id: vaId, match_score: assessment.score, match_confidence: assessment.confidence, shortlist_status: "proposed", created_by: user.id, updated_at: new Date().toISOString() }, { onConflict: "job_id,va_id" });
   if (error) throw error;
   await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: "assigned_to_role", description: `Assigned to ${job.title}`, actorId: user.id, metadata: { job_id: jobId } });
-  await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "va_assigned", description: "VA assigned to role", actorId: user.id, metadata: { va_id: vaId } });
+  await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "va_assigned", description: "Virtual Assistant assigned to role", actorId: user.id, metadata: { va_id: vaId } });
   revalidatePath(returnTo);
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}assigned=1`);

@@ -49,7 +49,7 @@ export async function convertLeadToJobAction(formData: FormData) {
   }
   const { inferCategories, inferHours } = await import("@/lib/category-inference");
   const categories = inferCategories(lead.service, lead.message);
-  const fallbackSummary = `VA support requested for ${lead.service || "business operations"}.`;
+  const fallbackSummary = `Virtual Assistant support requested for ${lead.service || "business operations"}.`;
   const description = cleanJobDescription(lead.message);
   const { data: job, error } = await admin.from("jobs").insert({
     client_id: clientId,
@@ -115,7 +115,7 @@ export async function bulkApproveExperiencedVAsAction() {
   await admin.from("va_vetting").update({ stage: "approved", approved_at: now, admin_notes: "Bulk-approved: 2+ years experience (skipped remaining vetting steps)." }).in("va_id", ids);
   await admin.from("notifications").insert(ids.map((id: string) => ({
     user_id: id,
-    title: "Your VA profile is approved",
+    title: "Your Virtual Assistant profile is approved",
     body: "Your profile has been approved based on your experience level. You can now apply to published roles and appear in client matching.",
     href: "/workspace/va/vetting"
   })));

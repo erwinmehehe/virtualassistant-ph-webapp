@@ -134,7 +134,7 @@ async function createPendingJobForLead(args: {
     status: "pending"
   }).select("id").single();
   if (error) throw error;
-  await args.admin.from("lead_intake").update({ status: "converted", job_id: job.id, client_id: args.clientId || null }).eq("id", args.leadId);
+  await args.admin.from("lead_intake").update({ job_id: job.id, client_id: args.clientId || null }).eq("id", args.leadId);
   return job.id as string;
 }
 

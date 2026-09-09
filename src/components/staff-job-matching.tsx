@@ -53,13 +53,13 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
         <p className="muted">Step 1: review the brief. Step 2: choose recommended candidates. Step 3: save internally, then release a curated shortlist to the client.</p>
       </div>
       <div className="row wrap">
-        <span className="badge">{pool.length} vetted VAs assessed</span>
+        <span className="badge">{pool.length} vetted Virtual Assistants assessed</span>
         <span className="badge">{applicationsCount || 0} applications</span>
       </div>
     </div>
 
     <div className="matching-workflow-steps"><span className="done">1. Understand role</span><span className="current">2. Choose candidates</span><span>3. Send to client</span></div>
-    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended action</span><h3>Start with the strongest {recommended.length} matches</h3><p>They have the best fit across the role’s category, required skills, tools, hours, and overlap requirements.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"VA candidate"}</strong> · {row.score}% match</span>)}</div></div>:null}
+    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended action</span><h3>Start with the strongest {recommended.length} matches</h3><p>They have the best fit across the role’s category, required skills, tools, hours, and overlap requirements.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% match</span>)}</div></div>:null}
 
     <div className="matching-summary-grid">
       <div className="matching-summary-card"><span>Internal shortlist</span><strong>{proposedCount}</strong><small>Saved by staff</small></div>
@@ -88,6 +88,6 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
         <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Assign selected to role</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Release selected to client</button></div>
       </div>
       <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction}/>
-    </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench VAs are available to assess yet.</p></div>}
+    </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;
 }

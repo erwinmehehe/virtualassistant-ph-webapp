@@ -179,8 +179,8 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
   return { jobsChecked: jobs?.length || 0, jobsMatched, candidatesReleased };
 }
 
-async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: "job" | "application"; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string }) {
-  const repeatCutoff = daysAgo(WORKFLOW_REMINDER_REPEAT_DAYS);
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: "job" | "application" | "lead" | "proposal"; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number }) {
+  const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
   if (Number(previous?.reminder_count || 0) >= MAX_WORKFLOW_REMINDERS || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
   const now = new Date().toISOString();
@@ -220,6 +220,72 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   return { recruiterNudges, clientNudges, vaNudges };
 }
 
+async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>) {
+  const now = new Date().toISOString();
+  const proposalCutoff = daysAgo(2);
+  const [{ data: staff }, { data: leads }, { data: proposals }] = await Promise.all([
+    admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active"),
+    admin.from("lead_intake")
+      .select("id,name,company,crm_stage,owner_id,next_follow_up_at")
+      .in("crm_stage", ["new","contacted","discovery_booked","qualified","shortlist_sent","nurture"])
+      .not("next_follow_up_at", "is", null)
+      .lte("next_follow_up_at", now)
+      .limit(300),
+    admin.from("lead_proposals")
+      .select("id,lead_id,role_title,status,sent_at,viewed_at")
+      .eq("status", "sent")
+      .not("sent_at", "is", null)
+      .lte("sent_at", proposalCutoff)
+      .limit(300)
+  ]);
+
+  const staffIds = (staff || []).map((row: any) => row.id);
+  const leadIds = [...new Set((proposals || []).map((row: any) => row.lead_id))];
+  const { data: proposalLeads } = leadIds.length
+    ? await admin.from("lead_intake").select("id,name,company,owner_id").in("id", leadIds)
+    : { data: [] as any[] };
+  const proposalLeadMap = new Map((proposalLeads || []).map((row: any) => [row.id, row]));
+
+  let leadReminders = 0;
+  for (const lead of leads || []) {
+    const recipients = lead.owner_id ? [lead.owner_id] : staffIds;
+    for (const recipientId of recipients) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "lead",
+        subjectId: lead.id,
+        recipientId,
+        action: "sales_follow_up_due",
+        title: `Sales follow-up due: ${lead.company || lead.name || "client lead"}`,
+        body: `This ${String(lead.crm_stage || "open").replaceAll("_", " ")} opportunity is due for follow-up now.`,
+        href: "/workspace/recruiter/leads?view=attention",
+        repeatDays: 1
+      })) leadReminders += 1;
+    }
+  }
+
+  let proposalReminders = 0;
+  for (const proposal of proposals || []) {
+    const lead: any = proposalLeadMap.get(proposal.lead_id);
+    const recipients = lead?.owner_id ? [lead.owner_id] : staffIds;
+    for (const recipientId of recipients) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "proposal",
+        subjectId: proposal.id,
+        recipientId,
+        action: proposal.viewed_at ? "viewed_proposal_open" : "proposal_not_viewed",
+        title: proposal.viewed_at ? `Viewed proposal still open: ${proposal.role_title}` : `Proposal not viewed: ${proposal.role_title}`,
+        body: proposal.viewed_at
+          ? `${lead?.company || lead?.name || "The client"} viewed the proposal but has not responded. Follow up while intent is still warm.`
+          : `${lead?.company || lead?.name || "The client"} has not viewed the proposal sent at least two days ago.`,
+        href: "/workspace/recruiter/leads?view=qualified",
+        repeatDays: 2
+      })) proposalReminders += 1;
+    }
+  }
+
+  return { leadReminders, proposalReminders };
+}
+
 export async function GET(request: Request) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const authHeader = request.headers.get("authorization");
@@ -229,19 +295,19 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
 
-  // Auto-publish runs first and changes job statuses (pending -> published),
-  // so it must finish before the pending-job matching pass reads the table
-  // -- otherwise a job could get matched twice or the counts would be stale.
-  const { autoPublishStraightforwardJobs } = await import("@/lib/auto-publish");
-  const publishResult = await autoPublishStraightforwardJobs();
+  // Standard curated-placement fees can be prepared automatically, but
+  // client acceptance remains the only path from pending to published.
+  const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
+  const quoteResult = await autoQuoteStraightforwardJobs();
 
-  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult] = await Promise.all([
+  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, salesReminderResult] = await Promise.all([
     runProfileNudges(admin),
     runStaleVaCleanup(admin),
     runLeadClaimNudges(admin),
     runPendingJobMatching(admin),
-    runWorkflowReminders(admin)
+    runWorkflowReminders(admin),
+    runSalesCrmReminders(admin)
   ]);
 
-  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, salesReminders: salesReminderResult });
 }

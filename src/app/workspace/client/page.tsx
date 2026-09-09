@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AlertCircle, ArrowRight, BriefcaseBusiness, Heart, MessageSquare, Plus, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
+import { AlertCircle, ArrowRight, BriefcaseBusiness, MessageSquare, Plus, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,16 +18,26 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const supabase=await createClient();
   const admin=createAdminClient();
 
-  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{count:savedCount},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
+  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
     supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
-    supabase.from("saved_vas").select("va_id",{count:"exact",head:true}).eq("client_id",user.id),
     params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
     admin.from("conversations").select("id").eq("client_id",user.id)
   ]);
 
   if(!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
+
+  const {data:recentOwnedLead}=await admin.from("lead_intake")
+    .select("owner_id")
+    .eq("client_id",user.id)
+    .not("owner_id","is",null)
+    .order("created_at",{ascending:false})
+    .limit(1)
+    .maybeSingle();
+  const {data:hiringOwner}=recentOwnedLead?.owner_id
+    ? await admin.from("profiles").select("full_name").eq("id",recentOwnedLead.owner_id).maybeSingle()
+    : {data:null} as any;
 
   const jobRows=jobs||[];
   const jobIds=jobRows.map((job:any)=>job.id);
@@ -93,9 +103,8 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
   const quick=[
     ["New hiring request","Tell us who you need","/workspace/client/jobs/new",Plus,true],
-    ["Active Jobs",`${active} active role${active===1?"":"s"}`,"/workspace/client/jobs",BriefcaseBusiness,false],
-    ["Applicants",`${applicants} applicant${applicants===1?"":"s"}`,"/workspace/client/candidates",UsersRound,false],
-    ["Saved Virtual Assistants",`${savedCount||0} saved profile${savedCount===1?"":"s"}`,"/workspace/client/saved",Heart,false],
+    ["Roles",`${active} active role${active===1?"":"s"}`,"/workspace/client/jobs",BriefcaseBusiness,false],
+    ["Shortlist",`${applicants} candidate${applicants===1?"":"s"} in your pipeline`,"/workspace/client/candidates",UsersRound,false],
     ["Messages",`${unreadMessages||0} unread message${unreadMessages===1?"":"s"}`,"/workspace/client/messages",MessageSquare,false],
     ["Hires",`${hires} placement${hires===1?"":"s"}`,"/workspace/client/workroom",UserRoundCheck,false]
   ] as const;
@@ -105,6 +114,11 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this Virtual Assistant preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this Virtual Assistant</Link></div>:null}
 
     <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
+
+    <section className="client-concierge-strip">
+      <div><span className="small">Your hiring team</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>We handle screening, matching, and shortlist preparation. You step in when a decision needs your attention.</p></div>
+      <Link className="btn" href="/workspace/client/messages"><MessageSquare size={16}/> Message hiring team</Link>
+    </section>
 
     <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We find candidates","Review shortlist","Interview","Hire & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on our recruiting team":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
 
@@ -130,7 +144,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
         {jobRows.length?<div className="role-dashboard-list">{jobRows.slice(0,6).map((job:any)=>{const rows=appsByJob.get(job.id)||[];const counts={applied:countStatuses(rows,["new","reviewing"]),shortlisted:countStatuses(rows,["shortlisted"]),interview:countStatuses(rows,["interview"]),offered:countStatuses(rows,["offered"]),hired:countStatuses(rows,["hired"])};return <Link href={`/workspace/client/jobs/${job.id}`} key={job.id} className="role-dashboard-row"><div className="role-dashboard-main"><div className="row wrap"><strong>{job.title}</strong><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{String(job.status).replaceAll("_"," ")}</span></div><div className="role-dashboard-pipeline"><span><b>{rows.length}</b> applicants</span><span><b>{counts.shortlisted}</b> shortlisted</span><span><b>{counts.interview}</b> interview</span><span><b>{counts.offered}</b> offered</span><span><b>{counts.hired}</b> hired</span></div></div><ArrowRight size={16}/></Link>})}</div>:<div className="empty"><p>You have not posted a job yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Post your first job</Link></div>}
       </section>
 
-      <section className="card"><div className="dashboard-section-head"><div><h2>We handle the recruiting work</h2><p>Your team should not have to manage a marketplace. We review the brief, screen the pool, and bring the strongest candidates forward.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Tell us what you need</li><li>We screen and shortlist vetted Virtual Assistants</li><li>You review, interview, and choose</li></ol><div className="unlock-benefits"><span>Candidate access is included once your role is approved</span><span>Recruiter-led shortlist instead of profile hunting</span><span>Direct messaging when candidates are ready</span><span>One clear path from request to hire</span></div><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section>
+      <section className="card"><div className="dashboard-section-head"><div><h2>We handle the recruiting work</h2><p>Your team should not have to manage a marketplace. We review the brief, screen the pool, and bring the strongest candidates forward.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Tell us what you need</li><li>We screen and shortlist vetted Virtual Assistants</li><li>You review, interview, and choose</li></ol><div className="unlock-benefits"><span>Full candidate profiles appear once your role is approved</span><span>Recruiter-led shortlist instead of profile hunting</span><span>Direct messaging when candidates are ready</span><span>One clear path from request to hire</span></div><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section>
     </div>
   </>;
 }

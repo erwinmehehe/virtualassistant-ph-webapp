@@ -197,33 +197,24 @@ export async function bulkAddApprovedToBenchFormAction() {
 }
 
 /**
- * Auto-quotes the default placement fee on every straightforward pending
- * job: curated placement (not managed service, which needs a real markup
- * decision) and already linked to a client account (an unlinked lead has
- * no one to notify and can't accept terms yet anyway). Anything outside
- * that stays for manual review in the normal job review flow.
- */
-/**
- * Fully automates the straightforward case: quotes the default placement
- * fee AND publishes the job immediately, no client click required. This
- * intentionally skips the explicit fee-acknowledgment step
- * (acceptCommercialTermsAction) for curated-placement jobs that already
- * have a linked client account -- managed-service jobs (need a real markup
- * decision) and unlinked leads (no account to publish under) still fall
- * back to manual review.
+ * Auto-quotes straightforward curated placements, but never publishes them.
+ * The client must explicitly accept commercial terms before publication.
  */
 export async function autoQuoteStraightforwardJobsAction() {
   await requireRole("admin");
-  const { autoPublishStraightforwardJobs } = await import("@/lib/auto-publish");
-  const result = await autoPublishStraightforwardJobs();
+  const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
+  const result = await autoQuoteStraightforwardJobs();
   revalidatePath("/workspace/admin/jobs");
-  revalidatePath("/jobs");
-  return { quoted: result.published, skippedManaged: result.skippedManaged, skippedUnlinked: result.skippedUnlinked, reason: result.reason };
+  return result;
 }
 
 export async function autoQuoteStraightforwardJobsFormAction() {
   const result = await autoQuoteStraightforwardJobsAction();
-  const params = new URLSearchParams({ auto_quoted: String(result.quoted), skipped_managed: String(result.skippedManaged), skipped_unlinked: String(result.skippedUnlinked) });
+  const params = new URLSearchParams({
+    auto_quoted: String(result.quoted),
+    skipped_managed: String(result.skippedManaged),
+    skipped_unlinked: String(result.skippedUnlinked)
+  });
   if (result.reason) params.set("auto_quote_error", result.reason);
   redirect(`/workspace/admin/jobs?${params.toString()}`);
 }

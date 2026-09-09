@@ -1,85 +1,74 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
-import { autoReleaseTopMatches } from "@/lib/auto-matching";
 
 /**
- * Shared core of the "auto-publish straightforward jobs" behavior, usable
- * both from the admin-triggered button (which wraps this in requireRole)
- * and from the scheduled cron job (which has no user session at all).
- * Quotes the default placement fee and publishes immediately for
- * curated-placement jobs already linked to a client account -- managed
- * service and unlinked-lead jobs are left for manual review either way.
+ * Safely automates only the quoting step for straightforward curated
+ * placements. A pending role never becomes published here. Publication is
+ * reserved for an explicit client acceptance event.
  */
-export async function autoPublishStraightforwardJobs() {
+export async function autoQuoteStraightforwardJobs() {
   const admin = createAdminClient();
 
   const [{ data: settings }, { data: pendingJobs }, { data: commercials }] = await Promise.all([
     admin.from("admin_settings").select("default_placement_fee").eq("id", 1).maybeSingle(),
-    admin.from("jobs").select("*").eq("status", "pending"),
+    admin.from("jobs").select("id,client_id,title,service_model,min_hourly_rate").eq("status", "pending"),
     admin.from("job_commercials").select("job_id,commercial_status")
   ]);
   const fee = Number(settings?.default_placement_fee || 0);
-  if (fee <= 0) return { published: 0, skippedManaged: 0, skippedUnlinked: 0, reason: "no_default_fee" as const };
+  if (fee <= 0) return { quoted: 0, skippedManaged: 0, skippedUnlinked: 0, reason: "no_default_fee" as const };
 
   const commercialMap = new Map((commercials || []).map((row: any) => [row.job_id, row.commercial_status]));
-  // "Untouched" or previously quoted-but-never-accepted (from before this
-  // job also auto-published) are both fair game to finish off here.
-  const notYetPublishable = (status: string | undefined) => !status || status === "quoted";
+  const needsQuote = (status: string | undefined) => !status;
   const eligible = (pendingJobs || []).filter((job: any) =>
     job.service_model !== "managed_service" &&
     job.client_id &&
-    notYetPublishable(commercialMap.get(job.id)) &&
+    needsQuote(commercialMap.get(job.id)) &&
     job.min_hourly_rate != null &&
     Number(job.min_hourly_rate) >= MIN_HOURLY_RATE
   );
-  const skippedManaged = (pendingJobs || []).filter((job: any) => job.service_model === "managed_service" && notYetPublishable(commercialMap.get(job.id))).length;
-  const skippedUnlinked = (pendingJobs || []).filter((job: any) => !job.client_id && notYetPublishable(commercialMap.get(job.id))).length;
+  const skippedManaged = (pendingJobs || []).filter((job: any) => job.service_model === "managed_service" && needsQuote(commercialMap.get(job.id))).length;
+  const skippedUnlinked = (pendingJobs || []).filter((job: any) => !job.client_id && needsQuote(commercialMap.get(job.id))).length;
 
-  // Founding-cohort pricing: a client's very first placement is free, every
-  // one after that is charged the normal fee. Built as "first placement
-  // free" rather than a blanket $0 default so it stays self-limiting -- no
-  // one flag to remember to flip back once volume picks up, and it reads
-  // as a real intro offer in the notification rather than "it's just free."
   const clientIds = [...new Set(eligible.map((job: any) => job.client_id))];
-  const { data: clientJobs } = clientIds.length ? await admin.from("jobs").select("id,client_id").in("client_id", clientIds) : { data: [] as any[] };
-  const jobIdToClientId = new Map((clientJobs || []).map((j: any) => [j.id, j.client_id]));
-  const paidStatuses = new Set(["accepted", "invoiced", "paid"]);
+  const { data: clientJobs } = clientIds.length
+    ? await admin.from("jobs").select("id,client_id").in("client_id", clientIds)
+    : { data: [] as any[] };
+  const jobIdToClientId = new Map((clientJobs || []).map((job: any) => [job.id, job.client_id]));
+  const acceptedStatuses = new Set(["accepted", "invoiced", "paid"]);
   const clientsWithPriorPlacement = new Set<string>();
   for (const [jobId, status] of commercialMap) {
-    if (status && paidStatuses.has(status)) {
+    if (status && acceptedStatuses.has(status)) {
       const clientId = jobIdToClientId.get(jobId);
       if (clientId) clientsWithPriorPlacement.add(clientId);
     }
   }
 
+  let quoted = 0;
   for (const job of eligible) {
     const isFirstPlacement = !clientsWithPriorPlacement.has(job.client_id);
     const effectiveFee = isFirstPlacement ? 0 : fee;
-    clientsWithPriorPlacement.add(job.client_id); // a second job for the same client in this same batch is no longer their "first"
+    clientsWithPriorPlacement.add(job.client_id);
 
-    await admin.from("job_commercials").upsert({
+    const { error } = await admin.from("job_commercials").upsert({
       job_id: job.id,
       service_model: "curated_placement",
       placement_fee: effectiveFee,
-      commercial_status: "accepted",
-      notes: isFirstPlacement ? "Free -- first placement (founding-cohort offer)." : null
+      commercial_status: "quoted",
+      notes: isFirstPlacement ? "Free first placement offer. Client acceptance still required before publication." : null
     }, { onConflict: "job_id" });
-    await admin.from("jobs").update({ status: "published", published_at: new Date().toISOString(), rejection_note: null }).eq("id", job.id);
+    if (error) continue;
+
     await admin.from("notifications").insert({
       user_id: job.client_id,
-      title: "Your role is now live",
+      title: "Your hiring request is ready for approval",
       body: isFirstPlacement
-        ? `"${job.title}" has been published free of charge -- your first placement is on us. Matched candidates will appear as they're found.`
-        : `"${job.title}" has been published at a service fee of USD ${effectiveFee.toFixed(2)}. Matched candidates will appear as they're found.`,
+        ? `"${job.title}" has been reviewed. Your first placement fee is waived. Review and approve the terms to start recruiting.`
+        : `"${job.title}" has been reviewed with a USD ${effectiveFee.toFixed(2)} placement fee. Review and approve the terms to start recruiting.`,
       href: `/workspace/client/jobs/${job.id}`
     });
-    try {
-      await autoReleaseTopMatches(job);
-    } catch {
-      // Matching is a convenience layer -- publishing must still succeed either way.
-    }
+    quoted += 1;
   }
 
-  return { published: eligible.length, skippedManaged, skippedUnlinked, reason: null as null };
+  return { quoted, skippedManaged, skippedUnlinked, reason: null as null };
 }

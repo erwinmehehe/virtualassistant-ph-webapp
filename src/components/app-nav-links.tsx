@@ -8,12 +8,10 @@ import type { Role } from "@/lib/types";
 const nav = {
   client: [
     ["Overview", "/workspace/client", LayoutDashboard],
-    ["Jobs", "/workspace/client/jobs", BriefcaseBusiness],
+    ["Roles", "/workspace/client/jobs", BriefcaseBusiness],
     ["Candidates", "/workspace/client/candidates", UsersRound],
-    ["Saved Virtual Assistants", "/workspace/client/saved", Heart],
     ["Messages", "/workspace/client/messages", MessageSquare],
-    ["Notifications", "/workspace/client/notifications", Bell],
-    ["Workroom", "/workspace/client/workroom", Wrench],
+    ["Hires", "/workspace/client/workroom", Wrench],
     ["Payments", "/workspace/client/payments", CircleDollarSign],
     ["Company", "/workspace/client/company", Building2]
   ],

@@ -31,6 +31,7 @@ export function proposalStatusLabel(status?: string | null) {
   const labels: Record<string,string> = {
     draft: "Draft",
     sent: "Sent",
+    changes_requested: "Changes requested",
     accepted: "Accepted",
     declined: "Declined",
     expired: "Expired"

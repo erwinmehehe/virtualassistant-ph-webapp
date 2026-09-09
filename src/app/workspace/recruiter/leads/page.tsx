@@ -96,12 +96,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           .select("id,subject_id,action,description,created_at")
           .eq("subject_type", "lead")
           .in("subject_id", leadIds)
-          .or("action.like.client_contact_%,action.eq.client_followup_sent")
+          .or("action.like.client_contact_%,action.eq.client_followup_sent,action.like.proposal_%")
           .order("created_at", { ascending: false })
           .limit(2000),
         admin
           .from("lead_proposals")
-          .select("id,lead_id,public_token,status,role_title,service_model,placement_fee,managed_markup_percent,estimated_monthly_total,expires_at,sent_at,accepted_at,created_at")
+          .select("id,lead_id,public_token,status,role_title,service_model,placement_fee,managed_markup_percent,estimated_monthly_total,expires_at,sent_at,viewed_at,changes_requested_at,accepted_at,declined_at,decline_reason,created_at")
           .in("lead_id", leadIds)
           .order("created_at", { ascending: false })
           .limit(1000)
@@ -297,7 +297,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 </div> : null}
 
                 {proposal ? <div className="crm-proposal-summary">
-                  <div><FileCheck2 size={16}/><span><strong>{proposal.role_title}</strong><small>{proposalStatusLabel(proposal.status)}{proposal.sent_at ? ` · sent ${dateShort(proposal.sent_at)}` : ""}</small></span></div>
+                  <div><FileCheck2 size={16}/><span><strong>{proposal.role_title}</strong><small>{proposalStatusLabel(proposal.status)}{proposal.sent_at ? ` · sent ${dateShort(proposal.sent_at)}` : ""}{proposal.viewed_at ? ` · viewed ${dateShort(proposal.viewed_at)}` : proposal.status === "sent" ? " · not viewed yet" : ""}</small>{proposal.decline_reason ? <small><strong>Client feedback:</strong> {proposal.decline_reason}</small> : null}</span></div>
                   <Link className="btn btn-sm" href={`/proposal/${proposal.public_token}`} target="_blank">Open proposal <ExternalLink size={13}/></Link>
                 </div> : null}
 

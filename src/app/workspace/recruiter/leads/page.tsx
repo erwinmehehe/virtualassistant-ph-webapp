@@ -55,11 +55,20 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const contactedOpen = leadRows.filter((lead: any) => lead.status === "new" && latestByLead.has(lead.id)).length;
   const qualifiedCount = leadRows.filter((lead: any) => lead.status === "converted").length;
   const archivedCount = leadRows.filter((lead: any) => lead.status === "archived").length;
+  const firstContactCutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const overdueFirstContact = leadRows.filter((lead: any) =>
+    lead.status === "new" &&
+    !latestByLead.has(lead.id) &&
+    new Date(lead.created_at).getTime() < firstContactCutoff
+  ).length;
   const orderedLeads = [...leadRows].sort((a: any, b: any) => {
     const rank = (lead: any) => lead.status === "new"
       ? (latestByLead.has(lead.id) ? 1 : 0)
       : lead.status === "converted" ? 2 : 3;
-    return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const rankDelta = rank(a) - rank(b);
+    if (rankDelta) return rankDelta;
+    if (rank(a) === 0) return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   return (
@@ -74,7 +83,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       </div>
 
       <div className="grid-2" style={{ marginBottom: 18 }}>
-        <div className="card"><span className="small muted">Needs first contact</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{needsFirstContact}</strong></div>
+        <div className="card"><span className="small muted">Needs first contact</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{needsFirstContact}</strong>{overdueFirstContact ? <span className="badge badge-warning" style={{ marginTop: 8 }}>{overdueFirstContact} overdue 24h+</span> : null}</div>
         <div className="card"><span className="small muted">Contacted, still open</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{contactedOpen}</strong></div>
         <div className="card"><span className="small muted">Qualified</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{qualifiedCount}</strong></div>
         <div className="card"><span className="small muted">Archived</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{archivedCount}</strong></div>
@@ -97,13 +106,14 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             {orderedLeads.map((lead: any) => {
               const latest = latestByLead.get(lead.id);
               const contactCount = countByLead.get(lead.id) || 0;
+              const firstContactOverdue = lead.status === "new" && !latest && new Date(lead.created_at).getTime() < firstContactCutoff;
               const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
               return (
                 <tr key={lead.id}>
                   <td data-label="Lead">
                     <strong>{lead.name || lead.email}</strong>
                     <div className="small muted">{lead.company || lead.email}</div>
-                    {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
+                    {lead.status === "new" && !latestByLead.has(lead.id) ? <div className="row wrap" style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span>{firstContactOverdue ? <span className="badge" style={{ color: "#b42318", borderColor: "#fecdca", background: "#fef3f2" }}>Overdue 24h+</span> : null}</div> : null}
                   </td>
                   <td data-label="Need">
                     {lead.service || "Virtual Assistant support"}

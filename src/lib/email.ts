@@ -303,14 +303,14 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
-  const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "VA category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
+  const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "Virtual Assistant category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
   const missing = args.missing.slice(0, 6).map((item) => labels[item] || item);
   const list = missing.length ? `<ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    subject: `Complete your VA profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for VAs to complete a profile, apply, or be considered for placement.</p>`
+    subject: `Complete your Virtual Assistant profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`
   }, "profile_completion_reminder");
   return { sent: true as const };
 }

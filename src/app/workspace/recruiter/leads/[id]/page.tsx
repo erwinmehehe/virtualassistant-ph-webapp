@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Mail, Phone, BriefcaseBusiness } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addRecruiterNoteAction, sendStaffLeadEmailAction } from "@/app/actions/recruiter";
+import { addRecruiterNoteAction, sendClientFollowupAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
 
 export default async function RecruiterLeadDetail({
@@ -84,7 +84,7 @@ VirtualAssistant.com.ph Hiring Team`;
           <h2 style={{ marginTop: 0 }}>Email the client</h2>
           <p className="small muted">Send from the platform and keep the follow-up recorded in the recruiter timeline.</p>
         </div>
-        <form action={sendStaffLeadEmailAction} className="stack">
+        <form action={sendClientFollowupAction} className="stack">
           <input type="hidden" name="lead_id" value={lead.id}/>
           <input type="hidden" name="return_to" value={returnTo}/>
           <div className="field">
@@ -93,7 +93,7 @@ VirtualAssistant.com.ph Hiring Team`;
           </div>
           <div className="field">
             <label htmlFor="lead-email-body">Message</label>
-            <textarea id="lead-email-body" name="body" required minLength={10} maxLength={5000} rows={10} defaultValue={defaultBody}/>
+            <textarea id="lead-email-body" name="message" required minLength={10} maxLength={5000} rows={10} defaultValue={defaultBody}/>
           </div>
           <button className="btn btn-primary" type="submit"><Mail size={16}/> Send client email</button>
         </form>

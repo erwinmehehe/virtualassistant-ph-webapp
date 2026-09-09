@@ -5,7 +5,7 @@ import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactio
 
 // Runs on Vercel's schedule (see vercel.json). Two jobs, both idempotent and
 // safe to run repeatedly:
-//   1. Remind incomplete active VA profiles at most once every 7 days,
+//   1. Remind incomplete active Virtual Assistant profiles at most once every 7 days,
 //      starting after a 2-day grace period, with a maximum of three reminders.
 //   2. Run pre-application matching against any pending job that doesn't
 //      have a shortlist yet, releasing the best available candidate(s).
@@ -36,7 +36,7 @@ async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
 
   // Recruiter directory already computes readiness and missing items in one
   // private, service-role-only view. This keeps reminder copy specific rather
-  // than sending every incomplete VA the same generic email.
+  // than sending every incomplete Virtual Assistant the same generic email.
   const { data: candidates } = await admin
     .from("recruiter_va_directory")
     .select("user_id,full_name,completion_score,missing_items,account_created_at,account_status")
@@ -108,7 +108,7 @@ async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {
   if (error) throw error;
   await admin.from("notifications").insert(hideIds.map((id: string) => ({
     user_id: id,
-    title: "Your VA profile is hidden until you update it",
+    title: "Your Virtual Assistant profile is hidden until you update it",
     body: "Your profile was inactive for 90+ days after profile reminders. Update your availability and profile to return to recruiter/public consideration.",
     href: "/workspace/va/profile"
   })));
@@ -120,7 +120,6 @@ async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
   const graceCutoff = daysAgo(NUDGE_GRACE_DAYS);
-  const repeatCutoff = daysAgo(NUDGE_REPEAT_DAYS);
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
 
   const { data: jobs } = await admin.from("jobs").select("id,title,lead_id,client_id").is("client_id", null).not("lead_id", "is", null).lte("created_at", graceCutoff);
@@ -131,8 +130,7 @@ async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
   let sent = 0;
   for (const job of jobs || []) {
     const lead = leadMap.get(job.lead_id);
-    if (!lead?.email) continue;
-    if (lead.nudged_at && lead.nudged_at > repeatCutoff) continue;
+    if (!lead?.email || lead.nudged_at) continue;
     const result = await sendClaimDraftEmail({ to: lead.email, name: lead.name, jobTitle: job.title, leadId: lead.id, appUrl });
     if (result.sent) {
       await admin.from("lead_intake").update({ nudged_at: new Date().toISOString() }).eq("id", lead.id);
@@ -169,7 +167,7 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
       await admin.from("notifications").insert({
         user_id: job.client_id,
         title: "Strong matches found automatically",
-        body: `${qualified.length} matched VA(s) ready for "${job.title}".`,
+        body: `${qualified.length} matched Virtual Assistant${qualified.length === 1 ? "" : "s"} ready for "${job.title}".`,
         href: `/workspace/client/jobs/${job.id}`
       });
     }
@@ -207,7 +205,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   for (const job of jobs || []) {
     const released = shortlistByJob.get(job.id) || [];
     if (!released.length && !appJobIds.has(job.id)) for (const recruiter of recruiters || []) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: recruiter.id, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no assigned candidates yet. Open matching to review recommended VAs.", href: `/workspace/recruiter/matching/${job.id}` })) recruiterNudges++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: recruiter.id, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no assigned candidates yet. Open matching to review recommended Virtual Assistants.", href: `/workspace/recruiter/matching/${job.id}` })) recruiterNudges++;
     }
     const releasedAt = released.map((row: any) => row.released_at).filter(Boolean).sort()[0];
     if (job.client_id && releasedAt && releasedAt <= graceCutoff && !appJobIds.has(job.id)) {

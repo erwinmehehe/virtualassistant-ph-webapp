@@ -8,6 +8,7 @@ import { matchAssessment } from "@/lib/matching";
 import { sendProfileCompletionReminderEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
+import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -40,7 +41,7 @@ async function filteredVaIds(formData: FormData) {
   if (skill) query = query.contains("skills", [skill]);
   if (minExp != null) query = query.gte("years_experience", minExp);
   if (maxRate != null) query = query.lte("hourly_rate", maxRate);
-  if (readiness === "ready") query = query.gte("completion_score", 90).not("avatar_url", "is", null).not("resume_path", "is", null);
+  if (readiness === "ready") query = query.gte("completion_score", PUBLIC_VA_MIN_COMPLETION).not("avatar_url", "is", null);
   if (readiness === "incomplete") query = query.lt("completion_score", 100);
   if (readiness === "zero") query = query.eq("completion_score", 0);
   if (photo === "yes") query = query.not("avatar_url", "is", null);
@@ -81,15 +82,10 @@ export async function bulkRecruiterVaAction(formData: FormData) {
 
   try {
   if (action === "approve" || action === "approve_publish") {
-    const isEligible = (row: any) => {
-      const missing = Array.isArray(row.missing_items) ? row.missing_items : [];
-      const criticalMissing = missing.filter((item: string) => !["portfolio", "tools"].includes(item));
-      return Number(row.completion_score || 0) >= 90 && criticalMissing.length === 0;
-    };
-    const eligible = rows.filter(isEligible).map((row) => row.user_id);
+    const eligible = rows.filter(isRowApprovable).map((row) => row.user_id);
     // Anyone the guard turned down is reported back by name. Silently dropping
     // them is why an earlier bulk run looked like it had done nothing.
-    skippedNames = rows.filter((row) => !isEligible(row)).map((row) => String(row.full_name || "Unnamed VA"));
+    skippedNames = rows.filter((row) => !isRowApprovable(row)).map((row) => String(row.full_name || "Unnamed VA"));
     if (eligible.length) {
       const { error } = await admin.from("va_vetting").update({ stage: "approved", recruiter_id: user.id, approved_at: now, updated_at: now }).in("va_id", eligible);
       if (error) throw error;

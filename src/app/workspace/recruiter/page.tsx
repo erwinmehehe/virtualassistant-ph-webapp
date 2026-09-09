@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertCircle, BriefcaseBusiness, CheckCircle2, ClipboardList, Mail, MessageSquare, Sparkles, UserRoundCheck } from "lucide-react";
 import { requireRole } from "@/lib/auth";
+import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function RecruiterDashboard(){
@@ -10,7 +11,7 @@ export default async function RecruiterDashboard(){
   const [unreviewedRes,incompleteRes,readyRes,vettedHiddenRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,releasedRes]=await Promise.all([
     admin.from("va_vetting").select("va_id",{count:"exact",head:true}).eq("stage","recruiter_review"),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100),
-    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",90).not("avatar_url","is",null).not("resume_path","is",null).not("stage","in","(approved,bench,rejected)"),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",PUBLIC_VA_MIN_COMPLETION).not("avatar_url","is",null).not("stage","in","(approved,bench,rejected)"),
     admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).lt("completion_score",100),
     admin.from("jobs").select("id",{count:"exact",head:true}).in("status",["pending","published"]),
     admin.from("applications").select("id",{count:"exact",head:true}).eq("status","new"),
@@ -35,7 +36,7 @@ export default async function RecruiterDashboard(){
   const cards=[
     ["VAs waiting for your review",unreviewedRes.count||0,"/workspace/recruiter/queue",ClipboardList,"Candidates waiting for screening"],
     ["Incomplete profiles",incompleteRes.count||0,"/workspace/recruiter/talent?readiness=incomplete",AlertCircle,"Missing details clients need before hiring"],
-    ["Waiting for your approval",readyRes.count||0,"/workspace/recruiter/talent?readiness=ready",UserRoundCheck,"Profile 90%+ complete, with photo and resume"],
+    ["Waiting for your approval",readyRes.count||0,"/workspace/recruiter/talent?readiness=ready",UserRoundCheck,"Profile 80%+ complete, with a photo"],
     ["Vetted but not listed",vettedHiddenRes.count||0,"/workspace/recruiter/talent?readiness=vetted_hidden",UserRoundCheck,"Screened VAs still missing profile items"],
     ["Active client roles",activeJobsRes.count||0,"/workspace/recruiter/matching",BriefcaseBusiness,"Pending and published roles"],
     ["Roles with no candidates",noCandidates.length,"/workspace/recruiter/matching?view=needs_candidates",Sparkles,"Roles that need matching first"],

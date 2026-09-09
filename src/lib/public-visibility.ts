@@ -54,3 +54,18 @@ export function isPubliclyEligible(
   if (!profile || !["approved", "bench"].includes(stage || "")) return false;
   return publicVisibilityRequirements(profile, avatarUrl).every((item) => item.done);
 }
+
+/**
+ * The approval bar, for rows out of recruiter_va_directory.
+ *
+ * Deliberately the same bar as publishing: a photo and a profile at
+ * PUBLIC_VA_MIN_COMPLETION. It used to be 90% plus "nothing missing except
+ * portfolio or tools", which meant a recruiter could approve someone the
+ * directory would then refuse to list, or skip someone the directory would
+ * have accepted. Approving and publishing now succeed or fail together.
+ */
+export function isRowApprovable(row: { completion_score?: number | null; missing_items?: unknown }) {
+  const missing = Array.isArray(row.missing_items) ? row.missing_items.map(String) : [];
+  const hasPhoto = !missing.includes("photo");
+  return Number(row.completion_score || 0) >= PUBLIC_VA_MIN_COMPLETION && hasPhoto;
+}

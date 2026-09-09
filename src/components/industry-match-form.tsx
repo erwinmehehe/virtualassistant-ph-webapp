@@ -55,7 +55,7 @@ export function IndustryMatchForm({
         ) : (
           <Link className="btn btn-primary btn-lg" href={`/auth/join/client${state.leadId ? `?lead=${encodeURIComponent(state.leadId)}` : ""}`}>Claim your job draft <ArrowRight size={16} /></Link>
         )}
-        <Link className="btn btn-lg" href={talentHref}>Browse relevant VAs</Link>
+        <Link className="btn btn-lg" href={talentHref}>Browse relevant Virtual Assistants</Link>
         {!state.clientLinked && state.leadId ? <Link className="small text-link service-match-login" href={`/auth/login?lead=${encodeURIComponent(state.leadId)}&next=${encodeURIComponent("/workspace/client")}`}>Already have a client account? Log in</Link> : null}
       </div>
       <div className="service-match-next"><strong>What happens next</strong><span>The role stays private while you review it. A recruiter can refine the scope and matching criteria before anything is published.</span></div>
@@ -80,7 +80,7 @@ export function IndustryMatchForm({
       {state.status === "error" ? <div className="alert" role="alert">{state.message}</div> : null}
 
       <fieldset className="service-match-task-fieldset">
-        <legend>What should the VA help with?</legend>
+        <legend>What should the Virtual Assistant help with?</legend>
         <div className="service-task-chips">{workflows.slice(0, 6).map((workflow,index)=><label className="service-task-chip" key={`${String(workflow)}-${index}`}><input type="checkbox" name="tasks" value={workflow}/><span>{titleCase(workflow)}</span></label>)}</div>
       </fieldset>
 

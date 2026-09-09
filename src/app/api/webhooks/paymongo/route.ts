@@ -14,7 +14,11 @@ type PaymongoEvent = {
       livemode: boolean;
       data: {
         id: string;
-        attributes: { reference_number?: string; payment_intent?: { data?: { id?: string } } };
+        attributes: {
+          reference_number?: string;
+          payment_intent?: { data?: { id?: string } };
+          payments?: Array<{ id?: string; type?: string }>;
+        };
       };
     };
   };
@@ -40,12 +44,14 @@ export async function POST(request: Request) {
     // session was created -- see createCheckoutSessionAction.
     const paymentId = checkoutSession.attributes.reference_number;
     const paymentIntentId = checkoutSession.attributes.payment_intent?.data?.id || null;
+    const providerPaymentId = checkoutSession.attributes.payments?.find((payment) => String(payment?.id || "").startsWith("pay_"))?.id || null;
     if (paymentId) {
       const admin = createAdminClient();
       const { data: payment } = await admin.from("payments").update({
         status: "paid",
         paid_at: new Date().toISOString(),
-        provider_payment_intent: paymentIntentId
+        provider_payment_intent: paymentIntentId,
+        provider_payment_id: providerPaymentId
       }).eq("id", paymentId).eq("status", "awaiting_payment").select("id,client_id,description,amount_total").maybeSingle();
       if (payment) {
         await recordProductEvent("payment_completed", { userId: payment.client_id, path: "/workspace/client/payments", metadata: { payment_id: payment.id, provider: "paymongo", amount_total: payment.amount_total } });

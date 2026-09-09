@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from "@/lib/email";
+import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -480,6 +480,128 @@ export async function updateLeadCrmAction(formData: FormData) {
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_saved=1`);
+}
+
+export async function scheduleDiscoveryAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const raw = String(formData.get("discovery_scheduled_at") || "").trim();
+  const duration = Math.max(15, Math.min(120, Number(formData.get("discovery_duration_minutes") || 30)));
+  const meetingUrl = String(formData.get("discovery_meeting_url") || "").trim().slice(0, 1000);
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
+
+  if (!leadId || !raw) return fail("Choose a discovery call date and time.");
+  const scheduled = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)
+    ? new Date(`${raw}:00+08:00`)
+    : new Date(raw);
+  if (!Number.isFinite(scheduled.getTime())) return fail("Choose a valid discovery call date and time.");
+  if (scheduled.getTime() < Date.now() - 15 * 60000) return fail("Discovery calls must be scheduled in the future.");
+  if (meetingUrl && !/^https?:\/\//i.test(meetingUrl)) return fail("Meeting link must start with http:// or https://.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin.from("lead_intake")
+    .select("id,name,email,owner_id,crm_stage")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (!lead) return fail("Lead not found.");
+
+  const now = new Date().toISOString();
+  const followUp = new Date(scheduled.getTime() + duration * 60000 + 60 * 60000).toISOString();
+  const { error } = await admin.from("lead_intake").update({
+    discovery_scheduled_at: scheduled.toISOString(),
+    discovery_duration_minutes: duration,
+    discovery_meeting_url: meetingUrl || null,
+    discovery_completed_at: null,
+    crm_stage: "discovery_booked",
+    status: "new",
+    owner_id: lead.owner_id || user.id,
+    next_follow_up_at: followUp,
+    stage_updated_at: now
+  }).eq("id", leadId);
+  if (error) return fail(error.message || "Could not schedule the discovery call.");
+
+  const scheduledLabel = new Intl.DateTimeFormat("en-PH", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Manila"
+  }).format(scheduled);
+
+  const emailResult = await sendDiscoveryBookingEmail({
+    to: lead.email,
+    clientName: lead.name,
+    scheduledLabel,
+    durationMinutes: duration,
+    meetingUrl: meetingUrl || null,
+    recruiterName: profile.full_name
+  });
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "discovery_booked",
+    description: `Discovery booked for ${scheduledLabel}`,
+    actorId: user.id,
+    metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: meetingUrl || null, email_sent: emailResult.sent }
+  });
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_saved=1`);
+}
+
+export async function completeDiscoveryAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const outcome = String(formData.get("outcome") || "qualified");
+  const notes = String(formData.get("discovery_notes") || "").trim().slice(0, 5000);
+  const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
+
+  if (!leadId || !["qualified", "nurture", "lost"].includes(outcome)) return fail("Choose a valid discovery outcome.");
+  if (outcome === "lost" && lostReason.length < 3) return fail("Add a short lost reason.");
+  if (notes.length < 3) return fail("Add a short discovery note so the next recruiter knows what was agreed.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin.from("lead_intake").select("id,crm_stage,job_id").eq("id", leadId).maybeSingle();
+  if (!lead) return fail("Lead not found.");
+
+  const now = new Date();
+  const stage = outcome as LeadCrmStage;
+  const nextFollowUp = stage === "qualified"
+    ? new Date(now.getTime() + 86400000).toISOString()
+    : stage === "nurture"
+      ? new Date(now.getTime() + 14 * 86400000).toISOString()
+      : null;
+
+  const { error } = await admin.from("lead_intake").update({
+    discovery_completed_at: now.toISOString(),
+    discovery_notes: notes,
+    crm_stage: stage,
+    status: legacyLeadStatus(stage),
+    next_follow_up_at: nextFollowUp,
+    stage_updated_at: now.toISOString(),
+    lost_reason: stage === "lost" ? lostReason : null,
+    lost_at: stage === "lost" ? now.toISOString() : null
+  }).eq("id", leadId);
+  if (error) return fail(error.message || "Could not save the discovery outcome.");
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: `discovery_${stage}`,
+    description: `Discovery completed: ${stage.replaceAll("_", " ")}`,
+    actorId: user.id,
+    metadata: { previous_stage: lead.crm_stage || null, notes, lost_reason: stage === "lost" ? lostReason : null }
+  });
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_completed=1`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {

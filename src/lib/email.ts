@@ -37,7 +37,7 @@ const applicationCcRecipients = normalizeEmailList(process.env.APPLICATION_CC_EM
 
 // Added to every outgoing email so the team keeps a full record of what the
 // platform sends. Addressed directly on the To line at the owner's request, so
-// the address appears on transactional mail to VAs and clients too, and the
+// the address appears on transactional mail to Virtual Assistants and clients too, and the
 // message lands in the inbox rather than being filtered as a copy.
 // EMAIL_ARCHIVE_TO, then the older EMAIL_ARCHIVE_CC / EMAIL_ARCHIVE_BCC names,
 // are still read so an already-configured value keeps working.
@@ -139,6 +139,7 @@ export async function sendLeadNotificationEmail(args: {
   leadId?: string | null;
   name?: string | null;
   email: string;
+  phone?: string | null;
   company?: string | null;
   service?: string | null;
   hours?: string | null;
@@ -156,10 +157,11 @@ export async function sendLeadNotificationEmail(args: {
   // configurable here, unlike the hardcoded forced-CC this replaced.
   const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
   if (!recipients.length) return { sent: false as const, reason: "no_recipient_configured" };
-  const subjectLabel = args.service?.trim() || "VA enquiry";
+  const subjectLabel = args.service?.trim() || "Virtual Assistant enquiry";
   const rows = [
     ["Name", args.name],
     ["Email", args.email],
+    ["Phone / WhatsApp", args.phone],
     ["Company", args.company],
     ["Service", args.service],
     ["Hours", args.hours],
@@ -213,7 +215,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
     from: config.from,
     to: [args.to],
     subject: "Finish your VirtualAssistant.com.ph profile",
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You started creating a VA profile on VirtualAssistant.com.ph but haven't finished the first step yet -- a complete profile is what unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p>It only takes a few minutes.</p><p><a href="${args.appUrl}/workspace/va/profile">Finish your profile</a></p><p>If you have questions about the process, just reply to this email.</p>`
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You started creating a Virtual Assistant profile on VirtualAssistant.com.ph but haven't finished the first step yet -- a complete profile is what unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p>It only takes a few minutes.</p><p><a href="${args.appUrl}/workspace/va/profile">Finish your profile</a></p><p>If you have questions about the process, just reply to this email.</p>`
   }, "profile_stage_nudge");
   return { sent: true as const };
 }
@@ -230,12 +232,12 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
-  const joinUrl = `${args.appUrl}/auth/join/client?lead=${encodeURIComponent(args.leadId)}`;
+  const hiringCallUrl = "https://calendar.app.google/FxedmioyeJhKras87";
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    subject: `Your VA request is ready -- ${args.jobTitle}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. We've kept that request as a private draft -- create a free client account with this same email address (${escapeHtml(args.to)}) and it'll be waiting for you, ready to review matched candidates.</p><p><a href="${joinUrl}">Create your client account</a></p><p>If you no longer need this, no action is needed -- just ignore this email.</p>`
+    subject: `Following up on your Virtual Assistant request -- ${args.jobTitle}`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. Our recruiting team has your request and can use it to screen relevant candidates.</p><p>If you want to talk through the role, schedule, budget, or must-have experience, you can book a short hiring call below.</p><p><a href="${hiringCallUrl}">Book a 15-minute hiring call</a></p><p>You do not need to create a client account to continue the conversation. If you already have one, your Client Portal is available for private candidate details and hiring workflow when needed.</p>`
   }, "lead_claim_nudge");
   return { sent: true as const };
 }
@@ -308,14 +310,14 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
-  const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "VA category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
+  const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "Virtual Assistant category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
   const missing = args.missing.slice(0, 6).map((item) => labels[item] || item);
   const list = missing.length ? `<ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    subject: `Complete your VA profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for VAs to complete a profile, apply, or be considered for placement.</p>`
+    subject: `Complete your Virtual Assistant profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`
   }, "profile_completion_reminder");
   return { sent: true as const };
 }

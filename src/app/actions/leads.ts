@@ -43,6 +43,7 @@ const serviceMatchSchema = z.object({
   category: z.string().trim().min(2).max(100),
   name: z.string().trim().min(1).max(100),
   email: z.string().trim().email(),
+  phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
   message: z.string().trim().min(10).max(3000),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") && !value.startsWith("//")),
@@ -188,13 +189,14 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
       };
     }
 
     const { data: lead, error } = await admin.from("lead_intake").insert({
       name: parsed.data.name,
       email: parsed.data.email,
+      phone: parsed.data.phone?.trim() || null,
       service: service.name,
       hours: parsed.data.hours,
       message: parsed.data.message,
@@ -229,6 +231,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         jobId,
         name: parsed.data.name,
         email: parsed.data.email,
+        phone: parsed.data.phone?.trim() || null,
         service: service.name,
         hours: parsed.data.hours,
         message: parsed.data.message,
@@ -246,7 +249,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       clientLinked: Boolean(clientId),
       message: clientId
         ? `Your ${service.name.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
-        : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
@@ -258,6 +261,7 @@ const industryMatchSchema = z.object({
   slug: z.string().min(2).max(180).regex(/^[a-z0-9-]+$/),
   name: z.string().trim().min(1).max(100),
   email: z.string().trim().email(),
+  phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
   message: z.string().trim().max(3000).optional().default(""),
   tasks: z.array(z.string().trim().min(2).max(140)).max(6).optional().default([]),
@@ -312,13 +316,14 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: "Your hiring request is with our recruiting team. We will review the role and follow up using the email you provided."
+        message: "Your hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided."
       };
     }
 
     const { data: lead, error } = await admin.from("lead_intake").insert({
       name: parsed.data.name,
       email: parsed.data.email,
+      phone: parsed.data.phone?.trim() || null,
       service: serviceLabel,
       hours: parsed.data.hours,
       message: combinedMessage,
@@ -353,6 +358,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         jobId,
         name: parsed.data.name,
         email: parsed.data.email,
+        phone: parsed.data.phone?.trim() || null,
         service: serviceLabel,
         hours: parsed.data.hours,
         message: combinedMessage,
@@ -370,7 +376,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       clientLinked: Boolean(clientId),
       message: clientId
         ? `Your ${industry.label.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
-        : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
+        : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
@@ -383,6 +389,7 @@ const roleBriefSchema = z.object({
   timezone: z.string().min(2).max(120),
   budget: z.string().min(1).max(100),
   email: z.string().email(),
+  phone: z.string().trim().max(50).optional(),
   name: z.string().max(100).optional(),
   company: z.string().max(160).optional(),
   start_time: z.string().max(100).optional(),
@@ -438,6 +445,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name?.trim() || null,
     email: parsed.data.email,
+    phone: parsed.data.phone?.trim() || null,
     service: category,
     company: parsed.data.company?.trim() || null,
     hours: parsed.data.hours,
@@ -487,6 +495,7 @@ export async function submitRoleBriefAction(formData: FormData) {
       jobId,
       name: parsed.data.name?.trim() || null,
       email: parsed.data.email,
+      phone: parsed.data.phone?.trim() || null,
       company: parsed.data.company?.trim() || null,
       service: category,
       hours: parsed.data.hours,
@@ -507,6 +516,7 @@ export async function submitRoleBriefAction(formData: FormData) {
 const contactSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email(),
+  phone: z.string().trim().max(50).optional(),
   company: z.string().max(160).optional(),
   topic: z.string().min(2).max(100),
   message: z.string().min(20).max(3000),
@@ -522,6 +532,7 @@ export async function submitContactAction(formData: FormData) {
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name.trim(),
     email: parsed.data.email,
+    phone: parsed.data.phone?.trim() || null,
     company: parsed.data.company?.trim() || null,
     service: parsed.data.topic.trim(),
     message: parsed.data.message.trim(),
@@ -534,6 +545,7 @@ export async function submitContactAction(formData: FormData) {
       leadId: lead?.id,
       name: parsed.data.name.trim(),
       email: parsed.data.email,
+      phone: parsed.data.phone?.trim() || null,
       company: parsed.data.company?.trim() || null,
       service: parsed.data.topic.trim(),
       message: parsed.data.message.trim(),

@@ -32,13 +32,13 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
       <h1 className="public-page-title">Tell us who you need. We will help you hire them.</h1>
       <p className="public-lede">Share the role, schedule, and budget. Our recruiting team will review the work, screen for fit, and help you meet vetted Filipino Virtual Assistants.</p>
       <div className="trust-list">
-        {["Private by default. Your hiring request is reviewed by our team.", "No account required to start. A recruiter can follow up using your work email."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
+        {["Private by default. Your hiring request is reviewed by our team.", "No account required to start. A recruiter can follow up by email, phone, or WhatsApp if you provide it."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
       </div>
       {requested ? <div className="card requested-talent"><div className="row"><PublicAvatar name={requested.full_name} src={requested.avatar_url} size="sm"/><div><div className="small muted">Introduction requested for</div><strong>{requested.full_name}</strong><div className="small muted">{requested.headline || requested.primary_category}</div></div></div><Link className="small text-link" href={`/va/${requested.slug}`}>Review profile again</Link></div> : talent ? <div className="alert">We could not find that talent profile, but you can still send your role brief.</div> : null}
     </section>
 
     <section className="card lead-form-card">
-      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your hiring request is with our team</h2><p>A recruiter will review the role and use it to screen for relevant candidates. You do not need to create an account before we start helping.</p><div className="stack"><div className="card" style={{textAlign:"left"}}><strong>What happens next</strong><ol className="small muted" style={{marginBottom:0}}><li>We review the responsibilities, schedule, and budget.</li><li>We screen for relevant skills, communication, availability, and fit.</li><li>We follow up with the strongest next step for your role.</li></ol></div><a className="btn btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call</a><Link className="btn" href="/find-talent">Browse vetted Virtual Assistants while we review</Link>{lead ? <Link className="small text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}</div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
+      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your hiring request is with our team</h2><p>A recruiter will review the role and use it to screen for relevant candidates. We will follow up using the contact details you provide, and you do not need an account to get started.</p><div className="stack"><div className="card" style={{textAlign:"left"}}><strong>What happens next</strong><ol className="small muted" style={{marginBottom:0}}><li>We review the responsibilities, schedule, and budget.</li><li>We screen for relevant skills, communication, availability, and fit.</li><li>We follow up with the strongest next step for your role.</li></ol></div><a className="btn btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call</a><Link className="btn" href="/find-talent">Browse vetted Virtual Assistants while we review</Link>{lead ? <Link className="small text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}</div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
         <div className="compact-hire-form-head"><h2>Tell us who you need</h2><p className="small muted">About 60 seconds. Our recruiting team will review the role.</p></div>
         {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
         {talent ? <input type="hidden" name="talent" value={talent}/> : null}
@@ -56,11 +56,12 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
         <div className="field"><label htmlFor="email">Work email *</label><input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
         <div className="field"><label htmlFor="message">What should this Virtual Assistant own? *</label><textarea id="message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience -- e.g. inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
         <details className="hire-optional-details">
-          <summary>Add name &amp; company <span>(optional)</span></summary>
+          <summary>Add contact details <span>(optional)</span></summary>
           <div className="form-grid compact-form-grid">
             <div className="field"><label htmlFor="name">Your name</label><input id="name" name="name" autoComplete="name"/></div>
             <div className="field"><label htmlFor="company">Company</label><input id="company" name="company" autoComplete="organization"/></div>
           </div>
+          <div className="field"><label htmlFor="phone">Phone / WhatsApp</label><input id="phone" name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
         </details>
         <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">Start my hiring request</button>
         <p className="small muted compact-hire-fineprint">Private hiring request. No account is required to start the search.</p>

@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const staticRoutes = [
     "", "/hire", "/find-talent", "/services", "/pricing", "/managed-vs-direct-hire", "/how-vetting-works", "/faq", "/about", "/privacy", "/terms", "/contact", "/jobs", "/industries", "/software",
-    "/blog", "/tools", "/tools/virtual-assistant-cost-calculator", "/tools/virtual-assistant-hourly-to-monthly-calculator", "/tools/virtual-assistant-job-description-generator", "/tools/what-type-of-va-do-i-need",
+    "/blog", "/for-virtual-assistants", "/tools", "/tools/virtual-assistant-cost-calculator", "/tools/virtual-assistant-hourly-to-monthly-calculator", "/tools/virtual-assistant-job-description-generator", "/tools/what-type-of-va-do-i-need",
     "/authors/christ-hemsworthy", "/authors/editorial-team", "/editorial-policy"
   ];
   const blogTopicRoutes = Object.keys(BLOG_TOPICS).map((topic) => `/blog/topic/${topic}`);

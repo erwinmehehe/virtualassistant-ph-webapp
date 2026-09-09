@@ -10,6 +10,8 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { AttributionFields } from "@/components/attribution-fields";
 import { canonicalPath } from "@/lib/seo-url";
 
+const HIRING_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+
 export const metadata: Metadata = {
   title: "Hire a Virtual Assistant from the Philippines",
   description: "Tell us the role, hours, timezone, and budget. Our recruiting team screens and matches vetted Filipino Virtual Assistants for your business.",
@@ -36,7 +38,7 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
     </section>
 
     <section className="card lead-form-card">
-      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your hiring request is with our team</h2><p>A recruiter will review the role and use it to screen for relevant candidates. You do not need to create an account before we start helping.</p><div className="stack"><div className="card" style={{textAlign:"left"}}><strong>What happens next</strong><ol className="small muted" style={{marginBottom:0}}><li>We review the responsibilities, schedule, and budget.</li><li>We screen for relevant skills, communication, availability, and fit.</li><li>We follow up with the strongest next step for your role.</li></ol></div><Link className="btn" href="/find-talent">Browse vetted Virtual Assistants while we review</Link>{lead ? <Link className="small text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}</div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
+      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your hiring request is with our team</h2><p>A recruiter will review the role and use it to screen for relevant candidates. You do not need to create an account before we start helping.</p><div className="stack"><div className="card" style={{textAlign:"left"}}><strong>What happens next</strong><ol className="small muted" style={{marginBottom:0}}><li>We review the responsibilities, schedule, and budget.</li><li>We screen for relevant skills, communication, availability, and fit.</li><li>We follow up with the strongest next step for your role.</li></ol></div><a className="btn btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call</a><Link className="btn" href="/find-talent">Browse vetted Virtual Assistants while we review</Link>{lead ? <Link className="small text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}</div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
         <div className="compact-hire-form-head"><h2>Tell us who you need</h2><p className="small muted">About 60 seconds. Our recruiting team will review the role.</p></div>
         {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
         {talent ? <input type="hidden" name="talent" value={talent}/> : null}

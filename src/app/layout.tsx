@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: "VirtualAssistant.com.ph",
     title: "Hire Vetted Filipino Virtual Assistants",
     description: "Recruiting, screening and placement support for your next Filipino virtual assistant.",
-    images: [{url:"/opengraph-image",width:1200,height:630,alt:"VirtualAssistant.com.ph — Filipino talent. A team behind every hire."}]
+    images: [{url:"/opengraph-image",width:1200,height:630,alt:"VirtualAssistant.com.ph - vetted Filipino virtual assistants"}]
   },
   twitter: { card: "summary_large_image", images:["/opengraph-image"] },
   ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {})

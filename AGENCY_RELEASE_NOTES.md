@@ -1,10 +1,10 @@
-# Agency dashboard, design and SEO
+# Agency lead workflow and shortlist visibility
 
 The owner workspace now prioritizes employer relationships: enquiries, follow-ups, hiring briefs, quotes and active placements. Leads have independent sales stages, a next follow-up date and private notes. Intake conversion status is preserved.
 
 Client overviews and candidate pages now include released recruiter shortlists before applications arrive. Candidates already represented by an application are not counted twice. Private identity and resume access continue to use the existing role-level access gates.
 
-The public homepage uses managed hiring as its primary path, with a responsive green/navy design, clearer service copy, updated search and social metadata, a branded sharing image and Service structured data. Existing service, industry and blog URLs are preserved. No search ranking claims or guarantees are made.
+The original public design, homepage H1 (Virtual Assistant Philippines), hire-page heading, navigation, colors and sharing-image design are preserved. New lead workflow layouts use the existing theme. Nonvisual SEO improvements retain sharing metadata and robots URL normalization. Existing service, industry and blog URLs are preserved.
 
 ## Deployment order
 

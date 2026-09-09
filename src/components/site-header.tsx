@@ -52,7 +52,7 @@ export async function SiteHeader() {
         </Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          <Link href="/hire">Managed hiring</Link>
+          <Link href="/find-talent">Find VAs</Link>
 
           <div className="nav-mega-menu">
             <Link href="/services" className="nav-mega-trigger">Services <ChevronDown size={14} aria-hidden="true"/></Link>
@@ -119,11 +119,11 @@ export async function SiteHeader() {
           {!user || !profile ? (
             <>
               <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Log in</Link>
-              <Link className="btn btn-primary desktop-hire-cta" href="/hire" data-track="header_managed_hiring">Find my VA</Link>
+              <Link className="btn btn-primary desktop-hire-cta" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew" data-track="header_post_job">Post a Job</Link>
               <details className="mobile-menu">
                 <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
                 <nav className="mobile-menu-panel" aria-label="Mobile navigation">
-                  <Link className="mobile-menu-primary" href="/hire">Find my VA</Link>
+                  <Link className="mobile-menu-primary" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
                   <Link href="/hire">Managed hiring</Link>
                   {mobilePublicLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
                   <div className="mobile-menu-divider" />

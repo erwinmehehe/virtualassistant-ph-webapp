@@ -1,13 +1,73 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "VirtualAssistant.com.ph — Filipino talent. A team behind every hire.";
+/**
+ * Site-wide share image.
+ *
+ * Without one, Google and social platforms picked the first image on the page,
+ * which on the homepage is a VA's profile photo. A real member's face was
+ * standing in as the brand thumbnail in search results and link previews.
+ *
+ * Generated rather than a static asset so it stays in step with the wordmark
+ * and needs no design file checked into the repo. Pages that want their own
+ * image can add their own opengraph-image in that route segment.
+ */
+export const runtime = "nodejs";
+export const alt = "VirtualAssistant.com.ph - vetted Filipino virtual assistants";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
-  return new ImageResponse(<div style={{display:"flex",flexDirection:"column",justifyContent:"space-between",width:"100%",height:"100%",padding:"64px 76px",background:"#102d35",color:"#fff",fontFamily:"sans-serif"}}>
-    <div style={{display:"flex",fontSize:27,letterSpacing:-1}}>VirtualAssistant<span style={{color:"#9ddccb"}}>.com.ph</span></div>
-    <div style={{display:"flex",flexDirection:"column",fontSize:70,fontWeight:700,letterSpacing:-3,lineHeight:1.08}}><span>Great Filipino talent.</span><span style={{color:"#9ddccb"}}>A team behind every hire.</span></div>
-    <div style={{display:"flex",justifyContent:"space-between",fontSize:23,color:"#d1e4e0"}}><span>Recruiting · Screening · Placement support</span><span>Build your team →</span></div>
-  </div>,size);
+export default function OpengraphImage() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          background: "#0b1b34",
+          padding: "72px 80px",
+          fontFamily: "Helvetica, Arial, sans-serif"
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 14,
+              background: "#1677ff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: 30,
+              fontWeight: 700
+            }}
+          >
+            VA
+          </div>
+          <div style={{ display: "flex", fontSize: 27, color: "#e6edf7", fontWeight: 600 }}>
+            VirtualAssistant<span style={{ color: "#5aa9ff" }}>.com.ph</span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", fontSize: 68, lineHeight: 1.1, color: "#ffffff", fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Vetted Filipino virtual assistants
+          </div>
+          <div style={{ display: "flex", fontSize: 30, color: "#9db4d4", marginTop: 22, lineHeight: 1.35 }}>
+            Skills tested. Human vetted. Matched to your role.
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 24, color: "#7f9bc0" }}>
+          <div style={{ display: "flex", width: 10, height: 10, borderRadius: 5, background: "#12b76a" }} />
+          <div style={{ display: "flex" }}>Admin · Customer support · Ecommerce · Bookkeeping · Marketing</div>
+        </div>
+      </div>
+    ),
+    size
+  );
 }

@@ -28,8 +28,8 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
   return <><SiteHeader/><main id="main-content" className="section"><div className="container hire-layout">
     <section>
       
-      <h1 className="public-page-title">Your next great hire starts here.</h1>
-      <p className="public-lede">Tell us what you need handled, your schedule, and your budget. Our recruiting team will review your brief and help you find the right Filipino virtual assistant.</p>
+      <h1 className="public-page-title">Get matched with the right VA.</h1>
+      <p className="public-lede">Share the role, schedule, and budget. We will turn it into a private draft and use it to match you with vetted Filipino virtual assistants.</p>
       <div className="trust-list">
         {["Private by default. Nothing is published until you review it.", "No account required to send your brief; create one later to manage matches."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
       </div>

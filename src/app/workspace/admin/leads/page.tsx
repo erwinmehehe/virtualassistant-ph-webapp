@@ -18,7 +18,7 @@ export default async function AdminLeadsPage({searchParams}:{searchParams:Promis
   const hasPipeline=leads?.every(lead=>"sales_stage" in lead)??true;
   const pageHref=(next:number)=>`/workspace/admin/leads?${new URLSearchParams({...(stage?{stage}:{}),page:String(next)})}`;
   return <>
-    <div className="page-head agency-page-head"><div><div className="kicker">Employer relationships</div><h1>Your lead pipeline</h1><p>Qualify the work, agree the next step, and keep the conversation moving.</p></div><Link className="btn" href="/workspace/admin">Agency overview</Link></div>
+    <div className="page-head agency-page-head"><div><div className="kicker">Employer relationships</div><h1>Lead inbox</h1><p>Qualify the work, agree the next step, and keep the conversation moving.</p></div><Link className="btn" href="/workspace/admin">Agency overview</Link></div>
     {params.saved?<div className="success-banner" role="status">Lead updated. Your next step is saved.</div>:null}
     {params.error?<div className="alert" role="alert">{params.error}</div>:null}
     {!hasPipeline?<div className="alert" role="alert">Sales tracking is not available yet. Complete the agency lead pipeline database migration before editing stages or follow-ups.</div>:null}

@@ -9,6 +9,7 @@ import { sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
+import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -206,9 +207,14 @@ export async function sendClientFollowupAction(formData: FormData) {
   let activityType: "lead" | "job" = leadId ? "lead" : "job";
   let activityId = leadId || jobId;
   let linkedJobId = jobId;
+  let leadSnapshot: any = null;
 
   if (leadId) {
-    const { data: lead } = await admin.from("lead_intake").select("id,email,name,job_id").eq("id", leadId).maybeSingle();
+    const { data: lead } = await admin.from("lead_intake")
+      .select("id,email,name,job_id,crm_stage,owner_id,first_contact_at,next_follow_up_at")
+      .eq("id", leadId)
+      .maybeSingle();
+    leadSnapshot = lead;
     recipient = lead?.email || null;
     clientName = lead?.name || null;
     linkedJobId = linkedJobId || String(lead?.job_id || "");
@@ -224,12 +230,18 @@ export async function sendClientFollowupAction(formData: FormData) {
       recipient = authUser.user?.email || null;
       clientName = account?.full_name || null;
     } else {
-      const { data: lead } = await admin.from("lead_intake").select("id,email,name").eq("job_id", jobId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      const { data: lead } = await admin.from("lead_intake")
+        .select("id,email,name,crm_stage,owner_id,first_contact_at,next_follow_up_at")
+        .eq("job_id", jobId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       recipient = lead?.email || null;
       clientName = lead?.name || null;
       if (lead?.id) {
         activityType = "lead";
         activityId = lead.id;
+        leadSnapshot = lead;
       }
     }
   }
@@ -251,6 +263,31 @@ export async function sendClientFollowupAction(formData: FormData) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check the email configuration and recipient address.")}`);
   }
 
+  const now = new Date();
+  if (activityType === "lead" && activityId) {
+    if (!leadSnapshot) {
+      const { data } = await admin.from("lead_intake")
+        .select("id,crm_stage,owner_id,first_contact_at,next_follow_up_at")
+        .eq("id", activityId)
+        .maybeSingle();
+      leadSnapshot = data;
+    }
+    if (leadSnapshot) {
+      const existingFollowUp = leadSnapshot.next_follow_up_at ? new Date(leadSnapshot.next_follow_up_at).getTime() : 0;
+      const patch: Record<string, unknown> = {
+        last_contact_at: now.toISOString(),
+        owner_id: leadSnapshot.owner_id || user.id,
+        next_follow_up_at: existingFollowUp > now.getTime() ? leadSnapshot.next_follow_up_at : new Date(now.getTime() + 2 * 86400000).toISOString()
+      };
+      if (!leadSnapshot.first_contact_at) patch.first_contact_at = now.toISOString();
+      if ((leadSnapshot.crm_stage || "new") === "new") {
+        patch.crm_stage = "contacted";
+        patch.stage_updated_at = now.toISOString();
+      }
+      await admin.from("lead_intake").update(patch).eq("id", activityId);
+    }
+  }
+
   await writeRecruiterActivity({
     subjectType: activityType,
     subjectId: activityId,
@@ -259,6 +296,7 @@ export async function sendClientFollowupAction(formData: FormData) {
     actorId: user.id,
     metadata: { job_id: linkedJobId || null, recipient }
   });
+  revalidatePath("/workspace/recruiter");
   revalidatePath(returnTo);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
 }
@@ -287,7 +325,10 @@ export async function recordLeadContactAction(formData: FormData) {
   if (!leadId || !allowed.has(contactType)) throw new Error("Choose a valid client contact update.");
 
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,job_id,name,email").eq("id", leadId).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake")
+    .select("id,job_id,name,email,crm_stage,owner_id,first_contact_at,next_follow_up_at")
+    .eq("id", leadId)
+    .maybeSingle();
   if (!lead) throw new Error("Lead not found.");
 
   const labels: Record<string, string> = {
@@ -297,6 +338,21 @@ export async function recordLeadContactAction(formData: FormData) {
     follow_up: "Client follow-up recorded"
   };
   const description = note || labels[contactType];
+  const now = new Date();
+  const existingFollowUp = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : 0;
+  const followUpDays = contactType === "meeting" ? 1 : contactType === "follow_up" ? 2 : 1;
+  const patch: Record<string, unknown> = {
+    last_contact_at: now.toISOString(),
+    owner_id: lead.owner_id || user.id,
+    next_follow_up_at: existingFollowUp > now.getTime() ? lead.next_follow_up_at : new Date(now.getTime() + followUpDays * 86400000).toISOString()
+  };
+  if (!lead.first_contact_at) patch.first_contact_at = now.toISOString();
+  if ((lead.crm_stage || "new") === "new") {
+    patch.crm_stage = "contacted";
+    patch.stage_updated_at = now.toISOString();
+  }
+  const { error: updateError } = await admin.from("lead_intake").update(patch).eq("id", leadId);
+  if (updateError) throw updateError;
 
   await writeRecruiterActivity({
     subjectType: "lead",
@@ -319,8 +375,111 @@ export async function recordLeadContactAction(formData: FormData) {
     revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
   }
 
+  revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
+}
+
+export async function updateLeadCrmAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const stageRaw = String(formData.get("crm_stage") || "").trim();
+  const ownerId = String(formData.get("owner_id") || "").trim();
+  const followUpRaw = String(formData.get("next_follow_up_at") || "").trim();
+  const estimatedRaw = String(formData.get("estimated_value_usd") || "").trim();
+  const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_error=${encodeURIComponent(message)}`);
+  if (!leadId || !isLeadCrmStage(stageRaw)) return fail("Choose a valid sales stage.");
+  const stage = stageRaw as LeadCrmStage;
+
+  let nextFollowUpAt: string | null = null;
+  if (followUpRaw) {
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)
+      ? new Date(`${followUpRaw}T09:00:00+08:00`)
+      : new Date(followUpRaw);
+    if (!Number.isFinite(parsed.getTime())) return fail("Choose a valid follow-up date.");
+    nextFollowUpAt = parsed.toISOString();
+  }
+
+  let estimatedValue: number | null = null;
+  if (estimatedRaw) {
+    estimatedValue = Number(estimatedRaw);
+    if (!Number.isFinite(estimatedValue) || estimatedValue < 0 || estimatedValue > 10000000) return fail("Enter a valid estimated deal value.");
+  }
+  if (stage === "lost" && lostReason.length < 3) return fail("Add a short lost reason so the team can learn from it.");
+
+  const admin = createAdminClient();
+  if (ownerId) {
+    const { data: owner } = await admin.from("profiles").select("id,role,account_status").eq("id", ownerId).maybeSingle();
+    if (!owner || !["recruiter", "admin"].includes(owner.role) || owner.account_status !== "active") return fail("Choose an active recruiter or admin as the lead owner.");
+  }
+
+  const { data: lead } = await admin.from("lead_intake")
+    .select("id,status,crm_stage,job_id,session_id,page_url,service,won_at,lost_at")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (!lead) return fail("Lead not found.");
+
+  const now = new Date().toISOString();
+  const patch: Record<string, unknown> = {
+    crm_stage: stage,
+    status: legacyLeadStatus(stage),
+    owner_id: ownerId || null,
+    next_follow_up_at: ["won", "lost"].includes(stage) ? null : nextFollowUpAt,
+    estimated_value_usd: estimatedValue,
+    lost_reason: stage === "lost" ? lostReason : null,
+    stage_updated_at: now,
+    won_at: stage === "won" ? (lead.won_at || now) : null,
+    lost_at: stage === "lost" ? (lead.lost_at || now) : null
+  };
+  const { error } = await admin.from("lead_intake").update(patch).eq("id", leadId);
+  if (error) return fail(error.message || "Could not update the lead.");
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: `lead_stage_${stage}`,
+    description: `Sales stage changed to ${stage.replaceAll("_", " ")}`,
+    actorId: user.id,
+    metadata: {
+      previous_stage: lead.crm_stage || null,
+      owner_id: ownerId || null,
+      next_follow_up_at: patch.next_follow_up_at,
+      estimated_value_usd: estimatedValue,
+      job_id: lead.job_id || null,
+      lost_reason: stage === "lost" ? lostReason : null
+    }
+  });
+
+  const qualifiedStages = new Set(["qualified", "shortlist_sent", "won"]);
+  if (qualifiedStages.has(stage) && !qualifiedStages.has(String(lead.crm_stage || ""))) {
+    let path = "/hire";
+    try {
+      if (lead.page_url) path = new URL(lead.page_url).pathname;
+    } catch {}
+    await admin.from("analytics_events").insert({
+      event_name: "qualified_lead",
+      path,
+      session_id: lead.session_id || null,
+      metadata: { lead_id: leadId, job_id: lead.job_id || null, service: lead.service || null, crm_stage: stage }
+    });
+  }
+  if (stage === "won" && lead.crm_stage !== "won") {
+    await admin.from("analytics_events").insert({
+      event_name: "lead_won",
+      path: "/workspace/recruiter/leads",
+      session_id: lead.session_id || null,
+      metadata: { lead_id: leadId, job_id: lead.job_id || null, estimated_value_usd: estimatedValue }
+    });
+  }
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_saved=1`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {
@@ -332,13 +491,23 @@ export async function updateLeadStatusAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: lead } = await admin
     .from("lead_intake")
-    .select("id,status,job_id,session_id,page_url,service")
+    .select("id,status,crm_stage,job_id,session_id,page_url,service,lost_reason")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) throw new Error("Lead not found.");
   if (lead.status === status) return;
 
-  const { error } = await admin.from("lead_intake").update({ status }).eq("id", leadId);
+  const crmStage: LeadCrmStage = status === "converted" ? "qualified" : status === "archived" ? "lost" : "new";
+  const now = new Date().toISOString();
+  const { error } = await admin.from("lead_intake").update({
+    status,
+    crm_stage: crmStage,
+    stage_updated_at: now,
+    next_follow_up_at: status === "archived" ? null : undefined,
+    lost_reason: status === "archived" ? (lead.lost_reason || "Archived from legacy lead inbox") : null,
+    lost_at: status === "archived" ? now : null,
+    won_at: null
+  }).eq("id", leadId);
   if (error) throw error;
 
   const labels: Record<string, string> = {
@@ -352,16 +521,14 @@ export async function updateLeadStatusAction(formData: FormData) {
     action: `lead_status_${status}`,
     description: labels[status],
     actorId: user.id,
-    metadata: { previous_status: lead.status, job_id: lead.job_id || null }
+    metadata: { previous_status: lead.status, previous_stage: lead.crm_stage || null, job_id: lead.job_id || null }
   });
 
   if (status === "converted") {
     let path = "/hire";
     try {
       if (lead.page_url) path = new URL(lead.page_url).pathname;
-    } catch {
-      // Keep the safe fallback for imported or malformed lead URLs.
-    }
+    } catch {}
     await admin.from("analytics_events").insert({
       event_name: "qualified_lead",
       path,
@@ -370,6 +537,7 @@ export async function updateLeadStatusAction(formData: FormData) {
     });
   }
 
+  revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);

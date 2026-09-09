@@ -14,7 +14,7 @@ import { RoleBriefForm } from "@/components/role-brief-form";
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
   description: "Virtual Assistant Philippines — hire vetted, screened Filipino Virtual Assistants matched to your role. Browse approved talent or request a private shortlist today.",
-  keywords: ["virtual assistant philippines", "hire filipino virtual assistant", "filipino va", "virtual assistant services philippines", "outsource to the philippines"],
+  keywords: ["virtual assistant philippines", "hire filipino virtual assistant", "filipino virtual assistant", "virtual assistant services philippines", "outsource to the philippines"],
   alternates: { canonical: canonicalPath("/") }
 };
 
@@ -42,10 +42,10 @@ const roleGroups = Array.from(
 
 const faqs = [
   ["What does “vetted” mean?", "A public Virtual Assistant profile only appears after the candidate completes the required profile, category skills test, video introduction, recruiter review, and final approval workflow."],
-  ["Do I have to sort through every applicant?", "No. You can browse approved talent, receive matched candidates, and manage a focused shortlist in your client workspace."],
-  ["How much does a Virtual Assistant cost?", "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles on the platform cannot be posted below USD 5/hour. VirtualAssistant.com.ph service fees are separate and are shown before you publish a role."],
-  ["Can I request a specific Virtual Assistant?", "Yes. Open a public talent profile and request an introduction. The selected profile stays attached to your signup path so you do not have to find the person again."],
-  ["What happens after I send a match request?", "Your request stays private. It creates a draft the team can review with you before anything is published, then you can claim the draft in a client workspace and manage candidates there."]
+  ["Do I have to sort through every applicant?", "No. Our recruiting team can screen the role and build a focused shortlist so you spend your time on the candidates worth interviewing."],
+  ["How much does a Virtual Assistant cost?", "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 5/hour. Our service fee is separate and shown before you make a hiring commitment."],
+  ["Can I request a specific Virtual Assistant?", "Yes. Open a public talent profile and request an introduction. The selected profile stays attached to your hiring request so our recruiting team has the right context when following up."],
+  ["What happens after I send a hiring request?", "Your request stays private. Our recruiting team reviews the role, screens for fit, and follows up with the strongest next step. You do not need to create an account to get started."]
 ] as const;
 
 function safeJson(value: unknown) { return JSON.stringify(value).replace(/</g, "\\u003c"); }
@@ -93,8 +93,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   return <><SiteHeader/><main id="main-content">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />
-    <section className="hero home-hero"><div className="container hero-grid hero-grid-form"><div className="home-hero-copy"><div className="home-hero-kicker">Virtual Assistant Philippines</div><h1>Hire a Vetted Virtual Assistant in the Philippines</h1><p className="home-hero-lede">We recruit, screen, and match experienced Filipino virtual assistants to your business — with ongoing placement support after they start, not just an introduction.</p><p className="hero-positioning">A clearer way for Australian, US, and UK businesses to build a reliable Filipino remote team.</p><div className="row wrap hero-actions"><Link className="btn btn-primary btn-lg" href="/hire">Get matched <ArrowRight size={17}/></Link><Link className="btn btn-lg" href="/find-talent">Browse approved Virtual Assistants</Link></div><div className="home-hero-proof"><span><CheckCircle2 size={15}/> Skills tested</span><span><CheckCircle2 size={15}/> Video reviewed</span><span><CheckCircle2 size={15}/> Recruiter approved</span></div></div>
-      <RoleBriefForm sourcePath="/" error={query.error} sent={Boolean(query.sent)} heading="Get matched" subheading="About 60 seconds. Required fields are marked." /></div></section>
+    <section className="hero home-hero"><div className="container hero-grid hero-grid-form"><div className="home-hero-copy"><div className="home-hero-kicker">Virtual Assistant Philippines</div><h1>Hire a Vetted Virtual Assistant in the Philippines</h1><p className="home-hero-lede">We recruit, screen, and match experienced Filipino virtual assistants to your business — with ongoing placement support after they start, not just an introduction.</p><p className="hero-positioning">A clearer way for Australian, US, and UK businesses to build a reliable Filipino remote team.</p><div className="row wrap hero-actions"><Link className="btn btn-primary btn-lg" href="/hire">Start a Hiring Request <ArrowRight size={17}/></Link><Link className="btn btn-lg" href="/find-talent">Browse approved Virtual Assistants</Link></div><a className="small text-link" href="https://calendar.app.google/FxedmioyeJhKras87" target="_blank" rel="noopener noreferrer">Prefer to talk first? Book a 15-minute hiring call</a><div className="home-hero-proof"><span><CheckCircle2 size={15}/> Skills tested</span><span><CheckCircle2 size={15}/> Video reviewed</span><span><CheckCircle2 size={15}/> Recruiter approved</span></div></div>
+      <RoleBriefForm sourcePath="/" error={query.error} sent={Boolean(query.sent)} heading="Tell us who you need" subheading="About 60 seconds. Our recruiting team will review the role and follow up." /></div></section>
 
     <section className="home-trust-strip" aria-label="Why businesses hire through VirtualAssistant.com.ph"><div className="container home-trust-grid"><div className="home-trust-item"><strong>Skip the resume pile</strong><span>Start with screened candidates worth interviewing</span></div><div className="home-trust-item"><strong>Skills + communication checked</strong><span>Practical screening plus human recruiter review</span></div><div className="home-trust-item"><strong>You choose who you hire</strong><span>Compare profiles, interview, and make the final call</span></div><div className="home-trust-item"><strong>Support after placement</strong><span>Managed hiring stays involved after your Virtual Assistant starts</span></div></div></section>
 
@@ -133,7 +133,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </article>
         <article className="card hiring-compare-ours">
           <h3>VirtualAssistant.com.ph</h3>
-          <p>Every Filipino virtual assistant here has passed a skills test in their category, recorded a video introduction, and cleared a recruiter review before you see them. You interview and decide. Virtual Assistant compensation and our service fee are shown separately, before you publish the role.</p>
+          <p>Every Filipino virtual assistant here has passed a skills test in their category, recorded a video introduction, and cleared a recruiter review before you see them. You interview and decide. Virtual Assistant compensation and our service fee are shown separately before you make a hiring commitment.</p>
         </article>
       </div>
       <div className="row wrap hiring-compare-actions">

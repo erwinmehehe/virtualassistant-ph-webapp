@@ -20,6 +20,7 @@ from public.jobs j
 join public.job_commercials c on c.job_id = j.id
 left join public.job_candidate_access a on a.job_id = j.id
 where j.client_id is not null
+  and j.status in ('pending', 'published')
   and c.commercial_status = 'accepted'
   and (a.job_id is null or a.access_status not in ('paid', 'comped'))
 on conflict (job_id) do update

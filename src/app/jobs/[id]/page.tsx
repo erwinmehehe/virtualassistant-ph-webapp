@@ -15,7 +15,7 @@ import { canonicalPath } from "@/lib/seo-url";
 async function getPublishedJob(key: string) {
   try {
     const supabase = await createClient();
-    const query = supabase.from("jobs").select("*").eq("status", "published");
+    const query = supabase.from("jobs").select("*").eq("status", "published").not("client_id", "is", null);
     const { data } = isUuid(key) ? await query.eq("id", key).maybeSingle() : await query.eq("slug", key).maybeSingle();
     return data;
   } catch (err) {

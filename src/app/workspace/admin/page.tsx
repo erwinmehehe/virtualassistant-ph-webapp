@@ -49,7 +49,7 @@ export default async function AdminPage() {
     </div>
 
     <div className="card" style={{ marginTop: 18 }}>
-      <div className="row wrap"><strong>Marketplace:</strong><span className="badge">{vas || 0} VA accounts</span><span className="badge">{clients || 0} client accounts</span><span className="badge">{recruiters || 0} recruiter accounts</span></div>
+      <div className="row wrap"><strong>Accounts:</strong><span className="badge">{vas || 0} Virtual Assistant accounts</span><span className="badge">{clients || 0} client accounts</span><span className="badge">{recruiters || 0} recruiter accounts</span></div>
     </div>
   </>;
 }

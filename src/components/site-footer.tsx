@@ -22,11 +22,11 @@ export function SiteFooter() {
         <div className="container footer-cta">
           <div>
             <div className="kicker">Ready to hire?</div>
-            <h2>Tell us what needs to get off your plate. We will help you find the right Filipino VA.</h2>
+            <h2>Tell us what needs to get off your plate. We will help you find the right Filipino Virtual Assistant.</h2>
           </div>
           <div className="row wrap">
             <Link className="btn btn-white" href="/hire">Get matched <ArrowRight size={15}/></Link>
-            <Link className="btn footer-outline-btn" href="/find-talent">Browse VAs</Link>
+            <Link className="btn footer-outline-btn" href="/find-talent">Browse Virtual Assistants</Link>
           </div>
         </div>
 
@@ -37,8 +37,8 @@ export function SiteFooter() {
           </div>
           <div className="footer-links">
             <strong>Hire</strong>
-            <Link href="/hire">Get a managed VA</Link>
-            <Link href="/find-talent">Browse VAs</Link>
+            <Link href="/hire">Hire a Virtual Assistant</Link>
+            <Link href="/find-talent">Browse Virtual Assistants</Link>
             <Link href="/services">Services</Link>
             <Link href="/pricing">Pricing</Link>
             <Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link>
@@ -59,16 +59,16 @@ export function SiteFooter() {
             <Link href="/editorial-policy">Editorial policy</Link>
           </div>
           <div className="footer-links">
-            <strong>For VAs</strong>
-            <Link href="/jobs">Browse VA jobs</Link>
-            <Link href="/auth/join/va">Apply as a VA</Link>
+            <strong>For Virtual Assistants</strong>
+            <Link href="/jobs">Browse Virtual Assistant jobs</Link>
+            <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
             <Link href="/auth/login">Log in</Link>
           </div>
         </div>
 
         <div className="container">
           <details className="footer-seo-directory">
-            <summary>Browse all VA roles, industries, and software guides</summary>
+            <summary>Browse all Virtual Assistant roles, industries, and software guides</summary>
             <div className="footer-directory">
               {footerRoleGroups.map(([group, pages]) => (
                 <div key={group}>

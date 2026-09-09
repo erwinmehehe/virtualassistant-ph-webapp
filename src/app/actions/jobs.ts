@@ -86,20 +86,26 @@ export async function createJobAction(formData: FormData) {
     experience_level: ["entry","intermediate","senior","expert"].includes(String(formData.get("experience_level") ?? "")) ? String(formData.get("experience_level")) : "intermediate",
     start_timing: String(formData.get("start_timing") ?? "").trim() || null,
     service_model: String(formData.get("service_model") ?? "curated_placement") === "managed_service" ? "managed_service" : "curated_placement",
-    status: submitMode === "draft" ? "draft" : "published",
-    ...(submitMode === "draft" ? {} : { published_at: new Date().toISOString() })
+    status: submitMode === "draft" ? "draft" : "pending",
+    ...(submitMode === "draft" ? {} : { published_at: null })
   };
 
   const jobId = String(formData.get("job_id") ?? "").trim();
   const admin = createAdminClient();
   let savedId = jobId;
   let previousStatus: string | null = null;
+  let savedStatus = payload.status;
   if (jobId) {
-    const { data: ownedJob } = await supabase.from("jobs").select("id,status,slug,title").eq("id", jobId).eq("client_id", user.id).single();
+    const { data: ownedJob } = await supabase.from("jobs").select("id,status,slug,title,published_at").eq("id", jobId).eq("client_id", user.id).single();
     if (!ownedJob) throw new Error("Job not found.");
     previousStatus = ownedJob.status;
     const shouldRefreshSlug = ["draft", "pending"].includes(ownedJob.status) && ownedJob.title !== title;
-    const updatePayload = shouldRefreshSlug ? { ...payload, slug: await uniqueJobSlug(admin, title, jobId) } : payload;
+    const preservePublished = submitMode !== "draft" && ownedJob.status === "published";
+    const statusAwarePayload = preservePublished
+      ? { ...payload, status: "published", published_at: ownedJob.published_at || new Date().toISOString() }
+      : payload;
+    savedStatus = statusAwarePayload.status;
+    const updatePayload = shouldRefreshSlug ? { ...statusAwarePayload, slug: await uniqueJobSlug(admin, title, jobId) } : statusAwarePayload;
     const { data, error } = await admin.from("jobs").update(updatePayload).eq("id", jobId).eq("client_id", user.id).select("id").single();
     if (error) throw error;
     savedId = data.id;
@@ -110,12 +116,11 @@ export async function createJobAction(formData: FormData) {
     savedId = data.id;
   }
 
-  // Notify only on the transition into "pending" (a new job, or a draft
-  // being submitted for the first time) -- not on every subsequent save of
-  // an already-pending job, which would just be repeat noise.
-  await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: payload.status, submit_mode: submitMode } });
+  // Notify only when a private brief is first submitted for team review.
+  // Publishing happens later, after commercial terms are accepted.
+  await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: savedStatus, submit_mode: submitMode } });
 
-  if (payload.status === "published" && previousStatus !== "published") {
+  if (savedStatus === "pending" && previousStatus !== "pending") {
     try {
       const { data: clientProfile } = await admin.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
       const admins = await admin.from("profiles").select("id").eq("role", "admin");
@@ -125,8 +130,8 @@ export async function createJobAction(formData: FormData) {
       if (admins.data?.length) {
         await admin.from("notifications").insert(admins.data.map((a) => ({
           user_id: a.id,
-          title: "New role published",
-          body: `${clientProfile?.full_name || "A client"} published "${title}". It is live and open to applications.`,
+          title: "New hiring brief submitted",
+          body: `${clientProfile?.full_name || "A client"} submitted "${title}" for review. Confirm the brief and commercial terms before it goes live.`,
           href: `/workspace/admin/jobs/${savedId}`
         })));
       }
@@ -166,12 +171,21 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   if (!commercial || commercial.commercial_status !== "quoted") throw new Error("The service fee is not ready for acceptance.");
   const admin = createAdminClient();
   await admin.from("job_commercials").update({commercial_status:"accepted"}).eq("job_id",jobId);
-  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:new Date().toISOString()}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
+  const publishedAt = new Date().toISOString();
+  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
+  if (publishedJob) {
+    await admin.from("job_candidate_access").upsert({
+      job_id: jobId,
+      access_status: "comped",
+      access_fee: 0,
+      currency: "USD",
+      unlocked_at: publishedAt
+    }, { onConflict: "job_id" });
+  }
 
   if (publishedJob) {
     await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
-    try { const auth = await admin.auth.admin.getUserById(user.id); const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: auth.data.user?.email, subject: `Job published: ${publishedJob.title}`, heading: "Your job is live", body: "Your role is now published and can receive applications from vetted VAs.", href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}`, hrefLabel: "View role" }); } catch {}
-    try { const authUser=await admin.auth.admin.getUserById(user.id); const {sendTransactionalEventEmail}=await import("@/lib/email"); await sendTransactionalEventEmail({to:authUser.data.user?.email,subject:`Job published: ${publishedJob.title}`,heading:"Your job is live",body:`${publishedJob.title} is now published and can receive applications.`,href:`${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}`,hrefLabel:"Open job"}); } catch {}
+    try { const auth = await admin.auth.admin.getUserById(user.id); const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: auth.data.user?.email, subject: `Job published: ${publishedJob.title}`, heading: "Your hiring request is live", body: "We have confirmed the role and your candidate access is active. Our recruiting team can now shortlist vetted VAs while the role receives applications.", href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}`, hrefLabel: "View hiring progress" }); } catch {}
     try {
       const { autoReleaseTopMatches } = await import("@/lib/auto-matching");
       await autoReleaseTopMatches(publishedJob);

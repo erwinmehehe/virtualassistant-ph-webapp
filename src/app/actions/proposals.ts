@@ -11,6 +11,7 @@ import { slugifyJobTitle } from "@/lib/public-routing";
 import { proposalAgencyValue, proposalClientMonthlyTotal } from "@/lib/proposals";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { sendLeadProposalEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -155,6 +156,90 @@ export async function createAndSendProposalAction(formData: FormData) {
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_sent=1`);
 }
 
+export async function respondToLeadProposalAction(formData: FormData) {
+  const token = String(formData.get("token") || "").trim();
+  const decision = String(formData.get("decision") || "").trim();
+  const reason = String(formData.get("reason") || "").trim().slice(0, 2000);
+  if (!token || !["changes", "decline"].includes(decision) || reason.length < 5) {
+    redirect(`/proposal/${encodeURIComponent(token)}?error=${encodeURIComponent("Tell us what should change, or why you are declining.")}`);
+  }
+
+  const admin = createAdminClient();
+  const { data: proposal } = await admin.from("lead_proposals").select("*").eq("public_token", token).maybeSingle();
+  if (!proposal) redirect("/proposal/not-found");
+  if (proposal.status !== "sent") {
+    redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal is no longer waiting for a response.")}`);
+  }
+  if (proposal.expires_at && new Date(proposal.expires_at).getTime() < Date.now()) {
+    await admin.from("lead_proposals").update({ status: "expired", updated_at: new Date().toISOString() }).eq("id", proposal.id);
+    redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal has expired. Please contact your recruiter for an updated version.")}`);
+  }
+
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,owner_id,crm_stage").eq("id", proposal.lead_id).maybeSingle();
+  if (!lead) redirect(`/proposal/${token}?error=${encodeURIComponent("The linked hiring request could not be found.")}`);
+
+  const now = new Date();
+  const askingForChanges = decision === "changes";
+  await admin.from("lead_proposals").update({
+    status: askingForChanges ? "changes_requested" : "declined",
+    changes_requested_at: askingForChanges ? now.toISOString() : null,
+    declined_at: askingForChanges ? null : now.toISOString(),
+    decline_reason: reason,
+    updated_at: now.toISOString()
+  }).eq("id", proposal.id);
+
+  await admin.from("lead_intake").update({
+    crm_stage: askingForChanges ? "qualified" : "lost",
+    status: askingForChanges ? "converted" : "archived",
+    next_follow_up_at: askingForChanges ? now.toISOString() : null,
+    stage_updated_at: now.toISOString(),
+    lost_at: askingForChanges ? null : now.toISOString(),
+    lost_reason: askingForChanges ? null : reason
+  }).eq("id", lead.id);
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: lead.id,
+    action: askingForChanges ? "proposal_changes_requested" : "proposal_declined",
+    description: askingForChanges ? `Client requested proposal changes: ${reason}` : `Client declined proposal: ${reason}`,
+    metadata: { proposal_id: proposal.id, reason }
+  });
+
+  let recipients: string[] = [];
+  if (lead.owner_id) {
+    recipients = [lead.owner_id];
+  } else {
+    const { data: staff } = await admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active");
+    recipients = (staff || []).map((row: any) => row.id);
+  }
+  if (recipients.length) {
+    await admin.from("notifications").insert(recipients.map((userId) => ({
+      user_id: userId,
+      title: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
+      body: reason,
+      href: "/workspace/recruiter/leads?view=qualified"
+    })));
+  }
+
+  for (const userId of recipients.slice(0, 10)) {
+    try {
+      const { data } = await admin.auth.admin.getUserById(userId);
+      await sendTransactionalEventEmail({
+        to: data.user?.email,
+        subject: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
+        heading: askingForChanges ? "Client wants changes" : "Client declined the proposal",
+        body: reason,
+        href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/recruiter/leads?view=qualified`,
+        hrefLabel: "Open sales CRM"
+      });
+    } catch {}
+  }
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  redirect(`/proposal/${token}?${askingForChanges ? "changes_requested=1" : "declined=1"}`);
+}
+
 export async function acceptLeadProposalAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   const acceptanceName = String(formData.get("acceptance_name") || "").trim().slice(0, 160);
@@ -212,7 +297,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     start_timing: proposal.start_timing || lead.start_time || null,
     service_model: proposal.service_model,
     status: clientId ? "published" : "pending",
-    published_at: clientId ? now : null
+    published_at: clientId ? (job?.published_at || now) : null
   };
 
   if (jobId && job) {
@@ -223,6 +308,20 @@ export async function acceptLeadProposalAction(formData: FormData) {
     const { data: createdJob, error } = await admin.from("jobs").insert({ ...jobPayload, slug }).select("id").single();
     if (error || !createdJob) redirect(`/proposal/${token}?error=${encodeURIComponent("The proposal was accepted but the hiring request could not be created. Your recruiter has been notified.")}`);
     jobId = createdJob.id;
+  }
+
+  const handoff = await ensureAcceptedLeadClientWorkspace({
+    lead,
+    jobId,
+    existingClientId: clientId
+  });
+  if (handoff.linked) {
+    clientId = handoff.userId;
+    await admin.from("jobs").update({
+      client_id: clientId,
+      status: "published",
+      published_at: job?.published_at || now
+    }).eq("id", jobId);
   }
 
   await admin.from("job_commercials").upsert({
@@ -255,6 +354,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     crm_stage: "won",
     status: "converted",
     job_id: jobId,
+    client_id: clientId,
     won_at: now,
     lost_at: null,
     lost_reason: null,
@@ -267,7 +367,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     subjectId: lead.id,
     action: "proposal_accepted",
     description: `Proposal accepted by ${acceptanceName}`,
-    metadata: { proposal_id: proposal.id, job_id: jobId, client_id: clientId }
+    metadata: { proposal_id: proposal.id, job_id: jobId, client_id: clientId, workspace_handoff: handoff.linked ? (handoff.created ? "invited" : "linked") : handoff.reason }
   });
 
   await admin.from("analytics_events").insert({
@@ -291,12 +391,12 @@ export async function acceptLeadProposalAction(formData: FormData) {
     await sendTransactionalEventEmail({
       to: lead.email,
       subject: `Proposal accepted: ${proposal.role_title}`,
-      heading: "Your hiring request is confirmed",
-      body: clientId
-        ? "Your proposal is accepted and your hiring request is now active. Our recruiting team can begin preparing your shortlist."
-        : "Your proposal is accepted. Your recruiter will connect this request to your client workspace and begin the next hiring step.",
-      href: clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}` : undefined,
-      hrefLabel: clientId ? "View hiring progress" : undefined
+      heading: handoff.linked ? "Your client workspace is ready" : "Your hiring request is confirmed",
+      body: handoff.linked
+        ? "Your proposal is accepted, the role is active, and our recruiting team can begin preparing your shortlist. Use the secure link below to open your client workspace."
+        : "Your proposal is accepted. Our recruiting team has the request and will follow up if your existing account needs to be connected manually.",
+      href: handoff.actionLink || (clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}` : undefined),
+      hrefLabel: handoff.linked ? "Open client workspace" : undefined
     });
   } catch {}
 

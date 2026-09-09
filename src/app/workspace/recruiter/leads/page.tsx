@@ -3,9 +3,14 @@ import { Mail, Phone } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
-import { recordLeadContactAction, updateLeadStatusAction } from "@/app/actions/recruiter";
+import { recordLeadContactAction, sendClientFollowupAction, updateLeadStatusAction } from "@/app/actions/recruiter";
 
-function leadStatusLabel(status: string) {\n  if (status === "converted") return "qualified";\n  return status;\n}\n\nfunction activityLabel(action: string) {
+function leadStatusLabel(status: string) {
+  if (status === "converted") return "qualified";
+  return status;
+}
+
+function activityLabel(action: string) {
   const labels: Record<string, string> = {
     client_contact_email: "Emailed",
     client_contact_call: "Called",
@@ -15,7 +20,8 @@ function leadStatusLabel(status: string) {\n  if (status === "converted") return
   return labels[action] || action.replaceAll("_", " ");
 }
 
-export default async function RecruiterLeadsPage() {
+export default async function RecruiterLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
+  const params = await searchParams;
   await requireRole("recruiter");
   const admin = createAdminClient();
   const { data: leads } = await admin
@@ -45,6 +51,8 @@ export default async function RecruiterLeadsPage() {
 
   return (
     <>
+      {params.contact_sent ? <div className="success-banner">Client follow-up email sent and logged.</div> : null}
+      {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
       <div className="page-head">
         <div>
           <h1>Client leads</h1>
@@ -102,6 +110,16 @@ export default async function RecruiterLeadsPage() {
                           <button className="btn btn-sm" type="submit">Mark called</button>
                         </form> : null}
                       </div>
+                      <details className="staff-followup-details">
+                        <summary className="btn btn-sm btn-primary">Send from platform</summary>
+                        <form action={sendClientFollowupAction} className="stack staff-followup-form">
+                          <input type="hidden" name="lead_id" value={lead.id}/>
+                          <input type="hidden" name="return_to" value="/workspace/recruiter/leads"/>
+                          <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
+                          <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${String(lead.name||"there").trim().split(/\s+/)[0]||"there"},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the role, priorities, and next step for your shortlist.`}/></div>
+                          <button className="btn btn-primary" type="submit">Send and log email</button>
+                        </form>
+                      </details>
                     </div>
                   </td>
                   <td data-label="Follow-up">

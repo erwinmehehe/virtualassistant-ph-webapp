@@ -9,7 +9,7 @@ import { sendProfileCompletionReminderEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 
-const allowedBulkActions = new Set(["approve", "approve_publish", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
+const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -23,7 +23,7 @@ function numberParam(value: FormDataEntryValue | null) {
 
 async function filteredVaIds(formData: FormData) {
   const admin = createAdminClient();
-  let query: any = admin.from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").limit(500);
+  let query: any = admin.from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at").limit(500);
   const stage = String(formData.get("filter_stage") || "");
   const readiness = String(formData.get("filter_readiness") || "");
   const photo = String(formData.get("filter_photo") || "");
@@ -59,7 +59,7 @@ async function resolveBulkRows(formData: FormData) {
   const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 500);
   if (String(formData.get("selection_scope") || "selected") === "filtered") return filteredVaIds(formData);
   if (!selected.length) return [];
-  const { data, error } = await createAdminClient().from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status").in("user_id", selected);
+  const { data, error } = await createAdminClient().from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at").in("user_id", selected);
   if (error) throw error;
   return data || [];
 }
@@ -79,6 +79,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
   let published = 0;
   let skippedNames: string[] = [];
 
+  try {
   if (action === "approve" || action === "approve_publish") {
     const isEligible = (row: any) => {
       const missing = Array.isArray(row.missing_items) ? row.missing_items : [];
@@ -104,6 +105,12 @@ export async function bulkRecruiterVaAction(formData: FormData) {
         published = count || 0;
       }
     }
+  } else if (action === "mark_reviewed") {
+    // Clears the "edited since approval" flag. The VA never left the directory,
+    // so this only records that a recruiter looked at the change.
+    const { error } = await admin.from("va_vetting").update({ edited_since_approval_at: null, profile_reviewed_at: now, updated_at: now }).in("va_id", ids);
+    if (error) throw error;
+    affected = ids.length;
   } else if (action === "bench") {
     const eligible = rows.filter((row) => ["approved", "bench"].includes(String(row.stage)) && row.primary_category);
     if (eligible.length) {
@@ -163,6 +170,13 @@ export async function bulkRecruiterVaAction(formData: FormData) {
       await admin.from("va_profile_reminders").upsert({ va_id: row.user_id, reminder_count: Number(previous?.reminder_count || 0) + 1, last_score: Number(row.completion_score || 0), last_sent_at: now, last_sent_by: user.id, updated_at: now }, { onConflict: "va_id" });
       affected += 1;
     }
+  }
+
+  } catch (error) {
+    // redirect() signals itself by throwing; never swallow that.
+    if (error && typeof error === "object" && String((error as any).digest || "").startsWith("NEXT_REDIRECT")) throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent(message.slice(0, 300))}`);
   }
 
   await writeAdminAudit({ actorId: user.id, action: `recruiter_bulk_${action}`, targetType: "va", metadata: { requested: ids.length, affected, published, skipped: skippedNames.length } });

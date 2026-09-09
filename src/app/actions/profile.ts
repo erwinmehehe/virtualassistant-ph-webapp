@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VETTING_PROFILE_MIN } from "@/lib/constants";
 import { isPubliclyEligible } from "@/lib/public-visibility";
+import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
@@ -163,14 +164,25 @@ export async function updateVaProfileAction(formData: FormData) {
   }
 
   if (materialChanged && vetting && ["approved", "bench"].includes(vetting.stage)) {
-    await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
     if (categoryChanged) {
-      // A new primary category requires a category-appropriate test and a fresh recruiter scorecard.
+      // A new primary category is a different job. The category test and the
+      // recruiter scorecard no longer describe what this VA is applying for,
+      // so this one still unpublishes and sends them back through vetting.
+      await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
       await admin.from("vetting_scorecards").delete().eq("va_id", user.id);
       await admin.from("va_vetting").update({ stage: "test", recruiter_id: null, approved_at: null }).eq("va_id", user.id);
     } else {
-      // Keep prior recruiter evidence, but require Admin to approve the changed public evidence again.
-      await admin.from("va_vetting").update({ stage: "finalist", approved_at: null }).eq("va_id", user.id);
+      // Every other edit keeps the VA approved and listed, and raises a flag
+      // for the recruiter instead. Demoting them here is what made the profile
+      // completion reminder self-defeating: comply with it, lose your listing.
+      await admin.from("va_vetting").update({ edited_since_approval_at: new Date().toISOString() }).eq("va_id", user.id);
+      await writeRecruiterActivity({
+        subjectType: "va",
+        subjectId: user.id,
+        action: "profile_edited_after_approval",
+        description: "Approved VA edited their profile. Still listed -- review the change.",
+        actorId: user.id
+      });
     }
   }
 

@@ -28,6 +28,7 @@ export default async function RecruiterQueue({ searchParams }:{ searchParams: Pr
           <option value="" disabled>Bulk action&hellip;</option>
           <option value="approve_publish">Approve and publish to directory</option>
           <option value="approve">Approve only (stays hidden)</option>
+          <option value="mark_reviewed">Mark profile edit reviewed</option>
           <option value="request_changes">Request profile changes</option>
           <option value="reject">Reject</option>
         </select>

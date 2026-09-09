@@ -31,12 +31,12 @@ const nav = {
   ],
   recruiter: [
     ["Overview", "/workspace/recruiter", LayoutDashboard],
-    ["Vetting queue", "/workspace/recruiter/queue", FileText],
-    ["Virtual Assistant directory", "/workspace/recruiter/talent", Search],
-    ["Role matching", "/workspace/recruiter/matching", Sparkles],
-    ["Stalled work", "/workspace/recruiter/stalled", Flag],
-    ["Talent pool", "/workspace/recruiter/bench", UsersRound],
     ["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],
+    ["Roles", "/workspace/recruiter/matching", Sparkles],
+    ["Talent", "/workspace/recruiter/talent", Search],
+    ["Vetting", "/workspace/recruiter/queue", FileText],
+    ["Stalled", "/workspace/recruiter/stalled", Flag],
+    ["Bench", "/workspace/recruiter/bench", UsersRound],
     ["Activity", "/workspace/recruiter/activity", History]
   ],
   admin: [
@@ -58,7 +58,7 @@ const nav = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
-  recruiter: ["/workspace/recruiter", "/workspace/recruiter/talent", "/workspace/recruiter/queue", "/workspace/recruiter/matching"],
+  recruiter: ["/workspace/recruiter", "/workspace/recruiter/leads", "/workspace/recruiter/matching", "/workspace/recruiter/queue"],
   admin: ["/workspace/admin", "/workspace/admin/jobs", "/workspace/admin/vetting", "/workspace/admin/leads"]
 };
 

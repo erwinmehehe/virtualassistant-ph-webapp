@@ -12,6 +12,7 @@ import { matchScore } from "@/lib/matching";
 import { publishVaProfileAction } from "@/app/actions/profile";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
+import { VETTING_PROFILE_MIN } from "@/lib/constants";
 
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
@@ -105,10 +106,12 @@ export default async function VaDashboardPage(){
   let nextAction:DashboardAction;
   if(recruiterRequests.length){
     nextAction={title:"Your recruiter requested a profile update",copy:recruiterRequests[0]?.body||"Review the request and update your profile before the next matching round.",href:"/workspace/va/profile",label:"Update profile",icon:FileText};
-  }else if(completion.score<100&&completion.next){
-    nextAction={title:"You’re almost ready to be matched",copy:`Complete ${completion.next.label} to strengthen your profile and become easier for recruiters to match.`,href:completion.next.href,label:"Continue profile",icon:FileText};
+  }else if(completion.score<VETTING_PROFILE_MIN&&completion.next){
+    nextAction={title:"Get your profile ready for screening",copy:`Complete ${completion.next.label} to reach the ${VETTING_PROFILE_MIN}% profile threshold for vetting.`,href:completion.next.href,label:"Continue profile",icon:FileText};
   }else if(!vetted){
-    nextAction={title:"Finish vetting to unlock applications",copy:`Vetting is 4 steps -- skills test, short video intro, recruiter review, final approval -- and takes about 45 minutes. You are ${vettingReadiness.score}% through it. Approved VAs can apply to roles and be seen by clients.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
+    nextAction={title:"Start or continue vetting",copy:`Your profile is ready enough for screening. Complete the skills test, video intro, recruiter review, and final approval. You are ${vettingReadiness.score}% through vetting.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
+  }else if(completion.score<100&&completion.next){
+    nextAction={title:"Polish your approved profile",copy:`You passed vetting. Complete ${completion.next.label} so clients and recruiters see the strongest version of your profile.`,href:completion.next.href,label:"Finish profile",icon:FileText};
   }else if(readyToPublish){
     nextAction={title:"Your profile is ready — switch it on",copy:"You are approved and your profile is complete, but it is still hidden from clients. Turning it on lists you in the public directory where clients search.",href:"/workspace/va/profile#visibility",label:"Go to profile",icon:Eye};
   }else if(pendingInvites.length){

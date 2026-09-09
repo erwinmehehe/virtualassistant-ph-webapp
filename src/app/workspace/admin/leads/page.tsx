@@ -3,10 +3,10 @@ import { Mail, Phone } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { convertLeadToJobAction } from "@/app/actions/admin";
-import { recordLeadContactAction } from "@/app/actions/recruiter";
+import { recordLeadContactAction, updateLeadStatusAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
 
-function activityLabel(action: string) {
+function leadStatusLabel(status: string) {\n  if (status === "converted") return "qualified";\n  return status;\n}\n\nfunction activityLabel(action: string) {
   const labels: Record<string, string> = {
     client_contact_email: "Emailed",
     client_contact_call: "Called",
@@ -62,7 +62,7 @@ export default async function AdminLeadsPage() {
               <div className="row-between wrap">
                 <div>
                   <div className="row wrap">
-                    <span className="badge">{lead.status}</span>
+                    <span className="badge">{leadStatusLabel(lead.status)}</span>
                     <span className="small muted">{dateShort(lead.created_at)}</span>
                     {lead.job_id ? <span className="badge badge-success">Job draft created</span> : null}
                   </div>
@@ -112,6 +112,11 @@ export default async function AdminLeadsPage() {
                     <input type="hidden" name="contact_type" value="follow_up"/>
                     <input name="note" maxLength={1000} placeholder="Follow-up note" aria-label="Follow-up note"/>
                     <button className="btn btn-sm" type="submit">Save note</button>
+                  </form>
+                  <form action={updateLeadStatusAction}>
+                    <input type="hidden" name="lead_id" value={lead.id}/>
+                    <input type="hidden" name="status" value={lead.status === "new" ? "converted" : lead.status === "converted" ? "archived" : "new"}/>
+                    <button className="btn btn-sm" type="submit">{lead.status === "new" ? "Mark qualified" : lead.status === "converted" ? "Archive lead" : "Reopen lead"}</button>
                   </form>
                 </div>
               </div>

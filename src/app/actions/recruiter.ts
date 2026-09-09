@@ -263,47 +263,6 @@ export async function sendClientFollowupAction(formData: FormData) {
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
 }
 
-export async function sendStaffLeadEmailAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
-  const leadId = String(formData.get("lead_id") || "");
-  const subject = String(formData.get("subject") || "").trim();
-  const body = String(formData.get("body") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
-  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent(message)}`);
-
-  if (!leadId) return fail("Lead is required.");
-  if (subject.length < 3 || subject.length > 160) return fail("Add a clear email subject.");
-  if (body.length < 10 || body.length > 5000) return fail("Write a short client message before sending.");
-
-  const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,email,name,company,service,job_id").eq("id", leadId).maybeSingle();
-  if (!lead?.email) return fail("This lead does not have a valid email address.");
-
-  try {
-    const result = await sendStaffClientEmail({ to: lead.email, subject, body });
-    if (!result.sent) return fail(result.reason === "email_not_configured" ? "Client email is not configured on the server." : "The client email address is invalid.");
-  } catch (error) {
-    return fail(error instanceof Error ? error.message.slice(0, 240) : "The email could not be sent.");
-  }
-
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: lead.id,
-    action: "client_email_sent",
-    description: subject,
-    actorId: user.id,
-    metadata: { job_id: lead.job_id || null, staff_role: profile.role }
-  });
-  if (profile.role === "admin") {
-    await writeAdminAudit({ actorId: user.id, action: "client_email_sent", targetType: "lead", targetId: lead.id, metadata: { job_id: lead.job_id || null } });
-  }
-
-  revalidatePath(returnTo);
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
-}
-
 export async function addRecruiterNoteAction(formData: FormData) {
   const { user } = await requireRole("recruiter");
   const subjectType = String(formData.get("subject_type") || "") as "va" | "job" | "lead";

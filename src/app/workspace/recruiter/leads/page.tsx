@@ -194,7 +194,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     <>
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Client follow-up email sent, logged, and the follow-up clock was updated.</div> : null}
-      {params.discovery_saved ? <div className="success-banner">Discovery call booked and confirmation email sent.</div> : null}
+      {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.proposal_sent ? <div className="success-banner">Proposal sent. The CRM will follow up automatically in two days if it is still open.</div> : null}
       {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}

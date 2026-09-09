@@ -85,7 +85,7 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
   const pageVas = vas.slice((page - 1) * TALENT_PAGE_SIZE, page * TALENT_PAGE_SIZE);
 
   return <><SiteHeader/><main id="main-content" className="talent-directory-page">
-    <section className="public-directory-hero"><div className="container"><div className="public-directory-hero-grid"><div><h1>Find experienced Filipino virtual assistants.</h1><p>Browse approved talent with <strong>2+ years of professional experience</strong>. Compare specialties, skills, tools, availability, and working fit without exposing private screening evidence.</p></div><div className="row wrap"><Link className="btn btn-primary btn-lg" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/hire">Managed hiring</Link></div></div></div></section>
+    <section className="public-directory-hero"><div className="container"><div className="public-directory-hero-grid"><div><h1>Find experienced Filipino virtual assistants.</h1><p>Browse approved talent with <strong>2+ years of professional experience</strong>, or send us the role and let our recruiting team build a focused shortlist for you.</p></div><div className="row wrap"><Link className="btn btn-primary btn-lg" href="/hire">Start a Hiring Request <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/how-vetting-works">How we screen</Link></div></div></div></section>
 
     <section className="section directory-section"><div className="container">
       <form className="directory-filterbar" method="get">

@@ -98,7 +98,8 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
                     {lead.job_id ? <span className="badge badge-success">Job draft created</span> : null}
                   </div>
                   <h3 style={{ margin: "8px 0 3px" }}>{lead.service || "Virtual Assistant request"}</h3>
-                  <div className="small muted">{lead.company || lead.name || "Lead"} · {lead.hours || "Hours not set"} · {lead.timezone || "Timezone not set"}</div>\n                  {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
+                  <div className="small muted">{lead.company || lead.name || "Lead"} · {lead.hours || "Hours not set"} · {lead.timezone || "Timezone not set"}</div>
+                  {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
                 </div>
 
                 <div className="row wrap">

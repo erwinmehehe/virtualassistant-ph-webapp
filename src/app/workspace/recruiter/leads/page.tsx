@@ -50,6 +50,18 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     if (!latestByLead.has(row.subject_id)) latestByLead.set(row.subject_id, row);
   }
 
+  const leadRows = leads || [];
+  const needsFirstContact = leadRows.filter((lead: any) => lead.status === "new" && !latestByLead.has(lead.id)).length;
+  const contactedOpen = leadRows.filter((lead: any) => lead.status === "new" && latestByLead.has(lead.id)).length;
+  const qualifiedCount = leadRows.filter((lead: any) => lead.status === "converted").length;
+  const archivedCount = leadRows.filter((lead: any) => lead.status === "archived").length;
+  const orderedLeads = [...leadRows].sort((a: any, b: any) => {
+    const rank = (lead: any) => lead.status === "new"
+      ? (latestByLead.has(lead.id) ? 1 : 0)
+      : lead.status === "converted" ? 2 : 3;
+    return rank(a) - rank(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
   return (
     <>
       {params.contact_sent ? <div className="success-banner">Client follow-up email sent and logged.</div> : null}
@@ -59,6 +71,13 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           <h1>Client leads</h1>
           <p>Contact new hiring enquiries quickly, keep the follow-up history here, then move qualified roles into candidate matching.</p>
         </div>
+      </div>
+
+      <div className="grid-2" style={{ marginBottom: 18 }}>
+        <div className="card"><span className="small muted">Needs first contact</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{needsFirstContact}</strong></div>
+        <div className="card"><span className="small muted">Contacted, still open</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{contactedOpen}</strong></div>
+        <div className="card"><span className="small muted">Qualified</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{qualifiedCount}</strong></div>
+        <div className="card"><span className="small muted">Archived</span><strong style={{ display: "block", fontSize: 28, marginTop: 4 }}>{archivedCount}</strong></div>
       </div>
 
       <div className="table-wrap responsive-table">
@@ -75,7 +94,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             </tr>
           </thead>
           <tbody>
-            {(leads || []).map((lead: any) => {
+            {orderedLeads.map((lead: any) => {
               const latest = latestByLead.get(lead.id);
               const contactCount = countByLead.get(lead.id) || 0;
               const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
@@ -84,6 +103,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <td data-label="Lead">
                     <strong>{lead.name || lead.email}</strong>
                     <div className="small muted">{lead.company || lead.email}</div>
+                    {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
                   </td>
                   <td data-label="Need">
                     {lead.service || "Virtual Assistant support"}

@@ -188,7 +188,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: `Your private ${service.name.toLowerCase()} job draft is ready. Create or log in to a client account to claim it and manage your shortlist.`
+        message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
       };
     }
 
@@ -245,8 +245,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       jobId,
       clientLinked: Boolean(clientId),
       message: clientId
-        ? `Your private ${service.name.toLowerCase()} job draft is saved in your client workspace.`
-        : `Your private ${service.name.toLowerCase()} job draft is ready. Create or log in to a client account to claim it and manage your shortlist.`
+        ? `Your ${service.name.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
+        : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
@@ -312,7 +312,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
-        message: "Your private job draft is ready. Create or log in to a client account to claim it and manage your shortlist."
+        message: "Your hiring request is with our recruiting team. We will review the role and follow up using the email you provided."
       };
     }
 
@@ -369,8 +369,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       jobId,
       clientLinked: Boolean(clientId),
       message: clientId
-        ? `Your private ${industry.label.toLowerCase()} job draft is saved in your client workspace.`
-        : `Your private ${industry.label.toLowerCase()} job draft is ready. Create or log in to a client account to claim it and manage your shortlist.`
+        ? `Your ${industry.label.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
+        : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the email you provided.`
     };
   } catch {
     return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };

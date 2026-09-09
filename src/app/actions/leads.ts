@@ -109,7 +109,7 @@ async function createPendingJobForLead(args: {
     ? [args.service]
     : inferCategories(args.service, args.message);
   const rates = rateRangeFromBudget(args.budget);
-  const fallbackSummary = `VA support requested for ${args.service || "business operations"}.`;
+  const fallbackSummary = `Virtual Assistant support requested for ${args.service || "business operations"}.`;
   const description = cleanJobDescription(args.message);
   const { data: job, error } = await args.admin.from("jobs").insert({
     client_id: args.clientId || null,
@@ -156,7 +156,7 @@ const serviceMatchFieldLabels: Record<string, string> = {
   name: "First name",
   email: "Work email",
   hours: "Hours needed per week",
-  message: "A short description of what the VA should own (at least 10 characters)"
+  message: "A short description of what the Virtual Assistant should own (at least 10 characters)"
 };
 
 export async function submitServiceMatchAction(_previousState: ServiceMatchState, formData: FormData): Promise<ServiceMatchState> {
@@ -399,7 +399,7 @@ const roleBriefFieldLabels: Record<string, string> = {
   timezone: "Timezone / overlap",
   budget: "Hourly budget",
   email: "Work email",
-  message: "What should this VA own (at least 15 characters -- the actual tasks, not just budget)"
+  message: "What should this Virtual Assistant own (at least 15 characters -- the actual tasks, not just budget)"
 };
 
 export async function submitRoleBriefAction(formData: FormData) {
@@ -420,7 +420,7 @@ export async function submitRoleBriefAction(formData: FormData) {
 
   const category = VA_CATEGORIES.includes(parsed.data.category as (typeof VA_CATEGORIES)[number]) ? parsed.data.category : parsed.data.category.trim();
   const candidateContext = parsed.data.talent ? `Requested talent profile: ${parsed.data.talent}.` : "";
-  const budgetContext = `VA budget: ${parsed.data.budget}.`;
+  const budgetContext = `Virtual Assistant budget: ${parsed.data.budget}.`;
   const message = [candidateContext, budgetContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
   const admin = createAdminClient();
   const sourcePath = parsed.data.source_path || "/hire";

@@ -22,7 +22,7 @@ export default async function ClientPaymentsPage({ searchParams }: { searchParam
 
   return <>
     <div className="page-head"><div><h1>Payments</h1><p>Invoices your recruiter has sent for confirmed hours or placements. Pay securely by card, GCash, or Maya -- charged in PHP at the rate shown before you pay.</p></div></div>
-    {params.paid ? <div className="alert alert-success" style={{ marginBottom: 16 }}>Payment received, thank you.</div> : null}
+    {params.paid ? <div className="alert alert-success" style={{ marginBottom: 16 }}>Checkout completed. We are confirming the payment with PayMongo now; the invoice status below is the source of truth.</div> : null}
     {params.cancelled ? <div className="alert" style={{ marginBottom: 16 }}>Checkout was cancelled. You can try again below.</div> : null}
     <div className="stack">
       {payments?.length ? payments.map((p: any) => <div className="card" key={p.id}>

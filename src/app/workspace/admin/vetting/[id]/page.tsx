@@ -36,7 +36,7 @@ export default async function AdminFinalistReview({ params }: { params: Promise<
     <div className="page-head">
       <div>
         <div className="row wrap"><Link className="text-link small" href="/workspace/admin/vetting">← Final review queue</Link><span className="badge">{vettingStatusLabel(vetting.stage)}</span></div>
-        <h1 style={{ marginTop: 8 }}>{profile.full_name || "VA candidate"}</h1>
+        <h1 style={{ marginTop: 8 }}>{profile.full_name || "Virtual Assistant candidate"}</h1>
         <p>{va.headline || va.primary_category || "Virtual Assistant"} · Final evidence review</p>
       </div>
       <div className="row wrap">

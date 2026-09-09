@@ -17,12 +17,12 @@ export function candidateAccessUnlocked(status?: string | null) {
 
 export function candidateAccessLabel(status?: string | null) {
   switch (status) {
-    case "requested": return "Access requested";
-    case "quoted": return "Access quoted";
-    case "invoiced": return "Awaiting payment";
+    case "requested": return "With hiring team";
+    case "quoted": return "Access price ready";
+    case "invoiced": return "Access being finalized";
     case "paid": return "Candidate access active";
     case "comped": return "Candidate access active";
-    default: return "Candidate details locked";
+    default: return "Candidate identity protected";
   }
 }
 

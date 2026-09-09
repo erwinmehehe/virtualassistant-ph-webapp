@@ -233,7 +233,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">Send hiring brief</button>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{jobId?"Save role changes":"Send hiring brief"}</button>}</div>
       </div>
     </div>
   </form>;

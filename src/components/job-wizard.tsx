@@ -44,10 +44,10 @@ const initial: JobDraft = {
   engagement_length: "Long-term preferred", start_timing: "", experience_level: "intermediate"
 };
 
-export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }: {
-  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string;
+export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0 }: {
+  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(Math.max(0, Math.min(steps.length - 1, initialStep)));
   const [data, setData] = useState<JobDraft>({ ...initial, ...initialData });
   const [errors, setErrors] = useState<Errors>({});
   const [savedAt, setSavedAt] = useState("");
@@ -220,7 +220,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
       </div> : null}
 
       {step === 3 ? <div className="stack">
-        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Ready to publish</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
+        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Ready to send</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
         <div className="review-grid">
           <div><span>Specialty</span><strong>{selectedCategories.join(" · ") || "Not set"}</strong></div>
           <div><span>Schedule</span><strong>{data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible"}</strong></div><div><span>Experience</span><strong>{data.experience_level.charAt(0).toUpperCase()+data.experience_level.slice(1)}</strong></div>
@@ -228,12 +228,12 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName }
           <div><span>Hiring support</span><strong>{data.service_model === "managed_service" ? "Managed VA service" : "Curated placement"}</strong></div>
         </div>
         <div className="card review-section"><div className="row-between"><h3>Skills & tools</h3><button className="text-button" type="button" onClick={() => setStep(0)}>Edit</button></div><div className="pill-list">{mergeUniqueStrings(data.required_skills.split(","), data.required_tools.split(",")).map((x, index) => <span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
-        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div><ul className="check-list compact"><li>We review the role before anything is published.</li><li>Your service fee is shown separately from VA compensation.</li><li>You approve commercial terms before the role goes live.</li><li>Recruiter/Admin matching can create a ranked shortlist before applications arrive.</li></ul></div>
+        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div><ul className="check-list compact"><li>Your recruiting team reviews and improves the brief before it goes live.</li><li>We confirm one clear service fee separately from VA compensation.</li><li>You approve the commercial terms before publication.</li><li>Once approved, candidate access is included and we start shortlisting vetted VAs.</li></ul></div>
       </div> : null}
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">Publish this role</button>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">Send hiring brief</button>}</div>
       </div>
     </div>
   </form>;

@@ -38,7 +38,7 @@ export default async function PublicJobsPage({ searchParams }: { searchParams: P
 
   try {
     const supabase = await createClient();
-    let query: any = supabase.from("jobs").select("id,slug,title,company_name,client_id,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at", { count: "exact" }).eq("status","published");
+    let query: any = supabase.from("jobs").select("id,slug,title,company_name,client_id,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at", { count: "exact" }).eq("status","published").not("client_id","is",null);
     if (q) query = query.or(`title.ilike.%${q}%,company_name.ilike.%${q}%,summary.ilike.%${q}%`);
     if (category) query = query.contains("categories",[category]);
     if (minRate) query = query.gte("min_hourly_rate",minRate);

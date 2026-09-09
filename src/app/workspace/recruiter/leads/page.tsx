@@ -3,9 +3,9 @@ import { Mail, Phone } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
-import { recordLeadContactAction } from "@/app/actions/recruiter";
+import { recordLeadContactAction, updateLeadStatusAction } from "@/app/actions/recruiter";
 
-function activityLabel(action: string) {
+function leadStatusLabel(status: string) {\n  if (status === "converted") return "qualified";\n  return status;\n}\n\nfunction activityLabel(action: string) {
   const labels: Record<string, string> = {
     client_contact_email: "Emailed",
     client_contact_call: "Called",
@@ -81,7 +81,7 @@ export default async function RecruiterLeadsPage() {
                     <div className="small muted clamp-2">{lead.message || ""}</div>
                   </td>
                   <td data-label="Status">
-                    <span className={`badge ${lead.status === "new" ? "badge-warning" : lead.status === "converted" ? "badge-success" : ""}`}>{lead.status}</span>
+                    <span className={`badge ${lead.status === "new" ? "badge-warning" : lead.status === "converted" ? "badge-success" : ""}`}>{leadStatusLabel(lead.status)}</span>
                   </td>
                   <td data-label="Received">{dateShort(lead.created_at)}</td>
                   <td data-label="Contact client">
@@ -120,9 +120,16 @@ export default async function RecruiterLeadsPage() {
                     </form>
                   </td>
                   <td data-label="Action">
-                    {lead.job_id
-                      ? <Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${lead.job_id}`}>Match role</Link>
-                      : <span className="small muted">Awaiting job conversion</span>}
+                    <div className="stack" style={{ gap: 7 }}>
+                      {lead.job_id
+                        ? <Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${lead.job_id}`}>Match role</Link>
+                        : <span className="small muted">Awaiting job draft</span>}
+                      <form action={updateLeadStatusAction}>
+                        <input type="hidden" name="lead_id" value={lead.id}/>
+                        <input type="hidden" name="status" value={lead.status === "new" ? "converted" : lead.status === "converted" ? "archived" : "new"}/>
+                        <button className="btn btn-sm" type="submit">{lead.status === "new" ? "Mark qualified" : lead.status === "converted" ? "Archive lead" : "Reopen lead"}</button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               );

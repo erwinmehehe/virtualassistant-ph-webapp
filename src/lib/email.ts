@@ -268,6 +268,29 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
   return { sent: true as const };
 }
 
+export async function sendStaffClientFollowupEmail(args: {
+  to?: string | null;
+  subject: string;
+  message: string;
+  senderName?: string | null;
+  href?: string | null;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const subject = args.subject.trim().slice(0, 180) || "VirtualAssistant.com.ph follow-up";
+  const message = args.message.trim().slice(0, 5000);
+  const sender = args.senderName?.trim() || "VirtualAssistant.com.ph hiring team";
+  const link = args.href ? `<p><a href="${escapeHtml(args.href)}">Open your hiring workspace</a></p>` : "";
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject,
+    html: `<p>Hi,</p><p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>${link}<p>Regards,<br>${escapeHtml(sender)}</p>`
+  }, "client_followup");
+  return { sent: true as const };
+}
+
 export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };

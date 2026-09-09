@@ -164,7 +164,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           <div className="blog-author-card">
             <div className="blog-author-avatar" aria-hidden="true">{post.author === "Christ Hemsworthy" ? "CH" : "Virtual Assistant"}</div>
-            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, Virtual Assistant operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from the workflows used across the platform."}</p></div>
+            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, Virtual Assistant operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from our recruiting, vetting, matching, and placement workflows."}</p></div>
           </div>
 
           <div className="blog-bottom-conversion">

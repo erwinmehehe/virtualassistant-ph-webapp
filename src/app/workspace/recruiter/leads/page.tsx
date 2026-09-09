@@ -15,7 +15,8 @@ function activityLabel(action: string) {
     client_contact_email: "Emailed",
     client_contact_call: "Called",
     client_contact_meeting: "Meeting",
-    client_contact_follow_up: "Follow-up"
+    client_contact_follow_up: "Follow-up",
+    client_followup_sent: "Email sent"
   };
   return labels[action] || action.replaceAll("_", " ");
 }
@@ -37,7 +38,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         .select("id,subject_id,action,description,created_at")
         .eq("subject_type", "lead")
         .in("subject_id", leadIds)
-        .like("action", "client_contact_%")
+        .or("action.like.client_contact_%,action.eq.client_followup_sent")
         .order("created_at", { ascending: false })
         .limit(500)
     : { data: [] as any[] };
@@ -111,12 +112,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                         </form> : null}
                       </div>
                       <details className="staff-followup-details">
-                        <summary className="btn btn-sm btn-primary">Send from platform</summary>
+                        <summary className="btn btn-sm btn-primary">Send email</summary>
                         <form action={sendClientFollowupAction} className="stack staff-followup-form">
                           <input type="hidden" name="lead_id" value={lead.id}/>
                           <input type="hidden" name="return_to" value="/workspace/recruiter/leads"/>
                           <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-                          <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${String(lead.name||"there").trim().split(/\s+/)[0]||"there"},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the role, priorities, and next step for your shortlist.`}/></div>
+                          <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${String(lead.name||"there").trim().split(/\s+/)[0]||"there"},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the priorities and agree the best next step.`}/></div>
                           <button className="btn btn-primary" type="submit">Send and log email</button>
                         </form>
                       </details>

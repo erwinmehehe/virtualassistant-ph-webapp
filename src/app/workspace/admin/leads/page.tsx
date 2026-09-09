@@ -131,7 +131,7 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
                       <input type="hidden" name="lead_id" value={lead.id}/>
                       <input type="hidden" name="return_to" value="/workspace/admin/leads"/>
                       <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-                      <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${firstName},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the role, priorities, and next step for your shortlist.`}/></div>
+                      <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${firstName},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the role, priorities, and next step for your role.`}/></div>
                       <button className="btn btn-primary" type="submit">Send and log email</button>
                     </form>
                   </details>

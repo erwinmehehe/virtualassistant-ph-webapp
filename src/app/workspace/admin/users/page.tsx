@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
     <div className="page-head">
       <div>
         <h1>Users</h1>
-        <p>Registered marketplace accounts. Promote a trusted internal account to Recruiter to delegate initial VA screening.</p>
+        <p>Registered account records. Promote a trusted internal account to Recruiter to delegate initial Virtual Assistant screening.</p>
       </div>
     </div>
     <div className="table-wrap responsive-table">
@@ -36,7 +36,7 @@ export default async function AdminUsersPage() {
             : <form action={setInternalUserRoleAction} className="row">
                 <input type="hidden" name="user_id" value={p.id}/>
                 <select name="role" defaultValue={p.role} style={{ border: "1px solid var(--line)", borderRadius: 8, padding: "7px 8px" }}>
-                  <option value="va">VA</option>
+                  <option value="va">Virtual Assistant</option>
                   <option value="client">Client</option>
                   <option value="recruiter">Recruiter</option>
                 </select>

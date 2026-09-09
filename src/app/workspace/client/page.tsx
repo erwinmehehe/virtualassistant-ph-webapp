@@ -18,11 +18,10 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const supabase=await createClient();
   const admin=createAdminClient();
 
-  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{count:savedCount},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
+  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
     supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
-    supabase.from("saved_vas").select("va_id",{count:"exact",head:true}).eq("client_id",user.id),
     params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
     admin.from("conversations").select("id").eq("client_id",user.id)
   ]);

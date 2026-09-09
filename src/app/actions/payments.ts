@@ -12,7 +12,7 @@ import { createPaymongoCheckoutSession, refundPaymongoPayment, usdToPhp } from "
  * Platform recruiting/service fees are billed to the client separately and are
  * never deducted from the VA's compensation. The client pays this invoice from
  * their dashboard, which is when a
- * Stripe Checkout Session actually gets created.
+ * PayMongo Checkout Session actually gets created.
  */
 export async function createInvoiceAction(formData: FormData) {
   await requireRole("admin");
@@ -176,12 +176,12 @@ export async function resolveDisputeRefundAction(formData: FormData) {
   const paymentId = String(formData.get("payment_id") ?? "");
   const note = String(formData.get("resolution_note") ?? "").trim();
   const admin = createAdminClient();
-  const { data: payment, error } = await admin.from("payments").select("status,provider_payment_intent,charged_amount_php,amount_total").eq("id", paymentId).single();
+  const { data: payment, error } = await admin.from("payments").select("status,provider_payment_id,charged_amount_php,amount_total").eq("id", paymentId).single();
   if (error || !payment) throw new Error("Invoice not found.");
   if (payment.status !== "disputed") throw new Error("This invoice is not currently disputed.");
-  if (!payment.provider_payment_intent) throw new Error("No PayMongo payment on file for this invoice -- refund manually and mark void instead.");
+  if (!payment.provider_payment_id) throw new Error("No PayMongo payment resource is on file for this invoice -- refund manually and mark void instead.");
 
-  await refundPaymongoPayment(payment.provider_payment_intent, Number(payment.charged_amount_php ?? payment.amount_total), note || "Dispute resolved with refund");
+  await refundPaymongoPayment(payment.provider_payment_id, Number(payment.charged_amount_php ?? payment.amount_total), note || "Dispute resolved with refund");
 
   await admin.from("payments").update({
     status: "refunded",

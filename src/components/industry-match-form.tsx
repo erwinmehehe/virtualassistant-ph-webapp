@@ -85,6 +85,11 @@ export function IndustryMatchForm({
       </div>
 
       <div className="field">
+        <label htmlFor={`${id}-phone`}>Phone / WhatsApp <span className="muted">(optional)</span></label>
+        <input id={`${id}-phone`} name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567" />
+      </div>
+
+      <div className="field">
         <label htmlFor={`${id}-hours`}>Hours needed per week *</label>
         <select id={`${id}-hours`} name="hours" required defaultValue="">
           <option value="" disabled>Select an estimate</option>

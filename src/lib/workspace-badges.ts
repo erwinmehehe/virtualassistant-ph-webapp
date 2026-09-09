@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Role } from "@/lib/types";
 
 export type WorkspaceBadges = Record<string, number>;
@@ -14,6 +15,24 @@ export type WorkspaceBadges = Record<string, number>;
  * a failed count is a missing badge, never a broken page.
  */
 export const getWorkspaceBadges = cache(async function getWorkspaceBadges(role: Role, userId: string): Promise<WorkspaceBadges> {
+  if (role === "recruiter") {
+    try {
+      const admin = createAdminClient();
+      const [{ count: leads }, { count: vetting }, { count: pendingRoles }] = await Promise.all([
+        admin.from("lead_intake").select("id", { count: "exact", head: true }).eq("status", "new"),
+        admin.from("va_vetting").select("va_id", { count: "exact", head: true }).eq("stage", "recruiter_review"),
+        admin.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending")
+      ]);
+      return {
+        "/workspace/recruiter/leads": leads || 0,
+        "/workspace/recruiter/queue": vetting || 0,
+        "/workspace/recruiter/matching": pendingRoles || 0
+      };
+    } catch {
+      return {};
+    }
+  }
+
   if (role !== "va" && role !== "client") return {};
   const base = `/workspace/${role}`;
 

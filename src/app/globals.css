@@ -2700,3 +2700,39 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 
 /* Page level wrappers, given a floor so their sections are not flush. */
 .talent-directory-page, .public-jobs-page { padding-bottom:8px; }
+
+
+/* Staff-to-client follow-up controls */
+.staff-followup-details {
+  position: relative;
+  width: fit-content;
+}
+.staff-followup-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.staff-followup-details > summary::-webkit-details-marker { display: none; }
+.staff-followup-details[open] > summary { margin-bottom: 10px; }
+.staff-followup-form {
+  width: min(520px, calc(100vw - 64px));
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  box-shadow: 0 16px 42px rgba(16,24,40,.12);
+}
+.staff-followup-form textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+.staff-client-contact-card .staff-followup-form { width: min(680px, 100%); }
+
+@media (max-width: 720px) {
+  .staff-followup-details { width: 100%; }
+  .staff-followup-details > summary { width: 100%; justify-content: center; }
+  .staff-followup-form {
+    width: 100%;
+    padding: 14px;
+    box-shadow: none;
+  }
+}

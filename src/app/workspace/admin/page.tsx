@@ -25,7 +25,7 @@ export default async function AdminPage() {
     {label:"New enquiries",result:leads,href:"/workspace/admin/leads?stage=new",icon:MessageSquare,copy:"Start the conversation"},
     {label:"Briefs to review",result:jobs,href:"/workspace/admin/jobs",icon:BriefcaseBusiness,copy:"Confirm the work and budget"},
     {label:"Quotes awaiting acceptance",result:quotes,href:"/workspace/admin/jobs",icon:CalendarDays,copy:"Help clients take the next step"},
-    {label:"Active placements",result:rooms,href:"/workspace/admin/payments",icon:UsersRound,copy:"Support the people already hired"}
+    {label:"Active placements",result:rooms,href:"/workspace/admin/placements",icon:UsersRound,copy:"Support the people already hired"}
   ];
   return <>
     <DashboardDegradedNotice issues={issues}/>

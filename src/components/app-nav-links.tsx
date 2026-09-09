@@ -43,6 +43,7 @@ const nav = {
     ["Overview", "/workspace/admin", ShieldCheck],
     ["Lead pipeline", "/workspace/admin/leads", MessageSquare],
     ["Job review", "/workspace/admin/jobs", BriefcaseBusiness],
+    ["Placements", "/workspace/admin/placements", UsersRound],
     ["Payments", "/workspace/admin/payments", CircleDollarSign],
     ["Moderation", "/workspace/admin/moderation", Flag],
     ["Analytics", "/workspace/admin/analytics", BarChart3],

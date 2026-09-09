@@ -37,3 +37,10 @@ Added due, today, overdue, and unscheduled views for open employer conversations
 
 Validation: 14 focused tests, typecheck, production build, original-design comparison, and local browser checks for saving within a queue and mobile layout (390px, no overflow or browser errors).
 
+
+## Placement support overview
+
+Added an admin-only placements page with active, paused, and completed views, pagination, agreed hire terms, and remaining onboarding items. Missing or failed checklist data never appears as completed onboarding. The active-placement metric and admin navigation now open this view. Existing client/VA checklist ownership remains intact; no new database migration is required.
+
+Validation: TypeScript, production build, original-public-design comparison, and synthetic-data mobile browser checks covering an unfinished onboarding and an empty paused view. No horizontal overflow or browser errors detected.
+

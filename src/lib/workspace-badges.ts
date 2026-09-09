@@ -18,8 +18,12 @@ export const getWorkspaceBadges = cache(async function getWorkspaceBadges(role: 
   if (role === "recruiter") {
     try {
       const admin = createAdminClient();
+      const now = new Date().toISOString();
       const [{ count: leads }, { count: vetting }, { count: pendingRoles }] = await Promise.all([
-        admin.from("lead_intake").select("id", { count: "exact", head: true }).eq("status", "new"),
+        admin.from("lead_intake")
+          .select("id", { count: "exact", head: true })
+          .not("crm_stage", "in", "(won,lost)")
+          .or(`crm_stage.eq.new,next_follow_up_at.lte.${now}`),
         admin.from("va_vetting").select("va_id", { count: "exact", head: true }).eq("stage", "recruiter_review"),
         admin.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending")
       ]);

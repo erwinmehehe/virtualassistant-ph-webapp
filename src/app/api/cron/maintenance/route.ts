@@ -229,11 +229,10 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
 
-  // Auto-publish runs first and changes job statuses (pending -> published),
-  // so it must finish before the pending-job matching pass reads the table
-  // -- otherwise a job could get matched twice or the counts would be stale.
-  const { autoPublishStraightforwardJobs } = await import("@/lib/auto-publish");
-  const publishResult = await autoPublishStraightforwardJobs();
+  // Standard curated-placement fees can be prepared automatically, but
+  // client acceptance remains the only path from pending to published.
+  const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
+  const quoteResult = await autoQuoteStraightforwardJobs();
 
   const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult] = await Promise.all([
     runProfileNudges(admin),
@@ -243,5 +242,5 @@ export async function GET(request: Request) {
     runWorkflowReminders(admin)
   ]);
 
-  return NextResponse.json({ ok: true, publishing: publishResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult });
 }

@@ -8,7 +8,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendLeadNotificationEmail } from "@/lib/email";
+import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail } from "@/lib/email";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 
 export type ServiceMatchState = {
@@ -223,8 +223,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       metadata: { service_slug: service.slug, source_page: sourcePage }
     });
 
-    try {
-      await sendLeadNotificationEmail({
+    await Promise.allSettled([
+      sendLeadNotificationEmail({
         leadId: lead.id,
         jobId,
         name: parsed.data.name,
@@ -234,10 +234,13 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         message: parsed.data.message,
         sourcePage,
         pageUrl
-      });
-    } catch {
-      // Lead and pending job creation must not fail because email delivery is unavailable.
-    }
+      }),
+      sendLeadAcknowledgementEmail({
+        to: parsed.data.email,
+        name: parsed.data.name,
+        roleLabel: service.name
+      })
+    ]);
 
     return {
       status: "success",
@@ -347,8 +350,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       metadata: { industry_slug: industry.slug, source_page: "industry_match_request", requested_workflows: selectedTasks }
     });
 
-    try {
-      await sendLeadNotificationEmail({
+    await Promise.allSettled([
+      sendLeadNotificationEmail({
         leadId: lead.id,
         jobId,
         name: parsed.data.name,
@@ -358,10 +361,13 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         message: combinedMessage,
         sourcePage: "industry_match_request",
         pageUrl
-      });
-    } catch {
-      // Lead and pending job creation remain successful if email delivery is unavailable.
-    }
+      }),
+      sendLeadAcknowledgementEmail({
+        to: parsed.data.email,
+        name: parsed.data.name,
+        roleLabel: `${industry.label} Virtual Assistant`
+      })
+    ]);
 
     return {
       status: "success",
@@ -481,8 +487,8 @@ export async function submitRoleBriefAction(formData: FormData) {
     metadata: { service: category, source_page: sourcePage }
   });
 
-  try {
-    await sendLeadNotificationEmail({
+  await Promise.allSettled([
+    sendLeadNotificationEmail({
       leadId: lead.id,
       jobId,
       name: parsed.data.name?.trim() || null,
@@ -494,10 +500,13 @@ export async function submitRoleBriefAction(formData: FormData) {
       message,
       sourcePage,
       pageUrl
-    });
-  } catch {
-    // Lead and job creation remain successful even if notification delivery fails.
-  }
+    }),
+    sendLeadAcknowledgementEmail({
+      to: parsed.data.email,
+      name: parsed.data.name?.trim() || null,
+      roleLabel: jobTitleForCategory(category)
+    })
+  ]);
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";

@@ -102,7 +102,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <tr key={lead.id}>
                   <td data-label="Lead">
                     <strong>{lead.name || lead.email}</strong>
-                    <div className="small muted">{lead.company || lead.email}</div>\n                    {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
+                    <div className="small muted">{lead.company || lead.email}</div>
+                    {lead.status === "new" && !latestByLead.has(lead.id) ? <div style={{ marginTop: 6 }}><span className="badge badge-warning">Needs first contact</span></div> : null}
                   </td>
                   <td data-label="Need">
                     {lead.service || "Virtual Assistant support"}

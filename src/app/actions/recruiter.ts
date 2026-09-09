@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendProfileCompletionReminderEmail } from "@/lib/email";
+import { sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -187,6 +187,80 @@ export async function bulkRecruiterVaAction(formData: FormData) {
   if (action === "approve_publish") extra.set("published", String(published));
   if (skippedNames.length) extra.set("skipped", skippedNames.slice(0, 5).join(", ") + (skippedNames.length > 5 ? ` and ${skippedNames.length - 5} more` : ""));
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${extra.toString()}`);
+}
+
+export async function sendClientFollowupAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const jobId = String(formData.get("job_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const subject = String(formData.get("subject") || "").trim();
+  const message = String(formData.get("message") || "").trim();
+  if ((!leadId && !jobId) || subject.length < 3 || subject.length > 180 || message.length < 10 || message.length > 5000) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}`);
+  }
+
+  const admin = createAdminClient();
+  let recipient: string | null = null;
+  let clientName: string | null = null;
+  let activityType: "lead" | "job" = leadId ? "lead" : "job";
+  let activityId = leadId || jobId;
+  let linkedJobId = jobId;
+
+  if (leadId) {
+    const { data: lead } = await admin.from("lead_intake").select("id,email,name,job_id").eq("id", leadId).maybeSingle();
+    recipient = lead?.email || null;
+    clientName = lead?.name || null;
+    linkedJobId = linkedJobId || String(lead?.job_id || "");
+  }
+
+  if (!recipient && jobId) {
+    const { data: job } = await admin.from("jobs").select("id,title,client_id").eq("id", jobId).maybeSingle();
+    if (job?.client_id) {
+      const [{ data: authUser }, { data: account }] = await Promise.all([
+        admin.auth.admin.getUserById(job.client_id),
+        admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle()
+      ]);
+      recipient = authUser.user?.email || null;
+      clientName = account?.full_name || null;
+    } else {
+      const { data: lead } = await admin.from("lead_intake").select("id,email,name").eq("job_id", jobId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      recipient = lead?.email || null;
+      clientName = lead?.name || null;
+      if (lead?.id) {
+        activityType = "lead";
+        activityId = lead.id;
+      }
+    }
+  }
+
+  if (!recipient) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("No client email is attached to this lead or role.")}`);
+  }
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const href = linkedJobId ? `${appUrl}/workspace/client/jobs/${linkedJobId}` : undefined;
+  const result = await sendStaffClientFollowupEmail({
+    to: recipient,
+    subject,
+    message,
+    senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
+    href
+  });
+  if (!result.sent) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check the email configuration and recipient address.")}`);
+  }
+
+  await writeRecruiterActivity({
+    subjectType: activityType,
+    subjectId: activityId,
+    action: "client_followup_sent",
+    description: `Follow-up email sent${clientName ? ` to ${clientName}` : ""}: ${subject}`,
+    actorId: user.id,
+    metadata: { job_id: linkedJobId || null, recipient }
+  });
+  revalidatePath(returnTo);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
 }
 
 export async function addRecruiterNoteAction(formData: FormData) {

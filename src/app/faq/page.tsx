@@ -26,4 +26,14 @@ const groups = [
   ]]
 ] as const;
 
-export default function FaqPage(){return <><SiteHeader/><main id="main-content" className="section"><div className="container" style={{maxWidth:920}}><div className="section-head"><h1 className="public-page-title">Questions before you hire or apply.</h1><p>These answers cover our current hiring, vetting, privacy, pricing, and application process.</p></div>{groups.map(([title,items])=><section className="faq-group" key={title}><h2>{title}</h2><div className="faq-list">{items.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>)}</div></main><SiteFooter/></>}
+export default function FaqPage(){
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: groups.flatMap(([,items]) => items.map(([question,answer]) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer }
+    })))
+  };
+  return <><SiteHeader/><main id="main-content" className="section"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(faqSchema).replace(/</g,"\\u003c")}}/><div className="container" style={{maxWidth:920}}><div className="section-head"><h1 className="public-page-title">Questions before you hire or apply.</h1><p>These answers cover our current hiring, vetting, privacy, pricing, and application process.</p></div>{groups.map(([title,items])=><section className="faq-group" key={title}><h2>{title}</h2><div className="faq-list">{items.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>)}</div></main><SiteFooter/></>}

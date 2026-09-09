@@ -51,6 +51,7 @@ export async function toggleChecklistAction(formData: FormData) {
   if (!checklistItem) throw new Error("Checklist item not found.");
   const { error } = await createAdminClient().from("workroom_checklist").update({ completed_at: done ? null : new Date().toISOString(), completed_by: done ? null : user.id }).eq("id",id);
   if (error) throw error;
+  revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/workroom");
   revalidatePath("/workspace/va/workroom");
 }

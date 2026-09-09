@@ -24,3 +24,9 @@ The migration can be applied repeatedly. For an application rollback, revert the
 - Browser checks with a synthetic local API: desktop/mobile layout, saved lead stage/notes, shortlist-only client state, navigation to role shortlist and locked identity state.
 
 No live database migration or production deployment is included. Local test data is not evidence that the production database is configured or migrated. Existing build warnings about legacy CSS alignment and workspace-root discovery remain outside this change.
+
+## Client hiring journey
+
+Each role now has its own next action and owner, covering draft briefs, service fee approval, candidate access, shortlist review, interview decisions, and onboarding. Existing hire confirmation and workroom checklist actions remain the source of truth. Closed and paused placements and unavailable data have explicit states. Checklist changes refresh the client overview. Original public design, H1, pricing, and access rules are preserved. No additional database migration is needed for this increment.
+
+Validation: 11 focused tests, TypeScript, production build, original-design comparison, and local synthetic-data browser checks. Mobile width verified at 390px with no horizontal overflow. Production data and deployment were not changed.

@@ -1,3 +1,4 @@
+import { hiringJourney } from "@/lib/hiring-journey";
 import Link from "next/link";
 import { ReleasedShortlists } from "@/components/released-shortlists";
 import { pendingReleasedMatches } from "@/lib/agency-pipeline";
@@ -30,7 +31,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     admin.from("conversations").select("id").eq("client_id",user.id)
   ]);
 
-  if(!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
+  if(!companyError&&!jobsError&&!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
 
   const jobRows=jobs||[];
   const jobIds=jobRows.map((job:any)=>job.id);
@@ -76,7 +77,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const appsByJob=new Map<string,any[]>();
   for(const app of appRows){const list=appsByJob.get(app.job_id)||[];list.push(app);appsByJob.set(app.job_id,list);}
   const lockedJobsWithApplicants=jobRows.filter((job:any)=>{
-    const count=(appsByJob.get(job.id)||[]).length;
+    const count=(appsByJob.get(job.id)||[]).length+activeMatches.filter(match=>match.job_id===job.id).length;
     return count>0&&!candidateAccessUnlocked(accessMap.get(job.id));
   });
 
@@ -87,7 +88,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   if(pipeline.interview) attention.push({title:"Interviews in progress",copy:"Review interview-stage candidates and keep decisions moving.",href:"/workspace/client/candidates",count:pipeline.interview,icon:BriefcaseBusiness});
   if(pipeline.offered) attention.push({title:"Offers awaiting a hiring decision",copy:"Open the candidate pipeline to confirm the final hire when terms are agreed.",href:"/workspace/client/candidates",count:pipeline.offered,icon:Sparkles});
   if((unreadMessages||0)>0) attention.push({title:"Unread candidate messages",copy:"Reply to candidate questions, interview follow-ups, and hiring conversations.",href:"/workspace/client/messages",count:unreadMessages||0,icon:MessageSquare});
-  if(lockedJobsWithApplicants.length) attention.push({title:"Candidate details are still locked",copy:"People have applied, but their details stay private until you request access for the role. Nothing is charged when you ask.",href:"/workspace/client/jobs",count:lockedJobsWithApplicants.length,icon:LockKeyhole});
+  if(lockedJobsWithApplicants.length) attention.push({title:"Candidate details are still locked",copy:"Candidates are available, but their details stay private until you request access for the role. Nothing is charged when you ask.",href:"/workspace/client/jobs",count:lockedJobsWithApplicants.length,icon:LockKeyhole});
 
   const steps=[
     {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
@@ -97,17 +98,20 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {label:"Confirm a hire",description:"Create the workroom after final rate, schedule and start date are agreed.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
-  const currentAction=pipeline.offered
-    ? {title:`${pipeline.offered} hiring decision${pipeline.offered===1?"":"s"} waiting`,copy:"Review the final candidates and confirm who you want to hire.",href:"/workspace/client/candidates",label:"Review decisions",step:4}
-    : pipeline.interview
-      ? {title:`${pipeline.interview} interview${pipeline.interview===1?"":"s"} in progress`,copy:"Keep the process moving by reviewing interview-stage candidates.",href:"/workspace/client/candidates",label:"Review interviews",step:3}
-      : pipeline.shortlisted
-        ? {title:`${pipeline.shortlisted} candidate${pipeline.shortlisted===1?"":"s"} ready for review`,copy:"Your recruiter has prepared a shortlist for you.",href:"/workspace/client/candidates",label:"Review shortlist",step:2}
-        : pipeline.applied
-          ? {title:`${pipeline.applied} applicant${pipeline.applied===1?"":"s"} ready for review`,copy:"Review the latest candidates for your role.",href:"/workspace/client/candidates",label:"Review candidates",step:2}
-        : jobRows.length
-          ? {title:"We’re finding candidates",copy:"Your recruiting team is reviewing the role and preparing the strongest matches.",href:"/workspace/client/jobs",label:"View role progress",step:1}
-          : {title:"Tell us who you need",copy:"Share the work in your own words. We’ll turn it into a clear hiring brief.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
+  const roomIds=(workrooms||[]).map((room:any)=>room.id);
+  const [commercialResult,checkResult]=await Promise.all([
+    jobIds.length?supabase.from("job_commercials").select("job_id,commercial_status").in("job_id",jobIds):Promise.resolve({data:[],error:null}),
+    roomIds.length?supabase.from("workroom_checklist").select("workroom_id,completed_at").in("workroom_id",roomIds):Promise.resolve({data:[],error:null})
+  ]);
+  if(commercialResult.error) issues.push("service fee status");
+  if(checkResult.error) issues.push("onboarding progress");
+  const journeyUnavailable=Boolean(jobsError||workroomsError||applicationsError||accessError||shortlistError||commercialResult.error||checkResult.error);
+  const journeys=jobRows.map((job:any)=>({job,action:hiringJourney({
+    id:job.id,status:job.status,applications:appsByJob.get(job.id)||[],
+    releasedCount:activeMatches.filter(match=>match.job_id===job.id).length,
+    access:accessMap.get(job.id),commercial:commercialResult.data?.find(row=>row.job_id===job.id)?.commercial_status,
+    rooms:(workrooms||[]).filter((room:any)=>room.job_id===job.id),checks:checkResult.data||[],unavailable:journeyUnavailable
+  })}));
 
   const quick=[
     ["Hiring brief","Start a new hiring request","/workspace/client/jobs/new",Plus,true],
@@ -124,7 +128,11 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
-    <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We find candidates","Review shortlist","Interview","Hire & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on our recruiting team":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
+    {journeys.length?<section className="stack" aria-label="Hiring progress by role">{journeys.map(({job,action}:any)=><article className="workflow-progress card" key={job.id}>
+      <div className="row-between wrap" style={{padding:"16px 20px"}}><h2>{job.title}</h2><span className="badge">{job.status}</span></div>
+      <ol className="workflow-steps" aria-label={`Hiring stages for ${job.title}`} style={{listStyle:"none",padding:0}}>{["Hiring brief","Recruiting","Shortlist","Interview & decision","Onboarding"].map((label,index)=><li className={`workflow-step ${index<action.step?"done":index===action.step?"current":""}`} aria-current={index===action.step?"step":undefined} key={label}><span>{index<action.step?"✓":index+1}</span><strong>{label}</strong></li>)}</ol>
+      <div className="workflow-current"><div><span className="small">{action.owner}</span><h3>{action.title}</h3><p>{action.copy}</p></div><Link className="btn btn-primary" href={action.href}>{action.label}<ArrowRight size={16}/></Link></div>
+    </article>)}</section>:null}
 
     {!jobRows.length?<section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>You do not need to write a perfect job description. Start with the work you want off your plate, then refine the brief with our guidance.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Create hiring brief <ArrowRight size={17}/></Link></section>:null}
 

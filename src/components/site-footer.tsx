@@ -60,6 +60,7 @@ export function SiteFooter() {
           </div>
           <div className="footer-links">
             <strong>For Virtual Assistants</strong>
+            <Link href="/for-virtual-assistants">Virtual Assistant overview</Link>
             <Link href="/jobs">Browse Virtual Assistant jobs</Link>
             <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
             <Link href="/auth/login">Log in</Link>

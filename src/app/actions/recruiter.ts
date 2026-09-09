@@ -42,8 +42,8 @@ async function filteredVaIds(formData: FormData) {
   if (minExp != null) query = query.gte("years_experience", minExp);
   if (maxRate != null) query = query.lte("hourly_rate", maxRate);
   if (readiness === "ready") query = query.gte("completion_score", PUBLIC_VA_MIN_COMPLETION).not("avatar_url", "is", null);
-  if (readiness === "incomplete") query = query.lt("completion_score", 100);
-  if (readiness === "zero") query = query.eq("completion_score", 0);
+  if (readiness === "incomplete") query = query.lt("completion_score", 100).neq("stage", "rejected").eq("account_status", "active");
+  if (readiness === "zero") query = query.eq("completion_score", 0).neq("stage", "rejected").eq("account_status", "active");
   if (photo === "yes") query = query.not("avatar_url", "is", null);
   if (photo === "no") query = query.is("avatar_url", null);
   if (resume === "yes") query = query.not("resume_path", "is", null);

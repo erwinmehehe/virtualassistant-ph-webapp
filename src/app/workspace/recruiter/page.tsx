@@ -10,9 +10,9 @@ export default async function RecruiterDashboard(){
   const since=new Date(Date.now()-7*86400000).toISOString();
   const [unreviewedRes,incompleteRes,readyRes,vettedHiddenRes,activeJobsRes,newAppsRes,unreadMessagesRes,recentLeadsRes,jobsRes,releasedRes]=await Promise.all([
     admin.from("va_vetting").select("va_id",{count:"exact",head:true}).eq("stage","recruiter_review"),
-    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100),
-    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",PUBLIC_VA_MIN_COMPLETION).not("avatar_url","is",null).not("stage","in","(approved,bench,rejected)"),
-    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).lt("completion_score",100),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).lt("completion_score",100).neq("stage","rejected").eq("account_status","active"),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).gte("completion_score",PUBLIC_VA_MIN_COMPLETION).not("avatar_url","is",null).not("stage","in","(approved,bench,rejected)").eq("account_status","active"),
+    admin.from("recruiter_va_directory").select("user_id",{count:"exact",head:true}).in("stage",["approved","bench"]).lt("completion_score",100).eq("account_status","active"),
     admin.from("jobs").select("id",{count:"exact",head:true}).in("status",["pending","published"]),
     admin.from("applications").select("id",{count:"exact",head:true}).eq("status","new"),
     admin.from("messages").select("id",{count:"exact",head:true}).is("read_at",null),

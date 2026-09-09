@@ -51,7 +51,7 @@ export default function IndustriesPage() {
           <p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>
           <div className="industries-hero-actions">
             <Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
-            <Link className="btn btn-lg" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
+            <Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link>
           </div>
           <div className="industries-proof-row">
             <span><ShieldCheck size={16}/>Approved talent</span>
@@ -61,7 +61,7 @@ export default function IndustriesPage() {
         </div>
         <aside className="industries-hero-panel">
           <div className="industries-panel-kicker">A better way to scope the role</div>
-          <h2>Use the guide before you write the job post.</h2>
+          <h2>Use the guide before we start recruiting.</h2>
           <div className="industries-panel-step"><span>01</span><div><strong>Choose your industry</strong><p>Start with the closest operating context, even if your company spans several services.</p></div></div>
           <div className="industries-panel-step"><span>02</span><div><strong>Pick the workflows to delegate</strong><p>Separate recurring admin from decisions that must stay with your local team.</p></div></div>
           <div className="industries-panel-step"><span>03</span><div><strong>Hire against evidence</strong><p>Compare relevant experience, tools, communication, schedule, and examples of similar work.</p></div></div>

@@ -37,8 +37,8 @@ export function ArchiveArticle({ post, sourcePath, error, sent }: { post: Archiv
           <p>Describe the work, the hours and the overlap you need. Every candidate you see has already passed a skills test, a video introduction and a recruiter review.</p>
           <ul className="home-lead-points">
             <li>No account required, and nothing is published</li>
-            <li>VA pay and our service fee shown separately</li>
-            <li>Prefer to look first? <Link className="text-link" href="/find-talent">Browse approved VAs <ArrowRight size={13}/></Link></li>
+            <li>Virtual Assistant compensation and our service fee shown separately</li>
+            <li>Prefer to look first? <Link className="text-link" href="/find-talent">Browse approved Virtual Assistants <ArrowRight size={13}/></Link></li>
           </ul>
         </div>
         <RoleBriefForm sourcePath={sourcePath} error={error} sent={sent} heading="Get matched" subheading="About 60 seconds. Required fields are marked." />

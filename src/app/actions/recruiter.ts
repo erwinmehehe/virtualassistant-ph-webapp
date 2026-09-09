@@ -548,7 +548,8 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_saved=1`);
+  const joiner = returnTo.includes("?") ? "&" : "?";
+  redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
 }
 
 export async function completeDiscoveryAction(formData: FormData) {

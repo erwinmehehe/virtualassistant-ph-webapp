@@ -58,6 +58,7 @@ const cleanUrl = (value: FormDataEntryValue | null) => {
 };
 
 export async function updateVaProfileAction(formData: FormData) {
+  try {
   const { user } = await requireRole("va");
   const supabase = await createClient();
   const admin = createAdminClient();
@@ -199,6 +200,21 @@ export async function updateVaProfileAction(formData: FormData) {
   revalidatePath("/workspace/va/vetting");
   revalidatePath("/workspace/admin/vetting");
   revalidatePath("/find-talent");
+
+    redirect("/workspace/va/profile?saved=1");
+  } catch (error) {
+    if (error && typeof error === "object" && String((error as any).digest || "").startsWith("NEXT_REDIRECT")) throw error;
+    const raw = error instanceof Error ? error.message : "";
+    const safePrefixes = [
+      "Enter ", "Hourly rate ", "Years of experience ", "Weekly availability ", "Daily overlap ",
+      "Your headline ", "One of your ", "Use a valid URL", "Only http or https",
+      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG"
+    ];
+    const message = safePrefixes.some((prefix) => raw.startsWith(prefix))
+      ? raw
+      : "We could not save your profile. Please check the fields and try again.";
+    redirect(`/workspace/va/profile?error=${encodeURIComponent(message.slice(0, 300))}`);
+  }
 }
 
 export async function updateClientProfileAction(formData: FormData) {

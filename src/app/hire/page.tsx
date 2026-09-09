@@ -27,7 +27,7 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
   return <><SiteHeader/><main id="main-content" className="section"><div className="container hire-layout">
     <section>
       
-      <h1 className="public-page-title">Get matched with the right VA.</h1>
+      <h1 className="public-page-title">Get matched with the right Virtual Assistant.</h1>
       <p className="public-lede">Share the role, schedule, and budget. We will turn it into a private draft and use it to match you with vetted Filipino virtual assistants.</p>
       <div className="trust-list">
         {["Private by default. Nothing is published until you review it.", "No account required to send your brief; create one later to manage matches."].map((item, index) => <div className="trust-item" key={`${String(item)}-${index}`}><CheckCircle2 size={18}/><span>{item}</span></div>)}
@@ -36,7 +36,7 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
     </section>
 
     <section className="card lead-form-card">
-      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your private job draft is ready</h2><p>We saved your hiring request and created a private pending job draft. Create a client account to claim it, review the details, and manage candidates.</p><div className="stack"><Link className="btn btn-primary" href={`/auth/join/client?${new URLSearchParams({...(lead ? {lead} : {}), ...(talent ? {talent} : {})}).toString()}`} data-track="role_brief_create_account">Create client account and claim job</Link><Link className="btn" href="/find-talent">Keep browsing vetted VAs</Link></div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
+      {params.sent ? <div className="success-state"><CheckCircle2 size={38}/><h2>Your private job draft is ready</h2><p>We saved your hiring request and created a private pending job draft. Create a client account to claim it, review the details, and manage candidates.</p><div className="stack"><Link className="btn btn-primary" href={`/auth/join/client?${new URLSearchParams({...(lead ? {lead} : {}), ...(talent ? {talent} : {})}).toString()}`} data-track="role_brief_create_account">Create client account and claim job</Link><Link className="btn" href="/find-talent">Keep browsing vetted Virtual Assistants</Link></div></div> : <form action={submitRoleBriefAction} className="stack compact-hire-form">
         <div className="compact-hire-form-head"><h2>Get matched</h2><p className="small muted">About 60 seconds. Required fields are marked.</p></div>
         {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
         {talent ? <input type="hidden" name="talent" value={talent}/> : null}
@@ -52,7 +52,7 @@ export default async function HirePage({ searchParams }: { searchParams: Promise
           <div className="field"><label htmlFor="start_time">Start date</label><select id="start_time" name="start_time" defaultValue=""><option value="">Flexible</option><option>As soon as possible</option><option>Within 2 weeks</option><option>Within 30 days</option><option>More than 30 days</option></select></div>
         </div>
         <div className="field"><label htmlFor="email">Work email *</label><input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
-        <div className="field"><label htmlFor="message">What should this VA own? *</label><textarea id="message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience -- e.g. inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
+        <div className="field"><label htmlFor="message">What should this Virtual Assistant own? *</label><textarea id="message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience -- e.g. inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
         <details className="hire-optional-details">
           <summary>Add name &amp; company <span>(optional)</span></summary>
           <div className="form-grid compact-form-grid">

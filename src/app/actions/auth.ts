@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { recordProductEvent } from "@/lib/product-events";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
@@ -213,10 +214,9 @@ export async function joinAction(formData: FormData) {
       }
     }
     try {
-      await admin.from("analytics_events").insert({
-        event_name: "account_created",
+      await recordProductEvent("account_created", {
+        userId: data.user.id,
         path: `/auth/join/${parsed.data.role}`,
-        user_id: data.user.id,
         metadata: { role: parsed.data.role, requested_talent: Boolean(parsed.data.talent), claimed_lead: Boolean(parsed.data.lead) }
       });
       if (parsed.data.role === "client" && data.session) {

@@ -88,11 +88,11 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         <aside className="blog-hero-aside">
           <div className="blog-hero-card">
             <div className="kicker">Turn the research into a hire</div>
-            <h2>{service ? `Need ${articleFor(roleLabel)} ${roleLabel} VA?` : "Ready to delegate the work?"}</h2>
+            <h2>{service ? `Need ${articleFor(roleLabel)} ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h2>
             <p>{service ? `Compare approved ${roleLabel.toLowerCase()} talent or send a private match request. No account is required to start.` : "Tell us what is taking time every week and we will help you narrow the role."}</p>
             <div className="stack">
-              <Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link>
-              <Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} service` : "Explore VA services"}</Link>
+              <Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
+              <Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} service` : "Explore Virtual Assistant services"}</Link>
             </div>
             <div className="blog-card-trust"><ShieldCheck size={15}/>Private request. No obligation.</div>
           </div>
@@ -105,7 +105,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         <aside className="blog-toc" aria-label="On this page">
           <strong>On this page</strong>
           <nav>{headings.map((item) => <a href={`#${item.id}`} key={item.id}>{item.label}</a>)}</nav>
-          {service ? <Link href={serviceHref} className="blog-toc-service" data-track="blog_service_click">Hire a {roleLabel} VA <ArrowRight size={14}/></Link> : null}
+          {service ? <Link href={serviceHref} className="blog-toc-service" data-track="blog_service_click">Hire a {roleLabel} Virtual Assistant <ArrowRight size={14}/></Link> : null}
         </aside>
 
         <article className="blog-article">
@@ -127,8 +127,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             {section.table ? <div className="blog-table-wrap"><table><thead><tr>{section.table.headers.map((heading) => <th key={heading}>{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>)}</tr>)}</tbody></table></div> : null}
 
             {index === 1 ? <div className="blog-inline-cta">
-              <div><div className="kicker">Need someone to own this?</div><h3>{service ? `Get matched with approved ${roleLabel.toLowerCase()} talent.` : "Turn the workload into a clear VA brief."}</h3><p>{service ? "Share the workload and weekly hours. We will use your brief to identify relevant candidates." : "Tell us what you want to delegate, your weekly hours, budget, and schedule. We will help you turn the research into a practical hiring request."}</p></div>
-              <Link className="btn btn-primary" href={matchHref} data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link>
+              <div><div className="kicker">Need someone to own this?</div><h3>{service ? `Get matched with approved ${roleLabel.toLowerCase()} talent.` : "Turn the workload into a clear Virtual Assistant brief."}</h3><p>{service ? "Share the workload and weekly hours. We will use your brief to identify relevant candidates." : "Tell us what you want to delegate, your weekly hours, budget, and schedule. We will help you turn the research into a practical hiring request."}</p></div>
+              <Link className="btn btn-primary" href={matchHref} data-track="blog_cta_match">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
             </div> : null}
 
             {index === 2 ? <ContextLinks post={post} start={0} count={2}/> : null}
@@ -160,15 +160,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           {post.sources?.length ? <section className="blog-sources" aria-labelledby="sources-heading"><h2 id="sources-heading">Sources and further reading</h2><p>For legal, compliance, tax, health, and employment questions, check the current official guidance that applies to your situation.</p><ul>{post.sources.map((source) => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label} <ExternalLink size={13}/></a></li>)}</ul><Link className="text-link" href="/editorial-policy">How we review high-stakes content <ArrowRight size={13}/></Link></section> : null}
 
-          {showPlanningTools ? <section className="blog-planning-tools" aria-labelledby="planning-tools-heading"><div className="kicker">Free planning tools</div><h2 id="planning-tools-heading">Turn the guide into a clearer hiring plan.</h2><div className="blog-planning-tool-grid"><Link href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={20}/><div><strong>VA cost calculator</strong><span>Model weekly hours, a VA rate, and a local comparison.</span></div></Link><Link href="/tools/virtual-assistant-job-description-generator" data-track="blog_tool_click"><ClipboardList size={20}/><div><strong>Job description generator</strong><span>Turn the workload into a usable first-draft role brief.</span></div></Link><Link href="/tools/what-type-of-va-do-i-need" data-track="blog_tool_click"><ListChecks size={20}/><div><strong>VA role finder</strong><span>Start with the workload when the job title is still unclear.</span></div></Link></div></section> : null}
+          {showPlanningTools ? <section className="blog-planning-tools" aria-labelledby="planning-tools-heading"><div className="kicker">Free planning tools</div><h2 id="planning-tools-heading">Turn the guide into a clearer hiring plan.</h2><div className="blog-planning-tool-grid"><Link href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={20}/><div><strong>Virtual Assistant cost calculator</strong><span>Model weekly hours, a Virtual Assistant rate, and a local comparison.</span></div></Link><Link href="/tools/virtual-assistant-job-description-generator" data-track="blog_tool_click"><ClipboardList size={20}/><div><strong>Job description generator</strong><span>Turn the workload into a usable first-draft role brief.</span></div></Link><Link href="/tools/what-type-of-va-do-i-need" data-track="blog_tool_click"><ListChecks size={20}/><div><strong>Virtual Assistant role finder</strong><span>Start with the workload when the job title is still unclear.</span></div></Link></div></section> : null}
 
           <div className="blog-author-card">
-            <div className="blog-author-avatar" aria-hidden="true">{post.author === "Christ Hemsworthy" ? "CH" : "VA"}</div>
-            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, VA operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from the workflows used across the platform."}</p></div>
+            <div className="blog-author-avatar" aria-hidden="true">{post.author === "Christ Hemsworthy" ? "CH" : "Virtual Assistant"}</div>
+            <div><div className="small muted">Written by</div><h3><Link href={post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, Virtual Assistant operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from the workflows used across the platform."}</p></div>
           </div>
 
           <div className="blog-bottom-conversion">
-            <div className="blog-bottom-copy"><div className="kicker">Ready to hire</div><h2>{service ? "Stop researching and start comparing relevant talent." : "Turn the research into a role you can actually hire for."}</h2><p>{service ? "Use the service page connected to this guide to browse approved profiles or send a short private brief." : "Share the workload, schedule, and budget. You can send a private role brief without creating an account or publishing a job."}</p><p className="blog-home-cta">{closingCta.before}<Link href="/">Virtual Assistant Philippines</Link>{closingCta.after}</p><div className="row wrap"><Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} VAs` : "Explore VA services"}</Link></div></div>
+            <div className="blog-bottom-copy"><div className="kicker">Ready to hire</div><h2>{service ? "Stop researching and start comparing relevant talent." : "Turn the research into a role you can actually hire for."}</h2><p>{service ? "Use the service page connected to this guide to browse approved profiles or send a short private brief." : "Share the workload, schedule, and budget. You can send a private role brief without creating an account or publishing a job."}</p><p className="blog-home-cta">{closingCta.before}<Link href="/">Virtual Assistant Philippines</Link>{closingCta.after}</p><div className="row wrap"><Link className="btn btn-primary btn-lg" href={matchHref} data-track="blog_cta_match">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href={serviceHref} data-track="blog_service_click">{service ? `View ${roleLabel} Virtual Assistants` : "Explore Virtual Assistant services"}</Link></div></div>
           </div>
         </article>
       </div>

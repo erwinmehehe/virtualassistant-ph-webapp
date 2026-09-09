@@ -53,7 +53,7 @@ export function ServiceMatchForm({
         ) : (
           <Link className="btn btn-primary btn-lg" href={`/auth/join/client${state.leadId ? `?lead=${encodeURIComponent(state.leadId)}` : ""}`}>Create client account and claim job <ArrowRight size={16} /></Link>
         )}
-        <Link className="btn btn-lg" href={talentHref}>Browse relevant VAs</Link>
+        <Link className="btn btn-lg" href={talentHref}>Browse relevant Virtual Assistants</Link>
         {!state.clientLinked && state.leadId ? <Link className="small text-link service-match-login" href={`/auth/login?lead=${encodeURIComponent(state.leadId)}&next=${encodeURIComponent("/workspace/client")}`}>Already have a client account? Log in</Link> : null}
       </div>
       <div className="service-match-privacy"><LockKeyhole size={14} /><span>Your job draft stays private until you review and publish it.</span></div>
@@ -103,7 +103,7 @@ export function ServiceMatchForm({
       </div>
 
       <div className="field">
-        <label htmlFor={`${id}-message`}>What should your {displayRole} VA own? *</label>
+        <label htmlFor={`${id}-message`}>What should your {displayRole} Virtual Assistant own? *</label>
         <textarea id={`${id}-message`} name="message" required maxLength={3000} placeholder={`Example: ${example}`} />
       </div>
 

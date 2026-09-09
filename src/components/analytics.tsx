@@ -12,11 +12,14 @@ function trackablePath(pathname: string) {
 function sessionId() {
   try {
     const key = "va_ph_session";
-    let value = window.sessionStorage.getItem(key);
-    if (!value) {
-      value = crypto.randomUUID();
-      window.sessionStorage.setItem(key, value);
-    }
+    const existing = document.cookie
+      .split("; ")
+      .find((item) => item.startsWith(`${key}=`))
+      ?.split("=")[1];
+    if (existing && /^[0-9a-f-]{36}$/i.test(existing)) return existing;
+    const value = crypto.randomUUID();
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${key}=${value}; Path=/; Max-Age=7776000; SameSite=Lax${secure}`;
     return value;
   } catch {
     return undefined;

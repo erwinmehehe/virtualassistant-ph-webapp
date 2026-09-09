@@ -10,7 +10,7 @@ const nav = {
     ["Overview", "/workspace/client", LayoutDashboard],
     ["Jobs", "/workspace/client/jobs", BriefcaseBusiness],
     ["Candidates", "/workspace/client/candidates", UsersRound],
-    ["Saved VAs", "/workspace/client/saved", Heart],
+    ["Saved Virtual Assistants", "/workspace/client/saved", Heart],
     ["Messages", "/workspace/client/messages", MessageSquare],
     ["Notifications", "/workspace/client/notifications", Bell],
     ["Workroom", "/workspace/client/workroom", Wrench],
@@ -32,7 +32,7 @@ const nav = {
   recruiter: [
     ["Overview", "/workspace/recruiter", LayoutDashboard],
     ["Vetting queue", "/workspace/recruiter/queue", FileText],
-    ["VA directory", "/workspace/recruiter/talent", Search],
+    ["Virtual Assistant directory", "/workspace/recruiter/talent", Search],
     ["Role matching", "/workspace/recruiter/matching", Sparkles],
     ["Stalled work", "/workspace/recruiter/stalled", Flag],
     ["Talent pool", "/workspace/recruiter/bench", UsersRound],

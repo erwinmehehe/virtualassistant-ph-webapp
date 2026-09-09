@@ -109,7 +109,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource Salestrekker CRM updates, mortgage pipeline administration, document tracking, follow-ups and settlement workflows.",
     h1: "Keep Your Salestrekker Pipeline Current From Lead to Settlement",
     intro:
-      "Your mortgage CRM should show exactly where every opportunity and application stands. A Salestrekker VA keeps records, tasks, documents and milestones current while brokers handle advice and client decisions.",
+      "Your mortgage CRM should show exactly where every opportunity and application stands. A Salestrekker Virtual Assistant keeps records, tasks, documents and milestones current while brokers handle advice and client decisions.",
     focus: "mortgage crm and pipeline administration",
     workflows: [
       "create or update the client opportunity",
@@ -167,7 +167,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Run mortgage workflow administration in BrokerEngine with support for tasks, document collection, milestones and client follow-up.",
     h1: "Turn BrokerEngine Into a Consistent Mortgage Processing Workflow",
     intro:
-      "BrokerEngine works best when every task, milestone and client requirement is kept current. A mortgage VA can maintain those production workflows so brokers see what needs attention without managing every administrative step.",
+      "BrokerEngine works best when every task, milestone and client requirement is kept current. A mortgage Virtual Assistant can maintain those production workflows so brokers see what needs attention without managing every administrative step.",
     focus: "mortgage workflow administration",
     workflows: [
       "open the client workflow",
@@ -225,7 +225,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource PropertyMe maintenance workflows, tenant administration, work orders, contractor follow-up and property management data entry.",
     h1: "Keep PropertyMe Maintenance Jobs Moving From Request to Completion",
     intro:
-      "A PropertyMe VA can turn incoming maintenance requests into organised jobs, work orders and follow-up queues. Your property managers retain authority over tenancy decisions, spending approvals and compliance matters.",
+      "A PropertyMe Virtual Assistant can turn incoming maintenance requests into organised jobs, work orders and follow-up queues. Your property managers retain authority over tenancy decisions, spending approvals and compliance matters.",
     focus: "propertyme maintenance and portfolio administration",
     workflows: [
       "receive and log the tenant request",
@@ -285,7 +285,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get Console Cloud support for tenant requests, property records, maintenance jobs, contractor coordination and portfolio administration.",
     h1: "Keep Console Cloud Property Workflows Up to Date Every Day",
     intro:
-      "Property managers need accurate records and visible task queues before they can manage a portfolio properly. A Console Cloud VA maintains routine property, tenant and maintenance administration while local managers handle decisions and exceptions.",
+      "Property managers need accurate records and visible task queues before they can manage a portfolio properly. A Console Cloud Virtual Assistant maintains routine property, tenant and maintenance administration while local managers handle decisions and exceptions.",
     focus: "console cloud property administration",
     workflows: [
       "review assigned portfolio tasks",
@@ -343,7 +343,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource ServiceM8 job creation, scheduling, customer updates, technician paperwork, quoting and invoice administration.",
     h1: "Keep Every ServiceM8 Job Moving From First Call to Invoice",
     intro:
-      "A ServiceM8 VA can manage the office workflow around your field technicians. Jobs are created, scheduled, updated and prepared for invoicing while your licensed tradespeople handle technical decisions and field work.",
+      "A ServiceM8 Virtual Assistant can manage the office workflow around your field technicians. Jobs are created, scheduled, updated and prepared for invoicing while your licensed tradespeople handle technical decisions and field work.",
     focus: "servicem8 job administration",
     workflows: [
       "receive the customer enquiry",
@@ -405,7 +405,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get simPRO support for job administration, scheduling, customer records, purchase orders, technician paperwork and invoicing workflows.",
     h1: "Run the simPRO Back Office Behind Your Field Team",
     intro:
-      "A simPRO VA handles repeatable office workflows around jobs, technicians, customers and paperwork. Your operations and trade professionals retain technical, commercial and compliance authority.",
+      "A simPRO Virtual Assistant handles repeatable office workflows around jobs, technicians, customers and paperwork. Your operations and trade professionals retain technical, commercial and compliance authority.",
     focus: "simpro service and job administration",
     workflows: [
       "create the customer and site record",
@@ -464,7 +464,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource AroFlo task creation, scheduling, customer updates, purchase administration, technician follow-up and invoicing support.",
     h1: "Keep AroFlo Jobs Organised Before and After the Technician Visit",
     intro:
-      "AroFlo can hold the operational workflow for busy field teams, but only when job information stays current. A VA can maintain task records, schedules, paperwork and invoice preparation while qualified staff retain trade authority.",
+      "AroFlo can hold the operational workflow for busy field teams, but only when job information stays current. A Virtual Assistant can maintain task records, schedules, paperwork and invoice preparation while qualified staff retain trade authority.",
     focus: "aroflo field service administration",
     workflows: [
       "create the client and task record",
@@ -522,7 +522,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get Tradify support for job creation, scheduling, quote preparation, customer updates and invoicing administration.",
     h1: "Move Tradify Jobs From Enquiry to Invoice With Less Office Work",
     intro:
-      "A Tradify VA can maintain the administrative workflow around quotes, jobs, appointments and invoices. Your trade team stays focused on field work and retains control of pricing, scope and technical decisions.",
+      "A Tradify Virtual Assistant can maintain the administrative workflow around quotes, jobs, appointments and invoices. Your trade team stays focused on field work and retains control of pricing, scope and technical decisions.",
     focus: "tradify job and quote administration",
     workflows: [
       "create the customer record",
@@ -581,7 +581,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource Cliniko patient intake, appointment administration, referrals, recalls, billing workflows and practice data management.",
     h1: "Keep Cliniko Referrals, Appointments and Billing Moving",
     intro:
-      "A Cliniko VA can manage the administrative queues around each patient journey. Practitioners keep control of clinical decisions, treatment and advice while the VA handles approved intake, scheduling, billing and recall workflows.",
+      "A Cliniko Virtual Assistant can manage the administrative queues around each patient journey. Practitioners keep control of clinical decisions, treatment and advice while the Virtual Assistant handles approved intake, scheduling, billing and recall workflows.",
     focus: "cliniko practice administration",
     workflows: [
       "create or update the patient record",
@@ -640,7 +640,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get Halaxy support for patient intake, appointment administration, referral tracking, invoicing, recalls and practice workflows.",
     h1: "Keep Halaxy Administration Moving Around Every Patient Visit",
     intro:
-      "A Halaxy VA manages routine patient and practice administration before and after appointments. Clinicians retain responsibility for clinical care, advice and regulated decisions.",
+      "A Halaxy Virtual Assistant manages routine patient and practice administration before and after appointments. Clinicians retain responsibility for clinical care, advice and regulated decisions.",
     focus: "halaxy patient and billing administration",
     workflows: [
       "receive the patient or referral request",
@@ -697,7 +697,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource Power Diary scheduling, patient administration, recalls, billing support, referral tracking and practice workflows.",
     h1: "Keep Your Power Diary Admin Queue Under Control",
     intro:
-      "A Power Diary VA can maintain routine scheduling, records, referral dates, recalls and approved billing workflows. Clinical advice and treatment decisions remain with the qualified practitioner.",
+      "A Power Diary Virtual Assistant can maintain routine scheduling, records, referral dates, recalls and approved billing workflows. Clinical advice and treatment decisions remain with the qualified practitioner.",
     focus: "power diary practice administration",
     workflows: [
       "create the patient profile",
@@ -754,7 +754,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource JobAdder candidate sourcing, CRM cleanup, record enrichment, screening administration and interview scheduling.",
     h1: "Keep JobAdder Filled With Candidates Your Recruiters Can Actually Work",
     intro:
-      "A JobAdder VA can build candidate lists, maintain CRM records and move administrative sourcing workflows forward. Recruiters retain responsibility for candidate assessment, client advice and hiring recommendations.",
+      "A JobAdder Virtual Assistant can build candidate lists, maintain CRM records and move administrative sourcing workflows forward. Recruiters retain responsibility for candidate assessment, client advice and hiring recommendations.",
     focus: "jobadder candidate and crm administration",
     workflows: [
       "receive the approved role brief",
@@ -813,7 +813,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get Bullhorn support for candidate sourcing, database cleanup, record enrichment, outreach administration and interview coordination.",
     h1: "Turn Bullhorn Into a Cleaner, More Usable Candidate Database",
     intro:
-      "A Bullhorn VA handles the repeatable work that keeps candidate and vacancy records usable. Recruiters retain control of assessment, selection and client-facing recruitment advice.",
+      "A Bullhorn Virtual Assistant handles the repeatable work that keeps candidate and vacancy records usable. Recruiters retain control of assessment, selection and client-facing recruitment advice.",
     focus: "bullhorn sourcing and database administration",
     workflows: [
       "review the vacancy brief",
@@ -869,7 +869,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource Vincere sourcing, candidate records, CRM cleanup, pipeline administration and interview scheduling.",
     h1: "Keep Vincere Pipelines Ready for Recruiter Action",
     intro:
-      "A Vincere VA builds and maintains the administrative layer around candidate sourcing and vacancy pipelines. Recruiters keep control of qualification, client advice and placement decisions.",
+      "A Vincere Virtual Assistant builds and maintains the administrative layer around candidate sourcing and vacancy pipelines. Recruiters keep control of qualification, client advice and placement decisions.",
     focus: "vincere candidate pipeline administration",
     workflows: [
       "receive candidate criteria",
@@ -926,7 +926,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource StrataMax records, levy administration, meeting preparation, owner correspondence, arrears workflows and portfolio updates.",
     h1: "Keep StrataMax Portfolios Ready for Meetings, Levies and Follow-Up",
     intro:
-      "A StrataMax VA can maintain routine portfolio records, meeting preparation and authorised follow-up workflows. The local strata manager retains control of regulated decisions, advice and approvals.",
+      "A StrataMax Virtual Assistant can maintain routine portfolio records, meeting preparation and authorised follow-up workflows. The local strata manager retains control of regulated decisions, advice and approvals.",
     focus: "stratamax portfolio administration",
     workflows: [
       "review portfolio deadlines",
@@ -982,7 +982,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get MRI Strata Master support for owner records, meeting administration, levies, arrears workflows and strata portfolio updates.",
     h1: "Keep Strata Master Administration Current Across Every Scheme",
     intro:
-      "A Strata Master VA handles routine production work around records, meetings, correspondence and approved arrears workflows. Local strata professionals remain responsible for management decisions and compliance.",
+      "A Strata Master Virtual Assistant handles routine production work around records, meetings, correspondence and approved arrears workflows. Local strata professionals remain responsible for management decisions and compliance.",
     focus: "strata master portfolio administration",
     workflows: [
       "review scheme records",
@@ -1038,7 +1038,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Outsource SMSF transaction coding, reconciliation, workpapers, document collection and audit-pack production in Simple Fund 360.",
     h1: "Clear More SMSF Production Work in Simple Fund 360",
     intro:
-      "A Simple Fund 360 VA can handle defined production tasks such as coding, reconciliation, document organisation and workpaper preparation. Qualified accountants and auditors retain responsibility for review, advice and compliance decisions.",
+      "A Simple Fund 360 Virtual Assistant can handle defined production tasks such as coding, reconciliation, document organisation and workpaper preparation. Qualified accountants and auditors retain responsibility for review, advice and compliance decisions.",
     focus: "simple fund 360 smsf production",
     workflows: [
       "open the annual fund job",
@@ -1096,7 +1096,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Get Class Super support for SMSF transaction coding, investment reconciliation, workpapers, document collection and audit preparation.",
     h1: "Move More Class Super Funds Through Production Before Review",
     intro:
-      "A Class Super VA can prepare routine accounting production work before the accountant reviews the fund. Professional judgment, tax advice, audit opinions and compliance decisions remain with qualified local professionals.",
+      "A Class Super Virtual Assistant can prepare routine accounting production work before the accountant reviews the fund. Professional judgment, tax advice, audit opinions and compliance decisions remain with qualified local professionals.",
     focus: "class super smsf production",
     workflows: [
       "open the assigned fund",
@@ -1153,7 +1153,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Add Revit production support for model updates, sheets, schedules, families, redlines and BIM documentation.",
     h1: "Add Revit Production Capacity Without Moving Design Authority",
     intro:
-      "A Revit VA can handle clearly documented modeling and drawing production from approved instructions and markups. Architects and engineers retain control of design intent, technical decisions and final approvals.",
+      "A Revit Virtual Assistant can handle clearly documented modeling and drawing production from approved instructions and markups. Architects and engineers retain control of design intent, technical decisions and final approvals.",
     focus: "revit modeling and documentation production",
     workflows: [
       "receive the approved model and markup package",

@@ -73,9 +73,9 @@ function taskGroups(tasks: string[], name: string) {
 }
 
 function complianceNote(slug: string, group: string) {
-  if (slug === "credit-repair-virtual-assistant") return "Use the VA for documented administrative workflows such as intake, CRM updates, document collection, and follow-up. Credit-repair compliance, dispute strategy, representations, and legal obligations remain with the client company and appropriately qualified professionals.";
+  if (slug === "credit-repair-virtual-assistant") return "Use the Virtual Assistant for documented administrative workflows such as intake, CRM updates, document collection, and follow-up. Credit-repair compliance, dispute strategy, representations, and legal obligations remain with the client company and appropriately qualified professionals.";
   if (group === "Healthcare") return "Keep the role non-clinical unless the person is separately qualified and authorized for the work. Your organization remains responsible for privacy, system access, supervision, and clinical or billing compliance.";
-  if (group === "Legal") return "Use the VA for supervised administrative and support work. Legal advice, attorney judgment, privileged strategy, and work reserved to licensed professionals remain with qualified counsel. Define confidentiality, access, supervision, and jurisdiction-specific boundaries before onboarding.";
+  if (group === "Legal") return "Use the Virtual Assistant for supervised administrative and support work. Legal advice, attorney judgment, privileged strategy, and work reserved to licensed professionals remain with qualified counsel. Define confidentiality, access, supervision, and jurisdiction-specific boundaries before onboarding.";
   if (group === "Finance & Insurance") return "Define which activities require a license, certification, approval, or local supervision. The client organization remains responsible for regulated advice, compliance, access controls, and final review.";
   return null;
 }
@@ -102,12 +102,12 @@ function experienceCopy(s: ServiceSeoPage) {
   return {
     hero: "Hire a Philippines-based law firm virtual assistant to keep client intake, matter setup, calendars, document organization, billing administration, case-management updates, and client follow-up moving. Compare approved candidates by legal workflow experience, tools, schedule, and communication before you interview.",
     panelTitle: "Keep routine legal operations moving without pulling attorneys into every admin task.",
-    talentTitle: "Review law firm VAs with relevant workflow experience",
+    talentTitle: "Review law firm Virtual Assistants with relevant workflow experience",
     talentIntro: "Compare approved candidates by law firm experience, case-management tools, availability, communication, and the type of work they have supported.",
     responsibilityTitle: "What can a law firm virtual assistant take off your team’s plate?",
-    responsibilityIntro: "A law firm VA can own repeatable administrative work around intake, matters, calendars, documents, billing support, and client follow-up while attorneys retain legal judgment and privileged strategy.",
+    responsibilityIntro: "A law firm Virtual Assistant can own repeatable administrative work around intake, matters, calendars, documents, billing support, and client follow-up while attorneys retain legal judgment and privileged strategy.",
     toolsTitle: "Look for legal workflow fluency, confidentiality, and strong follow-through.",
-    fitTitle: "Where a law firm VA can create the most leverage",
+    fitTitle: "Where a law firm Virtual Assistant can create the most leverage",
     fitIntro: "The best scope depends on your practice area, case volume, intake process, case-management system, client response standards, and what must stay with attorneys or paralegals.",
     finalTitle: "Give your law firm’s recurring admin work a clear owner.",
     finalBody: "Tell us your practice area, intake flow, case-management tools, hours, and the work you want to delegate. We will use the role brief to help you compare relevant Philippines-based talent."
@@ -142,22 +142,22 @@ function serviceEditorial(s: ServiceSeoPage) {
   const role = roleName(s.name).toLowerCase();
   const groupNotes: Record<string, { operating: string; quality: string; handoff: string }> = {
     "Marketing & Growth": {
-      operating: "Give the VA a written brief, a source of truth for brand and campaign rules, and a clear review cadence. Marketing work gets messy when drafts, approvals, tracking links, and reporting live in different places.",
+      operating: "Give the Virtual Assistant a written brief, a source of truth for brand and campaign rules, and a clear review cadence. Marketing work gets messy when drafts, approvals, tracking links, and reporting live in different places.",
       quality: "Check accuracy before volume. Good work should match the brief, use the right source data, preserve brand standards, and leave enough documentation for someone else to understand what changed and why.",
       handoff: "Keep positioning, budget changes, claims, final publishing approval, and material strategy decisions with the accountable marketer unless you have explicitly delegated them."
     },
     "Healthcare": {
-      operating: "Design the role around a documented non-clinical workflow. Limit access to the minimum systems and records needed, define how patient information is handled, and make escalation rules explicit before the VA starts.",
+      operating: "Design the role around a documented non-clinical workflow. Limit access to the minimum systems and records needed, define how patient information is handled, and make escalation rules explicit before the Virtual Assistant starts.",
       quality: "Accuracy, privacy, timestamps, and complete notes matter more than raw speed. Spot-check records and calls early so errors do not compound across scheduling, billing, referrals, or follow-up.",
       handoff: "Clinical judgment, diagnosis, treatment advice, controlled decisions, and work reserved for licensed professionals stay with the appropriate clinician or qualified staff member."
     },
     "Legal": {
-      operating: "Map the administrative workflow by matter stage: intake, conflict or eligibility checks handled by the firm, file setup, deadlines, documents, client follow-up, billing support, and closure. The VA should always know which system is the source of truth.",
+      operating: "Map the administrative workflow by matter stage: intake, conflict or eligibility checks handled by the firm, file setup, deadlines, documents, client follow-up, billing support, and closure. The Virtual Assistant should always know which system is the source of truth.",
       quality: "Legal support needs disciplined naming, dates, version control, confidentiality, and clean handoffs. Review a sample of matters closely during onboarding before expanding access or independence.",
       handoff: "Legal advice, legal strategy, privileged judgment, signing authority, and work reserved to attorneys or licensed professionals remain with qualified counsel."
     },
     "Finance & Accounting": {
-      operating: "Separate data preparation from approval. The VA can gather source documents, update systems, reconcile records, flag exceptions, and prepare work for review while the client keeps control of approvals and financial authority.",
+      operating: "Separate data preparation from approval. The Virtual Assistant can gather source documents, update systems, reconcile records, flag exceptions, and prepare work for review while the client keeps control of approvals and financial authority.",
       quality: "A good finance workflow has traceable source documents, clear cut-off dates, reconciliation checks, and an exception list. If a number cannot be tied back to a source, it should be flagged rather than guessed.",
       handoff: "Payments, bank authority, tax positions, final journal approval, financial advice, and other controlled decisions should stay with the client or appropriately qualified professional."
     },
@@ -177,12 +177,12 @@ function serviceEditorial(s: ServiceSeoPage) {
       handoff: "Credit decisions, lending advice, formal approvals, regulated disclosures, and activity requiring a license remain with authorized staff and lenders."
     },
     "Ecommerce": {
-      operating: "Treat the store, help desk, and inventory system as connected sources of truth. Define which orders or listings the VA may resolve independently and which exceptions need a manager before a customer promise is made.",
+      operating: "Treat the store, help desk, and inventory system as connected sources of truth. Define which orders or listings the Virtual Assistant may resolve independently and which exceptions need a manager before a customer promise is made.",
       quality: "Watch order accuracy, SKU and listing details, response time, refund or replacement reasons, and unresolved exceptions. Ecommerce errors spread quickly when a wrong field is copied across products or channels.",
       handoff: "Pricing strategy, material refunds, supplier commitments, account ownership, and changes with margin or policy impact should follow the client’s approval rules."
     },
     "Sales & CRM": {
-      operating: "Start with clean pipeline stages and a written definition of what qualifies as a lead, opportunity, booked appointment, or closed outcome. The VA should update the CRM as the work happens, not at the end of the week.",
+      operating: "Start with clean pipeline stages and a written definition of what qualifies as a lead, opportunity, booked appointment, or closed outcome. The Virtual Assistant should update the CRM as the work happens, not at the end of the week.",
       quality: "Review contact accuracy, duplicate handling, activity notes, follow-up dates, disposition codes, and handoff quality. A busy pipeline is not useful if nobody can trust its data.",
       handoff: "Commercial terms, discounts, binding commitments, sensitive negotiations, and exceptions outside the approved script or process stay with the sales owner."
     },
@@ -192,22 +192,22 @@ function serviceEditorial(s: ServiceSeoPage) {
       handoff: "Licensed representation, negotiations, trust-account activity, legal interpretations, and decisions reserved to agents, brokers, property managers, or other licensed professionals remain with them."
     },
     "Home Services": {
-      operating: "Build the VA’s day around the service board: new enquiries, booked jobs, technician or crew schedules, quotes awaiting action, parts or document follow-up, and completed work that still needs invoicing or customer contact.",
+      operating: "Build the Virtual Assistant’s day around the service board: new enquiries, booked jobs, technician or crew schedules, quotes awaiting action, parts or document follow-up, and completed work that still needs invoicing or customer contact.",
       quality: "Address, contact details, job scope, appointment windows, status codes, and customer notes need to be correct. A small scheduling error can waste a field team’s time, so use confirmation steps for changes.",
       handoff: "Technical diagnosis, site safety, trade decisions, final estimates, and commitments outside approved pricing or service rules stay with qualified field staff or managers."
     },
     "Creative & Content": {
-      operating: "Give the VA a usable brief: audience, objective, examples, format, deadline, source material, and who approves the final work. Keep feedback in one place so revisions do not become a chain of conflicting messages.",
+      operating: "Give the Virtual Assistant a usable brief: audience, objective, examples, format, deadline, source material, and who approves the final work. Keep feedback in one place so revisions do not become a chain of conflicting messages.",
       quality: "Review factual accuracy, brand consistency, file specifications, naming, version control, and whether the work answers the brief. A polished asset that solves the wrong problem is still a miss.",
       handoff: "Final brand direction, sensitive claims, rights clearance, major creative changes, and publishing decisions should follow the client’s approval process."
     },
     "Technology & Web": {
-      operating: "Use tickets or a documented backlog with acceptance criteria, environment details, access boundaries, and a rollback path. Avoid handing over broad production access before the VA has shown how they work in a controlled environment.",
+      operating: "Use tickets or a documented backlog with acceptance criteria, environment details, access boundaries, and a rollback path. Avoid handing over broad production access before the Virtual Assistant has shown how they work in a controlled environment.",
       quality: "Require reproducible steps, testing notes, screenshots or logs where useful, and a record of what changed. Technical work should be reviewable by someone other than the person who performed it.",
       handoff: "Production credentials, security-sensitive changes, architecture decisions, destructive actions, and releases with material business risk should follow explicit approval and access controls."
     },
     "Customer & Front Desk": {
-      operating: "Give the VA a response guide, escalation matrix, opening hours, identity-verification rules where needed, and a reliable way to see customer history. Front-desk work breaks down when context is scattered.",
+      operating: "Give the Virtual Assistant a response guide, escalation matrix, opening hours, identity-verification rules where needed, and a reliable way to see customer history. Front-desk work breaks down when context is scattered.",
       quality: "Review response time, note quality, correct routing, promised follow-up, and whether issues are actually closed. Fast replies do not help if customers have to repeat themselves later.",
       handoff: "Refund exceptions, legal or safety complaints, sensitive account changes, and commitments outside approved policy should move to the designated manager."
     },
@@ -232,12 +232,12 @@ function serviceEditorial(s: ServiceSeoPage) {
       handoff: "Safety incidents, major refunds, disputes, pricing exceptions, property emergencies, and commitments outside the approved playbook should escalate to the owner or manager."
     },
     "Executive Support": {
-      operating: "Agree on priorities, calendar rules, inbox triage, meeting standards, and what the VA can decide without asking. Executive support improves quickly when preferences are written down instead of rediscovered every day.",
+      operating: "Agree on priorities, calendar rules, inbox triage, meeting standards, and what the Virtual Assistant can decide without asking. Executive support improves quickly when preferences are written down instead of rediscovered every day.",
       quality: "Check calendar conflicts, context in meeting notes, completeness of follow-up, confidentiality, and whether important items are surfaced early. The goal is fewer surprises, not simply fewer emails.",
       handoff: "Sensitive personnel matters, strategic commitments, legal or financial approvals, and messages that require the executive’s judgment stay with the executive unless specifically delegated."
     },
     "Admin & Operations": {
-      operating: "Turn recurring work into a visible queue with an owner, due date, source of truth, and definition of done. The VA should not need to chase the manager for routine context that can live in an SOP or checklist.",
+      operating: "Turn recurring work into a visible queue with an owner, due date, source of truth, and definition of done. The Virtual Assistant should not need to chase the manager for routine context that can live in an SOP or checklist.",
       quality: "Look for clean records, complete notes, correct dates, sensible file organization, and a clear exception list. Good admin work makes the next person’s job easier.",
       handoff: "Approvals, sensitive financial actions, policy exceptions, and decisions with material customer, legal, or operational risk should remain with the accountable manager."
     }
@@ -247,8 +247,8 @@ function serviceEditorial(s: ServiceSeoPage) {
     operating: note.operating,
     quality: note.quality,
     handoff: note.handoff,
-    weekOne: `Start with ${tasks[0]}, ${tasks[1]}, and ${tasks[2]}. Give the VA examples of good completed work, access only to the systems needed for those tasks, and a short daily check-in while the process is still new.`,
-    weekTwo: `Once the basics are consistent, add ${tasks[3] || tasks[0]} and ${tasks[4] || tasks[1]}. Ask the VA to document recurring questions and turn repeat answers into a checklist or SOP instead of relying on chat history.`,
+    weekOne: `Start with ${tasks[0]}, ${tasks[1]}, and ${tasks[2]}. Give the Virtual Assistant examples of good completed work, access only to the systems needed for those tasks, and a short daily check-in while the process is still new.`,
+    weekTwo: `Once the basics are consistent, add ${tasks[3] || tasks[0]} and ${tasks[4] || tasks[1]}. Ask the Virtual Assistant to document recurring questions and turn repeat answers into a checklist or SOP instead of relying on chat history.`,
     monthOne: `By the end of the first month you should be judging this role by ${outcomes[0] ? outcomes[0].toLowerCase() : "the agreed outputs"} rather than by supervision: ${tasks[0]} running to schedule, exceptions recorded instead of hidden, and a short list of decisions still waiting on you.`,
     evidence: [
       `A real example of ${tasks[0]} and how accuracy was checked`,
@@ -261,7 +261,7 @@ function serviceEditorial(s: ServiceSeoPage) {
       `Do not hand over full ${tools[0]} access on day one. Give the minimum permissions ${tasks[0]} actually needs, and widen it as the work proves out.`,
       `Do not judge this role on activity counts. For ${role} work, accuracy on ${tasks[1]} and the state of unresolved exceptions matter far more than hours logged.`
     ],
-    context: `For ${s.bestFor.slice(0, 2).join(" and ")}, the strongest ${role} setup is usually a defined operating role rather than a loose list of errands. The client owns the process and decisions; the VA owns the recurring execution that has been clearly delegated.`,
+    context: `For ${s.bestFor.slice(0, 2).join(" and ")}, the strongest ${role} setup is usually a defined operating role rather than a loose list of errands. The client owns the process and decisions; the Virtual Assistant owns the recurring execution that has been clearly delegated.`,
     scorecard: [
       `${toTitle(tasks[0])}: completed on time, with exceptions recorded instead of hidden`,
       `${toTitle(tasks[1])}: accuracy or rework rate based on a sample the manager actually reviews`,
@@ -431,7 +431,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
               </div>
 
               <div className="service-hero-secondary-actions">
-                <a className="btn btn-lg" href="#talent" data-track={`service_${s.slug.replaceAll("-", "_")}_browse`}>Browse {roleName(s.name)} VAs <ArrowRight size={15}/></a>
+                <a className="btn btn-lg" href="#talent" data-track={`service_${s.slug.replaceAll("-", "_")}_browse`}>Browse {roleName(s.name)} Virtual Assistants <ArrowRight size={15}/></a>
                 <a className="text-link" href="#responsibilities">See what you can delegate</a>
               </div>
             </div>
@@ -486,8 +486,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
                 </div>
               </article>)}
             </div>
-            <div className="service-talent-closer"><span>Want us to narrow the list for you?</span><a className="text-link" href="#match-request">Get a managed VA <ArrowRight size={14}/></a></div>
-          </> : <div className="service-empty-state"><div><Search size={28}/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Get matched and give us the workload, hours, and workflow context so we can identify relevant approved talent.</p></div></div><a className="btn btn-primary" href="#match-request">Get a managed VA <ArrowRight size={15}/></a></div>}
+            <div className="service-talent-closer"><span>Want us to narrow the list for you?</span><a className="text-link" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={14}/></a></div>
+          </> : <div className="service-empty-state"><div><Search size={28}/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Get matched and give us the workload, hours, and workflow context so we can identify relevant approved talent.</p></div></div><a className="btn btn-primary" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={15}/></a></div>}
         </div>
       </section>
 
@@ -507,7 +507,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <div className="container">
           <div className="section-head specialty-section-head"><div className="kicker">Responsibilities</div><h2>{copy.responsibilityTitle}</h2><p>{copy.responsibilityIntro}</p></div>
           <div className="seo-task-grid">{groups.map((group, index) => <article className="service-task-card" key={group.title}><div className="service-card-number">0{index + 1}</div><h3>{group.title}</h3><p>{group.intro}</p><ul className="plain-list">{group.tasks.map((task) => <li key={task}>{toTitle(task)}</li>)}</ul></article>)}</div>
-          <div className="specialty-inline-cta service-inline-cta"><div><div className="kicker">Not sure what to delegate?</div><h2>Start with the work that repeats every week.</h2><p>List the recurring tasks, bottlenecks, tools, response times, and approvals. That is usually enough to define the first version of the role.</p></div><a className="btn btn-primary" href="#match-request">Get a managed VA <ArrowRight size={15}/></a></div>
+          <div className="specialty-inline-cta service-inline-cta"><div><div className="kicker">Not sure what to delegate?</div><h2>Start with the work that repeats every week.</h2><p>List the recurring tasks, bottlenecks, tools, response times, and approvals. That is usually enough to define the first version of the role.</p></div><a className="btn btn-primary" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={15}/></a></div>
         </div>
       </section>
 
@@ -578,7 +578,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       <section className="section section-white">
         <div className="container">
           <div className="section-head specialty-section-head"><div className="kicker">Write the role first</div><h2>What to include in your {s.name.toLowerCase()} job brief</h2><p>A clear role brief makes candidate comparison easier because everyone is being evaluated against the same work, systems, schedule, and decision boundaries.</p></div>
-          <div className="brief-grid"><article><span>01</span><h3>Responsibilities</h3><p>List recurring tasks and the result the VA should own. Separate daily, weekly, and occasional work.</p></article><article><span>02</span><h3>Tools and access</h3><p>Name the systems used from week one and decide which permissions can be granted safely after onboarding.</p></article><article><span>03</span><h3>Hours and overlap</h3><p>State weekly hours, timezone, required live coverage, response expectations, and whether the schedule is fixed or flexible.</p></article><article><span>04</span><h3>Decision boundaries</h3><p>Explain what the VA may handle independently, what needs approval, and what should be escalated immediately.</p></article></div>
+          <div className="brief-grid"><article><span>01</span><h3>Responsibilities</h3><p>List recurring tasks and the result the Virtual Assistant should own. Separate daily, weekly, and occasional work.</p></article><article><span>02</span><h3>Tools and access</h3><p>Name the systems used from week one and decide which permissions can be granted safely after onboarding.</p></article><article><span>03</span><h3>Hours and overlap</h3><p>State weekly hours, timezone, required live coverage, response expectations, and whether the schedule is fixed or flexible.</p></article><article><span>04</span><h3>Decision boundaries</h3><p>Explain what the Virtual Assistant may handle independently, what needs approval, and what should be escalated immediately.</p></article></div>
         </div>
       </section>
 
@@ -586,13 +586,13 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <div className="container">
           <div className="section-head specialty-section-head"><div className="kicker">Hiring process</div><h2>How to hire {article} {s.name.toLowerCase()} in the Philippines</h2><p>Define the work first, then test candidates on the evidence and judgment that matter for that exact scope.</p></div>
           <div className="process-grid four-step-process service-process"><div className="process-step"><div className="process-number">01</div><h3>Define the work</h3><p className="muted">Document responsibilities, tools, hours, budget, schedule, and the result the person should own.</p></div><div className="process-step"><div className="process-number">02</div><h3>Review relevant talent</h3><p className="muted">Compare role experience, tools, communication, schedule, and work evidence rather than broad profile claims.</p></div><div className="process-step"><div className="process-number">03</div><h3>Interview with real scenarios</h3><p className="muted">Use examples from your workflow to understand process, quality checks, judgment, and limits.</p></div><div className="process-step"><div className="process-number">04</div><h3>Confirm the hire</h3><p className="muted">Agree on final rate, start date, hours, responsibilities, reporting, and onboarding before work begins.</p></div></div>
-          <div className="centered-actions"><a className="btn btn-primary btn-lg" href="#match-request">Get a managed VA <ArrowRight size={16}/></a></div>
+          <div className="centered-actions"><a className="btn btn-primary btn-lg" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={16}/></a></div>
         </div>
       </section>
 
       <section className="section section-white">
         <div className="container public-content-grid service-context-grid">
-          <div><div className="section-head"><div className="kicker">Why the Philippines?</div><h2>Hire for role fit, communication, and execution quality.</h2></div><p>Philippines-based remote professionals work across international teams and common cloud tools, but location alone does not guarantee fit. Evaluate relevant experience, communication, work evidence, schedule, and judgment for the workflow you need.</p><p>VirtualAssistant.com.ph gives you a structured path from private role brief to approved profiles, candidate review, interview, and confirmed hiring terms.</p><Link className="text-link" href="/how-vetting-works">See how VAs are vetted <ArrowRight size={14}/></Link></div>
+          <div><div className="section-head"><div className="kicker">Why the Philippines?</div><h2>Hire for role fit, communication, and execution quality.</h2></div><p>Philippines-based remote professionals work across international teams and common cloud tools, but location alone does not guarantee fit. Evaluate relevant experience, communication, work evidence, schedule, and judgment for the workflow you need.</p><p>VirtualAssistant.com.ph gives you a structured path from private role brief to approved profiles, candidate review, interview, and confirmed hiring terms.</p><Link className="text-link" href="/how-vetting-works">See how Virtual Assistants are vetted <ArrowRight size={14}/></Link></div>
           <aside className="service-cost-panel"><CircleDollarSign size={22}/><div className="kicker">Cost and scope</div><h2>How much does {article} {s.name.toLowerCase()} cost?</h2><p>There is no single rate for this role. What moves the number for {article} {s.name.toLowerCase()} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p><ul className="plain-list">{costFactorsFor(s).map((factor) => <li key={factor}>{factor}</li>)}</ul><Link className="text-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link></aside>
         </div>
       </section>

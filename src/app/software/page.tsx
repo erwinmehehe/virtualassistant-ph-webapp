@@ -18,7 +18,7 @@ export default function SoftwareIndexPage() {
     <section className="section public-hero-small"><div className="container"><div className="public-page-head">
       <h1 className="public-page-title">Hire a virtual assistant who already knows your software.</h1>
       <p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>
-      <div className="hero-actions" style={{ marginTop: 24 }}><Link className="btn btn-primary btn-lg" href="/hire">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse VA services</Link></div>
+      <div className="hero-actions" style={{ marginTop: 24 }}><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></div>
     </div></div></section>
     <section className="section"><div className="container">
       <div className="section-head"><h2>Choose the platform your team runs on.</h2><p>Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority.</p></div>

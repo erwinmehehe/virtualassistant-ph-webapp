@@ -10,6 +10,7 @@ const fixedEvents = new Set([
   "featured_profile_view",
   "final_role_brief",
   "header_hire_va",
+  "header_hire_virtual_assistant",
   "hero_browse_talent",
   "hero_role_brief",
   "job_apply",

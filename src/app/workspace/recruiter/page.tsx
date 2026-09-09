@@ -17,7 +17,7 @@ export default async function RecruiterDashboard(){
     admin.from("jobs").select("id",{count:"exact",head:true}).in("status",["pending","published"]),
     admin.from("applications").select("id",{count:"exact",head:true}).eq("status","new"),
     admin.from("messages").select("id",{count:"exact",head:true}).is("read_at",null),
-    admin.from("lead_intake").select("id,created_at,crm_stage,first_contact_at,next_follow_up_at,estimated_value_usd",{count:"exact"}).not("crm_stage","in","(won,lost)").order("created_at",{ascending:false}).limit(500),
+    admin.from("lead_intake").select("id,created_at,crm_stage,first_contact_at,next_follow_up_at,estimated_value_usd,discovery_scheduled_at,discovery_completed_at",{count:"exact"}).not("crm_stage","in","(won,lost)").order("created_at",{ascending:false}).limit(500),
     admin.from("jobs").select("id,title,company_name,status,created_at").in("status",["pending","published"]).order("created_at",{ascending:false}).limit(100),
     admin.from("job_shortlist_candidates").select("id",{count:"exact",head:true}).eq("shortlist_status","released")
   ]);
@@ -39,10 +39,20 @@ export default async function RecruiterDashboard(){
   const untouchedLeadCount=openLeads.filter((lead:any)=>(lead.crm_stage||"new")==="new"&&!lead.first_contact_at).length;
   const followUpsDue=openLeads.filter((lead:any)=>lead.next_follow_up_at&&new Date(lead.next_follow_up_at).getTime()<=Date.now()).length;
   const openPipelineValue=openLeads.reduce((sum:number,lead:any)=>sum+Number(lead.estimated_value_usd||0),0);
+  const manilaShift=8*60*60*1000;
+  const manilaNow=new Date(Date.now()+manilaShift);
+  const todayStart=Date.UTC(manilaNow.getUTCFullYear(),manilaNow.getUTCMonth(),manilaNow.getUTCDate())-manilaShift;
+  const dayAfterTomorrow=todayStart+2*86400000;
+  const discoveryNextTwoDays=openLeads.filter((lead:any)=>{
+    if(!lead.discovery_scheduled_at||lead.discovery_completed_at)return false;
+    const at=new Date(lead.discovery_scheduled_at).getTime();
+    return at>=Date.now()-60*60000&&at<dayAfterTomorrow;
+  }).length;
 
   const cards=[
     ["Client leads needing first contact",untouchedLeadCount,"/workspace/recruiter/leads?view=attention",Mail,"Revenue first: reply before the prospect keeps shopping"],
     ["Client follow-ups due",followUpsDue,"/workspace/recruiter/leads?view=attention",Mail,"No opportunity should depend on someone remembering to follow up"],
+    ["Discovery calls today / tomorrow",discoveryNextTwoDays,"/workspace/recruiter/leads?view=discovery",BriefcaseBusiness,"Prep the call, qualify the need, and send the proposal while intent is high"],
     ["VAs waiting for your review",unreviewedRes.count||0,"/workspace/recruiter/queue",ClipboardList,"Candidates waiting for screening"],
     ["Incomplete profiles",incompleteRes.count||0,"/workspace/recruiter/talent?readiness=incomplete",AlertCircle,"Missing details clients need before hiring"],
     ["Waiting for your approval",readyRes.count||0,"/workspace/recruiter/talent?readiness=ready",UserRoundCheck,"Profile 80%+ complete, with a photo"],
@@ -56,6 +66,7 @@ export default async function RecruiterDashboard(){
   const today=[
     {priority:"urgent",title:"Client leads need first contact",count:untouchedLeadCount,copy:"Reply first. The CRM tracks a 30-minute first-response target.",href:"/workspace/recruiter/leads?view=attention"},
     {priority:"urgent",title:"Client follow-ups are due",count:followUpsDue,copy:"Open overdue follow-ups before working lower-value queues.",href:"/workspace/recruiter/leads?view=attention"},
+    {priority:"high",title:"Discovery calls today / tomorrow",count:discoveryNextTwoDays,copy:"Review the brief before the call, qualify the client, then send the proposal while intent is high.",href:"/workspace/recruiter/leads?view=discovery"},
     {priority:"urgent",title:"New client roles",count:(jobsRes.data||[]).filter((job:any)=>job.status==="pending").length,copy:"Review submitted hiring briefs, confirm terms, and begin matching.",href:"/workspace/recruiter/matching"},
     {priority:"high",title:"Roles waiting for candidates",count:noCandidates.length,copy:"Open the role and work from the recommended candidate list.",href:"/workspace/recruiter/matching?view=needs_candidates"},
     {priority:"medium",title:"Vetted VAs not yet listed",count:vettedHiddenRes.count||0,copy:"Screening is done but the profile is incomplete. Send a reminder naming what is missing.",href:"/workspace/recruiter/talent?readiness=vetted_hidden"},

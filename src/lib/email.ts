@@ -344,3 +344,48 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
   }, "profile_completion_reminder");
   return { sent: true as const };
 }
+
+
+export async function sendDiscoveryBookingEmail(args: {
+  to?: string | null;
+  clientName?: string | null;
+  scheduledLabel: string;
+  durationMinutes: number;
+  meetingUrl?: string | null;
+  recruiterName?: string | null;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
+  const meeting = args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join discovery call</a></p>` : "";
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: `Discovery call booked — ${args.scheduledLabel}`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your discovery call with VirtualAssistant.com.ph is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p>We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>${meeting}<p>Regards,<br>${escapeHtml(args.recruiterName || "VirtualAssistant.com.ph hiring team")}</p>`
+  }, "discovery_booking");
+  return { sent: true as const };
+}
+
+export async function sendLeadProposalEmail(args: {
+  to?: string | null;
+  clientName?: string | null;
+  roleTitle: string;
+  proposalUrl: string;
+  expiresLabel?: string | null;
+  recruiterName?: string | null;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
+  const expiry = args.expiresLabel ? `<p class="small">This proposal is valid until ${escapeHtml(args.expiresLabel)}.</p>` : "";
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: `Your Virtual Assistant proposal — ${args.roleTitle}`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Based on our conversation, your VirtualAssistant.com.ph proposal for <strong>${escapeHtml(args.roleTitle)}</strong> is ready.</p><p>You can review the role, expected Virtual Assistant compensation, service fee, and next steps on one page.</p><p><a href="${escapeHtml(args.proposalUrl)}">Review and accept proposal</a></p>${expiry}<p>Regards,<br>${escapeHtml(args.recruiterName || "VirtualAssistant.com.ph hiring team")}</p>`
+  }, "client_proposal");
+  return { sent: true as const };
+}

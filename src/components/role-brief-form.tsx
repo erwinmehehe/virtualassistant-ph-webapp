@@ -59,7 +59,7 @@ export function RoleBriefForm({
       </div>
 
       <div className="field"><label htmlFor="rb-email">Work email *</label><input id="rb-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
-      <div className="field"><label htmlFor="rb-message">What should this VA own? *</label><textarea id="rb-message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience, for example inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
+      <div className="field"><label htmlFor="rb-message">What should this Virtual Assistant own? *</label><textarea id="rb-message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience, for example inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
 
       <details className="hire-optional-details">
         <summary>Add name &amp; company <span>(optional)</span></summary>

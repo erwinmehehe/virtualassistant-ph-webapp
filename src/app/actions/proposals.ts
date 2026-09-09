@@ -79,11 +79,6 @@ export async function createAndSendProposalAction(formData: FormData) {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + expiresDays * 86400000);
 
-  await admin.from("lead_proposals")
-    .update({ status: "expired", updated_at: now.toISOString() })
-    .eq("lead_id", leadId)
-    .eq("status", "sent");
-
   const { data: proposal, error } = await admin.from("lead_proposals").insert({
     lead_id: leadId,
     status: "draft",
@@ -116,8 +111,13 @@ export async function createAndSendProposalAction(formData: FormData) {
   });
 
   if (!emailResult.sent) {
-    return fail("The proposal was saved as a draft, but the email could not be sent. Check email configuration and try again.");
+    return fail("The proposal was saved as a draft, but the email could not be sent. The previous live proposal, if any, was left unchanged.");
   }
+
+  await admin.from("lead_proposals")
+    .update({ status: "expired", updated_at: now.toISOString() })
+    .eq("lead_id", leadId)
+    .eq("status", "sent");
 
   await admin.from("lead_proposals").update({
     status: "sent",

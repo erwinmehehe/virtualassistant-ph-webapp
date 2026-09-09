@@ -117,7 +117,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                           <input type="hidden" name="lead_id" value={lead.id}/>
                           <input type="hidden" name="return_to" value="/workspace/recruiter/leads"/>
                           <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-                          <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${String(lead.name||"there").trim().split(/\s+/)[0]||"there"},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the role, priorities, and next step for your role.`}/></div>
+                          <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${String(lead.name||"there").trim().split(/\s+/)[0]||"there"},\n\nThanks for your VirtualAssistant.com.ph request. I am following up so we can confirm the priorities and agree the best next step.`}/></div>
                           <button className="btn btn-primary" type="submit">Send and log email</button>
                         </form>
                       </details>

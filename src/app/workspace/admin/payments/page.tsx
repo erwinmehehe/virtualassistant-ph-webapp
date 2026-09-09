@@ -20,7 +20,7 @@ export default async function AdminPaymentsPage() {
   await requireRole("admin");
   const admin = createAdminClient();
   const [{ data: payments }, { data: workrooms }] = await Promise.all([
-    admin.from("payments").select("id,description,amount_total,currency,status,paid_at,released_at,created_at,client_id,va_id,workroom_id,dispute_reason,dispute_resolution,provider_payment_intent,profiles_client:profiles!payments_client_id_fkey(full_name),profiles_va:profiles!payments_va_id_fkey(full_name)").order("created_at", { ascending: false }).limit(100),
+    admin.from("payments").select("id,description,amount_total,currency,status,paid_at,released_at,created_at,client_id,va_id,workroom_id,dispute_reason,dispute_resolution,provider_payment_id,profiles_client:profiles!payments_client_id_fkey(full_name),profiles_va:profiles!payments_va_id_fkey(full_name)").order("created_at", { ascending: false }).limit(100),
     admin.from("workrooms").select("id,job_id,client_id,va_id,jobs(title),client:profiles!workrooms_client_id_fkey(full_name),va:profiles!workrooms_va_id_fkey(full_name)").eq("status", "active").order("created_at", { ascending: false }).limit(50)
   ]);
 
@@ -83,10 +83,10 @@ export default async function AdminPaymentsPage() {
                 <form action={resolveDisputeRefundAction} className="row wrap">
                   <input type="hidden" name="payment_id" value={p.id}/>
                   <input name="resolution_note" placeholder="Refund note" style={{ minWidth: 200 }}/>
-                  <button className="btn btn-sm" type="submit" style={{ color: "var(--danger)", borderColor: "var(--danger)" }} disabled={!p.provider_payment_intent}>Refund client</button>
+                  <button className="btn btn-sm" type="submit" style={{ color: "var(--danger)", borderColor: "var(--danger)" }} disabled={!p.provider_payment_id}>Refund client</button>
                 </form>
               </div>
-              {!p.provider_payment_intent ? <div className="small muted" style={{ marginTop: 6 }}>No Stripe payment on file &mdash; refund manually and mark void instead.</div> : null}
+              {!p.provider_payment_id ? <div className="small muted" style={{ marginTop: 6 }}>No PayMongo payment resource on file &mdash; refund manually and mark void instead.</div> : null}
             </div>
           ) : null}
           {p.status === "released" && p.release_note ? <div className="small muted" style={{ marginTop: 8 }}>Payout reference: {p.release_note}</div> : null}

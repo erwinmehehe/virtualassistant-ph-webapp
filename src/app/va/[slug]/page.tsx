@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Award, ArrowLeft, CheckCircle2, Clock3, EyeOff, Globe2, Heart, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { Award, ArrowLeft, CheckCircle2, Clock3, EyeOff, Globe2, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
 import { createClient } from "@/lib/supabase/server";
-import { getSessionProfile } from "@/lib/auth";
 import { PUBLIC_VA_MIN_EXPERIENCE, isUuid, publicDisplayName } from "@/lib/public-routing";
 import { dateShort } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
-import { toggleSavedVaAction } from "@/app/actions/saved-vas";
 import { canonicalPath } from "@/lib/seo-url";
 
 async function getPublicVaByRoute(slug: string, fields = "*") {
@@ -52,17 +50,10 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
     if (process.env.NODE_ENV !== "production") console.warn("[va/[slug]] Supabase unavailable:", (err as Error).message);
     notFound();
   }
-  const { user, profile } = await getSessionProfile();
-  let isSaved = false;
-  if (user && profile?.role === "client") {
-    const supabase = await createClient();
-    const { data: savedRow } = await supabase.from("saved_vas").select("va_id").eq("client_id",user.id).eq("va_id",va.user_id).maybeSingle();
-    isSaved = Boolean(savedRow);
-  }
   const reviews = publicReviews || [];
   const averageRating = reviews.length ? reviews.reduce((sum:any, review:any) => sum + Number(review.rating || 0), 0) / reviews.length : 0;
   const displayName = publicDisplayName(va.full_name);
-  const requestHref = profile?.role === "client" ? `/workspace/client?talent=${encodeURIComponent(slug)}` : `/hire?talent=${encodeURIComponent(slug)}`;
+  const requestHref = `/hire?talent=${encodeURIComponent(slug)}`;
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const personJsonLd = {
     "@context": "https://schema.org",
@@ -115,7 +106,7 @@ export default async function TalentProfilePage({ params }: { params: Promise<{s
         </article>
 
         <aside className="public-talent-sidebar">
-          <div className="public-talent-action-card"><div className="public-talent-action-head"><span>Working fit</span><strong>{va.primary_category || "Virtual Assistant"}</strong></div><div className="public-fit-grid"><div><span>Experience</span><strong>{va.years_experience}+ years</strong></div><div><span>Availability</span><strong>{va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</strong></div><div><span>Schedule</span><strong>{va.schedule || "Flexible"}</strong></div><div><span>Live overlap</span><strong>{va.overlap_hours != null ? `Up to ${va.overlap_hours} hrs/day` : "Flexible"}</strong></div>{va.hourly_rate ? <div className="public-rate-row"><span>Preferred rate</span><strong>${Number(va.hourly_rate).toFixed(2)}/hr</strong></div> : null}</div><div className="public-talent-cta-copy"><Sparkles size={17}/><div><strong>Interested in {displayName}?</strong><span>Attach this profile to your private hiring request. We will confirm current availability and role fit.</span></div></div><Link className="btn btn-primary btn-lg" href={requestHref}>Request an introduction</Link>{profile?.role === "client" ? <form action={toggleSavedVaAction}><input type="hidden" name="va_id" value={va.user_id}/><input type="hidden" name="return_to" value={`/va/${va.slug || slug}`}/><button className="btn" type="submit"><Heart size={15}/>{isSaved?" Remove from saved VAs":" Save VA"}</button></form> : null}<Link className="btn" href="/find-talent">Compare other VAs</Link></div>
+          <div className="public-talent-action-card"><div className="public-talent-action-head"><span>Working fit</span><strong>{va.primary_category || "Virtual Assistant"}</strong></div><div className="public-fit-grid"><div><span>Experience</span><strong>{va.years_experience}+ years</strong></div><div><span>Availability</span><strong>{va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</strong></div><div><span>Schedule</span><strong>{va.schedule || "Flexible"}</strong></div><div><span>Live overlap</span><strong>{va.overlap_hours != null ? `Up to ${va.overlap_hours} hrs/day` : "Flexible"}</strong></div>{va.hourly_rate ? <div className="public-rate-row"><span>Preferred rate</span><strong>${Number(va.hourly_rate).toFixed(2)}/hr</strong></div> : null}</div><div className="public-talent-cta-copy"><Sparkles size={17}/><div><strong>Interested in {displayName}?</strong><span>Attach this profile to your private hiring request. We will confirm current availability and role fit.</span></div></div><Link className="btn btn-primary btn-lg" href={requestHref}>Request an introduction</Link><Link className="btn" href="/find-talent">Compare other Virtual Assistants</Link></div>
           <div className="public-talent-note"><Clock3 size={16}/><span>Availability, rate, and schedule are self-reported and can change. Confirm the final working arrangement before hiring.</span></div>
           <div className="public-talent-note"><Globe2 size={16}/><span>Public identity is intentionally limited to first name + last initial until the hiring workflow permits more detail.</span></div>
         </aside>

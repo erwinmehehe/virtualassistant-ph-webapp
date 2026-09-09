@@ -46,9 +46,9 @@ export default function IndustriesPage() {
     <section className="industries-hero">
       <div className="container industries-hero-grid">
         <div className="industries-hero-copy">
-          <div className="industries-eyebrow">Industry-specific VA hiring</div>
+          <div className="industries-eyebrow">Industry-specific Virtual Assistant hiring</div>
           <h1>Hire a virtual assistant who already understands your type of business.</h1>
-          <p>Start with your workflow, not a generic VA job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>
+          <p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>
           <div className="industries-hero-actions">
             <Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
             <Link className="btn btn-lg" href="/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Post a Job</Link>
@@ -65,7 +65,7 @@ export default function IndustriesPage() {
           <div className="industries-panel-step"><span>01</span><div><strong>Choose your industry</strong><p>Start with the closest operating context, even if your company spans several services.</p></div></div>
           <div className="industries-panel-step"><span>02</span><div><strong>Pick the workflows to delegate</strong><p>Separate recurring admin from decisions that must stay with your local team.</p></div></div>
           <div className="industries-panel-step"><span>03</span><div><strong>Hire against evidence</strong><p>Compare relevant experience, tools, communication, schedule, and examples of similar work.</p></div></div>
-          <Link className="text-link" href="/how-vetting-works">See how VA vetting works <ArrowRight size={14}/></Link>
+          <Link className="text-link" href="/how-vetting-works">See how Virtual Assistant vetting works <ArrowRight size={14}/></Link>
         </aside>
       </div>
     </section>
@@ -75,7 +75,7 @@ export default function IndustriesPage() {
         <div><strong>{standalone.length}</strong><span>core industry guides</span></div>
         <div><strong>{specializationCount}</strong><span>specialized workflows</span></div>
         <div><strong>Philippines</strong><span>focused talent pool</span></div>
-        <div><strong>Free</strong><span>for VAs to join and apply</span></div>
+        <div><strong>Free</strong><span>for Virtual Assistants to join and apply</span></div>
       </div>
     </section>
 
@@ -83,7 +83,7 @@ export default function IndustriesPage() {
       <div className="container">
         <div className="industries-directory-head">
           <div><div className="kicker">Browse by industry</div><h2>Choose the business context closest to yours.</h2><p>Each guide explains what can be delegated, common systems, useful interview questions, and where approvals or regulated decisions should stay internal.</p></div>
-          <Link className="btn" href="/services">Browse all VA services <ArrowRight size={15}/></Link>
+          <Link className="btn" href="/services">Browse all Virtual Assistant services <ArrowRight size={15}/></Link>
         </div>
 
         <div className="industries-directory-grid">
@@ -105,12 +105,12 @@ export default function IndustriesPage() {
       <div className="container industries-bottom-grid">
         <div>
           <div className="kicker">Not sure which guide fits?</div>
-          <h2>Describe the work. We can help define the VA role.</h2>
+          <h2>Describe the work. We can help define the Virtual Assistant role.</h2>
           <p className="muted">You do not need to know the perfect job title. Tell us what repeats every week, which tools your team uses, the hours you need covered, and where work is getting stuck. That is enough to start a useful role brief.</p>
         </div>
         <div className="industries-bottom-actions">
           <Link className="btn btn-primary btn-lg" href="/hire">Start a Hiring Request <ArrowRight size={16}/></Link>
-          <Link className="text-link" href="/find-talent">Browse approved VAs <ArrowRight size={14}/></Link>
+          <Link className="text-link" href="/find-talent">Browse approved Virtual Assistants <ArrowRight size={14}/></Link>
         </div>
       </div>
     </section>

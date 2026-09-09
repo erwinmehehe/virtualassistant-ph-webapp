@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { validateLeadUpdate } from "@/lib/agency-pipeline";
+import { isLeadStage, validateLeadUpdate } from "@/lib/agency-pipeline";
+
+import { followUpView, leadQueueHref } from "@/lib/lead-follow-ups";
 
 export async function updateLeadPipelineAction(form: FormData) {
   await requireRole("admin");
@@ -17,5 +19,8 @@ export async function updateLeadPipelineAction(form: FormData) {
   if (error || !data) redirect("/workspace/admin/leads?error=Could%20not%20save%20this%20lead.%20Please%20try%20again.");
   revalidatePath("/workspace/admin");
   revalidatePath("/workspace/admin/leads");
-  redirect(`/workspace/admin/leads?saved=1&lead=${id}#lead-${id}`);
+  const stage=String(form.get("return_stage")||"");
+  const follow=followUpView(String(form.get("return_follow")||""));
+  const href=leadQueueHref(isLeadStage(stage)?stage:"",follow);
+  redirect(`${href}${href.includes("?")?"&":"?"}saved=1`);
 }

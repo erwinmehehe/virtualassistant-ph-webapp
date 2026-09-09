@@ -30,3 +30,10 @@ No live database migration or production deployment is included. Local test data
 Each role now has its own next action and owner, covering draft briefs, service fee approval, candidate access, shortlist review, interview decisions, and onboarding. Existing hire confirmation and workroom checklist actions remain the source of truth. Closed and paused placements and unavailable data have explicit states. Checklist changes refresh the client overview. Original public design, H1, pricing, and access rules are preserved. No additional database migration is needed for this increment.
 
 Validation: 11 focused tests, TypeScript, production build, original-design comparison, and local synthetic-data browser checks. Mobile width verified at 390px with no horizontal overflow. Production data and deployment were not changed.
+
+## Lead follow-up queue
+
+Added due, today, overdue, and unscheduled views for open employer conversations. Stage and date filters combine and survive pagination and saves. Dates consistently use Philippine time; the owner overview links to the complete due queue. No new migration or pricing changes.
+
+Validation: 14 focused tests, typecheck, production build, original-design comparison, and local browser checks for saving within a queue and mobile layout (390px, no overflow or browser errors).
+

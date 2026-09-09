@@ -22,6 +22,7 @@ const resourceLinks = [
 ] as const;
 
 const forVaLinks = [
+  ["Virtual Assistant overview", "/for-virtual-assistants"],
   ["Browse Virtual Assistant jobs", "/jobs"],
   ["Apply as a Virtual Assistant", "/auth/join/va"]
 ] as const;
@@ -93,7 +94,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="nav-actions">
-          <Link className="header-va-link" href="/jobs">For Virtual Assistants</Link>
+          <Link className="header-va-link" href="/for-virtual-assistants">For Virtual Assistants</Link>
           <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
           <details className="mobile-menu">

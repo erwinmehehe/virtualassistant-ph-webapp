@@ -2,28 +2,12 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { getBrowserSessionId } from "@/lib/browser-session";
 
 const endpoint = "/api/analytics";
 
 function trackablePath(pathname: string) {
   return !pathname.startsWith("/workspace") && !pathname.startsWith("/api");
-}
-
-function sessionId() {
-  try {
-    const key = "va_ph_session";
-    const existing = document.cookie
-      .split("; ")
-      .find((item) => item.startsWith(`${key}=`))
-      ?.split("=")[1];
-    if (existing && /^[0-9a-f-]{36}$/i.test(existing)) return existing;
-    const value = crypto.randomUUID();
-    const secure = window.location.protocol === "https:" ? "; Secure" : "";
-    document.cookie = `${key}=${value}; Path=/; Max-Age=7776000; SameSite=Lax${secure}`;
-    return value;
-  } catch {
-    return undefined;
-  }
 }
 
 function send(event: string, metadata?: Record<string, unknown>) {
@@ -39,7 +23,7 @@ function send(event: string, metadata?: Record<string, unknown>) {
         return null;
       }
     })() : null,
-    session_id: sessionId(),
+    session_id: getBrowserSessionId() || undefined,
     metadata: metadata ?? {}
   });
   try {

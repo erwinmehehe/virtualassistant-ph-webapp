@@ -29,11 +29,13 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
     </>;
   }
 
-  const publishedJobs = (jobs || []).filter((j: any) => j.status === "published");
-  const selectedJob = (jobs || []).find((j: any) => j.id === query.role)
+  const activeJobs = (jobs || []).filter((j: any) => j.status !== "closed");
+  const publishedJobs = activeJobs.filter((j: any) => j.status === "published");
+  const selectedJob = activeJobs.find((j: any) => j.id === query.role)
     || publishedJobs[0]
-    || (jobs || []).find((j: any) => j.status === "pending")
-    || (jobs || [])[0];
+    || activeJobs.find((j: any) => j.status === "pending")
+    || activeJobs[0]
+    || null;
 
   const [{ data: accessRows }, { data: applicationRows }] = await Promise.all([
     admin.from("job_candidate_access").select("job_id,access_status,access_fee").in("job_id", jobIds),
@@ -55,7 +57,7 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
     supabase
       .from("public_va_directory")
       .select("user_id,slug,full_name,headline,primary_category,categories,skills,tools,years_experience,weekly_hours,hourly_rate,preferred_timezone,overlap_hours")
-      .limit(100),
+      .limit(250),
     admin.from("job_invites").select("job_id,va_id,status").in("job_id", jobIds)
   ]);
 
@@ -98,9 +100,9 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
         <Link className="btn btn-sm" href="/find-talent">Open full directory</Link>
       </div>
 
-      {(jobs || []).length > 1 ? <div className="row wrap" style={{ marginBottom: 16 }}>
+      {activeJobs.length > 1 ? <div className="row wrap" style={{ marginBottom: 16 }}>
         <span className="small muted">Rank for role:</span>
-        {(jobs || []).slice(0, 6).map((job: any) =>
+        {activeJobs.slice(0, 6).map((job: any) =>
           <Link key={job.id} className={`btn btn-sm ${selectedJob?.id === job.id ? "btn-primary" : ""}`} href={`/workspace/client/candidates?role=${encodeURIComponent(job.id)}`}>{job.title}</Link>
         )}
       </div> : null}

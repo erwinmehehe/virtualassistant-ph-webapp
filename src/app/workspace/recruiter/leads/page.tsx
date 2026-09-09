@@ -160,6 +160,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   </td>
                   <td data-label="Action">
                     <div className="stack" style={{ gap: 7 }}>
+                      <Link className="btn btn-sm" href={`/workspace/recruiter/leads/${lead.id}`}>Open lead</Link>
                       {lead.job_id
                         ? <Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${lead.job_id}`}>Match role</Link>
                         : <span className="small muted">Awaiting job draft</span>}

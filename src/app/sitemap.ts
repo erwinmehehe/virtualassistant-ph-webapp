@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
   // VA profiles are deliberately noindex, so they are not listed here.
   const [{ data: jobs }] = await Promise.all([
-    supabase.from("jobs").select("id,slug,published_at").eq("status", "published").limit(500)
+    supabase.from("jobs").select("id,slug,published_at").eq("status", "published").not("client_id", "is", null).limit(500)
   ]);
   return [
     ...staticRoutes.map((path) => ({ url: `${base}${path}`, changeFrequency: path === "" ? "weekly" as const : "monthly" as const, priority: path === "" ? 1 : .8 })),

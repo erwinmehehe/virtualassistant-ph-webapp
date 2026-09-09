@@ -28,7 +28,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Healthcare & Dental",
     "h1": "Virtual Assistants for Healthcare & Dental Teams",
     "primaryKeyword": "virtual assistant for healthcare",
-    "metaTitle": "Healthcare & Dental VAs | Philippines",
+    "metaTitle": "Healthcare & Dental Virtual Assistants | Philippines",
     "metaDescription": "Hire vetted Filipino virtual assistants for healthcare and dental practices, including scheduling. Compare skills, tools, availability, and role fit.",
     "intro": "Build a remote support role around the workflows that matter to healthcare and dental practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "healthcare and dental practices",
@@ -54,7 +54,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "secure messaging tools"
     ],
     "hiringNotes": [
-      "Define exactly which records and systems the VA may access.",
+      "Define exactly which records and systems the Virtual Assistant may access.",
       "Keep clinical decisions with licensed professionals.",
       "Document escalation rules for privacy, billing, and urgent patient issues."
     ]
@@ -64,8 +64,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Home & Local Services",
     "h1": "Virtual Assistants for Home & Local Service Businesses",
     "primaryKeyword": "virtual assistant for home service business",
-    "metaTitle": "Home & Local Services VAs | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for home and local service companies, including inbound lead handling. Compare skills, tools, availability, and role fit.",
+    "metaTitle": "Home & Local Services Virtual Assistants | Philippines",
+    "metaDescription": "Hire vetted Filipino virtual assistants for home and local service companies, including inbound lead handling. Compare skills, tools, availability, and role.",
     "intro": "Build a remote support role around the workflows that matter to home and local service companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "home and local service companies",
     "workflows": [
@@ -103,8 +103,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Professional Services",
     "h1": "Virtual Assistants for Professional Services & Growth Teams",
     "primaryKeyword": "virtual assistant for professional services",
-    "metaTitle": "Professional Services VAs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for professional services. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaTitle": "Professional Services Virtual Assistants | Philippines",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for professional services. Compare relevant experience, tools, communication, availability, and role fit before you.",
     "intro": "Build a remote support role around the workflows that matter to professional-services and growth teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "professional-services and growth teams",
     "workflows": [
@@ -133,7 +133,7 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "hiringNotes": [
       "Separate strategy from repeatable execution.",
-      "List the systems the VA will use from week one.",
+      "List the systems the Virtual Assistant will use from week one.",
       "Define response expectations and decision boundaries."
     ]
   },
@@ -181,8 +181,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Doctors & Medical Practices",
     "h1": "Hire a Virtual Assistant for Doctors & Medical Practices",
     "primaryKeyword": "virtual assistant for doctors",
-    "metaTitle": "Doctors & Medical Practices VAs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for doctors & medical practices. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaTitle": "Doctors & Medical Practices Virtual Assistants | Philippines",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for doctors & medical practices. Compare relevant experience, tools, communication, availability, and role fit.",
     "intro": "Build a remote support role around the workflows that matter to medical practices, physicians, and clinics. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "medical practices, physicians, and clinics",
     "workflows": [
@@ -221,7 +221,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Lawyers & Law Firms",
     "primaryKeyword": "virtual assistant for lawyers",
     "metaTitle": "Virtual Assistant for Lawyers & Law Firms | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for law firms, attorneys, and solo practitioners, including client intake. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Hire vetted Filipino virtual assistants for law firms, attorneys, and solo practitioners, including client intake. Compare skills, tools, availability, and.",
     "intro": "Build a remote support role around the workflows that matter to law firms, attorneys, and solo practitioners. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "law firms, attorneys, and solo practitioners",
     "workflows": [
@@ -251,7 +251,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Keep legal advice and attorney judgment with licensed counsel.",
       "Define confidentiality, supervision, and jurisdiction-specific limits.",
-      "Give the VA clear matter-naming, filing, and escalation rules."
+      "Give the Virtual Assistant clear matter-naming, filing, and escalation rules."
     ]
   },
   {
@@ -260,7 +260,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Real Estate Agents",
     "primaryKeyword": "virtual assistant for real estate agents",
     "metaTitle": "Virtual Assistant for Real Estate Agents | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for real estate agents & realtors. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for real estate agents & realtors. Compare relevant experience, tools, communication, availability, and role fit.",
     "intro": "Build a remote support role around the workflows that matter to real estate agents, Realtors, and brokerages. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "real estate agents, Realtors, and brokerages",
     "workflows": [
@@ -288,7 +288,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "Canva"
     ],
     "hiringNotes": [
-      "Define which lead stages the VA owns and when an agent takes over.",
+      "Define which lead stages the Virtual Assistant owns and when an agent takes over.",
       "Document listing and transaction checklists.",
       "Match schedule overlap to live lead-response expectations."
     ]
@@ -299,7 +299,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Financial Advisors",
     "primaryKeyword": "virtual assistant for financial advisors",
     "metaTitle": "Virtual Assistant for Financial Advisors | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for financial advisors. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for financial advisors. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
     "intro": "Build a remote support role around the workflows that matter to financial advisors, RIAs, and wealth-management firms. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "financial advisors, RIAs, and wealth-management firms",
     "workflows": [
@@ -338,7 +338,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Startup",
     "primaryKeyword": "virtual assistant for startups",
     "metaTitle": "Virtual Assistant for a Startup | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for startups. Compare relevant experience, tools, communication, availability, and role fit before you hire. Get matched.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for startups. Compare relevant experience, tools, communication, availability, and role fit before you hire. Get.",
     "intro": "Build a remote support role around the workflows that matter to startups and founder-led companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "startups and founder-led companies",
     "workflows": [
@@ -377,7 +377,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Construction Company",
     "primaryKeyword": "virtual assistant for construction company",
     "metaTitle": "Virtual Assistant for a Construction Company | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for construction companies. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for construction companies. Compare relevant experience, tools, communication, availability, and role fit before you.",
     "intro": "Build a remote support role around the workflows that matter to general contractors and construction companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "general contractors and construction companies",
     "workflows": [
@@ -416,7 +416,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for an Insurance Agency",
     "primaryKeyword": "virtual assistant for insurance agency",
     "metaTitle": "Virtual Assistant for an Insurance Agency | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for insurance agencies, agents, and brokerages, including lead intake. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Hire vetted Filipino virtual assistants for insurance agencies, agents, and brokerages, including lead intake. Compare skills, tools, availability, and role.",
     "intro": "Build a remote support role around the workflows that matter to insurance agencies, agents, and brokerages. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "insurance agencies, agents, and brokerages",
     "workflows": [
@@ -455,7 +455,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Property Management",
     "primaryKeyword": "virtual assistant for property management",
     "metaTitle": "Virtual Assistant for Property Management | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for property management. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for property management. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
     "intro": "Build a remote support role around the workflows that matter to property managers and real estate operators. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "property managers and real estate operators",
     "workflows": [
@@ -494,7 +494,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Accountants & CPAs",
     "primaryKeyword": "virtual assistant for accountants",
     "metaTitle": "Virtual Assistant for Accountants & CPAs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for accountants & cpas. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for accountants & cpas. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
     "intro": "Build a remote support role around the workflows that matter to accounting firms, CPAs, and finance practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "accounting firms, CPAs, and finance practices",
     "workflows": [
@@ -533,7 +533,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Coaches & Consultants",
     "primaryKeyword": "virtual assistant for coaches",
     "metaTitle": "Virtual Assistant for Coaches & Consultants | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for coaches & consultants. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for coaches & consultants. Compare relevant experience, tools, communication, availability, and role fit before you.",
     "intro": "Build a remote support role around the workflows that matter to coaches, consultants, and expert-led businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "coaches, consultants, and expert-led businesses",
     "workflows": [
@@ -561,7 +561,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "Google Workspace"
     ],
     "hiringNotes": [
-      "Define the client experience the VA should own between sessions.",
+      "Define the client experience the Virtual Assistant should own between sessions.",
       "Separate expert advice from administrative execution.",
       "Document response times, onboarding steps, and content approvals."
     ]
@@ -572,7 +572,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Dental Office",
     "primaryKeyword": "virtual assistant for dental office",
     "metaTitle": "Virtual Assistant for a Dental Office | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for dental offices and dental groups, including appointment scheduling. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Hire vetted Filipino virtual assistants for dental offices and dental groups, including appointment scheduling. Compare skills, tools, availability, and.",
     "intro": "Build a remote support role around the workflows that matter to dental offices and dental groups. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "dental offices and dental groups",
     "workflows": [
@@ -610,8 +610,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Photographers & Creatives",
     "h1": "Hire a Virtual Assistant for Photographers & Creatives",
     "primaryKeyword": "virtual assistant for photographers",
-    "metaTitle": "Photographers & Creatives VAs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for photographers & creatives. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaTitle": "Photographers & Creatives Virtual Assistants | Philippines",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for photographers & creatives. Compare relevant experience, tools, communication, availability, and role fit before.",
     "intro": "Build a remote support role around the workflows that matter to photographers, studios, and creative businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "photographers, studios, and creative businesses",
     "workflows": [
@@ -650,7 +650,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Entrepreneurs",
     "primaryKeyword": "virtual assistant for entrepreneurs",
     "metaTitle": "Virtual Assistant for Entrepreneurs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for entrepreneurs. Compare relevant experience, tools, communication, availability, and role fit before you hire. Start with a brief.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for entrepreneurs. Compare relevant experience, tools, communication, availability, and role fit before you hire..",
     "intro": "Build a remote support role around the workflows that matter to entrepreneurs and founder-led businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "entrepreneurs and founder-led businesses",
     "workflows": [
@@ -679,7 +679,7 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "hiringNotes": [
       "Choose recurring ownership areas instead of a constant stream of unrelated requests.",
-      "Define what the VA can decide without asking.",
+      "Define what the Virtual Assistant can decide without asking.",
       "Use a weekly priority and blocker review."
     ]
   },
@@ -689,7 +689,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Real Estate Investors",
     "primaryKeyword": "virtual assistant for real estate investors",
     "metaTitle": "Virtual Assistant for Real Estate Investors | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for real estate investors. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for real estate investors. Compare relevant experience, tools, communication, availability, and role fit before you.",
     "intro": "Build a remote support role around the workflows that matter to real estate investors and acquisition teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "real estate investors and acquisition teams",
     "workflows": [
@@ -767,7 +767,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Therapists",
     "primaryKeyword": "virtual assistant for therapists",
     "metaTitle": "Virtual Assistant for Therapists | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for therapists & mental health practices. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for therapists & mental health practices. Compare relevant experience, tools, communication, availability, and role.",
     "intro": "Build a remote support role around the workflows that matter to therapists, counselors, and mental-health practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "therapists, counselors, and mental-health practices",
     "workflows": [
@@ -805,8 +805,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Banking & Financial Services",
     "h1": "Hire a Virtual Assistant for Banking & Financial Services",
     "primaryKeyword": "virtual assistant for banking",
-    "metaTitle": "Banking & Financial Services VAs | Philippines",
-    "metaDescription": "Hire vetted Filipino VAs for banking & financial services. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaTitle": "Banking & Financial Services Virtual Assistant | Philippines",
+    "metaDescription": "Hire vetted Filipino Virtual Assistants for banking & financial services. Compare relevant experience, tools, communication, availability, and role fit.",
     "intro": "Build a remote support role around the workflows that matter to banking and financial-service teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "banking and financial-service teams",
     "workflows": [
@@ -886,7 +886,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Clear Your Firm's Month-End & Compliance Production Backlog",
     "primaryKeyword": "outsourced month end production accounting firm",
     "metaTitle": "Month-End Production for Accounting Firms | Philippines",
-    "metaDescription": "Build an outsourced month-end production team with vetted Filipino accountants and bookkeepers. Reconciliations, workpapers, and management accounts, on schedule.",
+    "metaDescription": "Build an outsourced month-end production team with vetted Filipino accountants and bookkeepers. Reconciliations, workpapers, and management accounts, on.",
     "intro": "We clear your firm's month-end and compliance production backlog -- not \"offshore accountants,\" a production function built around your firm's checklist and deadlines. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your registered accountant.",
     "audience": "accounting firms, bookkeeping practices, and outsourced CFO teams",
     "workflows": [
@@ -994,8 +994,8 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "hiringNotes": [
       "Document the brokerage's submission checklist, naming conventions and lender escalation rules before delegating live files.",
-      "Give the VA access only to the CRM, lender portals and client information required for assigned processing work.",
-      "The licensed or authorised local mortgage professional retains final approval, credit advice, product recommendations and compliance responsibility; the VA performs preparation and administration."
+      "Give the Virtual Assistant access only to the CRM, lender portals and client information required for assigned processing work.",
+      "The licensed or authorised local mortgage professional retains final approval, credit advice, product recommendations and compliance responsibility; the Virtual Assistant performs preparation and administration."
     ]
   },
   {
@@ -1035,7 +1035,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Define the firm's chart-of-account conventions, workpaper templates and escalation rules before assigning production files.",
       "Use reviewer checkpoints for unusual transactions, related-party activity, contribution issues and unreconciled balances.",
-      "The appropriately qualified or registered local accountant, tax agent, auditor or adviser retains final approval, advice and compliance responsibility; the VA performs production work only."
+      "The appropriately qualified or registered local accountant, tax agent, auditor or adviser retains final approval, advice and compliance responsibility; the Virtual Assistant performs production work only."
     ]
   },
   {
@@ -1075,7 +1075,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Set templates and approval rules for notices, minutes, levy correspondence and arrears communications before delegation.",
       "Keep scheme-specific escalation rules visible so disputes, legal issues and sensitive owner matters go straight to the manager.",
-      "The licensed, registered or otherwise authorised local strata professional retains final decisions, advice, approvals and compliance responsibility; the VA handles administrative production."
+      "The licensed, registered or otherwise authorised local strata professional retains final decisions, advice, approvals and compliance responsibility; the Virtual Assistant handles administrative production."
     ]
   },
   {
@@ -1114,9 +1114,9 @@ export const INDUSTRIES: IndustryPage[] = [
       "Tapi"
     ],
     "hiringNotes": [
-      "Create written urgency, spending-limit and preferred-contractor rules so the VA can route routine jobs consistently.",
+      "Create written urgency, spending-limit and preferred-contractor rules so the Virtual Assistant can route routine jobs consistently.",
       "Emergency repairs, disputed responsibility and expenditure outside delegated limits should be escalated immediately.",
-      "The licensed or authorised local property professional retains final approval, tenancy advice, expenditure decisions and compliance responsibility; the VA coordinates the workflow."
+      "The licensed or authorised local property professional retains final approval, tenancy advice, expenditure decisions and compliance responsibility; the Virtual Assistant coordinates the workflow."
     ]
   },
   {
@@ -1154,9 +1154,9 @@ export const INDUSTRIES: IndustryPage[] = [
       "Coviu"
     ],
     "hiringNotes": [
-      "Document referral types, appointment rules, billing workflows and escalation criteria before the VA handles patient queues.",
+      "Document referral types, appointment rules, billing workflows and escalation criteria before the Virtual Assistant handles patient queues.",
       "Limit access according to role and maintain the clinic's privacy, consent and patient-information procedures.",
-      "The licensed local clinician or other regulated healthcare professional retains final clinical decisions, advice, treatment approval and compliance responsibility; the VA performs administrative work only."
+      "The licensed local clinician or other regulated healthcare professional retains final clinical decisions, advice, treatment approval and compliance responsibility; the Virtual Assistant performs administrative work only."
     ]
   },
   {
@@ -1197,7 +1197,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Define service areas, technician skills, booking windows, emergency rules and pricing authorities before delegating scheduling.",
       "Technical faults, safety concerns, scope changes and pricing outside approved rules should be escalated to the business.",
-      "The licensed local trade contractor or other regulated professional retains final technical decisions, advice, approvals and compliance responsibility; the VA handles service administration."
+      "The licensed local trade contractor or other regulated professional retains final technical decisions, advice, approvals and compliance responsibility; the Virtual Assistant handles service administration."
     ]
   },
   {
@@ -1238,7 +1238,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Provide the firm's BIM execution plan, naming standards, templates, family rules and model-sharing procedures before production starts.",
       "Use controlled markups and reviewer checkpoints so design changes are never inferred from incomplete instructions.",
-      "The registered architect, licensed engineer or other regulated local professional retains final design authority, technical advice, approval and compliance responsibility; the VA performs documented production work."
+      "The registered architect, licensed engineer or other regulated local professional retains final design authority, technical advice, approval and compliance responsibility; the Virtual Assistant performs documented production work."
     ]
   },
   {
@@ -1278,7 +1278,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "hiringNotes": [
       "Give the sourcing team written role criteria, exclusion rules, outreach templates and CRM stage definitions for each assignment.",
       "Keep candidate consent, privacy, data-retention and equal-opportunity procedures built into the sourcing workflow.",
-      "Where employment, immigration, licensing or other regulated decisions apply, the authorised local recruiter, hiring manager or professional retains final selection, advice, approval and compliance responsibility; the VA performs sourcing and administration."
+      "Where employment, immigration, licensing or other regulated decisions apply, the authorised local recruiter, hiring manager or professional retains final selection, advice, approval and compliance responsibility; the Virtual Assistant performs sourcing and administration."
     ]
   },
   {
@@ -1318,8 +1318,8 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "hiringNotes": [
       "Define the brokerage's renewal calendar, insurer submission rules, document templates and escalation points before allocating live renewals.",
-      "Quote comparisons prepared by the VA should present factual information without recommending coverage, insurers or policy terms.",
-      "The licensed or authorised local insurance broker retains final coverage decisions, recommendations, advice, approvals and compliance responsibility; the VA performs renewal production and administration."
+      "Quote comparisons prepared by the Virtual Assistant should present factual information without recommending coverage, insurers or policy terms.",
+      "The licensed or authorised local insurance broker retains final coverage decisions, recommendations, advice, approvals and compliance responsibility; the Virtual Assistant performs renewal production and administration."
     ]
   }
 ];

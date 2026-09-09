@@ -249,6 +249,58 @@ export async function recordLeadContactAction(formData: FormData) {
   revalidatePath("/workspace/admin/leads");
 }
 
+export async function updateLeadStatusAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "");
+  const status = String(formData.get("status") || "");
+  if (!leadId || !["new", "converted", "archived"].includes(status)) throw new Error("Choose a valid lead status.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin
+    .from("lead_intake")
+    .select("id,status,job_id,session_id,page_url,service")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (!lead) throw new Error("Lead not found.");
+  if (lead.status === status) return;
+
+  const { error } = await admin.from("lead_intake").update({ status }).eq("id", leadId);
+  if (error) throw error;
+
+  const labels: Record<string, string> = {
+    new: "Lead reopened for follow-up",
+    converted: "Lead marked qualified",
+    archived: "Lead archived"
+  };
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: `lead_status_${status}`,
+    description: labels[status],
+    actorId: user.id,
+    metadata: { previous_status: lead.status, job_id: lead.job_id || null }
+  });
+
+  if (status === "converted") {
+    let path = "/hire";
+    try {
+      if (lead.page_url) path = new URL(lead.page_url).pathname;
+    } catch {
+      // Keep the safe fallback for imported or malformed lead URLs.
+    }
+    await admin.from("analytics_events").insert({
+      event_name: "qualified_lead",
+      path,
+      session_id: lead.session_id || null,
+      metadata: { lead_id: leadId, job_id: lead.job_id || null, service: lead.service || null }
+    });
+  }
+
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+}
+
 export async function markVaReviewEvidenceAction(formData: FormData) {
   const { user } = await requireRole("recruiter");
   const vaId = String(formData.get("va_id") || "");

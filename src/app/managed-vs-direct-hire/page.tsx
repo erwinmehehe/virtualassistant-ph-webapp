@@ -47,7 +47,7 @@ export default function ManagedVsDirectHirePage() {
       <div className="process-grid four-step-process">
         <div className="process-step"><div className="process-number">Before start</div><h3>Access &amp; setup</h3><p className="muted">Role brief confirmed, tools and access provisioned, SOPs and expectations agreed before day one.</p></div>
         <div className="process-step"><div className="process-number">Week 1</div><h3>Onboarding &amp; shadowing</h3><p className="muted">Introductions, training, and orientation through a structured onboarding plan.</p></div>
-        <div className="process-step"><div className="process-number">Week 2</div><h3>First recurring tasks</h3><p className="muted">Your VA takes ownership of the first agreed recurring responsibilities.</p></div>
+        <div className="process-step"><div className="process-number">Week 2</div><h3>First recurring tasks</h3><p className="muted">Your Virtual Assistant takes ownership of the first agreed recurring responsibilities.</p></div>
         <div className="process-step"><div className="process-number">Weeks 3-4</div><h3>Expanding scope</h3><p className="muted">Responsibilities grow as the working relationship and trust build.</p></div>
       </div>
       <p className="small muted" style={{ marginTop: 16 }}>Day 30: a check-in to confirm fit -- this is also when the replacement window closes. Exact pacing depends on the role and how quickly access and information are provided on your side.</p>

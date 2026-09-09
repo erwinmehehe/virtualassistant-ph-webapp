@@ -11,8 +11,8 @@ import { VA_CATEGORIES } from "@/lib/constants";
  */
 export function RoleBriefForm({
   sourcePath,
-  heading = "Get matched",
-  subheading = "About 60 seconds. Required fields are marked.",
+  heading = "Tell us who you need",
+  subheading = "About 60 seconds. Our recruiting team will review the role and follow up.",
   error,
   sent
 }: {
@@ -25,8 +25,8 @@ export function RoleBriefForm({
   if (sent) {
     return (
       <div className="card compact-hire-form role-brief-sent" role="status">
-        <h2>Request received</h2>
-        <p className="muted">We will review the role and come back with matching candidates. Nothing is published and no account is needed.</p>
+        <h2>Hiring request received</h2>
+        <p className="muted">Our recruiting team will review the role, screen for fit, and follow up using the email you provided. You do not need to create an account to get started.</p>
       </div>
     );
   }
@@ -70,7 +70,7 @@ export function RoleBriefForm({
       </details>
 
       <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>
-      <p className="small muted role-brief-note">Private request. No account needed, and nothing is published.</p>
+      <p className="small muted role-brief-note">Private hiring request. No account is required to start the search.</p>
     </form>
   );
 }

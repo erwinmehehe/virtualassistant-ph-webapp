@@ -265,25 +265,6 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   return { sent: true as const };
 }
 
-export async function sendStaffClientEmail(args: { to: string; subject: string; body: string }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const subject = args.subject.trim().slice(0, 160);
-  const body = args.body.trim().slice(0, 5000);
-  if (subject.length < 3 || body.length < 10) return { sent: false as const, reason: "invalid_message" };
-
-  const replyTo = normalizeEmailList(process.env.CLIENT_CONTACT_REPLY_TO)[0];
-  await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: replyTo ? [replyTo] : undefined,
-    subject,
-    html: `<p>${escapeHtml(body).replace(/\n/g, "<br>")}</p><p>VirtualAssistant.com.ph Hiring Team</p>`
-  }, "staff_client_message", { archive: false });
-  return { sent: true as const };
-}
-
 export async function sendSystemTestEmail(to: string) {
   const config = resendConfig();
   if (!config) throw new Error("App email is not configured. Set RESEND_API_KEY and a verified EMAIL_FROM sender first.");

@@ -1,5 +1,5 @@
 import "server-only";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { siteOrigin } from "@/lib/seo-url";
@@ -51,13 +51,19 @@ async function ensureClientProfile(admin: AdminClient, user: User, lead: any) {
 export async function ensureAcceptedLeadClientWorkspace(args: {
   lead: any;
   jobId: string;
+  existingClientId?: string | null;
 }) {
   const admin = createAdminClient();
   const email = String(args.lead.email || "").trim().toLowerCase();
   if (!email) return { linked: false as const, reason: "missing_email" as const, actionLink: null as string | null };
 
   const redirectTo = `${siteOrigin()}/auth/callback?next=${encodeURIComponent(`/workspace/client/jobs/${args.jobId}`)}&lead=${encodeURIComponent(args.lead.id)}&role=client`;
-  let user = await findAuthUserByEmail(admin, email);
+  let user: User | null = null;
+  if (args.existingClientId) {
+    const { data } = await admin.auth.admin.getUserById(args.existingClientId);
+    user = data.user || null;
+  }
+  if (!user) user = await findAuthUserByEmail(admin, email);
   let actionLink: string | null = null;
   let created = false;
 

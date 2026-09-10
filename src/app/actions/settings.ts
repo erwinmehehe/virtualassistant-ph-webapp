@@ -8,9 +8,8 @@ export async function updateMarketplaceSettingsAction(formData: FormData){
   await requireRole("admin");
   const placementFee=Math.max(0,Number(formData.get("default_placement_fee")??0));
   const markup=Math.max(0,Math.min(100,Number(formData.get("default_managed_markup_percent")??0)));
-  const candidateAccessFee=Math.max(0,Number(formData.get("default_candidate_access_fee")??0));
   const admin=createAdminClient();
-  await admin.from("admin_settings").update({default_placement_fee:placementFee,default_managed_markup_percent:markup,default_candidate_access_fee:candidateAccessFee}).eq("id",1);
+  await admin.from("admin_settings").update({default_placement_fee:placementFee,default_managed_markup_percent:markup}).eq("id",1);
   revalidatePath("/workspace/admin/settings");
 }
 

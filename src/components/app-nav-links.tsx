@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Bell, BriefcaseBusiness, Building2, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, MessageSquare, Search, Settings, ShieldCheck, Sparkles, UsersRound, Wrench, History } from "lucide-react";
+import { BarChart3, Bell, BriefcaseBusiness, Building2, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, MessageSquare, Search, Settings, ShieldCheck, Sparkles, TrendingUp, UsersRound, Wrench, History } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
 
@@ -35,7 +35,8 @@ const nav = {
     ["Vetting", "/workspace/recruiter/queue", FileText],
     ["Stalled", "/workspace/recruiter/stalled", Flag],
     ["Bench", "/workspace/recruiter/bench", UsersRound],
-    ["Activity", "/workspace/recruiter/activity", History]
+    ["Activity", "/workspace/recruiter/activity", History],
+    ["Analytics", "/workspace/recruiter/analytics", BarChart3]
   ],
   admin: [
     ["Overview", "/workspace/admin", ShieldCheck],
@@ -44,6 +45,7 @@ const nav = {
     ["Payments", "/workspace/admin/payments", CircleDollarSign],
     ["Moderation", "/workspace/admin/moderation", Flag],
     ["Analytics", "/workspace/admin/analytics", BarChart3],
+    ["Sales analytics", "/workspace/admin/sales", TrendingUp],
     ["Vetting finalists", "/workspace/admin/vetting", FileText],
     ["Users", "/workspace/admin/users", UsersRound],
     ["Audit log", "/workspace/admin/audit", History],

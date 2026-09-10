@@ -2863,3 +2863,59 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .client-concierge-strip { align-items:stretch; flex-direction:column; }
   .client-concierge-strip .btn { width:100%; }
 }
+
+
+/* v4.14.8 release readiness + sales analytics */
+.sales-analytics-toolbar { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.sales-kpi-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+.sales-kpi-card { display:grid; gap:5px; min-width:0; padding:16px; }
+.sales-kpi-card svg { color:var(--brand); }
+.sales-kpi-card > span { font-size:12px; color:#475467; font-weight:750; }
+.sales-kpi-card > strong { font-size:24px; line-height:1.05; letter-spacing:-.035em; }
+.sales-kpi-card > small { color:var(--muted); line-height:1.35; }
+.sales-funnel-card { margin-bottom:18px; }
+.sales-funnel-list { display:grid; gap:12px; }
+.sales-funnel-row { display:grid; grid-template-columns:180px minmax(120px,1fr) 90px; gap:12px; align-items:center; }
+.sales-funnel-row > div:first-child { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.sales-funnel-row > div:first-child span { color:var(--muted); font-weight:800; }
+.sales-funnel-track { height:10px; border-radius:999px; background:#eef2f7; overflow:hidden; }
+.sales-funnel-track > span { display:block; height:100%; border-radius:inherit; background:var(--brand); }
+.sales-funnel-row > small { text-align:right; color:var(--muted); }
+.sales-data-note { display:flex; gap:9px; align-items:flex-start; margin-top:16px; padding:12px; border-radius:11px; background:#fffaeb; color:#7a2e0e; font-size:12px; }
+.sales-data-note svg { flex:0 0 auto; margin-top:1px; }
+.sales-analysis-grid { align-items:start; margin-bottom:18px; }
+.sales-stage-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.sales-stage-summary > div { display:grid; gap:3px; padding:13px; border:1px solid var(--line); border-radius:11px; background:#fcfcfd; }
+.sales-stage-summary span,.sales-stage-summary small { color:var(--muted); font-size:11px; }
+.sales-stage-summary strong { font-size:23px; }
+.sales-data-quality { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px; }
+.sales-data-quality > div { display:flex; justify-content:space-between; gap:8px; padding:10px 12px; border-radius:10px; font-size:12px; }
+.sales-data-quality .ok { background:#ecfdf3; color:#027a48; }
+.sales-data-quality .warn { background:#fffaeb; color:#b54708; }
+.release-status-pill { display:flex; align-items:center; gap:7px; padding:10px 12px; border-radius:999px; font-size:12px; font-weight:800; }
+.release-status-pill.ok { background:#ecfdf3; color:#027a48; }
+.release-status-pill.warn { background:#fff4ed; color:#b93815; }
+.release-readiness-card { margin-bottom:18px; }
+.release-readiness-card .dashboard-section-head h2 { margin:0; }
+.release-check-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.release-check { display:flex; gap:9px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:11px; background:#fcfcfd; }
+.release-check svg { flex:0 0 auto; margin-top:1px; }
+.release-check > div { display:grid; gap:3px; min-width:0; }
+.release-check strong { font-size:12px; color:#344054; }
+.release-check span { font-size:11px; line-height:1.45; color:#667085; overflow-wrap:anywhere; }
+.release-check.ok svg { color:#039855; }
+.release-check.warn { border-color:#fedf89; background:#fffcf5; }
+.release-check.warn svg { color:#dc6803; }
+.release-runtime-line { display:flex; gap:8px 14px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:#667085; font-size:11px; }
+
+@media (max-width:1200px) {
+  .sales-kpi-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .release-check-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  .sales-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .sales-funnel-row { grid-template-columns:1fr; gap:6px; }
+  .sales-funnel-row > small { text-align:left; }
+  .sales-stage-summary,.sales-data-quality,.release-check-grid { grid-template-columns:1fr; }
+  .release-status-pill { border-radius:10px; }
+}

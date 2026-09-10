@@ -49,9 +49,9 @@ const nav = {
     ["Vetting finalists", "/workspace/admin/vetting", FileText],
     ["Users", "/workspace/admin/users", UsersRound],
     ["Audit log", "/workspace/admin/audit", History],
-    ["Marketplace settings", "/workspace/admin/settings", Settings],
+    ["Agency settings", "/workspace/admin/settings", Settings],
     ["System setup", "/workspace/admin/system", Wrench],
-    ["Health & repair", "/workspace/admin/health", ShieldCheck]
+    ["Release health", "/workspace/admin/health", ShieldCheck]
   ]
 } as const;
 

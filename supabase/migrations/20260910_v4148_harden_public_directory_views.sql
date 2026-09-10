@@ -205,7 +205,34 @@ grant execute on function private.public_va_certification_rows() to anon, authen
 create or replace view public.public_va_directory
 with (security_invoker = true, security_barrier = true)
 as
-select * from private.public_va_directory_rows();
+select
+  user_id,
+  slug,
+  full_name,
+  avatar_url,
+  email_verified,
+  identity_verified_at,
+  last_active_at,
+  headline,
+  bio,
+  primary_category,
+  categories,
+  skills,
+  tools,
+  industries,
+  languages,
+  years_experience,
+  weekly_hours,
+  schedule,
+  preferred_timezone,
+  overlap_hours,
+  portfolio_url,
+  linkedin_url,
+  availability_status,
+  hourly_rate::numeric(8,2) as hourly_rate,
+  has_portfolio,
+  created_at
+from private.public_va_directory_rows();
 
 create or replace view public.public_company_profiles
 with (security_invoker = true, security_barrier = true)

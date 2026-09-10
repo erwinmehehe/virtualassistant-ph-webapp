@@ -2864,6 +2864,314 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .client-concierge-strip .btn { width:100%; }
 }
 
+/* Agency-first hiring page */
+.hire-agency-page {
+  background: #f7f9fc;
+}
+.hire-agency-hero {
+  padding: 72px 0 64px;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(109, 40, 217, .08), transparent 34%),
+    linear-gradient(180deg, #fbfcff 0%, #f7f9fc 100%);
+}
+.hire-agency-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(470px, 540px);
+  gap: 72px;
+  align-items: start;
+}
+.hire-agency-copy {
+  padding-top: 18px;
+  max-width: 720px;
+}
+.hire-agency-copy h1 {
+  margin: 8px 0 20px;
+  max-width: 700px;
+  font-size: clamp(48px, 5vw, 68px);
+  line-height: 1.01;
+  letter-spacing: -.055em;
+}
+.hire-agency-lede {
+  max-width: 650px;
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.65;
+  color: #4b5565;
+}
+.hire-agency-proof {
+  display: grid;
+  gap: 0;
+  margin-top: 34px;
+  border-top: 1px solid #e6e9ef;
+  border-bottom: 1px solid #e6e9ef;
+}
+.hire-agency-proof > div {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 13px;
+  padding: 17px 0;
+  color: #5b21b6;
+}
+.hire-agency-proof > div + div {
+  border-top: 1px solid #e6e9ef;
+}
+.hire-agency-proof span {
+  display: grid;
+  gap: 3px;
+}
+.hire-agency-proof strong {
+  color: #1d2433;
+  font-size: 15px;
+}
+.hire-agency-proof small {
+  color: #667085;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.hire-agency-callout {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+  padding: 16px 18px;
+  border: 1px solid #ded6fb;
+  border-radius: 14px;
+  background: #f7f4ff;
+  color: #5b21b6;
+}
+.hire-agency-callout > div {
+  display: grid;
+  gap: 2px;
+}
+.hire-agency-callout strong {
+  color: #2b1a55;
+  font-size: 14px;
+}
+.hire-agency-callout span {
+  color: #6f6783;
+  font-size: 13px;
+}
+.hire-agency-callout .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.hire-agency-note {
+  margin-top: 18px;
+  font-size: 13px;
+  color: #667085;
+}
+.hire-request-panel {
+  position: sticky;
+  top: 96px;
+  padding: 28px;
+  border: 1px solid #e2e6ee;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(29, 36, 51, .09);
+}
+.hire-agency-form {
+  gap: 16px;
+}
+.hire-agency-form .compact-hire-form-head {
+  padding-bottom: 3px;
+}
+.hire-agency-form .compact-hire-form-head h2 {
+  margin-top: 5px;
+  font-size: 27px;
+}
+.hire-form-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin: 2px 0 5px;
+}
+.hire-form-steps span {
+  padding: 8px 9px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #7b8493;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.hire-form-steps span.active {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+.hire-agency-form .field label {
+  color: #344054;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.hire-agency-form .field input,
+.hire-agency-form .field select,
+.hire-agency-form .field textarea {
+  border-color: #d8dde7;
+  background: #fff;
+}
+.hire-agency-form .field input:focus,
+.hire-agency-form .field select:focus,
+.hire-agency-form .field textarea:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .10);
+}
+.hire-agency-form .compact-hire-submit {
+  min-height: 48px;
+  margin-top: 1px;
+}
+.hire-success-panel {
+  display: grid;
+  gap: 15px;
+}
+.hire-success-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 14px;
+  background: #ecfdf3;
+  color: #067647;
+}
+.hire-success-panel h2 {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: -.035em;
+}
+.hire-success-panel > p {
+  margin: 0;
+  color: #667085;
+  line-height: 1.65;
+}
+.hire-success-next {
+  display: grid;
+  gap: 0;
+  margin: 6px 0;
+  border-top: 1px solid #eaecf0;
+  border-bottom: 1px solid #eaecf0;
+}
+.hire-success-next > div {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 10px;
+  padding: 13px 0;
+}
+.hire-success-next > div + div {
+  border-top: 1px solid #eaecf0;
+}
+.hire-success-next > div > span {
+  color: #7c3aed;
+  font-size: 12px;
+  font-weight: 800;
+}
+.hire-success-next p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+.hire-success-next small {
+  color: #667085;
+  line-height: 1.45;
+}
+.hire-requested-talent {
+  margin-top: 22px;
+}
+.hire-process-strip {
+  border-top: 1px solid #e5e9f0;
+  border-bottom: 1px solid #e5e9f0;
+  background: #fff;
+}
+.hire-process-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.hire-process-grid > div {
+  position: relative;
+  padding: 30px 34px 30px 0;
+}
+.hire-process-grid > div + div {
+  padding-left: 34px;
+  border-left: 1px solid #e5e9f0;
+}
+.hire-process-grid > div > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #7c3aed;
+  font-size: 12px;
+  font-weight: 800;
+}
+.hire-process-grid strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #202939;
+}
+.hire-process-grid p {
+  margin: 0;
+  color: #667085;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .hire-agency-hero {
+    padding: 48px 0;
+  }
+  .hire-agency-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .hire-agency-copy {
+    max-width: none;
+    padding-top: 0;
+  }
+  .hire-agency-copy h1 {
+    max-width: 760px;
+    font-size: clamp(42px, 8vw, 58px);
+  }
+  .hire-request-panel {
+    position: static;
+    max-width: 680px;
+  }
+  .hire-process-grid {
+    grid-template-columns: 1fr;
+  }
+  .hire-process-grid > div,
+  .hire-process-grid > div + div {
+    padding: 20px 0;
+    border-left: 0;
+  }
+  .hire-process-grid > div + div {
+    border-top: 1px solid #e5e9f0;
+  }
+}
+
+@media (max-width: 620px) {
+  .hire-agency-hero {
+    padding: 34px 0 38px;
+  }
+  .hire-agency-copy h1 {
+    font-size: 40px;
+    line-height: 1.04;
+  }
+  .hire-agency-lede {
+    font-size: 17px;
+  }
+  .hire-request-panel {
+    padding: 20px;
+    border-radius: 18px;
+  }
+  .hire-agency-callout {
+    grid-template-columns: 22px 1fr;
+  }
+  .hire-agency-callout .text-link {
+    grid-column: 2;
+  }
+  .compact-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* v4.14.8 release readiness + sales analytics */
 .sales-analytics-toolbar { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }

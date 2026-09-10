@@ -31,7 +31,7 @@ returns table (
   portfolio_url text,
   linkedin_url text,
   availability_status text,
-  hourly_rate numeric,
+  hourly_rate numeric(8,2),
   has_portfolio boolean,
   created_at timestamptz
 )

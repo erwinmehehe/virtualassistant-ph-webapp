@@ -38,7 +38,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     admin.from("outbound_email_events").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
     admin.from("outbound_email_events").select("id,event_type,recipient,error_message,created_at").eq("status", "failed").order("created_at", { ascending: false }).limit(10),
     admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true }).eq("directory_visible", true).lt("completion_score", 100),
-    admin.from("jobs").select("id,title,status,published_at").eq("status", "published").limit(1000),
+    admin.from("jobs").select("id,title,status,published_at,client_id").eq("status", "published").limit(1000),
     admin.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending").not("published_at", "is", null),
     admin.from("job_commercials").select("job_id,commercial_status").limit(5000),
     admin.from("lead_proposals").select("id,lead_id,job_id,status,accepted_at").eq("status", "accepted").limit(1000),
@@ -56,7 +56,8 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
 
   const commercialMap = new Map((commercialsRes.data || []).map((row: any) => [row.job_id, String(row.commercial_status || "")]));
   const approvedCommercialStatuses = new Set(["accepted", "invoiced", "paid"]);
-  const publishedWithoutTerms = (publishedJobsRes.data || []).filter((job: any) => !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
+  const publishedWithoutTerms = (publishedJobsRes.data || []).filter((job: any) => job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
+  const legacyPublicRolesWithoutTerms = (publishedJobsRes.data || []).filter((job: any) => !job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
   const acceptedProposalMissingJob = (acceptedProposalsRes.data || []).filter((proposal: any) => !proposal.job_id || !proposal.accepted_at).length;
   const wonLeadMissingHandoff = (wonLeadsRes.data || []).filter((lead: any) => !lead.client_id || !lead.job_id).length;
   const staleSentProposals = expiredSentProposalsRes.count || 0;
@@ -102,7 +103,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
         {runtimeChecks.map(([label, ok, detail]) => <div className={`release-check ${ok ? "ok" : "warn"}`} key={label}>{ok ? <CheckCircle2 size={18}/> : <AlertTriangle size={18}/>}<div><strong>{label}</strong><span>{detail}</span></div></div>)}
         {releaseChecks.map(([label, value, detail, ok]) => <div className={`release-check ${ok ? "ok" : "warn"}`} key={label}>{ok ? <CheckCircle2 size={18}/> : <AlertTriangle size={18}/>}<div><strong>{label}: {value}</strong><span>{detail}</span></div></div>)}
       </div>
-      <div className="release-runtime-line"><strong>Runtime:</strong> {runtime.deployment.environment}{runtime.deployment.host ? ` · ${runtime.deployment.host}` : ""}<span>Supabase Auth SMTP is checked outside the app and should be verified separately.</span></div>
+      <div className="release-runtime-line"><strong>Runtime:</strong> {runtime.deployment.environment}{runtime.deployment.host ? ` · ${runtime.deployment.host}` : ""}<span>Supabase Auth SMTP is checked outside the app and should be verified separately.</span>{legacyPublicRolesWithoutTerms ? <span>{legacyPublicRolesWithoutTerms} legacy public role{legacyPublicRolesWithoutTerms === 1 ? "" : "s"} have no client/commercial record and are excluded from the client-approval release check.</span> : null}</div>
     </section>
 
     <div className="health-grid">{health.map(([label, value, copy, ok]) => <div className={`health-card ${ok ? "ok" : "warn"}`} key={label}>{ok ? <CheckCircle2 size={19}/> : <AlertTriangle size={19}/>}<div><span>{label}</span><strong>{value}</strong><small>{copy}</small></div></div>)}</div>

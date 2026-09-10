@@ -2744,3 +2744,24 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 #get-matched .home-lead-points li::before { color:#0a4da8; }
 #get-matched .home-lead-copy .text-link { text-decoration:underline; text-underline-offset:3px; }
 #get-matched .home-lead-copy > .row { margin-top:20px; }
+
+/* Owner overview: clear priorities within the existing workspace theme. */
+.owner-overview { max-width:1280px; margin:0 auto; }
+.owner-section-title { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:24px 0 14px; }
+.owner-section-title h2 { margin:4px 0 0; font-size:21px; letter-spacing:-.025em; }
+.owner-priorities { margin:0 0 28px; }
+.owner-priority-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.owner-priority { display:grid; gap:12px; padding:22px; background:var(--surface); border:1px solid var(--line); border-radius:16px; color:var(--text); text-decoration:none; }
+.owner-priority.has-work { border-top:3px solid var(--brand); background:linear-gradient(145deg,var(--brand-soft),var(--surface) 65%); padding-top:20px; }
+.owner-priority-number { font-size:32px; font-weight:800; line-height:1; letter-spacing:-.04em; }
+.owner-priority > strong { font-size:17px; }
+.owner-priority p { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
+.owner-priority > .small { color:var(--brand); font-weight:700; }
+.owner-priority:hover { border-color:var(--brand); }
+.owner-priority:focus-visible { outline:3px solid var(--brand); outline-offset:3px; }
+.owner-overview .agency-metric { box-shadow:none; padding:20px; }
+.owner-overview .agency-metric > strong { font-size:30px; }
+.owner-overview .agency-stages a { border-radius:10px; background:var(--surface-2); padding:16px; }
+.owner-overview #owner-follow-ups { scroll-margin-top:90px; }
+.owner-overview .compact-list .owner-overdue { color:#b54708; font-weight:700; }
+@media(max-width:700px) { .owner-priority-grid { grid-template-columns:1fr; gap:12px; } .owner-priority { padding:18px; gap:9px; } .owner-priority.has-work { padding-top:16px; } .owner-section-title { align-items:flex-start; } }

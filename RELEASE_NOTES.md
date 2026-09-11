@@ -1,3 +1,11 @@
+# Agency workflow release candidate through v4.14.7
+
+Current main includes agency-first role approval, recruiter sales CRM, discovery calls, private proposals, proposal revisions and automatic client workspace handoff.
+
+Production sign-off is pending. See [Agency release readiness](AGENCY_RELEASE_READINESS.md) for verified database evidence, deployment status, remaining acceptance checks and rollback steps. Read-only checks are in [agency-release-preflight.sql](scripts/agency-release-preflight.sql).
+
+The v4.13.1 notes below are historical. Their no-new-migration statement and candidate-access paywall checks do not describe the latest agency workflow. Current main additionally requires the CRM, discovery/proposal and handoff migrations through v4147, plus their earlier dependencies.
+
 # v4.13.1 — action-oriented VA and client dashboards
 
 - Rebuilt the VA overview around a single **Next best action** so profile updates, recruiter requests, vetting, invitations, offers, unread messages, interviews, and job matching are prioritized instead of competing for attention.

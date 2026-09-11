@@ -10,8 +10,10 @@ const nav = {
     ["Overview", "/workspace/client", LayoutDashboard],
     ["Roles", "/workspace/client/jobs", BriefcaseBusiness],
     ["Candidates", "/workspace/client/candidates", UsersRound],
+    ["Saved VAs", "/workspace/client/saved", Heart],
     ["Messages", "/workspace/client/messages", MessageSquare],
-    ["Hires", "/workspace/client/workroom", Wrench],
+    ["Notifications", "/workspace/client/notifications", Bell],
+    ["Workroom", "/workspace/client/workroom", Wrench],
     ["Payments", "/workspace/client/payments", CircleDollarSign],
     ["Company", "/workspace/client/company", Building2]
   ],

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock3, DollarSign, TrendingUp, UsersRound } from "lucide-react";
 import { getSalesAnalytics, type SalesRangeDays } from "@/lib/sales-analytics";
+import { BarChart } from "@/components/db-charts";
 
 function usd(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
@@ -66,7 +67,8 @@ export async function SalesAnalyticsDashboard({
 
     <section className="card sales-funnel-card">
       <div className="dashboard-section-head"><div><h2>Lead-to-hire funnel</h2><p>Each stage is shown as a share of leads created in this reporting window.</p></div><span className="badge">{days} day window</span></div>
-      <div className="sales-funnel-list">
+      <BarChart data={data.funnel.map((stage, i) => ({ label: stage.label, value: stage.count, highlight: i === data.funnel.length - 1 }))} height={110}/>
+      <div className="sales-funnel-list" style={{marginTop:18}}>
         {data.funnel.map((stage) => <div className="sales-funnel-row" key={stage.key}>
           <div><strong>{stage.label}</strong><span>{stage.count}</span></div>
           <div className="sales-funnel-track"><span style={{ width: `${Math.max(stage.count ? 3 : 0, Math.min(100, stage.rate))}%` }}/></div>

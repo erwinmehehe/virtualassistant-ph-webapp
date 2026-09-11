@@ -19,7 +19,7 @@ export function AppShell({ role, name, title, children, badges }: { role: Role; 
         </div>
       </aside>
       <main className="app-main" id="main-content">
-        <div className="app-topbar"><div className="app-topbar-inner"><h1>{title}</h1><Link className="btn btn-sm" href="/" target="_blank"><ExternalLink size={15}/>Public site</Link></div></div>
+        <div className="app-topbar"><div className="app-topbar-inner"><div className="row" style={{gap:12}}><h1>{title}</h1><span className="db-pill indigo" style={{textTransform:"capitalize"}}>{role}</span></div><Link className="btn btn-sm" href="/" target="_blank"><ExternalLink size={15}/>Public site</Link></div></div>
         <div className="app-content">{children}</div>
       </main>
     </div>

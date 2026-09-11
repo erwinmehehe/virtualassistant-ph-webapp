@@ -3575,3 +3575,40 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 
 .app-content .alert-success, .app-content .success-banner { background: #ecfdf5; border-color: #a7f3d0; color: #047857; border-radius: 14px; }
 .app-content .matching-board-guide { border-radius: 16px; }
+
+/* Round 3: control cards, CRM tool, score/status panels, timelines,
+   messaging, profile editor, empty states — completes the visual pass
+   across the remaining dashboard sub-pages. CSS-only, .app-content scoped. */
+.app-content .control-card,
+.app-content .status-summary-card,
+.app-content .crm-metric-card,
+.app-content .workspace-empty-card,
+.app-content .today-work-item { border-radius: 16px; border-color: var(--db-line); }
+.app-content .control-card:hover,
+.app-content .status-summary-card:hover { border-color: #c7cbfa; box-shadow: 0 10px 26px rgba(79,70,229,.08); }
+.app-content .control-card-icon { background: #eef0ff; color: var(--db-indigo); }
+.app-content .crm-metric-card svg { color: var(--db-indigo); }
+
+.app-content .today-work-item.urgent { border-left-color: #e11d48; }
+.app-content .today-work-item.high { border-left-color: #f59e0b; }
+.app-content .today-work-item.medium { border-left-color: var(--db-indigo); }
+
+.app-content .score-strip > div, .app-content .score-grid > div { border-radius: 12px; border-color: var(--db-line); background: #f8f9fd; }
+.app-content .score-big { color: var(--db-indigo); }
+
+.app-content .timeline-dot.done { border-color: var(--db-emerald); background: #ecfdf5; }
+.app-content .timeline-dot.active { border-color: var(--db-indigo); background: #eef0ff; }
+.app-content .matching-workflow-steps span { border-radius: 999px; }
+.app-content .matching-workflow-steps .done { background: #d1fae5; color: #047857; }
+.app-content .matching-workflow-steps .current { background: #eef0ff; color: var(--db-indigo); }
+.app-content .recommended-match-panel, .app-content .brief-helper { border-radius: 14px; background: #f5f6ff; border-color: #d9defc; }
+
+.app-content .message-panel { border-radius: 16px; overflow: hidden; }
+.app-content .message-form input:focus { border-color: var(--db-indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.10); }
+.app-content .thread-list a[aria-current="page"] { background: #eef0ff; }
+.app-content .thread-list-head { background: #fafbff; }
+
+.app-content .profile-section-head > div > span { background: #eef0ff; color: var(--db-indigo); border-radius: 10px; }
+.app-content .profile-editor-sidebar { border-radius: 16px; }
+
+.app-content .job-card { border-radius: 16px; }

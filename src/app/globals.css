@@ -3347,3 +3347,12 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .app-content .workflow-step.current span { background: var(--db-indigo); }
 
 .app-content .empty, .app-content .dashboard-caught-up { border-radius: 16px; }
+
+.app-content .release-check-grid { display: grid; gap: 10px; }
+.app-content .release-check { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--db-line); background: #fff; }
+.app-content .release-check.ok { border-color: #bbf7d0; background: #f0fdf4; }
+.app-content .release-check.ok svg { color: #16a34a; }
+.app-content .release-check.warn { border-color: #fde68a; background: #fffbeb; }
+.app-content .release-check.warn svg { color: #d97706; }
+.app-content .release-check strong { color: var(--db-ink); }
+.app-content .release-check span { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }

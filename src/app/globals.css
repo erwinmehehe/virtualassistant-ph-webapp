@@ -3400,3 +3400,145 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
     color: #fff;
   }
 }
+
+
+/* Dashboard interaction and compact-header safeguards */
+.app-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-topbar-title h1 {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-topbar-title .db-pill {
+  flex: 0 0 auto;
+  text-transform: capitalize;
+}
+
+.onboarding-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.onboarding-title-group h2 {
+  margin: 0;
+}
+
+.onboarding-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.onboarding-ring > strong {
+  position: absolute;
+  font-size: 12px;
+}
+
+@media (max-width: 680px) {
+  .app-nav-mobile > details.active > summary,
+  .app-nav-mobile > details > summary[aria-current="page"] {
+    background: var(--db-ink);
+    color: #fff;
+  }
+
+  .app-nav-mobile > details > summary .nav-badge {
+    position: absolute;
+    top: 1px;
+    right: max(4px, calc(50% - 25px));
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 9px;
+  }
+
+  .app-nav-mobile > details > summary {
+    position: relative;
+  }
+
+  .app-topbar-inner {
+    gap: 8px;
+  }
+
+  .app-topbar-title {
+    gap: 7px;
+    flex: 1 1 auto;
+  }
+
+  .app-topbar-title h1 {
+    font-size: 16px;
+  }
+
+  .app-topbar-title .db-pill {
+    padding: 3px 7px;
+    font-size: 9px;
+  }
+
+  .app-topbar-public {
+    width: 38px;
+    min-width: 38px;
+    padding: 7px;
+  }
+
+  .app-topbar-public span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .onboarding-head {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .onboarding-title-group {
+    gap: 10px;
+  }
+
+  .onboarding-ring svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .onboarding-title-group h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .onboarding-progress-copy {
+    white-space: nowrap;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .app-topbar-title .db-pill {
+    display: none;
+  }
+
+  .onboarding-head {
+    display: grid;
+  }
+
+  .onboarding-progress-copy {
+    padding-left: 54px;
+  }
+}

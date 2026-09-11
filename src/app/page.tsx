@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  BriefcaseBusiness,
   CalendarCheck2,
   Check,
   CheckCircle2,
@@ -119,7 +118,7 @@ export default async function HomePage({
     supabase
       .from("public_va_directory")
       .select(
-        "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate",
+        "user_id,slug,full_name,avatar_url,headline,bio,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate",
       )
       .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
       .not("avatar_url", "is", null)
@@ -286,21 +285,23 @@ export default async function HomePage({
                   <article className="pva-talent-card" key={va.user_id}>
                     <div className="pva-talent-top">
                       <PublicAvatar name={va.full_name} src={va.avatar_url} />
-                      <span className="pva-approved"><BadgeCheck size={14} /> Approved</span>
                     </div>
-                    <h3>{va.full_name}</h3>
+                    <h3>{va.full_name} <BadgeCheck size={16} className="pva-verified-check" /></h3>
                     <p className="pva-talent-title">{va.headline || va.primary_category || "Virtual Assistant"}</p>
+                    {va.bio ? <p className="pva-talent-bio">{String(va.bio).slice(0, 140)}{va.bio.length > 140 ? "…" : ""}</p> : null}
                     <div className="pva-tags">
                       {mergeUniqueStrings(va.primary_category, va.categories)
                         .slice(0, 2)
                         .map((x, index) => <span key={`${String(x)}-${index}`}>{x}</span>)}
                     </div>
-                    <div className="pva-talent-facts">
-                      <span><BriefcaseBusiness size={14} /> {va.years_experience}+ years experience</span>
-                      <span><Clock3 size={14} /> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Flexible availability"}</span>
-                      {va.hourly_rate ? <span><CheckCircle2 size={14} /> ${Number(va.hourly_rate).toFixed(0)}/hr preferred</span> : null}
+                    <div className="pva-talent-facts pva-talent-facts-row">
+                      <span className="pva-approved-inline"><BadgeCheck size={14} /> Approved · {va.years_experience}+ yrs</span>
+                      <span><Clock3 size={14} /> {va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</span>
                     </div>
-                    <Link className="pva-card-link" href={`/va/${va.slug}`}>View profile <ArrowRight size={15} /></Link>
+                    <div className="pva-talent-footer">
+                      {va.hourly_rate ? <span className="pva-talent-rate">${Number(va.hourly_rate).toFixed(0)}<small>/hr</small></span> : <span/>}
+                      <Link className="pva-card-link pva-card-link-solid" href={`/va/${va.slug}`}>View profile <ArrowRight size={15} /></Link>
+                    </div>
                   </article>
                 ))}
               </div>

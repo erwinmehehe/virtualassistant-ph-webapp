@@ -3628,3 +3628,19 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .app-content .info-banner, .app-content .intent-banner { border-radius: 14px; background: #eef0ff; border-color: #d9defc; color: #3730a3; }
 .app-content .unread-dot { background: var(--db-indigo); }
 .app-content .status-summary-action { color: var(--db-indigo); font-weight: 700; }
+
+/* Round 5: replace remaining old-blue accents inside workspace with
+   the new indigo, for consistency with everything already restyled. */
+.app-content .progress > span,
+.app-content .match-meter span,
+.app-content .sales-funnel-track > span { background: linear-gradient(90deg, var(--db-indigo), var(--db-violet)); }
+.app-content .match, .app-content .wizard-step.active,
+.app-content .compare-score, .app-content .fit-badge,
+.app-content .notification-card.unread { background: #eef0ff; }
+.app-content .match, .app-content .wizard-step.active { color: var(--db-indigo); }
+.app-content .wizard-step-label,
+.app-content .compare-score strong,
+.app-content .fit-badge strong,
+.app-content .sales-kpi-card svg,
+.app-content .role-dashboard-row:hover strong { color: var(--db-indigo) !important; }
+.app-content .notification-card.unread { border-color: #c7cbfa; }

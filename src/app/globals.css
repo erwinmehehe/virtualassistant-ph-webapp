@@ -3612,3 +3612,19 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .app-content .profile-editor-sidebar { border-radius: 16px; }
 
 .app-content .job-card { border-radius: 16px; }
+
+/* Round 4: broad pattern coverage for remaining card/grid/CRM variants
+   not yet named individually, plus a few high-traffic named ones. */
+.app-content [class$="-card"],
+.app-content [class*="-card "] { border-radius: 16px; }
+.app-content [class^="crm-"] svg, .app-content [class*=" crm-"] svg { color: var(--db-indigo); }
+.app-content .crm-tool-panel, .app-content .crm-filter-panel, .app-content .crm-tabs a.active { border-radius: 14px; }
+.app-content .crm-tabs a.active { background: var(--db-ink); border-color: var(--db-ink); color: #fff; }
+
+.app-content .stat-card, .app-content .workspace-empty-icon,
+.app-content .onboarding-step-icon, .app-content .dashboard-next-icon { border-radius: 14px; background: #eef0ff; color: var(--db-indigo); }
+.app-content .onboarding-step-card, .app-content .resume-hero, .app-content .onboarding-hero { border-radius: 18px; }
+
+.app-content .info-banner, .app-content .intent-banner { border-radius: 14px; background: #eef0ff; border-color: #d9defc; color: #3730a3; }
+.app-content .unread-dot { background: var(--db-indigo); }
+.app-content .status-summary-action { color: var(--db-indigo); font-weight: 700; }

@@ -29,7 +29,6 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
-import { RoleBriefForm } from "@/components/role-brief-form";
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -44,8 +43,6 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: canonicalPath("/") },
 };
-
-const BOOKING_URL = "https://calendar.app.google/FxedmioyeJhKras87";
 
 const GROUP_BLURBS: Record<string, string> = {
   "Admin & Operations": "Inbox, calendar, data, and recurring coordination that keeps the business moving.",
@@ -107,12 +104,7 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
-  const query = await searchParams;
+export default async function HomePage() {
   const supabase = await createClient();
   const [{ data: featured }] = await Promise.all([
     supabase
@@ -215,9 +207,9 @@ export default async function HomePage({
                 <Link className="pva-btn pva-btn-primary" href="/hire" data-track="hero_hiring_request">
                   Start your hiring request <ArrowRight size={18} />
                 </Link>
-                <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
-                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a 15-min call
-                </a>
+                <Link className="pva-btn pva-btn-secondary" href="/book-client-call">
+                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a client discovery call
+                </Link>
               </div>
 
               <div className="pva-proof-row" aria-label="Candidate screening checks">
@@ -348,7 +340,7 @@ export default async function HomePage({
                 <li><CheckCircle2 size={17} /> Separate experiences for clients, recruiters, and VAs</li>
               </ul>
               <div className="pva-dark-actions">
-                <Link className="pva-btn pva-btn-light" href="/hire">Start hiring <ArrowRight size={17} /></Link>
+                <Link className="pva-btn pva-btn-light" href="/hire">Start your hiring request <ArrowRight size={17} /></Link>
                 <Link className="pva-dark-link" href="/how-vetting-works">See how vetting works</Link>
               </div>
             </div>
@@ -393,14 +385,20 @@ export default async function HomePage({
               </div>
               <Link className="pva-text-link" href="/find-talent">Prefer to browse first? See approved Virtual Assistants <ArrowRight size={15} /></Link>
             </div>
-            <div className="pva-form-shell">
-              <RoleBriefForm
-                sourcePath="/"
-                error={query.error}
-                sent={Boolean(query.sent)}
-                heading="Tell us who you need"
-                subheading="About 60 seconds. Our recruiting team will review the role and follow up."
-              />
+            <div className="pva-form-shell pva-brief-step">
+              <span className="pva-gradient-icon"><ClipboardCheck size={22} /></span>
+              <span className="pva-kicker">Private hiring request</span>
+              <h3>Start with three simple details.</h3>
+              <p>Tell us the specialty, expected hours, and the work you want handled. The dedicated hiring page will guide you through the remaining details.</p>
+              <ul>
+                <li><CheckCircle2 size={16} /> No account required</li>
+                <li><CheckCircle2 size={16} /> About 60 seconds</li>
+                <li><CheckCircle2 size={16} /> Reviewed by a recruiter</li>
+              </ul>
+              <Link className="pva-btn pva-btn-primary" href="/hire" data-track="homepage_hiring_request">
+                Start your hiring request <ArrowRight size={18} />
+              </Link>
+              <Link className="pva-text-link" href="/book-client-call">Prefer to talk first? Book a client discovery call <ArrowRight size={15} /></Link>
             </div>
           </div>
         </section>

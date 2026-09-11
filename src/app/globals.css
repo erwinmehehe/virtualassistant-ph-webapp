@@ -3550,3 +3550,28 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
     padding-left: 54px;
   }
 }
+
+/* Filter bars, browse cards, tables, alerts — extend the redesign to the
+   list/browse/vetting/moderation pages across all four dashboards. */
+.app-content .directory-filterbar,
+.app-content .recruiter-filter-panel { border-radius: 16px; border-color: var(--db-line); box-shadow: 0 1px 2px rgba(16,24,40,.03); }
+.app-content .directory-filterbar select, .app-content .directory-filterbar input,
+.app-content .recruiter-filter-panel input, .app-content .recruiter-filter-panel select { border-radius: 10px; }
+.app-content .directory-filterbar select:focus, .app-content .directory-filterbar input:focus,
+.app-content .recruiter-filter-panel input:focus, .app-content .recruiter-filter-panel select:focus { border-color: var(--db-indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.10); }
+
+.app-content .role-filter-tabs a { border-radius: 999px; font-weight: 700; }
+.app-content .role-filter-tabs a:hover { border-color: #c7cbfa; background: #f5f5ff; }
+.app-content .role-filter-tabs a.active { background: var(--db-ink); border-color: var(--db-ink); }
+
+.app-content .browse-va-card { border-radius: 18px; }
+.app-content .browse-va-card:hover { border-color: #c7cbfa; box-shadow: 0 10px 24px rgba(79,70,229,.08); }
+
+.app-content .bulk-action-bar { border-radius: 14px; border-color: #d9defc; background: rgba(238,240,255,.9); }
+
+.app-content .candidate-review-table, .app-content .table-wrap { border-radius: 16px; }
+.app-content .candidate-fit { color: var(--db-indigo); font-weight: 700; }
+.app-content .candidate-next-icon { color: var(--db-indigo); }
+
+.app-content .alert-success, .app-content .success-banner { background: #ecfdf5; border-color: #a7f3d0; color: #047857; border-radius: 14px; }
+.app-content .matching-board-guide { border-radius: 16px; }

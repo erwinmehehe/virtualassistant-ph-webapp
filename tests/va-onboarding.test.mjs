@@ -7,6 +7,10 @@ const join = fs.readFileSync("src/components/join-account-form.tsx", "utf8");
 const bootstrap = fs.readFileSync("src/lib/profile-bootstrap.ts", "utf8");
 const quickAction = fs.readFileSync("src/app/actions/va-onboarding.ts", "utf8");
 const quickPage = fs.readFileSync("src/app/workspace/va/onboarding/page.tsx", "utf8");
+const vaLayout = fs.readFileSync("src/app/workspace/va/layout.tsx", "utf8");
+const vaGate = fs.readFileSync("src/components/va-onboarding-gate.tsx", "utf8");
+const social = fs.readFileSync("src/lib/social-login.ts", "utf8");
+const envExample = fs.readFileSync(".env.example", "utf8");
 const categories = fs.readFileSync("src/app/workspace/recruiter/categories/page.tsx", "utf8");
 const constants = fs.readFileSync("src/lib/constants.ts", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
@@ -17,10 +21,22 @@ test("new VA signups land in quick setup instead of a 0% dashboard", () => {
   assert.match(nav, /"Quick setup", "\/workspace\/va\/onboarding"/);
 });
 
-test("VA social signup is available when social auth is configured", () => {
-  assert.match(join, /socialLoginEnabled\(\)/);
-  assert.doesNotMatch(join, /client && socialLoginEnabled\(\)/);
+test("returning zero-completion VAs are recovered into quick setup", () => {
+  assert.match(vaLayout, /getVaCompletion\(va, profile\.avatar_url\)\.score === 0/);
+  assert.match(vaLayout, /VaOnboardingGate needsQuickSetup=\{needsQuickSetup\}/);
+  assert.match(vaGate, /pathname === "\/workspace\/va"/);
+  assert.match(vaGate, /router\.replace\("\/workspace\/va\/onboarding"\)/);
+});
+
+test("Google and Microsoft signup are enabled independently", () => {
+  assert.match(social, /NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED/);
+  assert.match(social, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED/);
+  assert.match(join, /googleEnabled \? <form action=\{oauthAction\}>/);
+  assert.match(join, /microsoftEnabled \? <form action=\{oauthAction\}>/);
   assert.match(join, /name="role" value=\{role\}/);
+  assert.match(envExample, /NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED=/);
+  assert.match(envExample, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED=/);
+  assert.doesNotMatch(envExample, /NEXT_PUBLIC_SOCIAL_LOGIN_ENABLED=/);
 });
 
 test("email signup callback uses the canonical site origin", () => {

@@ -106,19 +106,11 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
           ? {title:"We’re finding candidates",copy:"Your recruiting team is reviewing the role and preparing the strongest matches.",href:"/workspace/client/jobs",label:"View role progress",step:1}
           : {title:"Tell us who you need",copy:"Share the work in your own words. We’ll turn it into a clear hiring brief.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
 
-  const quick=[
-    ["New hiring request","Tell us who you need","/workspace/client/jobs/new",Plus,true],
-    ["Roles",`${active} active role${active===1?"":"s"}`,"/workspace/client/jobs",BriefcaseBusiness,false],
-    ["Shortlist",`${applicants} candidate${applicants===1?"":"s"} in your pipeline`,"/workspace/client/candidates",UsersRound,false],
-    ["Messages",`${unreadMessages} unread message${unreadMessages===1?"":"s"}`,"/workspace/client/messages",MessageSquare,false],
-    ["Hires",`${hires} placement${hires===1?"":"s"}`,"/workspace/client/workroom",UserRoundCheck,false]
-  ] as const;
-
-  return <>
+  return <div className="dash-page role-overview client-overview">
     <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this Virtual Assistant preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this Virtual Assistant</Link></div>:null}
 
-    <div className="page-head"><div><div className="kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
+    <div className="dash-header"><div><div className="dash-kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
     <section className="client-concierge-strip">
       <div><span className="small">Your hiring team</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>We handle screening, matching, and shortlist preparation. You step in when a decision needs your attention.</p></div>
@@ -129,7 +121,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     {!jobRows.length?<section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>You do not need to write a perfect job description. Start with the work you want off your plate, then refine the brief with our guidance.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Create hiring brief <ArrowRight size={17}/></Link></section>:null}
 
-    <div className="client-hiring-grid">{quick.map(([label,copy,href,Icon,primary])=><Link key={label} href={href} className={`client-hiring-card ${primary?"primary":""}`}><Icon size={20}/><span><strong>{label}</strong><small>{copy}</small></span></Link>)}</div>
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>Only items that require a hiring decision or response appear here.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>
@@ -151,5 +142,5 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
       <section className="card"><div className="dashboard-section-head"><div><h2>We handle the recruiting work</h2><p>Your team should not have to manage a marketplace. We review the brief, screen the pool, and bring the strongest candidates forward.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Tell us what you need</li><li>We screen and shortlist vetted Virtual Assistants</li><li>You review, interview, and choose</li></ol><div className="unlock-benefits"><span>Full candidate profiles appear once your role is approved</span><span>Recruiter-led shortlist instead of profile hunting</span><span>Direct messaging when candidates are ready</span><span>One clear path from request to hire</span></div><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section>
     </div>
-  </>;
+  </div>;
 }

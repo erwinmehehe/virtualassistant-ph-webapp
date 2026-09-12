@@ -192,7 +192,7 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       <DashHeader
         kicker="Recruiter control center"
         title="Today’s work"
-        subtitle="Revenue first: respond to new clients, unblock active roles, then work the talent pipeline."
+        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · refreshed when this page opened</span></>}
         actions={<>
           <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
           <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/matching"><Sparkles size={15} aria-hidden="true" /> Match active roles</Link>
@@ -210,70 +210,68 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
         <StatCard label="Open client pipeline" value={value("open_leads")} icon={<TrendingUp size={20} />} tone="emerald" href="/workspace/recruiter/leads?view=open" sub={`USD ${value("open_pipeline_value").toLocaleString()} estimated value`} />
       </div>
 
-      <div className="dash-grid">
+      <div className="dash-grid recruiter-priority-grid">
         <div className="dash-col">
-          <Suspense fallback={<Panel title="Vetting queue" subtitle="Loading candidate details"><p className="muted">Loading vetting queue…</p></Panel>}>
-            <RecruiterVettingQueue unreviewed={unreviewed}/>
-          </Suspense>
-
-          <Panel title="Action queue" subtitle="Ordered by what is blocking a client, a candidate, or an open role" action={<Pill tone={openActions ? "amber" : "emerald"}>{plural(openActions, "open action")}</Pill>}>
+          <Panel title="Today’s priority actions" subtitle="Ordered by what is blocking a client, candidate, or active role" action={<Pill tone={openActions ? "amber" : "emerald"}>{plural(openActions, "open action")}</Pill>}>
             <div className="dash-actions">
               {today.map((item) => (
                 <Link key={item.title} href={item.href} className={`dash-action${item.count ? "" : " clear"}`}>
                   <span className="dash-action-count">{item.count}</span>
-                  <span className="dash-action-copy">
-                    <span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority]} dot={false}>{item.priority}</Pill></span>
-                    <small>{item.copy}</small>
-                  </span>
+                  <span className="dash-action-copy"><span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority]} dot={false}>{item.priority}</Pill></span><small>{item.copy}</small></span>
                   <span className="dash-action-go">{item.count ? <ArrowRight size={16} aria-label="Open" /> : "Clear"}</span>
                 </Link>
               ))}
             </div>
           </Panel>
-
-          <Panel title="Talent funnel" subtitle="Where VA accounts are right now, excluding rejected">
-            <div className="dash-funnel">
-              {funnel.map((step) => (
-                <div className="dash-funnel-row" key={step.label}>
-                  <span className="dash-funnel-label">{step.label}</span>
-                  <div className="dash-funnel-track">
-                    <div className={`dash-funnel-fill tone-${step.tone}`} style={{ width: `${Math.max((step.value / funnelTop) * 100, 9)}%` }}>{step.value}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Panel>
+          <Suspense fallback={<Panel title="Vetting queue" subtitle="Loading candidate details"><div className="workspace-skeleton-card" aria-busy="true"/></Panel>}>
+            <RecruiterVettingQueue unreviewed={unreviewed}/>
+          </Suspense>
         </div>
 
         <div className="dash-col">
-          <Suspense fallback={<Panel title="Roles that need matching" subtitle="Loading candidate status"><p className="muted">Loading active roles…</p></Panel>}>
+          <Suspense fallback={<Panel title="Roles that need matching" subtitle="Loading candidate status"><div className="workspace-skeleton-card" aria-busy="true"/></Panel>}>
             <RecruiterRolesNeedingMatching count={rolesWithoutCandidates}/>
           </Suspense>
-
-          <Panel title="Other signals">
+          <Panel title="Hiring and talent signals">
             <SignalList items={[
               { label: "Ready to approve", count: value("ready"), href: "/workspace/recruiter/talent?readiness=ready", icon: <UserRoundCheck size={16} />, hint: `${PUBLIC_VA_MIN_COMPLETION}%+ profile with a photo` },
               { label: "Active client roles", count: value("active_jobs"), href: "/workspace/recruiter/matching", icon: <BriefcaseBusiness size={16} />, hint: `${rolesWithoutCandidates} with no candidates yet` },
               { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" },
-              { label: "Vetted but not listed", count: value("vetted_hidden"), href: "/workspace/recruiter/talent?readiness=vetted_hidden", icon: <UserRoundCheck size={16} />, hint: "Screened, profile still short" },
               { label: "New applications", count: value("new_apps"), href: "/workspace/recruiter/matching?view=applications", icon: <CheckCircle2 size={16} />, hint: "Across all roles" },
-              { label: "Unread messages", count: value("unread_messages"), href: "/workspace/recruiter/activity?type=messages", icon: <MessageSquare size={16} />, hint: "Marketplace-wide, not your inbox" }
+              { label: "Unread messages", count: value("unread_messages"), href: "/workspace/recruiter/activity?type=messages", icon: <MessageSquare size={16} />, hint: "Marketplace-wide activity" }
             ]} />
-          </Panel>
-
-          <Panel title="New VA signups" subtitle={`${plural(signupTotal, "account")} in the last ${SIGNUP_WEEKS} weeks · this week highlighted`}>
-            <BarChart data={signups} label="New VA signups per week" height={110} />
-          </Panel>
-
-          <Panel title="Fast cleanup" subtitle="Filter the master directory, then apply one bulk action">
-            <div className="dash-button-stack">
-              <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
-              <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
-              <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
-            </div>
           </Panel>
         </div>
       </div>
+
+      <details className="dash-secondary">
+        <summary>Analytics and maintenance</summary>
+        <div className="dash-grid">
+          <div className="dash-col">
+            <Panel title="Talent funnel" subtitle="Where VA accounts are right now, excluding rejected">
+              <div className="dash-funnel">{funnel.map((step) => <div className="dash-funnel-row" key={step.label}><span className="dash-funnel-label">{step.label}</span><div className="dash-funnel-track"><div className={`dash-funnel-fill tone-${step.tone}`} style={{ width: `${Math.max((step.value / funnelTop) * 100, 9)}%` }}>{step.value}</div></div></div>)}</div>
+            </Panel>
+            <Panel title="New VA signups" subtitle={`${plural(signupTotal, "account")} in the last ${SIGNUP_WEEKS} weeks · this week highlighted`}>
+              <BarChart data={signups} label="New VA signups per week" height={110} />
+            </Panel>
+          </div>
+          <div className="dash-col">
+            <Panel title="Directory maintenance">
+              <SignalList items={[
+                { label: "Vetted but not listed", count: value("vetted_hidden"), href: "/workspace/recruiter/talent?readiness=vetted_hidden", icon: <UserRoundCheck size={16} />, hint: "Screened, profile still short" },
+                { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" }
+              ]}/>
+            </Panel>
+            <Panel title="Fast cleanup" subtitle="Open a filtered directory before applying any bulk action">
+              <div className="dash-button-stack">
+                <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
+                <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
+                <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
+              </div>
+            </Panel>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

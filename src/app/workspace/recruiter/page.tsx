@@ -16,28 +16,13 @@ const RESULT_WORD: Record<string, string> = {
   request_changes: "sent back for changes", hide: "hidden", remind: "reminded", assign: "assigned", mark_reviewed: "marked reviewed"
 };
 
-// Monday-anchored week starts in UTC, oldest first, ending with this week.
-function mondayWeekStarts(weeks: number) {
-  const now = new Date();
-  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
-  return Array.from({ length: weeks }, (_, i) => {
-    const start = new Date(monday);
-    start.setUTCDate(monday.getUTCDate() - (weeks - 1 - i) * 7);
-    return start;
-  });
-}
-
-function bucketByWeek(dates: string[], weekStarts: Date[]) {
-  const counts = weekStarts.map(() => 0);
-  for (const raw of dates) {
-    const t = new Date(raw).getTime();
-    for (let i = weekStarts.length - 1; i >= 0; i--) {
-      if (t >= weekStarts[i].getTime()) { counts[i] += 1; break; }
-    }
-  }
-  return weekStarts.map((start, i) => ({ label: `${start.getUTCMonth() + 1}/${start.getUTCDate()}`, value: counts[i], highlight: i === weekStarts.length - 1 }));
-}
+type RecruiterDashboardMetrics = {
+  total: number;
+  started: number;
+  approved: number;
+  public: number;
+  signups: { week_start: string; count: number }[];
+};
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -45,12 +30,11 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
   await requireRole("recruiter");
   const params = await searchParams;
   const admin = createAdminClient();
-  const weekStarts = mondayWeekStarts(SIGNUP_WEEKS);
   const directoryCount = () => admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true }).eq("account_status", "active");
 
   const [
     unreviewedRes, incompleteRes, readyRes, vettedHiddenRes, activeJobsRes, newAppsRes, unreadMessagesRes, leadsRes, jobsRes, releasedRes,
-    queueRes, totalRes, startedRes, approvedRes, publicRes, signupsRes
+    queueRes, metricsRes
   ] = await Promise.all([
     admin.from("va_vetting").select("va_id", { count: "exact", head: true }).eq("stage", "recruiter_review"),
     directoryCount().lt("completion_score", 100).neq("stage", "rejected"),
@@ -64,12 +48,10 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
     admin.from("job_shortlist_candidates").select("id", { count: "exact", head: true }).eq("shortlist_status", "released"),
     // Oldest first: whoever has waited longest is who to review next.
     admin.from("va_vetting").select("va_id,updated_at,video_url").eq("stage", "recruiter_review").order("updated_at", { ascending: true }).limit(QUEUE_PREVIEW),
-    directoryCount().neq("stage", "rejected"),
-    directoryCount().neq("stage", "rejected").gt("completion_score", 0),
-    directoryCount().in("stage", ["approved", "bench"]),
-    admin.from("public_va_directory").select("user_id", { count: "exact", head: true }),
-    admin.from("recruiter_va_directory").select("account_created_at").gte("account_created_at", weekStarts[0].toISOString()).limit(5000)
+    admin.rpc("recruiter_dashboard_metrics", { p_signup_weeks: SIGNUP_WEEKS })
   ]);
+
+  if (metricsRes.error) throw metricsRes.error;
 
   // Scoped to the listed roles rather than scanning every shortlist row and
   // every application ever created.
@@ -118,14 +100,23 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
   }).length;
 
   const unreviewed = unreviewedRes.count || 0;
-  const signups = bucketByWeek((signupsRes.data || []).map((row: any) => row.account_created_at).filter(Boolean), weekStarts);
+  const metrics = (metricsRes.data || {}) as Partial<RecruiterDashboardMetrics>;
+  const signupRows = Array.isArray(metrics.signups) ? metrics.signups : [];
+  const signups = signupRows.map((week, index) => {
+    const start = new Date(week.week_start);
+    return {
+      label: `${start.getUTCMonth() + 1}/${start.getUTCDate()}`,
+      value: Number(week.count || 0),
+      highlight: index === signupRows.length - 1
+    };
+  });
   const signupTotal = signups.reduce((sum, week) => sum + week.value, 0);
 
   const funnel: { label: string; value: number; tone: Tone }[] = [
-    { label: "VA accounts", value: totalRes.count || 0, tone: "slate" },
-    { label: "Started a profile", value: startedRes.count || 0, tone: "indigo" },
-    { label: "Approved", value: approvedRes.count || 0, tone: "amber" },
-    { label: "Public in the directory", value: publicRes.count || 0, tone: "emerald" }
+    { label: "VA accounts", value: Number(metrics.total || 0), tone: "slate" },
+    { label: "Started a profile", value: Number(metrics.started || 0), tone: "indigo" },
+    { label: "Approved", value: Number(metrics.approved || 0), tone: "amber" },
+    { label: "Public in the directory", value: Number(metrics.public || 0), tone: "emerald" }
   ];
   const funnelTop = Math.max(funnel[0].value, 1);
 

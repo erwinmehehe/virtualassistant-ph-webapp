@@ -18,27 +18,24 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const supabase=await createClient();
   const admin=createAdminClient();
 
-  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{data:requested},{data:conversations,error:conversationsError}]=await Promise.all([
+  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{data:requested},{data:conversations,error:conversationsError},{data:recentOwnedLead,error:hiringOwnerError}]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
     supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
     params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
-    admin.from("conversations").select("id").eq("client_id",user.id)
+    admin.from("conversations").select("id").eq("client_id",user.id),
+    admin.from("lead_intake")
+      .select("owner_id,owner:profiles!lead_intake_owner_id_fkey(full_name)")
+      .eq("client_id",user.id)
+      .not("owner_id","is",null)
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .maybeSingle()
   ]);
 
   if(!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
 
-  const {data:recentOwnedLead}=await admin.from("lead_intake")
-    .select("owner_id")
-    .eq("client_id",user.id)
-    .not("owner_id","is",null)
-    .order("created_at",{ascending:false})
-    .limit(1)
-    .maybeSingle();
-  const {data:hiringOwner}=recentOwnedLead?.owner_id
-    ? await admin.from("profiles").select("full_name").eq("id",recentOwnedLead.owner_id).maybeSingle()
-    : {data:null} as any;
-
+  const hiringOwner=(recentOwnedLead as any)?.owner||null;
   const jobRows=jobs||[];
   const jobIds=jobRows.map((job:any)=>job.id);
   const conversationIds=(conversations||[]).map((row:any)=>row.id);
@@ -55,6 +52,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     "your company profile":companyError,
     "your roles":jobsError,
     "your hires":workroomsError,
+    "your hiring owner":hiringOwnerError,
     "applicant data":applicationsError,
     "your messages":conversationsError||messagesError
   });

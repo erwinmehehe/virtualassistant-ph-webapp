@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Clock3,
+  Crown,
   Globe2,
   Headphones,
   Layers3,
@@ -20,6 +21,7 @@ import {
   UsersRound,
   Video,
   WandSparkles,
+  Zap,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -398,6 +400,35 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <section className="pva-section pva-white" aria-label="Choose your path">
+          <div className="container">
+            <div className="pva-dual-cta-grid">
+              <div className="pva-dual-cta-card pva-dual-cta-client">
+                <span className="pva-dual-cta-badge"><UsersRound size={13} /> For clients</span>
+                <h3>Describe the work. We shortlist against it.</h3>
+                <p>Give us the specialty, the hours, the overlap you need and your budget. We recruit and screen against that brief, then send you candidates worth interviewing. No account required, and nothing is published.</p>
+                <ul>
+                  <li><CheckCircle2 size={16} /> Every candidate has passed a skills test, a video introduction and a recruiter review</li>
+                  <li><CheckCircle2 size={16} /> Virtual Assistant compensation and our service fee are shown separately before anything is agreed</li>
+                  <li><CheckCircle2 size={16} /> Prefer to browse first? See approved Virtual Assistants</li>
+                </ul>
+                <Link className="pva-card-link-solid" href="/hire">Send your brief <ArrowRight size={15} /></Link>
+              </div>
+              <div className="pva-dual-cta-card pva-dual-cta-va">
+                <span className="pva-dual-cta-badge pva-dual-cta-badge-green"><Sparkles size={13} /> For Filipino VAs</span>
+                <h3>Looking for virtual assistant work?</h3>
+                <p>Browse reviewed jobs, build one structured profile, and apply after approval — the same approved profile works for every role.</p>
+                <ul>
+                  <li><CheckCircle2 size={16} /> Reviewed jobs with published pay, clear scope, and a reviewed client brief</li>
+                  <li><CheckCircle2 size={16} /> Category skills test plus video review that proves your value</li>
+                  <li><CheckCircle2 size={16} /> USD {MIN_HOURLY_RATE}/hour floor on ongoing roles — fair pay, enforced</li>
+                </ul>
+                <Link className="pva-card-link-solid pva-card-link-green" href="/auth/join/va">Apply as a VA <ArrowRight size={15} /></Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="pva-section pva-white">
           <div className="container pva-lead-grid">
             <div className="pva-lead-copy">
@@ -518,6 +549,7 @@ export default async function HomePage() {
             <div className="pva-pricing-grid">
               <div className="pva-pricing-card pva-pricing-featured">
                 <span className="pva-pricing-badge">Recommended</span>
+                <span className="pva-pricing-icon"><Crown size={20} /></span>
                 <h3>Managed Virtual Assistant service</h3>
                 <p>Recruiting and vetting plus a structured operating layer after your VA starts — backed by our team for as long as you work together.</p>
                 <div className="pva-pricing-amount">{managedMarkup > 0 ? `${managedMarkup}%` : "Custom quote"}</div>
@@ -529,6 +561,7 @@ export default async function HomePage() {
                 <Link className="pva-card-link-solid" href="/hire">Get a managed VA <ArrowRight size={15} /></Link>
               </div>
               <div className="pva-pricing-card">
+                <span className="pva-pricing-icon pva-pricing-icon-violet"><Zap size={20} /></span>
                 <h3>Direct hire</h3>
                 <p>Prefer to manage the VA yourself after the hire? We still handle recruiting, screening, and matching.</p>
                 <div className="pva-pricing-amount">{placementFee > 0 ? money(placementFee) : "Custom quote"}</div>
@@ -537,7 +570,8 @@ export default async function HomePage() {
                   <li><Check size={15} /> Client-led interviews and final selection</li>
                   <li><Check size={15} /> One-time placement fee</li>
                 </ul>
-                <Link className="pva-text-link" href="/pricing">See full pricing details <ArrowRight size={15} /></Link>
+                <Link className="pva-card-link-solid" href="/hire">Start direct hire <ArrowRight size={15} /></Link>
+                <Link className="pva-text-link pva-pricing-more-link" href="/pricing">See full pricing details <ArrowRight size={14} /></Link>
               </div>
             </div>
             <p className="pricing-note">Ongoing hourly roles cannot be budgeted below USD {MIN_HOURLY_RATE}/hour.</p>

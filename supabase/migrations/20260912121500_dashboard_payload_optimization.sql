@@ -1,3 +1,15 @@
+create index if not exists jobs_client_created_idx
+  on public.jobs (client_id, created_at desc);
+
+create index if not exists applications_job_status_idx
+  on public.applications (job_id, status);
+
+create index if not exists workrooms_client_idx
+  on public.workrooms (client_id);
+
+create index if not exists va_vetting_stage_updated_idx
+  on public.va_vetting (stage, updated_at);
+
 create or replace function public.client_dashboard_summary(p_client_id uuid)
 returns jsonb
 language sql

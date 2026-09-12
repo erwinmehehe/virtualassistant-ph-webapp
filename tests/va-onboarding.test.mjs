@@ -10,7 +10,7 @@ const bootstrap = fs.readFileSync("src/lib/profile-bootstrap.ts", "utf8");
 const quickAction = fs.readFileSync("src/app/actions/va-onboarding.ts", "utf8");
 const quickPage = fs.readFileSync("src/app/workspace/va/onboarding/page.tsx", "utf8");
 const vaLayout = fs.readFileSync("src/app/workspace/va/layout.tsx", "utf8");
-const vaGate = fs.readFileSync("src/components/va-onboarding-gate.tsx", "utf8");
+const vaPage = fs.readFileSync("src/app/workspace/va/page.tsx", "utf8");
 const social = fs.readFileSync("src/lib/social-login.ts", "utf8");
 const envExample = fs.readFileSync(".env.example", "utf8");
 const categories = fs.readFileSync("src/app/workspace/recruiter/categories/page.tsx", "utf8");
@@ -23,11 +23,11 @@ test("new VA signups land in quick setup instead of a 0% dashboard", () => {
   assert.match(nav, /"Quick setup", "\/workspace\/va\/onboarding"/);
 });
 
-test("returning zero-completion VAs are recovered into quick setup", () => {
-  assert.match(vaLayout, /getVaCompletion\(va, profile\.avatar_url\)\.score === 0/);
-  assert.match(vaLayout, /VaOnboardingGate needsQuickSetup=\{needsQuickSetup\}/);
-  assert.match(vaGate, /pathname === "\/workspace\/va"/);
-  assert.match(vaGate, /router\.replace\("\/workspace\/va\/onboarding"\)/);
+test("returning zero-completion VAs are recovered into quick setup without blocking every VA route", () => {
+  assert.match(vaPage, /completion\.score===0/);
+  assert.match(vaPage, /redirect\("\/workspace\/va\/onboarding"\)/);
+  assert.doesNotMatch(vaLayout, /getVaCompletion/);
+  assert.doesNotMatch(vaLayout, /va_profiles/);
 });
 
 test("Google and Microsoft signup are enabled independently", () => {

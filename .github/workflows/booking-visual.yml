@@ -1,0 +1,75 @@
+name: Public booking visual QA
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "src/app/book-client-call/**"
+      - "src/components/client-booking-form.tsx"
+      - "src/lib/discovery-booking.ts"
+      - "scripts/public-booking-visual.mjs"
+      - ".github/workflows/booking-visual.yml"
+
+permissions:
+  contents: read
+  deployments: read
+
+concurrency:
+  group: booking-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for the Vercel PR preview
+        id: preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request.head.sha;
+            for (let attempt = 0; attempt < 40; attempt += 1) {
+              const deployments = await github.rest.repos.listDeployments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha,
+                per_page: 20
+              });
+              for (const deployment of deployments.data) {
+                const statuses = await github.rest.repos.listDeploymentStatuses({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id,
+                  per_page: 20
+                });
+                const ready = statuses.data.find((status) => status.state === "success" && status.environment_url);
+                if (ready) {
+                  core.setOutput("url", ready.environment_url);
+                  return;
+                }
+              }
+              await new Promise((resolve) => setTimeout(resolve, 15000));
+            }
+            core.setFailed("No successful Vercel preview was found within 10 minutes.");
+      - name: Capture public booking states
+        env:
+          VISUAL_BASE_URL: ${{ steps.preview.outputs.url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: node scripts/public-booking-visual.mjs
+      - name: Upload booking screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: booking-visual-${{ github.event.pull_request.number }}
+          path: artifacts/booking-visual
+          if-no-files-found: error
+          retention-days: 14

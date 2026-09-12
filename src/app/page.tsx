@@ -16,6 +16,7 @@ import {
   SearchCheck,
   ShieldCheck,
   Sparkles,
+  Star,
   UsersRound,
   Video,
 } from "lucide-react";

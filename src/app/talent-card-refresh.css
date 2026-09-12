@@ -1,0 +1,329 @@
+/* Shared public talent-card refresh. Keeps existing data and routing intact. */
+
+/* Homepage featured talent */
+.pva-home .pva-talent-grid {
+  gap: 1.35rem;
+  align-items: stretch;
+}
+
+.pva-home .pva-talent-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+  padding: 0;
+  border: 1px solid #e6e9f2;
+  border-radius: 1.45rem;
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 72%, #fbfbff 100%);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, .065);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.pva-home .pva-talent-card::before {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed 58%, #10b981);
+}
+
+.pva-home .pva-talent-card:hover {
+  transform: translateY(-5px);
+  border-color: #cfd4ff;
+  box-shadow: 0 26px 58px rgba(79, 70, 229, .13);
+}
+
+.pva-home .pva-talent-top {
+  margin: 0;
+  padding: 1.35rem 1.35rem .9rem;
+  align-items: flex-start;
+}
+
+.pva-home .pva-talent-top .avatar,
+.pva-home .pva-talent-top [class*="avatar"] {
+  width: 5.25rem;
+  height: 5.25rem;
+  flex: 0 0 5.25rem;
+  overflow: hidden;
+  border: 3px solid #fff;
+  border-radius: 1.25rem;
+  background: linear-gradient(145deg, #eef2ff, #f8fafc);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .12), 0 0 0 1px #e7eaf2;
+}
+
+.pva-home .pva-talent-top .avatar img,
+.pva-home .pva-talent-top [class*="avatar"] img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.pva-home .pva-approved {
+  padding: .42rem .62rem;
+  border: 1px solid #ccefe0;
+  color: #047857;
+  background: #ecfdf5;
+  box-shadow: 0 6px 16px rgba(5, 150, 105, .08);
+  font-size: .66rem;
+  letter-spacing: .01em;
+}
+
+.pva-home .pva-talent-card h3,
+.pva-home .pva-talent-title,
+.pva-home .pva-tags,
+.pva-home .pva-talent-facts {
+  margin-left: 1.35rem;
+  margin-right: 1.35rem;
+}
+
+.pva-home .pva-talent-card h3 {
+  margin-top: 0;
+  margin-bottom: .28rem;
+  color: #111827;
+  font-size: 1.24rem;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+
+.pva-home .pva-talent-title {
+  min-height: 2.7rem;
+  margin-bottom: .9rem;
+  color: #64748b;
+  font-size: .82rem;
+  line-height: 1.55;
+}
+
+.pva-home .pva-tags {
+  gap: .42rem;
+  margin-bottom: 1rem;
+}
+
+.pva-home .pva-tags span {
+  padding: .38rem .6rem;
+  border-color: #e1e4ff;
+  color: #4f46e5;
+  background: #f7f7ff;
+  font-size: .66rem;
+  font-weight: 800;
+}
+
+.pva-home .pva-talent-facts {
+  gap: .55rem;
+  margin-bottom: 1.05rem;
+}
+
+.pva-home .pva-talent-facts span {
+  color: #5f6b7e;
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.pva-home .pva-talent-facts svg {
+  width: 15px;
+  height: 15px;
+  color: #6366f1;
+}
+
+.pva-home .pva-card-link {
+  justify-content: space-between;
+  margin: auto 1.35rem 1.35rem;
+  padding: .78rem .9rem;
+  border: 1px solid #dddfff;
+  border-radius: .85rem;
+  color: #4338ca;
+  background: linear-gradient(180deg, #fafaff, #f5f5ff);
+  font-size: .8rem;
+  font-weight: 850;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.pva-home .pva-card-link:hover {
+  border-color: #bfc4ff;
+  background: #eef2ff;
+  transform: translateY(-1px);
+}
+
+/* Browse Talent cards */
+.talent-directory-page .talent-directory-grid {
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.talent-directory-page .talent-market-card {
+  position: relative;
+  overflow: hidden;
+  gap: 1rem;
+  padding: 1.35rem;
+  border: 1px solid #e5e9f1;
+  border-radius: 1.4rem;
+  background: linear-gradient(180deg, #fff 0%, #fff 76%, #fbfbff 100%);
+  box-shadow: 0 14px 38px rgba(15, 23, 42, .055);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.talent-directory-page .talent-market-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed 58%, #10b981);
+}
+
+.talent-directory-page .talent-market-card:hover {
+  transform: translateY(-4px);
+  border-color: #cfd4ff;
+  box-shadow: 0 24px 50px rgba(79, 70, 229, .11);
+}
+
+.talent-directory-page .talent-market-head {
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: .95rem;
+  align-items: center;
+}
+
+.talent-directory-page .talent-market-head .avatar {
+  width: 76px;
+  height: 76px;
+  overflow: hidden;
+  border: 3px solid #fff;
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, #eef2ff, #f8fafc);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .12), 0 0 0 1px #e7eaf2;
+}
+
+.talent-directory-page .talent-market-head .avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.talent-directory-page .talent-name-row h2 {
+  color: #111827;
+  font-size: 1.18rem;
+  line-height: 1.15;
+}
+
+.talent-directory-page .verified-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 1.45rem;
+  border-radius: 999px;
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.talent-directory-page .talent-market-head p {
+  margin-top: .28rem;
+  color: #64748b;
+  font-size: .79rem;
+}
+
+.talent-directory-page .talent-market-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .5rem;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.talent-directory-page .talent-market-meta span {
+  min-width: 0;
+  padding: .65rem .7rem;
+  border: 1px solid #e8eaf2;
+  border-radius: .75rem;
+  color: #718096;
+  background: #fafbfc;
+  font-size: .66rem;
+  line-height: 1.35;
+}
+
+.talent-directory-page .talent-market-meta span:last-child {
+  border-right: 1px solid #e8eaf2;
+}
+
+.talent-directory-page .talent-market-meta strong {
+  margin-bottom: .08rem;
+  color: #1f2937;
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.talent-directory-page .pill-list {
+  gap: .42rem;
+}
+
+.talent-directory-page .pill-list .badge,
+.talent-directory-page .talent-skill-preview span {
+  padding: .38rem .58rem;
+  border: 1px solid #e2e5ff;
+  border-radius: 999px;
+  color: #4f46e5;
+  background: #f8f8ff;
+  font-size: .66rem;
+  font-weight: 750;
+}
+
+.talent-directory-page .talent-market-summary {
+  min-height: 4rem;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: #596579;
+  font-size: .79rem;
+  line-height: 1.62;
+}
+
+.talent-directory-page .talent-card-cta {
+  min-height: 44px;
+  margin-top: auto;
+  border-color: #dddfff;
+  color: #4338ca;
+  background: linear-gradient(180deg, #fafaff, #f4f4ff);
+  font-weight: 800;
+}
+
+.talent-directory-page .talent-card-cta:hover {
+  border-color: #bfc4ff;
+  color: #3730a3;
+  background: #eef2ff;
+}
+
+@media (max-width: 1020px) {
+  .pva-home .pva-talent-grid,
+  .talent-directory-page .talent-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .pva-home .pva-talent-grid,
+  .talent-directory-page .talent-directory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pva-home .pva-talent-top .avatar,
+  .pva-home .pva-talent-top [class*="avatar"] {
+    width: 4.8rem;
+    height: 4.8rem;
+    flex-basis: 4.8rem;
+  }
+
+  .talent-directory-page .talent-market-head {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+
+  .talent-directory-page .talent-market-head .avatar {
+    width: 68px;
+    height: 68px;
+  }
+
+  .talent-directory-page .talent-market-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

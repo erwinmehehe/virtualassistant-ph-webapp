@@ -240,6 +240,27 @@ export async function respondToLeadProposalAction(formData: FormData) {
   redirect(`/proposal/${token}?${askingForChanges ? "changes_requested=1" : "declined=1"}`);
 }
 
+type AtomicAcceptanceResult = {
+  ok?: boolean;
+  code?: string;
+  already_accepted?: boolean;
+  job_id?: string | null;
+  client_id?: string | null;
+};
+
+function acceptanceErrorMessage(code?: string) {
+  switch (code) {
+    case "proposal_expired": return "This proposal has expired. Please contact your recruiter for an updated version.";
+    case "proposal_unavailable": return "This proposal is no longer available for acceptance.";
+    case "lead_already_accepted": return "A proposal for this hiring request has already been accepted. Please contact your recruiter if you need changes.";
+    case "existing_client_unverified":
+    case "client_identity_invalid":
+    case "job_client_conflict": return "We could not safely verify the client account linked to this hiring request. Please contact your recruiter before accepting.";
+    case "job_lead_conflict": return "This proposal is linked to a different hiring request than expected. Please contact your recruiter before accepting.";
+    default: return "We could not complete the acceptance safely. Nothing was partially accepted. Please try again or contact your recruiter.";
+  }
+}
+
 export async function acceptLeadProposalAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   const acceptanceName = String(formData.get("acceptance_name") || "").trim().slice(0, 160);
@@ -248,38 +269,37 @@ export async function acceptLeadProposalAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
-  const { data: proposal } = await admin.from("lead_proposals")
+  const { data: proposal, error: proposalError } = await admin.from("lead_proposals")
     .select("*")
     .eq("public_token", token)
     .maybeSingle();
-  if (!proposal) redirect("/proposal/not-found");
+  if (proposalError || !proposal) redirect("/proposal/not-found");
   if (proposal.status === "accepted") redirect(`/proposal/${token}?accepted=1`);
   if (proposal.status !== "sent") redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal is no longer available for acceptance.")}`);
   if (proposal.expires_at && new Date(proposal.expires_at).getTime() < Date.now()) {
-    await admin.from("lead_proposals").update({ status: "expired", updated_at: new Date().toISOString() }).eq("id", proposal.id);
+    await admin.from("lead_proposals").update({ status: "expired", updated_at: new Date().toISOString() }).eq("id", proposal.id).eq("status", "sent");
     redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal has expired. Please contact your recruiter for an updated version.")}`);
   }
 
-  const { data: lead } = await admin.from("lead_intake").select("*").eq("id", proposal.lead_id).maybeSingle();
-  if (!lead) redirect(`/proposal/${token}?error=${encodeURIComponent("The hiring request linked to this proposal could not be found.")}`);
+  const { data: lead, error: leadError } = await admin.from("lead_intake").select("*").eq("id", proposal.lead_id).maybeSingle();
+  if (leadError || !lead) redirect(`/proposal/${token}?error=${encodeURIComponent("The hiring request linked to this proposal could not be found.")}`);
 
-  const now = new Date().toISOString();
-  let jobId = String(proposal.job_id || lead.job_id || "");
-  let clientId = lead.client_id || null;
+  const referencedJobId = String(proposal.job_id || lead.job_id || "");
   let job: any = null;
-
-  if (jobId) {
-    const { data } = await admin.from("jobs").select("*").eq("id", jobId).maybeSingle();
+  if (referencedJobId) {
+    const { data, error } = await admin.from("jobs").select("*").eq("id", referencedJobId).maybeSingle();
+    if (error) redirect(`/proposal/${token}?error=${encodeURIComponent("The linked hiring request could not be verified. Please contact your recruiter.")}`);
     job = data;
-    clientId = job?.client_id || clientId;
   }
 
+  const jobId = referencedJobId || crypto.randomUUID();
+  const existingClientId = job?.client_id || lead.client_id || null;
+  const slug = job?.slug || await uniqueJobSlug(admin, proposal.role_title);
   const description = cleanJobDescription(proposal.summary || lead.message);
   const fallbackSummary = `Virtual Assistant support requested for ${proposal.role_title || lead.service || "business operations"}.`;
   const jobPayload = {
-    client_id: clientId,
-    lead_id: lead.id,
     title: proposal.role_title,
+    slug,
     company_name: lead.company || null,
     summary: cleanJobSummary(proposal.summary || lead.message, fallbackSummary),
     description,
@@ -294,111 +314,86 @@ export async function acceptLeadProposalAction(formData: FormData) {
     onboarding_plan: "Client onboarding and tool access to be confirmed before placement.",
     direct_feedback: true,
     engagement_length: "Long-term preferred",
-    start_timing: proposal.start_timing || lead.start_time || null,
-    service_model: proposal.service_model,
-    status: clientId ? "published" : "pending",
-    published_at: clientId ? (job?.published_at || now) : null
+    start_timing: proposal.start_timing || lead.start_time || null
   };
-
-  if (jobId && job) {
-    const { error } = await admin.from("jobs").update(jobPayload).eq("id", jobId);
-    if (error) redirect(`/proposal/${token}?error=${encodeURIComponent("The proposal was accepted but the hiring request could not be updated. Your recruiter has been notified.")}`);
-  } else {
-    const slug = await uniqueJobSlug(admin, proposal.role_title);
-    const { data: createdJob, error } = await admin.from("jobs").insert({ ...jobPayload, slug }).select("id").single();
-    if (error || !createdJob) redirect(`/proposal/${token}?error=${encodeURIComponent("The proposal was accepted but the hiring request could not be created. Your recruiter has been notified.")}`);
-    jobId = createdJob.id;
-  }
 
   const handoff = await ensureAcceptedLeadClientWorkspace({
     lead,
     jobId,
-    existingClientId: clientId
+    existingClientId
   });
-  if (handoff.linked) {
-    clientId = handoff.userId;
-    await admin.from("jobs").update({
-      client_id: clientId,
-      status: "published",
-      published_at: job?.published_at || now
-    }).eq("id", jobId);
+
+  if (!handoff.linked && handoff.blocking) {
+    const message = handoff.reason === "identity_mismatch"
+      ? "The email on this proposal does not match the client account already linked to the hiring request. Please contact your recruiter so we can verify ownership before acceptance."
+      : handoff.reason === "role_conflict"
+        ? "The email on this proposal belongs to a non-client account. Please contact your recruiter so we can verify the correct client account before acceptance."
+        : "We could not safely verify the existing client account for this hiring request. Please contact your recruiter before accepting.";
+    redirect(`/proposal/${token}?error=${encodeURIComponent(message)}`);
   }
 
-  await admin.from("job_commercials").upsert({
-    job_id: jobId,
-    service_model: proposal.service_model,
-    placement_fee: proposal.service_model === "curated_placement" ? proposal.placement_fee : null,
-    managed_markup_percent: proposal.service_model === "managed_service" ? proposal.managed_markup_percent : null,
-    commercial_status: "accepted"
-  }, { onConflict: "job_id" });
+  const resolvedClientId = handoff.linked ? handoff.userId : null;
+  const { data: acceptanceData, error: acceptanceError } = await admin.rpc("accept_lead_proposal_atomic", {
+    p_token: token,
+    p_acceptance_name: acceptanceName,
+    p_client_id: resolvedClientId,
+    p_job_id: jobId,
+    p_job_payload: jobPayload
+  });
 
-  if (clientId) {
-    await admin.from("job_candidate_access").upsert({
-      job_id: jobId,
-      access_status: "comped",
-      access_fee: 0,
-      currency: "USD",
-      unlocked_at: now
-    }, { onConflict: "job_id" });
+  if (acceptanceError) {
+    redirect(`/proposal/${token}?error=${encodeURIComponent("We could not complete the acceptance safely. No partial hiring state was saved. Please try again or contact your recruiter.")}`);
   }
 
-  await admin.from("lead_proposals").update({
-    status: "accepted",
-    accepted_at: now,
-    acceptance_name: acceptanceName,
-    job_id: jobId,
-    updated_at: now
-  }).eq("id", proposal.id);
+  const acceptance = (acceptanceData || {}) as AtomicAcceptanceResult;
+  if (!acceptance.ok) {
+    redirect(`/proposal/${token}?error=${encodeURIComponent(acceptanceErrorMessage(acceptance.code))}`);
+  }
+  if (acceptance.already_accepted) redirect(`/proposal/${token}?accepted=1`);
 
-  await admin.from("lead_intake").update({
-    crm_stage: "won",
-    status: "converted",
-    job_id: jobId,
-    client_id: clientId,
-    won_at: now,
-    lost_at: null,
-    lost_reason: null,
-    next_follow_up_at: null,
-    stage_updated_at: now
-  }).eq("id", lead.id);
+  const acceptedJobId = String(acceptance.job_id || jobId);
+  const clientId = acceptance.client_id ? String(acceptance.client_id) : null;
 
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: lead.id,
-    action: "proposal_accepted",
-    description: `Proposal accepted by ${acceptanceName}`,
-    metadata: { proposal_id: proposal.id, job_id: jobId, client_id: clientId, workspace_handoff: handoff.linked ? (handoff.created ? "invited" : "linked") : handoff.reason }
-  });
-
-  await admin.from("analytics_events").insert({
-    event_name: "lead_won",
-    path: "/proposal",
-    session_id: lead.session_id || null,
-    metadata: { lead_id: lead.id, proposal_id: proposal.id, job_id: jobId, estimated_value_usd: lead.estimated_value_usd || null }
-  });
+  if (clientId && handoff.linked) {
+    try {
+      const { claimClientHiringRequests } = await import("@/lib/lead-claims");
+      await claimClientHiringRequests({ userId: clientId, email: handoff.email });
+    } catch {
+      // Related older requests are a convenience. The accepted proposal itself
+      // is already committed by the atomic database transaction.
+    }
+  }
 
   if (clientId) {
     try {
-      const { data: publishedJob } = await admin.from("jobs").select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours").eq("id", jobId).single();
+      const { data: publishedJob } = await admin.from("jobs")
+        .select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours")
+        .eq("id", acceptedJobId)
+        .single();
       if (publishedJob) {
         const { autoReleaseTopMatches } = await import("@/lib/auto-matching");
         await autoReleaseTopMatches(publishedJob);
       }
-    } catch {}
+    } catch {
+      // Matching is post-commit automation and must never roll back acceptance.
+    }
   }
 
   try {
+    const safeActionLink = handoff.linked && acceptedJobId === jobId ? handoff.actionLink : null;
     await sendTransactionalEventEmail({
       to: lead.email,
       subject: `Proposal accepted: ${proposal.role_title}`,
       heading: handoff.linked ? "Your client workspace is ready" : "Your hiring request is confirmed",
       body: handoff.linked
         ? "Your proposal is accepted, the role is active, and our recruiting team can begin preparing your shortlist. Use the secure link below to open your client workspace."
-        : "Your proposal is accepted. Our recruiting team has the request and will follow up if your existing account needs to be connected manually.",
-      href: handoff.actionLink || (clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}` : undefined),
+        : "Your proposal is accepted. Our recruiting team has the request and will follow up if your account still needs to be connected manually.",
+      href: safeActionLink || (clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${acceptedJobId}` : undefined),
       hrefLabel: handoff.linked ? "Open client workspace" : undefined
     });
-  } catch {}
+  } catch {
+    // Email is post-commit. A delivery failure must not create partial hiring state.
+  }
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
@@ -406,7 +401,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
   if (clientId) {
     revalidatePath("/workspace/client");
     revalidatePath("/workspace/client/jobs");
-    revalidatePath(`/workspace/client/jobs/${jobId}`);
+    revalidatePath(`/workspace/client/jobs/${acceptedJobId}`);
   }
   redirect(`/proposal/${token}?accepted=1`);
 }

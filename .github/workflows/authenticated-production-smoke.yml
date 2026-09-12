@@ -1,0 +1,38 @@
+name: Authenticated production smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Production URL to verify
+        required: false
+        default: https://virtualassistant.com.ph
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SMOKE_BASE_URL: ${{ inputs.base_url }}
+      SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
+      SMOKE_SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
+      SMOKE_CLIENT_EMAIL: ${{ secrets.SMOKE_CLIENT_EMAIL }}
+      SMOKE_CLIENT_PASSWORD: ${{ secrets.SMOKE_CLIENT_PASSWORD }}
+      SMOKE_VA_EMAIL: ${{ secrets.SMOKE_VA_EMAIL }}
+      SMOKE_VA_PASSWORD: ${{ secrets.SMOKE_VA_PASSWORD }}
+      SMOKE_RECRUITER_EMAIL: ${{ secrets.SMOKE_RECRUITER_EMAIL }}
+      SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
+      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
+      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run authenticated production smoke
+        run: node scripts/authenticated-production-smoke.mjs

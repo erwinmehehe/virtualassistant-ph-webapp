@@ -1,17 +1,34 @@
 import "server-only";
 import type { User } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { siteOrigin } from "@/lib/seo-url";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
+
+type HandoffFailureReason =
+  | "missing_email"
+  | "existing_client_missing"
+  | "identity_mismatch"
+  | "invite_error"
+  | "role_conflict"
+  | "profile_error"
+  | "client_profile_error";
+
+function failure(reason: HandoffFailureReason, blocking = false) {
+  return {
+    linked: false as const,
+    reason,
+    blocking,
+    actionLink: null as string | null
+  };
+}
 
 async function findAuthUserByEmail(admin: AdminClient, email: string): Promise<User | null> {
   const wanted = email.trim().toLowerCase();
   for (let page = 1; page <= 20; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 100 });
     if (error) return null;
-    const found = data.users.find((user) => String(user.email || "").toLowerCase() === wanted);
+    const found = data.users.find((user) => String(user.email || "").trim().toLowerCase() === wanted);
     if (found) return found;
     if (data.users.length < 100) break;
   }
@@ -19,21 +36,23 @@ async function findAuthUserByEmail(admin: AdminClient, email: string): Promise<U
 }
 
 async function ensureClientProfile(admin: AdminClient, user: User, lead: any) {
-  const { data: existingProfile } = await admin.from("profiles").select("id,role").eq("id", user.id).maybeSingle();
+  const { data: existingProfile, error: profileLookupError } = await admin
+    .from("profiles")
+    .select("id,role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profileLookupError) return { ok: false as const, reason: "profile_error" as const };
   if (existingProfile?.role && existingProfile.role !== "client") {
     return { ok: false as const, reason: "role_conflict" as const };
   }
 
   if (!existingProfile) {
-    const metadataRole = user.user_metadata?.role;
-    if (metadataRole && metadataRole !== "client") {
-      return { ok: false as const, reason: "role_conflict" as const };
-    }
-    const { error: profileError } = await admin.from("profiles").upsert({
+    // user_metadata is intentionally not used for authorization. It is user-editable.
+    const { error: profileError } = await admin.from("profiles").insert({
       id: user.id,
       role: "client",
       full_name: lead.name || user.user_metadata?.full_name || null
-    }, { onConflict: "id" });
+    });
     if (profileError) return { ok: false as const, reason: "profile_error" as const };
   }
 
@@ -48,72 +67,75 @@ async function ensureClientProfile(admin: AdminClient, user: User, lead: any) {
   return { ok: true as const };
 }
 
+/**
+ * Resolve the Auth user that is safe to attach to an accepted hiring request.
+ *
+ * This function deliberately does not update lead_intake or jobs. Those writes
+ * are committed later by accept_lead_proposal_atomic so a proposal can never
+ * be half accepted. Auth link generation is outside Postgres and therefore has
+ * to happen before that transaction.
+ */
 export async function ensureAcceptedLeadClientWorkspace(args: {
   lead: any;
   jobId: string;
   existingClientId?: string | null;
 }) {
   const admin = createAdminClient();
-  const email = String(args.lead.email || "").trim().toLowerCase();
-  if (!email) return { linked: false as const, reason: "missing_email" as const, actionLink: null as string | null };
+  const leadEmail = String(args.lead.email || "").trim().toLowerCase();
+  if (!leadEmail) return failure("missing_email", true);
 
   const redirectTo = `${siteOrigin()}/auth/callback?next=${encodeURIComponent(`/workspace/client/jobs/${args.jobId}`)}&lead=${encodeURIComponent(args.lead.id)}&role=client`;
   let user: User | null = null;
+
   if (args.existingClientId) {
-    const { data } = await admin.auth.admin.getUserById(args.existingClientId);
-    user = data.user || null;
+    const { data, error } = await admin.auth.admin.getUserById(args.existingClientId);
+    if (error || !data.user) return failure("existing_client_missing", true);
+    const existingEmail = String(data.user.email || "").trim().toLowerCase();
+    if (!existingEmail || existingEmail !== leadEmail) return failure("identity_mismatch", true);
+    user = data.user;
+  } else {
+    user = await findAuthUserByEmail(admin, leadEmail);
   }
-  if (!user) user = await findAuthUserByEmail(admin, email);
+
   let actionLink: string | null = null;
   let created = false;
 
   if (!user) {
     const { data, error } = await admin.auth.admin.generateLink({
       type: "invite",
-      email,
+      email: leadEmail,
       options: {
         data: { role: "client", full_name: args.lead.name || undefined },
         redirectTo
       }
     });
-    if (error || !data.user) {
-      return { linked: false as const, reason: "invite_error" as const, actionLink: null as string | null };
-    }
+    if (error || !data.user) return failure("invite_error");
     user = data.user;
     actionLink = data.properties?.action_link || null;
     created = true;
   }
 
+  const resolvedEmail = String(user.email || "").trim().toLowerCase();
+  if (!resolvedEmail || resolvedEmail !== leadEmail) return failure("identity_mismatch", true);
+
   const profile = await ensureClientProfile(admin, user, args.lead);
-  if (!profile.ok) {
-    return { linked: false as const, reason: profile.reason, actionLink: null as string | null };
-  }
+  if (!profile.ok) return failure(profile.reason, profile.reason === "role_conflict");
 
   if (!created) {
     const { data, error } = await admin.auth.admin.generateLink({
       type: "magiclink",
-      email,
+      email: resolvedEmail,
       options: { redirectTo }
     });
     if (!error) actionLink = data.properties?.action_link || null;
   }
 
-  await Promise.all([
-    admin.from("lead_intake").update({ client_id: user.id }).eq("id", args.lead.id),
-    admin.from("jobs").update({ client_id: user.id }).eq("id", args.jobId)
-  ]);
-
-  try {
-    await claimClientHiringRequests({ userId: user.id, email, leadId: args.lead.id });
-  } catch {
-    // The current accepted lead/job is already linked above. Related older
-    // leads are a convenience and must not block the handoff.
-  }
-
   return {
     linked: true as const,
     userId: user.id,
+    email: resolvedEmail,
     actionLink,
-    created
+    created,
+    blocking: false as const
   };
 }

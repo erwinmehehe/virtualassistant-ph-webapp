@@ -95,7 +95,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
         const active = activeFor(pathname, href);
         return <Link href={href} key={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}><Icon size={19}/><span>{label}</span><Badge count={badges[href] || 0}/></Link>;
       })}
-      {secondaryItems.length ? <details className={`mobile-more ${moreActive ? "active" : ""}`}><summary aria-current={moreActive ? "page" : undefined}><CircleEllipsis size={19}/><span>More</span><Badge count={moreUnread}/></summary><div className="mobile-more-panel">{secondaryItems.map(([label,href,Icon]) => {const active=activeFor(pathname,href);return <Link href={href} key={href} className={active?"active":undefined} aria-current={active?"page":undefined}><Icon size={18}/><span>{label}</span><Badge count={badges[href]||0}/></Link>;})}</div></details> : null}
+      {secondaryItems.length ? <details className={`mobile-more ${moreActive ? "active" : ""}`}><summary aria-current={moreActive ? "page" : undefined}><CircleEllipsis size={19}/><span>More</span><Badge count={moreUnread}/></summary><div className="mobile-more-panel">{secondaryItems.map(([label,href,Icon]) => {const active=activeFor(pathname,href);return <Link href={href} key={href} className={active?"active":undefined} aria-current={active?"page":undefined} onClick={(event)=>event.currentTarget.closest("details")?.removeAttribute("open")}><Icon size={18}/><span>{label}</span><Badge count={badges[href]||0}/></Link>;})}</div></details> : null}
     </nav>
   </>;
 }

@@ -1,61 +1,90 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, UserRoundSearch } from "lucide-react";
+import { CalendarCheck2, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ClientBookingForm } from "@/components/client-booking-form";
+import { buildDiscoverySlotDays, formatDiscoverySlot } from "@/lib/discovery-booking";
 import { canonicalPath } from "@/lib/seo-url";
-
-const BOOKING_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+import { createAdminClient } from "@/lib/supabase/admin";
+import "./booking.css";
 
 export const metadata: Metadata = {
   title: "Book a Client Discovery Call",
-  description: "Book a short discovery call about hiring a vetted Filipino Virtual Assistant for your business.",
+  description: "Choose a time and tell us about the Virtual Assistant role you want to hire for.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
 };
 
-export default function BookClientCallPage() {
+export const dynamic = "force-dynamic";
+
+async function availableDays() {
+  try {
+    const now = new Date();
+    const until = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await createAdminClient()
+      .from("lead_intake")
+      .select("discovery_scheduled_at")
+      .not("discovery_scheduled_at", "is", null)
+      .gte("discovery_scheduled_at", now.toISOString())
+      .lte("discovery_scheduled_at", until);
+    return buildDiscoverySlotDays((data || []).map((row) => row.discovery_scheduled_at).filter(Boolean), now);
+  } catch {
+    return [];
+  }
+}
+
+export default async function BookClientCallPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const query = await searchParams;
+  const days = await availableDays();
+  const bookedWhen = query.booked && query.when ? formatDiscoverySlot(query.when, query.tz || "Asia/Manila") : null;
+
   return (
     <>
       <SiteHeader />
-      <main id="main-content">
-        <section className="public-hero-small">
-          <div className="container public-page-head">
-            <span className="kicker">For prospective clients</span>
-            <h1 className="public-page-title">Book a client discovery call</h1>
-            <p className="public-lede">This call is for businesses that want to hire a Virtual Assistant. We will discuss the role, schedule, budget, and the best next step.</p>
+      <main id="main-content" className="booking-page">
+        <section className="booking-hero">
+          <div className="container booking-hero-grid">
+            <div>
+              <span className="kicker">For businesses hiring a Virtual Assistant</span>
+              <h1>Book a focused client discovery call</h1>
+              <p>Choose a time, answer a few practical questions, and let our recruiting team prepare before you meet.</p>
+              <div className="booking-hero-points">
+                <span><CalendarCheck2 size={16} /> 30-minute call</span>
+                <span><ShieldCheck size={16} /> Private business details</span>
+                <span><CheckCircle2 size={16} /> No payment required</span>
+              </div>
+            </div>
+            <aside className="booking-hero-note">
+              <strong>Applying as a VA?</strong>
+              <p>Do not book a client call. Choose “I am a Virtual Assistant” below and we will send you to the application and recruiter interview process.</p>
+              <Link href="/auth/join/va">Go directly to the VA application</Link>
+            </aside>
           </div>
         </section>
 
-        <section className="section section-white">
-          <div className="container booking-gate-grid">
-            <article className="card booking-gate-card booking-gate-client">
-              <span className="booking-gate-icon"><BriefcaseBusiness size={24} /></span>
-              <span className="kicker">I am hiring</span>
-              <h2>Continue to the client calendar</h2>
-              <p>Choose this if you represent a business and want help recruiting or managing a Filipino Virtual Assistant.</p>
-              <ul className="booking-gate-list">
-                <li><CheckCircle2 size={16} /> Discuss your role and workload</li>
-                <li><CheckCircle2 size={16} /> Review managed and direct-hire options</li>
-                <li><CheckCircle2 size={16} /> Confirm the right next step</li>
-              </ul>
-              <a className="btn btn-primary btn-lg" href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
-                Open client booking calendar <ArrowRight size={17} />
-              </a>
-              <p className="small muted">Please use your business name and work email when booking.</p>
-            </article>
-
-            <article className="card booking-gate-card">
-              <span className="booking-gate-icon booking-gate-icon-va"><UserRoundSearch size={24} /></span>
-              <span className="kicker">I am a Virtual Assistant</span>
-              <h2>Use the VA application and interview process</h2>
-              <p>Client discovery calls are not used for VA applications or candidate interviews. Your dashboard will show recruiter requests and interview updates.</p>
-              <div className="booking-gate-actions">
-                <Link className="btn" href="/auth/join/va">Apply as a Virtual Assistant</Link>
-                <Link className="text-link" href="/auth/login?next=%2Fworkspace%2Fva">Open your VA workspace</Link>
-                <Link className="text-link" href="/jobs">Browse Virtual Assistant jobs</Link>
+        <section className="section section-white booking-main-section">
+          <div className="container booking-container">
+            {bookedWhen ? (
+              <div className="booking-success" role="status">
+                <span><CheckCircle2 size={30} /></span>
+                <div>
+                  <p className="kicker">Booking confirmed</p>
+                  <h2>We will see you on {bookedWhen}</h2>
+                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your questionnaire and send the video meeting details before the call.</p>
+                  <div className="booking-success-actions">
+                    <Link className="btn btn-primary" href="/hire">Add more hiring details</Link>
+                    <Link className="btn" href="/">Return home</Link>
+                  </div>
+                </div>
               </div>
-            </article>
+            ) : (
+              <ClientBookingForm days={days} error={query.error} />
+            )}
           </div>
         </section>
       </main>

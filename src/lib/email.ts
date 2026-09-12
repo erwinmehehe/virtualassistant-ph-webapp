@@ -34,6 +34,11 @@ function normalizeEmailList(value: unknown): string[] {
 }
 
 const applicationCcRecipients = normalizeEmailList(process.env.APPLICATION_CC_EMAIL);
+const discoveryBookingCcRecipients = normalizeEmailList([
+  "jrvsaccad@gmail.com",
+  "bryanbatarina@gmail.com",
+  process.env.DISCOVERY_BOOKING_CC_EMAIL,
+]);
 
 // Added to every outgoing email so the team keeps a full record of what the
 // platform sends. Addressed directly on the To line at the owner's request, so
@@ -194,13 +199,13 @@ export async function sendLeadAcknowledgementEmail(args: {
 
   const firstName = args.name?.trim().split(/\s+/)[0] || "there";
   const service = args.service?.trim() || "Virtual Assistant role";
-  const hiringCallUrl = "https://calendar.app.google/FxedmioyeJhKras87";
+  const hiringCallUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
 
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: `We received your Virtual Assistant hiring request`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Thanks for sending your hiring request for <strong>${escapeHtml(service)}</strong>. Our recruiting team will review the role details and use them to screen relevant Filipino Virtual Assistants.</p><p>You do not need to create an account to get started.</p><p>If you would rather talk through the role, schedule, budget, or must-have experience, you can book a short hiring call here:</p><p><a href="${hiringCallUrl}">Book a 15-minute hiring call</a></p><p>VirtualAssistant.com.ph Hiring Team</p>`
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Thanks for sending your hiring request for <strong>${escapeHtml(service)}</strong>. Our recruiting team will review the role details and use them to screen relevant Filipino Virtual Assistants.</p><p>You do not need to create an account to get started.</p><p>If you would rather talk through the role, schedule, budget, or must-have experience, you can book a client discovery call here:</p><p><a href="${hiringCallUrl}">Choose a discovery-call time</a></p><p>VirtualAssistant.com.ph Hiring Team</p>`
   }, "lead_acknowledgement");
   return { sent: true as const };
 }
@@ -255,12 +260,12 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
-  const hiringCallUrl = "https://calendar.app.google/FxedmioyeJhKras87";
+  const hiringCallUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: `Following up on your Virtual Assistant request -- ${args.jobTitle}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. Our recruiting team has your request and can use it to screen relevant candidates.</p><p>If you want to talk through the role, schedule, budget, or must-have experience, you can book a short hiring call below.</p><p><a href="${hiringCallUrl}">Book a 15-minute hiring call</a></p><p>You do not need to create a client account to continue the conversation. If you already have one, your Client Portal is available for private candidate details and hiring workflow when needed.</p>`
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. Our recruiting team has your request and can use it to screen relevant candidates.</p><p>If you want to talk through the role, schedule, budget, or must-have experience, you can book a client discovery call below.</p><p><a href="${hiringCallUrl}">Choose a discovery-call time</a></p><p>You do not need to create a client account to continue the conversation. If you already have one, your Client Portal is available for private candidate details and hiring workflow when needed.</p>`
   }, "lead_claim_nudge");
   return { sent: true as const };
 }
@@ -365,6 +370,63 @@ export async function sendDiscoveryBookingEmail(args: {
     subject: `Discovery call booked — ${args.scheduledLabel}`,
     html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your discovery call with VirtualAssistant.com.ph is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p>We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>${meeting}<p>Regards,<br>${escapeHtml(args.recruiterName || "VirtualAssistant.com.ph hiring team")}</p>`
   }, "discovery_booking");
+  return { sent: true as const };
+}
+
+export async function sendPublicDiscoveryBookingEmail(args: {
+  leadId: string;
+  to: string;
+  clientName: string;
+  company: string;
+  companyUrl?: string | null;
+  phone?: string | null;
+  service: string;
+  hours: string;
+  budget: string;
+  startTime: string;
+  message: string;
+  scheduledAt: string;
+  clientLabel: string;
+  manilaLabel: string;
+  clientTimeZone: string;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const startsAt = new Date(args.scheduledAt);
+  const endsAt = new Date(startsAt.getTime() + 30 * 60 * 1000);
+  const calendarStamp = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  const calendarParams = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `VirtualAssistant.com.ph discovery call with ${args.company}`,
+    dates: `${calendarStamp(startsAt)}/${calendarStamp(endsAt)}`,
+    details: `Client discovery call for ${args.service}. The hiring team will confirm the video meeting details by email. Lead ID: ${args.leadId}`,
+  });
+  const calendarUrl = `https://calendar.google.com/calendar/render?${calendarParams.toString()}`;
+  const firstName = args.clientName.trim().split(/\s+/)[0] || "there";
+  const rows = [
+    ["Client", args.clientName],
+    ["Company", args.company],
+    ["Company website", args.companyUrl],
+    ["Email", args.to],
+    ["Phone / WhatsApp", args.phone],
+    ["VA role", args.service],
+    ["Hours needed", args.hours],
+    ["Hourly VA budget", args.budget],
+    ["Preferred start", args.startTime],
+    ["Client timezone", args.clientTimeZone],
+    ["Lead ID", args.leadId],
+  ].filter(([, value]) => value);
+
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    cc: discoveryBookingCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    replyTo: recipient,
+    subject: `Client discovery call booked: ${args.company} — ${args.clientLabel}`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your 30-minute client discovery call is confirmed for <strong>${escapeHtml(args.clientLabel)}</strong>.</p><p>For our Philippine team, that is <strong>${escapeHtml(args.manilaLabel)}</strong>.</p><p><a href="${escapeHtml(calendarUrl)}">Add this call to Google Calendar</a></p><p>Our hiring team will review your answers and send the video meeting details by email.</p><hr><h3>Booking questionnaire</h3>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}<p><strong>Role and challenge:</strong><br>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>`,
+  }, "public_discovery_booking");
   return { sent: true as const };
 }
 

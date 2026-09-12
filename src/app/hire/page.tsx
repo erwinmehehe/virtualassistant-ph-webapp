@@ -26,7 +26,7 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { AttributionFields } from "@/components/attribution-fields";
 import { canonicalPath } from "@/lib/seo-url";
 
-const HIRING_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+const HIRING_CALL_URL = "/book-client-call";
 
 export const metadata: Metadata = {
   title: "Hire a Virtual Assistant from the Philippines",
@@ -117,8 +117,8 @@ export default async function HirePage({
 
               <div className="pvh-callout">
                 <span className="pvh-call-icon"><CalendarDays size={18} /></span>
-                <div><strong>Prefer to talk through the role?</strong><span>Book a 15-minute hiring call with the team.</span></div>
-                <a href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a call <ArrowRight size={14} /></a>
+                <div><strong>Prefer to talk through the role?</strong><span>Book a client discovery call with the team.</span></div>
+                <a href={HIRING_CALL_URL} data-track="booking_click">Book a call <ArrowRight size={14} /></a>
               </div>
 
               <div className="pvh-private-note"><ShieldCheck size={14} /> No account required. Your hiring request stays private while our team reviews it.</div>
@@ -157,7 +157,7 @@ export default async function HirePage({
                     </div>
 
                     <div className="pvh-success-actions">
-                      <a className="pvh-btn pvh-btn-primary" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute call <ArrowRight size={16} /></a>
+                      <a className="pvh-btn pvh-btn-primary" href={HIRING_CALL_URL} data-track="booking_click">Book a client call <ArrowRight size={16} /></a>
                       <Link className="pvh-btn pvh-btn-secondary" href="/find-talent">Browse vetted talent</Link>
                       {lead ? <Link className="pvh-text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}
                     </div>
@@ -282,7 +282,7 @@ export default async function HirePage({
             </div>
             <div className="pvh-final-actions">
               <a className="pvh-btn pvh-btn-light" href="#hire-form">Start your hiring request <ArrowRight size={16} /></a>
-              <a className="pvh-btn pvh-btn-ghost" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute call</a>
+              <a className="pvh-btn pvh-btn-ghost" href={HIRING_CALL_URL} data-track="booking_click">Book a client call</a>
             </div>
           </div>
         </section>

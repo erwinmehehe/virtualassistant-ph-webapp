@@ -9,7 +9,7 @@ const DISMISS_KEY = "va_discovery_cta_dismissed";
 
 // Google Calendar appointment schedule. NEXT_PUBLIC_DISCOVERY_CALL_URL
 // overrides it without touching this file.
-const DISCOVERY_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+const DISCOVERY_CALL_URL = "/book-client-call";
 
 const VA_FACING_PATHS = [
   "/for-virtual-assistants",

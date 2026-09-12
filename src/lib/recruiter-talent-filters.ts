@@ -42,6 +42,8 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
     query = query
       .gte("completion_score", PUBLIC_VA_MIN_COMPLETION)
       .not("avatar_url", "is", null)
+      .neq("stage", "approved")
+      .neq("stage", "bench")
       .neq("stage", "rejected")
       .eq("account_status", "active");
   }

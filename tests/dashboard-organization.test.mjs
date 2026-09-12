@@ -21,7 +21,7 @@ test("desktop and mobile navigation use labelled groups", () => {
     assert.match(nav, new RegExp(`label: "${label}"`));
   }
   assert.match(nav, /mobile-more-group/);
-  assert.match(nav, /max-height: min\(70vh/);
+  assert.match(css, /max-height: min\(70vh/);
 });
 
 test("role dashboards share the organized dashboard surface", () => {

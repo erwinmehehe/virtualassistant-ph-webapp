@@ -1,4 +1,0 @@
-"use server";
-
-// This staging file exists only to sync the current main signup behavior into the redesign branch.
-// The real src/app/actions/auth.ts is replaced in the following merge commit.

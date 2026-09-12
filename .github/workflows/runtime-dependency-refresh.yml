@@ -1,0 +1,67 @@
+name: One-time runtime and dependency refresh
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.event.head_commit.message == 'Prepare runtime dependency refresh'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Patch runtime, dependencies and performance logging
+        shell: bash
+        run: |
+          npm install next@15.5.24 --save-exact --package-lock-only
+          npm pkg set engines.node='22.x'
+          python3 - <<'PY'
+          from pathlib import Path
+
+          ci = Path('.github/workflows/ci.yml')
+          text = ci.read_text()
+          text = text.replace('node-version: 20', 'node-version: 22')
+          ci.write_text(text)
+
+          timing = Path('src/lib/server-timing.ts')
+          timing.write_text('''import "server-only";\n\n/**\n * Logs slow server-side operations in production while keeping full timing\n * visibility during local development. PERF_SLOW_MS can override the default.\n */\nexport async function withServerTiming<T>(label: string, work: () => PromiseLike<T>): Promise<T> {\n  const started = performance.now();\n  try {\n    return await work();\n  } finally {\n    const elapsed = Math.round((performance.now() - started) * 10) / 10;\n    const configured = Number(process.env.PERF_SLOW_MS || 100);\n    const threshold = Number.isFinite(configured) && configured >= 0 ? configured : 100;\n    if (process.env.NODE_ENV !== "production" || elapsed >= threshold) {\n      console.info(`[perf] ${label} ${elapsed}ms`);\n    }\n  }\n}\n''')
+          PY
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Release safety tests
+        run: npm test
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Security audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Commit verified refresh
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/runtime-dependency-refresh.yml
+          git add package.json package-lock.json .github/workflows/ci.yml src/lib/server-timing.ts
+          git commit -m 'Align runtime and patch dashboard dependencies'
+          git push origin HEAD:main

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Bell, BriefcaseBusiness, Building2, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, MessageSquare, Search, Settings, ShieldCheck, Sparkles, TrendingUp, UsersRound, Wrench, History } from "lucide-react";
+import { BarChart3, Bell, BriefcaseBusiness, Building2, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, MessageSquare, Search, Settings, ShieldCheck, Sparkles, Tags, TrendingUp, UsersRound, Wrench, History } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
 
@@ -19,6 +19,7 @@ const nav = {
   ],
   va: [
     ["Overview", "/workspace/va", LayoutDashboard],
+    ["Quick setup", "/workspace/va/onboarding", Sparkles],
     ["My profile", "/workspace/va/profile", CircleUserRound],
     ["Vetting", "/workspace/va/vetting", ShieldCheck],
     ["Find jobs", "/workspace/va/jobs", Search],
@@ -34,6 +35,7 @@ const nav = {
     ["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],
     ["Roles", "/workspace/recruiter/matching", Sparkles],
     ["Talent", "/workspace/recruiter/talent", Search],
+    ["VA categories", "/workspace/recruiter/categories", Tags],
     ["Vetting", "/workspace/recruiter/queue", FileText],
     ["Stalled", "/workspace/recruiter/stalled", Flag],
     ["Bench", "/workspace/recruiter/bench", UsersRound],

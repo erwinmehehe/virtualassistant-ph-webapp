@@ -25,10 +25,35 @@ function bootstrapName(user: User) {
   return typeof value === "string" && value.trim() ? value.trim().slice(0, 100) : null;
 }
 
+async function ensureRoleRows(admin: ReturnType<typeof createAdminClient>, user: User, role: Role) {
+  if (role === "client") {
+    const { error } = await admin.from("client_profiles").upsert(
+      { user_id: user.id },
+      { onConflict: "user_id", ignoreDuplicates: true }
+    );
+    if (error) throw error;
+    return;
+  }
+
+  if (role === "va") {
+    const { error: vaError } = await admin.from("va_profiles").upsert(
+      { user_id: user.id, slug: `va-${user.id.slice(0, 8)}` },
+      { onConflict: "user_id", ignoreDuplicates: true }
+    );
+    if (vaError) throw vaError;
+
+    const { error: vettingError } = await admin.from("va_vetting").upsert(
+      { va_id: user.id },
+      { onConflict: "va_id", ignoreDuplicates: true }
+    );
+    if (vettingError) throw vettingError;
+  }
+}
+
 /**
  * Returns the authoritative workspace profile for an authenticated user.
- * If an older account is missing its public profile row, repair it from the
- * signup metadata so a successful login never falls through to the homepage.
+ * If an older account is missing its profile or role-specific child rows,
+ * repair them so a successful login always lands in a usable workspace.
  */
 export async function getOrBootstrapProfile(user: User): Promise<Profile | null> {
   try {
@@ -39,7 +64,12 @@ export async function getOrBootstrapProfile(user: User): Promise<Profile | null>
       .eq("id", user.id)
       .maybeSingle();
 
-    if (existing) return existing as Profile;
+    if (existing) {
+      const role = isRole(existing.role) ? existing.role : null;
+      if (!role) return null;
+      await ensureRoleRows(admin, user, role);
+      return existing as Profile;
+    }
 
     const role = bootstrapRole(user);
     if (!role) return null;
@@ -56,20 +86,12 @@ export async function getOrBootstrapProfile(user: User): Promise<Profile | null>
         .select("id, role, full_name, avatar_url")
         .eq("id", user.id)
         .maybeSingle();
-      if (!racedProfile) return null;
+      if (!racedProfile || !isRole(racedProfile.role)) return null;
+      await ensureRoleRows(admin, user, racedProfile.role);
       return racedProfile as Profile;
     }
 
-    if (role === "client") {
-      await admin.from("client_profiles").upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
-    } else if (role === "va") {
-      await admin.from("va_profiles").upsert(
-        { user_id: user.id, slug: `va-${user.id.slice(0, 8)}` },
-        { onConflict: "user_id", ignoreDuplicates: true }
-      );
-      await admin.from("va_vetting").upsert({ va_id: user.id }, { onConflict: "va_id", ignoreDuplicates: true });
-    }
-
+    await ensureRoleRows(admin, user, role);
     return created as Profile;
   } catch {
     return null;

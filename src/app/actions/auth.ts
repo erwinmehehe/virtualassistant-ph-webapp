@@ -43,7 +43,8 @@ function safePath(value: string | undefined, fallback: string) {
 
 function destinationFor(role: "client" | "va", next?: string, talent?: string) {
   if (role === "client" && talent) return `/workspace/client?talent=${encodeURIComponent(talent)}`;
-  return safePath(next, `/workspace/${role}`);
+  const fallback = role === "va" ? "/workspace/va/onboarding" : `/workspace/${role}`;
+  return safePath(next, fallback);
 }
 
 function joinErrorPath(role: "client" | "va", message: string, extras?: { talent?: string; lead?: string; next?: string }) {
@@ -181,7 +182,11 @@ export async function joinAction(formData: FormData) {
   const supabase = await createClient();
   const callbackParams = new URLSearchParams({ next: destination });
   if (parsed.data.role === "client" && parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
-  const callback = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback?${callbackParams.toString()}`;
+  const origin = siteOrigin();
+  if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
+    redirect(joinErrorPath(parsed.data.role, "Account signup is temporarily unavailable. Please contact support.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+  }
+  const callback = `${origin}/auth/callback?${callbackParams.toString()}`;
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -197,6 +202,11 @@ export async function joinAction(formData: FormData) {
   const accountWasCreated = Boolean(data.user && (data.user.identities?.length ?? 0) > 0);
   if (data.user && accountWasCreated) {
     const admin = createAdminClient();
+    const workspaceProfile = await getOrBootstrapProfile(data.user);
+    if (!workspaceProfile || workspaceProfile.role !== parsed.data.role) {
+      await admin.auth.admin.deleteUser(data.user.id);
+      redirect(joinErrorPath(parsed.data.role, "We could not finish setting up your workspace. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+    }
     if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
       const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
       const path = `${data.user.id}/registration-${Date.now()}.${extension}`;

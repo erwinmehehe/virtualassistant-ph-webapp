@@ -14,6 +14,29 @@ export const VA_CATEGORIES = [
   "Web & WordPress"
 ] as const;
 
+export type VaCategory = (typeof VA_CATEGORIES)[number];
+
+export const VA_CATEGORY_LABELS: Record<VaCategory, string> = {
+  "Administrative Support": "General VA / Admin",
+  "Bookkeeping & Finance": "Bookkeeping / Finance",
+  "Customer Service": "Customer Support",
+  "Dental & Healthcare": "Healthcare / Dental VA",
+  "Ecommerce": "Ecommerce VA",
+  "Executive Assistance": "Executive VA",
+  "Lead Generation & Sales": "Lead Gen / Sales",
+  "Marketing & Social Media": "SMM / Social Media",
+  "Phone & Reception": "Reception / Phone",
+  "Real Estate": "Real Estate VA",
+  "SEO": "SEO VA",
+  "Video Editing & Creative": "Creative / Video",
+  "Web & WordPress": "Web / WordPress"
+};
+
+export function vaCategoryLabel(value?: string | null) {
+  if (!value) return "Uncategorized";
+  return VA_CATEGORY_LABELS[value as VaCategory] || value;
+}
+
 export const FOCUS_VERTICALS = [
   "Healthcare & Dental",
   "Home & Local Services",

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --check scripts/authenticated-production-smoke.mjs && node --test tests/*.test.mjs",
+    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "content:check": "node scripts/check-blog-quality.mjs",
     "setup:check": "node scripts/check-runtime-config.mjs",
@@ -33,6 +33,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
+    "playwright": "1.55.0",
     "typescript": "^5.7.2"
   },
   "engines": {

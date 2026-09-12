@@ -1,0 +1,85 @@
+name: Authenticated dashboard visual QA
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "src/app/workspace/**"
+      - "src/app/dashboard-premium.css"
+      - "src/components/app-*.tsx"
+      - "src/components/dash-*.tsx"
+      - "src/components/sales-analytics-dashboard.tsx"
+      - "src/lib/sales-analytics.ts"
+      - "scripts/authenticated-dashboard-visual.mjs"
+      - ".github/workflows/dashboard-visual.yml"
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  screenshots:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
+      SMOKE_SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
+      SMOKE_CLIENT_EMAIL: ${{ secrets.SMOKE_CLIENT_EMAIL }}
+      SMOKE_CLIENT_PASSWORD: ${{ secrets.SMOKE_CLIENT_PASSWORD }}
+      SMOKE_VA_EMAIL: ${{ secrets.SMOKE_VA_EMAIL }}
+      SMOKE_VA_PASSWORD: ${{ secrets.SMOKE_VA_PASSWORD }}
+      SMOKE_RECRUITER_EMAIL: ${{ secrets.SMOKE_RECRUITER_EMAIL }}
+      SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for the Vercel PR preview
+        id: preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request.head.sha;
+            for (let attempt = 0; attempt < 40; attempt += 1) {
+              const deployments = await github.rest.repos.listDeployments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha,
+                per_page: 20
+              });
+              for (const deployment of deployments.data) {
+                const statuses = await github.rest.repos.listDeploymentStatuses({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id,
+                  per_page: 20
+                });
+                const ready = statuses.data.find((status) => status.state === "success" && status.environment_url);
+                if (ready) {
+                  core.setOutput("url", ready.environment_url);
+                  return;
+                }
+                const failed = statuses.data.find((status) => ["failure", "error"].includes(status.state));
+                if (failed) core.warning(`Preview deployment is currently ${failed.state}. Waiting for another status.`);
+              }
+              await new Promise((resolve) => setTimeout(resolve, 15000));
+            }
+            core.setFailed("No successful Vercel preview deployment was found for this PR within 10 minutes.");
+      - name: Capture authenticated dashboards
+        env:
+          VISUAL_BASE_URL: ${{ steps.preview.outputs.url }}
+        run: node scripts/authenticated-dashboard-visual.mjs
+      - name: Upload dashboard screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-visual-${{ github.event.pull_request.number }}
+          path: artifacts/dashboard-visual
+          if-no-files-found: warn
+          retention-days: 14

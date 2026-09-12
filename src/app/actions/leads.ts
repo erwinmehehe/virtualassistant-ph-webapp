@@ -567,6 +567,13 @@ export async function submitContactAction(formData: FormData) {
     page_url: pageUrl
   }).select("id").single();
   if (error) redirect(`/contact?error=${encodeURIComponent("We could not save your message. Please try again.")}`);
+  if (lead?.id) {
+    await recordLeadAnalytics(admin, {
+      leadId: lead.id,
+      path: "/contact",
+      metadata: { source_page: "contact", topic: parsed.data.topic.trim() }
+    });
+  }
   try {
     await sendLeadNotificationEmail({
       leadId: lead?.id,
@@ -581,6 +588,15 @@ export async function submitContactAction(formData: FormData) {
     });
   } catch {
     // Contact storage is the source of truth; email notification is best effort.
+  }
+  try {
+    await sendLeadAcknowledgementEmail({
+      to: parsed.data.email,
+      name: parsed.data.name.trim(),
+      service: parsed.data.topic.trim()
+    });
+  } catch {
+    // The saved request remains successful if acknowledgement delivery fails.
   }
   redirect("/contact?sent=1");
 }

@@ -40,9 +40,10 @@ export async function SalesAnalyticsDashboard({
   const queryHref = (nextDays: number, nextScope = scope) => `${basePath}?days=${nextDays}${allowScopeToggle ? `&scope=${nextScope}` : ""}`;
 
   const metrics = [
-    ["Leads", data.totals.leads, `Last ${days} days`, UsersRound],
-    ["Won", data.totals.won, `${data.totals.leadToWinRate}% lead-to-win`, CheckCircle2],
-    ["Proposal acceptance", `${data.totals.proposalAcceptanceRate}%`, `${data.totals.won} won from ${data.totals.proposalsSent} proposal leads`, TrendingUp],
+    ["Homepage visits", data.totals.homepageVisits, `${data.totals.trackedSessions} tracked sessions`, UsersRound],
+    ["Form starts", data.totals.formStarts, `Last ${days} days`, TrendingUp],
+    ["Form submissions", data.totals.leads, `${data.totals.discoveryBooked} calls booked`, UsersRound],
+    ["Clients won", data.totals.won, `${data.totals.leadToWinRate}% submission-to-win`, CheckCircle2],
     ["First response", duration(data.totals.medianFirstResponseMinutes), `${data.totals.firstResponseWithinThirtyRate}% within 30 min`, Clock3],
     ["Open pipeline", usd(data.totals.openPipelineValue), "Estimated agency value", DollarSign],
     ["Won value", usd(data.totals.wonValue), data.totals.medianDaysToWin == null ? "Close time not measurable yet" : `${data.totals.medianDaysToWin} median days to win`, DollarSign]
@@ -66,13 +67,13 @@ export async function SalesAnalyticsDashboard({
     </div>
 
     <section className="card sales-funnel-card">
-      <div className="dashboard-section-head"><div><h2>Lead-to-hire funnel</h2><p>Each stage is shown as a share of leads created in this reporting window.</p></div><span className="badge">{days} day window</span></div>
+      <div className="dashboard-section-head"><div><h2>Homepage-to-client funnel</h2><p>Track the complete journey from a homepage visit to a won client. Percentages use homepage visits as the baseline.</p></div><span className="badge">{days} day window</span></div>
       <BarChart data={data.funnel.map((stage, i) => ({ label: stage.label, value: stage.count, highlight: i === data.funnel.length - 1 }))} height={110}/>
       <div className="sales-funnel-list" style={{marginTop:18}}>
         {data.funnel.map((stage) => <div className="sales-funnel-row" key={stage.key}>
           <div><strong>{stage.label}</strong><span>{stage.count}</span></div>
           <div className="sales-funnel-track"><span style={{ width: `${Math.max(stage.count ? 3 : 0, Math.min(100, stage.rate))}%` }}/></div>
-          <small>{stage.rate}% of leads</small>
+          <small>{stage.rate}% of homepage visits</small>
         </div>)}
       </div>
       {data.dataQuality.legacyQualifiedWithoutTimeline ? <div className="sales-data-note"><AlertTriangle size={16}/><span><strong>{data.dataQuality.legacyQualifiedWithoutTimeline} historical qualified lead{data.dataQuality.legacyQualifiedWithoutTimeline === 1 ? "" : "s"}</strong> do not have earlier contact/discovery timestamps. New leads will produce a clean sequential funnel automatically.</span></div> : null}

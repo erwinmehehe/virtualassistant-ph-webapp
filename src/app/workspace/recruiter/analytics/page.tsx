@@ -8,7 +8,7 @@ export default async function RecruiterAnalyticsPage({searchParams}:{searchParam
   const days=parseSalesRange(query.days);
   const scope=query.scope==="mine"?"mine":"team";
   return <>
-    <div className="page-head"><div><div className="kicker">Sales performance</div><h1>Conversion analytics</h1><p>See where client opportunities move, stall, or convert from enquiry through hire.</p></div></div>
+    <div className="page-head"><div><div className="kicker">Conversion dashboard</div><h1>Homepage-to-client conversion</h1><p>See where visitors start a request, submit, book a call, qualify, receive a proposal, and become clients.</p></div></div>
     <SalesAnalyticsDashboard days={days} basePath="/workspace/recruiter/analytics" scope={scope} recruiterId={user.id} allowScopeToggle/>
   </>;
 }

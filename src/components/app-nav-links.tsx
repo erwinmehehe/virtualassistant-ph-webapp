@@ -61,7 +61,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     ]},
     { label: "Insights", items: [
       ["Activity", "/workspace/recruiter/activity", History],
-      ["Analytics", "/workspace/recruiter/analytics", BarChart3],
+      ["Conversion", "/workspace/recruiter/analytics", BarChart3],
       ["VA categories", "/workspace/recruiter/categories", Tags]
     ]}
   ],

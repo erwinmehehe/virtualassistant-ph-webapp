@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const auth = fs.readFileSync("src/app/actions/auth.ts", "utf8");
+const resend = fs.readFileSync("src/app/actions/resend-confirmation.ts", "utf8");
+const login = fs.readFileSync("src/app/auth/login/page.tsx", "utf8");
 const join = fs.readFileSync("src/components/join-account-form.tsx", "utf8");
 const bootstrap = fs.readFileSync("src/lib/profile-bootstrap.ts", "utf8");
 const quickAction = fs.readFileSync("src/app/actions/va-onboarding.ts", "utf8");
@@ -33,10 +35,22 @@ test("Google and Microsoft signup are enabled independently", () => {
   assert.match(social, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED/);
   assert.match(join, /googleEnabled \? <form action=\{oauthAction\}>/);
   assert.match(join, /microsoftEnabled \? <form action=\{oauthAction\}>/);
+  assert.match(login, /googleEnabled \? <form action=\{oauthAction\}>/);
+  assert.match(login, /microsoftEnabled \? <form action=\{oauthAction\}>/);
   assert.match(join, /name="role" value=\{role\}/);
   assert.match(envExample, /NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED=/);
   assert.match(envExample, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED=/);
   assert.doesNotMatch(envExample, /NEXT_PUBLIC_SOCIAL_LOGIN_ENABLED=/);
+});
+
+test("unconfirmed accounts can request another confirmation without account enumeration", () => {
+  assert.match(login, /resendSignupConfirmationAction/);
+  assert.match(login, /Resend confirmation email/);
+  assert.match(resend, /auth\.resend\(\{/);
+  assert.match(resend, /type: "signup"/);
+  assert.match(resend, /auth_resend_confirmation/);
+  assert.match(resend, /workspace\/va\/onboarding/);
+  assert.match(resend, /same message whether|non-enumerating/);
 });
 
 test("email signup callback uses the canonical site origin", () => {

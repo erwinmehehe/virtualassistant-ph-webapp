@@ -19,7 +19,7 @@
 .pva-hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(5.5rem, 9vw, 8rem) 0 clamp(4.5rem, 8vw, 7rem);
+  padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.75rem, 4.5vw, 4rem);
   background:
     radial-gradient(circle at 18% 18%, rgba(99,102,241,.16), transparent 34%),
     radial-gradient(circle at 88% 62%, rgba(16,185,129,.13), transparent 28%),
@@ -40,14 +40,14 @@
 .pva-orb-a { width: 22rem; height: 22rem; left: -9rem; top: 5rem; background: rgba(129,140,248,.28); }
 .pva-orb-b { width: 20rem; height: 20rem; right: -6rem; bottom: 2rem; background: rgba(52,211,153,.20); }
 
-.pva-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: clamp(2.5rem, 5vw, 5rem); align-items: center; }
+.pva-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0,.92fr) minmax(460px,1.08fr); gap: clamp(1.75rem, 3.5vw, 3.5rem); align-items: start; }
 .pva-hero-copy { min-width: 0; }
 
 .pva-eyebrow { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .55rem; padding: .36rem .75rem .36rem .38rem; border: 1px solid rgba(129,140,248,.32); background: rgba(255,255,255,.86); border-radius: 999px; box-shadow: 0 8px 26px rgba(30,41,59,.06); backdrop-filter: blur(12px); font-size: .78rem; }
 .pva-eyebrow > span { display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; padding: .38rem .65rem; color: #fff; font-size: .68rem; font-weight: 850; text-transform: uppercase; letter-spacing: .08em; background: linear-gradient(135deg, var(--pva-indigo), var(--pva-violet)); }
 .pva-eyebrow > strong { color: #475569; font-weight: 750; }
 
-.pva-hero h1 { max-width: 760px; margin: 1.45rem 0 1.25rem; font-size: clamp(3rem, 5.2vw, 4.65rem); line-height: 1.015; letter-spacing: -.055em; font-weight: 880; color: #0b1220; }
+.pva-hero h1 { max-width: 760px; margin: 1.15rem 0 .9rem; font-size: clamp(2.75rem, 4.4vw, 4.05rem); line-height: 1.015; letter-spacing: -.055em; font-weight: 880; color: #0b1220; }
 .pva-hero h1 em { font-style: normal; background: linear-gradient(110deg, #4338ca 8%, #7c3aed 54%, #0f9f7b 105%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .pva-hero-lede { max-width: 650px; margin-bottom: .55rem; font-size: clamp(1.05rem, 1.4vw, 1.22rem); line-height: 1.72; color: #475569; }
 .pva-hero-sub { max-width: 650px; margin-bottom: 0; font-size: .96rem; line-height: 1.65; color: #64748b; font-weight: 520; }
@@ -73,6 +73,19 @@
 .pva-proof-row { display: flex; flex-wrap: wrap; gap: .7rem 1.25rem; margin-top: 1.35rem; }
 .pva-proof-row span { display: inline-flex; align-items: center; gap: .36rem; color: #475569; font-size: .76rem; font-weight: 700; }
 .pva-proof-row svg { color: #059669; }
+
+.pva-hero-form-shell { position: relative; width: 100%; max-width: 610px; justify-self: end; padding: .65rem; border: 1px solid rgba(199,210,254,.82); border-radius: 1.4rem; background: rgba(255,255,255,.72); box-shadow: 0 28px 70px -24px rgba(68,76,231,.26); backdrop-filter: blur(18px); }
+.pva-hero-form-shell .compact-hire-form { gap: .7rem; margin: 0; padding: clamp(1rem,2vw,1.35rem); border: 0; border-radius: 1.05rem; box-shadow: none; }
+.pva-hero-form-shell .compact-hire-form-head h2 { font-size: clamp(1.35rem,2vw,1.7rem); }
+.pva-hero-form-shell .compact-hire-form-head p { line-height: 1.45; }
+.pva-hero-form-shell .field { gap: .25rem; }
+.pva-hero-form-shell .field label { font-size: .7rem; }
+.pva-hero-form-shell .field input,
+.pva-hero-form-shell .field select,
+.pva-hero-form-shell .field textarea { min-height: 2.55rem; padding: .55rem .7rem; }
+.pva-hero-form-shell .field textarea { min-height: 4.5rem; }
+.pva-hero-form-shell .role-brief-note { margin: -.15rem 0 0; text-align: center; }
+.pva-hero-form-badge { position: absolute; z-index: 3; top: -.8rem; right: 1rem; display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .65rem; border-radius: 999px; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; font-size: .68rem; font-weight: 800; }
 
 .pva-hero-visual { position: relative; max-width: 560px; width: 100%; justify-self: end; }
 .pva-workflow-card { position: relative; z-index: 2; padding: 1.3rem; border: 1px solid rgba(255,255,255,.82); border-radius: 1.65rem; background: rgba(255,255,255,.82); box-shadow: 0 36px 88px -22px rgba(68,76,231,.28); backdrop-filter: blur(18px); }
@@ -296,4 +309,27 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pva-home *, .pva-home *::before, .pva-home *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+
+/* Compact conversion-first homepage hero. */
+.pva-home .pva-hero { padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.75rem, 4.5vw, 4rem); }
+.pva-home .pva-hero h1 { margin: 1.15rem 0 .9rem; font-size: clamp(2.75rem, 4.4vw, 4.05rem); line-height: 1.02; }
+
+@media (min-width: 1051px) {
+  .pva-hero-copy { padding-top: .35rem; }
+  .pva-hero .pva-hero-actions { margin-top: 1.25rem; }
+}
+@media (max-width: 1050px) {
+  .pva-hero-form-shell { justify-self: center; margin-top: .75rem; text-align: left; }
+}
+@media (max-width: 620px) {
+  .pva-hero { padding: 2.65rem 0 2.4rem; }
+  .pva-home .pva-hero h1 { font-size: clamp(2.35rem,11vw,3.1rem); }
+  .pva-hero-form-shell { padding: .4rem; border-radius: 1.05rem; }
+  .pva-hero-form-badge { position: static; width: max-content; margin: 0 auto .35rem; }
+  .pva-hero-form-shell .compact-form-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 440px) {
+  .pva-hero-form-shell .compact-form-grid { grid-template-columns: 1fr; }
 }

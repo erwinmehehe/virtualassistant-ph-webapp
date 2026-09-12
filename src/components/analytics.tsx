@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useReportWebVitals } from "next/web-vitals";
 import { getBrowserSessionId } from "@/lib/browser-session";
 
 const endpoint = "/api/analytics";
@@ -37,8 +38,28 @@ function send(event: string, metadata?: Record<string, unknown>) {
   }
 }
 
+type WebVitalMetric = {
+  id: string;
+  name: string;
+  value: number;
+  rating?: string;
+  navigationType?: string;
+};
+
+function reportWorkspaceVital(metric: WebVitalMetric) {
+  if (!window.location.pathname.startsWith("/workspace")) return;
+  send("web_vital", {
+    id: metric.id,
+    name: metric.name,
+    value: Math.round(metric.value * 10) / 10,
+    rating: metric.rating || null,
+    navigation_type: metric.navigationType || null
+  });
+}
+
 export function Analytics() {
   const pathname = usePathname();
+  useReportWebVitals(reportWorkspaceVital);
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;

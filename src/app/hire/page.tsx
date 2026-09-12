@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../premium-hire.css";
 import Link from "next/link";
 import {
   ArrowRight,

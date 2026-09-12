@@ -11,7 +11,6 @@ import {
   Clock3,
   Globe2,
   Headphones,
-  Layers3,
   MessageSquareText,
   PhoneCall,
   SearchCheck,
@@ -20,7 +19,6 @@ import {
   Star,
   UsersRound,
   Video,
-  WandSparkles,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -31,6 +29,7 @@ import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { RoleBriefForm } from "@/components/role-brief-form";
+import "./premium-home.css";
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -94,14 +93,6 @@ const faqs = [
     "What happens after I send a hiring request?",
     "Your request stays private. Our recruiting team reviews the role, screens for fit, and follows up with the strongest next step. You do not need to create an account to get started.",
   ],
-] as const;
-
-const workflow = [
-  [ClipboardCheck, "Structured profile", "Experience, tools, schedule and preferred rate"],
-  [SearchCheck, "Category skills test", "Practical screening for the candidate's specialty"],
-  [Video, "Video introduction", "Communication and client-facing readiness review"],
-  [MessageSquareText, "Recruiter scorecard", "Skills, judgment, reliability and role fit"],
-  [BadgeCheck, "Final approval", "Only approved, available talent can appear publicly"],
 ] as const;
 
 function safeJson(value: unknown) {
@@ -193,29 +184,10 @@ export default async function HomePage({
                 A clearer way to build a reliable Filipino remote team without sorting through hundreds of applications yourself.
               </p>
 
-              <div className="pva-hire-options">
-                <Link href="/managed-vs-direct-hire" className="pva-option pva-option-featured">
-                  <div className="pva-option-top">
-                    <span><Sparkles size={13} /> Recommended</span>
-                    <small>Managed</small>
-                  </div>
-                  <strong>Managed Virtual Assistant</strong>
-                  <p>Recruiting, onboarding support, workroom visibility, and ongoing placement support.</p>
-                </Link>
-                <Link href="/managed-vs-direct-hire" className="pva-option">
-                  <div className="pva-option-top">
-                    <span><UsersRound size={13} /> Flexible</span>
-                    <small>Direct hire</small>
-                  </div>
-                  <strong>Recruit &amp; Direct Hire</strong>
-                  <p>We recruit and screen. Your team takes over the day-to-day management after hiring.</p>
-                </Link>
-              </div>
-
               <div className="pva-hero-actions">
-                <Link className="pva-btn pva-btn-primary" href="/hire" data-track="hero_hiring_request">
+                <a className="pva-btn pva-btn-primary" href="#hero-hiring-form" data-track="hero_hiring_request">
                   Start your hiring request <ArrowRight size={18} />
-                </Link>
+                </a>
                 <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
                   <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a 15-min call
                 </a>
@@ -229,33 +201,15 @@ export default async function HomePage({
               </div>
             </div>
 
-            <div className="pva-hero-visual" aria-label="Virtual Assistant vetting workflow">
-              <div className="pva-workflow-card">
-                <div className="pva-workflow-head">
-                  <div className="pva-workflow-title">
-                    <span className="pva-gradient-icon"><Layers3 size={20} /></span>
-                    <div><strong>Vetting &amp; Matching</strong><small>Our screening process</small></div>
-                  </div>
-                  <span className="pva-live-pill"><i /> Human reviewed</span>
-                </div>
-                <div className="pva-workflow-list">
-                  {workflow.map(([Icon, title, copy], index) => (
-                    <div className="pva-workflow-step" key={title}>
-                      <span className="pva-step-num">0{index + 1}</span>
-                      <span className="pva-step-icon"><Icon size={17} /></span>
-                      <span className="pva-step-copy"><strong>{title}</strong><small>{copy}</small></span>
-                      <CheckCircle2 className="pva-step-check" size={18} />
-                    </div>
-                  ))}
-                </div>
-                <div className="pva-match-card">
-                  <span><WandSparkles size={18} /></span>
-                  <div><strong>Focused shortlist</strong><small>Interview the strongest matches, then make the final hiring decision.</small></div>
-                  <ArrowRight size={17} />
-                </div>
-              </div>
-              <div className="pva-float-note pva-float-note-a"><Star size={14} fill="currentColor" /><strong>Human-reviewed</strong><span>not an open marketplace</span></div>
-              <div className="pva-float-note pva-float-note-b"><Clock3 size={14} /><strong>Less sorting</strong><span>more interviewing</span></div>
+            <div id="hero-hiring-form" className="pva-hero-form-shell">
+              <div className="pva-hero-form-badge"><ShieldCheck size={14} /> Private hiring request</div>
+              <RoleBriefForm
+                sourcePath="/"
+                error={query.error}
+                sent={Boolean(query.sent)}
+                heading="Get a vetted shortlist"
+                subheading="Share the role in about 60 seconds. No account required."
+              />
             </div>
           </div>
         </section>
@@ -379,30 +333,6 @@ export default async function HomePage({
           </div>
         </section>
 
-        <section className="pva-section pva-white">
-          <div className="container pva-lead-grid">
-            <div className="pva-lead-copy">
-              <span className="pva-kicker">Start with the role</span>
-              <h2>Tell us who you need. We will take it from there.</h2>
-              <p>Give us the specialty, hours, timezone overlap, responsibilities, and budget. Your request stays private and our recruiting team follows up with the strongest next step.</p>
-              <div className="pva-inline-points">
-                <span><CheckCircle2 size={16} /> No account required to start</span>
-                <span><CheckCircle2 size={16} /> Private role brief</span>
-                <span><CheckCircle2 size={16} /> Human recruiter follow-up</span>
-              </div>
-              <Link className="pva-text-link" href="/find-talent">Prefer to browse first? See approved Virtual Assistants <ArrowRight size={15} /></Link>
-            </div>
-            <div className="pva-form-shell">
-              <RoleBriefForm
-                sourcePath="/"
-                error={query.error}
-                sent={Boolean(query.sent)}
-                heading="Tell us who you need"
-                subheading="About 60 seconds. Our recruiting team will review the role and follow up."
-              />
-            </div>
-          </div>
-        </section>
 
         <section className="pva-section pva-soft">
           <div className="container">

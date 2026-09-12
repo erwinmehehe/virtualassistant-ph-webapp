@@ -3,10 +3,7 @@ import Script from "next/script";
 import { Analytics } from "@/components/analytics";
 import "./globals.css";
 import "./marketing-refresh.css";
-import "./premium-home.css";
-import "./premium-hire.css";
 import "./talent-card-refresh.css";
-import "./dashboard-premium.css";
 import "./premium-marketing-final.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;

@@ -688,3 +688,37 @@
 .section-head h2 { letter-spacing: -.03em; }
 
 .workflow-step.done span, .onboarding-step.done .onboarding-step-icon { background: #d1fae5; color: #047857; }
+
+/* ---------- Service, software, industry & pricing-comparison pages ----------
+   These pages use bespoke component classes (not .card/.btn/.badge), so the
+   earlier site-wide pass didn't reach them. Recolors icons, borders, and
+   hover/selected states from the old blue to the new indigo/violet, plus
+   gives service-task-card the same gradient top bar as elsewhere. */
+.service-model-card.selected { border-color: var(--mkt-indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.10); background: #f8f8ff; }
+.business-use-card svg,
+.cost-card > svg,
+.related-service-card > svg,
+.service-trust-bar svg,
+.service-compliance-icon,
+.service-use-card svg,
+.service-cost-panel > svg,
+.service-detail-card > svg,
+.service-role-help svg,
+.industry-card-link,
+.software-security-card > svg { color: var(--mkt-indigo); }
+.service-compliance-icon { background: #eef0ff; }
+.cost-card, .service-cost-panel { border-color: #d9defc; background: #f8f8ff; }
+.cost-card h2, .service-cost-panel h2 { color: #1e1b4b; }
+.service-jump-links a:hover, .service-jump-links a:focus-visible { color: var(--mkt-indigo); background: #eef0ff; }
+.service-task-card:before { background: linear-gradient(90deg, var(--mkt-indigo), var(--mkt-violet)); }
+.service-process .process-number { color: var(--mkt-indigo); }
+.service-guide-card:hover { border-color: #c7cbfa; box-shadow: 0 14px 34px rgba(79,70,229,.1); }
+.service-guide-card strong { color: var(--mkt-indigo); }
+.software-callout { border-left-color: var(--mkt-indigo); }
+.software-onboarding-grid article > span { color: var(--mkt-indigo); }
+.hiring-compare-ours { border-color: #c7cbfa; background: #f5f5ff; }
+.cost-compare-table thead th:nth-child(2) { color: var(--mkt-indigo); }
+.hiring-option-card.best { border-color: #c7cbfa; background: #f5f5ff; }
+.service-trust-bar, .service-detail-card, .service-use-card, .service-task-card,
+.service-guide-card, .related-service-card, .software-onboarding-grid article,
+.hiring-option-card, .cost-card, .service-cost-panel { border-radius: 18px; }

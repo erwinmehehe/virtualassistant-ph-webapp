@@ -10,11 +10,8 @@ function isRole(value: unknown): value is Role {
 }
 
 function bootstrapRole(user: User): Role | null {
-  // app_metadata is server-controlled, so it may safely carry privileged roles.
   const appRole = user.app_metadata?.role;
   if (isRole(appRole)) return appRole;
-
-  // user_metadata is user-editable. Only allow the two public signup roles here.
   const userRole = user.user_metadata?.role;
   if (userRole === "client" || userRole === "va") return userRole;
   return null;
@@ -50,11 +47,6 @@ async function ensureRoleRows(admin: ReturnType<typeof createAdminClient>, user:
   }
 }
 
-/**
- * Returns the authoritative workspace profile for an authenticated user.
- * If an older account is missing its profile or role-specific child rows,
- * repair them so a successful login always lands in a usable workspace.
- */
 export async function getOrBootstrapProfile(user: User): Promise<Profile | null> {
   try {
     const admin = createAdminClient();

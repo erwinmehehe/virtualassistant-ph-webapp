@@ -518,11 +518,13 @@
 
 /* ---------- Floating CTA ---------- */
 .floating-cta {
-  border-color: #d9e1ea;
+  border-color: #d9defc;
   border-radius: 16px;
-  box-shadow: 0 20px 54px rgba(16,24,40,.18);
+  box-shadow: 0 20px 54px rgba(79,70,229,.16);
 }
 .floating-cta .btn { border-radius: 999px; }
+.floating-cta-copy strong { color: #1e1b4b; }
+.floating-cta .btn svg { color: inherit; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
@@ -635,3 +637,88 @@
   .footer .footer-grid { grid-template-columns: 1fr; }
   .footer .footer-brand-block { grid-column: auto; }
 }
+
+/* ==========================================================================
+   Public site — visual refresh v6 (indigo/violet/emerald), matching the new
+   /workspace dashboard look. Purely visual: recolors the shared component
+   classes already used across every public page (home, about, pricing,
+   services, blog, tools, etc). No copy, headings, URLs, meta tags, or
+   structured data are touched by this file.
+   ========================================================================== */
+:root {
+  --mkt-indigo: #4f46e5;
+  --mkt-violet: #7c3aed;
+  --mkt-emerald: #10b981;
+}
+
+.kicker { color: var(--mkt-indigo); }
+
+.btn-primary,
+.header-hire-cta {
+  background: linear-gradient(135deg, var(--mkt-indigo), var(--mkt-violet));
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(79,70,229,.22);
+}
+.btn-primary:hover, .header-hire-cta:hover { filter: brightness(1.06); }
+.btn { border-radius: 12px; }
+.nav-actions .btn { border-radius: 999px; }
+
+.card {
+  border-radius: 18px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(16,24,40,.08); }
+
+.badge { border-radius: 999px; font-weight: 800; }
+.badge-success { background: #ecfdf5; color: #047857; }
+.badge-warning { background: #fffbeb; color: #b45309; }
+
+.hero, .public-hero-small { position: relative; overflow: hidden; }
+.hero:before, .public-hero-small:before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 60%;
+  background: radial-gradient(60% 60% at 30% 20%, rgba(79,70,229,.10), transparent 70%),
+              radial-gradient(50% 50% at 80% 10%, rgba(16,185,129,.10), transparent 70%);
+  pointer-events: none;
+}
+.public-page-head, .public-hero-small .container { position: relative; z-index: 1; }
+
+.section-head h2 { letter-spacing: -.03em; }
+
+.workflow-step.done span, .onboarding-step.done .onboarding-step-icon { background: #d1fae5; color: #047857; }
+
+/* ---------- Service, software, industry & pricing-comparison pages ----------
+   These pages use bespoke component classes (not .card/.btn/.badge), so the
+   earlier site-wide pass didn't reach them. Recolors icons, borders, and
+   hover/selected states from the old blue to the new indigo/violet, plus
+   gives service-task-card the same gradient top bar as elsewhere. */
+.service-model-card.selected { border-color: var(--mkt-indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.10); background: #f8f8ff; }
+.business-use-card svg,
+.cost-card > svg,
+.related-service-card > svg,
+.service-trust-bar svg,
+.service-compliance-icon,
+.service-use-card svg,
+.service-cost-panel > svg,
+.service-detail-card > svg,
+.service-role-help svg,
+.industry-card-link,
+.software-security-card > svg { color: var(--mkt-indigo); }
+.service-compliance-icon { background: #eef0ff; }
+.cost-card, .service-cost-panel { border-color: #d9defc; background: #f8f8ff; }
+.cost-card h2, .service-cost-panel h2 { color: #1e1b4b; }
+.service-jump-links a:hover, .service-jump-links a:focus-visible { color: var(--mkt-indigo); background: #eef0ff; }
+.service-task-card:before { background: linear-gradient(90deg, var(--mkt-indigo), var(--mkt-violet)); }
+.service-process .process-number { color: var(--mkt-indigo); }
+.service-guide-card:hover { border-color: #c7cbfa; box-shadow: 0 14px 34px rgba(79,70,229,.1); }
+.service-guide-card strong { color: var(--mkt-indigo); }
+.software-callout { border-left-color: var(--mkt-indigo); }
+.software-onboarding-grid article > span { color: var(--mkt-indigo); }
+.hiring-compare-ours { border-color: #c7cbfa; background: #f5f5ff; }
+.cost-compare-table thead th:nth-child(2) { color: var(--mkt-indigo); }
+.hiring-option-card.best { border-color: #c7cbfa; background: #f5f5ff; }
+.service-trust-bar, .service-detail-card, .service-use-card, .service-task-card,
+.service-guide-card, .related-service-card, .software-onboarding-grid article,
+.hiring-option-card, .cost-card, .service-cost-panel { border-radius: 18px; }

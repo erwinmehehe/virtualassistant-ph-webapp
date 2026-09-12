@@ -52,7 +52,7 @@ export function AppShell({ role, name, title, children, badges }: { role: Role; 
         <div className="app-topbar">
           <div className="app-topbar-inner">
             <div className="app-topbar-title"><span>{roleLabel} workspace</span><h1>{title}</h1></div>
-            <Link className="btn btn-sm" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/><span>Public site</span></Link>
+            <Link className="btn btn-sm app-topbar-public" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/><span>Public site</span></Link>
           </div>
         </div>
         <div className="app-content">{children}</div>

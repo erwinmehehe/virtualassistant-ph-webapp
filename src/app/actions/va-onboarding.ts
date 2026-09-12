@@ -30,9 +30,6 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   if (hourlyRate == null || hourlyRate < MIN_HOURLY_RATE || hourlyRate > 1000) onboardingError(`Preferred rate must be at least USD ${MIN_HOURLY_RATE} per hour.`);
 
   const admin = createAdminClient();
-  // The VA row is created during account bootstrap. Update only the quick-setup
-  // fields here so revisiting onboarding can never reset a custom slug,
-  // visibility, availability status, resume, or any other existing profile data.
   const { data: updatedProfile, error: profileError } = await admin.from("va_profiles").update({
     primary_category: category,
     headline,

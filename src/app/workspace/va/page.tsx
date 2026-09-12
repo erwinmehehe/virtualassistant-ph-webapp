@@ -84,9 +84,9 @@ export default async function VaDashboardPage(){
   ];
   const onboardingDone=steps.every((step)=>step.done);
 
-  return <>
+  return <div className="dash-page role-overview va-overview">
     <DashboardDegradedNotice issues={issues}/>
-    <div className="page-head"><div><div className="kicker">VA workspace</div><h1>What should you do next?</h1><p>Keep your profile ready, respond to recruiter requests, and move promising applications forward.</p></div><Link className="btn btn-primary" href="/workspace/va/jobs">Browse jobs</Link></div>
+    <div className="dash-header"><div><div className="dash-kicker">VA workspace</div><h1>What should you do next?</h1><p>Keep your profile ready, respond to recruiter requests, and move promising applications forward.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary" href="/workspace/va/jobs">Browse jobs</Link></div>
 
     <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
 
@@ -111,16 +111,10 @@ export default async function VaDashboardPage(){
 
     {!onboardingDone?<OnboardingChecklist title="Finish setting up your VA account" steps={steps}/>:null}
 
-    <div className="dashboard-grid dashboard-after-onboarding">
-      <div className="stack">
-        <Suspense fallback={<div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>Finding the strongest current roles for your profile.</p></div></div><div className="empty">Loading job matches…</div></div>}>
-          <VaDashboardMatches va={va} vetted={vetted}/>
-        </Suspense>
-      </div>
-      <div className="stack">
-        <div className="card"><div className="dashboard-section-head"><div><h3>Availability</h3><p>Keep this current so recruiters do not match you to roles you cannot take.</p></div><Clock3 size={18}/></div><div className="availability-summary"><strong>{String(va?.availability_status||"available").replaceAll("_"," ")}</strong><span>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Weekly hours not set"}</span><span>{va?.preferred_timezone||va?.schedule||"Timezone/schedule not set"}</span></div><Link className="btn" href="/workspace/va/profile#availability" style={{width:"100%"}}>Update availability</Link></div>
-        <div className="card"><div className="dashboard-section-head"><div><h3>Account signals</h3><p>Recruiters use these alongside your profile and vetting evidence.</p></div><CheckCircle2 size={18}/></div><div className="compact-metrics"><span><strong>{certificationCount}</strong><small>Certifications</small></span><span><strong>{pendingInvites}</strong><small>Pending invites</small></span><span><strong>{unreadMessages}</strong><small>Unread messages</small></span></div></div>
-      </div>
-    </div>
-  </>;
+    <section className="dashboard-section-card">
+      <Suspense fallback={<div className="dash-panel" aria-busy="true"><div className="workspace-skeleton-line wide"/><div className="workspace-skeleton-card"/></div>}>
+        <VaDashboardMatches va={va} vetted={vetted}/>
+      </Suspense>
+    </section>
+  </div>;
 }

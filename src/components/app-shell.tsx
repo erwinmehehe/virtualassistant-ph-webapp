@@ -41,15 +41,10 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
           <span><small>Current workspace</small><strong>{roleLabel}</strong></span>
         </div>
 
-        <div className="sidebar-label">Workspace</div>
         {nav}
 
         <div className="sidebar-footer">
-          <div className="app-support-card">
-            <strong>Need a hand?</strong>
-            <p>If a hiring, vetting, payment, or account step is blocked, contact the team.</p>
-            <Link href="/contact"><LifeBuoy size={14}/> Contact support</Link>
-          </div>
+          <Link className="app-support-link" href="/contact"><LifeBuoy size={15}/><span>Help and support</span></Link>
           <div className="app-account-card">
             <span className="app-account-avatar"><CircleUserRound size={18}/></span>
             <div className="user-copy"><strong>{name || "Account"}</strong><span>{roleLabel}</span></div>
@@ -63,7 +58,7 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
       <main className="app-main" id="main-content">
         <div className="app-topbar">
           <div className="app-topbar-inner">
-            <div className="app-topbar-title"><span>{roleLabel} workspace</span><h1>{title}</h1></div>
+            <div className="app-topbar-title"><span>{roleLabel} workspace</span><strong className="app-topbar-page-title">{title}</strong></div>
             <Link className="btn btn-sm app-topbar-public" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/><span>Public site</span></Link>
           </div>
         </div>

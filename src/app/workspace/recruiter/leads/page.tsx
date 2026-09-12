@@ -135,7 +135,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     .filter((lead: any) => isOpenLeadStage(lead.crm_stage))
     .reduce((sum: number, lead: any) => sum + Number(lead.estimated_value_usd || 0), 0);
 
-  const view = params.view || "attention";
+  const view = params.view || "recent";
   const q = String(params.q || "").trim().toLowerCase();
   const ownerFilter = String(params.owner || "");
   const visible = leadRows.filter((lead: any) => {
@@ -158,6 +158,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     }
     return true;
   }).sort((a: any, b: any) => {
+    if (view === "recent") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || String(b.id).localeCompare(String(a.id));
     const priority = (lead: any) => {
       const stage = lead.crm_stage || "new";
       const age = now - new Date(lead.created_at).getTime();
@@ -172,6 +173,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   });
 
   const viewTabs = [
+    ["recent", "Newest leads"],
     ["attention", "Attention"],
     ["open", "Open pipeline"],
     ["discovery", "Discovery"],
@@ -220,9 +222,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
 
-      <div className="role-filter-tabs crm-tabs">
-        {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} href={`/workspace/recruiter/leads?view=${value}`}>{label}</Link>)}
+      <div className="role-filter-tabs crm-tabs" aria-label="Filter leads">
+        {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
       </div>
+
+      {view === "recent" ? <p className="small muted">Newest enquiries first, across all stages. Search and owner filters still apply. Showing up to the 500 most recent enquiries.</p> : null}
 
       <form method="get" className="recruiter-filter-panel crm-filter-panel">
         <input type="hidden" name="view" value={view}/>

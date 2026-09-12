@@ -26,7 +26,8 @@ const fixedEvents = new Set([
   "login_submit",
   "role_brief_create_account",
   "role_brief_submit",
-  "talent_request_intro"
+  "talent_request_intro",
+  "web_vital"
 ]);
 
 const schema = z.object({

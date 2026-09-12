@@ -27,8 +27,12 @@ jobs:
       - name: Patch runtime, dependencies and performance logging
         shell: bash
         run: |
+          npm uninstall mammoth --package-lock-only
           npm install next@15.5.24 --save-exact --package-lock-only
           npm pkg set engines.node='22.x'
+          npm pkg set overrides.postcss='8.5.28'
+          npm pkg set overrides.sharp='0.35.4'
+          npm install --package-lock-only
           python3 - <<'PY'
           from pathlib import Path
 

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { CircleUserRound, ExternalLink, LifeBuoy, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
+import { getWorkspaceBadges, type WorkspaceBadges } from "@/lib/workspace-badges";
 import type { Role } from "@/lib/types";
 
 const roleLabels: Record<Role, string> = {
@@ -11,8 +13,18 @@ const roleLabels: Record<Role, string> = {
   admin: "Admin",
 };
 
-export function AppShell({ role, name, title, children, badges }: { role: Role; name?: string | null; title: string; children: React.ReactNode; badges?: Record<string, number> }) {
+async function WorkspaceNavWithBadges({ role, userId }: { role: Role; userId: string }) {
+  const badges = await getWorkspaceBadges(role, userId);
+  return <AppNavLinks role={role} badges={badges}/>;
+}
+
+export function AppShell({ role, name, title, children, badges, userId }: { role: Role; name?: string | null; title: string; children: React.ReactNode; badges?: WorkspaceBadges; userId?: string | null }) {
   const roleLabel = roleLabels[role];
+  const nav = badges
+    ? <AppNavLinks role={role} badges={badges}/>
+    : userId && role !== "admin"
+      ? <Suspense fallback={<AppNavLinks role={role}/>}><WorkspaceNavWithBadges role={role} userId={userId}/></Suspense>
+      : <AppNavLinks role={role}/>;
 
   return (
     <div className="app-shell dashboard-shell">
@@ -30,7 +42,7 @@ export function AppShell({ role, name, title, children, badges }: { role: Role; 
         </div>
 
         <div className="sidebar-label">Workspace</div>
-        <AppNavLinks role={role} badges={badges}/>
+        {nav}
 
         <div className="sidebar-footer">
           <div className="app-support-card">

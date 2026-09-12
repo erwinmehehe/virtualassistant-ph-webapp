@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
+import { getWorkspaceBadgeResult } from "@/lib/workspace-badges";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof AlertCircle};
 
@@ -18,32 +19,38 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const supabase=await createClient();
   const admin=createAdminClient();
 
-  const [{data:company,error:companyError},{data:jobs,error:jobsError},{data:workrooms,error:workroomsError},{data:requested},{data:conversations,error:conversationsError},{data:recentOwnedLead,error:hiringOwnerError}]=await Promise.all([
+  const [
+    {data:company,error:companyError},
+    {data:jobs,error:jobsError},
+    {data:workrooms,error:workroomsError},
+    {data:requested},
+    {data:recentOwnedLead,error:hiringOwnerError},
+    {data:applications,error:applicationsError},
+    badgeResult
+  ]=await Promise.all([
     supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
     supabase.from("jobs").select("id,title,status,created_at,published_at").eq("client_id",user.id).order("created_at",{ascending:false}),
     supabase.from("workrooms").select("id,status,job_id").eq("client_id",user.id),
     params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
-    admin.from("conversations").select("id").eq("client_id",user.id),
     admin.from("lead_intake")
       .select("owner_id,owner:profiles!lead_intake_owner_id_fkey(full_name)")
       .eq("client_id",user.id)
       .not("owner_id","is",null)
       .order("created_at",{ascending:false})
       .limit(1)
-      .maybeSingle()
+      .maybeSingle(),
+    admin.from("applications")
+      .select("id,job_id,status,applied_at,match_score,jobs!applications_job_id_fkey!inner(client_id)")
+      .eq("jobs.client_id",user.id)
+      .order("applied_at",{ascending:false}),
+    getWorkspaceBadgeResult("client",user.id)
   ]);
 
   if(!company?.onboarding_completed_at&&!(jobs||[]).length&&!params.talent)redirect("/workspace/client/onboarding");
 
   const hiringOwner=(recentOwnedLead as any)?.owner||null;
   const jobRows=jobs||[];
-  const jobIds=jobRows.map((job:any)=>job.id);
-  const conversationIds=(conversations||[]).map((row:any)=>row.id);
-
-  const [{data:applications,error:applicationsError},{count:unreadMessages,error:messagesError}]=await Promise.all([
-    jobIds.length?admin.from("applications").select("id,job_id,status,applied_at,match_score").in("job_id",jobIds).order("applied_at",{ascending:false}):Promise.resolve({data:[]} as any),
-    conversationIds.length?admin.from("messages").select("id",{count:"exact",head:true}).in("conversation_id",conversationIds).neq("sender_id",user.id).is("read_at",null):Promise.resolve({count:0} as any)
-  ]);
+  const unreadMessages=badgeResult.badges["/workspace/client/messages"]||0;
 
   // Surfaced above the dashboard: a failed query would otherwise render as a
   // zero, and "All caught up" is the most dangerous thing this page can say to
@@ -54,7 +61,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     "your hires":workroomsError,
     "your hiring owner":hiringOwnerError,
     "applicant data":applicationsError,
-    "your messages":conversationsError||messagesError
+    "your messages":badgeResult.error
   });
 
   const appRows=applications||[];
@@ -78,7 +85,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   if(pipeline.applied) attention.push({title:"New applicants to review",copy:"Review the newest applicants and move strong candidates into your shortlist.",href:"/workspace/client/candidates",count:pipeline.applied,icon:UsersRound});
   if(pipeline.interview) attention.push({title:"Interviews in progress",copy:"Review interview-stage candidates and keep decisions moving.",href:"/workspace/client/candidates",count:pipeline.interview,icon:BriefcaseBusiness});
   if(pipeline.offered) attention.push({title:"Offers awaiting a hiring decision",copy:"Open the candidate pipeline to confirm the final hire when terms are agreed.",href:"/workspace/client/candidates",count:pipeline.offered,icon:Sparkles});
-  if((unreadMessages||0)>0) attention.push({title:"Unread candidate messages",copy:"Reply to candidate questions, interview follow-ups, and hiring conversations.",href:"/workspace/client/messages",count:unreadMessages||0,icon:MessageSquare});
+  if(unreadMessages>0) attention.push({title:"Unread candidate messages",copy:"Reply to candidate questions, interview follow-ups, and hiring conversations.",href:"/workspace/client/messages",count:unreadMessages,icon:MessageSquare});
 
   const steps=[
     {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
@@ -103,7 +110,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     ["New hiring request","Tell us who you need","/workspace/client/jobs/new",Plus,true],
     ["Roles",`${active} active role${active===1?"":"s"}`,"/workspace/client/jobs",BriefcaseBusiness,false],
     ["Shortlist",`${applicants} candidate${applicants===1?"":"s"} in your pipeline`,"/workspace/client/candidates",UsersRound,false],
-    ["Messages",`${unreadMessages||0} unread message${unreadMessages===1?"":"s"}`,"/workspace/client/messages",MessageSquare,false],
+    ["Messages",`${unreadMessages} unread message${unreadMessages===1?"":"s"}`,"/workspace/client/messages",MessageSquare,false],
     ["Hires",`${hires} placement${hires===1?"":"s"}`,"/workspace/client/workroom",UserRoundCheck,false]
   ] as const;
 
@@ -131,7 +138,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Hiring pipeline</h2><p>Combined status across all of your current and past applications.</p></div><Link className="btn btn-sm" href="/workspace/client/candidates">Open candidates</Link></div>
-      <div className="pipeline-summary" aria-label="Client hiring pipeline">{[['Applied',pipeline.applied],['Shortlisted',pipeline.shortlisted],['Interview',pipeline.interview],['Offered',pipeline.offered],['Hired',pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
+      <div className="pipeline-summary" aria-label="Client hiring pipeline">{[["Applied",pipeline.applied],["Shortlisted",pipeline.shortlisted],["Interview",pipeline.interview],["Offered",pipeline.offered],["Hired",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
       {pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} rejected candidate{pipeline.rejected===1?"":"s"} kept outside the active pipeline.</div>:null}
     </section>
 

@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowRight, Bell, BriefcaseBusiness, CheckCircle2, Clock3, Eye, FileText, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { missingForPublic } from "@/lib/public-visibility";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { JobCard } from "@/components/job-card";
 import { getVaCompletion } from "@/lib/profile-completeness";
@@ -13,83 +13,48 @@ import { publishVaProfileAction } from "@/app/actions/profile";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { VETTING_PROFILE_MIN } from "@/lib/constants";
+import { getVaDashboardSummary } from "@/lib/va-dashboard";
 
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
-
-function statusCount(rows:any[], statuses:string[]){return rows.filter((row)=>statuses.includes(row.status)).length;}
 
 export default async function VaDashboardPage(){
   const {user}=await requireRole("va");
   const supabase=await createClient();
-  const admin=createAdminClient();
 
-  const [
-    {data:va,error:vaError},
-    {data:accountProfile},
-    {data:apps,error:appsError},
-    {data:jobs,error:jobsError},
-    {data:invites,error:invitesError},
-    {data:workrooms},
-    {data:vetting,error:vettingError},
-    {data:attempt},
-    {data:scorecard},
-    {data:certifications},
-    {data:notifications,error:notificationsError},
-    {data:conversations,error:conversationsError}
-  ]=await Promise.all([
-    supabase.from("va_profiles").select("*").eq("user_id",user.id).single(),
-    supabase.from("profiles").select("avatar_url").eq("id",user.id).single(),
-    supabase.from("applications").select("id,status,job_id,applied_at,jobs(id,slug,title,company_name)").eq("va_id",user.id).order("applied_at",{ascending:false}),
-    supabase.from("jobs").select("*").eq("status","published").order("published_at",{ascending:false}).limit(20),
-    supabase.from("job_invites").select("id,status,created_at,jobs(id,slug,title,company_name)").eq("va_id",user.id).order("created_at",{ascending:false}),
-    supabase.from("workrooms").select("id,status").eq("va_id",user.id),
-    admin.from("va_vetting").select("*").eq("va_id",user.id).single(),
-    admin.from("va_test_attempts").select("final_score,auto_score").eq("va_id",user.id).order("submitted_at",{ascending:false}).limit(1).maybeSingle(),
-    admin.from("vetting_scorecards").select("total_score").eq("va_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle(),
-    supabase.from("public_va_certifications").select("category").eq("va_id",user.id),
-    supabase.from("notifications").select("id,type,title,body,href,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
-    supabase.from("conversations").select("id").eq("va_id",user.id)
+  const [{data:summary,error:summaryError},{data:jobs,error:jobsError}]=await Promise.all([
+    getVaDashboardSummary(user.id),
+    supabase.from("jobs")
+      .select("id,slug,title,company_name,published_at,summary,categories,required_skills,required_tools,hours_per_week,overlap_hours,min_hourly_rate,max_hourly_rate,timezone,engagement_length")
+      .eq("status","published")
+      .order("published_at",{ascending:false})
+      .limit(20)
   ]);
 
-  const conversationIds=(conversations||[]).map((row:any)=>row.id);
-  const {count:unreadMessages,error:messagesError}=conversationIds.length
-    ? await supabase.from("messages").select("id",{count:"exact",head:true}).in("conversation_id",conversationIds).neq("sender_id",user.id).is("read_at",null)
-    : {count:0,error:null};
+  const va=summary?.profile||{};
+  const avatarUrl=summary?.avatar_url||null;
+  const vetting=summary?.vetting||{};
+  const testScore=summary?.test_score??null;
+  const scorecardTotal=summary?.scorecard_total??null;
+  const pipeline=summary?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};
+  const applicationCount=Number(summary?.application_count||0);
+  const pendingInvites=Number(summary?.pending_invites||0);
+  const workroomCount=Number(summary?.workroom_count||0);
+  const certificationCount=Number(summary?.certification_count||0);
+  const unreadNotifications=Number(summary?.unread_notifications||0);
+  const unreadMessages=Number(summary?.unread_messages||0);
+  const recruiterRequests=Array.isArray(summary?.recruiter_requests)?summary!.recruiter_requests:[];
 
-  // Surfaced above the dashboard: without this a failed query reads as a zero,
-  // and the next-best-action panel confidently recommends the wrong thing.
+  const completion=getVaCompletion(va,avatarUrl);
+  if(!summaryError&&completion.score===0) redirect("/workspace/va/onboarding");
+
   const issues=collectQueryIssues({
-    "your profile":vaError,
-    "your applications":appsError,
-    "job matches":jobsError,
-    "client invitations":invitesError,
-    "your vetting status":vettingError,
-    "your notifications":notificationsError,
-    "your messages":conversationsError||messagesError
+    "your dashboard summary":summaryError,
+    "job matches":jobsError
   });
 
-  const completion=getVaCompletion(va,accountProfile?.avatar_url);
-  const testScore=attempt?.final_score??attempt?.auto_score??null;
-  const vettingReadiness=getVettingReadiness(va,vetting,testScore,scorecard?.total_score??null,accountProfile?.avatar_url);
+  const vettingReadiness=getVettingReadiness(va,vetting,testScore,scorecardTotal,avatarUrl);
   const vetted=["approved","bench"].includes(vetting?.stage||"");
-  const applicationRows=apps||[];
-  const pendingInvites=(invites||[]).filter((row:any)=>row.status==="pending");
-  const unreadNotifications=(notifications||[]).filter((row:any)=>!row.read_at);
-  // Previously matched /update|profile|recruiter/i against the text, so any
-  // notification containing "update" was promoted over real offers and
-  // interviews. Untyped legacy rows are backfilled by migration v4138.
-  const recruiterRequests=unreadNotifications.filter((row:any)=>row.type==="profile_update_request");
-
-  const pipeline={
-    applied:statusCount(applicationRows,["new","reviewing"]),
-    shortlisted:statusCount(applicationRows,["shortlisted"]),
-    interview:statusCount(applicationRows,["interview"]),
-    offered:statusCount(applicationRows,["offered"]),
-    hired:statusCount(applicationRows,["hired"]),
-    rejected:statusCount(applicationRows,["rejected"])
-  };
-
-  const missingPublic=missingForPublic(va,accountProfile?.avatar_url);
+  const missingPublic=missingForPublic(va,avatarUrl);
   const directoryVisible=Boolean(vetted&&va?.directory_visible&&!missingPublic.length);
   const readyToPublish=Boolean(vetted&&!missingPublic.length&&!va?.directory_visible);
   const visibilityLabel=directoryVisible?"Visible to clients":vetted?"Not public yet":"Waiting for vetting";
@@ -114,11 +79,11 @@ export default async function VaDashboardPage(){
     nextAction={title:"Polish your approved profile",copy:`You passed vetting. Complete ${completion.next.label} so clients and recruiters see the strongest version of your profile.`,href:completion.next.href,label:"Finish profile",icon:FileText};
   }else if(readyToPublish){
     nextAction={title:"Your profile is ready — switch it on",copy:"You are approved and your profile is complete, but it is still hidden from clients. Turning it on lists you in the public directory where clients search.",href:"/workspace/va/profile#visibility",label:"Go to profile",icon:Eye};
-  }else if(pendingInvites.length){
-    nextAction={title:`You have ${pendingInvites.length} client invitation${pendingInvites.length===1?"":"s"}`,copy:"Review the role details and accept only the opportunities that fit your schedule and experience.",href:"/workspace/va/applications",label:"Review invitations",icon:BriefcaseBusiness};
+  }else if(pendingInvites){
+    nextAction={title:`You have ${pendingInvites} client invitation${pendingInvites===1?"":"s"}`,copy:"Review the role details and accept only the opportunities that fit your schedule and experience.",href:"/workspace/va/applications",label:"Review invitations",icon:BriefcaseBusiness};
   }else if(pipeline.offered){
     nextAction={title:`You have ${pipeline.offered} active offer${pipeline.offered===1?"":"s"}`,copy:"Open Applications to review the latest hiring status and keep the conversation moving.",href:"/workspace/va/applications",label:"Review offers",icon:Sparkles};
-  }else if((unreadMessages||0)>0){
+  }else if(unreadMessages>0){
     nextAction={title:`You have ${unreadMessages} unread message${unreadMessages===1?"":"s"}`,copy:"Reply promptly so interviews, scope questions, and hiring decisions do not stall.",href:"/workspace/va/messages",label:"Open messages",icon:MessageSquare};
   }else if(pipeline.interview){
     nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Review the role requirements, your relevant examples, availability, and questions for the client.",href:"/workspace/va/applications",label:"View interviews",icon:BriefcaseBusiness};
@@ -130,8 +95,8 @@ export default async function VaDashboardPage(){
   const steps=[
     ...completion.items.slice(0,4).map((x)=>({label:x.label,done:x.done,href:x.href,description:undefined})),
     {label:"Complete VA vetting (about 45 minutes)",description:"Four steps: skills test, short video intro, recruiter review, then final approval. You cannot apply to roles until this is done.",done:vetted,href:"/workspace/va/vetting"},
-    {label:"Apply to your first job",description:"Approved VAs can apply with their vetted profile.",done:Boolean(applicationRows.length),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
-    {label:"Start your first workroom",description:"A workroom opens after a client hires you.",done:Boolean(workrooms?.length),href:"/workspace/va/workroom"}
+    {label:"Apply to your first job",description:"Approved VAs can apply with their vetted profile.",done:Boolean(applicationCount),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
+    {label:"Start your first workroom",description:"A workroom opens after a client hires you.",done:Boolean(workroomCount),href:"/workspace/va/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
 
@@ -147,18 +112,18 @@ export default async function VaDashboardPage(){
       {readyToPublish
         ? <form action={publishVaProfileAction} className="status-summary-card status-summary-action"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">Hidden from clients</strong><small>You are approved and complete. One click lists you where clients search.</small><button className="btn btn-primary btn-sm" type="submit">Show my profile to clients</button></form>
         : <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Profile visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>}
-      <Link className="status-summary-card" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications.length}</strong><small>{unreadNotifications.length?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>
+      <Link className="status-summary-card" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications}</strong><small>{unreadNotifications?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>
     </div>
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Application pipeline</h2><p>Where each application stands. Clients usually reply within about 5 working days, so quiet first days are normal.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">Open applications</Link></div>
       <div className="pipeline-summary" aria-label="Application pipeline">
-        {[['Applied',pipeline.applied],['Shortlisted',pipeline.shortlisted],['Interview',pipeline.interview],['Offered',pipeline.offered],['Hired',pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}
+        {[["Applied",pipeline.applied],["Shortlisted",pipeline.shortlisted],["Interview",pipeline.interview],["Offered",pipeline.offered],["Hired",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}
       </div>
       {pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} rejected application{pipeline.rejected===1?"":"s"} kept outside the active pipeline.</div>:null}
     </section>
 
-    {recruiterRequests.length?<section className="card dashboard-section-card recruiter-request-card"><div className="dashboard-section-head"><div><h2>Recruiter requests</h2><p>These updates can affect whether you are matched to client roles.</p></div><Link className="btn btn-sm" href="/workspace/va/notifications">All notifications</Link></div><div className="compact-list">{recruiterRequests.slice(0,3).map((request:any)=><Link href={request.href||"/workspace/va/profile"} key={request.id}><span><strong>{request.title}</strong><small>{request.body||"Open your profile to review the requested changes."}</small></span><ArrowRight size={15}/></Link>)}</div></section>:null}
+    {recruiterRequests.length?<section className="card dashboard-section-card recruiter-request-card"><div className="dashboard-section-head"><div><h2>Recruiter requests</h2><p>These updates can affect whether you are matched to client roles.</p></div><Link className="btn btn-sm" href="/workspace/va/notifications">All notifications</Link></div><div className="compact-list">{recruiterRequests.map((request)=><Link href={request.href||"/workspace/va/profile"} key={request.id}><span><strong>{request.title}</strong><small>{request.body||"Open your profile to review the requested changes."}</small></span><ArrowRight size={15}/></Link>)}</div></section>:null}
 
     {!onboardingDone?<OnboardingChecklist title="Finish setting up your VA account" steps={steps}/>:null}
 
@@ -167,8 +132,8 @@ export default async function VaDashboardPage(){
         <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>The % shows how well your skills, tools, availability and rate fit the role. It is a guide, not a gate — you can apply to any open role.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div>{vetted?<div className="stack">{matches.length?matches.map(({job,score}:any)=><JobCard key={job.id} job={job} match={score}/>):<div className="empty">No strong matches are available right now. Keep your profile and availability current.</div>}</div>:<div className="empty"><p>Your job matches will unlock after vetting.</p><Link className="btn btn-primary" href="/workspace/va/vetting">Complete vetting</Link></div>}</div>
       </div>
       <div className="stack">
-        <div className="card"><div className="dashboard-section-head"><div><h3>Availability</h3><p>Keep this current so recruiters do not match you to roles you cannot take.</p></div><Clock3 size={18}/></div><div className="availability-summary"><strong>{String(va?.availability_status||"available").replaceAll("_"," ")}</strong><span>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Weekly hours not set"}</span><span>{(va as any)?.preferred_timezone||va?.schedule||"Timezone/schedule not set"}</span></div><Link className="btn" href="/workspace/va/profile#availability" style={{width:"100%"}}>Update availability</Link></div>
-        <div className="card"><div className="dashboard-section-head"><div><h3>Account signals</h3><p>Recruiters use these alongside your profile and vetting evidence.</p></div><CheckCircle2 size={18}/></div><div className="compact-metrics"><span><strong>{certifications?.length||0}</strong><small>Certifications</small></span><span><strong>{pendingInvites.length}</strong><small>Pending invites</small></span><span><strong>{unreadMessages||0}</strong><small>Unread messages</small></span></div></div>
+        <div className="card"><div className="dashboard-section-head"><div><h3>Availability</h3><p>Keep this current so recruiters do not match you to roles you cannot take.</p></div><Clock3 size={18}/></div><div className="availability-summary"><strong>{String(va?.availability_status||"available").replaceAll("_"," ")}</strong><span>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Weekly hours not set"}</span><span>{va?.preferred_timezone||va?.schedule||"Timezone/schedule not set"}</span></div><Link className="btn" href="/workspace/va/profile#availability" style={{width:"100%"}}>Update availability</Link></div>
+        <div className="card"><div className="dashboard-section-head"><div><h3>Account signals</h3><p>Recruiters use these alongside your profile and vetting evidence.</p></div><CheckCircle2 size={18}/></div><div className="compact-metrics"><span><strong>{certificationCount}</strong><small>Certifications</small></span><span><strong>{pendingInvites}</strong><small>Pending invites</small></span><span><strong>{unreadMessages}</strong><small>Unread messages</small></span></div></div>
       </div>
     </div>
   </>;

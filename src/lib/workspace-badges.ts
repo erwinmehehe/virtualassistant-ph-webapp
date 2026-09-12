@@ -1,66 +1,47 @@
 import "server-only";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Role } from "@/lib/types";
 
 export type WorkspaceBadges = Record<string, number>;
+type QueryError = { message?: string; code?: string } | null;
 
-/**
- * Unread counts for the workspace sidebar, keyed by nav href.
- *
- * Until now these counts existed only on the dashboard, so anyone working
- * inside Applications or Candidates had no idea a message or notification had
- * arrived. Runs in the layout, so it must stay cheap and must never throw --
- * a failed count is a missing badge, never a broken page.
- */
-export const getWorkspaceBadges = cache(async function getWorkspaceBadges(role: Role, userId: string): Promise<WorkspaceBadges> {
-  if (role === "recruiter") {
-    try {
-      const admin = createAdminClient();
-      const now = new Date().toISOString();
-      const [{ count: leads }, { count: vetting }, { count: pendingRoles }] = await Promise.all([
-        admin.from("lead_intake")
-          .select("id", { count: "exact", head: true })
-          .not("crm_stage", "in", "(won,lost)")
-          .or(`crm_stage.eq.new,next_follow_up_at.lte.${now}`),
-        admin.from("va_vetting").select("va_id", { count: "exact", head: true }).eq("stage", "recruiter_review"),
-        admin.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending")
-      ]);
-      return {
-        "/workspace/recruiter/leads": leads || 0,
-        "/workspace/recruiter/queue": vetting || 0,
-        "/workspace/recruiter/matching": pendingRoles || 0
-      };
-    } catch {
-      return {};
-    }
-  }
-
-  if (role !== "va" && role !== "client") return {};
-  const base = `/workspace/${role}`;
+export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeResult(role: Role, userId: string): Promise<{ badges: WorkspaceBadges; error: QueryError }> {
+  if (role === "admin") return { badges: {}, error: null };
 
   try {
-    const supabase = await createClient();
-    const conversationColumn = role === "va" ? "va_id" : "client_id";
+    const admin = createAdminClient();
+    const { data, error } = await admin.rpc("workspace_badges", { p_role: role, p_user_id: userId });
+    if (error) return { badges: {}, error };
 
-    const [{ data: conversations }, { count: notifications }] = await Promise.all([
-      supabase.from("conversations").select("id").eq(conversationColumn, userId).limit(500),
-      supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", userId).is("read_at", null)
-    ]);
+    const raw = (data || {}) as Record<string, unknown>;
+    if (role === "recruiter") {
+      return {
+        badges: {
+          "/workspace/recruiter/leads": Number(raw.leads || 0),
+          "/workspace/recruiter/queue": Number(raw.vetting || 0),
+          "/workspace/recruiter/matching": Number(raw.pending_roles || 0)
+        },
+        error: null
+      };
+    }
 
-    const conversationIds = (conversations || []).map((row: { id: string }) => row.id);
-    const { count: messages } = conversationIds.length
-      ? await supabase.from("messages").select("id", { count: "exact", head: true }).in("conversation_id", conversationIds).neq("sender_id", userId).is("read_at", null)
-      : { count: 0 };
-
+    const base = `/workspace/${role}`;
     return {
-      [`${base}/messages`]: messages || 0,
-      [`${base}/notifications`]: notifications || 0
+      badges: {
+        [`${base}/messages`]: Number(raw.messages || 0),
+        [`${base}/notifications`]: Number(raw.notifications || 0)
+      },
+      error: null
     };
-  } catch {
-    // Badges are decoration. If the counts cannot be read, render the nav
-    // without them rather than failing the whole workspace layout.
-    return {};
+  } catch (error) {
+    return {
+      badges: {},
+      error: { message: error instanceof Error ? error.message : "Workspace badge query failed" }
+    };
   }
 });
+
+export async function getWorkspaceBadges(role: Role, userId: string): Promise<WorkspaceBadges> {
+  return (await getWorkspaceBadgeResult(role, userId)).badges;
+}

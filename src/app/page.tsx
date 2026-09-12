@@ -24,11 +24,17 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PublicAvatar } from "@/components/public-avatar";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
+
+function money(value: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+}
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -106,7 +112,7 @@ function safeJson(value: unknown) {
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [{ data: featured }] = await Promise.all([
+  const [{ data: featured }, { data: openJobs }] = await Promise.all([
     supabase
       .from("public_va_directory")
       .select(
@@ -115,7 +121,27 @@ export default async function HomePage() {
       .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
       .not("avatar_url", "is", null)
       .limit(9),
+    supabase
+      .from("jobs")
+      .select("id,slug,title,company_name,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,published_at")
+      .eq("status", "published")
+      .not("client_id", "is", null)
+      .order("published_at", { ascending: false })
+      .limit(4),
   ]);
+
+  let placementFee = 0;
+  let managedMarkup = 0;
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const admin = createAdminClient();
+      const { data } = await admin.from("admin_settings").select("default_placement_fee,default_managed_markup_percent").eq("id", 1).maybeSingle();
+      placementFee = Number(data?.default_placement_fee || 0);
+      managedMarkup = Number(data?.default_managed_markup_percent || 0);
+    } catch {
+      // Homepage pricing teaser still renders when admin settings are unavailable.
+    }
+  }
 
   const featuredWithPhotos = (featured ?? [])
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
@@ -454,6 +480,67 @@ export default async function HomePage() {
               <p>Virtual Assistant compensation and our service fee are shown separately before you make a hiring commitment, so you can see what the VA earns and what the service costs.</p>
               <Link href="/pricing" className="pva-text-link">See pricing details <ArrowRight size={15} /></Link>
             </div>
+          </div>
+        </section>
+
+        <section className="pva-section pva-soft" aria-label="Open roles">
+          <div className="container">
+            <div className="pva-section-head-row">
+              <div>
+                <span className="pva-kicker">Reviewed client opportunities</span>
+                <h2>Open Virtual Assistant jobs</h2>
+                <p>Remote roles with published pay and a reviewed client brief behind every listing.</p>
+              </div>
+              <Link className="pva-card-link-solid" href="/jobs">View job board <ArrowRight size={15} /></Link>
+            </div>
+            {openJobs && openJobs.length ? (
+              <div className="pva-jobs-grid">
+                {openJobs.map((job: any) => (
+                  <Link className="pva-job-card" href="/jobs" key={job.id}>
+                    <div className="pva-job-card-top">
+                      <span className="pva-tags-single">{mergeUniqueStrings(job.categories)[0] || "Virtual Assistant"}</span>
+                      {(job.min_hourly_rate || job.max_hourly_rate) ? (
+                        <strong>{job.min_hourly_rate ? `$${job.min_hourly_rate}` : ""}{job.max_hourly_rate ? `–$${job.max_hourly_rate}` : ""}<small>/hr</small></strong>
+                      ) : null}
+                    </div>
+                    <h3>{job.title}</h3>
+                    <p className="pva-talent-title">{job.company_name || "Verified client"}{job.hours_per_week ? ` · ${job.hours_per_week} hrs/week` : ""}</p>
+                  </Link>
+                ))}
+              </div>
+            ) : <p className="pva-empty">New roles are reviewed before they're published here. Check the job board for what's currently open.</p>}
+          </div>
+        </section>
+
+        <section className="pva-section pva-white" aria-label="Pricing">
+          <div className="container">
+            <div className="section-head"><span className="pva-kicker">Transparent pricing</span><h2>Choose the level of hiring support you need</h2><p>Virtual Assistant compensation and the service fee are shown separately, and pricing is explained before you make a hiring commitment.</p></div>
+            <div className="pva-pricing-grid">
+              <div className="pva-pricing-card pva-pricing-featured">
+                <span className="pva-pricing-badge">Recommended</span>
+                <h3>Managed Virtual Assistant service</h3>
+                <p>Recruiting and vetting plus a structured operating layer after your VA starts — backed by our team for as long as you work together.</p>
+                <div className="pva-pricing-amount">{managedMarkup > 0 ? `${managedMarkup}%` : "Custom quote"}</div>
+                <ul>
+                  <li><Check size={15} /> Recruiting, screening, and matching</li>
+                  <li><Check size={15} /> Structured onboarding workroom</li>
+                  <li><Check size={15} /> 30-day replacement support</li>
+                </ul>
+                <Link className="pva-card-link-solid" href="/hire">Get a managed VA <ArrowRight size={15} /></Link>
+              </div>
+              <div className="pva-pricing-card">
+                <h3>Direct hire</h3>
+                <p>Prefer to manage the VA yourself after the hire? We still handle recruiting, screening, and matching.</p>
+                <div className="pva-pricing-amount">{placementFee > 0 ? money(placementFee) : "Custom quote"}</div>
+                <ul>
+                  <li><Check size={15} /> Role review and candidate screening</li>
+                  <li><Check size={15} /> Client-led interviews and final selection</li>
+                  <li><Check size={15} /> One-time placement fee</li>
+                </ul>
+                <Link className="pva-text-link" href="/pricing">See full pricing details <ArrowRight size={15} /></Link>
+              </div>
+            </div>
+            <p className="pricing-note">Ongoing hourly roles cannot be budgeted below USD {MIN_HOURLY_RATE}/hour.</p>
           </div>
         </section>
 

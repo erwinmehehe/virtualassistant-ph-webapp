@@ -1,4 +1,6 @@
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
+import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
 export type RecruiterTalentFilters = {
   q?: string | null;
@@ -20,8 +22,8 @@ function numberValue(value: string | number | null | undefined) {
 }
 
 /**
- * Apply the recruiter talent directory filters in one place so the visible
- * table and "select all filtered results" bulk actions cannot drift apart.
+ * Apply recruiter talent filters in one place so the visible table and
+ * "select all filtered results" bulk actions cannot drift apart.
  */
 export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalentFilters) {
   const q = String(filters.q || "").trim().replace(/[,%()]/g, " ");
@@ -64,10 +66,22 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   }
 
   if (readiness === "vetted_hidden") {
+    // "Not public" is broader than directory_visible=false. An approved VA can
+    // have the switch on and still be blocked by the public directory rules.
     query = query
       .in("stage", ["approved", "bench"])
       .eq("account_status", "active")
-      .eq("directory_visible", false);
+      .or([
+        "directory_visible.eq.false",
+        `completion_score.lt.${PUBLIC_VA_MIN_COMPLETION}`,
+        "avatar_url.is.null",
+        `years_experience.lt.${PUBLIC_VA_MIN_EXPERIENCE}`,
+        "years_experience.is.null",
+        `hourly_rate.lt.${MIN_HOURLY_RATE}`,
+        "hourly_rate.is.null",
+        "availability_status.neq.available",
+        "availability_status.is.null"
+      ].join(","));
   }
 
   if (photo === "yes") query = query.not("avatar_url", "is", null);

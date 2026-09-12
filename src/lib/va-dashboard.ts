@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withServerTiming } from "@/lib/server-timing";
 import type { VaProfile, VaVetting } from "@/lib/types";
 
 export type VaDashboardSummary = {
@@ -28,7 +29,7 @@ export type VaDashboardSummary = {
 
 export const getVaDashboardSummary = cache(async function getVaDashboardSummary(userId: string) {
   const admin = createAdminClient();
-  const result = await admin.rpc("va_dashboard_summary", { p_va_id: userId });
+  const result = await withServerTiming("va.dashboard_summary", () => admin.rpc("va_dashboard_summary", { p_va_id: userId }));
   return {
     data: (result.data || null) as VaDashboardSummary | null,
     error: result.error

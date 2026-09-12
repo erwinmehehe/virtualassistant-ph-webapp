@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { ArrowRight, Bell, BriefcaseBusiness, CheckCircle2, Clock3, Eye, FileText, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { missingForPublic } from "@/lib/public-visibility";
 import { requireRole } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
-import { JobCard } from "@/components/job-card";
+import { VaDashboardMatches } from "@/components/va-dashboard-matches";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { getVettingReadiness, vettingStatusLabel } from "@/lib/vetting";
-import { matchScore } from "@/lib/matching";
 import { publishVaProfileAction } from "@/app/actions/profile";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
@@ -19,16 +18,7 @@ type DashboardAction={title:string;copy:string;href:string;label:string;icon:typ
 
 export default async function VaDashboardPage(){
   const {user}=await requireRole("va");
-  const supabase=await createClient();
-
-  const [{data:summary,error:summaryError},{data:jobs,error:jobsError}]=await Promise.all([
-    getVaDashboardSummary(user.id),
-    supabase.from("jobs")
-      .select("id,slug,title,company_name,published_at,summary,categories,required_skills,required_tools,hours_per_week,overlap_hours,min_hourly_rate,max_hourly_rate,timezone,engagement_length")
-      .eq("status","published")
-      .order("published_at",{ascending:false})
-      .limit(20)
-  ]);
+  const {data:summary,error:summaryError}=await getVaDashboardSummary(user.id);
 
   const va=summary?.profile||{};
   const avatarUrl=summary?.avatar_url||null;
@@ -47,11 +37,7 @@ export default async function VaDashboardPage(){
   const completion=getVaCompletion(va,avatarUrl);
   if(!summaryError&&completion.score===0) redirect("/workspace/va/onboarding");
 
-  const issues=collectQueryIssues({
-    "your dashboard summary":summaryError,
-    "job matches":jobsError
-  });
-
+  const issues=collectQueryIssues({"your dashboard summary":summaryError});
   const vettingReadiness=getVettingReadiness(va,vetting,testScore,scorecardTotal,avatarUrl);
   const vetted=["approved","bench"].includes(vetting?.stage||"");
   const missingPublic=missingForPublic(va,avatarUrl);
@@ -65,8 +51,6 @@ export default async function VaDashboardPage(){
       : missingPublic.length
         ? `Complete ${missingPublic.slice(0,3).join(", ")}${missingPublic.length>3?` +${missingPublic.length-3} more`:""}.`
         : "Clients cannot find you yet. Switch on \"Show my profile to clients\" in your profile.";
-
-  const matches=(jobs||[]).map((job:any)=>({job,score:matchScore(job,va||{})})).sort((a,b)=>b.score-a.score).slice(0,3);
 
   let nextAction:DashboardAction;
   if(recruiterRequests.length){
@@ -88,7 +72,7 @@ export default async function VaDashboardPage(){
   }else if(pipeline.interview){
     nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Review the role requirements, your relevant examples, availability, and questions for the client.",href:"/workspace/va/applications",label:"View interviews",icon:BriefcaseBusiness};
   }else{
-    nextAction={title:"Your profile is ready for matching",copy:matches[0]?`Your strongest current match is ${matches[0].score}% fit. Review the role before applying.`:"Keep your availability current and check back as new client roles are published.",href:"/workspace/va/jobs",label:"Browse matching jobs",icon:Sparkles};
+    nextAction={title:"Your profile is ready for matching",copy:"Review the latest roles and apply where your skills, tools, availability, and rate are a strong fit.",href:"/workspace/va/jobs",label:"Browse matching jobs",icon:Sparkles};
   }
   const NextIcon=nextAction.icon;
 
@@ -129,7 +113,9 @@ export default async function VaDashboardPage(){
 
     <div className="dashboard-grid dashboard-after-onboarding">
       <div className="stack">
-        <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>The % shows how well your skills, tools, availability and rate fit the role. It is a guide, not a gate — you can apply to any open role.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div>{vetted?<div className="stack">{matches.length?matches.map(({job,score}:any)=><JobCard key={job.id} job={job} match={score}/>):<div className="empty">No strong matches are available right now. Keep your profile and availability current.</div>}</div>:<div className="empty"><p>Your job matches will unlock after vetting.</p><Link className="btn btn-primary" href="/workspace/va/vetting">Complete vetting</Link></div>}</div>
+        <Suspense fallback={<div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>Finding the strongest current roles for your profile.</p></div></div><div className="empty">Loading job matches…</div></div>}>
+          <VaDashboardMatches va={va} vetted={vetted}/>
+        </Suspense>
       </div>
       <div className="stack">
         <div className="card"><div className="dashboard-section-head"><div><h3>Availability</h3><p>Keep this current so recruiters do not match you to roles you cannot take.</p></div><Clock3 size={18}/></div><div className="availability-summary"><strong>{String(va?.availability_status||"available").replaceAll("_"," ")}</strong><span>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Weekly hours not set"}</span><span>{va?.preferred_timezone||va?.schedule||"Timezone/schedule not set"}</span></div><Link className="btn" href="/workspace/va/profile#availability" style={{width:"100%"}}>Update availability</Link></div>

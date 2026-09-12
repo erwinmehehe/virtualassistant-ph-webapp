@@ -62,11 +62,11 @@ export function FloatingCta() {
     <div className="floating-cta" role="complementary" aria-label="Book a client discovery call">
       <div className="floating-cta-copy">
         <strong>Hiring a Virtual Assistant?</strong>
-        <span>Client discovery calls are for businesses looking to hire. VA applicants should use our VA application page instead.</span>
+        <span>This discovery call is for clients looking to hire — if you're a VA applicant, please use our VA application page instead.</span>
       </div>
       {external
-        ? <a className="btn btn-primary" href={href} target="_blank" rel="noopener noreferrer" data-track="discovery_call_click"><CalendarClock size={16}/> Book a client call</a>
-        : <Link className="btn btn-primary" href={href} data-track="discovery_call_click"><CalendarClock size={16}/> Book a client call</Link>}
+        ? <a className="btn btn-primary" href={href} target="_blank" rel="noopener noreferrer" data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</a>
+        : <Link className="btn btn-primary" href={href} data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</Link>}
       <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss">
         <X size={15}/>
       </button>

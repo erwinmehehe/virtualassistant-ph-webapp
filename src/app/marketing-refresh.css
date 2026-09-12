@@ -518,11 +518,13 @@
 
 /* ---------- Floating CTA ---------- */
 .floating-cta {
-  border-color: #d9e1ea;
+  border-color: #d9defc;
   border-radius: 16px;
-  box-shadow: 0 20px 54px rgba(16,24,40,.18);
+  box-shadow: 0 20px 54px rgba(79,70,229,.16);
 }
 .floating-cta .btn { border-radius: 999px; }
+.floating-cta-copy strong { color: #1e1b4b; }
+.floating-cta .btn svg { color: inherit; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {

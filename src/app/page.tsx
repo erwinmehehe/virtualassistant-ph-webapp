@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   BadgeCheck,
   BriefcaseBusiness,
-  Building2,
   CalendarCheck2,
   Check,
   CheckCircle2,
@@ -74,23 +72,6 @@ const roleGroups = Array.from(
   .filter(([group]) => GROUP_BLURBS[group])
   .sort((a, b) => b[1].length - a[1].length)
   .slice(0, 6);
-
-const HOMEPAGE_INDUSTRIES = [
-  { slug: "entrepreneurs", title: "Entrepreneurs and startups", copy: "Keep building while the daily operations run without you" },
-  { slug: "coaches", title: "Coaches and consultants", copy: "Admin, scheduling, and client support handled" },
-  { slug: "ecommerce-stores", title: "Ecommerce brands", copy: "Listings, orders, customers, and store management" },
-  { slug: "real-estate-agents", title: "Real estate", copy: "Listings, CRM, appointments, and lead follow-up" },
-  { slug: "professional-services-growth", title: "Digital agencies", copy: "Research, reporting, content, and client support" },
-  { slug: "medical-practices", title: "Healthcare providers", copy: "Appointment booking, records, and patient communication" },
-  { slug: "construction-companies", title: "Trades and construction", copy: "Quotes, scheduling, invoicing, and admin support" },
-  { slug: "accountants-cpas", title: "Accountants and CPAs", copy: "Bookkeeping support, reconciliations, and client chasing" },
-  { slug: "law-firms", title: "Legal and law firms", copy: "Case files, intake, scheduling, and document preparation" }
-];
-
-// Two rows of chips that scroll past each other under the hero, as in the
-// attached design. Duplicated once so the loop has no visible seam.
-const TICKER_SECTORS = ["Entrepreneurs & startups","Coaches & consultants","Ecommerce brands","Real estate","Digital agencies","Healthcare providers","Trades & construction","Accountants & CPAs","Legal & law firms"];
-const TICKER_TRUST = ["Australia","United States","United Kingdom","Skills tested","Video reviewed","Recruiter approved","USD 5/hr pay floor","100% your decision"];
 
 const faqs = [
   [
@@ -288,24 +269,6 @@ export default async function HomePage({
           </div>
         </section>
 
-        <section className="pva-ticker-strip" aria-label="Who we recruit for">
-          <p>A clearer way for Australian, US &amp; UK businesses to build a Filipino remote team</p>
-          <div className="pva-ticker-mask">
-            <div className="pva-ticker-row">
-              {[...TICKER_SECTORS, ...TICKER_SECTORS].map((label, index) => (
-                <span key={`sector-${index}`}><Building2 size={15} /> {label}</span>
-              ))}
-            </div>
-          </div>
-          <div className="pva-ticker-mask">
-            <div className="pva-ticker-row pva-ticker-row-reverse">
-              {[...TICKER_TRUST, ...TICKER_TRUST].map((label, index) => (
-                <span className="pva-ticker-plain" key={`trust-${index}`}>{label}</span>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="pva-section pva-white">
           <div className="container">
             <div className="pva-section-head pva-section-head-row">
@@ -475,25 +438,6 @@ export default async function HomePage({
               <article><small>Traditional agencies</small><h3>You may see fewer options</h3><p>Some agency models bundle pricing and present a candidate without giving much visibility into the selection process.</p></article>
               <article className="pva-compare-featured"><span className="pva-mini-badge"><ShieldCheck size={13} /> Our approach</span><h3>We screen. You decide.</h3><p>Our recruiting team narrows the field, you interview the strongest matches, and compensation plus service fees are shown separately before commitment.</p></article>
             </div>
-          </div>
-        </section>
-
-        <section className="pva-section pva-soft">
-          <div className="container">
-            <div className="pva-section-head pva-centered">
-              <span className="pva-kicker">Industries</span>
-              <h2>Virtual assistants for <em>every industry.</em></h2>
-              <p>Tell us your sector. We recruit against the workflows that matter in it, the tools involved, and what is better kept in house.</p>
-            </div>
-            <div className="pva-industry-grid">
-              {HOMEPAGE_INDUSTRIES.map((industry) => (
-                <Link className="pva-industry-card" key={industry.slug} href={`/industries/${industry.slug}`}>
-                  <span><strong>{industry.title}</strong><small>{industry.copy}</small></span>
-                  <span className="pva-industry-arrow" aria-hidden="true"><ArrowUpRight size={18} /></span>
-                </Link>
-              ))}
-            </div>
-            <div className="pva-center-action"><Link className="pva-btn pva-btn-secondary" href="/industries">View all industries <ArrowRight size={17} /></Link></div>
           </div>
         </section>
 

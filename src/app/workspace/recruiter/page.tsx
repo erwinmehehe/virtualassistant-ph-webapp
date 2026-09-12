@@ -43,26 +43,9 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 async function RecruiterVettingQueue({ unreviewed }: { unreviewed: number }) {
   const admin = createAdminClient();
-  const { data: queueRows, error } = await admin.from("va_vetting")
-    .select("va_id,updated_at,video_url")
-    .eq("stage", "recruiter_review")
-    .order("updated_at", { ascending: true })
-    .limit(QUEUE_PREVIEW);
+  const { data: queueData, error } = await admin.rpc("recruiter_dashboard_vetting_queue", { p_limit: QUEUE_PREVIEW });
   if (error) throw error;
-
-  const queueIds = (queueRows || []).map((row: any) => row.va_id);
-  const [queueProfilesRes, queueVasRes, queueTestsRes]: any[] = queueIds.length
-    ? await Promise.all([
-        admin.from("profiles").select("id,full_name,avatar_url").in("id", queueIds),
-        admin.from("va_profiles").select("user_id,headline,bio,primary_category,skills,tools,years_experience,weekly_hours,hourly_rate,resume_path,portfolio_url").in("user_id", queueIds),
-        admin.from("va_test_attempts").select("va_id,final_score,auto_score,submitted_at").in("va_id", queueIds).order("submitted_at", { ascending: false })
-      ])
-    : [{ data: [] }, { data: [] }, { data: [] }];
-
-  const profileMap = new Map((queueProfilesRes.data || []).map((p: any) => [p.id, p]));
-  const vaMap = new Map((queueVasRes.data || []).map((v: any) => [v.user_id, v]));
-  const testMap = new Map<string, any>();
-  for (const attempt of queueTestsRes.data || []) if (!testMap.has(attempt.va_id)) testMap.set(attempt.va_id, attempt);
+  const queueRows = Array.isArray(queueData) ? queueData : [];
 
   return <Panel
     title="Vetting queue"
@@ -72,12 +55,10 @@ async function RecruiterVettingQueue({ unreviewed }: { unreviewed: number }) {
     {(queueRows || []).length ? (
       <div className="dash-queue">
         {(queueRows || []).map((row: any) => {
-          const profile = profileMap.get(row.va_id) as any;
-          const va = vaMap.get(row.va_id) as any;
-          const test = testMap.get(row.va_id);
-          const testScore = test ? (test.final_score ?? test.auto_score) : null;
-          const completion = getVaCompletion(va, profile?.avatar_url).score;
-          const name = profile?.full_name || "VA candidate";
+          const va = row;
+          const testScore = row.test_score ?? null;
+          const completion = getVaCompletion(va, row.avatar_url).score;
+          const name = row.full_name || "VA candidate";
           const ringTone: Tone = completion >= 90 ? "emerald" : completion >= PUBLIC_VA_MIN_COMPLETION ? "amber" : "indigo";
           return (
             <div className="dash-queue-item" key={row.va_id}>
@@ -118,27 +99,14 @@ async function RecruiterVettingQueue({ unreviewed }: { unreviewed: number }) {
 
 async function RecruiterRolesNeedingMatching({ count }: { count: number }) {
   const admin = createAdminClient();
-  const { data: jobs, error } = await admin.from("jobs")
-    .select("id,title,company_name,status,created_at")
-    .in("status", ["pending", "published"])
-    .order("created_at", { ascending: false });
+  const { data: roleData, error } = await admin.rpc("recruiter_dashboard_roles_needing_matching", { p_limit: QUEUE_PREVIEW });
   if (error) throw error;
-
-  const activeJobIds = (jobs || []).map((job: any) => job.id);
-  const [shortlistRes, appsByJobRes]: any[] = activeJobIds.length
-    ? await Promise.all([
-        admin.from("job_shortlist_candidates").select("job_id").in("job_id", activeJobIds).in("shortlist_status", ["proposed", "released"]),
-        admin.from("applications").select("job_id").in("job_id", activeJobIds)
-      ])
-    : [{ data: [] }, { data: [] }];
-
-  const candidateJobIds = new Set([...(shortlistRes.data || []).map((r: any) => r.job_id), ...(appsByJobRes.data || []).map((r: any) => r.job_id)]);
-  const noCandidates = (jobs || []).filter((job: any) => !candidateJobIds.has(job.id));
+  const jobs = Array.isArray(roleData) ? roleData : [];
 
   return <Panel title="Roles that need matching" subtitle="No applications or shortlist yet" action={count ? <Link className="dash-link" href="/workspace/recruiter/matching?view=needs_candidates">View all <ArrowRight size={14} aria-hidden="true" /></Link> : undefined}>
-    {noCandidates.length ? (
+    {jobs.length ? (
       <div className="dash-list">
-        {noCandidates.slice(0, 5).map((job: any) => (
+        {jobs.map((job: any) => (
           <Link className="dash-list-row" href={`/workspace/recruiter/matching/${job.id}`} key={job.id}>
             <span><strong>{job.title}</strong><small>{job.company_name || "Client role"}</small></span>
             <Pill tone="amber">needs candidates</Pill>

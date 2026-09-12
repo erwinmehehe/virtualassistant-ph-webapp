@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Menu, PlayCircle } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 
@@ -37,43 +37,65 @@ const mobilePublicLinks = [
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <div className="promo-bar">
-        <Link href="/how-vetting-works"><PlayCircle size={14}/><strong>See how our matching process works</strong><span>Watch the short overview <ArrowRight size={13}/></span></Link>
-      </div>
       <div className="container site-nav">
         <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
           VirtualAssistant<span className="ph">.com.ph</span>
         </Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          <Link href="/find-talent">Talent</Link>
+          <Link href="/find-talent">Find Virtual Assistants</Link>
 
           <div className="nav-mega-menu">
-            <Link href="/services" className="nav-mega-trigger">Services <ChevronDown size={14} aria-hidden="true" /></Link>
+            <Link href="/services" className="nav-mega-trigger">
+              Services <ChevronDown size={14} aria-hidden="true" />
+            </Link>
             <div className="nav-mega-panel nav-mega-wide">
               <div className="nav-mega-columns">
-                {serviceGroups.map(([group, pages]) => <div key={group}><span className="nav-mega-heading">{group}</span>{pages.slice(0, 6).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div>)}
+                {serviceGroups.map(([group, pages]) => (
+                  <div key={group}>
+                    <span className="nav-mega-heading">{group}</span>
+                    {pages.slice(0, 6).map((page) => (
+                      <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>
+                    ))}
+                  </div>
+                ))}
               </div>
               <Link href="/services" className="nav-mega-all">View all {SERVICE_PAGES.length} services →</Link>
             </div>
           </div>
 
           <div className="nav-mega-menu">
-            <Link href="/industries" className="nav-mega-trigger">Industries <ChevronDown size={14} aria-hidden="true" /></Link>
+            <Link href="/industries" className="nav-mega-trigger">
+              Industries <ChevronDown size={14} aria-hidden="true" />
+            </Link>
             <div className="nav-mega-panel">
-              <div className="nav-mega-columns nav-mega-columns-flat">{industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}</div>
+              <div className="nav-mega-columns nav-mega-columns-flat">
+                {industryLinks.map((industry) => (
+                  <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>
+                ))}
+              </div>
               <Link href="/industries" className="nav-mega-all">View all {INDUSTRIES.length} industries →</Link>
             </div>
           </div>
 
           <Link href="/pricing">Pricing</Link>
-          <details className="nav-resource-menu"><summary>Resources <ChevronDown size={14} aria-hidden="true" /></summary><div className="nav-resource-panel">{resourceLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</div></details>
+
+          <details className="nav-resource-menu">
+            <summary>
+              Resources <ChevronDown size={14} aria-hidden="true" />
+            </summary>
+            <div className="nav-resource-panel">
+              {resourceLinks.map(([label, href]) => (
+                <Link href={href} key={href}>{label}</Link>
+              ))}
+            </div>
+          </details>
         </nav>
 
         <div className="nav-actions">
-          <Link className="header-va-link" href="/for-virtual-assistants">For VAs</Link>
-          <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient">Log In</Link>
-          <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Get Started</Link>
+          <Link className="header-va-link" href="/for-virtual-assistants">For Virtual Assistants</Link>
+          <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
+          <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
           <details className="mobile-menu">
             <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
             <nav className="mobile-menu-panel" aria-label="Mobile navigation">

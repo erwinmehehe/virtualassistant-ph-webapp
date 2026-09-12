@@ -8,6 +8,7 @@ import "./premium-hire.css";
 import "./talent-card-refresh.css";
 import "./dashboard-premium.css";
 import "./premium-marketing-final.css";
+import "./attached-design.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

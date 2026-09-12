@@ -29,6 +29,10 @@ export type VaProfile = {
   linkedin_url: string | null;
   resume_path: string | null;
   directory_visible: boolean;
+  public_profile_consent: boolean;
+  public_profile_consent_at: string | null;
+  public_profile_consent_version: string | null;
+  public_profile_consent_withdrawn_at: string | null;
   availability_status: string;
   slug: string | null;
 };

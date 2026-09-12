@@ -3,32 +3,11 @@ import { getVaCompletion } from "./profile-completeness";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "./public-routing";
 import type { VaProfile } from "./types";
 
-/**
- * The single definition of "can this profile appear publicly".
- *
- * It used to be written out four times -- in the public_va_directory view, in
- * the VA's own publish action, in the auto-hide check after a profile edit, and
- * in the checklist the VA reads on their dashboard. They drifted, so a VA could
- * be told they were ready and then be refused, or be hidden for a reason the
- * checklist never mentioned.
- *
- * The rule is now: an approved VA with a photo and a profile at 80% or better.
- * Individual fields (resume, bio length, skill count, headline, weekly hours)
- * are no longer separate gates -- they are already priced into the completion
- * score, and requiring them twice was blocking people for no added quality.
- *
- * Experience and rate stay as explicit gates because they are published
- * promises rather than profile completeness: the site states a two-year
- * minimum, and $5/hour is the platform floor for ongoing hourly roles.
- *
- * public_va_directory enforces the same rule in SQL and is the real authority;
- * keep the two in step.
- */
 export const PUBLIC_VA_MIN_COMPLETION = 80;
 
 export type VisibilityRequirement = { label: string; done: boolean };
 
-export function publicVisibilityRequirements(
+export function publicProfileContentRequirements(
   profile: Partial<VaProfile> | null | undefined,
   avatarUrl?: string | null
 ): VisibilityRequirement[] {
@@ -39,6 +18,17 @@ export function publicVisibilityRequirements(
     { label: `${PUBLIC_VA_MIN_EXPERIENCE}+ years experience`, done: Number(profile?.years_experience || 0) >= PUBLIC_VA_MIN_EXPERIENCE },
     { label: `rate of at least USD ${MIN_HOURLY_RATE}/hr`, done: Number(profile?.hourly_rate || 0) >= MIN_HOURLY_RATE },
     { label: "availability set to available", done: profile?.availability_status === "available" }
+  ];
+}
+
+/** Public discovery also requires the VA's explicit, versioned opt-in. */
+export function publicVisibilityRequirements(
+  profile: Partial<VaProfile> | null | undefined,
+  avatarUrl?: string | null
+): VisibilityRequirement[] {
+  return [
+    ...publicProfileContentRequirements(profile, avatarUrl),
+    { label: "public profile consent", done: profile?.public_profile_consent === true }
   ];
 }
 
@@ -56,13 +46,9 @@ export function isPubliclyEligible(
 }
 
 /**
- * The approval bar, for rows out of recruiter_va_directory.
- *
- * Deliberately the same bar as publishing: a photo and a profile at
- * PUBLIC_VA_MIN_COMPLETION. It used to be 90% plus "nothing missing except
- * portfolio or tools", which meant a recruiter could approve someone the
- * directory would then refuse to list, or skip someone the directory would
- * have accepted. Approving and publishing now succeed or fail together.
+ * Approval is a recruiter quality decision, not consent to public processing.
+ * Keep this bar focused on profile readiness; public_va_directory separately
+ * requires explicit public-profile consent before any approved VA is exposed.
  */
 export function isRowApprovable(row: { completion_score?: number | null; missing_items?: unknown }) {
   const missing = Array.isArray(row.missing_items) ? row.missing_items.map(String) : [];

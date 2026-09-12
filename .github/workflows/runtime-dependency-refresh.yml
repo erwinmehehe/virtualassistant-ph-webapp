@@ -43,10 +43,6 @@ jobs:
           }
           package_path.write_text(json.dumps(package, indent=2) + '\n')
 
-          ci = Path('.github/workflows/ci.yml')
-          text = ci.read_text().replace('node-version: 20', 'node-version: 22')
-          ci.write_text(text)
-
           timing = Path('src/lib/server-timing.ts')
           timing.write_text('''import "server-only";\n\n/**\n * Logs slow server-side operations in production while keeping full timing\n * visibility during local development. PERF_SLOW_MS can override the default.\n */\nexport async function withServerTiming<T>(label: string, work: () => PromiseLike<T>): Promise<T> {\n  const started = performance.now();\n  try {\n    return await work();\n  } finally {\n    const elapsed = Math.round((performance.now() - started) * 10) / 10;\n    const configured = Number(process.env.PERF_SLOW_MS || 100);\n    const threshold = Number.isFinite(configured) && configured >= 0 ? configured : 100;\n    if (process.env.NODE_ENV !== "production" || elapsed >= threshold) {\n      console.info(`[perf] ${label} ${elapsed}ms`);\n    }\n  }\n}\n''')
           PY
@@ -72,7 +68,6 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm .github/workflows/runtime-dependency-refresh.yml
-          git add package.json package-lock.json .github/workflows/ci.yml src/lib/server-timing.ts
+          git add package.json package-lock.json src/lib/server-timing.ts
           git commit -m 'Align runtime and patch dashboard dependencies'
           git push origin HEAD:main

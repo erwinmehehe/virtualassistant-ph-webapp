@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BriefcaseBusiness, CheckCircle2, UserRoundCheck } from "lucide-react";
 import { joinAction, oauthAction } from "@/app/actions/auth";
-import { socialLoginEnabled } from "@/lib/social-login";
+import { googleLoginEnabled, microsoftLoginEnabled } from "@/lib/social-login";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export function JoinAccountForm({
@@ -18,6 +18,9 @@ export function JoinAccountForm({
   next?: string;
 }) {
   const client = role === "client";
+  const googleEnabled = googleLoginEnabled();
+  const microsoftEnabled = microsoftLoginEnabled();
+  const socialEnabled = googleEnabled || microsoftEnabled;
   const benefits = client
     ? ["Claim any match request you already sent", "Manage private job drafts and candidate shortlists", "Interview, message, and hire from one workspace"]
     : ["Create your account in under a minute", "Use a short guided setup before the full profile", "Complete vetting, then apply to matching roles"];
@@ -44,23 +47,23 @@ export function JoinAccountForm({
       {benefits.map((item, index) => <div key={`${String(item)}-${index}`}><CheckCircle2 size={16}/><span>{item}</span></div>)}
     </div>
 
-    {socialLoginEnabled() ? <><div className="auth-social-stack" aria-label="Social sign up options">
-      <form action={oauthAction}>
+    {socialEnabled ? <><div className="auth-social-stack" aria-label="Social sign up options">
+      {googleEnabled ? <form action={oauthAction}>
         <input type="hidden" name="provider" value="google"/>
         <input type="hidden" name="role" value={role}/>
         {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
         {client && lead ? <input type="hidden" name="lead" value={lead}/> : null}
         {next ? <input type="hidden" name="next" value={next}/> : null}
         <button className="btn auth-social-btn" type="submit">Continue with Google</button>
-      </form>
-      <form action={oauthAction}>
+      </form> : null}
+      {microsoftEnabled ? <form action={oauthAction}>
         <input type="hidden" name="provider" value="azure"/>
         <input type="hidden" name="role" value={role}/>
         {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
         {client && lead ? <input type="hidden" name="lead" value={lead}/> : null}
         {next ? <input type="hidden" name="next" value={next}/> : null}
         <button className="btn auth-social-btn" type="submit">Continue with Microsoft</button>
-      </form>
+      </form> : null}
     </div><div className="auth-divider"><span>or use email</span></div></> : null}
 
     <form action={joinAction} className="stack auth-form">

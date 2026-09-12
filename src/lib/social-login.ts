@@ -1,11 +1,27 @@
 /**
- * Social (Google / Microsoft) sign-in is opt-in.
+ * Social sign-in is opt-in per provider.
  *
- * The buttons are only useful once the provider is configured in Supabase AND
- * the OAuth client is registered with Google/Azure. Until then they fail after
- * the user has already committed to a sign-in, which is worse than not offering
- * them. Set NEXT_PUBLIC_SOCIAL_LOGIN_ENABLED=true to turn them back on.
+ * A provider should only be exposed after its OAuth application is registered
+ * and the matching Supabase Auth provider is configured. Keeping the switches
+ * separate prevents enabling Google from accidentally exposing a broken
+ * Microsoft button, or vice versa.
  */
+function enabled(value: string | undefined) {
+  return value?.trim().toLowerCase() === "true";
+}
+
+export function googleLoginEnabled() {
+  return enabled(process.env.NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED);
+}
+
+export function microsoftLoginEnabled() {
+  return enabled(process.env.NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED);
+}
+
 export function socialLoginEnabled() {
-  return process.env.NEXT_PUBLIC_SOCIAL_LOGIN_ENABLED?.trim().toLowerCase() === "true";
+  return googleLoginEnabled() || microsoftLoginEnabled();
+}
+
+export function socialProviderEnabled(provider: "google" | "azure") {
+  return provider === "google" ? googleLoginEnabled() : microsoftLoginEnabled();
 }

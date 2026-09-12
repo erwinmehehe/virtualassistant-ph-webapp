@@ -5,6 +5,12 @@ import { getSessionProfile } from "@/lib/auth";
 
 const fixedEvents = new Set([
   "page_view",
+  "form_start",
+  "form_submit_attempt",
+  "booking_click",
+  "pricing_view",
+  "hire_page_view",
+  "candidate_view",
   "directory_profile_view",
   "directory_role_brief",
   "featured_profile_view",

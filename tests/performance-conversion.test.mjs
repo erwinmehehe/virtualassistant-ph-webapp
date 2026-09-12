@@ -56,3 +56,47 @@ test("workspace Core Web Vitals are recorded", async () => {
   assert.match(analytics, /startsWith\("\/workspace"\)/);
   assert.match(route, /"web_vital"/);
 });
+
+test("conversion analytics accepts and reports the complete homepage funnel", async () => {
+  const [analytics, route, sales, dashboard, migration] = await Promise.all([
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts"),
+    read("src/lib/sales-analytics.ts"),
+    read("src/components/sales-analytics-dashboard.tsx"),
+    read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql")
+  ]);
+
+  for (const event of ["page_view", "form_start", "form_submit_attempt", "booking_click"]) {
+    assert.match(route, new RegExp(`"${event}"`));
+  }
+  assert.match(analytics, /send\("form_start"/);
+  assert.match(analytics, /send\("booking_click"/);
+  assert.match(sales, /recruiter_conversion_summary/);
+  for (const stage of ["Homepage visits", "Form starts", "Form submissions", "Discovery booked", "Qualified", "Proposal sent", "Clients won"]) {
+    assert.match(sales, new RegExp(stage));
+  }
+  assert.match(dashboard, /Homepage-to-client funnel/);
+  assert.match(migration, /security definer/);
+  assert.match(migration, /grant execute[\s\S]*to service_role/);
+});
+
+test("lead response SLA creates immediate and scheduled recruiter alerts", async () => {
+  const [migration, workflow, visual, vercel] = await Promise.all([
+    read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql"),
+    read(".github/workflows/dashboard-visual.yml"),
+    read("scripts/authenticated-dashboard-visual.mjs"),
+    read("scripts/vercel-ignore-build.mjs")
+  ]);
+
+  assert.match(migration, /interval '30 minutes'/);
+  assert.match(migration, /New client request/);
+  assert.match(migration, /first_response_due_soon/);
+  assert.match(migration, /first_response_overdue/);
+  assert.match(migration, /'\*\/5 \* \* \* \*'/);
+  assert.match(workflow, /pull_request:/);
+  assert.match(workflow, /dashboard-visual/);
+  for (const size of ["mobile", "tablet", "desktop"]) assert.match(visual, new RegExp(`name: "${size}"`));
+  for (const role of ["recruiter", "client", "va"]) assert.match(visual, new RegExp(`role: "${role}"`));
+  assert.match(vercel, /VERCEL_GIT_PULL_REQUEST_ID/);
+  assert.match(vercel, /documentationOnly/);
+});

@@ -1,58 +1,47 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  ArrowUpRight,
   BadgeCheck,
-  CalendarCheck2,
+  Building2,
   Check,
   CheckCircle2,
-  ClipboardCheck,
   Clock3,
   Crown,
-  Globe2,
-  Headphones,
+  FileText,
+  HeartHandshake,
+  PiggyBank,
   SearchCheck,
   ShieldCheck,
   Sparkles,
   Star,
+  UsersRound,
+  Video,
   Zap,
 } from "lucide-react";
 import { PublicAvatar } from "@/components/public-avatar";
 import { mergeUniqueStrings } from "@/lib/collections";
-import { SERVICE_PAGES } from "@/lib/service-pages";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 
 const BOOKING_PATH = "/book-client-call";
-
-const GROUP_BLURBS: Record<string, string> = {
-  "Admin & Operations": "Inbox, calendar, data, and recurring coordination that keeps the business moving.",
-  Healthcare: "Patient scheduling, records, insurance follow-up, and dependable front-desk support.",
-  "Marketing & Growth": "Content, campaigns, reporting, and the execution work between strategy reviews.",
-  "Finance & Accounting": "Bookkeeping, invoicing, reconciliations, and month-end support kept current.",
-  "Sales & CRM": "Prospect research, outreach, appointment setting, and CRM hygiene your team can trust.",
-  Ecommerce: "Listings, orders, returns, supplier follow-up, and day-to-day storefront operations.",
-  "Real Estate": "Listing coordination, transaction paperwork, lead follow-up, and calendar management.",
-  "Customer & Front Desk": "Email, chat, and phone coverage with consistent service standards.",
-  "Creative & Content": "Editing, design support, and production work that keeps publishing on schedule.",
-  "Executive Support": "Calendar control, travel, briefing notes, and follow-through after meetings.",
-};
-
-const roleGroups = Array.from(
-  SERVICE_PAGES.reduce((groups, page) => {
-    const list = groups.get(page.group) || [];
-    list.push(page);
-    groups.set(page.group, list);
-    return groups;
-  }, new Map<string, typeof SERVICE_PAGES>()),
-)
-  .filter(([group]) => GROUP_BLURBS[group])
-  .sort((a, b) => b[1].length - a[1].length)
-  .slice(0, 6);
 
 const faqs = [
   ["What does vetted mean?", "A public Virtual Assistant profile only appears after the candidate completes the required profile, category skills test, video introduction, recruiter review, and final approval workflow."],
   ["Do I have to sort through every applicant?", "No. Our recruiting team can screen the role and build a focused shortlist so you spend your time on the candidates worth interviewing."],
   ["How much does a Virtual Assistant cost?", "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 5/hour. Our service fee is shown separately."],
   ["Can I request a specific Virtual Assistant?", "Yes. Open a public talent profile and request an introduction. The selected profile stays attached to your hiring request so our recruiting team has the right context."],
+] as const;
+
+const industryCards = [
+  ["Entrepreneurs and startups", "Keep building while the daily operations run without you", "/industries/startups"],
+  ["Coaches and consultants", "Admin, scheduling and client support handled", "/industries/professional-services-growth"],
+  ["Ecommerce brands", "Listings, orders, customers and store management", "/services"],
+  ["Real estate", "Listings, CRM, appointments and lead follow up", "/industries/real-estate-agents"],
+  ["Digital agencies", "Research, reporting, content and client support", "/industries/professional-services-growth"],
+  ["Healthcare providers", "Appointment booking, records and patient communication", "/industries/healthcare-dental"],
+  ["Trades and construction", "Quotes, scheduling, invoicing and admin support", "/industries/construction-companies"],
+  ["Accountants and CPAs", "Bookkeeping support, reconciliations and client chasing", "/services"],
+  ["Legal and law firms", "Case files, intake, scheduling and document preparation", "/industries/law-firms"],
 ] as const;
 
 function money(value: number) {
@@ -69,10 +58,7 @@ export function AttachedHomepage({ featured, openJobs, placementFee, managedMark
       <div className="att-orb att-orb-b" aria-hidden="true" />
       <div className="container att-hero-grid">
         <div className="att-hero-copy">
-          <div className="att-market-pill">
-            <span className="att-flags"><i>🇦🇺</i><i>🇺🇸</i><i>🇬🇧</i></span>
-            <strong>Built for Australian, United States &amp; UK businesses</strong>
-          </div>
+          <div className="att-market-pill"><span className="att-flags"><i>🇦🇺</i><i>🇺🇸</i><i>🇬🇧</i></span><strong>Built for Australian, United States &amp; UK businesses</strong></div>
           <h1>Hire a Filipino VA <em>without the resume pile.</em></h1>
           <p className="att-lede">We recruit, vet, and match experienced Filipino virtual assistants to your business, so you spend your time interviewing stronger candidates instead of screening hundreds of applications.</p>
           <div className="att-hero-actions"><Link href="/hire" className="att-btn att-btn-primary">Hire a Virtual Assistant <ArrowRight size={18}/></Link></div>
@@ -93,16 +79,93 @@ export function AttachedHomepage({ featured, openJobs, placementFee, managedMark
         </div>
       </div>
       <div className="att-hero-wave" aria-hidden="true"/>
-      <a className="att-scroll-cue" href="#how-it-works" aria-label="Scroll to how it works">↓</a>
+      <a className="att-scroll-cue" href="#why-us" aria-label="Scroll to why us">↓</a>
     </section>
 
-    <section className="att-proof-strip"><div className="container att-proof-grid"><div><strong>01</strong><h3>Skip the resume pile</h3><p>Start with screened candidates worth interviewing.</p></div><div><strong>02</strong><h3>Skills + communication checked</h3><p>Practical screening backed by human recruiter review.</p></div><div><strong>03</strong><h3>You choose who you hire</h3><p>Compare profiles, interview, and make the final call.</p></div><div><strong>04</strong><h3>Support after placement</h3><p>Managed hiring stays involved after your VA starts.</p></div></div></section>
+    <section className="shot-section shot-why" id="why-us">
+      <div className="container">
+        <div className="shot-heading">
+          <span className="shot-pill shot-pill-purple"><Sparkles size={13}/> Why VirtualAssistant.com.ph</span>
+          <h2>A recruiting service built <span className="shot-gradient">around<br/>the work you need done.</span></h2>
+          <p>You do not need to learn a marketplace or manage a complicated hiring app. Tell us the role, then our team helps recruit, screen, shortlist, and support the placement.</p>
+        </div>
+        <div className="shot-benefit-grid">
+          <article><span className="shot-icon shot-purple"><SearchCheck size={22}/></span><h3>Skip the resume pile</h3><p>Start with screened candidates worth interviewing, a focused shortlist instead of a pile of unqualified applications.</p></article>
+          <article><span className="shot-icon shot-green"><BadgeCheck size={22}/></span><h3>Skills + communication checked</h3><p>Practical screening plus human recruiter review: experience, skills, communication, availability, and role fit.</p></article>
+          <article><span className="shot-icon shot-orange"><UsersRound size={22}/></span><h3>You choose who you hire</h3><p>Compare profiles, interview, and make the final call. Your final decision, 100%.</p></article>
+          <article><span className="shot-icon shot-pink"><HeartHandshake size={22}/></span><h3>Support after placement</h3><p>Managed hiring stays involved after your Virtual Assistant starts, not just an introduction.</p></article>
+          <article><span className="shot-icon shot-blue"><ShieldCheck size={22}/></span><h3>Vetting you can verify</h3><p>Role profile, category skills test, video communication review, recruiter scorecard, and final approval before anyone goes public.</p></article>
+          <article><span className="shot-icon shot-teal"><PiggyBank size={22}/></span><h3>Transparent by default</h3><p>Virtual Assistant compensation and our service fee are shown separately before anything is agreed. Fair floor: USD {MIN_HOURLY_RATE}/hour.</p></article>
+        </div>
+      </div>
+    </section>
 
-    <section className="att-section att-soft" id="how-it-works"><div className="container"><div className="att-section-head att-centered"><span>How it works</span><h2>Tell us what you need. We’ll handle the heavy lifting.</h2><p>One hiring workflow connects your role brief, recruiter screening, interviews, and placement support.</p></div><div className="att-feature-grid"><article><span><ClipboardCheck size={22}/></span><small>01</small><h3>Tell us the role</h3><p>Share responsibilities, schedule, timezone, tools, budget, and what success should look like.</p></article><article><span><SearchCheck size={22}/></span><small>02</small><h3>We screen for fit</h3><p>Recruiters review experience, practical skills, communication, availability, and role fit.</p></article><article><span><CalendarCheck2 size={22}/></span><small>03</small><h3>Interview the shortlist</h3><p>Spend interview time on stronger matches instead of sorting a large applicant pool.</p></article><article><span><Headphones size={22}/></span><small>04</small><h3>Hire with support</h3><p>You make the final decision, and managed placements continue with support after the start date.</p></article></div></div></section>
+    <section className="shot-how" id="how-it-works">
+      <div className="shot-dark-grid" aria-hidden="true"/>
+      <div className="container">
+        <div className="shot-heading shot-heading-dark">
+          <span className="shot-pill shot-pill-dark"><CheckCircle2 size={13}/> How it works</span>
+          <h2>Tell us what you need.<br/>We&apos;ll <span>handle the rest.</span></h2>
+          <p>Share the responsibilities, hours, timezone, budget, and the systems your new Virtual Assistant will use. A short private brief is enough to start.</p>
+        </div>
+        <div className="shot-step-grid">
+          <article><b>01</b><span className="shot-step-icon"><FileText size={22}/></span><h3>Send the workload</h3><p>Tell us the tasks, hours, timezone, tools, and budget. A short private brief is enough to start.</p><small><CheckCircle2 size={13}/> No account required</small></article>
+          <article><b>02</b><span className="shot-step-icon"><SearchCheck size={22}/></span><h3>We recruit and screen</h3><p>We look for evidence that matches the actual role, not just a job title.</p><small><CheckCircle2 size={13}/> Screened before you interview</small></article>
+          <article><b>03</b><span className="shot-step-icon"><Video size={22}/></span><h3>Interview the strongest fits</h3><p>You decide who to hire after reviewing the people we recommend.</p><small><CheckCircle2 size={13}/> 100% your decision</small></article>
+          <article><b>04</b><span className="shot-step-icon"><HeartHandshake size={22}/></span><h3>Hire with ongoing support</h3><p>Managed hiring stays involved after your Virtual Assistant starts.</p><small><CheckCircle2 size={13}/> 30-day replacement support</small></article>
+        </div>
+      </div>
+    </section>
+
+    <section className="shot-section shot-compare">
+      <div className="container">
+        <div className="shot-heading">
+          <span className="shot-pill shot-pill-green"><HeartHandshake size={13}/> The honest comparison</span>
+          <h2>Hire a Filipino virtual<br/>assistant <span className="shot-gradient">without sorting<br/>through 200 applicants.</span></h2>
+          <p>Most ways to hire a Filipino virtual assistant put the screening on you. This one does not, but you still choose the person.</p>
+        </div>
+        <div className="shot-compare-shell">
+          <article><h3>Job marketplaces</h3><p>Post a role and get a hundred applications, most of them irrelevant. Profiles are self-reported, so screening, testing, and reference-checking are your problem. Cheapest upfront, most expensive in your time.</p></article>
+          <article><h3>Traditional agencies</h3><p>Someone is assigned to you. You rarely meet alternatives, rates are bundled into one monthly figure, and swapping people means restarting the conversation.</p></article>
+          <article className="shot-compare-featured"><h3>VirtualAssistant.com.ph ✓</h3><p>Every Filipino virtual assistant here has passed a skills test in their category, recorded a video introduction, and cleared a recruiter review before you see them. You interview and decide. Virtual Assistant compensation and our service fee are shown separately before you make a hiring commitment.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section className="shot-section shot-split">
+      <div className="container shot-split-grid">
+        <article className="shot-split-card shot-client-card">
+          <span className="shot-split-badge shot-client-badge"><Building2 size={13}/> For clients</span>
+          <h2>Describe the work. We shortlist against it.</h2>
+          <p>Give us the specialty, the hours, the overlap you need and your budget. We recruit and screen against that brief, then send you candidates worth interviewing. No account required, and nothing is published.</p>
+          <ul><li><CheckCircle2 size={17}/> Every candidate has passed a skills test, a video introduction and a recruiter review</li><li><CheckCircle2 size={17}/> Virtual Assistant compensation and our service fee are shown separately before anything is agreed</li><li><CheckCircle2 size={17}/> Prefer to browse first? See approved Virtual Assistants</li></ul>
+          <Link href="/hire">Send your brief <ArrowRight size={16}/></Link>
+        </article>
+        <article className="shot-split-card shot-va-card">
+          <span className="shot-split-badge shot-va-badge"><Sparkles size={13}/> For Filipino VAs</span>
+          <h2>Looking for virtual assistant work?</h2>
+          <p>Browse reviewed jobs, build one structured profile, and apply after approval. The same approved profile works for every role.</p>
+          <ul><li><CheckCircle2 size={17}/> Reviewed jobs with published pay, clear scope, and a reviewed client brief</li><li><CheckCircle2 size={17}/> Category skills test plus video review that proves your value</li><li><CheckCircle2 size={17}/> USD {MIN_HOURLY_RATE}/hour floor on ongoing roles, fair pay enforced</li></ul>
+          <Link href="/auth/join/va">Apply as a VA <ArrowRight size={16}/></Link>
+        </article>
+      </div>
+    </section>
+
+    <section className="shot-section shot-industries">
+      <div className="container">
+        <div className="shot-heading">
+          <span className="shot-pill shot-pill-purple"><Building2 size={13}/> Industries</span>
+          <h2>Virtual assistants<br/>for <span className="shot-gradient">every industry.</span></h2>
+          <p>Tell us your sector. We recruit against the workflows that matter in it, the tools involved, and what to keep in house.</p>
+        </div>
+        <div className="shot-industry-grid">
+          {industryCards.map(([title, copy, href]) => <Link href={href} key={title}><div><h3>{title}</h3><p>{copy}</p></div><span><ArrowUpRight size={19}/></span></Link>)}
+        </div>
+        <div className="shot-center-link"><Link href="/industries">View all industries <ArrowRight size={15}/></Link></div>
+      </div>
+    </section>
 
     <section className="att-section att-white"><div className="container"><div className="att-section-head att-row-head"><div><span>Approved talent</span><h2>Meet experienced Filipino virtual assistants.</h2><p>Public profiles appear only after the required screening and approval steps are completed.</p></div><Link href="/find-talent">Browse all talent <ArrowRight size={16}/></Link></div>{featured.length ? <div className="att-talent-grid">{featured.map((va: any) => <article className="att-talent-card" key={va.user_id}><div className="att-talent-avatar"><PublicAvatar name={va.full_name} src={va.avatar_url}/></div><h3>{va.full_name} <BadgeCheck size={16}/></h3><p>{va.headline || va.primary_category || "Virtual Assistant"}</p><div className="att-chip-row">{mergeUniqueStrings(va.primary_category, va.categories).slice(0, 2).map((x, index) => <span key={`${String(x)}-${index}`}>{x}</span>)}</div><div className="att-talent-meta"><span><BadgeCheck size={14}/> Approved · {va.years_experience}+ yrs</span><span><Clock3 size={14}/> {va.weekly_hours ? `${va.weekly_hours} hrs/week` : "Flexible"}</span></div><div className="att-talent-footer">{va.hourly_rate ? <strong>${Number(va.hourly_rate).toFixed(0)}<small>/hr</small></strong> : <span/>}<Link href={`/va/${va.slug}`}>View profile <ArrowRight size={14}/></Link></div></article>)}</div> : <div className="att-empty">Approved public profiles will appear here as experienced talent becomes available.</div>}</div></section>
-
-    <section className="att-section att-soft"><div className="container"><div className="att-section-head att-centered"><span>Specialists, not generic profiles</span><h2>Hire around the work your business actually needs done.</h2><p>Explore role-specific Virtual Assistant services and see what each specialty can own for your team.</p></div><div className="att-role-grid">{roleGroups.map(([group, pages]) => <article key={group}><div><span><Globe2 size={18}/></span><h3>{group}</h3></div><p>{GROUP_BLURBS[group]}</p>{pages.slice(0, 4).map(page => <Link key={page.slug} href={`/service/${page.slug}`}>{page.name}<ArrowRight size={13}/></Link>)}</article>)}</div><div className="att-center-action"><Link href="/services" className="att-btn att-btn-secondary">View all Virtual Assistant services <ArrowRight size={16}/></Link></div></div></section>
 
     <section className="att-section att-white"><div className="container"><div className="att-section-head att-row-head"><div><span>Reviewed client opportunities</span><h2>Open Virtual Assistant jobs</h2><p>Remote roles with published pay and a reviewed client brief behind every listing.</p></div><Link href="/jobs">View job board <ArrowRight size={15}/></Link></div>{openJobs.length ? <div className="att-jobs-grid">{openJobs.map((job: any) => <Link href="/jobs" className="att-job-card" key={job.id}><div><span>{mergeUniqueStrings(job.categories)[0] || "Virtual Assistant"}</span>{(job.min_hourly_rate || job.max_hourly_rate) ? <strong>{job.min_hourly_rate ? `$${job.min_hourly_rate}` : ""}{job.max_hourly_rate ? `–$${job.max_hourly_rate}` : ""}<small>/hr</small></strong> : null}</div><h3>{job.title}</h3><p>{job.company_name || "Verified client"}{job.hours_per_week ? ` · ${job.hours_per_week} hrs/week` : ""}</p></Link>)}</div> : <div className="att-empty">New roles are reviewed before they are published. Check the job board for current openings.</div>}</div></section>
 

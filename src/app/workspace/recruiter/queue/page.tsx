@@ -15,7 +15,7 @@ export default async function RecruiterQueue({ searchParams }:{ searchParams: Pr
 
   return <><div className="page-head"><div><h1>Vetting queue</h1><p>No claim step. Open any candidate that is ready for recruiter review, complete the scorecard, and move on. Or select candidates below and act on them together.</p></div><Link className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Open in master directory</Link></div>
 
-    {params.bulk_done?<div className="success-banner">Bulk action complete: {String(params.bulk_done).replaceAll("_"," ")} &middot; {params.affected||0} approved{params.published!==undefined?` · ${params.published} now live in the public directory`:""}.</div>:null}
+    {params.bulk_done?<div className="success-banner">Bulk action complete: {String(params.bulk_done).replaceAll("_"," ")} &middot; {params.affected||0} {({reject:"rejected",request_changes:"sent back for changes",mark_reviewed:"marked reviewed"} as Record<string,string>)[String(params.bulk_done)]??"approved"}{params.published!==undefined?` · ${params.published} now live in the public directory`:""}.</div>:null}
     {params.skipped?<div className="alert">Skipped as not directory-ready: {params.skipped}. Approval needs a photo and a profile at 80% or better — the same bar as the public directory.</div>:null}
     {params.bulk_error?<div className="alert" role="alert">{params.bulk_error}</div>:null}
 

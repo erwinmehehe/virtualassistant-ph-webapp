@@ -210,7 +210,6 @@ export default async function HomePage({
                 subheading="Share the role in about 60 seconds. No account required."
               />
             </div>
-            </div>
           </div>
         </section>
 

@@ -30,17 +30,17 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   if (hourlyRate == null || hourlyRate < MIN_HOURLY_RATE || hourlyRate > 1000) onboardingError(`Preferred rate must be at least USD ${MIN_HOURLY_RATE} per hour.`);
 
   const admin = createAdminClient();
-  const { error: profileError } = await admin.from("va_profiles").upsert({
-    user_id: user.id,
-    slug: `va-${user.id.slice(0, 8)}`,
+  // The VA row is created during account bootstrap. Update only the quick-setup
+  // fields here so revisiting onboarding can never reset a custom slug,
+  // visibility, availability status, resume, or any other existing profile data.
+  const { data: updatedProfile, error: profileError } = await admin.from("va_profiles").update({
     primary_category: category,
     headline,
     years_experience: yearsExperience,
     weekly_hours: weeklyHours,
-    hourly_rate: hourlyRate,
-    availability_status: "available"
-  }, { onConflict: "user_id" });
-  if (profileError) onboardingError("We could not save your quick setup. Please try again.");
+    hourly_rate: hourlyRate
+  }).eq("user_id", user.id).select("user_id").maybeSingle();
+  if (profileError || !updatedProfile) onboardingError("We could not save your quick setup. Please try again.");
 
   const { error: vettingError } = await admin.from("va_vetting").upsert(
     { va_id: user.id },

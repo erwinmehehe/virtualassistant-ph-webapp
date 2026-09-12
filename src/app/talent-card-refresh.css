@@ -327,3 +327,41 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Patch: newer talent-card elements (bio, inline verified check, facts
+   row, footer with rate + solid button) added after this file was
+   written need the same 1.35rem side margin the card's other children
+   use, since the card itself has padding:0. Without this they'd sit
+   flush against the card edges. */
+.pva-home .pva-talent-bio,
+.pva-home .pva-talent-facts-row {
+  margin-left: 1.35rem;
+  margin-right: 1.35rem;
+}
+
+.pva-home .pva-talent-footer {
+  margin: 0 1.35rem 1.35rem;
+}
+
+.pva-home .pva-verified-check {
+  color: #4f46e5;
+}
+
+.pva-home .pva-approved-inline {
+  color: #047857;
+  font-weight: 750;
+}
+
+.pva-home .pva-card-link-solid {
+  padding: .55rem 1rem;
+  border-radius: 999px;
+  background: #0b1220;
+  color: #fff;
+  font-size: .76rem;
+  border: none;
+}
+
+.pva-home .pva-card-link-solid:hover {
+  background: #1e293b;
+  transform: none;
+}

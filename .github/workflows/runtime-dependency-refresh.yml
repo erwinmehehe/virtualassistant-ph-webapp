@@ -27,23 +27,30 @@ jobs:
       - name: Patch runtime, dependencies and performance logging
         shell: bash
         run: |
-          npm uninstall mammoth --package-lock-only
           npm install next@15.5.24 --save-exact --package-lock-only
           npm pkg set engines.node='22.x'
-          npm pkg set overrides.postcss='8.5.28'
-          npm pkg set overrides.sharp='0.35.4'
-          npm install --package-lock-only
           python3 - <<'PY'
+          import json
           from pathlib import Path
 
+          package_path = Path('package.json')
+          package = json.loads(package_path.read_text())
+          package['overrides'] = {
+              **package.get('overrides', {}),
+              '@xmldom/xmldom': '0.8.15',
+              'postcss': '8.5.28',
+              'sharp': '0.35.4',
+          }
+          package_path.write_text(json.dumps(package, indent=2) + '\n')
+
           ci = Path('.github/workflows/ci.yml')
-          text = ci.read_text()
-          text = text.replace('node-version: 20', 'node-version: 22')
+          text = ci.read_text().replace('node-version: 20', 'node-version: 22')
           ci.write_text(text)
 
           timing = Path('src/lib/server-timing.ts')
           timing.write_text('''import "server-only";\n\n/**\n * Logs slow server-side operations in production while keeping full timing\n * visibility during local development. PERF_SLOW_MS can override the default.\n */\nexport async function withServerTiming<T>(label: string, work: () => PromiseLike<T>): Promise<T> {\n  const started = performance.now();\n  try {\n    return await work();\n  } finally {\n    const elapsed = Math.round((performance.now() - started) * 10) / 10;\n    const configured = Number(process.env.PERF_SLOW_MS || 100);\n    const threshold = Number.isFinite(configured) && configured >= 0 ? configured : 100;\n    if (process.env.NODE_ENV !== "production" || elapsed >= threshold) {\n      console.info(`[perf] ${label} ${elapsed}ms`);\n    }\n  }\n}\n''')
           PY
+          npm install --package-lock-only
 
       - name: Install locked dependencies
         run: npm ci

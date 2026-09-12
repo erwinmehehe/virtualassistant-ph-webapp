@@ -297,3 +297,32 @@
 @media (prefers-reduced-motion: reduce) {
   .pva-home *, .pva-home *::before, .pva-home *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   Sector ticker + industries grid, from the attached design.
+   --------------------------------------------------------------------------- */
+.pva-ticker-strip { padding: 34px 0 30px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.7); }
+.pva-ticker-strip > p { max-width: 640px; margin: 0 auto; padding: 0 20px; color: #98a2b3; font-size: 12px; font-weight: 800; letter-spacing: .22em; line-height: 1.6; text-align: center; text-transform: uppercase; }
+.pva-ticker-mask { margin-top: 18px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.pva-ticker-row { display: flex; width: max-content; gap: 14px; padding-right: 14px; animation: pva-marquee 34s linear infinite; }
+.pva-ticker-row-reverse { flex-direction: row-reverse; animation-duration: 56s; }
+.pva-ticker-row > span { display: inline-flex; flex: none; align-items: center; gap: 8px; padding: 10px 20px; border: 1px solid var(--line); border-radius: 999px; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.05); color: #475467; font-size: 14px; font-weight: 800; white-space: nowrap; }
+.pva-ticker-row > span svg { color: #6172f3; }
+.pva-ticker-row > span.pva-ticker-plain { padding: 7px 16px; border: 0; background: rgba(16,24,40,.04); box-shadow: none; font-size: 13px; }
+@keyframes pva-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.pva-industry-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 34px; }
+.pva-industry-card { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: 0 8px 30px -18px rgba(15,23,42,.18); transition: transform .25s, border-color .25s, box-shadow .25s; }
+.pva-industry-card:hover { transform: translateY(-3px); border-color: #c7d2fe; box-shadow: 0 24px 50px -22px rgba(68,76,231,.3); }
+.pva-industry-card strong { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.015em; color: #101828; }
+.pva-industry-card:hover strong { color: #3538cd; }
+.pva-industry-card small { display: block; margin-top: 6px; color: #667085; font-size: 13.5px; line-height: 1.5; }
+.pva-industry-arrow { display: grid; flex: none; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: #f1f5f9; color: #667085; transition: background .25s, color .25s; }
+.pva-industry-card:hover .pva-industry-arrow { background: #444ce7; color: #fff; }
+
+@media (max-width: 960px) { .pva-industry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) {
+  .pva-industry-grid { grid-template-columns: 1fr; }
+  .pva-ticker-strip > p { font-size: 11px; letter-spacing: .18em; }
+}
+@media (prefers-reduced-motion: reduce) { .pva-ticker-row { animation: none; } }

@@ -42,9 +42,22 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Check visual test credentials
+        id: credentials
+        shell: bash
+        run: |
+          if [[ -n "$SMOKE_SUPABASE_URL" && -n "$SMOKE_SUPABASE_ANON_KEY" && -n "$SMOKE_CLIENT_EMAIL" && -n "$SMOKE_CLIENT_PASSWORD" && -n "$SMOKE_VA_EMAIL" && -n "$SMOKE_VA_PASSWORD" && -n "$SMOKE_RECRUITER_EMAIL" && -n "$SMOKE_RECRUITER_PASSWORD" && -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Authenticated dashboard screenshots are ready but skipped until the SMOKE_* and VERCEL_AUTOMATION_BYPASS_SECRET repository secrets are configured."
+          fi
+      - if: steps.credentials.outputs.enabled == 'true'
+        run: npm ci
+      - if: steps.credentials.outputs.enabled == 'true'
+        run: npx playwright install --with-deps chromium
       - name: Wait for the Vercel PR preview
+        if: steps.credentials.outputs.enabled == 'true'
         id: preview
         uses: actions/github-script@v7
         with:
@@ -76,11 +89,12 @@ jobs:
             }
             core.setFailed("No successful Vercel preview deployment was found for this PR within 10 minutes.");
       - name: Capture authenticated dashboards
+        if: steps.credentials.outputs.enabled == 'true'
         env:
           VISUAL_BASE_URL: ${{ steps.preview.outputs.url }}
         run: node scripts/authenticated-dashboard-visual.mjs
       - name: Upload dashboard screenshots
-        if: always()
+        if: always() && steps.credentials.outputs.enabled == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dashboard-visual-${{ github.event.pull_request.number }}

@@ -313,6 +313,9 @@
 
 
 /* Compact conversion-first homepage hero. */
+.pva-home .pva-hero { padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.75rem, 4.5vw, 4rem); }
+.pva-home .pva-hero h1 { margin: 1.15rem 0 .9rem; font-size: clamp(2.75rem, 4.4vw, 4.05rem); line-height: 1.02; }
+
 @media (min-width: 1051px) {
   .pva-hero-copy { padding-top: .35rem; }
   .pva-hero .pva-hero-actions { margin-top: 1.25rem; }
@@ -322,7 +325,7 @@
 }
 @media (max-width: 620px) {
   .pva-hero { padding: 2.65rem 0 2.4rem; }
-  .pva-hero h1 { font-size: clamp(2.35rem,11vw,3.1rem); }
+  .pva-home .pva-hero h1 { font-size: clamp(2.35rem,11vw,3.1rem); }
   .pva-hero-form-shell { padding: .4rem; border-radius: 1.05rem; }
   .pva-hero-form-badge { position: static; width: max-content; margin: 0 auto .35rem; }
   .pva-hero-form-shell .compact-form-grid { grid-template-columns: 1fr 1fr; }

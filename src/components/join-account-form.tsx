@@ -20,7 +20,7 @@ export function JoinAccountForm({
   const client = role === "client";
   const benefits = client
     ? ["Claim any match request you already sent", "Manage private job drafts and candidate shortlists", "Interview, message, and hire from one workspace"]
-    : ["Build your vetted professional profile", "Complete skills and recruiter review steps", "Apply to roles and manage client conversations"];
+    : ["Create your account in under a minute", "Use a short guided setup before the full profile", "Complete vetting, then apply to matching roles"];
   const switchHref = client ? "/auth/join/va" : "/auth/join/client";
   const loginParams = new URLSearchParams();
   if (next) loginParams.set("next", next);
@@ -34,7 +34,7 @@ export function JoinAccountForm({
     <h1>{client ? "Create your client account" : "Apply as a virtual assistant"}</h1>
     <p className="muted auth-intro">{client
       ? "Hire vetted Filipino VAs, keep your role briefs organized, and manage candidates in one private workspace."
-      : "Create your candidate account to complete vetting, build your profile, and apply for matching VA opportunities."}</p>
+      : "Create your account first. We will take you through a short setup for your specialty, experience, availability, and preferred rate before the full profile."}</p>
 
     {lead && client ? <div className="success-banner small">Use the same email address from your match request. We will attach the private job draft to this account after signup.</div> : null}
     {talent && client ? <div className="success-banner small">The VA profile you requested will stay attached to your hiring path.</div> : null}
@@ -44,20 +44,20 @@ export function JoinAccountForm({
       {benefits.map((item, index) => <div key={`${String(item)}-${index}`}><CheckCircle2 size={16}/><span>{item}</span></div>)}
     </div>
 
-    {client && socialLoginEnabled() ? <><div className="auth-social-stack" aria-label="Social sign up options">
+    {socialLoginEnabled() ? <><div className="auth-social-stack" aria-label="Social sign up options">
       <form action={oauthAction}>
         <input type="hidden" name="provider" value="google"/>
-        <input type="hidden" name="role" value="client"/>
-        {talent ? <input type="hidden" name="talent" value={talent}/> : null}
-        {lead ? <input type="hidden" name="lead" value={lead}/> : null}
+        <input type="hidden" name="role" value={role}/>
+        {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
+        {client && lead ? <input type="hidden" name="lead" value={lead}/> : null}
         {next ? <input type="hidden" name="next" value={next}/> : null}
         <button className="btn auth-social-btn" type="submit">Continue with Google</button>
       </form>
       <form action={oauthAction}>
         <input type="hidden" name="provider" value="azure"/>
-        <input type="hidden" name="role" value="client"/>
-        {talent ? <input type="hidden" name="talent" value={talent}/> : null}
-        {lead ? <input type="hidden" name="lead" value={lead}/> : null}
+        <input type="hidden" name="role" value={role}/>
+        {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
+        {client && lead ? <input type="hidden" name="lead" value={lead}/> : null}
         {next ? <input type="hidden" name="next" value={next}/> : null}
         <button className="btn auth-social-btn" type="submit">Continue with Microsoft</button>
       </form>
@@ -73,6 +73,7 @@ export function JoinAccountForm({
       <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={8} required autoComplete="new-password"/><span className="small muted">At least 8 characters.</span></div>
       <TurnstileWidget/>
       <button className="btn btn-primary btn-lg" type="submit">{client ? "Create client account" : "Create VA account"}</button>
+      {!client ? <span className="small muted">Next: a short VA quick setup. You can finish the longer profile in stages.</span> : null}
     </form>
 
     <p className="small muted auth-legal">By continuing, you agree to our <Link href="/terms" className="text-link">Terms</Link> and <Link href="/privacy" className="text-link">Privacy Policy</Link>.</p>

@@ -45,6 +45,13 @@ test("quick setup records category, headline, experience, availability and rate"
   assert.match(quickAction, /hourly_rate: hourlyRate/);
 });
 
+test("quick setup preserves existing VA identity and profile state", () => {
+  assert.match(quickAction, /from\("va_profiles"\)\.update/);
+  assert.match(quickAction, /select\("user_id"\)\.maybeSingle\(\)/);
+  assert.doesNotMatch(quickAction, /slug:\s*`va-/);
+  assert.doesNotMatch(quickAction, /availability_status:\s*"available"/);
+});
+
 test("recruiter dashboard has canonical category labels including SMM", () => {
   assert.match(constants, /"Marketing & Social Media": "SMM \/ Social Media"/);
   assert.match(categories, /VA categories & onboarding health/);

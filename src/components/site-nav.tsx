@@ -29,7 +29,7 @@ export function SiteNav() {
         </Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          <Link href="/find-talent">Find Virtual Assistants</Link>
+          <Link href="/find-talent">Find a VA</Link>
 
           <details className="va-nav-menu">
             <summary>Services <ChevronDown size={14} aria-hidden="true" /></summary>
@@ -76,7 +76,7 @@ export function SiteNav() {
             <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
             <nav className="va-mobile-panel" aria-label="Mobile navigation">
               <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
-              <Link href="/find-talent">Find Virtual Assistants</Link>
+              <Link href="/find-talent">Find a VA</Link>
               <Link href="/services">Services</Link>
               <Link href="/industries">Industries</Link>
               <Link href="/pricing">Pricing</Link>

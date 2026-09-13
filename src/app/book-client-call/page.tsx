@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 async function availableDays() {
+  if (process.env.BOOKING_VISUAL_FIXTURE === "1") return buildDiscoverySlotDays([], new Date());
   try {
     const now = new Date();
     const until = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString();

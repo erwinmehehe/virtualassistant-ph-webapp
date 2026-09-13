@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowRight, Bell, BriefcaseBusiness, CheckCircle2, Clock3, Eye, FileText, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { missingForPublic } from "@/lib/public-visibility";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { VaDashboardMatches } from "@/components/va-dashboard-matches";
 import { getVaCompletion } from "@/lib/profile-completeness";
@@ -17,8 +17,8 @@ import { getVaDashboardSummary } from "@/lib/va-dashboard";
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
 export default async function VaDashboardPage(){
-  const {user}=await requireRole("va");
-  const {data:summary,error:summaryError}=await getVaDashboardSummary(user.id);
+  const {userId}=await requireRoleFast("va");
+  const {data:summary,error:summaryError}=await getVaDashboardSummary(userId);
 
   const va=summary?.profile||{};
   const avatarUrl=summary?.avatar_url||null;

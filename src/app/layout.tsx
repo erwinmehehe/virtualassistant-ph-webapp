@@ -5,6 +5,7 @@ import "./globals.css";
 import "./marketing-refresh.css";
 import "./talent-card-refresh.css";
 import "./premium-marketing-final.css";
+import "./va-design.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

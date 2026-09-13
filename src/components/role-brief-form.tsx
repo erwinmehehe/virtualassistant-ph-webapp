@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { submitRoleBriefAction } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
 import { VA_CATEGORIES } from "@/lib/constants";
+import { FormDraftPersistence } from "@/components/form-draft-persistence";
 
 /**
  * Shared lead form for public marketing pages.
@@ -37,6 +38,7 @@ export function RoleBriefForm({
 
   const resolvedError = error ?? urlState.error;
   const resolvedSent = sent ?? urlState.sent ?? false;
+  const formId = `role-brief-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
 
   if (resolvedSent) {
     return (
@@ -49,7 +51,7 @@ export function RoleBriefForm({
   }
 
   return (
-    <form action={submitRoleBriefAction} className="card stack compact-hire-form">
+    <form id={formId} action={submitRoleBriefAction} className="card stack compact-hire-form">
       <div className="compact-hire-form-head"><h2>{heading}</h2><p className="small muted">{subheading}</p></div>
       {resolvedError ? <div className="alert" role="alert">{resolvedError}</div> : null}
       <AttributionFields sourcePath={sourcePath} />
@@ -78,6 +80,8 @@ export function RoleBriefForm({
       <div className="field"><label htmlFor="rb-email">Work email *</label><input id="rb-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
       <div className="field"><label htmlFor="rb-message">What should this Virtual Assistant own? *</label><textarea id="rb-message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience, for example inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
 
+      <div className="field"><label htmlFor="rb-attachment">Job description or SOP <span className="muted">(optional)</span></label><input id="rb-attachment" name="attachment" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"/><span className="field-help">PDF, Word, or text file up to 10 MB. Stored privately for recruiter review.</span></div>
+
       <details className="hire-optional-details">
         <summary>Add contact details <span>(optional)</span></summary>
         <div className="form-grid compact-form-grid">
@@ -88,6 +92,7 @@ export function RoleBriefForm({
       </details>
 
       <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>
+      <FormDraftPersistence formId={formId} storageKey={sourcePath} />
       <p className="small muted role-brief-note">Private hiring request. No account is required to start the search.</p>
     </form>
   );

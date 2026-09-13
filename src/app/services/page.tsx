@@ -7,6 +7,7 @@ import { MarketingHero } from "@/components/marketing-hero";
 import { RoleBriefForm } from "@/components/role-brief-form";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Services Philippines",
@@ -26,7 +27,20 @@ const SERVICE_CATEGORIES: { id: string; label: string; description: string; grou
   { id: "hospitality", label: "Hospitality", description: "Guest messaging, reservations, calendar monitoring, vendor coordination, and property operations support.", groups: ["Hospitality"] }
 ];
 
-export default function ServicesPage() {
+async function liveAvailability() {
+  const counts = new Map<string, number>();
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from("public_va_directory").select("user_id,primary_category,categories").limit(500);
+    for (const va of data || []) {
+      for (const category of new Set([va.primary_category, ...(va.categories || [])].filter(Boolean))) counts.set(String(category), (counts.get(String(category)) || 0) + 1);
+    }
+  } catch { /* the directory remains usable when live data is unavailable */ }
+  return counts;
+}
+
+export default async function ServicesPage() {
+  const availability = await liveAvailability();
   return <>
     <SiteHeader />
     <main id="main-content" className="premium-services-directory">
@@ -66,6 +80,7 @@ export default function ServicesPage() {
                 <div>
                   <h3>{page.name}</h3>
                   <p>{page.focus.charAt(0).toUpperCase() + page.focus.slice(1)}.</p>
+                  {(availability.get(page.directoryCategory) || 0) > 0 ? <p className="service-live-availability"><span aria-hidden="true"/> {availability.get(page.directoryCategory)} approved profile{availability.get(page.directoryCategory) === 1 ? "" : "s"} currently available</p> : null}
                   <div className="pill-list">{page.tasks.slice(0, 2).map((task) => <span className="badge" key={task}>{task}</span>)}</div>
                 </div>
                 <span className="premium-service-link">View hiring guide <ChevronRight size={14} /></span>

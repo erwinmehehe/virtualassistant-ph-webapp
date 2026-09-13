@@ -26,6 +26,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PublicAvatar } from "@/components/public-avatar";
 import { AttributionFields } from "@/components/attribution-fields";
 import { canonicalPath } from "@/lib/seo-url";
+import { FormDraftPersistence } from "@/components/form-draft-persistence";
 
 const HIRING_CALL_URL = "/book-client-call";
 
@@ -196,7 +197,7 @@ export default async function HirePage({
                     </div>
                   </div>
                 ) : (
-                  <form action={submitRoleBriefAction} className="compact-hire-form pvh-form">
+                  <form id="hire-request-form" action={submitRoleBriefAction} className="compact-hire-form pvh-form">
                     <div className="pvh-form-head">
                       <div>
                         <span className="pvh-kicker">Free hiring request</span>
@@ -233,11 +234,12 @@ export default async function HirePage({
 
                     <div className="form-grid compact-form-grid">
                       <div className="field"><label htmlFor="timezone">Timezone / overlap *</label><input id="timezone" name="timezone" required defaultValue={params.timezone || ""} placeholder="US Eastern, 3h overlap" /></div>
-                      <div className="field"><label htmlFor="start_time">Start date</label><select id="start_time" name="start_time" defaultValue=""><option value="">Flexible</option><option>As soon as possible</option><option>Within 2 weeks</option><option>Within 30 days</option><option>More than 30 days</option></select></div>
+                      <div className="field"><label htmlFor="start_time">Start date</label><select id="start_time" name="start_time" defaultValue={params.start_time || ""}><option value="">Flexible</option><option>As soon as possible</option><option>Within 2 weeks</option><option>Within 30 days</option><option>More than 30 days</option></select></div>
                     </div>
 
                     <div className="field"><label htmlFor="email">Work email *</label><input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com" /></div>
                     <div className="field"><label htmlFor="message">What should this Virtual Assistant own? *</label><textarea id="message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience. Example: inbox and calendar management, CRM updates, and customer follow-up in HubSpot." /></div>
+                    <div className="field"><label htmlFor="attachment">Job description or SOP <span>(optional)</span></label><input id="attachment" name="attachment" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"/><span className="field-help">PDF, Word, or text file up to 10 MB. Stored privately for recruiter review.</span></div>
 
                     <details className="hire-optional-details pvh-optional-details">
                       <summary>Add contact details <span>(optional)</span></summary>
@@ -249,6 +251,7 @@ export default async function HirePage({
                     </details>
 
                     <button className="pvh-btn pvh-btn-primary pvh-submit" type="submit" data-track="role_brief_submit">Start my hiring request <ArrowRight size={16} /></button>
+                    <FormDraftPersistence formId="hire-request-form" storageKey="/hire" />
                     <p className="pvh-fineprint"><ShieldCheck size={13} /> Private hiring request. No account is required to start the search.</p>
                   </form>
                 )}

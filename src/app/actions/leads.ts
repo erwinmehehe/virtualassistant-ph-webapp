@@ -427,15 +427,22 @@ const roleBriefFieldLabels: Record<string, string> = {
   timezone: "Timezone / overlap",
   budget: "Hourly budget",
   email: "Work email",
-  message: "What should this Virtual Assistant own (at least 15 characters -- the actual tasks, not just budget)"
+  message: "What should this Virtual Assistant own (at least 15 characters, including the actual tasks)"
 };
 
 export async function submitRoleBriefAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
+  const attachmentValue = formData.get("attachment");
+  const attachment = attachmentValue instanceof File && attachmentValue.size > 0 ? attachmentValue : null;
+  const allowedAttachmentTypes = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"]);
+  const allowedAttachmentName = /\.(pdf|doc|docx|txt)$/i;
   // Return the visitor to the page they submitted from. Validated the same way
   // as source_path, so it can only ever be a path on this site.
   const rawReturn = String(formData.get("source_path") || "").trim();
   const returnTo = rawReturn.startsWith("/") && !rawReturn.startsWith("//") ? rawReturn : "/hire";
+  if (attachment && (attachment.size > 10 * 1024 * 1024 || (!allowedAttachmentTypes.has(attachment.type) && !allowedAttachmentName.test(attachment.name)))) {
+    redirect(`${returnTo}?error=${encodeURIComponent("Attach a PDF, Word, or text file no larger than 10 MB.")}`);
+  }
   const parsed = roleBriefSchema.safeParse(raw);
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0];
@@ -486,6 +493,26 @@ export async function submitRoleBriefAction(formData: FormData) {
     session_id: parsed.data.session_id || null
   }).select("id").single();
   if (error || !lead?.id) redirect(`${returnTo}?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
+
+  if (attachment) {
+    const safeName = attachment.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(-140) || "client-brief";
+    const attachmentPath = `${lead.id}/${Date.now()}-${safeName}`;
+    const { error: uploadError } = await admin.storage.from("lead-attachments").upload(attachmentPath, attachment, { upsert: false, contentType: attachment.type });
+    if (uploadError) {
+      await admin.from("lead_intake").delete().eq("id", lead.id);
+      redirect(`${returnTo}?error=${encodeURIComponent("We could not securely upload that document. Please try again without it or use a smaller file.")}`);
+    }
+    const { error: metadataError } = await admin.from("lead_intake").update({
+      attachment_path: attachmentPath,
+      attachment_name: attachment.name.slice(0, 255),
+      attachment_type: attachment.type || null,
+    }).eq("id", lead.id);
+    if (metadataError) {
+      await admin.storage.from("lead-attachments").remove([attachmentPath]);
+      await admin.from("lead_intake").delete().eq("id", lead.id);
+      redirect(`${returnTo}?error=${encodeURIComponent("We could not securely attach that document. Please try again without it.")}`);
+    }
+  }
 
   const requestedVaId = await resolveRequestedVaId(admin, parsed.data.talent || shortlistSlugs[0]);
   const clientId = await currentClientId();

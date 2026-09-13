@@ -59,24 +59,29 @@ export function HourlyMonthlyCalculator() {
 }
 
 const roleOptions = [
-  ["Admin, inbox, calendar, research", "/service/admin-inbox", "Admin & Inbox Virtual Assistant"],
-  ["SEO, content optimization, Search Console", "/service/seo", "SEO Virtual Assistant"],
-  ["Medical scheduling, patient admin, records", "/service/medical-virtual-assistant", "Medical Virtual Assistant"],
-  ["Law firm intake, matter admin, calendars", "/service/law-firm-virtual-assistant", "Law Firm Virtual Assistant"],
-  ["Shopify, listings, orders, ecommerce support", "/service/ecommerce", "Ecommerce Virtual Assistant"],
-  ["Real estate CRM, listings, lead follow-up", "/service/real-estate", "Real Estate Virtual Assistant"],
-  ["Bookkeeping, invoicing, reconciliations", "/service/bookkeeping", "Bookkeeping Virtual Assistant"],
-  ["Sales research, prospecting, appointments", "/service/lead-generation", "Lead Generation Virtual Assistant"],
-  ["Customer email, chat, tickets, support", "/service/customer-service", "Customer Service Virtual Assistant"],
-  ["Executive calendar, priorities, follow-up", "/service/executive-virtual-assistant", "Executive Virtual Assistant"]
+  ["Admin, inbox, calendar, research", "/service/admin-inbox", "Admin & Inbox Virtual Assistant", "Administrative Support"],
+  ["SEO, content optimization, Search Console", "/service/seo", "SEO Virtual Assistant", "SEO"],
+  ["Medical scheduling, patient admin, records", "/service/medical-virtual-assistant", "Medical Virtual Assistant", "Dental & Healthcare"],
+  ["Law firm intake, matter admin, calendars", "/service/law-firm-virtual-assistant", "Law Firm Virtual Assistant", "Administrative Support"],
+  ["Shopify, listings, orders, ecommerce support", "/service/ecommerce", "Ecommerce Virtual Assistant", "Ecommerce"],
+  ["Real estate CRM, listings, lead follow-up", "/service/real-estate", "Real Estate Virtual Assistant", "Real Estate"],
+  ["Bookkeeping, invoicing, reconciliations", "/service/bookkeeping", "Bookkeeping Virtual Assistant", "Bookkeeping & Finance"],
+  ["Sales research, prospecting, appointments", "/service/lead-generation", "Lead Generation Virtual Assistant", "Lead Generation & Sales"],
+  ["Customer email, chat, tickets, support", "/service/customer-service", "Customer Service Virtual Assistant", "Customer Service"],
+  ["Executive calendar, priorities, follow-up", "/service/executive-virtual-assistant", "Executive Virtual Assistant", "Executive Assistance"]
 ] as const;
 
 export function RoleFinder() {
   const [choice, setChoice] = useState("");
+  const [hours, setHours] = useState("10 to 20 hours/week");
+  const [budget, setBudget] = useState("USD 8 to 12/hour");
+  const [start, setStart] = useState("Within 30 days");
   const selected = roleOptions.find(([label]) => label === choice);
+  const urgency = start === "As soon as possible" ? "Ready to hire now" : start === "Within 2 weeks" ? "High intent" : "Planning stage";
+  const hireHref = selected ? `/hire?source=%2Ftools%2Fwhat-type-of-va-do-i-need%2F&category=${encodeURIComponent(selected[3])}&hours=${encodeURIComponent(hours)}&budget=${encodeURIComponent(budget)}&start_time=${encodeURIComponent(start)}` : "/hire";
   return <div className="tool-shell tool-shell-single">
-    <div className="tool-inputs"><div className="field"><label htmlFor="role-choice">Which workload best matches what is falling behind?</label><select id="role-choice" value={choice} onChange={(e)=>setChoice(e.target.value)}><option value="">Choose the closest workload</option>{roleOptions.map(([label])=><option key={label}>{label}</option>)}</select></div></div>
-    <div className="tool-results" aria-live="polite">{selected ? <><div className="tool-role-result"><CheckCircle2 size={22}/><div><span>Best starting point</span><strong>{selected[2]}</strong></div></div><Link className="btn btn-primary btn-lg" href={selected[1]} data-track="tool_complete">See the role guide <ArrowRight size={16}/></Link><Link className="btn" href="/hire?source=%2Ftools%2Fwhat-type-of-va-do-i-need%2F" data-track="tool_cta_match">Get a managed VA</Link></> : <><Search size={28}/><h3>Choose the workload, not the title.</h3><p className="muted">The tool will point you to the closest service page. You can still combine responsibilities when you create the final role brief.</p></>}</div>
+    <div className="tool-inputs"><div className="field"><label htmlFor="role-choice">Which workload best matches what is falling behind?</label><select id="role-choice" value={choice} onChange={(e)=>setChoice(e.target.value)}><option value="">Choose the closest workload</option>{roleOptions.map(([label])=><option key={label}>{label}</option>)}</select></div><div className="field"><label htmlFor="role-hours">How many hours each week?</label><select id="role-hours" value={hours} onChange={(e)=>setHours(e.target.value)}><option>Under 10 hours/week</option><option>10 to 20 hours/week</option><option>20 to 30 hours/week</option><option>30 to 40 hours/week</option><option>40+ hours/week</option></select></div><div className="field"><label htmlFor="role-budget">Hourly budget</label><select id="role-budget" value={budget} onChange={(e)=>setBudget(e.target.value)}><option>USD 5 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select></div><div className="field"><label htmlFor="role-start">When should they start?</label><select id="role-start" value={start} onChange={(e)=>setStart(e.target.value)}><option>As soon as possible</option><option>Within 2 weeks</option><option>Within 30 days</option><option>More than 30 days</option></select></div></div>
+    <div className="tool-results" aria-live="polite">{selected ? <><div className="tool-role-result"><CheckCircle2 size={22}/><div><span>Best starting point</span><strong>{selected[2]}</strong></div></div><div><span>Hiring readiness</span><strong>{urgency}</strong><small>{hours} · {budget}</small></div><Link className="btn btn-primary btn-lg" href={selected[1]} data-track="tool_complete">See the role guide <ArrowRight size={16}/></Link><Link className="btn" href={hireHref} data-track="tool_cta_match">Continue with these answers</Link></> : <><Search size={28}/><h3>Choose the workload, not the title.</h3><p className="muted">Answer four practical questions. We will pass your choices into the hiring brief so you do not need to enter them twice.</p></>}</div>
   </div>;
 }
 

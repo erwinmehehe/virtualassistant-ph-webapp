@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
+    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "content:check": "node scripts/check-blog-quality.mjs",
     "setup:check": "node scripts/check-runtime-config.mjs",
@@ -27,6 +27,7 @@
     "react-dom": "^19.0.0",
     "resend": "^4.1.2",
     "stripe": "^22.4.0",
+    "svix": "^1.76.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {

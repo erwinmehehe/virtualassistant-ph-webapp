@@ -23,6 +23,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ ok: false }, { status: 204 });
+    return new Response(null, { status: 204 });
   }
 }

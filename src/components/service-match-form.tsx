@@ -63,7 +63,6 @@ export function ServiceMatchForm({
       <input type="hidden" name="source_path" value={sourcePath || `/service/${slug}/`} />
       <input type="hidden" name="session_id" value={sessionId} />
       <input type="hidden" name="hours" value="Not sure yet" />
-      <input type="hidden" name="message" value={`Interested in ${roleLabel} Virtual Assistant support. ${example}`} />
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
 
       {state.status === "error" ? <div className="alert" role="alert">{state.message}</div> : null}
@@ -77,6 +76,21 @@ export function ServiceMatchForm({
           <label htmlFor={`${id}-email`}>Work email *</label>
           <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
         </div>
+      </div>
+
+      <div className="field service-match-message-field">
+        <label htmlFor={`${id}-message`}>What should this VA own? *</label>
+        <textarea
+          id={`${id}-message`}
+          className="service-match-message"
+          name="message"
+          rows={3}
+          required
+          minLength={10}
+          maxLength={3000}
+          defaultValue={example}
+        />
+        <small>Pre-filled from this {displayRole} page. Edit it if your scope is different.</small>
       </div>
 
       <button className="btn btn-lg service-match-submit" type="submit" disabled={pending} data-track={`service_${slug.replaceAll("-", "_")}_match`}>

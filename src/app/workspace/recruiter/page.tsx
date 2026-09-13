@@ -36,25 +36,25 @@ type RecruiterDashboardMetrics = {
   followups_due: number;
   open_pipeline_value: number;
   discovery_next_two_days: number;
-  signups: { week_start: string; count: number }[];
+};
+
+type RecruiterDashboardOverview = {
+  metrics?: Partial<RecruiterDashboardMetrics>;
+  vetting_queue?: any[];
+  roles_needing_matching?: any[];
 };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-async function RecruiterVettingQueue({ unreviewed }: { unreviewed: number }) {
-  const admin = createAdminClient();
-  const { data: queueData, error } = await admin.rpc("recruiter_dashboard_vetting_queue", { p_limit: QUEUE_PREVIEW });
-  if (error) throw error;
-  const queueRows = Array.isArray(queueData) ? queueData : [];
-
+function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; queueRows: any[] }) {
   return <Panel
     title="Vetting queue"
     subtitle={unreviewed > QUEUE_PREVIEW ? `Longest-waiting ${QUEUE_PREVIEW} of ${unreviewed} · ring shows profile completion` : `${plural(unreviewed, "candidate")} waiting · ring shows profile completion`}
     action={<Link className="dash-link" href="/workspace/recruiter/queue">Open queue <ArrowRight size={14} aria-hidden="true" /></Link>}
   >
-    {(queueRows || []).length ? (
+    {queueRows.length ? (
       <div className="dash-queue">
-        {(queueRows || []).map((row: any) => {
+        {queueRows.map((row: any) => {
           const va = row;
           const testScore = row.test_score ?? null;
           const completion = getVaCompletion(va, row.avatar_url).score;
@@ -97,12 +97,7 @@ async function RecruiterVettingQueue({ unreviewed }: { unreviewed: number }) {
   </Panel>;
 }
 
-async function RecruiterRolesNeedingMatching({ count }: { count: number }) {
-  const admin = createAdminClient();
-  const { data: roleData, error } = await admin.rpc("recruiter_dashboard_roles_needing_matching", { p_limit: QUEUE_PREVIEW });
-  if (error) throw error;
-  const jobs = Array.isArray(roleData) ? roleData : [];
-
+function RecruiterRolesNeedingMatching({ count, jobs }: { count: number; jobs: any[] }) {
   return <Panel title="Roles that need matching" subtitle="No applications or shortlist yet" action={count ? <Link className="dash-link" href="/workspace/recruiter/matching?view=needs_candidates">View all <ArrowRight size={14} aria-hidden="true" /></Link> : undefined}>
     {jobs.length ? (
       <div className="dash-list">
@@ -138,22 +133,22 @@ function RecruiterDashboardFallback() {
   );
 }
 
-async function RecruiterDashboardContent() {
+function RecruiterAnalyticsFallback() {
+  return <details className="dash-secondary"><summary>Analytics and maintenance</summary><div className="workspace-skeleton-card" aria-busy="true" /></details>;
+}
+
+async function RecruiterAnalytics({ metrics }: { metrics: Partial<RecruiterDashboardMetrics> }) {
   const admin = createAdminClient();
-  const { data, error } = await admin.rpc("recruiter_dashboard_metrics", { p_signup_weeks: SIGNUP_WEEKS });
+  const { data, error } = await admin.rpc("recruiter_dashboard_signups", { p_signup_weeks: SIGNUP_WEEKS });
   if (error) throw error;
 
-  const metrics = (data || {}) as Partial<RecruiterDashboardMetrics>;
   const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
-  const unreviewed = value("unreviewed");
-  const rolesWithoutCandidates = value("roles_without_candidates");
-  const signupRows = Array.isArray(metrics.signups) ? metrics.signups : [];
-  const signups = signupRows.map((week, index) => {
+  const signupRows = Array.isArray(data) ? data : [];
+  const signups = signupRows.map((week: any, index: number) => {
     const start = new Date(week.week_start);
     return { label: `${start.getUTCMonth() + 1}/${start.getUTCDate()}`, value: Number(week.count || 0), highlight: index === signupRows.length - 1 };
   });
-  const signupTotal = signups.reduce((sum, week) => sum + week.value, 0);
-
+  const signupTotal = signups.reduce((sum: number, week: { value: number }) => sum + week.value, 0);
   const funnel: { label: string; value: number; tone: Tone }[] = [
     { label: "VA accounts", value: value("total"), tone: "slate" },
     { label: "Started a profile", value: value("started"), tone: "indigo" },
@@ -161,6 +156,49 @@ async function RecruiterDashboardContent() {
     { label: "Public in the directory", value: value("public"), tone: "emerald" }
   ];
   const funnelTop = Math.max(funnel[0].value, 1);
+
+  return <details className="dash-secondary">
+    <summary>Analytics and maintenance</summary>
+    <div className="dash-grid">
+      <div className="dash-col">
+        <Panel title="Talent funnel" subtitle="Where VA accounts are right now, excluding rejected">
+          <div className="dash-funnel">{funnel.map((step) => <div className="dash-funnel-row" key={step.label}><span className="dash-funnel-label">{step.label}</span><div className="dash-funnel-track"><div className={`dash-funnel-fill tone-${step.tone}`} style={{ width: `${Math.max((step.value / funnelTop) * 100, 9)}%` }}>{step.value}</div></div></div>)}</div>
+        </Panel>
+        <Panel title="New VA signups" subtitle={`${plural(signupTotal, "account")} in the last ${SIGNUP_WEEKS} weeks · this week highlighted`}>
+          <BarChart data={signups} label="New VA signups per week" height={110} />
+        </Panel>
+      </div>
+      <div className="dash-col">
+        <Panel title="Directory maintenance">
+          <SignalList items={[
+            { label: "Vetted but not listed", count: value("vetted_hidden"), href: "/workspace/recruiter/talent?readiness=vetted_hidden", icon: <UserRoundCheck size={16} />, hint: "Screened, profile still short" },
+            { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" }
+          ]}/>
+        </Panel>
+        <Panel title="Fast cleanup" subtitle="Open a filtered directory before applying any bulk action">
+          <div className="dash-button-stack">
+            <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
+            <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
+            <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
+          </div>
+        </Panel>
+      </div>
+    </div>
+  </details>;
+}
+
+async function RecruiterDashboardContent() {
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("recruiter_dashboard_overview", { p_queue_limit: QUEUE_PREVIEW });
+  if (error) throw error;
+
+  const overview = (data || {}) as RecruiterDashboardOverview;
+  const metrics = overview.metrics || {};
+  const queueRows = Array.isArray(overview.vetting_queue) ? overview.vetting_queue : [];
+  const jobs = Array.isArray(overview.roles_needing_matching) ? overview.roles_needing_matching : [];
+  const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
+  const unreviewed = value("unreviewed");
+  const rolesWithoutCandidates = value("roles_without_candidates");
 
   const today = [
     { priority: "urgent", title: "Client leads need first contact", count: value("untouched_leads"), copy: "Reply first. The CRM tracks a 30-minute first-response target.", href: "/workspace/recruiter/leads?view=attention" },
@@ -173,7 +211,6 @@ async function RecruiterDashboardContent() {
     { priority: "low", title: "Client decisions to follow up", count: value("released_shortlists"), copy: "Check released shortlists and unblock the next hiring step.", href: "/workspace/recruiter/matching" }
   ];
   const openActions = today.reduce((total, item) => total + item.count, 0);
-
 
   return (
     <>
@@ -197,15 +234,11 @@ async function RecruiterDashboardContent() {
               ))}
             </div>
           </Panel>
-          <Suspense fallback={<Panel title="Vetting queue" subtitle="Loading candidate details"><div className="workspace-skeleton-card" aria-busy="true"/></Panel>}>
-            <RecruiterVettingQueue unreviewed={unreviewed}/>
-          </Suspense>
+          <RecruiterVettingQueue unreviewed={unreviewed} queueRows={queueRows}/>
         </div>
 
         <div className="dash-col">
-          <Suspense fallback={<Panel title="Roles that need matching" subtitle="Loading candidate status"><div className="workspace-skeleton-card" aria-busy="true"/></Panel>}>
-            <RecruiterRolesNeedingMatching count={rolesWithoutCandidates}/>
-          </Suspense>
+          <RecruiterRolesNeedingMatching count={rolesWithoutCandidates} jobs={jobs}/>
           <Panel title="Hiring and talent signals">
             <SignalList items={[
               { label: "Ready to approve", count: value("ready"), href: "/workspace/recruiter/talent?readiness=ready", icon: <UserRoundCheck size={16} />, hint: `${PUBLIC_VA_MIN_COMPLETION}%+ profile with a photo` },
@@ -218,34 +251,9 @@ async function RecruiterDashboardContent() {
         </div>
       </div>
 
-      <details className="dash-secondary">
-        <summary>Analytics and maintenance</summary>
-        <div className="dash-grid">
-          <div className="dash-col">
-            <Panel title="Talent funnel" subtitle="Where VA accounts are right now, excluding rejected">
-              <div className="dash-funnel">{funnel.map((step) => <div className="dash-funnel-row" key={step.label}><span className="dash-funnel-label">{step.label}</span><div className="dash-funnel-track"><div className={`dash-funnel-fill tone-${step.tone}`} style={{ width: `${Math.max((step.value / funnelTop) * 100, 9)}%` }}>{step.value}</div></div></div>)}</div>
-            </Panel>
-            <Panel title="New VA signups" subtitle={`${plural(signupTotal, "account")} in the last ${SIGNUP_WEEKS} weeks · this week highlighted`}>
-              <BarChart data={signups} label="New VA signups per week" height={110} />
-            </Panel>
-          </div>
-          <div className="dash-col">
-            <Panel title="Directory maintenance">
-              <SignalList items={[
-                { label: "Vetted but not listed", count: value("vetted_hidden"), href: "/workspace/recruiter/talent?readiness=vetted_hidden", icon: <UserRoundCheck size={16} />, hint: "Screened, profile still short" },
-                { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" }
-              ]}/>
-            </Panel>
-            <Panel title="Fast cleanup" subtitle="Open a filtered directory before applying any bulk action">
-              <div className="dash-button-stack">
-                <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
-                <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
-                <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
-              </div>
-            </Panel>
-          </div>
-        </div>
-      </details>
+      <Suspense fallback={<RecruiterAnalyticsFallback/>}>
+        <RecruiterAnalytics metrics={metrics}/>
+      </Suspense>
     </>
   );
 }

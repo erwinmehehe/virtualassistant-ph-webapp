@@ -17,6 +17,7 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(layout, /import "\.\/nav-cro\.css"/);
   assert.match(layout, /import "\.\/service-visual-qa\.css"/);
   assert.match(layout, /import "\.\/service-visual-qa-final\.css"/);
+  assert.match(layout, /import "\.\/service-match-form-final\.css"/);
   assert.match(header, /<SiteNav\s*\/>/);
   assert.doesNotMatch(nav, /href="\/book-client-call"/);
   assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
@@ -69,10 +70,14 @@ test("service and industry detail forms stay compact", () => {
   const industryForm = source("src/components/industry-match-form.tsx");
   const floating = source("src/components/floating-cta.tsx");
   const finalServiceCss = source("src/app/service-visual-qa-final.css");
+  const serviceFormCss = source("src/app/service-match-form-final.css");
 
   assert.match(serviceForm, /service-match-form-compact/);
   assert.doesNotMatch(serviceForm, /name="phone"/);
-  assert.doesNotMatch(serviceForm, /<textarea/);
+  assert.match(serviceForm, /What should this VA own\?/);
+  assert.match(serviceForm, /rows=\{3\}/);
+  assert.match(serviceForm, /defaultValue=\{example\}/);
+  assert.match(serviceFormCss, /service-match-message/);
   assert.match(industryForm, /service-match-form-compact/);
   assert.doesNotMatch(industryForm, /name="phone"/);
   assert.doesNotMatch(industryForm, /<textarea/);

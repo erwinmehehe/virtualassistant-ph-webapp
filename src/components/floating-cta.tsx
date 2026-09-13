@@ -6,9 +6,6 @@ import { usePathname } from "next/navigation";
 import { CalendarClock, X } from "lucide-react";
 
 const DISMISS_KEY = "va_discovery_cta_dismissed";
-
-// Google Calendar appointment schedule. NEXT_PUBLIC_DISCOVERY_CALL_URL
-// overrides it without touching this file.
 const DISCOVERY_CALL_URL = "/book-client-call";
 
 const VA_FACING_PATHS = [
@@ -50,9 +47,6 @@ export function FloatingCta() {
 
   if (isVaFacingPath(pathname) || dismissed || !visible) return null;
 
-  const href = process.env.NEXT_PUBLIC_DISCOVERY_CALL_URL?.trim() || DISCOVERY_CALL_URL;
-  const external = href.startsWith("http");
-
   const close = () => {
     setDismissed(true);
     try { sessionStorage.setItem(DISMISS_KEY, "1"); } catch { /* private mode */ }
@@ -64,9 +58,7 @@ export function FloatingCta() {
         <strong>Hiring a Virtual Assistant?</strong>
         <span>This discovery call is for clients looking to hire — if you're a VA applicant, please use our VA application page instead.</span>
       </div>
-      {external
-        ? <a className="btn btn-primary" href={href} target="_blank" rel="noopener noreferrer" data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</a>
-        : <Link className="btn btn-primary" href={href} data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</Link>}
+      <Link className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</Link>
       <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss">
         <X size={15}/>
       </button>

@@ -68,7 +68,7 @@ export function SiteNav() {
 
         <div className="nav-actions">
           <Link className="header-va-link" href="/for-virtual-assistants">For Virtual Assistants</Link>
-          <Link className="va-book-link" href="/book-client-call" data-track="booking_click"><CalendarDays size={14}/> Book a call</Link>
+          <Link className="va-book-link" href="/book-client-call" data-track="booking_click"><CalendarDays size={14}/> Book a discovery call</Link>
           <Link className="btn btn-ghost login-text" href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
 
@@ -87,7 +87,7 @@ export function SiteNav() {
               <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
               <span className="va-mobile-panel-label">Account</span>
               <Link href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
-              <Link href="/book-client-call" data-track="booking_click">Book a client discovery call</Link>
+              <Link href="/book-client-call" data-track="booking_click">Book a discovery call</Link>
             </nav>
           </details>
         </div>

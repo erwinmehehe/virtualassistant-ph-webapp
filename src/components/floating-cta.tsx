@@ -86,7 +86,11 @@ export function FloatingCta() {
 
   return (
     <div className="floating-cta floating-cta-compact" role="complementary" aria-label="Book a discovery call">
-      <Link className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</Link>
+      <Link className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click">
+        <CalendarClock size={16}/>
+        <span className="floating-cta-label-desktop">Book a discovery call</span>
+        <span className="floating-cta-label-mobile">Book a call</span>
+      </Link>
       <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss discovery call prompt">
         <X size={15}/>
       </button>

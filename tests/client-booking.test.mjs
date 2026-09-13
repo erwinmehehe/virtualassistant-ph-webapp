@@ -38,7 +38,7 @@ test("client booking saves the questionnaire, prevents slot conflicts, and copie
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
-    read("supabase/migrations/20260912160858_prevent_duplicate_discovery_slots.sql"),
+    read("supabase/migrations/20260912162238_prevent_duplicate_discovery_slots.sql"),
   ]);
 
   for (const field of ["company_url", "service", "hours", "budget", "start_time", "message"]) {

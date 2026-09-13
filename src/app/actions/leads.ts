@@ -415,6 +415,7 @@ const roleBriefSchema = z.object({
   start_time: z.string().max(100).optional(),
   message: z.string().trim().min(15).max(3000),
   talent: z.string().max(160).optional(),
+  shortlist: z.string().max(800).optional(),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") && !value.startsWith("//")).optional(),
   session_id: z.string().uuid().or(z.literal("")).optional(),
   website: z.string().max(200).optional()
@@ -446,17 +447,25 @@ export async function submitRoleBriefAction(formData: FormData) {
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
 
   const category = VA_CATEGORIES.includes(parsed.data.category as (typeof VA_CATEGORIES)[number]) ? parsed.data.category : parsed.data.category.trim();
+  const shortlistSlugs = String(parsed.data.shortlist || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => /^[a-z0-9-]+$/i.test(item))
+    .slice(0, 5);
   const candidateContext = parsed.data.talent ? `Requested talent profile: ${parsed.data.talent}.` : "";
+  const shortlistContext = shortlistSlugs.length ? `Client-selected shortlist: ${shortlistSlugs.join(", ")}.` : "";
   const budgetContext = `Virtual Assistant budget: ${parsed.data.budget}.`;
-  const message = [candidateContext, budgetContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
+  const message = [candidateContext, shortlistContext, budgetContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
   const admin = createAdminClient();
   const sourcePath = parsed.data.source_path || "/hire";
   const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
-  const sourcePage = parsed.data.talent
-    ? "talent_introduction_request"
-    : sourcePath === "/hire/" || sourcePath === "/hire"
-      ? "public_role_brief"
-      : "content_role_brief";
+  const sourcePage = shortlistSlugs.length
+    ? "talent_shortlist_request"
+    : parsed.data.talent
+      ? "talent_introduction_request"
+      : sourcePath === "/hire/" || sourcePath === "/hire"
+        ? "public_role_brief"
+        : "content_role_brief";
   const pageUrl = `${base}${sourcePath}`;
 
   const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category);
@@ -478,7 +487,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   }).select("id").single();
   if (error || !lead?.id) redirect(`${returnTo}?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
 
-  const requestedVaId = await resolveRequestedVaId(admin, parsed.data.talent);
+  const requestedVaId = await resolveRequestedVaId(admin, parsed.data.talent || shortlistSlugs[0]);
   const clientId = await currentClientId();
   let jobId: string;
   try {
@@ -506,7 +515,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     jobId,
     path: sourcePath,
     sessionId: parsed.data.session_id || null,
-    metadata: { service: category, source_page: sourcePage }
+    metadata: { service: category, source_page: sourcePage, shortlist: shortlistSlugs }
   });
 
   try {
@@ -539,7 +548,8 @@ export async function submitRoleBriefAction(formData: FormData) {
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";
-  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}${talent}`);
+  const shortlist = shortlistSlugs.length ? `&shortlist=${encodeURIComponent(shortlistSlugs.join(","))}` : "";
+  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}${talent}${shortlist}`);
 }
 
 const contactSchema = z.object({

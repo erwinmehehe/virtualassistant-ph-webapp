@@ -71,7 +71,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const [{ data: leads }, { data: owners }, { data: settings }] = await Promise.all([
     admin
       .from("lead_intake")
-      .select("id,name,email,phone,company,service,status,job_id,created_at,message,hours,start_time,timezone,source_page,page_url,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,won_at,lost_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_completed_at,discovery_notes,discovery_outcome,discovery_cancelled_at,discovery_rescheduled_at")
+      .select("id,name,email,phone,company,service,status,job_id,created_at,message,hours,start_time,timezone,source_page,page_url,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,won_at,lost_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_completed_at,discovery_notes,discovery_outcome,discovery_cancelled_at,discovery_rescheduled_at,attachment_path,attachment_name,attachment_type")
       .order("created_at", { ascending: false })
       .limit(500),
     admin
@@ -285,6 +285,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <section className="crm-client-context">
                 <h3>What they need</h3>
                 <p>{lead.message || "No additional message provided."}</p>
+                {lead.attachment_path ? <a className="btn btn-sm" href={`/api/recruiter/lead-attachment/${lead.id}`} target="_blank" rel="noreferrer"><FileCheck2 size={13}/> Open client document{lead.attachment_name ? `: ${lead.attachment_name}` : ""}</a> : null}
                 <div className="small muted">Source: {lead.source_page || "Website enquiry"} · Received {dateShort(lead.created_at)}</div>
                 <div className="crm-contact-summary">
                   <div><strong>First response</strong><span>{response || (slaMissed ? "Over target" : "Waiting")}</span></div>

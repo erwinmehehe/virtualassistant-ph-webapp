@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@/components/analytics";
 import "./globals.css";
+import "./operations.css";
 import "./marketing-refresh.css";
 import "./talent-card-refresh.css";
 import "./premium-marketing-final.css";

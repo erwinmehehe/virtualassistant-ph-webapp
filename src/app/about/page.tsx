@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, LockKeyhole, Scale, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
@@ -57,5 +57,11 @@ export default function AboutPage() {
         </div>
       </div>
     </section>
+
+    <section className="section section-white"><div className="container"><div className="section-head"><div className="kicker">Trust by design</div><h2>Clear boundaries around profiles, documents, and hiring claims.</h2><p>We would rather show less information than publish a number, badge, or success claim that cannot be supported by the platform’s records.</p></div><div className="grid-3">
+      <article className="card"><LockKeyhole size={22}/><h3>Private hiring information</h3><p className="muted">Role briefs, uploaded documents, recruiter notes, test answers, resumes, and direct contact details remain outside the public directory.</p></article>
+      <article className="card"><Eye size={22}/><h3>Controlled public profiles</h3><p className="muted">Only approved, available Virtual Assistants who meet the public-profile requirements can appear. Public pages expose a deliberately limited set of work-relevant fields.</p></article>
+      <article className="card"><Scale size={22}/><h3>Client-controlled decisions</h3><p className="muted">Clients retain final hiring, access, supervision, compliance, compensation, and approval decisions. Regulated or licensed work stays with appropriately qualified professionals.</p></article>
+    </div><div className="card" style={{marginTop:16}}><h3><ShieldCheck size={18}/> What we do not fabricate</h3><p className="muted">We do not display invented testimonials, fake client logos, unsupported placement totals, or artificial availability counts. When the site displays available talent, it comes from approved profiles currently marked available.</p></div></div></section>
   </main><SiteFooter/></>;
 }

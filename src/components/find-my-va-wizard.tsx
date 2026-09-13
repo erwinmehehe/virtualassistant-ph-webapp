@@ -56,7 +56,6 @@ export function FindMyVaWizard({ talent }: { talent: MatchTalent[] }) {
     params.set("hours", hours);
     params.set("budget", `USD ${budget}/hour`);
     if (timezone) params.set("timezone", timezone);
-    params.set("source", "/");
     return `/hire?${params.toString()}`;
   }, [budget, category, hours, timezone]);
 

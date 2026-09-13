@@ -44,7 +44,7 @@
 .cro-shortlist-button.selected { background: #edf7f2; color: #176247; border-color: #9ed0bc; }
 .cro-shortlist-button:disabled { opacity: .52; cursor: not-allowed; }
 .cro-shortlist-bar {
-  position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 90;
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 76px; z-index: 90;
   width: min(760px, calc(100% - 28px)); display: flex; justify-content: space-between; align-items: center; gap: 18px;
   padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,.18);
   background: rgba(18,34,55,.96); color: #fff; box-shadow: 0 18px 60px rgba(5,18,36,.28); backdrop-filter: blur(14px);
@@ -81,7 +81,7 @@
 @media (max-width: 820px) {
   .cro-match-card { grid-template-columns: 1fr; }
   .cro-match-result-grid { grid-template-columns: 1fr; }
-  .cro-shortlist-bar { bottom: 72px; align-items: stretch; }
+  .cro-shortlist-bar { bottom: 76px; align-items: stretch; }
 }
 @media (max-width: 620px) {
   .cro-match-form, .cro-cost-controls { grid-template-columns: 1fr; }

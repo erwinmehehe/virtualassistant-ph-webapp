@@ -30,12 +30,11 @@ export function createCalendarInvite(args: { uid: string; startsAt: string; dura
   ].join("\r\n");
 }
 
-export async function createZoomDiscoveryMeeting(args: { topic: string; startsAt: string; durationMinutes: number }) {
+async function zoomAccessToken() {
   const accountId = process.env.ZOOM_ACCOUNT_ID?.trim();
   const clientId = process.env.ZOOM_CLIENT_ID?.trim();
   const clientSecret = process.env.ZOOM_CLIENT_SECRET?.trim();
-  const host = process.env.ZOOM_HOST_EMAIL?.trim() || "me";
-  if (!accountId || !clientId || !clientSecret) return { configured: false as const, joinUrl: null, meetingId: null };
+  if (!accountId || !clientId || !clientSecret) return null;
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
   const tokenResponse = await fetch(`https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${encodeURIComponent(accountId)}`, {
     method: "POST", headers: { Authorization: `Basic ${auth}` }, cache: "no-store"
@@ -43,9 +42,16 @@ export async function createZoomDiscoveryMeeting(args: { topic: string; startsAt
   if (!tokenResponse.ok) throw new Error(`Zoom authentication failed (${tokenResponse.status}).`);
   const token = await tokenResponse.json() as { access_token?: string };
   if (!token.access_token) throw new Error("Zoom did not return an access token.");
+  return token.access_token;
+}
+
+export async function createZoomDiscoveryMeeting(args: { topic: string; startsAt: string; durationMinutes: number }) {
+  const accessToken = await zoomAccessToken();
+  const host = process.env.ZOOM_HOST_EMAIL?.trim() || "me";
+  if (!accessToken) return { configured: false as const, joinUrl: null, meetingId: null };
   const response = await fetch(`https://api.zoom.us/v2/users/${encodeURIComponent(host)}/meetings`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token.access_token}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
     body: JSON.stringify({ topic: args.topic, type: 2, start_time: args.startsAt, duration: args.durationMinutes, timezone: "UTC", settings: { join_before_host: false, waiting_room: true } }),
     cache: "no-store"
   });
@@ -53,4 +59,18 @@ export async function createZoomDiscoveryMeeting(args: { topic: string; startsAt
   const meeting = await response.json() as { id?: number | string; join_url?: string };
   if (!meeting.join_url) throw new Error("Zoom did not return a join URL.");
   return { configured: true as const, joinUrl: meeting.join_url, meetingId: String(meeting.id || "") };
+}
+
+export async function cancelZoomDiscoveryMeeting(meetingId?: string | null) {
+  const id = String(meetingId || "").trim();
+  if (!id) return { configured: false as const, cancelled: false };
+  const accessToken = await zoomAccessToken();
+  if (!accessToken) return { configured: false as const, cancelled: false };
+  const response = await fetch(`https://api.zoom.us/v2/meetings/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store"
+  });
+  if (!response.ok && response.status !== 404) throw new Error(`Zoom meeting cancellation failed (${response.status}).`);
+  return { configured: true as const, cancelled: response.ok };
 }

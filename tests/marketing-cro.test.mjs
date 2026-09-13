@@ -16,9 +16,13 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(layout, /import "\.\/va-design\.css"/);
   assert.match(layout, /import "\.\/nav-cro\.css"/);
   assert.match(layout, /import "\.\/service-visual-qa\.css"/);
+  assert.match(layout, /import "\.\/service-visual-qa-final\.css"/);
   assert.match(header, /<SiteNav\s*\/>/);
   assert.doesNotMatch(nav, /href="\/book-client-call"/);
   assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
+  assert.doesNotMatch(floating, /Hiring a Virtual Assistant\?/);
+  assert.match(floating, /INTERNAL_PATHS/);
+  assert.match(floating, /floating-cta-label-mobile/);
   assert.match(footer, /href="\/book-client-call"/);
 });
 
@@ -64,6 +68,7 @@ test("service and industry detail forms stay compact", () => {
   const serviceForm = source("src/components/service-match-form.tsx");
   const industryForm = source("src/components/industry-match-form.tsx");
   const floating = source("src/components/floating-cta.tsx");
+  const finalServiceCss = source("src/app/service-visual-qa-final.css");
 
   assert.match(serviceForm, /service-match-form-compact/);
   assert.doesNotMatch(serviceForm, /name="phone"/);
@@ -72,4 +77,8 @@ test("service and industry detail forms stay compact", () => {
   assert.doesNotMatch(industryForm, /name="phone"/);
   assert.doesNotMatch(industryForm, /<textarea/);
   assert.match(floating, /INLINE_MATCH_PATHS/);
+  assert.match(finalServiceCss, /service-avoid-section/);
+  assert.match(finalServiceCss, /interview-item/);
+  assert.match(finalServiceCss, /faq-item/);
+  assert.match(finalServiceCss, /@media \(max-width: 760px\)/);
 });

@@ -11,7 +11,7 @@
 .booking-hero-note strong { color: #fff; font-size: 1rem; }
 .booking-hero-note p { margin: .55rem 0 .8rem; color: #cbd5e1; font-size: .8rem; line-height: 1.6; }
 .booking-hero-note a { color: #c7d2fe; font-size: .78rem; font-weight: 800; }
-.booking-main-section { min-height: 620px; background: linear-gradient(180deg,#f7f8fc,#fff); }
+.booking-main-section { background: linear-gradient(180deg,#f7f8fc,#fff); }
 .booking-container { max-width: 1040px; }
 .booking-flow-card { overflow: hidden; margin-top: -4.4rem; border: 1px solid #e2e8f0; border-radius: 1.4rem; background: #fff; box-shadow: 0 30px 70px rgba(15,23,42,.12); }
 .booking-step-head { padding: 1.6rem clamp(1rem,3vw,2rem) 1.1rem; }
@@ -32,6 +32,7 @@
 .booking-va-route p { margin-bottom: .85rem; color: #426579; font-size: .8rem; line-height: 1.55; }
 .booking-va-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
 .booking-client-form { border-top: 1px solid #eef2f7; }
+.booking-client-form > .hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 .booking-section { padding: 1.6rem clamp(1rem,3vw,2rem); border-bottom: 1px solid #eef2f7; }
 .booking-section:last-child { border-bottom: 0; }
 .booking-section-title { margin-bottom: 1.1rem; }

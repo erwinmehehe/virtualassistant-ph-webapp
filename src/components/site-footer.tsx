@@ -33,7 +33,7 @@ export function SiteFooter() {
 
         <div className="container footer-grid">
           <div className="footer-brand-block">
-            <Link className="brand" href="/">VirtualAssistant<span className="ph">.com.ph</span></Link>
+            <Link className="brand" href="/"><span>VirtualAssistant<span className="ph">.com.ph</span></span></Link>
             <p>Vetted Filipino virtual assistants for businesses that want a clearer path from workload to shortlist to hire.</p>
           </div>
           <div className="footer-links"><strong>Hire</strong><Link href="/hire">Hire a Virtual Assistant</Link><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/services">Services</Link><Link href="/pricing">Pricing</Link><Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>

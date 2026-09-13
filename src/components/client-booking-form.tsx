@@ -8,15 +8,26 @@ import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 
 type Audience = "client" | "va" | null;
 
+function timeZoneLabel(timeZone: string) {
+  if (timeZone === "Australia/Sydney") return "Sydney time";
+  if (timeZone === "Asia/Manila") return "Philippine time";
+  return timeZone.replaceAll("_", " ");
+}
+
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
   const [audience, setAudience] = useState<Audience>(null);
   const [selectedDay, setSelectedDay] = useState(days[0]?.dateKey || "");
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [browserTimeZone, setBrowserTimeZone] = useState("Asia/Manila");
+  // Browser-only APIs must not decide the server render. Waiting until the
+  // component mounts avoids briefly claiming that every visitor is in Manila.
+  const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
-    setBrowserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Manila");
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setBrowserTimeZone(detected || "Asia/Manila");
   }, []);
+
+  const displayTimeZone = browserTimeZone || "Asia/Manila";
 
   const activeDay = days.find((day) => day.dateKey === selectedDay) || days[0];
   const localSlotLabels = useMemo(() => {
@@ -26,12 +37,12 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         labels.set(slot.iso, new Intl.DateTimeFormat(undefined, {
           hour: "numeric",
           minute: "2-digit",
-          timeZone: browserTimeZone,
+          timeZone: displayTimeZone,
         }).format(new Date(slot.iso)));
       }
     }
     return labels;
-  }, [browserTimeZone, days]);
+  }, [displayTimeZone, days]);
 
   return (
     <div className="booking-flow-card">
@@ -85,14 +96,14 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         <form id="client-discovery-booking" className="booking-client-form" action={submitDiscoveryBookingAction}>
           <input type="hidden" name="audience" value="client" />
           <input type="hidden" name="scheduled_at" value={selectedSlot} />
-          <input type="hidden" name="timezone" value={browserTimeZone} />
+          <input type="hidden" name="timezone" value={displayTimeZone} />
           <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
           <div className="booking-section">
             <div className="booking-section-title">
               <span>Step 2 of 3</span>
               <h3>Choose a time</h3>
-              <p><Clock3 size={14} /> 30 minutes. Times shown in {browserTimeZone.replaceAll("_", " ")}.</p>
+              <p aria-live="polite"><Clock3 size={14} /> 30 minutes. {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)} (${displayTimeZone}).` : "Loading times in your local timezone…"}</p>
             </div>
             {days.length ? (
               <>
@@ -106,7 +117,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                       aria-selected={selectedDay === day.dateKey}
                       onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); }}
                     >
-                      <CalendarDays size={15} /> {day.label}
+                      <CalendarDays size={15} /> {new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", timeZone: displayTimeZone }).format(new Date(day.slots[0]?.iso || `${day.dateKey}T00:00:00Z`))}
                     </button>
                   ))}
                 </div>

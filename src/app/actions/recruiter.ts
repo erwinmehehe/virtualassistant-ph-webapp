@@ -561,7 +561,7 @@ export async function completeDiscoveryAction(formData: FormData) {
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
 
-  if (!leadId || !["qualified", "nurture", "lost"].includes(outcome)) return fail("Choose a valid discovery outcome.");
+  if (!leadId || !["qualified", "attended", "no_show", "cancelled", "rescheduled", "nurture", "lost"].includes(outcome)) return fail("Choose a valid discovery outcome.");
   if (outcome === "lost" && lostReason.length < 3) return fail("Add a short lost reason.");
   if (notes.length < 3) return fail("Add a short discovery note so the next recruiter knows what was agreed.");
 
@@ -570,7 +570,7 @@ export async function completeDiscoveryAction(formData: FormData) {
   if (!lead) return fail("Lead not found.");
 
   const now = new Date();
-  const stage = outcome as LeadCrmStage;
+  const stage: LeadCrmStage = outcome === "qualified" ? "qualified" : outcome === "lost" ? "lost" : outcome === "rescheduled" ? "discovery_booked" : "nurture";
   const nextFollowUp = stage === "qualified"
     ? new Date(now.getTime() + 86400000).toISOString()
     : stage === "nurture"
@@ -578,7 +578,11 @@ export async function completeDiscoveryAction(formData: FormData) {
       : null;
 
   const { error } = await admin.from("lead_intake").update({
-    discovery_completed_at: now.toISOString(),
+    discovery_completed_at: outcome === "rescheduled" ? null : now.toISOString(),
+    discovery_outcome: ["qualified", "attended", "no_show", "cancelled", "rescheduled"].includes(outcome) ? outcome : outcome === "nurture" ? "attended" : null,
+    discovery_cancelled_at: outcome === "cancelled" ? now.toISOString() : null,
+    discovery_rescheduled_at: outcome === "rescheduled" ? now.toISOString() : null,
+    discovery_scheduled_at: outcome === "cancelled" ? null : undefined,
     discovery_notes: notes,
     crm_stage: stage,
     status: legacyLeadStatus(stage),

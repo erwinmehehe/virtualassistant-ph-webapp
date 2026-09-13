@@ -12,10 +12,15 @@ const VA_FACING_PATHS = [
   "/for-virtual-assistants",
   "/jobs",
   "/auth/join/va",
-  "/workspace/va",
 ];
 
+const INTERNAL_PATHS = ["/workspace", "/auth"];
+const INLINE_MATCH_PATHS = ["/service/", "/industries/"];
 const HIGH_INTENT_PATHS = ["/", "/hire", "/pricing", "/services", "/contact"];
+
+function startsWithAny(pathname: string, paths: string[]) {
+  return paths.some((path) => pathname === path || pathname.startsWith(path));
+}
 
 function isVaFacingPath(pathname: string) {
   return VA_FACING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -25,14 +30,6 @@ function isHighIntentPath(pathname: string) {
   return HIGH_INTENT_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-/**
- * Floating discovery-call prompt for public client-facing pages.
- *
- * Stays visible on the homepage, appears on other high-intent pages after
- * a scroll, and can also appear after form abandonment. It remains dismissible
- * for the browser session and hidden from VA-focused routes so applicants do
- * not mistake a client sales call for a VA interview.
- */
 export function FloatingCta() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
@@ -44,18 +41,23 @@ export function FloatingCta() {
     } catch {
       setDismissed(false);
     }
+
     setVisible(pathname === "/");
+
     const onScroll = () => setVisible((current) => current || (pathname !== "/" && isHighIntentPath(pathname) && window.scrollY > 600));
     const onFormFocus = (event: FocusEvent) => {
       const target = event.target;
       if (target instanceof HTMLElement && target.closest("main form")) {
-        sessionStorage.setItem("va_discovery_form_started", "1");
+        try { sessionStorage.setItem("va_discovery_form_started", "1"); } catch { /* private mode */ }
       }
     };
     const onMouseOut = (event: MouseEvent) => {
-      if (event.relatedTarget || !sessionStorage.getItem("va_discovery_form_started")) return;
+      let started = false;
+      try { started = sessionStorage.getItem("va_discovery_form_started") === "1"; } catch { /* private mode */ }
+      if (event.relatedTarget || !started) return;
       setVisible(true);
     };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("focusin", onFormFocus);
@@ -67,7 +69,15 @@ export function FloatingCta() {
     };
   }, [pathname]);
 
-  if (isVaFacingPath(pathname) || (!isHighIntentPath(pathname) && !visible) || dismissed || !visible) return null;
+  const hasInlineMatch = INLINE_MATCH_PATHS.some((path) => pathname.startsWith(path));
+  if (
+    startsWithAny(pathname, INTERNAL_PATHS) ||
+    isVaFacingPath(pathname) ||
+    hasInlineMatch ||
+    (!isHighIntentPath(pathname) && !visible) ||
+    dismissed ||
+    !visible
+  ) return null;
 
   const close = () => {
     setDismissed(true);
@@ -75,12 +85,9 @@ export function FloatingCta() {
   };
 
   return (
-    <div className="floating-cta" role="complementary" aria-label="Book a client discovery call">
-      <div className="floating-cta-copy">
-        <strong>Hiring a Virtual Assistant?</strong>
-      </div>
+    <div className="floating-cta floating-cta-compact" role="complementary" aria-label="Book a discovery call">
       <Link className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click"><CalendarClock size={16}/> Book a discovery call</Link>
-      <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss">
+      <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss discovery call prompt">
         <X size={15}/>
       </button>
     </div>

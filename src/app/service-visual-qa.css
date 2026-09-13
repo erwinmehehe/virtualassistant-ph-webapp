@@ -1,0 +1,374 @@
+/* Shared service-page visual QA. Loaded after the main marketing styles. */
+
+/* Keep the discovery CTA useful without covering content. */
+.floating-cta.floating-cta-compact {
+  right: 16px;
+  bottom: 16px;
+  gap: 7px;
+  width: auto;
+  max-width: calc(100vw - 32px);
+  padding: 7px;
+  border-radius: 999px;
+  box-shadow: 0 14px 36px rgba(16,24,40,.16);
+}
+.floating-cta.floating-cta-compact .btn {
+  width: auto;
+  min-height: 40px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+.floating-cta.floating-cta-compact .floating-cta-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+/* Service hero should feel premium without consuming the whole first screen. */
+.service-hero-v2 {
+  padding-top: clamp(42px, 5vw, 64px) !important;
+  padding-bottom: clamp(42px, 5vw, 60px) !important;
+}
+.service-hero-v2 .breadcrumbs { margin-bottom: 22px; }
+.service-conversion-hero-grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, .72fr) !important;
+  gap: clamp(28px, 4vw, 46px) !important;
+  align-items: start !important;
+}
+.service-conversion-copy .public-page-title {
+  max-width: 780px;
+  margin-bottom: 16px;
+  font-size: clamp(40px, 4.2vw, 58px) !important;
+  line-height: 1.035 !important;
+}
+.service-conversion-copy .service-hero-lede {
+  max-width: 760px;
+  margin-bottom: 0;
+  font-size: clamp(16px, 1.45vw, 18px) !important;
+  line-height: 1.65 !important;
+}
+.service-hero-proof,
+.service-hero-signals { margin-top: 14px !important; }
+.service-hero-proof span,
+.service-hero-signals span {
+  padding: 7px 9px !important;
+  font-size: 11.5px !important;
+}
+.service-hero-secondary-actions {
+  margin-top: 20px !important;
+  gap: 10px !important;
+}
+.service-hero-secondary-actions .btn { min-height: 42px; }
+
+/* Compact conversion card. The page already tells us the role, so only ask for contact details. */
+.service-match-card.service-match-compact {
+  padding: 22px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 22px 58px -22px rgba(68,76,231,.24) !important;
+  backdrop-filter: blur(14px) !important;
+}
+.service-match-compact .service-match-head h2 {
+  margin: 5px 0 7px;
+  font-size: clamp(22px, 2vw, 27px) !important;
+  line-height: 1.14;
+  letter-spacing: -.035em;
+}
+.service-match-compact .service-match-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.service-match-compact .service-match-divider { margin: 15px 0 !important; }
+.service-match-form-compact { display: grid; gap: 12px; }
+.service-match-form-compact .service-match-name-grid { gap: 12px; }
+.service-match-form-compact .field { gap: 5px; }
+.service-match-form-compact .field label { font-size: 12.5px; }
+.service-match-form-compact input {
+  min-height: 44px;
+  padding: 10px 11px !important;
+}
+.service-match-form-compact .service-match-submit {
+  min-height: 44px;
+  margin-top: 1px;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 24px rgba(68,76,231,.22) !important;
+}
+.service-match-form-compact .service-match-privacy {
+  justify-content: center;
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-align: center;
+}
+.service-match-task-fieldset-compact {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.service-match-task-fieldset-compact legend {
+  margin-bottom: 8px;
+  color: #344054;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+.service-match-task-fieldset-compact .service-task-chips { gap: 7px; }
+.service-match-task-fieldset-compact .service-task-chip span {
+  padding: 7px 9px;
+  font-size: 11.5px;
+}
+
+/* Make the trust strip informative but not oversized. */
+.service-trust-bar {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px !important;
+  margin-top: 24px !important;
+  padding: 10px !important;
+  border-radius: 18px !important;
+}
+.service-trust-bar > div {
+  min-width: 0;
+  padding: 10px 12px;
+}
+.service-trust-bar strong { font-size: 13px; }
+.service-trust-bar small {
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+/* Sitewide service template density. */
+main > .service-hero-v2 ~ .section {
+  padding-top: clamp(48px, 5.2vw, 70px) !important;
+  padding-bottom: clamp(48px, 5.2vw, 70px) !important;
+}
+main > .service-hero-v2 ~ .section .section-head { margin-bottom: 24px !important; }
+main > .service-hero-v2 ~ .section .section-head h2 {
+  max-width: 820px;
+  margin-bottom: 9px;
+  font-size: clamp(28px, 3.1vw, 39px) !important;
+  line-height: 1.12;
+  letter-spacing: -.04em;
+}
+main > .service-hero-v2 ~ .section .section-head > p {
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.service-jump-nav { top: 74px !important; }
+.service-jump-links {
+  gap: 4px !important;
+  min-height: 48px;
+  align-items: center;
+}
+.service-jump-links > span,
+.service-jump-links a { font-size: 12px !important; }
+.service-jump-links a { padding: 7px 10px !important; }
+
+.service-talent-head {
+  gap: 18px !important;
+  margin-bottom: 20px !important;
+}
+.service-talent-head h2 { font-size: clamp(28px, 3vw, 38px) !important; }
+.service-talent-grid { gap: 14px !important; }
+.service-talent-card {
+  min-height: 0 !important;
+  padding: 18px !important;
+  border-radius: 17px !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,.045) !important;
+}
+.service-talent-card-top { gap: 12px !important; }
+.service-talent-identity h3 { font-size: 17px !important; }
+.service-talent-facts { margin-top: 14px !important; }
+.service-talent-actions { gap: 8px !important; }
+.service-talent-actions .btn { min-height: 40px; padding: 8px 12px; }
+
+.seo-task-grid,
+.service-process,
+.service-avoid-section .grid-3 { gap: 14px !important; }
+.service-task-card,
+.service-process .process-step,
+.service-avoid-section .card {
+  min-height: 0 !important;
+  padding: 19px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 7px 22px rgba(15,23,42,.04) !important;
+}
+.service-card-number,
+.service-process .process-number {
+  margin-bottom: 8px !important;
+  color: #444ce7;
+  font-size: 11px !important;
+  font-weight: 850;
+  letter-spacing: .06em;
+}
+.service-task-card h3,
+.service-process .process-step h3 {
+  margin: 4px 0 8px !important;
+  font-size: 17px !important;
+  line-height: 1.3;
+}
+.service-task-card p,
+.service-process .process-step p,
+.service-avoid-section .card p {
+  margin-bottom: 0;
+  font-size: 14px !important;
+  line-height: 1.62 !important;
+}
+.service-task-card .plain-list { margin-top: 12px; }
+.service-task-card .plain-list li { font-size: 13.5px; line-height: 1.55; }
+
+.service-editorial-grid,
+.service-tools-layout {
+  gap: clamp(24px, 4vw, 42px) !important;
+  align-items: start !important;
+}
+.service-editorial-grid > div > p {
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 1.72;
+}
+.service-skill-panel {
+  padding: 20px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,.045) !important;
+}
+.service-skill-panel h3 { font-size: 19px !important; line-height: 1.3; }
+.service-skill-panel p,
+.service-skill-panel li { font-size: 14px; line-height: 1.6; }
+
+.service-inline-cta,
+.specialty-inline-cta {
+  gap: 20px !important;
+  margin-top: 26px !important;
+  padding: 22px 24px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 40px -26px rgba(7,11,22,.75) !important;
+}
+.service-inline-cta h2,
+.specialty-inline-cta h2 { font-size: clamp(23px, 2.5vw, 31px) !important; }
+.service-inline-cta p,
+.specialty-inline-cta p { font-size: 14px !important; line-height: 1.6; }
+
+.service-avoid-section .specialty-section-head { max-width: 760px; }
+.service-avoid-section .card p { color: #344054; }
+
+@media (max-width: 1080px) {
+  .service-conversion-hero-grid { grid-template-columns: 1fr !important; }
+  .service-match-card.service-match-compact { max-width: 680px; }
+  .service-trust-bar { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .service-hero-v2 {
+    padding-top: 30px !important;
+    padding-bottom: 36px !important;
+  }
+  .service-hero-v2 .breadcrumbs {
+    margin-bottom: 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  .service-conversion-hero-grid { gap: 22px !important; }
+  .service-conversion-copy .public-page-title {
+    font-size: clamp(34px, 10vw, 44px) !important;
+    line-height: 1.06 !important;
+  }
+  .service-conversion-copy .service-hero-lede {
+    font-size: 15.5px !important;
+    line-height: 1.62 !important;
+  }
+  .service-hero-proof { gap: 6px !important; }
+  .service-hero-signals {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scrollbar-width: none;
+  }
+  .service-hero-signals span { flex: 0 0 auto; }
+  .service-hero-secondary-actions { align-items: stretch !important; }
+  .service-hero-secondary-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .service-match-card.service-match-compact { padding: 18px !important; }
+  .service-match-compact .service-match-head h2 { font-size: 22px !important; }
+  .service-match-name-grid { grid-template-columns: 1fr !important; }
+  .service-match-task-fieldset-compact .service-task-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .service-match-task-fieldset-compact .service-task-chip span {
+    height: 100%;
+    align-items: center;
+  }
+
+  .service-trust-bar {
+    margin-top: 18px !important;
+    padding: 7px !important;
+  }
+  .service-trust-bar > div { padding: 9px 10px; }
+
+  .service-jump-nav { top: 64px !important; }
+  .service-jump-links {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  .service-jump-links > * { flex: 0 0 auto; }
+
+  main > .service-hero-v2 ~ .section {
+    padding-top: 38px !important;
+    padding-bottom: 38px !important;
+  }
+  main > .service-hero-v2 ~ .section .section-head { margin-bottom: 18px !important; }
+  main > .service-hero-v2 ~ .section .section-head h2 {
+    font-size: clamp(26px, 8.2vw, 33px) !important;
+    line-height: 1.14;
+  }
+  main > .service-hero-v2 ~ .section .section-head > p { font-size: 14.5px; }
+
+  .service-talent-head {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+  .service-talent-grid,
+  .seo-task-grid,
+  .service-process,
+  .service-avoid-section .grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .service-task-card,
+  .service-process .process-step,
+  .service-avoid-section .card,
+  .service-skill-panel { padding: 17px !important; }
+  .service-editorial-grid,
+  .service-tools-layout { grid-template-columns: 1fr !important; gap: 18px !important; }
+  .service-inline-cta,
+  .specialty-inline-cta {
+    grid-template-columns: 1fr !important;
+    padding: 19px !important;
+  }
+  .service-inline-cta .btn,
+  .specialty-inline-cta .btn { width: 100%; justify-content: center; }
+  .service-talent-actions { flex-direction: column; }
+  .service-talent-actions .btn { width: 100%; justify-content: center; }
+
+  .floating-cta.floating-cta-compact {
+    left: auto;
+    right: 10px;
+    bottom: 10px;
+    max-width: calc(100vw - 20px);
+    flex-wrap: nowrap;
+    padding: 6px;
+  }
+  .floating-cta.floating-cta-compact .btn {
+    width: auto !important;
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

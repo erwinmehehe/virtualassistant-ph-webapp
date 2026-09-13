@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = { title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", keywords: ["virtual assistant faq", "hiring a virtual assistant questions", "virtualassistant.com.ph faq"], alternates:{canonical:canonicalPath("/faq")} };
@@ -26,4 +28,13 @@ const groups = [
   ]]
 ] as const;
 
-export default function FaqPage(){return <><SiteHeader/><main id="main-content" className="section"><div className="container" style={{maxWidth:920}}><div className="section-head"><h1 className="public-page-title">Questions before you hire or apply.</h1><p>These answers cover our current hiring, vetting, privacy, pricing, and application process.</p></div>{groups.map(([title,items])=><section className="faq-group" key={title}><h2>{title}</h2><div className="faq-list">{items.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>)}</div></main><SiteFooter/></>}
+export default function FaqPage(){return <><SiteHeader/><main id="main-content">
+  <MarketingHero
+    eyebrow="Hiring questions, answered"
+    title={<h1 className="public-page-title">Questions before you hire or apply.</h1>}
+    intro={<p className="public-lede">These answers cover our current hiring, vetting, privacy, pricing, and application process.</p>}
+    trust={<><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span><span><CheckCircle2 size={15}/>Recruiter follow-up</span></>}
+    form={<RoleBriefForm sourcePath="/faq" heading="Still have a hiring question?" subheading="Tell us the role and workload. We can answer the hiring question in context instead of sending you through a generic contact form." />}
+  />
+  <section className="section"><div className="container" style={{maxWidth:920}}>{groups.map(([title,items])=><section className="faq-group" key={title}><h2>{title}</h2><div className="faq-list">{items.map(([q,a])=><details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>)}</div></section>
+</main><SiteFooter/></>}

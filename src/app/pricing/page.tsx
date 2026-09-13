@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { VaCostCalculator } from "@/components/va-tools";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -30,7 +32,14 @@ export default async function PricingPage(){
   }
 
   return <><SiteHeader/><main id="main-content">
-    <section className="section public-hero-small"><div className="container"><div className="public-page-head"><h1 className="public-page-title">See the Virtual Assistant cost first. Know how the service fee is added.</h1><p className="public-lede">Clients pay the Virtual Assistant's agreed compensation plus the applicable VirtualAssistant.com.ph recruiting, placement, or managed-service fee. Virtual Assistants are not charged to join, apply, be placed, or receive their agreed compensation. Client fees are shown separately so you can compare the real total.</p><div className="row wrap"><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></div></div></div></section>
+    <MarketingHero
+      eyebrow="Transparent client pricing"
+      title={<h1 className="public-page-title">See the Virtual Assistant cost first. Know how the service fee is added.</h1>}
+      intro={<p className="public-lede">Clients pay the Virtual Assistant's agreed compensation plus the applicable VirtualAssistant.com.ph recruiting, placement, or managed-service fee. Virtual Assistants are not charged to join, apply, be placed, or receive their agreed compensation. Client fees are shown separately so you can compare the real total.</p>}
+      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
+      trust={<><span><CheckCircle2 size={15}/>VA compensation shown separately</span><span><CheckCircle2 size={15}/>Service terms before commitment</span><span><CheckCircle2 size={15}/>Private role review</span></>}
+      form={<RoleBriefForm sourcePath="/pricing" heading="Get a role and pricing review" subheading="Share the role, hours, budget, and overlap. We will review the fit before you make a hiring commitment." />}
+    />
 
     <section className="section section-white"><div className="container"><div className="section-head"><h2>Current pricing structure</h2><p>Choose the service model that fits how much recruiting and post-hire support you want. Virtual Assistant compensation is agreed separately, based on experience and specialization.</p></div><div className="grid-2">
       <article className="card pricing-card"><span className="pricing-label">Managed Virtual Assistant service <span className="badge badge-success">Recommended</span></span><h3>Ongoing service margin</h3><div className="pricing-value">{managedMarkup > 0 ? `${managedMarkup}%` : "Custom quote"}</div><p className="muted">Added on top of Virtual Assistant compensation, for as long as you work together. {managedMarkup > 0 ? "This is the current standard managed-service margin; your role terms are confirmed before you make a hiring commitment." : "The managed-service margin is quoted against the actual role before you accept the engagement."}</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured onboarding workroom</li><li>Ongoing placement support</li><li>30-day replacement support at no extra placement fee</li></ul><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link></article>

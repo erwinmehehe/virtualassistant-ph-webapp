@@ -1,0 +1,400 @@
+/* Final service-page visual QA pass. Loaded after service-visual-qa.css. */
+
+/* Keep the shared service template compact, readable, and consistent across every service URL. */
+main:has(> .service-hero-v2) {
+  overflow-x: clip;
+}
+main:has(> .service-hero-v2) .container {
+  width: min(1160px, calc(100% - 36px));
+}
+main:has(> .service-hero-v2) > .section:not(.service-hero-v2) {
+  padding-top: clamp(42px, 4.6vw, 58px) !important;
+  padding-bottom: clamp(42px, 4.6vw, 58px) !important;
+}
+main:has(> .service-hero-v2) .section-head {
+  margin-bottom: 20px !important;
+}
+main:has(> .service-hero-v2) .section-head h2 {
+  max-width: 760px;
+  font-size: clamp(27px, 2.9vw, 37px) !important;
+  line-height: 1.13 !important;
+}
+main:has(> .service-hero-v2) .section-head > p {
+  max-width: 720px;
+  line-height: 1.6 !important;
+}
+
+/* Do not stretch compact information cards to the height of the longest card. */
+.service-process,
+.service-avoid-section .grid-3,
+.service-use-grid,
+.brief-grid,
+.service-guide-grid,
+main:has(> .service-hero-v2) .grid-4 {
+  align-items: start !important;
+}
+
+.service-process .process-step,
+.service-avoid-section .card,
+.service-use-card,
+.brief-grid article,
+.related-service-card {
+  min-height: 0 !important;
+}
+
+.service-process .process-step,
+.service-avoid-section .card {
+  padding: 16px 17px !important;
+}
+.service-process .process-step h3 {
+  margin: 3px 0 7px !important;
+  font-size: 16px !important;
+}
+.service-process .process-step p,
+.service-avoid-section .card p {
+  font-size: 13.5px !important;
+  line-height: 1.56 !important;
+}
+.service-avoid-section .grid-3 {
+  gap: 12px !important;
+}
+
+/* Best-fit teams and related links should read like compact navigation cards, not feature blocks. */
+.service-use-grid,
+main:has(> .service-hero-v2) .grid-4 {
+  gap: 12px !important;
+}
+.service-use-card,
+.related-service-card {
+  padding: 16px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 6px 18px rgba(15,23,42,.035) !important;
+}
+.service-use-card {
+  display: flex;
+  gap: 11px !important;
+}
+.service-use-card svg,
+.related-service-card > svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: #444ce7;
+}
+.service-use-card h3,
+.related-service-card h3 {
+  margin: 0 0 5px !important;
+  font-size: 15px !important;
+  line-height: 1.28;
+}
+.service-use-card p {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+.related-service-card {
+  display: grid;
+  gap: 8px;
+}
+.related-service-card .text-link {
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+/* Job brief cards: useful checklist, not four oversized panels. */
+.brief-grid {
+  gap: 12px !important;
+}
+.brief-grid article {
+  padding: 16px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 6px 18px rgba(15,23,42,.035) !important;
+}
+.brief-grid article > span {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: #444ce7;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .06em;
+}
+.brief-grid h3 {
+  margin: 0 0 6px !important;
+  font-size: 15px !important;
+}
+.brief-grid p {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.52 !important;
+}
+
+/* Editorial side panels should stay secondary to the page copy. */
+.service-skill-panel,
+.service-cost-panel,
+.service-compliance-panel {
+  padding: 18px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 7px 20px rgba(15,23,42,.04) !important;
+}
+.service-cost-panel h2,
+.service-compliance-panel h2 {
+  margin: 6px 0 8px !important;
+  font-size: clamp(21px, 2.2vw, 27px) !important;
+  line-height: 1.2;
+}
+.service-cost-panel p,
+.service-compliance-panel p,
+.service-cost-panel li {
+  font-size: 13.5px !important;
+  line-height: 1.58 !important;
+}
+.service-compliance-panel {
+  gap: 14px !important;
+}
+.service-compliance-icon {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+}
+
+/* Interview guide: reduce vertical bulk while keeping questions easy to scan. */
+.interview-list {
+  display: grid;
+  gap: 10px !important;
+}
+.interview-item {
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  gap: 13px !important;
+  padding: 16px 18px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 6px 18px rgba(15,23,42,.035) !important;
+}
+.interview-number {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 11px !important;
+}
+.interview-item h3 {
+  margin: 0 0 5px !important;
+  font-size: 15.5px !important;
+  line-height: 1.35;
+}
+.interview-item p {
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+
+/* FAQ rows should feel like an accordion, not a stack of large cards. */
+.faq-narrow {
+  max-width: 860px;
+}
+.faq-list {
+  display: grid;
+  gap: 8px !important;
+}
+.faq-item {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(15,23,42,.025) !important;
+}
+.faq-item summary {
+  padding: 14px 16px !important;
+  font-size: 14.5px !important;
+  line-height: 1.4;
+}
+.faq-item p {
+  padding: 0 16px 15px !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+}
+
+/* Supporting guides remain useful without turning the bottom of the page into another oversized directory. */
+.service-guide-grid {
+  gap: 12px !important;
+}
+.service-guide-card {
+  min-height: 0 !important;
+  padding: 16px !important;
+  gap: 12px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 6px 18px rgba(15,23,42,.035) !important;
+}
+.service-guide-icon {
+  width: 38px !important;
+  height: 38px !important;
+  flex: 0 0 38px !important;
+}
+.service-guide-card h3 {
+  margin: 3px 0 5px !important;
+  font-size: 15.5px !important;
+  line-height: 1.3;
+}
+.service-guide-card p {
+  margin: 0 0 8px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+.service-guide-card strong {
+  font-size: 12px;
+}
+
+/* Pills and actions should not add unnecessary height. */
+main:has(> .service-hero-v2) .tool-cloud {
+  gap: 7px !important;
+}
+main:has(> .service-hero-v2) .tool-pill {
+  min-height: 34px;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+main:has(> .service-hero-v2) .centered-actions {
+  margin-top: 22px !important;
+}
+main:has(> .service-hero-v2) .centered-actions .btn-lg {
+  min-height: 44px;
+  padding: 10px 16px;
+}
+
+/* Sticky page navigation should stay predictable below the 74px public header. */
+.service-jump-nav {
+  top: 74px !important;
+}
+.service-anchor {
+  scroll-margin-top: 132px;
+}
+.service-jump-links {
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+}
+.service-jump-links a {
+  scroll-snap-align: start;
+}
+
+/* CTA: one compact action only. Keep internal workspaces completely free of public sales overlays. */
+.floating-cta.floating-cta-compact {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+.floating-cta-label-mobile {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  main:has(> .service-hero-v2) .grid-4,
+  .brief-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .service-guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  main:has(> .service-hero-v2) .container {
+    width: min(100% - 28px, 1160px);
+  }
+  main:has(> .service-hero-v2) > .section:not(.service-hero-v2) {
+    padding-top: 30px !important;
+    padding-bottom: 30px !important;
+  }
+  main:has(> .service-hero-v2) .section-head {
+    margin-bottom: 15px !important;
+  }
+  main:has(> .service-hero-v2) .section-head h2 {
+    font-size: clamp(24px, 7.8vw, 31px) !important;
+    line-height: 1.16 !important;
+  }
+  main:has(> .service-hero-v2) .section-head > p {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+  }
+
+  .service-process .process-step,
+  .service-avoid-section .card,
+  .service-use-card,
+  .brief-grid article,
+  .related-service-card,
+  .service-guide-card,
+  .interview-item,
+  .service-skill-panel,
+  .service-cost-panel,
+  .service-compliance-panel {
+    padding: 14px !important;
+  }
+
+  main:has(> .service-hero-v2) .grid-4,
+  .brief-grid,
+  .service-guide-grid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .service-use-card {
+    gap: 10px !important;
+  }
+  .service-jump-nav {
+    top: 74px !important;
+  }
+  .service-anchor {
+    scroll-margin-top: 126px;
+  }
+  .service-jump-links {
+    width: 100%;
+    padding-right: 14px;
+  }
+  .service-jump-links > span {
+    display: none;
+  }
+
+  .interview-item {
+    grid-template-columns: 32px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  .interview-number {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .faq-item summary {
+    padding: 13px 14px !important;
+    font-size: 14px !important;
+  }
+  .faq-item p {
+    padding: 0 14px 14px !important;
+  }
+
+  main:has(> .service-hero-v2) .centered-actions .btn,
+  .service-talent-closer .text-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  main:has(> .service-hero-v2) :is(h1,h2,h3,p,a,span) {
+    overflow-wrap: anywhere;
+  }
+
+  .floating-cta-label-desktop {
+    display: none;
+  }
+  .floating-cta-label-mobile {
+    display: inline;
+  }
+  .floating-cta.floating-cta-compact {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    max-width: calc(100vw - 16px);
+  }
+  .floating-cta.floating-cta-compact .btn {
+    min-height: 36px;
+    padding: 7px 11px;
+    font-size: 12.5px;
+  }
+  .floating-cta.floating-cta-compact .floating-cta-close {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (hover: none) {
+  main:has(> .service-hero-v2) :is(.service-talent-card,.service-task-card,.service-use-card,.brief-grid article,.service-process .process-step,.related-service-card,.service-guide-card):hover {
+    transform: none !important;
+  }
+}

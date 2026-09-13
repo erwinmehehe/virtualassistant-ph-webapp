@@ -8,8 +8,9 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail } from "@/lib/email";
+import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail } from "@/lib/email";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
+import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -599,4 +600,100 @@ export async function submitContactAction(formData: FormData) {
     // The saved request remains successful if acknowledgement delivery fails.
   }
   redirect("/contact?sent=1");
+}
+
+const discoveryBookingSchema = z.object({
+  audience: z.literal("client"),
+  scheduled_at: z.string().datetime({ offset: true }),
+  timezone: z.string().trim().min(2).max(100),
+  name: z.string().trim().min(2).max(100),
+  email: z.string().trim().email(),
+  phone: z.string().trim().max(50).optional(),
+  company: z.string().trim().min(2).max(160),
+  company_url: z.string().trim().url().max(300).or(z.literal("")).optional(),
+  service: z.string().trim().min(2).max(100),
+  hours: z.string().trim().min(2).max(80),
+  budget: z.string().trim().min(2).max(100),
+  start_time: z.string().trim().min(2).max(100),
+  message: z.string().trim().min(15).max(3000),
+  website: z.string().max(200).optional(),
+});
+
+export async function submitDiscoveryBookingAction(formData: FormData) {
+  const parsed = discoveryBookingSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete all required client questions.")}`);
+  }
+  if (parsed.data.website) redirect("/book-client-call?booked=1");
+  if (!isAllowedDiscoverySlot(parsed.data.scheduled_at)) {
+    redirect(`/book-client-call?error=${encodeURIComponent("That time is no longer available. Please choose another slot.")}`);
+  }
+
+  const admin = createAdminClient();
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const clientDetails = [
+    `Company website: ${parsed.data.company_url || "Not provided"}`,
+    `Hourly VA budget: ${parsed.data.budget}`,
+    `Preferred start: ${parsed.data.start_time}`,
+    `Visitor timezone: ${parsed.data.timezone}`,
+    "",
+    parsed.data.message,
+  ].join("\n");
+
+  const { data: lead, error } = await admin.from("lead_intake").insert({
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone || null,
+    company: parsed.data.company,
+    service: parsed.data.service,
+    hours: parsed.data.hours,
+    start_time: parsed.data.start_time,
+    timezone: parsed.data.timezone,
+    message: clientDetails,
+    source_page: "client_discovery_booking",
+    page_url: `${base}/book-client-call`,
+    crm_stage: "discovery_booked",
+    discovery_scheduled_at: parsed.data.scheduled_at,
+    discovery_duration_minutes: DISCOVERY_DURATION_MINUTES,
+    discovery_notes: "Booked by a prospective client through the public qualification calendar.",
+  }).select("id").single();
+
+  if (error || !lead?.id) {
+    const message = error?.code === "23505"
+      ? "Someone just booked that time. Please choose another available slot."
+      : "We could not confirm the booking. Please try again.";
+    redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
+  }
+
+  await admin.from("analytics_events").insert({
+    event_name: "booking_completed",
+    path: "/book-client-call",
+    metadata: { lead_id: lead.id, service: parsed.data.service, audience: "client" },
+  });
+
+  const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
+  const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
+  try {
+    await sendPublicDiscoveryBookingEmail({
+      leadId: lead.id,
+      to: parsed.data.email,
+      clientName: parsed.data.name,
+      company: parsed.data.company,
+      companyUrl: parsed.data.company_url || null,
+      phone: parsed.data.phone || null,
+      service: parsed.data.service,
+      hours: parsed.data.hours,
+      budget: parsed.data.budget,
+      startTime: parsed.data.start_time,
+      message: parsed.data.message,
+      scheduledAt: parsed.data.scheduled_at,
+      clientLabel,
+      manilaLabel,
+      clientTimeZone: parsed.data.timezone,
+    });
+  } catch {
+    // The database booking and recruiter notification remain the source of truth.
+  }
+
+  redirect(`/book-client-call?booked=1&when=${encodeURIComponent(parsed.data.scheduled_at)}&tz=${encodeURIComponent(parsed.data.timezone)}`);
 }

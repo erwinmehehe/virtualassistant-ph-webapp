@@ -100,7 +100,7 @@ export function Analytics() {
         try {
           const url = new URL(clicked.href, window.location.origin);
           href = url.origin === window.location.origin ? url.pathname : url.origin;
-          if (url.hostname === "calendar.app.google") {
+          if (url.hostname === "calendar.app.google" || (url.origin === window.location.origin && url.pathname === "/book-client-call")) {
             send("booking_click", { href: url.origin });
           }
         } catch {

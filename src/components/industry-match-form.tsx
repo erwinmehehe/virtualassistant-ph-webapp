@@ -7,7 +7,7 @@ import { submitIndustryMatchAction, type ServiceMatchState } from "@/app/actions
 import { getBrowserSessionId } from "@/lib/browser-session";
 
 const initialState: ServiceMatchState = { status: "idle" };
-const HIRING_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+const HIRING_CALL_URL = "/book-client-call";
 
 function titleCase(value: string) {
   return value.replace(/\b\w/g, (m) => m.toUpperCase());
@@ -42,7 +42,7 @@ export function IndustryMatchForm({
       <h2>Your hiring request is with our recruiting team.</h2>
       <p>{state.message || "We will use your request to identify relevant approved talent and the next best step."}</p>
       <div className="stack service-match-success-actions">
-        <a className="btn btn-primary btn-lg" href={HIRING_CALL_URL} target="_blank" rel="noopener noreferrer">Book a 15-minute hiring call <ArrowRight size={16} /></a>
+        <a className="btn btn-primary btn-lg" href={HIRING_CALL_URL} data-track="booking_click">Book a client discovery call <ArrowRight size={16} /></a>
         {state.clientLinked && state.jobId ? <Link className="btn btn-lg" href={`/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1`}>Open role in Client Portal <ArrowRight size={16} /></Link> : null}
         <Link className="btn btn-lg" href={talentHref}>Browse relevant Virtual Assistants while we review <ArrowRight size={16} /></Link>
         {!state.clientLinked ? <Link className="small text-link service-match-login" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}

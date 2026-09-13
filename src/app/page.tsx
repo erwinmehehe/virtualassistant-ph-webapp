@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalPath("/") },
 };
 
-const BOOKING_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+const BOOKING_URL = "/book-client-call";
 
 const GROUP_BLURBS: Record<string, string> = {
   "Admin & Operations": "Inbox, calendar, data, and recurring coordination that keeps the business moving.",
@@ -188,8 +188,8 @@ export default async function HomePage({
                 <a className="pva-btn pva-btn-primary" href="#hero-hiring-form" data-track="hero_hiring_request">
                   Start your hiring request <ArrowRight size={18} />
                 </a>
-                <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
-                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a 15-min call
+                <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} data-track="booking_click">
+                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a client call
                 </a>
               </div>
 

@@ -1,0 +1,81 @@
+/* CRO navigation override loaded after va-design.css. */
+.va-site-nav .site-nav {
+  width: min(1320px, calc(100% - 32px));
+  max-width: none;
+  gap: 12px;
+}
+.va-site-nav .nav-links { gap: 4px; margin-left: auto; }
+.va-site-nav .nav-links > a,
+.va-site-nav .va-nav-menu > summary {
+  padding: 10px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.va-site-nav .nav-links > a:hover,
+.va-site-nav .va-nav-menu > summary:hover,
+.va-site-nav .va-nav-menu:focus-within > summary {
+  color: var(--va-indigo);
+  background: rgba(68,76,231,.055);
+}
+.va-site-nav .nav-actions { gap: 8px; flex: 0 0 auto; }
+.va-site-nav .header-va-link,
+.va-site-nav .va-client-portal { white-space: nowrap; }
+.va-site-nav .va-book-pill {
+  min-height: 40px;
+  padding: 9px 13px;
+  border: 1px solid rgba(68,76,231,.22);
+  border-radius: 999px;
+  color: #3538cd;
+  background: rgba(68,76,231,.055);
+  transition: transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.va-site-nav .va-book-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(68,76,231,.4);
+  background: rgba(68,76,231,.09);
+  box-shadow: 0 8px 22px rgba(68,76,231,.12);
+}
+.va-site-nav .header-hire-cta { white-space: nowrap; }
+.va-site-nav .va-nav-panel {
+  top: calc(100% + 10px);
+  width: min(660px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid #eaecf0;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(16,24,40,.16), 0 8px 24px rgba(68,76,231,.08);
+  pointer-events: none;
+}
+.va-site-nav .va-nav-menu:not(:hover):not(:focus-within) .va-nav-panel {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.va-site-nav .va-nav-menu:hover .va-nav-panel,
+.va-site-nav .va-nav-menu:focus-within .va-nav-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+.va-site-nav .va-nav-columns { gap: 12px; }
+.va-site-nav .va-nav-column a,
+.va-site-nav .va-nav-industries-grid a { padding: 7px 8px; line-height: 1.25; }
+.va-site-nav .va-nav-panel-industries {
+  left: 50%;
+  width: min(560px, calc(100vw - 32px));
+  transform: translate(-50%, 8px);
+}
+.va-site-nav .va-nav-menu:hover .va-nav-panel-industries,
+.va-site-nav .va-nav-menu:focus-within .va-nav-panel-industries { transform: translate(-50%, 0); }
+.va-site-nav .va-nav-industries-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 12px; }
+.va-site-footer .brand { gap: 0 !important; }
+.va-site-footer .brand::before { margin-right: 9px; }
+@media (max-width: 1180px) {
+  .va-site-nav .nav-links,
+  .va-site-nav .header-va-link,
+  .va-site-nav .va-book-link,
+  .va-site-nav .desktop-hire-cta { display:none; }
+  .va-mobile-drawer { display:block; margin-left:auto; }
+  .va-site-nav .nav-actions { margin-left:auto; }
+}

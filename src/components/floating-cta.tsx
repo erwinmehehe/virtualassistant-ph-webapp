@@ -15,7 +15,7 @@ const VA_FACING_PATHS = [
   "/workspace/va",
 ];
 
-const HIGH_INTENT_PATHS = ["/hire", "/pricing", "/services", "/contact"];
+const HIGH_INTENT_PATHS = ["/", "/hire", "/pricing", "/services", "/contact"];
 
 function isVaFacingPath(pathname: string) {
   return VA_FACING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));

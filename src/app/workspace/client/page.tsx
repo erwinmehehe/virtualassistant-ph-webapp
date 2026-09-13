@@ -1,60 +1,41 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AlertCircle, ArrowRight, BriefcaseBusiness, MessageSquare, Plus, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
-import { getWorkspaceBadgeResult } from "@/lib/workspace-badges";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof AlertCircle};
 
-
 export default async function ClientDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  const {user}=await requireRole("client");
+  const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
-  const admin=createAdminClient();
 
-  const [
-    {data:company,error:companyError},
-    {data:requested},
-    {data:recentOwnedLead,error:hiringOwnerError},
-    dashboardResult,
-    badgeResult
-  ]=await Promise.all([
-    supabase.from("client_profiles").select("*").eq("user_id",user.id).single(),
-    params.talent?supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle():Promise.resolve({data:null} as any),
-    admin.from("lead_intake")
-      .select("owner_id,owner:profiles!lead_intake_owner_id_fkey(full_name)")
-      .eq("client_id",user.id)
-      .not("owner_id","is",null)
-      .order("created_at",{ascending:false})
-      .limit(1)
-      .maybeSingle(),
-    getClientDashboardSummary(user.id),
-    getWorkspaceBadgeResult("client",user.id)
+  const requestedPromise=params.talent
+    ? supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle()
+    : Promise.resolve({data:null,error:null} as any);
+
+  const [dashboardResult,{data:requested,error:requestedError}]=await Promise.all([
+    getClientDashboardSummary(userId),
+    requestedPromise
   ]);
 
-  if(!company?.onboarding_completed_at&&!Number(dashboardResult.data?.job_count||0)&&!params.talent)redirect("/workspace/client/onboarding");
-
-  const hiringOwner=(recentOwnedLead as any)?.owner||null;
   const dashboard=dashboardResult.data;
+  const company=dashboard?.company||{};
+  const hiringOwner=dashboard?.hiring_owner||null;
   const jobRows=dashboard?.jobs||[];
   const jobCount=Number(dashboard?.job_count||0);
-  const unreadMessages=badgeResult.badges["/workspace/client/messages"]||0;
+  const unreadMessages=Number(dashboard?.unread_messages||0);
 
-  // Surfaced above the dashboard: a failed query would otherwise render as a
-  // zero, and "All caught up" is the most dangerous thing this page can say to
-  // a client who actually has offers waiting.
+  if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent)redirect("/workspace/client/onboarding");
+
   const issues=collectQueryIssues({
-    "your company profile":companyError,
-    "your hiring owner":hiringOwnerError,
-    "your hiring activity":dashboardResult.error,
-    "your messages":badgeResult.error
+    "your hiring workspace":dashboardResult.error,
+    "your requested Virtual Assistant":params.talent?requestedError:null
   });
 
   const hires=Number(dashboard?.hire_count||0);
@@ -108,7 +89,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We find candidates","Review shortlist","Interview","Hire & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on our recruiting team":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
 
     {!jobCount?<section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>You do not need to write a perfect job description. Start with the work you want off your plate, then refine the brief with our guidance.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Create hiring brief <ArrowRight size={17}/></Link></section>:null}
-
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>Only items that require a hiring decision or response appear here.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>

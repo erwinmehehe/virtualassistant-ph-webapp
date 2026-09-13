@@ -11,6 +11,7 @@ import { inferCategories, inferHours } from "@/lib/category-inference";
 import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail } from "@/lib/email";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
+import { bookingManageUrl, createBookingManageToken, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -630,6 +631,17 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  const manage = createBookingManageToken();
+  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> = { configured: false, joinUrl: null, meetingId: null };
+  try {
+    zoom = await createZoomDiscoveryMeeting({
+      topic: `VirtualAssistant.com.ph discovery call with ${parsed.data.company}`,
+      startsAt: parsed.data.scheduled_at,
+      durationMinutes: DISCOVERY_DURATION_MINUTES,
+    });
+  } catch {
+    // Keep the client booking valid. Recruiters can add a link in CRM if Zoom is temporarily unavailable.
+  }
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const clientDetails = [
     `Company website: ${parsed.data.company_url || "Not provided"}`,
@@ -655,6 +667,10 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     crm_stage: "discovery_booked",
     discovery_scheduled_at: parsed.data.scheduled_at,
     discovery_duration_minutes: DISCOVERY_DURATION_MINUTES,
+    discovery_meeting_url: zoom.joinUrl,
+    discovery_zoom_meeting_id: zoom.meetingId,
+    discovery_manage_token_hash: manage.hash,
+    discovery_manage_token: manage.token,
     discovery_notes: "Booked by a prospective client through the public qualification calendar.",
   }).select("id").single();
 
@@ -690,6 +706,8 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientLabel,
       manilaLabel,
       clientTimeZone: parsed.data.timezone,
+      meetingUrl: zoom.joinUrl,
+      manageUrl: bookingManageUrl(manage.token),
     });
   } catch {
     // The database booking and recruiter notification remain the source of truth.

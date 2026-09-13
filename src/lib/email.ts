@@ -1,6 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createCalendarInvite } from "@/lib/booking-operations";
 
 const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
@@ -389,6 +390,8 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   clientLabel: string;
   manilaLabel: string;
   clientTimeZone: string;
+  meetingUrl?: string | null;
+  manageUrl: string;
 }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -401,7 +404,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     action: "TEMPLATE",
     text: `VirtualAssistant.com.ph discovery call with ${args.company}`,
     dates: `${calendarStamp(startsAt)}/${calendarStamp(endsAt)}`,
-    details: `Client discovery call for ${args.service}. The hiring team will confirm the video meeting details by email. Lead ID: ${args.leadId}`,
+    details: `Client discovery call for ${args.service}.${args.meetingUrl ? ` Join: ${args.meetingUrl}` : ""} Lead ID: ${args.leadId}`,
   });
   const calendarUrl = `https://calendar.google.com/calendar/render?${calendarParams.toString()}`;
   const firstName = args.clientName.trim().split(/\s+/)[0] || "there";
@@ -418,15 +421,36 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     ["Client timezone", args.clientTimeZone],
     ["Lead ID", args.leadId],
   ].filter(([, value]) => value);
+  const invite = createCalendarInvite({ uid: args.leadId, startsAt: args.scheduledAt, durationMinutes: 30, company: args.company, service: args.service, meetingUrl: args.meetingUrl });
+  const meeting = args.meetingUrl
+    ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>`
+    : `<p>Jervis or Bryan will add the meeting link before the call.</p>`;
 
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     cc: discoveryBookingCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: recipient,
+    attachments: [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }],
     subject: `Client discovery call booked: ${args.company} — ${args.clientLabel}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your 30-minute client discovery call is confirmed for <strong>${escapeHtml(args.clientLabel)}</strong>.</p><p>For our Philippine team, that is <strong>${escapeHtml(args.manilaLabel)}</strong>.</p><p><a href="${escapeHtml(calendarUrl)}">Add this call to Google Calendar</a></p><p>Our hiring team will review your answers and send the video meeting details by email.</p><hr><h3>Booking questionnaire</h3>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}<p><strong>Role and challenge:</strong><br>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your 30-minute client discovery call is confirmed for <strong>${escapeHtml(args.clientLabel)}</strong>.</p><p>For our Philippine team, that is <strong>${escapeHtml(args.manilaLabel)}</strong>.</p>${meeting}<p><a href="${escapeHtml(calendarUrl)}">Add to Google Calendar</a> or open the attached calendar invitation.</p><p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel this booking</a></p><hr><h3>Booking questionnaire</h3>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}<p><strong>Role and challenge:</strong><br>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>`,
   }, "public_discovery_booking");
+  return { sent: true as const };
+}
+
+export async function sendDiscoveryReminderEmail(args: { to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
+  const timing = args.window === "24h" ? "tomorrow" : "in about one hour";
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    cc: discoveryBookingCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    subject: `Reminder: your discovery call is ${timing}`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
+  }, `discovery_reminder_${args.window}`);
   return { sent: true as const };
 }
 

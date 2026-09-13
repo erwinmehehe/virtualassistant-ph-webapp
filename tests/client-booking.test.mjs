@@ -61,5 +61,28 @@ test("client booking saves the questionnaire, prevents slot conflicts, and copie
   assert.match(migration, /discovery_scheduled_at/);
   assert.match(email, /jrvsaccad@gmail\.com/);
   assert.match(email, /bryanbatarina@gmail\.com/);
+  assert.match(email, /Jervis or Bryan/);
+  assert.match(email, /virtualassistant-discovery-call\.ics/);
   assert.match(email, /Booking questionnaire/);
+});
+
+test("discovery bookings support Zoom, reminders, self-service changes, and recruiter outcomes", async () => {
+  const [operations, bookingAction, reminders, recruiter, migration] = await Promise.all([
+    read("src/lib/booking-operations.ts"),
+    read("src/app/actions/booking.ts"),
+    read("src/app/api/cron/discovery-reminders/route.ts"),
+    read("src/app/actions/recruiter.ts"),
+    read("supabase/migrations/20260913082319_discovery_booking_operations.sql"),
+  ]);
+  assert.match(operations, /ZOOM_ACCOUNT_ID/);
+  assert.match(operations, /createCalendarInvite/);
+  assert.match(bookingAction, /hashBookingManageToken/);
+  assert.match(bookingAction, /rescheduleDiscoveryBookingAction/);
+  assert.match(bookingAction, /cancelDiscoveryBookingAction/);
+  assert.match(reminders, /discovery_reminder_24h_sent_at/);
+  assert.match(reminders, /discovery_reminder_1h_sent_at/);
+  for (const outcome of ["attended", "no_show", "cancelled", "rescheduled", "qualified"]) {
+    assert.match(recruiter, new RegExp(outcome));
+    assert.match(migration, new RegExp(outcome));
+  }
 });

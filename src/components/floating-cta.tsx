@@ -28,11 +28,10 @@ function isHighIntentPath(pathname: string) {
 /**
  * Floating discovery-call prompt for public client-facing pages.
  *
- * Appears only after meaningful intent: on a hiring/pricing/services/contact
- * page after a scroll, or after the visitor begins a public form and moves
- * toward leaving it. It never covers the hero on arrival and is hidden from
- * VA-focused routes so applicants do not mistake a client sales call for a
- * VA interview.
+ * Stays visible on the homepage, appears on other high-intent pages after
+ * a scroll, and can also appear after form abandonment. It remains dismissible
+ * for the browser session and hidden from VA-focused routes so applicants do
+ * not mistake a client sales call for a VA interview.
  */
 export function FloatingCta() {
   const pathname = usePathname();
@@ -45,7 +44,8 @@ export function FloatingCta() {
     } catch {
       setDismissed(false);
     }
-    const onScroll = () => setVisible((current) => current || (isHighIntentPath(pathname) && window.scrollY > 600));
+    setVisible(pathname === "/");
+    const onScroll = () => setVisible((current) => current || (pathname !== "/" && isHighIntentPath(pathname) && window.scrollY > 600));
     const onFormFocus = (event: FocusEvent) => {
       const target = event.target;
       if (target instanceof HTMLElement && target.closest("main form")) {

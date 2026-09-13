@@ -71,7 +71,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const [{ data: leads }, { data: owners }, { data: settings }] = await Promise.all([
     admin
       .from("lead_intake")
-      .select("id,name,email,phone,company,service,status,job_id,created_at,message,hours,start_time,timezone,source_page,page_url,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,won_at,lost_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_completed_at,discovery_notes")
+      .select("id,name,email,phone,company,service,status,job_id,created_at,message,hours,start_time,timezone,source_page,page_url,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,won_at,lost_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_completed_at,discovery_notes,discovery_outcome,discovery_cancelled_at,discovery_rescheduled_at")
       .order("created_at", { ascending: false })
       .limit(500),
     admin
@@ -296,7 +296,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <div><CalendarClock size={16}/><span><strong>{lead.discovery_completed_at ? "Discovery completed" : "Discovery call"}</strong><small>{dateTimeLabel(lead.discovery_scheduled_at)} · {lead.discovery_duration_minutes || 30} min</small></span></div>
                   <div className="row wrap">
                     {lead.discovery_meeting_url && !lead.discovery_completed_at ? <a className="btn btn-sm" href={lead.discovery_meeting_url} target="_blank" rel="noreferrer">Join call <ExternalLink size={13}/></a> : null}
-                    {lead.discovery_notes ? <span className="small muted">{lead.discovery_notes}</span> : null}
+                    {lead.discovery_outcome ? <span className="small muted">Outcome: {String(lead.discovery_outcome).replaceAll("_", " ")}</span> : lead.discovery_notes ? <span className="small muted">{lead.discovery_notes}</span> : null}
                   </div>
                 </div> : null}
 
@@ -345,7 +345,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <input type="hidden" name="lead_id" value={lead.id}/>
                   <input type="hidden" name="return_to" value={returnTo}/>
                   <div className="grid-2">
-                    <div className="field"><label>Outcome</label><select name="outcome" defaultValue="qualified"><option value="qualified">Qualified</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></div>
+                    <div className="field"><label>Outcome</label><select name="outcome" defaultValue="qualified"><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></div>
                     <div className="field"><label>Lost reason <span className="muted">(only if lost)</span></label><input name="lost_reason" maxLength={1000} placeholder="Budget, timing, hired elsewhere..."/></div>
                   </div>
                   <div className="field"><label>Discovery notes</label><textarea name="discovery_notes" required minLength={3} maxLength={5000} defaultValue={lead.discovery_notes || ""} placeholder="Priorities, pain points, tools, hours, budget, decision process, timeline..."/></div>

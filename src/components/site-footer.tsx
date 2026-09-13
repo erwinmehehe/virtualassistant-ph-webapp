@@ -27,13 +27,13 @@ export function SiteFooter() {
           <div className="va-footer-actions">
             <Link className="btn btn-primary" href="/hire">Get matched <ArrowRight size={15}/></Link>
             <Link className="btn va-footer-outline" href="/find-talent">Browse Virtual Assistants</Link>
-            <Link className="btn va-footer-outline" href="/book-client-call" data-track="booking_click"><CalendarDays size={15}/> Book a client call</Link>
+            <Link className="btn va-footer-outline" href="/book-client-call" data-track="booking_click"><CalendarDays size={15}/> Book a discovery call</Link>
           </div>
         </div>
 
         <div className="container footer-grid">
           <div className="footer-brand-block">
-            <Link className="brand" href="/"><span>VirtualAssistant<span className="ph">.com.ph</span></span></Link>
+            <Link className="brand" href="/" style={{ gap: 0 }}><span style={{ marginLeft: 9, display: "inline-flex", gap: 0 }}>VirtualAssistant<span className="ph" style={{ marginLeft: 0, paddingLeft: 0 }}>.com.ph</span></span></Link>
             <p>Vetted Filipino virtual assistants for businesses that want a clearer path from workload to shortlist to hire.</p>
           </div>
           <div className="footer-links"><strong>Hire</strong><Link href="/hire">Hire a Virtual Assistant</Link><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/services">Services</Link><Link href="/pricing">Pricing</Link><Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>

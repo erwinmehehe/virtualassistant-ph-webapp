@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from "@/lib/email";
+import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { cancelZoomDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -550,6 +551,70 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   revalidatePath("/workspace/admin/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
   redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
+}
+
+export async function cancelRecruiterDiscoveryAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
+  if (!leadId) return fail("Booking not found.");
+  const admin = createAdminClient();
+  const { data: lead } = await admin.from("lead_intake")
+    .select("id,name,email,crm_stage,job_id,discovery_scheduled_at,discovery_zoom_meeting_id")
+    .eq("id", leadId).maybeSingle();
+  if (!lead?.discovery_scheduled_at) return fail("This booking is no longer active.");
+  const now = new Date().toISOString();
+  const { error } = await admin.from("lead_intake").update({
+    discovery_cancelled_at: now,
+    discovery_outcome: "cancelled",
+    discovery_scheduled_at: null,
+    discovery_meeting_url: null,
+    crm_stage: "nurture",
+    status: "new",
+    next_follow_up_at: now,
+    stage_updated_at: now
+  }).eq("id", leadId);
+  if (error) return fail(error.message || "Could not cancel the discovery booking.");
+  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* cancellation remains recorded if Zoom is unavailable */ }
+  try {
+    await sendTransactionalEventEmail({
+      to: lead.email,
+      subject: "Discovery call cancelled",
+      heading: "Your discovery call is cancelled",
+      body: "Your time has been released. Contact our hiring team whenever you are ready to book again.",
+      href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/book-client-call`,
+      hrefLabel: "Book another time"
+    });
+  } catch { /* the booking state is the source of truth if delivery is unavailable */ }
+  await writeRecruiterActivity({
+    subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
+    description: "Discovery booking cancelled by recruiter", actorId: user.id,
+    metadata: { previous_stage: lead.crm_stage || null, job_id: lead.job_id || null }
+  });
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_cancelled=1`);
+}
+
+export async function closeRecruiterRoleAction(formData: FormData) {
+  const { user } = await requireRole("recruiter");
+  const jobId = String(formData.get("job_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/matching");
+  if (!jobId) throw new Error("Role not found.");
+  const admin = createAdminClient();
+  const { data: job } = await admin.from("jobs").select("id,title,status").eq("id", jobId).maybeSingle();
+  if (!job) throw new Error("Role not found.");
+  if (["closed", "filled"].includes(String(job.status))) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}role_archived=1`);
+  const now = new Date().toISOString();
+  const { error } = await admin.from("jobs").update({ status: "closed", closed_at: now, updated_at: now }).eq("id", jobId);
+  if (error) throw error;
+  await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "role_archived", description: "Role closed and archived from matching", actorId: user.id, metadata: { previous_status: job.status } });
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/matching");
+  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}role_archived=1`);
 }
 
 export async function completeDiscoveryAction(formData: FormData) {

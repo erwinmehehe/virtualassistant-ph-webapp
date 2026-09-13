@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessLabel } from "@/lib/candidate-access";
 import { dateShort } from "@/lib/format";
+import { closeRecruiterRoleAction } from "@/app/actions/recruiter";
 
 function norm(value: unknown) {
   return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -87,6 +88,7 @@ export default async function RecruiterMatchingPage({
   ] as const;
 
   return <>
+    {params.role_archived ? <div className="success-banner">Role closed and moved to Closed / stale. Its history is retained.</div> : null}
     <div className="page-head">
       <div>
         <div className="kicker">Recruiter role board</div>
@@ -155,7 +157,7 @@ export default async function RecruiterMatchingPage({
               <td data-label="Applications"><strong>{total}</strong><div className="small muted">{applicationCounts.new || 0} new · {applicationCounts.interview || 0} interview · {applicationCounts.offered || 0} offered</div></td>
               <td data-label="Client access"><span className="small">{candidateAccessLabel(accessMap.get(job.id))}</span></td>
               <td data-label="Submitted">{dateShort(job.created_at)}</td>
-              <td data-label="Action"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${job.id}`}>{shortlistCounts.proposed + shortlistCounts.released + total ? "Manage role" : "Find Matching VAs"}</Link></td>
+              <td data-label="Action"><div className="matching-row-actions"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${job.id}`}>{shortlistCounts.proposed + shortlistCounts.released + total ? "Manage role" : "Find Matching VAs"}</Link>{["pending", "published"].includes(job.status) ? <form action={closeRecruiterRoleAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/matching?view=${view}`}/><button className="btn btn-sm" type="submit">Close</button></form> : null}</div></td>
             </tr>;
           }) : <tr><td colSpan={7}><div className="empty">No roles in this view.</div></td></tr>}
         </tbody>

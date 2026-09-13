@@ -184,6 +184,31 @@
 .crm-tool-form { display:grid; gap:12px; padding:14px; border-top:1px solid #d7e3f4; background:#fff; }
 .crm-tool-form .field { margin:0; }
 
+/* Compact recruiter workspace: keep the decision controls visible without oversized cards. */
+.crm-lead-list { gap:10px; }
+.crm-lead-head { gap:14px; padding:12px 16px 10px; }
+.crm-lead-head h2 { margin:5px 0 2px; font-size:17px; }
+.crm-lead-meta { gap:4px; min-width:160px; }
+.crm-lead-body { grid-template-columns:minmax(0,1.28fr) minmax(300px,.72fr); gap:14px; padding:12px 16px; }
+.crm-client-context > p { font-size:13px; line-height:1.45; }
+.crm-contact-summary { gap:6px; margin:10px 0; }
+.crm-contact-summary > div { padding:7px 8px; }
+.crm-update-card { gap:9px; padding:11px; border-radius:11px; }
+.crm-update-card .field label,.crm-tool-form .field label { font-size:12px; }
+.crm-contact-bar { gap:8px; padding:10px 16px 12px; }
+.crm-close-tools { gap:8px; padding:0 16px 12px; }
+.crm-tool-panel > summary { padding:9px 11px; }
+.crm-tool-form { gap:9px; padding:11px; }
+.matching-board-guide { padding:8px 10px; margin:0 0 10px; }
+.matching-board-guide span { font-size:11px; }
+.role-filter-tabs { gap:6px; margin:10px 0; }
+.role-filter-tabs a { padding:6px 9px; font-size:12px; }
+.recruiter-directory-filters { padding:10px; margin-bottom:10px; }
+.responsive-table th,.responsive-table td { padding:10px 12px; }
+.responsive-table td { font-size:13px; }
+.matching-row-actions { display:flex; justify-content:flex-end; gap:6px; }
+.matching-row-actions form { margin:0; }
+
 .proposal-page { min-height:100vh; padding:44px 20px; background:#f5f7fb; }
 .proposal-shell { width:min(860px,100%); margin:0 auto; display:grid; gap:18px; }
 .proposal-brand { font-size:15px; font-weight:850; letter-spacing:-.02em; color:#101828; }

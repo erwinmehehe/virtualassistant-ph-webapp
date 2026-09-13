@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { bookingManageUrl, createZoomDiscoveryMeeting, hashBookingManageToken } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelZoomDiscoveryMeeting, createZoomDiscoveryMeeting, hashBookingManageToken } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { sendTransactionalEventEmail } from "@/lib/email";
 
@@ -14,11 +14,12 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   if (token.length < 32) redirect("/book-client-call/manage?error=invalid");
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
   const now = new Date().toISOString();
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
+  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* the CRM cancellation remains valid if Zoom is temporarily unavailable */ }
   await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. You can contact our hiring team whenever you are ready to book again.", href: bookingManageUrl(token), hrefLabel: "View booking" });
   redirect(managePath(token, "cancelled=1"));
 }

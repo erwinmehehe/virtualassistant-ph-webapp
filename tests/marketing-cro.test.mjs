@@ -11,10 +11,14 @@ test("public marketing shell loads the shared CRO design system", () => {
   const header = source("src/components/site-header.tsx");
   const nav = source("src/components/site-nav.tsx");
   const footer = source("src/components/site-footer.tsx");
+  const floating = source("src/components/floating-cta.tsx");
 
   assert.match(layout, /import "\.\/va-design\.css"/);
+  assert.match(layout, /import "\.\/nav-cro\.css"/);
+  assert.match(layout, /import "\.\/service-visual-qa\.css"/);
   assert.match(header, /<SiteNav\s*\/>/);
-  assert.match(nav, /href="\/book-client-call"/);
+  assert.doesNotMatch(nav, /href="\/book-client-call"/);
+  assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
   assert.match(footer, /href="\/book-client-call"/);
 });
 
@@ -54,4 +58,18 @@ test("template-driven detail pages keep real forms in the hero", () => {
   assert.match(software, /<ServiceMatchForm/);
   assert.match(article, /blog-hero-aside/);
   assert.match(article, /<RoleBriefForm|<ServiceMatchForm/);
+});
+
+test("service and industry detail forms stay compact", () => {
+  const serviceForm = source("src/components/service-match-form.tsx");
+  const industryForm = source("src/components/industry-match-form.tsx");
+  const floating = source("src/components/floating-cta.tsx");
+
+  assert.match(serviceForm, /service-match-form-compact/);
+  assert.doesNotMatch(serviceForm, /name="phone"/);
+  assert.doesNotMatch(serviceForm, /<textarea/);
+  assert.match(industryForm, /service-match-form-compact/);
+  assert.doesNotMatch(industryForm, /name="phone"/);
+  assert.doesNotMatch(industryForm, /<textarea/);
+  assert.match(floating, /INLINE_MATCH_PATHS/);
 });

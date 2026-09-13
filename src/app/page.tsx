@@ -29,7 +29,11 @@ import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { RoleBriefForm } from "@/components/role-brief-form";
+import { FindMyVaWizard } from "@/components/find-my-va-wizard";
+import { TalentShortlistBar, TalentShortlistButton } from "@/components/talent-shortlist";
+import { VaCostCalculator } from "@/components/va-cost-calculator";
 import "./premium-home.css";
+import "./cro-hiring-tools.css";
 
 export const metadata: Metadata = {
   title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
@@ -110,16 +114,27 @@ export default async function HomePage({
     supabase
       .from("public_va_directory")
       .select(
-        "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate",
+        "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate,schedule,availability_status",
       )
       .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
       .not("avatar_url", "is", null)
-      .limit(9),
+      .limit(30),
   ]);
 
   const featuredWithPhotos = (featured ?? [])
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
     .slice(0, 3);
+  const matchTalent = (featured ?? []).filter((va: any) => va.slug).map((va: any) => ({
+    slug: va.slug,
+    name: va.full_name,
+    headline: va.headline,
+    category: va.primary_category,
+    categories: va.categories,
+    weeklyHours: va.weekly_hours,
+    hourlyRate: va.hourly_rate,
+    yearsExperience: va.years_experience,
+    schedule: va.schedule,
+  }));
 
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const schema = [
@@ -223,6 +238,12 @@ export default async function HomePage({
           </div>
         </section>
 
+        <section className="pva-section pva-soft">
+          <div className="container">
+            <FindMyVaWizard talent={matchTalent} />
+          </div>
+        </section>
+
         <section className="pva-section pva-white">
           <div className="container">
             <div className="pva-section-head pva-section-head-row">
@@ -254,7 +275,7 @@ export default async function HomePage({
                       <span><Clock3 size={14} /> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Flexible availability"}</span>
                       {va.hourly_rate ? <span><CheckCircle2 size={14} /> ${Number(va.hourly_rate).toFixed(0)}/hr preferred</span> : null}
                     </div>
-                    <Link className="pva-card-link" href={`/va/${va.slug}`}>View profile <ArrowRight size={15} /></Link>
+                    <div className="cro-directory-actions"><Link className="pva-card-link" href={`/va/${va.slug}`}>View profile <ArrowRight size={15} /></Link><TalentShortlistButton talent={{ slug: va.slug, name: va.full_name, headline: va.headline }} /></div>
                   </article>
                 ))}
               </div>
@@ -357,6 +378,17 @@ export default async function HomePage({
         </section>
 
         <section className="pva-section pva-white">
+          <div className="container" style={{maxWidth: 900}}>
+            <div className="pva-section-head pva-centered">
+              <span className="pva-kicker">Budget before the call</span>
+              <h2>Estimate what your Virtual Assistant budget could look like.</h2>
+              <p>Set hours and an hourly rate to get a simple monthly compensation estimate before you request candidates.</p>
+            </div>
+            <VaCostCalculator />
+          </div>
+        </section>
+
+        <section className="pva-section pva-white">
           <div className="container pva-compare-wrap">
             <div className="pva-section-head">
               <span className="pva-kicker">Why this model works</span>
@@ -421,6 +453,7 @@ export default async function HomePage({
           </div>
         </section>
       </main>
+      <TalentShortlistBar />
       <SiteFooter />
     </>
   );

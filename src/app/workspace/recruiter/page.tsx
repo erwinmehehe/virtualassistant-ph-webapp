@@ -259,7 +259,7 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       <DashHeader
         kicker="Recruiter control center"
         title="Today’s work"
-        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · streaming now</span></>}
+        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · refreshed when this page opened · streaming now</span></>}
         actions={<>
           <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
           <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/matching"><Sparkles size={15} aria-hidden="true" /> Match active roles</Link>

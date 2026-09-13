@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { AlertCircle, ArrowRight, BriefcaseBusiness, CalendarClock, CheckCircle2, CirclePlay, CircleX, Clock3, Mail, MessageSquare, Sparkles, Star, TrendingUp, UserRoundCheck } from "lucide-react";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { BarChart, DashHeader, Empty, Notice, Panel, Pill, ProgressRing, SignalList, StatCard, type Tone } from "@/components/dash-ui";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -117,9 +117,28 @@ async function RecruiterRolesNeedingMatching({ count }: { count: number }) {
   </Panel>;
 }
 
-export default async function RecruiterDashboard({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireRole("recruiter");
-  const params = await searchParams;
+function RecruiterDashboardFallback() {
+  return (
+    <>
+      <div className="dash-stats" aria-busy="true" aria-label="Loading recruiter metrics">
+        <div className="workspace-skeleton-card" />
+        <div className="workspace-skeleton-card" />
+        <div className="workspace-skeleton-card" />
+        <div className="workspace-skeleton-card" />
+      </div>
+      <div className="dash-grid recruiter-priority-grid">
+        <Panel title="Today’s priority actions" subtitle="Loading live client and hiring signals">
+          <div className="workspace-skeleton-card" />
+        </Panel>
+        <Panel title="Hiring and talent signals" subtitle="Loading live workspace data">
+          <div className="workspace-skeleton-card" />
+        </Panel>
+      </div>
+    </>
+  );
+}
+
+async function RecruiterDashboardContent() {
   const admin = createAdminClient();
   const { data, error } = await admin.rpc("recruiter_dashboard_metrics", { p_signup_weeks: SIGNUP_WEEKS });
   if (error) throw error;
@@ -155,22 +174,9 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
   ];
   const openActions = today.reduce((total, item) => total + item.count, 0);
 
+
   return (
-    <div className="dash-page">
-      <DashHeader
-        kicker="Recruiter control center"
-        title="Today’s work"
-        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · refreshed when this page opened</span></>}
-        actions={<>
-          <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
-          <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/matching"><Sparkles size={15} aria-hidden="true" /> Match active roles</Link>
-        </>}
-      />
-
-      {params.bulk_done ? <Notice tone="success">{RESULT_WORD[params.bulk_done] ? `${params.affected || 0} ${RESULT_WORD[params.bulk_done]}` : "Done"}{params.published !== undefined ? ` · ${params.published} now live in the public directory` : ""}.</Notice> : null}
-      {params.skipped ? <Notice tone="warn">Skipped, not directory-ready: {params.skipped}. Approval needs a photo and a profile at {PUBLIC_VA_MIN_COMPLETION}% or better.</Notice> : null}
-      {params.bulk_error ? <Notice tone="error">{params.bulk_error}</Notice> : null}
-
+    <>
       <div className="dash-stats">
         <StatCard label="Leads needing first contact" value={value("untouched_leads")} icon={<Mail size={20} />} tone="rose" href="/workspace/recruiter/leads?view=attention" sub="Reply before the prospect keeps shopping" chip={value("untouched_leads") ? { label: "Reply first", tone: "warn" } : { label: "All contacted", tone: "good" }} />
         <StatCard label="Follow-ups due" value={value("followups_due")} icon={<Clock3 size={20} />} tone="amber" href="/workspace/recruiter/leads?view=attention" sub="Scheduled follow-ups now due" chip={value("followups_due") ? { label: "Overdue", tone: "warn" } : { label: "On schedule", tone: "good" }} />
@@ -240,6 +246,33 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
           </div>
         </div>
       </details>
+    </>
+  );
+}
+
+export default async function RecruiterDashboard({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireRoleFast("recruiter");
+  const params = await searchParams;
+
+  return (
+    <div className="dash-page">
+      <DashHeader
+        kicker="Recruiter control center"
+        title="Today’s work"
+        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · refreshed when this page opened · streaming now</span></>}
+        actions={<>
+          <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
+          <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/matching"><Sparkles size={15} aria-hidden="true" /> Match active roles</Link>
+        </>}
+      />
+
+      {params.bulk_done ? <Notice tone="success">{RESULT_WORD[params.bulk_done] ? `${params.affected || 0} ${RESULT_WORD[params.bulk_done]}` : "Done"}{params.published !== undefined ? ` · ${params.published} now live in the public directory` : ""}.</Notice> : null}
+      {params.skipped ? <Notice tone="warn">Skipped, not directory-ready: {params.skipped}. Approval needs a photo and a profile at {PUBLIC_VA_MIN_COMPLETION}% or better.</Notice> : null}
+      {params.bulk_error ? <Notice tone="error">{params.bulk_error}</Notice> : null}
+
+      <Suspense fallback={<RecruiterDashboardFallback />}>
+        <RecruiterDashboardContent />
+      </Suspense>
     </div>
   );
 }

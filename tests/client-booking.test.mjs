@@ -32,9 +32,10 @@ test("booking flow blocks VA applicants before showing client slots", async () =
   assert.match(form, /Apply as a Virtual Assistant/);
   assert.match(action, /audience: z\.literal\("client"\)/);
   assert.match(action, /isAllowedDiscoverySlot/);
-  assert.match(form, /useState<string \\| null>\\(null\\)/);
-  assert.match(form, /Australia\\/Sydney/);
-  assert.match(form, /Times shown in \\$\\{timeZoneLabel/);
+  assert.match(form, /useState<string \| null>\(null\)/);
+  assert.ok(form.includes("Australia/Sydney"));
+  assert.ok(form.includes("Times shown in ${timeZoneLabel"));
+
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {

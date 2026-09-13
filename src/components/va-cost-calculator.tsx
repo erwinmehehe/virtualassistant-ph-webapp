@@ -13,7 +13,6 @@ export function VaCostCalculator({ compact = false }: { compact?: boolean }) {
     const query = new URLSearchParams({
       hours: hours >= 40 ? "40+ hours/week" : `${hours} to ${Math.min(hours + 10, 40)} hours/week`,
       budget: `USD ${rate} to ${Math.max(rate + 4, rate)}/hour`,
-      source: "/",
     });
     return `/hire?${query.toString()}`;
   }, [hours, rate]);

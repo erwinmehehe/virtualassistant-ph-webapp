@@ -103,7 +103,6 @@ export function TalentShortlistBar() {
     if (!items.length) return "/hire";
     const params = new URLSearchParams();
     params.set("shortlist", items.map((item) => item.slug).join(","));
-    params.set("source", "/find-talent");
     return `/hire?${params.toString()}`;
   }, [items]);
 

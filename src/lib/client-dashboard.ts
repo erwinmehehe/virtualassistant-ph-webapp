@@ -4,10 +4,20 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 
 export type ClientDashboardSummary = {
+  company: {
+    company_name?: string | null;
+    timezone?: string | null;
+    onboarding_completed_at?: string | null;
+  };
+  hiring_owner: {
+    id?: string;
+    full_name?: string | null;
+  };
   job_count: number;
   active_jobs: number;
   hire_count: number;
   application_count: number;
+  unread_messages: number;
   pipeline: {
     applied: number;
     shortlisted: number;

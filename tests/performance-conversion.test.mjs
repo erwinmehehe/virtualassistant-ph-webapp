@@ -32,18 +32,34 @@ test("large page styles are scoped to their route", async () => {
   assert.match(workspace, /dashboard-premium\.css/);
 });
 
-test("dashboard overview payloads use compact RPC fast paths", async () => {
-  const [client, recruiter, migration] = await Promise.all([
+test("dashboard overview payloads use consolidated RPC fast paths", async () => {
+  const [client, clientLayout, va, vaLayout, recruiter, leads, migration] = await Promise.all([
     read("src/app/workspace/client/page.tsx"),
+    read("src/app/workspace/client/layout.tsx"),
+    read("src/app/workspace/va/page.tsx"),
+    read("src/app/workspace/va/layout.tsx"),
     read("src/app/workspace/recruiter/page.tsx"),
-    read("supabase/migrations/20260912121500_dashboard_payload_optimization.sql")
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("supabase/migrations/20260913233750_dashboard_speed_consolidation.sql")
   ]);
 
-  assert.match(client, /getClientDashboardSummary\(user\.id\)/);
-  assert.doesNotMatch(client, /from\("applications"\)|from\("workrooms"\)/);
-  assert.match(recruiter, /recruiter_dashboard_vetting_queue/);
-  assert.match(recruiter, /recruiter_dashboard_roles_needing_matching/);
-  assert.match(migration, /client_dashboard_summary/);
+  assert.match(client, /getClientDashboardSummary\(userId\)/);
+  assert.doesNotMatch(client, /getWorkspaceBadgeResult|from\("client_profiles"\)|from\("lead_intake"\)/);
+  assert.match(clientLayout, /requireRoleFast\("client"\)/);
+  assert.match(va, /getVaDashboardSummary\(userId\)/);
+  assert.match(vaLayout, /requireRoleFast\("va"\)/);
+
+  assert.match(recruiter, /recruiter_dashboard_overview/);
+  assert.match(recruiter, /recruiter_dashboard_signups/);
+  assert.doesNotMatch(recruiter, /recruiter_dashboard_vetting_queue|recruiter_dashboard_roles_needing_matching/);
+
+  assert.match(leads, /recruiter_leads_page/);
+  assert.match(leads, /PAGE_SIZE = 25/);
+  assert.doesNotMatch(leads, /\.limit\(500\)|\.limit\(2000\)|\.limit\(1000\)/);
+
+  for (const fn of ["client_dashboard_summary", "recruiter_dashboard_overview", "recruiter_dashboard_signups", "recruiter_leads_page"]) {
+    assert.match(migration, new RegExp(fn));
+  }
 });
 
 test("workspace Core Web Vitals are recorded", async () => {

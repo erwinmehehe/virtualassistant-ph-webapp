@@ -9,6 +9,8 @@ import { VA_CATEGORIES } from "@/lib/constants";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import { TalentShortlistBar, TalentShortlistButton } from "@/components/talent-shortlist";
+import "../cro-hiring-tools.css";
 
 export const metadata: Metadata = {
   title: "Browse Vetted Filipino Virtual Assistants",
@@ -106,8 +108,8 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
         <div className="pill-list">{mergeUniqueStrings(va.primary_category, va.categories).slice(0,3).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div>
         <p className="talent-market-summary">{va.bio ? `${va.bio.slice(0,155)}${va.bio.length>155?"…":""}` : "Open the profile to review skills, tools, experience, availability, and approved vetting milestones."}</p>
         <div className="talent-skill-preview">{uniqueStrings(va.skills).slice(0,4).map((skill,index)=><span key={`${String(skill)}-${index}`}>{skill}</span>)}</div>
-        <Link className="btn talent-card-cta" href={`/va/${va.slug}`}>View profile <ArrowRight size={15}/></Link>
+        <div className="cro-directory-actions"><Link className="btn talent-card-cta" href={`/va/${va.slug}`}>View profile <ArrowRight size={15}/></Link><TalentShortlistButton talent={{ slug: va.slug, name: va.full_name, headline: va.headline }} /></div>
       </article>)}</div>{totalPages > 1 ? <nav className="pagination" aria-label="Talent results pages"><Link className={`btn btn-sm ${page <= 1 ? "disabled" : ""}`} aria-disabled={page <= 1} href={talentPageHref(params, Math.max(1,page-1))}>Previous</Link><span className="small muted">Page {page} of {totalPages}</span><Link className={`btn btn-sm ${page >= totalPages ? "disabled" : ""}`} aria-disabled={page >= totalPages} href={talentPageHref(params, Math.min(totalPages,page+1))}>Next</Link></nav> : null}</> : <div className="card empty"><h3>No profiles match those filters.</h3><p>Try a broader specialty or availability range, or send us the role and we can match the approved pool directly.</p><div className="row wrap" style={{justifyContent:"center"}}><Link className="btn" href="/find-talent">Clear filters</Link><Link className="btn btn-primary" href="/hire">Start a Hiring Request</Link></div></div>}
     </div></section>
-  </main><SiteFooter/></>;
+  </main><TalentShortlistBar/><SiteFooter/></>;
 }

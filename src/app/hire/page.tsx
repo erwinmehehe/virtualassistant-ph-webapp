@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../premium-hire.css";
+import "../cro-hiring-tools.css";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -57,6 +58,11 @@ export default async function HirePage({
 }) {
   const params = await searchParams;
   const talent = params.talent?.trim();
+  const shortlistSlugs = String(params.shortlist || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 5);
   const lead = params.lead?.trim();
   const sourcePath = params.source?.startsWith("/") && !params.source.startsWith("//") ? params.source : "/hire";
   const supabase = await createClient();
@@ -67,6 +73,15 @@ export default async function HirePage({
         .eq("slug", talent)
         .maybeSingle()
     : { data: null };
+  const { data: shortlisted } = shortlistSlugs.length
+    ? await supabase
+        .from("public_va_directory")
+        .select("slug,full_name,avatar_url,headline,primary_category")
+        .in("slug", shortlistSlugs)
+    : { data: [] as any[] };
+  const selectedShortlist = (shortlisted || []).sort(
+    (a: any, b: any) => shortlistSlugs.indexOf(a.slug) - shortlistSlugs.indexOf(b.slug),
+  );
 
   return (
     <>
@@ -122,6 +137,24 @@ export default async function HirePage({
               </div>
 
               <div className="pvh-private-note"><ShieldCheck size={14} /> No account required. Your hiring request stays private while our team reviews it.</div>
+
+              {selectedShortlist.length ? (
+                <div className="pvh-requested-talent" style={{display:"block"}}>
+                  <div style={{marginBottom:8}}>
+                    <small>Your shortlist</small>
+                    <strong style={{display:"block"}}>{selectedShortlist.length} candidate{selectedShortlist.length === 1 ? "" : "s"} selected for recruiter review</strong>
+                  </div>
+                  <div className="cro-selected-shortlist">
+                    {selectedShortlist.map((candidate: any) => (
+                      <div key={candidate.slug}>
+                        <PublicAvatar name={candidate.full_name} src={candidate.avatar_url} size="sm" />
+                        <span><strong>{candidate.full_name}</strong><small>{candidate.headline || candidate.primary_category}</small></span>
+                        <Link href={`/va/${candidate.slug}`}>Review</Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               {requested ? (
                 <div className="pvh-requested-talent">
@@ -181,24 +214,25 @@ export default async function HirePage({
 
                     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
                     {talent ? <input type="hidden" name="talent" value={talent} /> : null}
+                    {selectedShortlist.length ? <input type="hidden" name="shortlist" value={selectedShortlist.map((candidate: any) => candidate.slug).join(",")} /> : null}
                     <AttributionFields sourcePath={sourcePath} />
                     <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
 
                     <div className="field">
                       <label htmlFor="category">What type of help do you need? *</label>
-                      <select id="category" name="category" required defaultValue={requested?.primary_category || (VA_CATEGORIES.includes(params.category as any) ? params.category : "")}>
+                      <select id="category" name="category" required defaultValue={requested?.primary_category || selectedShortlist[0]?.primary_category || (VA_CATEGORIES.includes(params.category as any) ? params.category : "")}>
                         <option value="" disabled>Select a specialty</option>
                         {VA_CATEGORIES.map((x, index) => <option key={`${String(x)}-${index}`}>{x}</option>)}
                       </select>
                     </div>
 
                     <div className="form-grid compact-form-grid">
-                      <div className="field"><label htmlFor="hours">Hours / week *</label><select id="hours" name="hours" required defaultValue=""><option value="" disabled>Select hours</option><option>Under 10 hours/week</option><option>10 to 20 hours/week</option><option>20 to 30 hours/week</option><option>30 to 40 hours/week</option><option>40+ hours/week</option></select></div>
-                      <div className="field"><label htmlFor="budget">Hourly budget *</label><select id="budget" name="budget" required defaultValue=""><option value="" disabled>Select budget</option><option>USD 5 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select></div>
+                      <div className="field"><label htmlFor="hours">Hours / week *</label><select id="hours" name="hours" required defaultValue={params.hours || ""}><option value="" disabled>Select hours</option><option>Under 10 hours/week</option><option>10 to 20 hours/week</option><option>20 to 30 hours/week</option><option>30 to 40 hours/week</option><option>40+ hours/week</option></select></div>
+                      <div className="field"><label htmlFor="budget">Hourly budget *</label><select id="budget" name="budget" required defaultValue={params.budget || ""}><option value="" disabled>Select budget</option><option>USD 5 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select></div>
                     </div>
 
                     <div className="form-grid compact-form-grid">
-                      <div className="field"><label htmlFor="timezone">Timezone / overlap *</label><input id="timezone" name="timezone" required placeholder="US Eastern, 3h overlap" /></div>
+                      <div className="field"><label htmlFor="timezone">Timezone / overlap *</label><input id="timezone" name="timezone" required defaultValue={params.timezone || ""} placeholder="US Eastern, 3h overlap" /></div>
                       <div className="field"><label htmlFor="start_time">Start date</label><select id="start_time" name="start_time" defaultValue=""><option value="">Flexible</option><option>As soon as possible</option><option>Within 2 weeks</option><option>Within 30 days</option><option>More than 30 days</option></select></div>
                     </div>
 

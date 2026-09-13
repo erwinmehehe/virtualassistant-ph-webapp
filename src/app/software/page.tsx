@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { softwarePages } from "@/lib/software-pages";
 import { canonicalPath } from "@/lib/seo-url";
 
@@ -15,11 +17,14 @@ export const metadata: Metadata = {
 
 export default function SoftwareIndexPage() {
   return <><SiteHeader/><main id="main-content">
-    <section className="section public-hero-small"><div className="container"><div className="public-page-head">
-      <h1 className="public-page-title">Hire a virtual assistant who already knows your software.</h1>
-      <p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>
-      <div className="hero-actions" style={{ marginTop: 24 }}><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></div>
-    </div></div></section>
+    <MarketingHero
+      eyebrow="Software-specific Virtual Assistant hiring"
+      title={<h1 className="public-page-title">Hire a virtual assistant who already knows your software.</h1>}
+      intro={<p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>}
+      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></>}
+      trust={<><span><CheckCircle2 size={15}/>Platform-aware matching</span><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span></>}
+      form={<RoleBriefForm sourcePath="/software" heading="Get matched by tools and workflow" subheading="Tell us the software, workload, hours, and budget. We will use it to narrow relevant talent." />}
+    />
     <section className="section"><div className="container">
       <div className="section-head"><h2>Choose the platform your team runs on.</h2><p>Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority.</p></div>
       <div className="grid-3">{softwarePages.map((page) => <article className="card card-hover stack" key={page.slug}>

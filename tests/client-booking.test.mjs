@@ -32,6 +32,17 @@ test("booking flow blocks VA applicants before showing client slots", async () =
   assert.match(form, /Apply as a Virtual Assistant/);
   assert.match(action, /audience: z\.literal\("client"\)/);
   assert.match(action, /isAllowedDiscoverySlot/);
+  assert.match(form, /useState<string \| null>\(null\)/);
+  assert.ok(form.includes("Australia/Sydney"));
+  assert.ok(form.includes("Times shown in ${timeZoneLabel"));
+
+});
+
+test("floating call prompt is restricted to high-intent behavior", async () => {
+  const cta = await read("src/components/floating-cta.tsx");
+  assert.match(cta, /HIGH_INTENT_PATHS/);
+  assert.match(cta, /va_discovery_form_started/);
+  assert.match(cta, /isHighIntentPath/);
 });
 
 test("client booking saves the questionnaire, prevents slot conflicts, and copies both owners", async () => {

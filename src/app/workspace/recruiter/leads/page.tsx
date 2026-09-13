@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Mail, Phone, Search, UserRound } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, updateLeadCrmAction } from "@/app/actions/recruiter";
@@ -9,6 +9,8 @@ import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm
 import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+
+const PAGE_SIZE = 25;
 
 function activityLabel(action: string) {
   const labels: Record<string, string> = {
@@ -66,14 +68,23 @@ function usd(value: number) {
 
 export default async function RecruiterLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
-  await requireRole("recruiter");
+  await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const [{ data: leads }, { data: owners }, { data: settings }] = await Promise.all([
-    admin
-      .from("lead_intake")
-      .select("id,name,email,phone,company,service,status,job_id,created_at,message,hours,start_time,timezone,source_page,page_url,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,won_at,lost_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_completed_at,discovery_notes,discovery_outcome,discovery_cancelled_at,discovery_rescheduled_at,attachment_path,attachment_name,attachment_type")
-      .order("created_at", { ascending: false })
-      .limit(500),
+
+  const view = params.view || "recent";
+  const q = String(params.q || "").trim();
+  const ownerFilter = String(params.owner || "");
+  const parsedPage = Number.parseInt(String(params.page || "1"), 10);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+  const [{ data: pagePayload, error: pageError }, { data: owners }, { data: settings }] = await Promise.all([
+    admin.rpc("recruiter_leads_page", {
+      p_view: view,
+      p_query: q || null,
+      p_owner_id: ownerFilter || null,
+      p_page: page,
+      p_page_size: PAGE_SIZE
+    }),
     admin
       .from("profiles")
       .select("id,full_name,role,account_status")
@@ -86,91 +97,33 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       .eq("id", 1)
       .maybeSingle()
   ]);
+  if (pageError) throw pageError;
 
-  const leadRows = leads || [];
-  const leadIds = leadRows.map((lead: any) => lead.id);
-  const [{ data: activity }, { data: proposals }] = leadIds.length
-    ? await Promise.all([
-        admin
-          .from("recruiter_activity")
-          .select("id,subject_id,action,description,created_at")
-          .eq("subject_type", "lead")
-          .in("subject_id", leadIds)
-          .or("action.like.client_contact_%,action.eq.client_followup_sent,action.like.proposal_%")
-          .order("created_at", { ascending: false })
-          .limit(2000),
-        admin
-          .from("lead_proposals")
-          .select("id,lead_id,public_token,status,role_title,service_model,placement_fee,managed_markup_percent,estimated_monthly_total,expires_at,sent_at,viewed_at,changes_requested_at,accepted_at,declined_at,decline_reason,created_at")
-          .in("lead_id", leadIds)
-          .order("created_at", { ascending: false })
-          .limit(1000)
-      ])
-    : [{ data: [] as any[] }, { data: [] as any[] }];
+  const payload = (pagePayload || {}) as any;
+  const visible = Array.isArray(payload.leads) ? payload.leads : [];
+  const metrics = payload.metrics || {};
+  const total = Number(payload.total || 0);
+  const currentPage = Math.max(1, Number(payload.page || page));
+  const pageSize = Math.max(1, Number(payload.page_size || PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const latestByLead = new Map<string, any>();
   const countByLead = new Map<string, number>();
-  for (const row of activity || []) {
-    countByLead.set(row.subject_id, (countByLead.get(row.subject_id) || 0) + 1);
-    if (!latestByLead.has(row.subject_id)) latestByLead.set(row.subject_id, row);
-  }
   const latestProposalByLead = new Map<string, any>();
-  for (const proposal of proposals || []) {
-    if (!latestProposalByLead.has(proposal.lead_id)) latestProposalByLead.set(proposal.lead_id, proposal);
+  for (const lead of visible) {
+    if (lead.latest_activity) latestByLead.set(lead.id, lead.latest_activity);
+    countByLead.set(lead.id, Number(lead.contact_count || 0));
+    if (lead.latest_proposal) latestProposalByLead.set(lead.id, lead.latest_proposal);
   }
 
   const ownerMap = new Map((owners || []).map((owner: any) => [owner.id, owner.full_name || (owner.role === "admin" ? "Admin" : "Recruiter")]));
   const now = Date.now();
-  const next24h = now + 24 * 60 * 60 * 1000;
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0,0,0,0);
-
-  const needsFirstContact = leadRows.filter((lead: any) => (lead.crm_stage || "new") === "new" && !lead.first_contact_at).length;
-  const followUpsDue = leadRows.filter((lead: any) => isOpenLeadStage(lead.crm_stage) && lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() <= now).length;
-  const discoveryBooked = leadRows.filter((lead: any) => lead.discovery_scheduled_at && !lead.discovery_completed_at && new Date(lead.discovery_scheduled_at).getTime() >= now - 2 * 60 * 60 * 1000).length;
-  const qualifiedCount = leadRows.filter((lead: any) => ["qualified","shortlist_sent"].includes(lead.crm_stage)).length;
-  const wonThisMonth = leadRows.filter((lead: any) => lead.crm_stage === "won" && lead.won_at && new Date(lead.won_at).getTime() >= monthStart.getTime()).length;
-  const openPipelineValue = leadRows
-    .filter((lead: any) => isOpenLeadStage(lead.crm_stage))
-    .reduce((sum: number, lead: any) => sum + Number(lead.estimated_value_usd || 0), 0);
-
-  const view = params.view || "recent";
-  const q = String(params.q || "").trim().toLowerCase();
-  const ownerFilter = String(params.owner || "");
-  const visible = leadRows.filter((lead: any) => {
-    const stage = lead.crm_stage || "new";
-    const followAt = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
-    const matchesView =
-      view === "attention" ? isOpenLeadStage(stage) && (stage === "new" || Boolean(followAt && followAt <= next24h)) :
-      view === "open" ? isOpenLeadStage(stage) && stage !== "nurture" :
-      view === "discovery" ? stage === "discovery_booked" :
-      view === "qualified" ? ["qualified","shortlist_sent"].includes(stage) :
-      view === "nurture" ? stage === "nurture" :
-      view === "won" ? stage === "won" :
-      view === "lost" ? stage === "lost" :
-      true;
-    if (!matchesView) return false;
-    if (ownerFilter && String(lead.owner_id || "") !== ownerFilter) return false;
-    if (q) {
-      const haystack = [lead.name, lead.email, lead.company, lead.service, lead.message].map((x) => String(x || "").toLowerCase()).join(" ");
-      if (!haystack.includes(q)) return false;
-    }
-    return true;
-  }).sort((a: any, b: any) => {
-    if (view === "recent") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || String(b.id).localeCompare(String(a.id));
-    const priority = (lead: any) => {
-      const stage = lead.crm_stage || "new";
-      const age = now - new Date(lead.created_at).getTime();
-      const followAt = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
-      if (stage === "new" && !lead.first_contact_at && age > 30 * 60000) return 0;
-      if (followAt && followAt < now && isOpenLeadStage(stage)) return 1;
-      if (stage === "new") return 2;
-      if (followAt && followAt <= next24h && isOpenLeadStage(stage)) return 3;
-      return 4;
-    };
-    return priority(a) - priority(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  });
+  const needsFirstContact = Number(metrics.needs_first_contact || 0);
+  const followUpsDue = Number(metrics.followups_due || 0);
+  const discoveryBooked = Number(metrics.discovery_booked || 0);
+  const qualifiedCount = Number(metrics.qualified || 0);
+  const wonThisMonth = Number(metrics.won_this_month || 0);
+  const openPipelineValue = Number(metrics.open_pipeline_value || 0);
 
   const viewTabs = [
     ["recent", "Newest leads"],
@@ -184,10 +137,20 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     ["all", "All"]
   ] as const;
 
+  const buildHref = (targetPage?: number) => {
+    const next = new URLSearchParams();
+    next.set("view", view);
+    if (params.q) next.set("q", params.q);
+    if (ownerFilter) next.set("owner", ownerFilter);
+    if (targetPage && targetPage > 1) next.set("page", String(targetPage));
+    return `/workspace/recruiter/leads?${next.toString()}`;
+  };
+
   const currentParams = new URLSearchParams();
   if (view) currentParams.set("view", view);
   if (params.q) currentParams.set("q", params.q);
   if (params.owner) currentParams.set("owner", params.owner);
+  if (currentPage > 1) currentParams.set("page", String(currentPage));
   const returnTo = `/workspace/recruiter/leads?${currentParams.toString()}`;
   const defaultPlacementFee = Number(settings?.default_placement_fee || 0);
   const defaultManagedMarkup = Number(settings?.default_managed_markup_percent || 0);
@@ -227,7 +190,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
       </div>
 
-      {view === "recent" ? <p className="small muted">Newest enquiries first, across all stages. Search and owner filters still apply. Showing up to the 500 most recent enquiries.</p> : null}
+      {view === "recent" ? <p className="small muted">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
 
       <form method="get" className="recruiter-filter-panel crm-filter-panel">
         <input type="hidden" name="view" value={view}/>
@@ -241,7 +204,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       </form>
 
       <div className="row-between wrap crm-results-head">
-        <span className="small muted"><strong>{visible.length}</strong> lead{visible.length === 1 ? "" : "s"} in this view</span>
+        <span className="small muted"><strong>{total}</strong> lead{total === 1 ? "" : "s"} in this view · page {Math.min(currentPage,totalPages)} of {totalPages}</span>
         {view === "attention" ? <span className="small muted">Sorted by missed SLA, overdue follow-up, then newest lead.</span> : null}
       </div>
 
@@ -412,6 +375,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           </article>;
         }) : <div className="card empty"><h3>Nothing needs attention here.</h3><p>Change the filter or move on to the next recruiter queue.</p></div>}
       </div>
+
+      {totalPages > 1 ? <div className="row-between wrap crm-results-head" aria-label="Lead pagination">
+        {currentPage > 1 ? <Link className="btn btn-sm" href={buildHref(currentPage - 1)}>Previous</Link> : <span/>}
+        <span className="small muted">Page {Math.min(currentPage,totalPages)} of {totalPages}</span>
+        {currentPage < totalPages ? <Link className="btn btn-sm" href={buildHref(currentPage + 1)}>Next</Link> : <span/>}
+      </div> : null}
     </>
   );
 }

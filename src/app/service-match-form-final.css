@@ -1,0 +1,24 @@
+/* Final compact treatment for the service-page match form. */
+.service-match-message-field {
+  gap: 5px !important;
+}
+.service-match-message-field small {
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.service-match-form-compact .service-match-message {
+  min-height: 76px !important;
+  max-height: 132px;
+  padding: 10px 11px !important;
+  resize: vertical;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .service-match-form-compact .service-match-message {
+    min-height: 70px !important;
+    max-height: 118px;
+  }
+}

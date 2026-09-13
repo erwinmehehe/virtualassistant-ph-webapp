@@ -15,18 +15,24 @@ const VA_FACING_PATHS = [
   "/workspace/va",
 ];
 
+const HIGH_INTENT_PATHS = ["/hire", "/pricing", "/services", "/contact"];
+
 function isVaFacingPath(pathname: string) {
   return VA_FACING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
+function isHighIntentPath(pathname: string) {
+  return HIGH_INTENT_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 /**
  * Floating discovery-call prompt for public client-facing pages.
  *
- * Appears after the visitor has scrolled a little, so it does not cover the
- * hero on arrival, and stays dismissed for the rest of the browser session
- * once closed. It is intentionally hidden from VA-focused application, jobs,
- * and workspace routes so applicants do not mistake a client sales call for
- * a VA interview.
+ * Appears only after meaningful intent: on a hiring/pricing/services/contact
+ * page after a scroll, or after the visitor begins a public form and moves
+ * toward leaving it. It never covers the hero on arrival and is hidden from
+ * VA-focused routes so applicants do not mistake a client sales call for a
+ * VA interview.
  */
 export function FloatingCta() {
   const pathname = usePathname();
@@ -39,13 +45,29 @@ export function FloatingCta() {
     } catch {
       setDismissed(false);
     }
-    const onScroll = () => setVisible(window.scrollY > 600);
+    const onScroll = () => setVisible((current) => current || (isHighIntentPath(pathname) && window.scrollY > 600));
+    const onFormFocus = (event: FocusEvent) => {
+      const target = event.target;
+      if (target instanceof HTMLElement && target.closest("main form")) {
+        sessionStorage.setItem("va_discovery_form_started", "1");
+      }
+    };
+    const onMouseOut = (event: MouseEvent) => {
+      if (event.relatedTarget || !sessionStorage.getItem("va_discovery_form_started")) return;
+      setVisible(true);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    document.addEventListener("focusin", onFormFocus);
+    document.addEventListener("mouseout", onMouseOut);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("focusin", onFormFocus);
+      document.removeEventListener("mouseout", onMouseOut);
+    };
+  }, [pathname]);
 
-  if (isVaFacingPath(pathname) || dismissed || !visible) return null;
+  if (isVaFacingPath(pathname) || (!isHighIntentPath(pathname) && !visible) || dismissed || !visible) return null;
 
   const close = () => {
     setDismissed(true);

@@ -45,7 +45,8 @@ export function FloatingCta() {
     } catch {
       setDismissed(false);
     }
-    const onScroll = () => setVisible((current) => current || (isHighIntentPath(pathname) && window.scrollY > 600));
+    setVisible(pathname === "/");
+    const onScroll = () => setVisible((current) => current || (pathname !== "/" && isHighIntentPath(pathname) && window.scrollY > 600));
     const onFormFocus = (event: FocusEvent) => {
       const target = event.target;
       if (target instanceof HTMLElement && target.closest("main form")) {

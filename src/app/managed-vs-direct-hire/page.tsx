@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, X } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck, X } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
@@ -25,11 +27,14 @@ const rows: [string, string, string][] = [
 
 export default function ManagedVsDirectHirePage() {
   return <><SiteHeader/><main id="main-content">
-    <section className="section public-hero-small"><div className="container"><div className="public-page-head">
-      <h1 className="public-page-title">Managed Virtual Assistant vs. Direct Hire</h1>
-      <p className="public-lede">Both start the same way -- we recruit, screen, and match a vetted candidate to your role. The difference is what happens after your Virtual Assistant starts.</p>
-      <div className="row wrap" style={{ marginTop: 20 }}><Link className="btn btn-primary btn-lg" href="/hire">Get a managed Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/pricing">See pricing</Link></div>
-    </div></div></section>
+    <MarketingHero
+      eyebrow="Compare your hiring model"
+      title={<h1 className="public-page-title">Managed Virtual Assistant vs. Direct Hire</h1>}
+      intro={<p className="public-lede">Both start the same way -- we recruit, screen, and match a vetted candidate to your role. The difference is what happens after your Virtual Assistant starts.</p>}
+      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Get a managed Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/pricing">See pricing</Link></>}
+      trust={<><span><ShieldCheck size={15}/>Recruiting and screening included</span><span><CheckCircle2 size={15}/>Choose the support model that fits</span><span><CheckCircle2 size={15}/>Terms before commitment</span></>}
+      form={<RoleBriefForm sourcePath="/managed-vs-direct-hire" heading="Get a recommendation for your role" subheading="Share the workload, hours, budget, and schedule. We will help you decide whether managed support or direct hire fits better." />}
+    />
 
     <section className="section section-white"><div className="container">
       <div className="table-wrap responsive-table" style={{ background: "#fff" }}><table>

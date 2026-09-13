@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, CheckCircle2, Search, ShieldCheck, UsersRound } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
 
@@ -43,32 +45,15 @@ export default function IndustriesPage() {
   const specializationCount = INDUSTRIES.length - standalone.length;
 
   return <><SiteHeader/><main id="main-content">
-    <section className="industries-hero">
-      <div className="container industries-hero-grid">
-        <div className="industries-hero-copy">
-          <div className="industries-eyebrow">Industry-specific Virtual Assistant hiring</div>
-          <h1>Hire a virtual assistant who already understands your type of business.</h1>
-          <p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>
-          <div className="industries-hero-actions">
-            <Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link>
-            <Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link>
-          </div>
-          <div className="industries-proof-row">
-            <span><ShieldCheck size={16}/>Approved talent</span>
-            <span><UsersRound size={16}/>Role-specific matching</span>
-            <span><Search size={16}/>Industry hiring guides</span>
-          </div>
-        </div>
-        <aside className="industries-hero-panel">
-          <div className="industries-panel-kicker">A better way to scope the role</div>
-          <h2>Use the guide before we start recruiting.</h2>
-          <div className="industries-panel-step"><span>01</span><div><strong>Choose your industry</strong><p>Start with the closest operating context, even if your company spans several services.</p></div></div>
-          <div className="industries-panel-step"><span>02</span><div><strong>Pick the workflows to delegate</strong><p>Separate recurring admin from decisions that must stay with your local team.</p></div></div>
-          <div className="industries-panel-step"><span>03</span><div><strong>Hire against evidence</strong><p>Compare relevant experience, tools, communication, schedule, and examples of similar work.</p></div></div>
-          <Link className="text-link" href="/how-vetting-works">See how Virtual Assistant vetting works <ArrowRight size={14}/></Link>
-        </aside>
-      </div>
-    </section>
+    <MarketingHero
+      className="industries-hero"
+      eyebrow="Industry-specific Virtual Assistant hiring"
+      title={<h1>Hire a virtual assistant who already understands your type of business.</h1>}
+      intro={<p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>}
+      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
+      trust={<><span><ShieldCheck size={16}/>Approved talent</span><span><UsersRound size={16}/>Role-specific matching</span><span><Search size={16}/>Industry hiring guides</span></>}
+      form={<RoleBriefForm sourcePath="/industries" heading="Get an industry-fit shortlist" subheading="Share the workflow, hours, budget, and schedule. We will screen for relevant experience and tools." />}
+    />
 
     <section className="industries-stat-strip" aria-label="Industry directory summary">
       <div className="container industries-stats">

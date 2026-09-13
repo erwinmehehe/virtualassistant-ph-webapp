@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, BookOpen, Calculator, CalendarDays, CheckCircle2, ClipboardList, ExternalLink, ListChecks, ShieldCheck, UserRound } from "lucide-react";
 import { ServiceMatchForm } from "@/components/service-match-form";
+import { RoleBriefForm } from "@/components/role-brief-form";
 import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
-
 
 function articleFor(value: string) {
   return /^[aeiou]/i.test(value) || /^(SEO|IT|HR|HVAC)\b/i.test(value) ? "an" : "a";
@@ -61,6 +61,18 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const matchHref = service ? `${serviceHref}#match-request` : sourceHireHref;
   const roleLabel = service?.name.replace(/ Virtual Assistant$/i, "") || "virtual assistant";
   const matchExample = service ? `Own ${service.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, blockers, and next steps.` : "Tell us the recurring work you want to delegate, the hours you need, and what a good outcome looks like.";
+  const heroForm = service ? <ServiceMatchForm
+    slug={service.slug}
+    category={service.directoryCategory}
+    roleLabel={roleLabel}
+    example={matchExample}
+    talentHref={`/find-talent?category=${encodeURIComponent(service.directoryCategory)}`}
+    sourcePath={blogHref(post)}
+  /> : <RoleBriefForm
+    sourcePath={blogHref(post)}
+    heading="Turn this research into a shortlist"
+    subheading="Share the workload, schedule, and budget while the hiring context is fresh."
+  />;
   const headings = [
     ...post.sections.map((section) => ({ id: idFor(section.heading), label: section.heading })),
     { id: "frequently-asked-questions", label: "Frequently asked questions" }
@@ -85,7 +97,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </div>
           {post.reviewedBy ? <div className="blog-reviewed"><BadgeCheck size={17}/><span>Reviewed by <strong>{post.reviewedBy}</strong></span></div> : null}
         </div>
-        <aside className="blog-hero-aside">
+        <aside className="blog-hero-aside stack">
+          {heroForm}
           <div className="blog-hero-card">
             <div className="kicker">Turn the research into a hire</div>
             <h2>{service ? `Need ${articleFor(roleLabel)} ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h2>

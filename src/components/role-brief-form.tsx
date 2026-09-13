@@ -1,13 +1,16 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { submitRoleBriefAction } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
 import { VA_CATEGORIES } from "@/lib/constants";
 
 /**
- * The role brief form, extracted so pages other than /hire can carry it.
+ * Shared lead form for public marketing pages.
  *
- * submitRoleBriefAction returns the visitor to whichever path is submitted as
- * source_path, so the same form works wherever it is placed without bouncing
- * people to a page they did not start on.
+ * The server action returns visitors to the source page. Reading the redirect
+ * query string here lets static SEO pages show success and error states without
+ * making every page server component depend on searchParams.
  */
 export function RoleBriefForm({
   sourcePath,
@@ -22,7 +25,20 @@ export function RoleBriefForm({
   error?: string;
   sent?: boolean;
 }) {
-  if (sent) {
+  const [urlState, setUrlState] = useState<{ error?: string; sent?: boolean }>({});
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setUrlState({
+      error: error === undefined ? params.get("error") || undefined : undefined,
+      sent: sent === undefined ? params.get("sent") === "1" : undefined
+    });
+  }, [error, sent]);
+
+  const resolvedError = error ?? urlState.error;
+  const resolvedSent = sent ?? urlState.sent ?? false;
+
+  if (resolvedSent) {
     return (
       <div className="card compact-hire-form role-brief-sent" role="status">
         <h2>Hiring request received</h2>
@@ -35,7 +51,7 @@ export function RoleBriefForm({
   return (
     <form action={submitRoleBriefAction} className="card stack compact-hire-form">
       <div className="compact-hire-form-head"><h2>{heading}</h2><p className="small muted">{subheading}</p></div>
-      {error ? <div className="alert" role="alert">{error}</div> : null}
+      {resolvedError ? <div className="alert" role="alert">{resolvedError}</div> : null}
       <AttributionFields sourcePath={sourcePath} />
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off"/></label></div>
 

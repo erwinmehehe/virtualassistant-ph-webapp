@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Search } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, CheckCircle2, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { BLOG_POSTS, BLOG_TOPICS, blogHref, type BlogTopic } from "@/lib/blog";
+import { MarketingHero } from "@/components/marketing-hero";
+import { RoleBriefForm } from "@/components/role-brief-form";
+import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
@@ -25,7 +27,15 @@ export default function BlogPage() {
   const featured = featuredSlugs.map((slug) => BLOG_POSTS.find((p) => p.slug === slug)).filter(Boolean) as typeof BLOG_POSTS;
   const recent = BLOG_POSTS.slice(0, 12);
   return <><SiteHeader/><main id="main-content">
-    <section className="blog-index-hero"><div className="container blog-index-hero-grid"><div><h1>Build a better remote team, one clear workflow at a time.</h1><p>Practical hiring, pricing, delegation, and role-specific guides for businesses working with Filipino virtual assistants. Every article is connected to the service page, tool, or next action it supports.</p><div className="hero-actions"><Link className="btn btn-primary btn-lg" href="/hire" data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={16}/>VA cost calculator</Link></div></div><div className="blog-index-search-card"><Search size={22}/><div><strong>Looking for a specific role?</strong><p>Use the service library to find role-specific guides, approved talent, interview questions, costs, and hiring checklists.</p><Link href="/services">Browse all VA services <ArrowRight size={14}/></Link></div></div></div></section>
+    <MarketingHero
+      className="blog-index-hero"
+      eyebrow="Virtual Assistant hiring resources"
+      title={<h1>Build a better remote team, one clear workflow at a time.</h1>}
+      intro={<p>Practical hiring, pricing, delegation, and role-specific guides for businesses working with Filipino virtual assistants. Every article is connected to the service page, tool, or next action it supports.</p>}
+      actions={<><Link className="btn btn-primary btn-lg" href="/hire" data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={16}/>VA cost calculator</Link></>}
+      trust={<><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>Recruiter-reviewed matching</span><span><CheckCircle2 size={15}/>No account required</span></>}
+      form={<RoleBriefForm sourcePath="/blog" heading="Turn the research into a shortlist" subheading="Share the workload, schedule, and budget while the hiring context is fresh." />}
+    />
 
     <section className="section section-white"><div className="container"><div className="section-head"><div className="kicker">Browse by topic</div><h2>Start with the decision you are trying to make.</h2></div><div className="blog-topic-grid">{Object.entries(BLOG_TOPICS).map(([slug, topic]) => {
       const count = BLOG_POSTS.filter((p) => p.topic === slug).length;

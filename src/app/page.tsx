@@ -36,9 +36,9 @@ import "./premium-home.css";
 import "./cro-hiring-tools.css";
 
 export const metadata: Metadata = {
-  title: { absolute: "Hire Virtual Assistants | Virtual Assistant Philippines" },
+  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
   description:
-    "Virtual Assistant Philippines — hire vetted, screened Filipino Virtual Assistants matched to your role. Browse approved talent or request a private shortlist today.",
+    "Hire vetted Filipino virtual assistants matched to your role. Browse approved talent or request a private shortlist from our Philippines recruiting team.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",
@@ -47,6 +47,17 @@ export const metadata: Metadata = {
     "outsource to the philippines",
   ],
   alternates: { canonical: canonicalPath("/") },
+  openGraph: {
+    type: "website",
+    title: "Virtual Assistant Philippines | Hire Vetted Filipino VAs",
+    description: "Hire vetted Filipino virtual assistants matched to your role. Browse approved talent or request a private shortlist from our Philippines recruiting team.",
+    url: canonicalPath("/"),
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Virtual Assistant Philippines | Hire Vetted Filipino VAs",
+    description: "Hire vetted Filipino virtual assistants matched to your role. Browse approved talent or request a private shortlist from our Philippines recruiting team.",
+  },
 };
 
 const BOOKING_URL = "/book-client-call";
@@ -87,7 +98,7 @@ const faqs = [
   ],
   [
     "How much does a Virtual Assistant cost?",
-    "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 5/hour. Our service fee is separate and shown before you make a hiring commitment.",
+    "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour. Our service fee is separate and shown before you make a hiring commitment.",
   ],
   [
     "Can I request a specific Virtual Assistant?",
@@ -354,12 +365,11 @@ export default async function HomePage({
           </div>
         </section>
 
-
         <section className="pva-section pva-soft">
           <div className="container">
             <div className="pva-section-head pva-centered">
               <span className="pva-kicker">Specialists, not generic profiles</span>
-              <h2>Hire around the work your business actually needs done.</h2>
+              <h2>Virtual Assistant services in the Philippines for the work you need done.</h2>
               <p>Explore role-specific Virtual Assistant services and see what each specialty can own for your team.</p>
             </div>
             <div className="pva-role-grid">
@@ -407,13 +417,14 @@ export default async function HomePage({
           <div className="container pva-seo-grid">
             <div>
               <span className="pva-kicker">Virtual Assistant Philippines</span>
-              <h2>Why businesses build remote teams in the Philippines</h2>
+              <h2>Why hire a Virtual Assistant in the Philippines?</h2>
               <p>Filipino professionals commonly work in English and support international businesses across administration, customer service, marketing, finance, ecommerce, real estate, healthcare, and specialist operational roles.</p>
               <p>The advantage is not simply lower cost. The real value comes from hiring someone with the right experience, communication style, tools, schedule, and ownership for the work your team needs to hand off.</p>
+              <p>Explore our <Link href="/services">Virtual Assistant services</Link>, <Link href="/industries">industry hiring guides</Link>, <Link href="/how-vetting-works">vetting process</Link>, and <Link href="/pricing">pricing</Link> before you build your shortlist.</p>
             </div>
             <div className="pva-seo-card">
               <h3>What should you budget?</h3>
-              <p>Rates vary by experience, specialty, toolset, work schedule, and responsibility. Ongoing hourly roles through our service cannot be budgeted below USD 5/hour.</p>
+              <p>Rates vary by experience, specialty, toolset, work schedule, and responsibility. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour.</p>
               <p>Virtual Assistant compensation and our service fee are shown separately before you make a hiring commitment, so you can see what the VA earns and what the service costs.</p>
               <Link href="/pricing" className="pva-text-link">See pricing details <ArrowRight size={15} /></Link>
             </div>

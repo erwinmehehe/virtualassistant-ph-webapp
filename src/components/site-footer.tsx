@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { FloatingCta } from "@/components/floating-cta";
+import { HomepageShowcase } from "@/components/homepage-showcase";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
@@ -18,6 +19,7 @@ export function SiteFooter() {
   return (
     <>
       <FloatingCta />
+      <HomepageShowcase />
       <footer className="footer va-site-footer">
         <div className="container va-footer-cta">
           <div>

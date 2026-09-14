@@ -8,11 +8,12 @@ import "./talent-card-refresh.css";
 import "./premium-marketing-final.css";
 import "./va-design.css";
 import "./nav-cro.css";
+import "./homepage-showcase.css";
+import "./site-redesign-final.css";
 import "./service-visual-qa.css";
 import "./service-visual-qa-final.css";
 import "./service-match-form-final.css";
-import "./homepage-showcase.css";
-import "./site-redesign-final.css";
+import "./service-visual-qa-v2.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

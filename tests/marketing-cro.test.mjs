@@ -11,6 +11,7 @@ test("public marketing shell loads the shared CRO design system", () => {
   const header = source("src/components/site-header.tsx");
   const nav = source("src/components/site-nav.tsx");
   const footer = source("src/components/site-footer.tsx");
+  const footerCta = source("src/components/footer-cta.tsx");
   const floating = source("src/components/floating-cta.tsx");
 
   assert.match(layout, /import "\.\/va-design\.css"/);
@@ -25,7 +26,10 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(floating, /INTERNAL_PATHS/);
   assert.match(floating, /floating-cta-compact/);
   assert.match(floating, /<span>Book a call<\/span>/);
-  assert.match(footer, /href="\/book-client-call"/);
+  assert.match(footer, /<FooterCta\s*\/>/);
+  assert.doesNotMatch(footer, /HomepageShowcase/);
+  assert.match(footerCta, /href="\/book-client-call"/);
+  assert.match(footerCta, /pathname === "\/"/);
 });
 
 test("high-value public heroes keep their H1 copy and carry a conversion form", () => {

@@ -1,0 +1,26 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const form = readFileSync(new URL("../src/components/role-brief-form.tsx", import.meta.url), "utf8");
+
+test("public hiring request removes job description and SOP upload", () => {
+  assert.doesNotMatch(form, /Job description or SOP/i);
+  assert.doesNotMatch(form, /name="attachment"/);
+  assert.doesNotMatch(form, /type="file"/);
+});
+
+test("contact details are always visible and required", () => {
+  assert.match(form, /<h3>Contact details<\/h3>/);
+  assert.doesNotMatch(form, /hire-optional-details/);
+  assert.doesNotMatch(form, /Add contact details/);
+  assert.match(form, /name="name" required/);
+  assert.match(form, /name="company" required/);
+  assert.match(form, /name="email" type="email" required/);
+  assert.match(form, /name="phone" type="tel" required/);
+});
+
+test("homepage hiring budget begins at the supported six-dollar minimum", () => {
+  assert.match(form, /USD 6 to 8\/hour/);
+  assert.doesNotMatch(form, /USD 5 to 8\/hour/);
+});

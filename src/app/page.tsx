@@ -11,7 +11,6 @@ import {
   Clock3,
   Globe2,
   Headphones,
-  MessageSquareText,
   PhoneCall,
   SearchCheck,
   ShieldCheck,
@@ -34,6 +33,7 @@ import { TalentShortlistBar, TalentShortlistButton } from "@/components/talent-s
 import { VaCostCalculator } from "@/components/va-cost-calculator";
 import "./premium-home.css";
 import "./cro-hiring-tools.css";
+import "./homepage-seo-evidence.css";
 
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
@@ -75,6 +75,19 @@ const GROUP_BLURBS: Record<string, string> = {
   "Executive Support": "Calendar control, travel, briefing notes, and follow-through after meetings.",
 };
 
+const GROUP_DISPLAY_NAMES: Record<string, string> = {
+  "Admin & Operations": "Administrative & Executive Virtual Assistants",
+  Healthcare: "Healthcare Virtual Assistants",
+  "Marketing & Growth": "Marketing & Social Media Virtual Assistants",
+  "Finance & Accounting": "Bookkeeping & Finance Virtual Assistants",
+  "Sales & CRM": "Sales & Lead Generation Virtual Assistants",
+  Ecommerce: "Ecommerce Virtual Assistants",
+  "Real Estate": "Real Estate Virtual Assistants",
+  "Customer & Front Desk": "Customer Service Virtual Assistants",
+  "Creative & Content": "Creative & Content Virtual Assistants",
+  "Executive Support": "Executive Virtual Assistants",
+};
+
 const roleGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
     const list = groups.get(page.group) || [];
@@ -89,20 +102,28 @@ const roleGroups = Array.from(
 
 const faqs = [
   [
-    "What does vetted mean?",
-    "A public Virtual Assistant profile only appears after the candidate completes the required profile, category skills test, video introduction, recruiter review, and final approval workflow.",
+    "How much does a Virtual Assistant in the Philippines cost?",
+    "Compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour, and the service fee is shown separately before you make a hiring commitment.",
+  ],
+  [
+    "How do you vet Filipino Virtual Assistants?",
+    "Public profiles only appear after the candidate completes the required profile, category skills test, video introduction, recruiter review, and final approval workflow.",
+  ],
+  [
+    "Can a Filipino Virtual Assistant work US, UK, or Australian business hours?",
+    "Availability varies by candidate. Public profiles show weekly availability, and the hiring brief captures timezone and schedule so the recruiting team can match and confirm coverage before you interview.",
+  ],
+  [
+    "What tasks can a Filipino Virtual Assistant handle?",
+    "Common roles include administrative and executive support, customer service, sales and lead generation, marketing, ecommerce, bookkeeping and finance support, real estate, healthcare support, and creative or technical work.",
+  ],
+  [
+    "Can I interview candidates before hiring?",
+    "Yes. We screen and narrow the field, but you choose who to interview and you make the final hiring decision.",
   ],
   [
     "Do I have to sort through every applicant?",
-    "No. Our recruiting team can screen the role and build a focused shortlist so you spend your time on the candidates worth interviewing.",
-  ],
-  [
-    "How much does a Virtual Assistant cost?",
-    "Virtual Assistant compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour. Our service fee is separate and shown before you make a hiring commitment.",
-  ],
-  [
-    "Can I request a specific Virtual Assistant?",
-    "Yes. Open a public talent profile and request an introduction. The selected profile stays attached to your hiring request so our recruiting team has the right context when following up.",
+    "No. Our recruiting team can review the role and build a focused shortlist so you spend your time on stronger matches instead of a large applicant pool.",
   ],
   [
     "What happens after I send a hiring request?",
@@ -114,6 +135,14 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+function getMedian(values: number[]) {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2) return sorted[middle];
+  return (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -121,7 +150,7 @@ export default async function HomePage({
 }) {
   const query = await searchParams;
   const supabase = await createClient();
-  const [{ data: featured }] = await Promise.all([
+  const [{ data: featured }, { data: insightRows }] = await Promise.all([
     supabase
       .from("public_va_directory")
       .select(
@@ -133,6 +162,10 @@ export default async function HomePage({
       .order("weekly_hours", { ascending: false })
       .order("full_name", { ascending: true })
       .limit(30),
+    supabase
+      .from("public_va_directory")
+      .select("years_experience,weekly_hours,primary_category")
+      .limit(200),
   ]);
 
   const featuredWithPhotos = (featured ?? [])
@@ -150,6 +183,23 @@ export default async function HomePage({
     schedule: va.schedule,
   }));
 
+  const talentRows = (insightRows ?? []).filter((va: any) => Number.isFinite(Number(va.years_experience)));
+  const experienceValues = talentRows.map((va: any) => Number(va.years_experience));
+  const approvedProfileCount = talentRows.length;
+  const medianExperience = getMedian(experienceValues);
+  const tenPlusYears = talentRows.filter((va: any) => Number(va.years_experience) >= 10).length;
+  const fullTimeAvailable = talentRows.filter((va: any) => Number(va.weekly_hours) >= 40).length;
+  const fullTimeShare = approvedProfileCount ? Math.round((fullTimeAvailable / approvedProfileCount) * 100) : 0;
+  const categoryCounts = new Map<string, number>();
+  for (const va of talentRows as any[]) {
+    const category = typeof va.primary_category === "string" ? va.primary_category.trim() : "";
+    if (!category) continue;
+    categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+  }
+  const topCategories = Array.from(categoryCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 4);
+
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const schema = [
     {
@@ -160,7 +210,35 @@ export default async function HomePage({
       url: base,
       logo: `${base}/icon.svg`,
       description:
-        "Hire vetted virtual assistants from the Philippines. Screened talent, private role briefs, and a clearer hiring process.",
+        "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
+      areaServed: [
+        { "@type": "Country", name: "Australia" },
+        { "@type": "Country", name: "United States" },
+        { "@type": "Country", name: "United Kingdom" },
+      ],
+      knowsAbout: [
+        "Virtual Assistant Philippines",
+        "Filipino Virtual Assistants",
+        "Virtual Assistant recruitment",
+        "Administrative support",
+        "Executive assistance",
+        "Customer service",
+        "Lead generation",
+        "Ecommerce support",
+      ],
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "sales",
+          url: `${base}/contact`,
+          availableLanguage: ["English"],
+          areaServed: ["AU", "US", "GB"],
+        },
+      ],
+      member: [
+        { "@type": "Person", name: "Jervis" },
+        { "@type": "Person", name: "Bryan Batarina" },
+      ],
     },
     {
       "@context": "https://schema.org",
@@ -168,22 +246,8 @@ export default async function HomePage({
       "@id": `${base}/#website`,
       name: "VirtualAssistant.com.ph",
       url: base,
+      inLanguage: "en",
       publisher: { "@id": `${base}/#organization` },
-      potentialAction: {
-        "@type": "SearchAction",
-        target: { "@type": "EntryPoint", urlTemplate: `${base}/find-talent?q={search_term_string}` },
-        "query-input": "required name=search_term_string",
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": `${base}/#faq`,
-      mainEntity: faqs.map(([q, a]) => ({
-        "@type": "Question",
-        name: q,
-        acceptedAnswer: { "@type": "Answer", text: a },
-      })),
     },
   ];
 
@@ -301,6 +365,59 @@ export default async function HomePage({
           </div>
         </section>
 
+        <section className="pva-section pva-evidence-section">
+          <div className="container">
+            <div className="pva-section-head">
+              <span className="pva-kicker">Live approved talent data</span>
+              <h2>What our Filipino Virtual Assistant talent pool looks like right now.</h2>
+              <p>These figures are calculated from profiles currently visible in the approved public directory, not hand-written marketing estimates.</p>
+            </div>
+            <div className="pva-insight-grid">
+              <article className="pva-insight-card"><strong>{approvedProfileCount}</strong><span>approved public profiles in the current directory</span></article>
+              <article className="pva-insight-card"><strong>{Number.isInteger(medianExperience) ? medianExperience : medianExperience.toFixed(1)}</strong><span>median years of experience across approved profiles</span></article>
+              <article className="pva-insight-card"><strong>{tenPlusYears}</strong><span>approved profiles with 10+ years of experience</span></article>
+              <article className="pva-insight-card"><strong>{fullTimeShare}%</strong><span>listing at least 40 hours/week of availability</span></article>
+            </div>
+            <div className="pva-category-proof">
+              <div>
+                <h3>Most represented specialties</h3>
+                <p>The mix changes as candidates complete screening and public approval. Counts below come from the same live directory data.</p>
+              </div>
+              <div className="pva-category-list">
+                {topCategories.map(([category, count]) => <span key={category}>{category} · {count}</span>)}
+              </div>
+            </div>
+            <p className="pva-evidence-note">Public-profile totals can change as availability and approval status change. <Link className="pva-text-link" href="/find-talent">Browse the current approved talent pool <ArrowRight size={14} /></Link></p>
+          </div>
+        </section>
+
+        <section className="pva-section pva-white">
+          <div className="container pva-philippines-grid">
+            <div className="pva-philippines-copy">
+              <span className="pva-kicker">Virtual Assistant Philippines</span>
+              <h2>Why hire a Virtual Assistant in the Philippines?</h2>
+              <p>Filipino professionals support international businesses across administration, executive assistance, customer service, lead generation, marketing, ecommerce, finance, real estate, healthcare support, and specialist operational roles.</p>
+              <p>The advantage is not simply lower cost. The better hiring outcome comes from matching the right experience, communication style, tools, schedule, and ownership to the work your team needs to hand off.</p>
+              <p>Our model combines a public talent directory with human recruiting, so you can <Link href="/find-talent">browse vetted Filipino Virtual Assistants</Link> or <Link href="/hire">send a private hiring brief</Link> and have the team build a focused shortlist around the role.</p>
+              <div className="pva-resource-links" aria-label="Virtual Assistant hiring resources">
+                <Link href="/hire">Hire a Virtual Assistant <ArrowRight size={13} /></Link>
+                <Link href="/find-talent">Browse vetted Filipino VAs <ArrowRight size={13} /></Link>
+                <Link href="/services">Virtual Assistant services <ArrowRight size={13} /></Link>
+                <Link href="/pricing">Virtual Assistant pricing <ArrowRight size={13} /></Link>
+                <Link href="/how-vetting-works">How we vet Virtual Assistants <ArrowRight size={13} /></Link>
+                <Link href="/industries">Virtual Assistants by industry <ArrowRight size={13} /></Link>
+                <Link href="/managed-vs-direct-hire">Managed VA vs. direct hire <ArrowRight size={13} /></Link>
+                <Link href={BOOKING_URL}>Book a hiring consultation <ArrowRight size={13} /></Link>
+              </div>
+            </div>
+            <div className="pva-reason-grid">
+              <article className="pva-reason-card"><h3>Experienced remote professionals</h3><p>The approved directory includes candidates with long operating histories, including profiles with 10+ years of work experience.</p></article>
+              <article className="pva-reason-card"><h3>International schedule matching</h3><p>Availability and timezone requirements are part of the role brief, so schedule fit can be checked before a client spends time interviewing.</p></article>
+              <article className="pva-reason-card"><h3>Recruiter-screened, client-chosen</h3><p>The recruiting team reviews candidate evidence and role fit. You still interview the shortlist and make the final hiring decision.</p></article>
+            </div>
+          </div>
+        </section>
+
         <section className="pva-section pva-soft">
           <div className="container">
             <div className="pva-section-head pva-centered">
@@ -322,6 +439,31 @@ export default async function HomePage({
                 <span className="pva-process-icon"><Headphones size={22} /></span><small>Step 4</small><h3>Hire with support</h3><p>You make the final decision, and managed placements continue with support after the start date.</p>
               </article>
             </div>
+          </div>
+        </section>
+
+        <section className="pva-section pva-white">
+          <div className="container">
+            <div className="pva-section-head pva-centered">
+              <span className="pva-kicker">Who is behind the workflow</span>
+              <h2>Human recruiting and operations, not an anonymous marketplace.</h2>
+              <p>Jervis and Bryan Batarina are active members of the platform operations team. Candidate approval still requires human recruiter review before a profile becomes publicly visible.</p>
+            </div>
+            <div className="pva-team-grid">
+              <article className="pva-team-card">
+                <div className="pva-team-person"><span className="pva-team-avatar">J</span><div><small>Operations team</small><strong>Jervis</strong></div></div>
+                <p>Supports the operational workflow connecting client requests, recruiter activity, and hiring follow-through inside the platform.</p>
+              </article>
+              <article className="pva-team-card">
+                <div className="pva-team-person"><span className="pva-team-avatar">BB</span><div><small>Operations team</small><strong>Bryan Batarina</strong></div></div>
+                <p>Supports the platform operations behind client and recruiter workflows as hiring activity moves from brief to placement.</p>
+              </article>
+              <article className="pva-team-card pva-team-proof">
+                <div className="pva-team-person"><span className="pva-team-avatar"><UsersRound size={17} /></span><div><small>Approval standard</small><strong>Human review before public visibility</strong></div></div>
+                <p>Public profiles are not automatically published from a signup. Required screening and approval steps must be completed first.</p>
+              </article>
+            </div>
+            <div className="pva-team-actions"><Link className="pva-text-link" href="/about">About VirtualAssistant.com.ph <ArrowRight size={14} /></Link><Link className="pva-text-link" href="/how-vetting-works">See the vetting process <ArrowRight size={14} /></Link></div>
           </div>
         </section>
 
@@ -380,7 +522,7 @@ export default async function HomePage({
             <div className="pva-role-grid">
               {roleGroups.map(([group, pages]) => (
                 <article key={group}>
-                  <div className="pva-role-head"><span><Globe2 size={18} /></span><h3>{group}</h3></div>
+                  <div className="pva-role-head"><span><Globe2 size={18} /></span><h3 className="pva-service-heading">{GROUP_DISPLAY_NAMES[group] || group}</h3></div>
                   <p>{GROUP_BLURBS[group]}</p>
                   <div className="pva-role-links">
                     {pages.slice(0, 4).map((page) => <Link key={page.slug} href={`/service/${page.slug}`}>{page.name}</Link>)}
@@ -418,30 +560,12 @@ export default async function HomePage({
           </div>
         </section>
 
-        <section className="pva-section pva-seo-section">
-          <div className="container pva-seo-grid">
-            <div>
-              <span className="pva-kicker">Virtual Assistant Philippines</span>
-              <h2>Why hire a Virtual Assistant in the Philippines?</h2>
-              <p>Filipino professionals commonly work in English and support international businesses across administration, customer service, marketing, finance, ecommerce, real estate, healthcare, and specialist operational roles.</p>
-              <p>The advantage is not simply lower cost. The real value comes from hiring someone with the right experience, communication style, tools, schedule, and ownership for the work your team needs to hand off.</p>
-              <p>Explore our <Link href="/services">Virtual Assistant services</Link>, <Link href="/industries">industry hiring guides</Link>, <Link href="/how-vetting-works">vetting process</Link>, and <Link href="/pricing">pricing</Link> before you build your shortlist.</p>
-            </div>
-            <div className="pva-seo-card">
-              <h3>What should you budget?</h3>
-              <p>Rates vary by experience, specialty, toolset, work schedule, and responsibility. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour.</p>
-              <p>Virtual Assistant compensation and our service fee are shown separately before you make a hiring commitment, so you can see what the VA earns and what the service costs.</p>
-              <Link href="/pricing" className="pva-text-link">See pricing details <ArrowRight size={15} /></Link>
-            </div>
-          </div>
-        </section>
-
         <section className="pva-section pva-white" id="faq">
           <div className="container pva-faq-grid">
             <div className="pva-faq-intro">
               <span className="pva-kicker">Questions, answered</span>
-              <h2>What to know before you hire.</h2>
-              <p>Clear expectations make better placements. These are the questions clients ask most often before sending a role brief.</p>
+              <h2>What to know before you hire a Filipino Virtual Assistant.</h2>
+              <p>Clear answers to the commercial questions clients ask before sending a hiring brief.</p>
               <Link className="pva-text-link" href="/faq">View all FAQs <ArrowRight size={15} /></Link>
             </div>
             <div className="pva-faq-list">

@@ -1,0 +1,251 @@
+/* Homepage evidence/authority layer. Scoped to .pva-home so it does not leak into internal pages. */
+.pva-home .pva-evidence-section {
+  background:
+    radial-gradient(circle at 12% 12%, rgba(79,70,229,.07), transparent 28%),
+    radial-gradient(circle at 88% 78%, rgba(5,150,105,.07), transparent 30%),
+    #f8fafc;
+}
+
+.pva-home .pva-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .85rem;
+  margin-top: 1.35rem;
+}
+
+.pva-home .pva-insight-card {
+  min-width: 0;
+  padding: 1.1rem;
+  border: 1px solid #dfe6ef;
+  border-radius: 1rem;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 34px rgba(15,23,42,.055);
+}
+
+.pva-home .pva-insight-card strong {
+  display: block;
+  color: #111827;
+  font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+
+.pva-home .pva-insight-card span {
+  display: block;
+  margin-top: .45rem;
+  color: #475569;
+  font-size: .78rem;
+  font-weight: 760;
+  line-height: 1.4;
+}
+
+.pva-home .pva-evidence-note {
+  margin: .95rem 0 0;
+  color: #64748b;
+  font-size: .78rem;
+  line-height: 1.55;
+}
+
+.pva-home .pva-category-proof {
+  display: grid;
+  grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: rgba(255,255,255,.78);
+}
+
+.pva-home .pva-category-proof h3 {
+  margin-bottom: .35rem;
+  font-size: 1rem;
+}
+
+.pva-home .pva-category-proof p {
+  margin-bottom: 0;
+  color: #64748b;
+  font-size: .82rem;
+  line-height: 1.55;
+}
+
+.pva-home .pva-category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  justify-content: flex-end;
+}
+
+.pva-home .pva-category-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .48rem .68rem;
+  border: 1px solid #dbe2ec;
+  border-radius: 999px;
+  color: #3730a3;
+  background: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.pva-home .pva-philippines-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(1.2rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.pva-home .pva-philippines-copy > p {
+  color: #526178;
+  line-height: 1.75;
+}
+
+.pva-home .pva-reason-grid {
+  display: grid;
+  gap: .75rem;
+}
+
+.pva-home .pva-reason-card {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15,23,42,.045);
+}
+
+.pva-home .pva-reason-card h3 {
+  margin-bottom: .35rem;
+  font-size: .96rem;
+}
+
+.pva-home .pva-reason-card p {
+  margin-bottom: 0;
+  color: #64748b;
+  font-size: .8rem;
+  line-height: 1.58;
+}
+
+.pva-home .pva-resource-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  margin-top: 1.2rem;
+}
+
+.pva-home .pva-resource-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: .34rem;
+  min-height: 2.4rem;
+  padding: .55rem .72rem;
+  border: 1px solid #dbe2ec;
+  border-radius: .72rem;
+  color: #3730a3;
+  background: #fff;
+  font-size: .72rem;
+  font-weight: 790;
+  transition: .18s ease;
+}
+
+.pva-home .pva-resource-links a:hover {
+  transform: translateY(-1px);
+  border-color: #c7d2fe;
+  background: #f8faff;
+}
+
+.pva-home .pva-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem;
+  margin-top: 1.3rem;
+}
+
+.pva-home .pva-team-card {
+  padding: 1.05rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(15,23,42,.05);
+}
+
+.pva-home .pva-team-person {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-bottom: .8rem;
+}
+
+.pva-home .pva-team-avatar {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: .9rem;
+  color: #fff;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed 58%,#059669);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .02em;
+  box-shadow: 0 10px 22px rgba(79,70,229,.2);
+}
+
+.pva-home .pva-team-person small,
+.pva-home .pva-team-person strong {
+  display: block;
+}
+
+.pva-home .pva-team-person small {
+  margin-bottom: .12rem;
+  color: #64748b;
+  font-size: .66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.pva-home .pva-team-person strong {
+  color: #0f172a;
+  font-size: .98rem;
+}
+
+.pva-home .pva-team-card p {
+  margin-bottom: 0;
+  color: #64748b;
+  font-size: .8rem;
+  line-height: 1.58;
+}
+
+.pva-home .pva-team-proof {
+  background: linear-gradient(145deg,#eef2ff,#ffffff 58%,#ecfdf5);
+  border-color: #c7d2fe;
+}
+
+.pva-home .pva-team-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin-top: 1rem;
+}
+
+.pva-home .pva-service-heading {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 900px) {
+  .pva-home .pva-insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pva-home .pva-philippines-grid,
+  .pva-home .pva-category-proof { grid-template-columns: 1fr; }
+  .pva-home .pva-category-list { justify-content: flex-start; }
+  .pva-home .pva-team-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .pva-home .pva-insight-grid { grid-template-columns: 1fr 1fr; gap: .65rem; }
+  .pva-home .pva-insight-card { padding: .85rem; }
+  .pva-home .pva-resource-links { display: grid; grid-template-columns: 1fr; }
+  .pva-home .pva-resource-links a { justify-content: space-between; }
+}

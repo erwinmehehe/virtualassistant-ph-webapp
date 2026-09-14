@@ -68,11 +68,11 @@ export function ServiceMatchForm({
 
       <div className="service-match-name-grid">
         <div className="field">
-          <label htmlFor={`${id}-name`}>First name</label>
+          <label htmlFor={`${id}-name`}>First name *</label>
           <input id={`${id}-name`} name="name" required maxLength={100} autoComplete="given-name" placeholder="Your first name" />
         </div>
         <div className="field">
-          <label htmlFor={`${id}-email`}>Work email</label>
+          <label htmlFor={`${id}-email`}>Work email *</label>
           <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
         </div>
       </div>

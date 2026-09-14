@@ -37,25 +37,23 @@ export function ServiceMatchForm({
     return <aside className="service-match-card service-match-success service-match-compact" id="match-request" aria-live="polite">
       <div className="service-match-success-icon"><CheckCircle2 size={28} /></div>
       <div className="kicker">Request received</div>
-      <h2>Your request is with our recruiting team.</h2>
+      <h2>Your shortlist request is with our recruiting team.</h2>
       <p>{state.message || "We will review the role and point you to relevant approved talent."}</p>
       <div className="stack service-match-success-actions">
         <a className="btn btn-primary btn-lg" href={HIRING_CALL_URL} data-track="booking_click">Book a client discovery call <ArrowRight size={16} /></a>
         {state.clientLinked && state.jobId ? <Link className="btn btn-lg" href={`/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1`}>Open role in Client Portal <ArrowRight size={16} /></Link> : null}
         <Link className="btn btn-lg" href={talentHref}>Browse relevant Virtual Assistants <ArrowRight size={16} /></Link>
       </div>
-      <div className="service-match-privacy"><LockKeyhole size={14} /><span>Your request stays private while our team reviews it.</span></div>
+      <div className="service-match-privacy"><LockKeyhole size={14} aria-hidden="true" /><span>Your request stays private while our team reviews it.</span></div>
     </aside>;
   }
 
-  return <aside className="service-match-card service-match-compact" id="match-request">
+  return <aside className="service-match-card service-match-compact" id="match-request" aria-labelledby={`${id}-title`}>
     <div className="service-match-head">
-      <div className="kicker">Quick match</div>
-      <h2>Want us to narrow the list?</h2>
-      <p>We already know you are looking for {displayRole} Virtual Assistant support. Tell us where to follow up.</p>
+      <div className="kicker">Private shortlist</div>
+      <h2 id={`${id}-title`}>Get a shortlist for this role.</h2>
+      <p>Share your name and work email. We will send relevant approved {displayRole} Virtual Assistant candidates.</p>
     </div>
-
-    <div className="service-match-divider" />
 
     <form action={formAction} className="service-match-form service-match-form-compact">
       <input type="hidden" name="slug" value={slug} />
@@ -80,9 +78,9 @@ export function ServiceMatchForm({
       </div>
 
       <button className="btn btn-lg service-match-submit" type="submit" disabled={pending} data-track={`service_${slug.replaceAll("-", "_")}_match`}>
-        {pending ? "Sending request..." : "Get matched"} {!pending ? <ArrowRight size={17} /> : null}
+        {pending ? "Sending request..." : "Get my shortlist"} {!pending ? <ArrowRight size={17} aria-hidden="true" /> : null}
       </button>
-      <div className="service-match-privacy"><LockKeyhole size={14} /><span>About 20 seconds. No account required. No obligation.</span></div>
+      <div className="service-match-privacy"><LockKeyhole size={13} aria-hidden="true" /><span>Private request. No account needed.</span></div>
     </form>
   </aside>;
 }

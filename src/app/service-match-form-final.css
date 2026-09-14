@@ -1,24 +1,208 @@
-/* Final compact treatment for the service-page match form. */
-.service-match-message-field {
-  gap: 5px !important;
+/* Final service match treatment. Keep the conversion form integrated with the hero instead of rendering another SaaS card. */
+.service-match-card.service-match-compact {
+  width: 100%;
+  align-self: center !important;
+  align-content: start !important;
+  gap: 18px;
+  padding: 6px 0 6px 30px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(15, 23, 42, .12) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
-.service-match-message-field small {
-  color: #667085;
-  font-size: 11.5px;
-  line-height: 1.4;
+
+.service-match-compact .service-match-head {
+  max-width: 430px;
 }
-.service-match-form-compact .service-match-message {
-  min-height: 76px !important;
-  max-height: 132px;
-  padding: 10px 11px !important;
-  resize: vertical;
-  font-size: 13.5px;
-  line-height: 1.5;
+
+.service-match-compact .service-match-head .kicker,
+.service-match-compact.service-match-success > .kicker {
+  color: #444ce7 !important;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.service-match-compact .service-match-head h2,
+.service-match-compact.service-match-success h2 {
+  margin: 7px 0 7px !important;
+  max-width: 430px;
+  color: #101828;
+  font-size: clamp(23px, 2.1vw, 28px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.04em !important;
+}
+
+.service-match-compact .service-match-head p,
+.service-match-compact.service-match-success > p {
+  max-width: 430px;
+  margin: 0 !important;
+  color: #667085 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+
+.service-match-compact .service-match-divider {
+  display: none !important;
+}
+
+.service-match-form-compact {
+  display: grid;
+  gap: 11px !important;
+  max-width: 430px;
+}
+
+.service-match-form-compact .service-match-name-grid {
+  gap: 10px !important;
+}
+
+.service-match-form-compact .field {
+  gap: 6px !important;
+}
+
+.service-match-form-compact .field label {
+  color: #344054 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.service-match-form-compact .field input {
+  min-height: 46px !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(152, 162, 179, .48) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: #101828 !important;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .02) !important;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.service-match-form-compact .field input::placeholder {
+  color: #98a2b3;
+}
+
+.service-match-form-compact .field input:hover {
+  border-color: rgba(102, 112, 133, .58) !important;
+  background: rgba(255, 255, 255, .9) !important;
+}
+
+.service-match-form-compact .field input:focus {
+  border-color: #444ce7 !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 4px rgba(68, 76, 231, .1) !important;
+}
+
+.service-match-form-compact .service-match-submit {
+  width: 100%;
+  min-height: 46px !important;
+  margin-top: 1px !important;
+  padding: 10px 15px !important;
+  border: 1px solid #444ce7 !important;
+  border-radius: 12px !important;
+  background: #444ce7 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  box-shadow: none !important;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+.service-match-form-compact .service-match-submit:hover:not(:disabled) {
+  border-color: #3538cd !important;
+  background: #3538cd !important;
+  transform: translateY(-1px);
+}
+
+.service-match-form-compact .service-match-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.service-match-form-compact .service-match-privacy,
+.service-match-compact > .service-match-privacy {
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  margin-top: 0 !important;
+  color: #667085 !important;
+  font-size: 11.5px !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+}
+
+.service-match-form-compact .service-match-privacy svg,
+.service-match-compact > .service-match-privacy svg {
+  color: #667085 !important;
+}
+
+.service-match-compact.service-match-success {
+  min-height: 0 !important;
+}
+
+.service-match-success-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(18, 183, 106, .1);
+  color: #067647;
+}
+
+.service-match-success-actions {
+  max-width: 430px;
+  gap: 8px !important;
+}
+
+.service-match-success-actions .btn {
+  min-height: 42px;
+  border-radius: 11px;
+  box-shadow: none !important;
+}
+
+@media (max-width: 1080px) {
+  .service-match-card.service-match-compact {
+    max-width: 640px !important;
+    padding: 24px 0 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(15, 23, 42, .12) !important;
+  }
+
+  .service-match-compact .service-match-head,
+  .service-match-form-compact,
+  .service-match-success-actions {
+    max-width: 560px;
+  }
 }
 
 @media (max-width: 760px) {
-  .service-match-form-compact .service-match-message {
-    min-height: 70px !important;
-    max-height: 118px;
+  .service-match-card.service-match-compact {
+    padding: 20px 0 0 !important;
+    gap: 15px;
+  }
+
+  .service-match-compact .service-match-head h2,
+  .service-match-compact.service-match-success h2 {
+    font-size: 22px !important;
+  }
+
+  .service-match-name-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .service-match-form-compact .field input,
+  .service-match-form-compact .service-match-submit {
+    min-height: 45px !important;
+  }
+
+  .service-match-form-compact .service-match-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-match-form-compact .field input,
+  .service-match-form-compact .service-match-submit {
+    transition: none !important;
   }
 }

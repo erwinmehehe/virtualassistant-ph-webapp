@@ -52,7 +52,7 @@ export function ServiceMatchForm({
     <div className="service-match-head">
       <div className="kicker">Quick match</div>
       <h2>Want us to narrow the list?</h2>
-      <p>Tell us where to follow up. We already know you are looking for {displayRole} Virtual Assistant support.</p>
+      <p>We already know you are looking for {displayRole} Virtual Assistant support. Tell us where to follow up.</p>
     </div>
 
     <div className="service-match-divider" />
@@ -63,6 +63,7 @@ export function ServiceMatchForm({
       <input type="hidden" name="source_path" value={sourcePath || `/service/${slug}/`} />
       <input type="hidden" name="session_id" value={sessionId} />
       <input type="hidden" name="hours" value="Not sure yet" />
+      <input type="hidden" name="message" value={example} />
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
 
       {state.status === "error" ? <div className="alert" role="alert">{state.message}</div> : null}
@@ -76,21 +77,6 @@ export function ServiceMatchForm({
           <label htmlFor={`${id}-email`}>Work email *</label>
           <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
         </div>
-      </div>
-
-      <div className="field service-match-message-field">
-        <label htmlFor={`${id}-message`}>What should this VA own? *</label>
-        <textarea
-          id={`${id}-message`}
-          className="service-match-message"
-          name="message"
-          rows={3}
-          required
-          minLength={10}
-          maxLength={3000}
-          defaultValue={example}
-        />
-        <small>Pre-filled from this {displayRole} page. Edit it if your scope is different.</small>
       </div>
 
       <button className="btn btn-lg service-match-submit" type="submit" disabled={pending} data-track={`service_${slug.replaceAll("-", "_")}_match`}>

@@ -54,7 +54,7 @@ test("high-value public heroes keep their H1 copy and carry a conversion form", 
   }
 });
 
-test("template-driven detail pages keep real forms in the hero", () => {
+test("commercial detail pages keep forms while blog articles stay editorial", () => {
   const home = source("src/app/page.tsx");
   const service = source("src/app/service/[slug]/page.tsx");
   const industry = source("src/app/industries/[slug]/page.tsx");
@@ -66,8 +66,9 @@ test("template-driven detail pages keep real forms in the hero", () => {
   assert.match(service, /<ServiceMatchForm/);
   assert.match(industry, /<IndustryMatchForm/);
   assert.match(software, /<ServiceMatchForm/);
-  assert.match(article, /blog-hero-aside/);
-  assert.match(article, /<RoleBriefForm|<ServiceMatchForm/);
+  assert.match(article, /blog-editorial-hero/);
+  assert.doesNotMatch(article, /<RoleBriefForm|<ServiceMatchForm/);
+  assert.match(article, /href="\/book-client-call"/);
 });
 
 test("service and industry detail forms stay compact", () => {

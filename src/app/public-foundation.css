@@ -1,4 +1,80 @@
-/* Homepage-only brand differentiation section rendered immediately before the footer. */
+/* Shared public-site polish: accessibility, floating conversion CTA, and trust section. */
+
+/* Keep keyboard focus obvious without changing pointer interactions. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #3448ff;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: 12px;
+  z-index: 10000;
+  transform: translateY(-160%);
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #fff;
+  background: #1d2939;
+  font-weight: 800;
+  box-shadow: 0 10px 28px rgba(16,24,40,.22);
+  transition: transform .16s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+#main-content {
+  scroll-margin-top: 96px;
+}
+
+/* Final sizing pass for the public discovery-call CTA. */
+.floating-cta.floating-cta-compact {
+  right: 26px;
+  bottom: 26px;
+  gap: 12px;
+  padding: 10px;
+  max-width: none;
+  border-radius: 21px;
+  border-color: rgba(68, 76, 231, .18);
+  box-shadow: 0 24px 60px rgba(16, 24, 40, .22), 0 0 0 1px rgba(255, 255, 255, .76) inset;
+}
+
+.floating-cta.floating-cta-compact .btn {
+  min-height: 64px !important;
+  padding: 0 28px !important;
+  border-radius: 16px !important;
+  gap: 11px;
+  font-size: 17px !important;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  box-shadow: 0 10px 26px rgba(68, 76, 231, .28);
+}
+
+.floating-cta.floating-cta-compact .btn svg {
+  width: 23px !important;
+  height: 23px !important;
+  stroke-width: 2;
+}
+
+.floating-cta.floating-cta-compact .floating-cta-close {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 13px;
+  color: #475467;
+}
+
+.floating-cta.floating-cta-compact .floating-cta-close svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.floating-cta.floating-cta-compact .floating-cta-close:hover {
+  background: #f2f4f7;
+}
+
+/* Brand differentiation section rendered before the public footer. */
 .why-choose-va {
   position: relative;
   overflow: hidden;
@@ -17,9 +93,7 @@
   align-items: center;
 }
 
-.why-choose-va-copy {
-  max-width: 520px;
-}
+.why-choose-va-copy { max-width: 520px; }
 
 .why-choose-va-kicker {
   display: inline-flex;
@@ -43,7 +117,7 @@
 .why-choose-va-copy > p {
   margin: 0;
   max-width: 500px;
-  color: #5d6b82;
+  color: #53627a;
   font-size: 16px;
   line-height: 1.72;
 }
@@ -83,9 +157,7 @@
 }
 
 .why-choose-va-primary:hover,
-.why-choose-va-secondary:hover {
-  transform: translateY(-2px);
-}
+.why-choose-va-secondary:hover { transform: translateY(-2px); }
 
 .why-choose-va-grid {
   display: grid;
@@ -137,7 +209,7 @@
 
 .why-choose-va-card p {
   margin: 0;
-  color: #68758a;
+  color: #596981;
   font-size: 13.5px;
   line-height: 1.62;
 }
@@ -149,6 +221,31 @@
 }
 
 @media (max-width: 640px) {
+  .floating-cta.floating-cta-compact {
+    left: 12px;
+    right: 12px;
+    bottom: 76px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    align-items: center;
+    gap: 8px;
+    padding: 9px;
+    max-width: none;
+    flex-wrap: nowrap;
+  }
+
+  .floating-cta.floating-cta-compact .btn {
+    width: 100%;
+    min-height: 60px !important;
+    padding: 0 20px !important;
+    font-size: 17px !important;
+  }
+
+  .floating-cta.floating-cta-compact .floating-cta-close {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
   .why-choose-va { padding: 52px 0; }
   .why-choose-va-copy h2 { font-size: clamp(34px,10vw,44px); }
   .why-choose-va-grid { grid-template-columns: 1fr; }
@@ -156,4 +253,13 @@
   .why-choose-va-actions { display: grid; grid-template-columns: 1fr; }
   .why-choose-va-primary,
   .why-choose-va-secondary { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

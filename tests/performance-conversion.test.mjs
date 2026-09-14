@@ -62,14 +62,15 @@ test("dashboard overview payloads use consolidated RPC fast paths", async () => 
   }
 });
 
-test("workspace Core Web Vitals are recorded", async () => {
+test("workspace and public Core Web Vitals are recorded", async () => {
   const [analytics, route] = await Promise.all([
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts")
   ]);
 
-  assert.match(analytics, /useReportWebVitals\(reportWorkspaceVital\)/);
-  assert.match(analytics, /startsWith\("\/workspace"\)/);
+  assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
+  assert.match(analytics, /startsWith\("\/workspace"\) \? "workspace" : "public"/);
+  assert.match(analytics, /metric\.name === "CLS"/);
   assert.match(route, /"web_vital"/);
 });
 

@@ -57,7 +57,7 @@ export function SiteNav() {
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
 
           <details className="va-mobile-drawer">
-            <summary className="btn" aria-label="Open navigation menu"><Menu size={18}/><span>Menu</span></summary>
+            <summary className="btn" aria-label="Navigation menu"><Menu size={18} aria-hidden="true" /><span>Menu</span></summary>
             <nav className="va-mobile-panel" aria-label="Mobile navigation">
               <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
               <Link href="/find-talent">Find a VA</Link>

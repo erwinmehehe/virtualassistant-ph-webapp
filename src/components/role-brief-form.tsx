@@ -66,7 +66,7 @@ export function RoleBriefForm({
           <select id="rb-hours" name="hours" required defaultValue=""><option value="" disabled>Select hours</option><option>Under 10 hours/week</option><option>10 to 20 hours/week</option><option>20 to 30 hours/week</option><option>30 to 40 hours/week</option><option>40+ hours/week</option></select>
         </div>
         <div className="field"><label htmlFor="rb-budget">Hourly budget *</label>
-          <select id="rb-budget" name="budget" required defaultValue=""><option value="" disabled>Select budget</option><option>USD 5 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select>
+          <select id="rb-budget" name="budget" required defaultValue=""><option value="" disabled>Select budget</option><option>USD 6 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select>
         </div>
       </div>
 
@@ -77,19 +77,20 @@ export function RoleBriefForm({
         </div>
       </div>
 
-      <div className="field"><label htmlFor="rb-email">Work email *</label><input id="rb-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
       <div className="field"><label htmlFor="rb-message">What should this Virtual Assistant own? *</label><textarea id="rb-message" name="message" rows={3} required minLength={15} placeholder="Main tasks, tools, or must-have experience, for example inbox and calendar management, CRM updates, and customer follow-up in HubSpot."/></div>
 
-      <div className="field"><label htmlFor="rb-attachment">Job description or SOP <span className="muted">(optional)</span></label><input id="rb-attachment" name="attachment" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"/><span className="field-help">PDF, Word, or text file up to 10 MB. Stored privately for recruiter review.</span></div>
-
-      <details className="hire-optional-details">
-        <summary>Add contact details <span>(optional)</span></summary>
-        <div className="form-grid compact-form-grid">
-          <div className="field"><label htmlFor="rb-name">Your name</label><input id="rb-name" name="name" autoComplete="name"/></div>
-          <div className="field"><label htmlFor="rb-company">Company</label><input id="rb-company" name="company" autoComplete="organization"/></div>
-        </div>
-        <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp</label><input id="rb-phone" name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
-      </details>
+      <div className="compact-hire-form-head compact-contact-head">
+        <h3>Contact details</h3>
+        <p className="small muted">Tell us who to contact about this hiring request.</p>
+      </div>
+      <div className="form-grid compact-form-grid">
+        <div className="field"><label htmlFor="rb-name">Your name *</label><input id="rb-name" name="name" required autoComplete="name"/></div>
+        <div className="field"><label htmlFor="rb-company">Company *</label><input id="rb-company" name="company" required autoComplete="organization"/></div>
+      </div>
+      <div className="form-grid compact-form-grid">
+        <div className="field"><label htmlFor="rb-email">Work email *</label><input id="rb-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
+        <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp *</label><input id="rb-phone" name="phone" type="tel" required autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
+      </div>
 
       <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>
       <FormDraftPersistence formId={formId} storageKey={sourcePath} />

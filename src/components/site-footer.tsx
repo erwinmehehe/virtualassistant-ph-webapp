@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
 import { FloatingCta } from "@/components/floating-cta";
-import { HomepageShowcase } from "@/components/homepage-showcase";
+import { FooterCta } from "@/components/footer-cta";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
@@ -19,19 +18,8 @@ export function SiteFooter() {
   return (
     <>
       <FloatingCta />
-      <HomepageShowcase />
       <footer className="footer va-site-footer">
-        <div className="container va-footer-cta">
-          <div>
-            <div className="kicker">Ready to hire?</div>
-            <h2>Tell us what needs to get off your plate. We will help you find the right Filipino Virtual Assistant.</h2>
-          </div>
-          <div className="va-footer-actions">
-            <Link className="btn btn-primary" href="/hire">Get matched <ArrowRight size={15}/></Link>
-            <Link className="btn va-footer-outline" href="/find-talent">Browse Virtual Assistants</Link>
-            <Link className="btn va-footer-outline" href="/book-client-call" data-track="booking_click"><CalendarDays size={15}/> Book a discovery call</Link>
-          </div>
-        </div>
+        <FooterCta />
 
         <div className="container footer-grid">
           <div className="footer-brand-block">

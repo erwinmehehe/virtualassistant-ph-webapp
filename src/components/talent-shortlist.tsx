@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Check, Plus, UsersRound, X } from "lucide-react";
+import { BookmarkPlus, Check, UsersRound, X } from "lucide-react";
 
 export type ShortlistTalent = {
   slug: string;
@@ -77,10 +77,11 @@ export function TalentShortlistButton({
       onClick={toggle}
       disabled={full}
       aria-pressed={selected}
+      aria-label={selected ? `Remove ${talent.name} from shortlist` : `Add ${talent.name} to shortlist`}
       title={full ? `Shortlist up to ${MAX_SHORTLIST} candidates` : undefined}
     >
-      {selected ? <Check size={15} /> : <Plus size={15} />}
-      {selected ? "Shortlisted" : full ? "Shortlist full" : "Add to shortlist"}
+      {selected ? <Check size={16} /> : <BookmarkPlus size={16} />}
+      {selected ? "Shortlisted" : full ? "Shortlist full" : "Shortlist"}
     </button>
   );
 }

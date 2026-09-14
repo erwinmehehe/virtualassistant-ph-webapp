@@ -37,7 +37,7 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
         <aside className="blog-bottom-conversion archive-bottom-conversion">
           <div className="blog-bottom-copy">
             <span className="blog-bottom-label">Ready when you are</span>
-            <h2>Browse the talent before filling anything out.</h2>
+            <h2>Start by comparing vetted talent.</h2>
             <p>Compare vetted Filipino Virtual Assistants first. If you want help shaping the role, book a discovery call with our team.</p>
             <div className="blog-bottom-actions">
               <Link className="btn btn-primary btn-lg" href="/find-talent">Browse vetted talent <ArrowRight size={16}/></Link>

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import type { ArchivePost } from "@/lib/archive-types";
-import { RoleBriefForm } from "@/components/role-brief-form";
 
 /**
  * Renders a post recovered from the previous WordPress site.
@@ -11,38 +10,42 @@ import { RoleBriefForm } from "@/components/role-brief-form";
  * internal links. The HTML was sanitized at import: script, style, iframe,
  * object and embed elements and inline event handlers were removed.
  */
-export function ArchiveArticle({ post, sourcePath, error, sent }: { post: ArchivePost; sourcePath: string; error?: string; sent?: boolean }) {
-  return <>
-    <article className="section blog-article-shell"><div className="container blog-article-column">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/">Home</Link><span aria-hidden="true">/</span>
-        <Link href="/blog">Blog</Link><span aria-hidden="true">/</span>
-        <span aria-current="page">{post.title}</span>
-      </nav>
-
-      <header className="blog-article-head">
-        {post.tag ? <span className="badge">{post.tag}</span> : null}
+export function ArchiveArticle({ post }: { post: ArchivePost }) {
+  return <div className="blog-editorial-page archive-editorial-page">
+    <header className="blog-editorial-hero archive-editorial-hero">
+      <div className="container blog-editorial-hero-inner">
+        <nav className="breadcrumbs blog-editorial-breadcrumbs" aria-label="Breadcrumb">
+          <Link href="/">Home</Link><span aria-hidden="true">/</span>
+          <Link href="/blog">Blog</Link><span aria-hidden="true">/</span>
+          <span aria-current="page">Article</span>
+        </nav>
+        {post.tag ? <span className="blog-topic-pill">{post.tag}</span> : null}
         <h1>{post.title}</h1>
-        {post.date ? <p className="small muted archive-byline"><CalendarDays size={14}/> Published {post.date}</p> : null}
-      </header>
-
-      <div className="archive-body" dangerouslySetInnerHTML={{ __html: post.html }} />
-    </div></article>
-
-    <section className="section section-white"><div className="container">
-      <div className="home-lead-grid">
-        <div className="home-lead-copy">
-          <div className="kicker">Ready to hire</div>
-          <h2>Tell us the role and we will shortlist against it.</h2>
-          <p>Describe the work, the hours and the overlap you need. Every candidate you see has already passed a skills test, a video introduction and a recruiter review.</p>
-          <ul className="home-lead-points">
-            <li>No account required, and nothing is published</li>
-            <li>Virtual Assistant compensation and our service fee shown separately</li>
-            <li>Prefer to look first? <Link className="text-link" href="/find-talent">Browse approved Virtual Assistants <ArrowRight size={13}/></Link></li>
-          </ul>
+        {post.excerpt ? <p className="blog-deck">{post.excerpt}</p> : null}
+        {post.date ? <div className="blog-byline archive-byline"><span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span></div> : null}
+        <div className="blog-editorial-hero-actions">
+          <Link className="btn btn-primary" href="/find-talent">Browse vetted Virtual Assistants <ArrowRight size={16}/></Link>
+          <Link className="btn" href="/book-client-call">Book a discovery call</Link>
         </div>
-        <RoleBriefForm sourcePath={sourcePath} error={error} sent={sent} heading="Get matched" subheading="About 60 seconds. Required fields are marked." />
       </div>
-    </div></section>
-  </>;
+    </header>
+
+    <section className="blog-editorial-body archive-editorial-body">
+      <div className="container archive-editorial-layout">
+        <article className="archive-body" dangerouslySetInnerHTML={{ __html: post.html }} />
+
+        <aside className="blog-bottom-conversion archive-bottom-conversion">
+          <div className="blog-bottom-copy">
+            <span className="blog-bottom-label">Ready when you are</span>
+            <h2>Browse the talent before filling anything out.</h2>
+            <p>Compare vetted Filipino Virtual Assistants first. If you want help shaping the role, book a discovery call with our team.</p>
+            <div className="blog-bottom-actions">
+              <Link className="btn btn-primary btn-lg" href="/find-talent">Browse vetted talent <ArrowRight size={16}/></Link>
+              <Link className="btn btn-lg" href="/book-client-call">Book a discovery call</Link>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>;
 }

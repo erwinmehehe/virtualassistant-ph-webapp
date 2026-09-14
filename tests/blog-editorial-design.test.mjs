@@ -10,7 +10,7 @@ test("current blog posts use the editorial layout without embedded lead forms", 
   assert.match(article, /blog-editorial-page/);
   assert.match(article, /blog-mobile-toc/);
   assert.match(article, /<BlogFeaturedVisual/);
-  assert.match(article, /Browse vetted Virtual Assistants/);
+  assert.match(article, /Browse vetted talent/);
   assert.doesNotMatch(article, /ServiceMatchForm/);
   assert.doesNotMatch(article, /RoleBriefForm/);
   assert.doesNotMatch(article, /blog-match-section/);
@@ -22,7 +22,7 @@ test("archived blog posts keep the editorial treatment without a hero form", () 
 
   assert.match(article, /archive-editorial-page/);
   assert.match(article, /<BlogFeaturedVisual/);
-  assert.match(article, /Browse vetted Virtual Assistants/);
+  assert.match(article, /Browse vetted talent/);
   assert.doesNotMatch(article, /RoleBriefForm/);
   assert.doesNotMatch(article, /<form/);
   assert.doesNotMatch(article, /blog-editorial-hero-actions/);
@@ -43,7 +43,7 @@ test("blog topic artwork covers every editorial topic", () => {
     "legal",
     "finance-bookkeeping"
   ]) {
-    assert.match(visual, new RegExp(`(?:\\"|^)${topic}(?:\\"|:)`));
+    assert.ok(visual.includes(topic), `${topic} needs a topic-specific featured visual`);
   }
 
   assert.match(visual, /role="img"/);

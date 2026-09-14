@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
+import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import type { ArchivePost } from "@/lib/archive-types";
 
 /**
@@ -11,6 +12,8 @@ import type { ArchivePost } from "@/lib/archive-types";
  * object and embed elements and inline event handlers were removed.
  */
 export function ArchiveArticle({ post }: { post: ArchivePost }) {
+  const label = post.tag || "Editorial guide";
+
   return <div className="blog-editorial-page archive-editorial-page">
     <header className="blog-editorial-hero archive-editorial-hero">
       <div className="container blog-editorial-hero-inner">
@@ -19,13 +22,16 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
           <Link href="/blog">Blog</Link><span aria-hidden="true">/</span>
           <span aria-current="page">Article</span>
         </nav>
-        {post.tag ? <span className="blog-topic-pill">{post.tag}</span> : null}
-        <h1>{post.title}</h1>
-        {post.excerpt ? <p className="blog-deck">{post.excerpt}</p> : null}
-        {post.date ? <div className="blog-byline archive-byline"><span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span></div> : null}
-        <div className="blog-editorial-hero-actions">
-          <Link className="btn btn-primary" href="/find-talent">Browse vetted Virtual Assistants <ArrowRight size={16}/></Link>
-          <Link className="btn" href="/book-client-call">Book a discovery call</Link>
+
+        <div className="blog-editorial-hero-grid">
+          <div className="blog-editorial-hero-copy">
+            {post.tag ? <span className="blog-topic-pill">{post.tag}</span> : null}
+            <h1>{post.title}</h1>
+            {post.excerpt ? <p className="blog-deck">{post.excerpt}</p> : null}
+            {post.date ? <div className="blog-byline archive-byline"><span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span></div> : null}
+          </div>
+
+          <BlogFeaturedVisual title={post.title} label={label} detail="Recovered from the VirtualAssistant.com.ph editorial archive." />
         </div>
       </div>
     </header>

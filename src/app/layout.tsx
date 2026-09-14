@@ -15,6 +15,7 @@ import "./service-visual-qa-v2.css";
 import "./public-foundation.css";
 import "./service-match-form-final.css";
 import "./blog-editorial.css";
+import "./blog-featured-visual.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

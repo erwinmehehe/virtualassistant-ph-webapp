@@ -11,6 +11,7 @@ import {
   ListChecks,
   ShieldCheck
 } from "lucide-react";
+import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
@@ -77,24 +78,25 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/blog">Blog</Link><span aria-hidden="true">/</span><Link href={`/blog/topic/${post.topic}`}>{topic.label}</Link>
         </nav>
 
-        <Link className="blog-topic-pill" href={`/blog/topic/${post.topic}`}>{topic.label}</Link>
-        <h1>{post.title}</h1>
-        <p className="blog-deck">{post.excerpt}</p>
+        <div className="blog-editorial-hero-grid">
+          <div className="blog-editorial-hero-copy">
+            <Link className="blog-topic-pill" href={`/blog/topic/${post.topic}`}>{topic.label}</Link>
+            <h1>{post.title}</h1>
+            <p className="blog-deck">{post.excerpt}</p>
 
-        <div className="blog-editorial-author-row">
-          <div className="blog-editorial-author-avatar" aria-hidden="true">{authorInitials}</div>
-          <div className="blog-editorial-author-copy">
-            <div><Link href={authorHref}>{post.author}</Link>{post.reviewedBy ? <span className="blog-reviewed-inline"><BadgeCheck size={15} aria-hidden="true"/> Reviewed by {post.reviewedBy}</span> : null}</div>
-            <div className="blog-byline" aria-label="Article details">
-              <span><CalendarDays size={14} aria-hidden="true"/>Updated {updated.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
-              <span><BookOpen size={14} aria-hidden="true"/>{readTime(post)} min read</span>
+            <div className="blog-editorial-author-row">
+              <div className="blog-editorial-author-avatar" aria-hidden="true">{authorInitials}</div>
+              <div className="blog-editorial-author-copy">
+                <div><Link href={authorHref}>{post.author}</Link>{post.reviewedBy ? <span className="blog-reviewed-inline"><BadgeCheck size={15} aria-hidden="true"/> Reviewed by {post.reviewedBy}</span> : null}</div>
+                <div className="blog-byline" aria-label="Article details">
+                  <span><CalendarDays size={14} aria-hidden="true"/>Updated {updated.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
+                  <span><BookOpen size={14} aria-hidden="true"/>{readTime(post)} min read</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="blog-editorial-hero-actions">
-          <Link className="btn btn-primary" href={talentHref} data-track="blog_cta_talent">Browse vetted Virtual Assistants <ArrowRight size={16}/></Link>
-          <Link className="btn" href="/book-client-call" data-track="blog_cta_booking">Book a discovery call</Link>
+          <BlogFeaturedVisual topic={post.topic} title={post.title} label={topic.label} detail={post.clusterLabel} />
         </div>
       </div>
     </header>

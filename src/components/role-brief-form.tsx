@@ -89,7 +89,7 @@ export function RoleBriefForm({
       </div>
       <div className="form-grid compact-form-grid">
         <div className="field"><label htmlFor="rb-email">Work email *</label><input id="rb-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></div>
-        <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp *</label><input id="rb-phone" name="phone" type="tel" required autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
+        <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp <span className="muted">(optional)</span></label><input id="rb-phone" name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
       </div>
 
       <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>

@@ -129,12 +129,15 @@ export default async function HomePage({
       )
       .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
       .not("avatar_url", "is", null)
+      .order("years_experience", { ascending: false })
+      .order("weekly_hours", { ascending: false })
+      .order("full_name", { ascending: true })
       .limit(30),
   ]);
 
   const featuredWithPhotos = (featured ?? [])
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
-    .slice(0, 3);
+    .slice(0, 6);
   const matchTalent = (featured ?? []).filter((va: any) => va.slug).map((va: any) => ({
     slug: va.slug,
     name: va.full_name,
@@ -259,9 +262,9 @@ export default async function HomePage({
           <div className="container">
             <div className="pva-section-head pva-section-head-row">
               <div>
-                <span className="pva-kicker">Approved talent</span>
+                <span className="pva-kicker">Most experienced approved talent</span>
                 <h2>Meet experienced Filipino virtual assistants.</h2>
-                <p>Public profiles appear only after the required screening and approval steps are completed.</p>
+                <p>Showing six approved profiles with the most years of experience, ranked from highest to lowest.</p>
               </div>
               <Link className="pva-text-link" href="/find-talent">Browse all talent <ArrowRight size={16} /></Link>
             </div>
@@ -272,7 +275,10 @@ export default async function HomePage({
                   <article className="pva-talent-card" key={va.user_id}>
                     <div className="pva-talent-top">
                       <PublicAvatar name={va.full_name} src={va.avatar_url} />
-                      <span className="pva-approved"><BadgeCheck size={14} /> Approved</span>
+                      <div style={{ display: "grid", gap: 6, justifyItems: "end" }}>
+                        <span className="pva-approved"><BriefcaseBusiness size={14} /> {va.years_experience}+ yrs experience</span>
+                        <span className="pva-approved"><BadgeCheck size={14} /> Approved</span>
+                      </div>
                     </div>
                     <h3>{va.full_name}</h3>
                     <p className="pva-talent-title">{va.headline || va.primary_category || "Virtual Assistant"}</p>
@@ -282,7 +288,6 @@ export default async function HomePage({
                         .map((x, index) => <span key={`${String(x)}-${index}`}>{x}</span>)}
                     </div>
                     <div className="pva-talent-facts">
-                      <span><BriefcaseBusiness size={14} /> {va.years_experience}+ years experience</span>
                       <span><Clock3 size={14} /> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Flexible availability"}</span>
                       {va.hourly_rate ? <span><CheckCircle2 size={14} /> ${Number(va.hourly_rate).toFixed(0)}/hr preferred</span> : null}
                     </div>

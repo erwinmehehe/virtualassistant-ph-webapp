@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FloatingCta } from "@/components/floating-cta";
 import { FooterCta } from "@/components/footer-cta";
+import { HomepageWhyChoose } from "@/components/homepage-why-choose";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
@@ -18,6 +19,7 @@ export function SiteFooter() {
   return (
     <>
       <FloatingCta />
+      <HomepageWhyChoose />
       <footer className="footer va-site-footer">
         <FooterCta />
 

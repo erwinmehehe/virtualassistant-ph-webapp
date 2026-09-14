@@ -135,14 +135,6 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-function getMedian(values: number[]) {
-  if (!values.length) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  if (sorted.length % 2) return sorted[middle];
-  return (sorted[middle - 1] + sorted[middle]) / 2;
-}
-
 export default async function HomePage({
   searchParams,
 }: {
@@ -150,23 +142,17 @@ export default async function HomePage({
 }) {
   const query = await searchParams;
   const supabase = await createClient();
-  const [{ data: featured }, { data: insightRows }] = await Promise.all([
-    supabase
-      .from("public_va_directory")
-      .select(
-        "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate,schedule,availability_status",
-      )
-      .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
-      .not("avatar_url", "is", null)
-      .order("years_experience", { ascending: false })
-      .order("weekly_hours", { ascending: false })
-      .order("full_name", { ascending: true })
-      .limit(30),
-    supabase
-      .from("public_va_directory")
-      .select("years_experience,weekly_hours,primary_category")
-      .limit(200),
-  ]);
+  const { data: featured } = await supabase
+    .from("public_va_directory")
+    .select(
+      "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate,schedule,availability_status",
+    )
+    .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
+    .not("avatar_url", "is", null)
+    .order("years_experience", { ascending: false })
+    .order("weekly_hours", { ascending: false })
+    .order("full_name", { ascending: true })
+    .limit(30);
 
   const featuredWithPhotos = (featured ?? [])
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
@@ -182,23 +168,6 @@ export default async function HomePage({
     yearsExperience: va.years_experience,
     schedule: va.schedule,
   }));
-
-  const talentRows = (insightRows ?? []).filter((va: any) => Number.isFinite(Number(va.years_experience)));
-  const experienceValues = talentRows.map((va: any) => Number(va.years_experience));
-  const approvedProfileCount = talentRows.length;
-  const medianExperience = getMedian(experienceValues);
-  const tenPlusYears = talentRows.filter((va: any) => Number(va.years_experience) >= 10).length;
-  const fullTimeAvailable = talentRows.filter((va: any) => Number(va.weekly_hours) >= 40).length;
-  const fullTimeShare = approvedProfileCount ? Math.round((fullTimeAvailable / approvedProfileCount) * 100) : 0;
-  const categoryCounts = new Map<string, number>();
-  for (const va of talentRows as any[]) {
-    const category = typeof va.primary_category === "string" ? va.primary_category.trim() : "";
-    if (!category) continue;
-    categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
-  }
-  const topCategories = Array.from(categoryCounts.entries())
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 4);
 
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const schema = [
@@ -365,32 +334,6 @@ export default async function HomePage({
           </div>
         </section>
 
-        <section className="pva-section pva-evidence-section">
-          <div className="container">
-            <div className="pva-section-head">
-              <span className="pva-kicker">Live approved talent data</span>
-              <h2>What our Filipino Virtual Assistant talent pool looks like right now.</h2>
-              <p>These figures are calculated from profiles currently visible in the approved public directory, not hand-written marketing estimates.</p>
-            </div>
-            <div className="pva-insight-grid">
-              <article className="pva-insight-card"><strong>{approvedProfileCount}</strong><span>approved public profiles in the current directory</span></article>
-              <article className="pva-insight-card"><strong>{Number.isInteger(medianExperience) ? medianExperience : medianExperience.toFixed(1)}</strong><span>median years of experience across approved profiles</span></article>
-              <article className="pva-insight-card"><strong>{tenPlusYears}</strong><span>approved profiles with 10+ years of experience</span></article>
-              <article className="pva-insight-card"><strong>{fullTimeShare}%</strong><span>listing at least 40 hours/week of availability</span></article>
-            </div>
-            <div className="pva-category-proof">
-              <div>
-                <h3>Most represented specialties</h3>
-                <p>The mix changes as candidates complete screening and public approval. Counts below come from the same live directory data.</p>
-              </div>
-              <div className="pva-category-list">
-                {topCategories.map(([category, count]) => <span key={category}>{category} · {count}</span>)}
-              </div>
-            </div>
-            <p className="pva-evidence-note">Public-profile totals can change as availability and approval status change. <Link className="pva-text-link" href="/find-talent">Browse the current approved talent pool <ArrowRight size={14} /></Link></p>
-          </div>
-        </section>
-
         <section className="pva-section pva-white">
           <div className="container pva-philippines-grid">
             <div className="pva-philippines-copy">
@@ -545,17 +488,30 @@ export default async function HomePage({
           </div>
         </section>
 
-        <section className="pva-section pva-white">
+        <section className="pva-section pva-white pva-compare-section">
           <div className="container pva-compare-wrap">
-            <div className="pva-section-head">
+            <div className="pva-section-head pva-centered">
               <span className="pva-kicker">Why this model works</span>
-              <h2>Less applicant sorting. More informed hiring.</h2>
-              <p>Most hiring options make you choose between an open marketplace and a black-box agency. This model keeps screening support without taking away your final decision.</p>
+              <h2>Choose the hiring model that gives you the right level of control.</h2>
+              <p>See the practical difference between doing all the screening yourself, using a traditional agency, and working with a recruiter-supported model where you still make the final decision.</p>
             </div>
             <div className="pva-compare-grid">
-              <article><small>Open marketplaces</small><h3>You do the screening</h3><p>Large applicant pools can look efficient until your team is spending hours checking claims, communication, and fit.</p></article>
-              <article><small>Traditional agencies</small><h3>You may see fewer options</h3><p>Some agency models bundle pricing and present a candidate without giving much visibility into the selection process.</p></article>
-              <article className="pva-compare-featured"><span className="pva-mini-badge"><ShieldCheck size={13} /> Our approach</span><h3>We screen. You decide.</h3><p>Our recruiting team narrows the field, you interview the strongest matches, and compensation plus service fees are shown separately before commitment.</p></article>
+              <article className="pva-compare-card pva-compare-muted">
+                <small>Open marketplaces</small>
+                <h3>You do the screening</h3>
+                <p>Large applicant pools can look efficient until your team is spending hours checking claims, communication, availability, and fit.</p>
+              </article>
+              <article className="pva-compare-card pva-compare-muted">
+                <small>Traditional agencies</small>
+                <h3>You may see fewer options</h3>
+                <p>Some agency models bundle pricing and present a candidate without giving much visibility into how the shortlist was built.</p>
+              </article>
+              <article className="pva-compare-card pva-compare-featured">
+                <span className="pva-mini-badge"><ShieldCheck size={13} /> Our approach</span>
+                <h3>We screen. You decide.</h3>
+                <p>Our recruiting team narrows the field, you interview the strongest matches, and compensation plus service fees are shown separately before commitment.</p>
+                <Link className="pva-compare-link" href="/managed-vs-direct-hire">Compare hiring options <ArrowRight size={14} /></Link>
+              </article>
             </div>
           </div>
         </section>

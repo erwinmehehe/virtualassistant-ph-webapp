@@ -6,15 +6,15 @@ function source(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
-test("homepage uses first-party approved talent data instead of static marketing counts", () => {
+test("homepage does not render the removed live talent statistics block or its extra query", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /Live approved talent data/);
-  assert.match(home, /years_experience,weekly_hours,primary_category/);
-  assert.match(home, /const approvedProfileCount = talentRows\.length/);
-  assert.match(home, /const medianExperience = getMedian/);
-  assert.match(home, /const tenPlusYears/);
-  assert.match(home, /const fullTimeShare/);
-  assert.match(home, /not hand-written marketing estimates/);
+  assert.doesNotMatch(home, /Live approved talent data/);
+  assert.doesNotMatch(home, /approvedProfileCount/);
+  assert.doesNotMatch(home, /medianExperience/);
+  assert.doesNotMatch(home, /tenPlusYears/);
+  assert.doesNotMatch(home, /fullTimeShare/);
+  assert.doesNotMatch(home, /insightRows/);
+  assert.doesNotMatch(home, /select\("years_experience,weekly_hours,primary_category"\)/);
 });
 
 test("homepage explains Philippines hiring intent high on the page and links to commercial journeys", () => {
@@ -71,4 +71,15 @@ test("homepage Organization schema carries useful entity context and removes obs
   assert.match(home, /availableLanguage/);
   assert.match(home, /member:/);
   assert.doesNotMatch(home, /SearchAction/);
+});
+
+test("homepage comparison is a compact three-card premium choice section", () => {
+  const home = source("src/app/page.tsx");
+  const css = source("src/app/homepage-seo-evidence.css");
+  assert.match(home, /pva-compare-section/);
+  assert.match(home, /Choose the hiring model that gives you the right level of control/);
+  assert.match(home, /pva-compare-card pva-compare-featured/);
+  assert.match(home, /Compare hiring options/);
+  assert.match(css, /grid-template-columns: repeat\(3, minmax\(0,1fr\)\)/);
+  assert.match(css, /linear-gradient\(145deg,#312e81 0%,#4f46e5 58%,#5b21b6 100%\)/);
 });

@@ -9,8 +9,7 @@ import {
   ClipboardList,
   ExternalLink,
   ListChecks,
-  ShieldCheck,
-  UserRound
+  ShieldCheck
 } from "lucide-react";
 import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
@@ -134,7 +133,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             {section.table ? <div className="blog-table-wrap"><table><thead><tr>{section.table.headers.map((heading) => <th key={heading}>{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>)}</tr>)}</tbody></table></div> : null}
 
             {index === 1 ? <aside className="blog-inline-cta">
-              <div><span className="blog-inline-label">Hiring shortcut</span><h3>{service ? `Need a ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h3><p>Skip the embedded form. Browse screened talent first, or talk through the role with our team.</p></div>
+              <div><span className="blog-inline-label">Hiring shortcut</span><h3>{service ? `Need a ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h3><p>Browse screened talent first, or talk through the role with our team.</p></div>
               <div className="blog-inline-actions"><Link className="btn btn-primary" href={talentHref} data-track="blog_cta_talent">Browse talent <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href="/book-client-call">Book a call</Link></div>
             </aside> : null}
 
@@ -188,7 +187,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <aside className="blog-bottom-conversion">
             <div className="blog-bottom-copy">
               <span className="blog-bottom-label">Ready when you are</span>
-              <h2>{service ? `Find a ${roleLabel} Virtual Assistant without another form.` : "Turn the guide into a real shortlist."}</h2>
+              <h2>{service ? `Find a ${roleLabel} Virtual Assistant with a clearer next step.` : "Turn the guide into a real shortlist."}</h2>
               <p>Browse vetted Filipino Virtual Assistants, compare relevant profiles, or book a quick call if you want help defining the role.</p>
               <div className="blog-bottom-actions">
                 <Link className="btn btn-primary btn-lg" href={talentHref} data-track="blog_cta_talent">Browse vetted talent <ArrowRight size={16}/></Link>

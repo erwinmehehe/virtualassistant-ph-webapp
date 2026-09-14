@@ -10,14 +10,16 @@ test("public hiring request removes job description and SOP upload", () => {
   assert.doesNotMatch(form, /type="file"/);
 });
 
-test("contact details are always visible and required", () => {
+test("contact details are always visible while phone stays optional", () => {
   assert.match(form, /<h3>Contact details<\/h3>/);
   assert.doesNotMatch(form, /hire-optional-details/);
   assert.doesNotMatch(form, /Add contact details/);
   assert.match(form, /name="name" required/);
   assert.match(form, /name="company" required/);
   assert.match(form, /name="email" type="email" required/);
-  assert.match(form, /name="phone" type="tel" required/);
+  assert.match(form, /Phone \/ WhatsApp <span className="muted">\(optional\)<\/span>/);
+  assert.match(form, /name="phone" type="tel" autoComplete="tel"/);
+  assert.doesNotMatch(form, /name="phone" type="tel" required/);
 });
 
 test("homepage hiring budget begins at the supported six-dollar minimum", () => {

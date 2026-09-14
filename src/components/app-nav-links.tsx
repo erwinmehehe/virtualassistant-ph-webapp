@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Bell, BriefcaseBusiness, Building2, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, MessageSquare, Search, Settings, ShieldCheck, Sparkles, Tags, TrendingUp, UsersRound, Wrench, History } from "lucide-react";
+import { BarChart3, Bell, BriefcaseBusiness, Building2, CalendarDays, CircleDollarSign, CircleEllipsis, CircleUserRound, FileText, Flag, Heart, LayoutDashboard, ListTodo, MessageSquare, Search, Settings, ShieldCheck, Sparkles, Tags, TrendingUp, UsersRound, Wrench, History } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
 
@@ -49,9 +49,15 @@ const nav: Record<Role, readonly NavGroup[]> = {
   ],
   recruiter: [
     { label: "Client pipeline", items: [
+      ["My Day", "/workspace/recruiter/today", ListTodo],
       ["Overview", "/workspace/recruiter", LayoutDashboard],
       ["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],
       ["Roles", "/workspace/recruiter/matching", Sparkles]
+    ]},
+    { label: "Daily work", items: [
+      ["Agenda", "/workspace/recruiter/agenda", CalendarDays],
+      ["Tasks", "/workspace/recruiter/tasks", ListTodo],
+      ["Notifications", "/workspace/recruiter/notifications", Bell]
     ]},
     { label: "Talent operations", items: [
       ["Talent", "/workspace/recruiter/talent", Search],
@@ -93,7 +99,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
-  recruiter: ["/workspace/recruiter", "/workspace/recruiter/leads", "/workspace/recruiter/matching", "/workspace/recruiter/queue"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/matching", "/workspace/recruiter/agenda"],
   admin: ["/workspace/admin", "/workspace/admin/jobs", "/workspace/admin/vetting", "/workspace/admin/leads"]
 };
 

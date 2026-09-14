@@ -15,7 +15,9 @@ test("public hiring forms save drafts and keep the homepage request lightweight"
   assert.doesNotMatch(shared, /Job description or SOP/i);
   assert.match(shared, /name="name" required/);
   assert.match(shared, /name="company" required/);
-  assert.match(shared, /name="phone" type="tel" required/);
+  assert.match(shared, /name="email" type="email" required/);
+  assert.match(shared, /name="phone" type="tel" autoComplete="tel"/);
+  assert.doesNotMatch(shared, /name="phone" type="tel" required/);
   assert.match(migration, /lead-attachments/);
   assert.match(migration, /public = false/);
 });

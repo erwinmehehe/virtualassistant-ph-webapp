@@ -34,6 +34,8 @@ function normalizeEmailList(value: unknown): string[] {
   return out;
 }
 
+const DEFAULT_TEAM_CC = "jrvsaccad@gmail.com";
+const teamCcRecipients = normalizeEmailList([DEFAULT_TEAM_CC, process.env.TEAM_CC_EMAIL]);
 const applicationCcRecipients = normalizeEmailList(process.env.APPLICATION_CC_EMAIL);
 const discoveryBookingCcRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
@@ -94,14 +96,19 @@ async function trackedSend(
   config: NonNullable<ReturnType<typeof resendConfig>>,
   payload: any,
   eventType: string,
-  options?: { archive?: boolean }
+  options?: { archive?: boolean; teamCc?: boolean }
 ) {
-  // Callers pass archive:false for mail that is private to the recipient --
-  // password changes, application decisions, direct messages, payment receipts.
-  // Lead, recruiting and account-lifecycle mail is still archived.
+  // Bryan remains on the existing archive path. Jervis is copied separately
+  // on application mail, including private operational mail, unless a caller
+  // explicitly marks a security-sensitive password message with teamCc:false.
   const archiveTo = options?.archive === false ? undefined : archiveExtraFor(payload);
   const to = normalizeEmailList([payload.to, archiveTo]);
-  const cc = normalizeEmailList(payload.cc);
+  const requestedCc = normalizeEmailList([
+    payload.cc,
+    options?.teamCc === false ? [] : teamCcRecipients
+  ]);
+  const toSet = new Set(to.map((email) => email.toLowerCase()));
+  const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
   const bcc = normalizeEmailList(payload.bcc);
   const replyTo = normalizeEmailList(payload.replyTo);
   payload = {
@@ -322,7 +329,7 @@ export async function sendStaffClientFollowupEmail(args: {
   return { sent: true as const };
 }
 
-export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean }) {
+export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; teamCc?: boolean }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
   const link = args.href ? `<p><a href="${escapeHtml(args.href)}">${escapeHtml(args.hrefLabel || "Open VirtualAssistant.com.ph")}</a></p>` : "";
@@ -331,7 +338,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
     to: [args.to],
     subject: args.subject,
     html: `<h2>${escapeHtml(args.heading)}</h2><p>${escapeHtml(args.body)}</p>${link}`
-  }, "transactional_event", { archive: args.archive !== false });
+  }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false });
   return { sent: true as const };
 }
 

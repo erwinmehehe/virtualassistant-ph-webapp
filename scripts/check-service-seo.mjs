@@ -51,11 +51,29 @@ for (const term of slopTerms) if (term.test(pageSource)) failures.push(`shared s
 const requiredDepthSections = ['How the role works', 'First 30 days', 'Common hiring mistakes', 'Managing the role', 'Interview guide', 'Frequently asked questions'];
 for (const section of requiredDepthSections) if (!pageSource.includes(section)) failures.push(`shared service template: missing section ${section}`);
 
+const templateRequirements = [
+  ['absolute meta title', /title:\s*\{\s*absolute:\s*page\.metaTitle\s*\}/],
+  ['meta description', /description:\s*page\.metaDescription/],
+  ['canonical URL', /canonicalPath\(`\/service\/\$\{page\.slug\}`\)/],
+  ['canonical metadata', /alternates:\s*\{\s*canonical\s*\}/],
+  ['Open Graph URL', /openGraph:\s*\{[^}]*url:\s*canonical/],
+  ['static service routes', /SERVICE_PAGES\.map\(\(page\)\s*=>\s*\(\{\s*slug:\s*page\.slug\s*\}\)\)/],
+  ['service match form', /<ServiceMatchForm/]
+];
+for (const [label, pattern] of templateRequirements) {
+  if (!pattern.test(pageSource)) failures.push(`shared service template: missing ${label}`);
+}
+
+const h1Count = (pageSource.match(/<h1\b/g) || []).length;
+if (h1Count !== 1) failures.push(`shared service template: expected exactly one H1, found ${h1Count}`);
+
 console.log(`Service SEO pages checked: ${pages.length}`);
 console.log(`Brand names in meta titles: ${pages.filter((p) => /virtualassistant\.com\.ph/i.test(p.metaTitle)).length}`);
 console.log(`Standalone VA abbreviations in meta titles: ${pages.filter((p) => /\bVA\b/.test(p.metaTitle)).length}`);
 console.log(`Longest meta description: ${Math.max(...pages.map((p) => p.metaDescription.length))} characters`);
 console.log(`Required depth sections present: ${requiredDepthSections.length}/${requiredDepthSections.length}`);
+console.log(`Shared template H1 count: ${h1Count}`);
+console.log(`SEO template checks: ${templateRequirements.length}`);
 
 if (failures.length) {
   console.error(`\nFAIL (${failures.length})`);

@@ -23,7 +23,8 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
   assert.doesNotMatch(floating, /Hiring a Virtual Assistant\?/);
   assert.match(floating, /INTERNAL_PATHS/);
-  assert.match(floating, /floating-cta-label-mobile/);
+  assert.match(floating, /floating-cta-compact/);
+  assert.match(floating, /<span>Book a call<\/span>/);
   assert.match(footer, /href="\/book-client-call"/);
 });
 
@@ -74,10 +75,12 @@ test("service and industry detail forms stay compact", () => {
 
   assert.match(serviceForm, /service-match-form-compact/);
   assert.doesNotMatch(serviceForm, /name="phone"/);
-  assert.match(serviceForm, /What should this VA own\?/);
-  assert.match(serviceForm, /rows=\{3\}/);
-  assert.match(serviceForm, /defaultValue=\{example\}/);
-  assert.match(serviceFormCss, /service-match-message/);
+  assert.doesNotMatch(serviceForm, /<textarea/);
+  assert.match(serviceForm, /name="message" value=\{example\}/);
+  assert.match(serviceForm, /First name \*/);
+  assert.match(serviceForm, /Work email \*/);
+  assert.match(serviceForm, /Get matched/);
+  assert.match(serviceFormCss, /service-match-message|service-match-form-compact/);
   assert.match(industryForm, /service-match-form-compact/);
   assert.doesNotMatch(industryForm, /name="phone"/);
   assert.doesNotMatch(industryForm, /<textarea/);

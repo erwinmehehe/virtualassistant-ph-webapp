@@ -92,7 +92,7 @@ export function FindMyVaWizard({ talent }: { talent: MatchTalent[] }) {
         <label>
           Preferred VA rate
           <select value={budget} onChange={(event) => setBudget(event.target.value)}>
-            <option value="5-8">$5–$8/hr</option>
+            <option value="6-8">$6–$8/hr</option>
             <option value="8-12">$8–$12/hr</option>
             <option value="12-18">$12–$18/hr</option>
             <option value="18-25">$18–$25/hr</option>

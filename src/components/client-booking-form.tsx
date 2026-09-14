@@ -14,9 +14,20 @@ function timeZoneLabel(timeZone: string) {
   return timeZone.replaceAll("_", " ");
 }
 
+function localDateKey(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone,
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
   const [audience, setAudience] = useState<Audience>(null);
-  const [selectedDay, setSelectedDay] = useState(days[0]?.dateKey || "");
+  const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   // Browser-only APIs must not decide the server render. Waiting until the
   // component mounts avoids briefly claiming that every visitor is in Manila.
@@ -29,20 +40,52 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
   const displayTimeZone = browserTimeZone || "Asia/Manila";
 
-  const activeDay = days.find((day) => day.dateKey === selectedDay) || days[0];
-  const localSlotLabels = useMemo(() => {
-    const labels = new Map<string, string>();
+  const localDays = useMemo(() => {
+    const grouped = new Map<string, DiscoverySlotDay>();
     for (const day of days) {
       for (const slot of day.slots) {
-        labels.set(slot.iso, new Intl.DateTimeFormat(undefined, {
+        const instant = new Date(slot.iso);
+        const dateKey = localDateKey(instant, displayTimeZone);
+        const timeLabel = new Intl.DateTimeFormat(undefined, {
           hour: "numeric",
           minute: "2-digit",
           timeZone: displayTimeZone,
-        }).format(new Date(slot.iso)));
+        }).format(instant);
+        const existing = grouped.get(dateKey);
+        if (existing) {
+          existing.slots.push({ ...slot, timeLabel });
+          continue;
+        }
+        grouped.set(dateKey, {
+          dateKey,
+          label: new Intl.DateTimeFormat(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            timeZone: displayTimeZone,
+          }).format(instant),
+          slots: [{ ...slot, timeLabel }],
+        });
       }
     }
-    return labels;
-  }, [displayTimeZone, days]);
+    return Array.from(grouped.values()).sort((a, b) =>
+      (a.slots[0]?.iso || "").localeCompare(b.slots[0]?.iso || ""),
+    );
+  }, [days, displayTimeZone]);
+
+  useEffect(() => {
+    if (!localDays.length) {
+      setSelectedDay("");
+      setSelectedSlot("");
+      return;
+    }
+    if (!localDays.some((day) => day.dateKey === selectedDay)) {
+      setSelectedDay(localDays[0].dateKey);
+      setSelectedSlot("");
+    }
+  }, [localDays, selectedDay]);
+
+  const activeDay = localDays.find((day) => day.dateKey === selectedDay) || localDays[0];
 
   return (
     <div className="booking-flow-card">
@@ -103,12 +146,12 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
             <div className="booking-section-title">
               <span>Step 2 of 3</span>
               <h3>Choose a time</h3>
-              <p aria-live="polite"><Clock3 size={14} /> 30 minutes. {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)} (${displayTimeZone}).` : "Loading times in your local timezone…"}</p>
+              <p aria-live="polite"><Clock3 size={14} /> 30 minutes. 24/7 availability. {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)} (${displayTimeZone}).` : "Loading times in your local timezone…"}</p>
             </div>
-            {days.length ? (
+            {localDays.length ? (
               <>
                 <div className="booking-date-tabs" role="tablist" aria-label="Available discovery call dates">
-                  {days.map((day) => (
+                  {localDays.map((day) => (
                     <button
                       key={day.dateKey}
                       className={selectedDay === day.dateKey ? "is-active" : ""}
@@ -117,7 +160,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                       aria-selected={selectedDay === day.dateKey}
                       onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); }}
                     >
-                      <CalendarDays size={15} /> {new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", timeZone: displayTimeZone }).format(new Date(day.slots[0]?.iso || `${day.dateKey}T00:00:00Z`))}
+                      <CalendarDays size={15} /> {day.label}
                     </button>
                   ))}
                 </div>
@@ -131,11 +174,11 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                       aria-checked={selectedSlot === slot.iso}
                       onClick={() => setSelectedSlot(slot.iso)}
                     >
-                      {localSlotLabels.get(slot.iso) || slot.timeLabel}
+                      {slot.timeLabel}
                     </button>
                   ))}
                 </div>
-                <p className="booking-time-note">Availability is managed in Philippine time. Your confirmation will include both your timezone and Asia/Manila.</p>
+                <p className="booking-time-note">Booking is available around the clock in 30-minute slots. Times are shown in your local timezone, and your confirmation also includes Asia/Manila for our recruiting team.</p>
               </>
             ) : (
               <div className="booking-no-slots">No online slots are currently available. Please use the hiring request form and our team will contact you.</div>
@@ -208,7 +251,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
               <div className="field span-2"><label htmlFor="booking-challenge">What should the VA own, and what is your biggest challenge? *</label><textarea id="booking-challenge" name="message" required minLength={15} rows={4} placeholder="Share the main tasks, tools, schedule, and the result you want." /></div>
             </div>
 
-            <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot || !days.length}>
+            <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot || !localDays.length}>
               Confirm client discovery call
             </button>
             <p className="small muted booking-consent">By booking, you agree that our hiring team may contact you about this request. No payment is required.</p>

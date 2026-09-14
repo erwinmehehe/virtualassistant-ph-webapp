@@ -35,7 +35,21 @@ test("booking flow blocks VA applicants before showing client slots", async () =
   assert.match(form, /useState<string \| null>\(null\)/);
   assert.ok(form.includes("Australia/Sydney"));
   assert.ok(form.includes("Times shown in ${timeZoneLabel"));
+});
 
+test("discovery booking is available 24/7 and grouped in the visitor timezone", async () => {
+  const [form, booking] = await Promise.all([
+    read("src/components/client-booking-form.tsx"),
+    read("src/lib/discovery-booking.ts"),
+  ]);
+
+  assert.match(booking, /for \(let hour = 0; hour < 24; hour \+= 1\)/);
+  assert.doesNotMatch(booking, /START_HOUR|END_HOUR/);
+  assert.doesNotMatch(booking, /weekday === 0|weekday === 6/);
+  assert.match(form, /24\/7 availability/);
+  assert.match(form, /localDateKey/);
+  assert.match(form, /localDays\.map/);
+  assert.match(form, /Booking is available around the clock/);
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {

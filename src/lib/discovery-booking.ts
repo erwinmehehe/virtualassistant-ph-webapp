@@ -15,8 +15,6 @@ export type DiscoverySlotDay = {
 };
 
 const MANILA_OFFSET_HOURS = 8;
-const START_HOUR = 9;
-const END_HOUR = 17;
 
 function manilaParts(date: Date) {
   const shifted = new Date(date.getTime() + MANILA_OFFSET_HOURS * 60 * 60 * 1000);
@@ -24,7 +22,6 @@ function manilaParts(date: Date) {
     year: shifted.getUTCFullYear(),
     month: shifted.getUTCMonth(),
     day: shifted.getUTCDate(),
-    weekday: shifted.getUTCDay(),
     hour: shifted.getUTCHours(),
     minute: shifted.getUTCMinutes(),
   };
@@ -42,9 +39,7 @@ export function isAllowedDiscoverySlot(value: string, now = new Date()) {
   if (slot.getTime() < min || slot.getTime() > max) return false;
 
   const parts = manilaParts(slot);
-  if (parts.weekday === 0 || parts.weekday === 6) return false;
-  if (![0, 30].includes(parts.minute)) return false;
-  return parts.hour >= START_HOUR && parts.hour < END_HOUR;
+  return [0, 30].includes(parts.minute);
 }
 
 export function buildDiscoverySlotDays(bookedIsoValues: string[], now = new Date()): DiscoverySlotDay[] {
@@ -57,11 +52,9 @@ export function buildDiscoverySlotDays(bookedIsoValues: string[], now = new Date
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();
     const day = date.getUTCDate();
-    const weekday = date.getUTCDay();
-    if (weekday === 0 || weekday === 6) continue;
-
     const slots: DiscoverySlot[] = [];
-    for (let hour = START_HOUR; hour < END_HOUR; hour += 1) {
+
+    for (let hour = 0; hour < 24; hour += 1) {
       for (const minute of [0, 30]) {
         const slot = manilaDateToUtc(year, month, day, hour, minute);
         const iso = slot.toISOString();

@@ -46,20 +46,29 @@ type WebVitalMetric = {
   navigationType?: string;
 };
 
-function reportWorkspaceVital(metric: WebVitalMetric) {
-  if (!window.location.pathname.startsWith("/workspace")) return;
+function reportWebVital(metric: WebVitalMetric) {
+  const pathname = window.location.pathname;
+  if (pathname.startsWith("/api")) return;
+
+  // CLS is a small unitless number, while LCP/INP/TTFB/FCP are measured in ms.
+  // Preserve enough precision to make production field data useful.
+  const value = metric.name === "CLS"
+    ? Math.round(metric.value * 1000) / 1000
+    : Math.round(metric.value);
+
   send("web_vital", {
     id: metric.id,
     name: metric.name,
-    value: Math.round(metric.value * 10) / 10,
+    value,
     rating: metric.rating || null,
-    navigation_type: metric.navigationType || null
+    navigation_type: metric.navigationType || null,
+    surface: pathname.startsWith("/workspace") ? "workspace" : "public"
   });
 }
 
 export function Analytics() {
   const pathname = usePathname();
-  useReportWebVitals(reportWorkspaceVital);
+  useReportWebVitals(reportWebVital);
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;

@@ -83,7 +83,7 @@ test("service and industry detail forms stay compact", () => {
   assert.match(serviceForm, /name="message" value=\{example\}/);
   assert.match(serviceForm, /First name \*/);
   assert.match(serviceForm, /Work email \*/);
-  assert.match(serviceForm, /Get matched/);
+  assert.match(serviceForm, /Get my shortlist/);
   assert.match(serviceFormCss, /service-match-message|service-match-form-compact/);
   assert.match(industryForm, /service-match-form-compact/);
   assert.doesNotMatch(industryForm, /name="phone"/);

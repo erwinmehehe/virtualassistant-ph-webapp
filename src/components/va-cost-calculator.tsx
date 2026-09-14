@@ -25,7 +25,7 @@ export function VaCostCalculator({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="cro-cost-controls">
         <label>Hours / week<strong>{hours}</strong><input type="range" min="10" max="40" step="5" value={hours} onChange={(event) => setHours(Number(event.target.value))} /></label>
-        <label>Hourly rate<strong>${rate}/hr</strong><input type="range" min="5" max="30" step="1" value={rate} onChange={(event) => setRate(Number(event.target.value))} /></label>
+        <label>Hourly rate<strong>${rate}/hr</strong><input type="range" min="6" max="30" step="1" value={rate} onChange={(event) => setRate(Number(event.target.value))} /></label>
       </div>
       <div className="cro-cost-result">
         <span>Estimated VA compensation</span>

@@ -10,8 +10,10 @@ test("service QA overrides load after the final site redesign", () => {
   const layout = source("src/app/layout.tsx");
   const siteFinal = layout.indexOf('import "./site-redesign-final.css"');
   const serviceFinal = layout.indexOf('import "./service-visual-qa-v2.css"');
+  const matchFinal = layout.indexOf('import "./service-match-form-final.css"');
   assert.ok(siteFinal >= 0, "site-redesign-final.css must be loaded");
   assert.ok(serviceFinal > siteFinal, "service visual QA must load after the final site redesign");
+  assert.ok(matchFinal > serviceFinal, "service match treatment must load after the shared service QA layers");
 });
 
 test("service pages stay compact and mobile safe", () => {
@@ -22,6 +24,22 @@ test("service pages stay compact and mobile safe", () => {
   assert.match(css, /grid-template-columns: 1fr !important/);
   assert.match(css, /font-size: clamp\(22px, 7vw, 28px\)/);
   assert.match(css, /content-visibility: auto/);
+});
+
+test("service shortlist form is integrated with the hero instead of boxed like a dashboard card", () => {
+  const form = source("src/components/service-match-form.tsx");
+  const css = source("src/app/service-match-form-final.css");
+
+  assert.match(form, /Private shortlist/);
+  assert.match(form, /Get a shortlist for this role\./);
+  assert.match(form, /Get my shortlist/);
+  assert.doesNotMatch(form, /Quick match|Want us to narrow the list\?|About 20 seconds/);
+
+  assert.match(css, /background: transparent !important/);
+  assert.match(css, /border-left: 1px solid rgba/);
+  assert.match(css, /box-shadow: none !important/);
+  assert.match(css, /border-top: 1px solid rgba/);
+  assert.match(css, /grid-template-columns: 1fr !important/);
 });
 
 test("discovery prompt is compact and never competes with service forms or workspaces", () => {

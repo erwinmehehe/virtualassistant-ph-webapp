@@ -25,8 +25,11 @@ async function getPlacement(workroomId: string) {
 
 function revalidatePlacement(workroomId: string) {
   revalidatePath("/workspace/client/team");
+  revalidatePath("/workspace/client/support");
   revalidatePath("/workspace/va/workroom");
+  revalidatePath("/workspace/va/support");
   revalidatePath("/workspace/client-success");
+  revalidatePath("/workspace/client-success/support");
   revalidatePath(`/workspace/client-success/${workroomId}`);
   revalidatePath("/workspace/recruiter/today");
 }
@@ -71,7 +74,7 @@ export async function submitPlacementSupportRequestAction(formData: FormData) {
       user_id: room.client_success_owner_id,
       title: `${requestType === "replacement" ? "Replacement request" : requestType === "emergency" ? "Urgent placement support" : "Placement support request"}: ${job.title}`,
       body: `${source === "client" ? "The client" : "The Virtual Assistant"} submitted a ${requestType.replaceAll("_", " ")} request. Review and acknowledge it.`,
-      href: `/workspace/client-success/${workroomId}?support=${created.id}`,
+      href: `/workspace/client-success/support?request=${created.id}`,
       type: "placement_support",
       priority
     });
@@ -86,7 +89,7 @@ export async function submitPlacementSupportRequestAction(formData: FormData) {
     metadata: { workroom_id: workroomId, support_request_id: created.id, priority }
   });
   revalidatePlacement(workroomId);
-  redirect(source === "client" ? "/workspace/client/team?support_sent=1" : "/workspace/va/workroom?support_sent=1");
+  redirect(source === "client" ? "/workspace/client/support?support_sent=1" : "/workspace/va/support?support_sent=1");
 }
 
 export async function resolvePlacementSupportRequestAction(formData: FormData) {
@@ -118,7 +121,7 @@ export async function resolvePlacementSupportRequestAction(formData: FormData) {
     user_id: request.requester_id,
     title: `Placement support ${status}`,
     body: resolution || `Client Success marked your ${String(request.request_type).replaceAll("_", " ")} request as ${status}.`,
-    href: request.requester_role === "client" ? "/workspace/client/team" : "/workspace/va/workroom",
+    href: request.requester_role === "client" ? "/workspace/client/support" : "/workspace/va/support",
     type: "placement_support",
     priority: "normal"
   });
@@ -132,5 +135,5 @@ export async function resolvePlacementSupportRequestAction(formData: FormData) {
     metadata: { workroom_id: workroomId, support_request_id: requestId, resolution }
   });
   revalidatePlacement(workroomId);
-  redirect(`/workspace/client-success/${workroomId}?support_saved=1`);
+  redirect("/workspace/client-success/support?support_saved=1");
 }

@@ -23,7 +23,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
   recruiter: [
     { label: "Agency operations", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/roles", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound],["Client Success", "/workspace/client-success", Wrench],["Support queue", "/workspace/client-success/support", LifeBuoy]]},
     { label: "Daily work", items: [["Agenda", "/workspace/recruiter/agenda", CalendarDays],["Tasks", "/workspace/recruiter/tasks", ListTodo],["Notifications", "/workspace/recruiter/notifications", Bell]]},
-    { label: "Talent operations", items: [["Talent", "/workspace/recruiter/talent", Search],["Vetting", "/workspace/recruiter/queue", FileText],["Work readiness", "/workspace/recruiter/work-readiness", ShieldCheck],["Bench", "/workspace/recruiter/bench", UsersRound],["Stalled", "/workspace/recruiter/stalled", Flag]]},
+    { label: "Talent operations", items: [["Talent", "/workspace/recruiter/talent", Search],["Vetting", "/workspace/recruiter/queue", FileText],["Work readiness", "/workspace/recruiter/work-readiness", ShieldCheck],["Talent OS", "/workspace/recruiter/bench", UsersRound],["Stalled", "/workspace/recruiter/stalled", Flag]]},
     { label: "Insights", items: [["Margin review", "/workspace/recruiter/finance", CircleDollarSign],["Activity", "/workspace/recruiter/activity", History],["Conversion", "/workspace/recruiter/analytics", BarChart3],["VA categories", "/workspace/recruiter/categories", Tags]]}
   ],
   admin: [

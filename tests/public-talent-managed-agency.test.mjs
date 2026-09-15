@@ -19,11 +19,11 @@ test("public talent directory behaves like managed recruiting, not a marketplace
   assert.match(directory, /recruiter confirms current fit and availability/i);
 });
 
-test("public talent profile route stays disabled and exposes no internal recruiting signals", () => {
+test("public talent profile route redirects to the managed directory and exposes no internal recruiting signals", () => {
   const profile = source("src/app/va/[slug]/page.tsx");
 
-  assert.match(profile, /notFound\(\)/);
-  assert.match(profile, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
+  assert.match(profile, /redirect\("\/find-talent"\)/);
+  assert.match(profile, /robots:\s*\{\s*index:\s*false,\s*follow:\s*true\s*\}/);
   assert.doesNotMatch(profile, /TalentShortlistButton|TalentShortlistBar|Save for recruiter|Saved for recruiter/);
   assert.doesNotMatch(profile, /hourly_rate|Preferred rate|last_active_at|match_score|Email verified|Identity verified/);
   assert.doesNotMatch(profile, /Recruiter reviewed|Get a vetted shortlist|confirm current availability/);

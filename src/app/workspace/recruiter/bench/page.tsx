@@ -79,7 +79,9 @@ export default async function RecruiterTalentOperations() {
 
   const demandCounts = new Map<string, number>();
   for (const job of openJobs || []) {
-    const categories = Array.isArray((job as any).categories) ? [...new Set((job as any).categories.filter(Boolean))] : [];
+    const categories: string[] = Array.isArray((job as any).categories)
+      ? [...new Set((job as any).categories.filter((value: unknown): value is string => typeof value === "string" && value.length > 0))]
+      : [];
     for (const category of categories) demandCounts.set(category, (demandCounts.get(category) || 0) + 1);
   }
 

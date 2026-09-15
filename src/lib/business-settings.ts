@@ -8,6 +8,11 @@ export type BusinessSettings = {
   placementFee: number;
   managedMarkupPercent: number;
   clientSuccessOwnerId: string | null;
+  financeMinMarginPercent: number;
+  financeTargetMarginPercent: number;
+  financeDefaultPaymentCostPercent: number;
+  financeDefaultOpsCostMonthly: number;
+  financeInvoiceOverdueDays: number;
 };
 
 const fallback: BusinessSettings = {
@@ -15,6 +20,11 @@ const fallback: BusinessSettings = {
   placementFee: 0,
   managedMarkupPercent: 0,
   clientSuccessOwnerId: null,
+  financeMinMarginPercent: 15,
+  financeTargetMarginPercent: 25,
+  financeDefaultPaymentCostPercent: 3,
+  financeDefaultOpsCostMonthly: 0,
+  financeInvoiceOverdueDays: 7,
 };
 
 export async function getBusinessSettings(): Promise<BusinessSettings> {
@@ -23,7 +33,7 @@ export async function getBusinessSettings(): Promise<BusinessSettings> {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("admin_settings")
-      .select("min_hourly_rate,default_placement_fee,default_managed_markup_percent,client_success_owner_id")
+      .select("min_hourly_rate,default_placement_fee,default_managed_markup_percent,client_success_owner_id,finance_min_margin_percent,finance_target_margin_percent,finance_default_payment_cost_percent,finance_default_ops_cost_monthly,finance_invoice_overdue_days")
       .eq("id", 1)
       .maybeSingle();
     if (error || !data) return fallback;
@@ -32,6 +42,11 @@ export async function getBusinessSettings(): Promise<BusinessSettings> {
       placementFee: Number(data.default_placement_fee ?? 0),
       managedMarkupPercent: Number(data.default_managed_markup_percent ?? 0),
       clientSuccessOwnerId: data.client_success_owner_id || null,
+      financeMinMarginPercent: Number(data.finance_min_margin_percent ?? fallback.financeMinMarginPercent),
+      financeTargetMarginPercent: Number(data.finance_target_margin_percent ?? fallback.financeTargetMarginPercent),
+      financeDefaultPaymentCostPercent: Number(data.finance_default_payment_cost_percent ?? fallback.financeDefaultPaymentCostPercent),
+      financeDefaultOpsCostMonthly: Number(data.finance_default_ops_cost_monthly ?? fallback.financeDefaultOpsCostMonthly),
+      financeInvoiceOverdueDays: Number(data.finance_invoice_overdue_days ?? fallback.financeInvoiceOverdueDays),
     };
   } catch {
     return fallback;

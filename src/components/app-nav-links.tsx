@@ -24,11 +24,11 @@ const nav: Record<Role, readonly NavGroup[]> = {
     { label: "Agency operations", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/roles", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound],["Client Success", "/workspace/client-success", Wrench],["Support queue", "/workspace/client-success/support", LifeBuoy]]},
     { label: "Daily work", items: [["Agenda", "/workspace/recruiter/agenda", CalendarDays],["Tasks", "/workspace/recruiter/tasks", ListTodo],["Notifications", "/workspace/recruiter/notifications", Bell]]},
     { label: "Talent operations", items: [["Talent", "/workspace/recruiter/talent", Search],["Vetting", "/workspace/recruiter/queue", FileText],["Work readiness", "/workspace/recruiter/work-readiness", ShieldCheck],["Bench", "/workspace/recruiter/bench", UsersRound],["Stalled", "/workspace/recruiter/stalled", Flag]]},
-    { label: "Insights", items: [["Activity", "/workspace/recruiter/activity", History],["Conversion", "/workspace/recruiter/analytics", BarChart3],["VA categories", "/workspace/recruiter/categories", Tags]]}
+    { label: "Insights", items: [["Margin review", "/workspace/recruiter/finance", CircleDollarSign],["Activity", "/workspace/recruiter/activity", History],["Conversion", "/workspace/recruiter/analytics", BarChart3],["VA categories", "/workspace/recruiter/categories", Tags]]}
   ],
   admin: [
     { label: "Operations", items: [["Overview", "/workspace/admin", ShieldCheck],["Client Success", "/workspace/client-success", UsersRound],["Support queue", "/workspace/client-success/support", LifeBuoy],["Lead inbox", "/workspace/admin/leads", MessageSquare],["Job exceptions", "/workspace/admin/jobs", BriefcaseBusiness],["Vetting finalists", "/workspace/admin/vetting", FileText],["Users", "/workspace/admin/users", UsersRound]]},
-    { label: "Risk and finance", items: [["Payments", "/workspace/admin/payments", CircleDollarSign],["Moderation", "/workspace/admin/moderation", Flag],["Audit log", "/workspace/admin/audit", History]]},
+    { label: "Risk and finance", items: [["Finance OS", "/workspace/admin/finance", CircleDollarSign],["Payments", "/workspace/admin/payments", CircleDollarSign],["Moderation", "/workspace/admin/moderation", Flag],["Audit log", "/workspace/admin/audit", History]]},
     { label: "Insights", items: [["Analytics", "/workspace/admin/analytics", BarChart3],["Sales analytics", "/workspace/admin/sales", TrendingUp]]},
     { label: "Configuration", items: [["Agency settings", "/workspace/admin/settings", Settings],["System setup", "/workspace/admin/system", Wrench],["Release health", "/workspace/admin/health", ShieldCheck]]}
   ]
@@ -38,7 +38,7 @@ const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/client-success"],
-  admin: ["/workspace/admin", "/workspace/client-success", "/workspace/admin/jobs", "/workspace/admin/leads"]
+  admin: ["/workspace/admin", "/workspace/client-success", "/workspace/admin/finance", "/workspace/admin/leads"]
 };
 
 function activeFor(pathname: string, href: string) {

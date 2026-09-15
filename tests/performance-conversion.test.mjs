@@ -5,72 +5,88 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("homepage keeps one compact hiring form in the hero", async () => {
-  const [page, form, css] = await Promise.all([
-    read("src/app/(public)/page.tsx"),
-    read("src/components/HomeLeadForm.tsx"),
-    read("src/app/public-redesign.css")
+  const [page, css] = await Promise.all([
+    read("src/app/page.tsx"),
+    read("src/app/premium-home.css")
   ]);
 
-  assert.equal((page.match(/<HomeLeadForm/g) || []).length, 1);
-  assert.match(page, /hero-form-shell/);
-  assert.match(form, /homepage_form_start/);
-  assert.match(form, /homepage_form_submit/);
-  assert.match(css, /\.hero-form-shell[\s\S]*max-width/);
+  assert.match(page, /id="hero-hiring-form"/);
+  assert.equal((page.match(/<RoleBriefForm/g) || []).length, 1);
+  assert.doesNotMatch(page, /pva-workflow-card/);
+  assert.match(page, /href="#hero-hiring-form"/);
+  assert.match(css, /\.pva-hero-form-shell/);
+  assert.match(css, /padding: clamp\(3rem, 5vw, 4\.5rem\)/);
 });
 
 test("large page styles are scoped to their route", async () => {
-  const [home, matcher, talent, globals] = await Promise.all([
-    read("src/app/(public)/page.tsx"),
-    read("src/app/workspace/recruiter/matching/[jobId]/page.tsx"),
-    read("src/app/workspace/recruiter/talent/page.tsx"),
-    read("src/app/globals.css")
+  const [rootLayout, home, hire, workspace] = await Promise.all([
+    read("src/app/layout.tsx"),
+    read("src/app/page.tsx"),
+    read("src/app/hire/page.tsx"),
+    read("src/app/workspace/layout.tsx")
   ]);
 
-  assert.match(home, /public-redesign\.css/);
-  assert.match(matcher, /matcher\.css/);
-  assert.match(talent, /talent-directory\.css/);
-  assert.doesNotMatch(globals, /matcher-workspace/);
-  assert.doesNotMatch(globals, /talent-directory/);
+  assert.doesNotMatch(rootLayout, /premium-home\.css|premium-hire\.css|dashboard-premium\.css/);
+  assert.match(home, /premium-home\.css/);
+  assert.match(hire, /premium-hire\.css/);
+  assert.match(workspace, /dashboard-premium\.css/);
 });
 
 test("dashboard overview payloads use consolidated RPC fast paths", async () => {
-  const [data, migration] = await Promise.all([
-    read("src/lib/data.ts"),
-    read("supabase/migrations/20260912113000_dashboard_overview_rpcs.sql")
+  const [client, clientLayout, va, vaLayout, recruiter, leads, migration] = await Promise.all([
+    read("src/app/workspace/client/page.tsx"),
+    read("src/app/workspace/client/layout.tsx"),
+    read("src/app/workspace/va/page.tsx"),
+    read("src/app/workspace/va/layout.tsx"),
+    read("src/app/workspace/recruiter/page.tsx"),
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("supabase/migrations/20260913233750_dashboard_speed_consolidation.sql")
   ]);
 
-  assert.match(data, /recruiter_dashboard_overview/);
-  assert.match(data, /client_dashboard_overview/);
-  assert.match(data, /va_dashboard_overview/);
-  assert.match(migration, /create or replace function public\.recruiter_dashboard_overview/);
-  assert.match(migration, /create or replace function public\.client_dashboard_overview/);
-  assert.match(migration, /create or replace function public\.va_dashboard_overview/);
+  assert.match(client, /getClientDashboardSummary\(userId\)/);
+  assert.doesNotMatch(client, /getWorkspaceBadgeResult|from\("client_profiles"\)|from\("lead_intake"\)/);
+  assert.match(clientLayout, /requireRoleFast\("client"\)/);
+  assert.match(va, /getVaDashboardSummary\(userId\)/);
+  assert.match(vaLayout, /requireRoleFast\("va"\)/);
+
+  assert.match(recruiter, /recruiter_dashboard_overview/);
+  assert.match(recruiter, /recruiter_dashboard_signups/);
+  assert.doesNotMatch(recruiter, /recruiter_dashboard_vetting_queue|recruiter_dashboard_roles_needing_matching/);
+
+  assert.match(leads, /recruiter_leads_page/);
+  assert.match(leads, /PAGE_SIZE = 25/);
+  assert.doesNotMatch(leads, /\.limit\(500\)|\.limit\(2000\)|\.limit\(1000\)/);
+
+  for (const fn of ["client_dashboard_summary", "recruiter_dashboard_overview", "recruiter_dashboard_signups", "recruiter_leads_page"]) {
+    assert.match(migration, new RegExp(fn));
+  }
 });
 
 test("workspace and public Core Web Vitals are recorded", async () => {
-  const [workspace, publicLayout, vitals] = await Promise.all([
-    read("src/app/workspace/layout.tsx"),
-    read("src/app/(public)/layout.tsx"),
-    read("src/components/WebVitals.tsx")
+  const [analytics, route] = await Promise.all([
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts")
   ]);
 
-  assert.match(workspace, /<WebVitals surface="workspace"/);
-  assert.match(publicLayout, /<WebVitals surface="public"/);
-  assert.match(vitals, /useReportWebVitals/);
-  assert.match(vitals, /navigator\.sendBeacon/);
+  assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
+  assert.match(analytics, /startsWith\("\/workspace"\) \? "workspace" : "public"/);
+  assert.match(analytics, /metric\.name === "CLS"/);
+  assert.match(route, /"web_vital"/);
 });
 
 test("conversion analytics accepts and reports the complete homepage funnel", async () => {
-  const [analytics, sales, dashboard, migration] = await Promise.all([
-    read("src/lib/analytics.ts"),
-    read("src/lib/sales-data.ts"),
-    read("src/app/workspace/recruiter/page.tsx"),
+  const [analytics, route, sales, dashboard, migration] = await Promise.all([
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts"),
+    read("src/lib/sales-analytics.ts"),
+    read("src/components/sales-analytics-dashboard.tsx"),
     read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql")
   ]);
 
-  assert.match(analytics, /send\("homepage_view"/);
+  for (const event of ["page_view", "form_start", "form_submit_attempt", "booking_click"]) {
+    assert.match(route, new RegExp(`"${event}"`));
+  }
   assert.match(analytics, /send\("form_start"/);
-  assert.match(analytics, /send\("form_submit"/);
   assert.match(analytics, /send\("booking_click"/);
   assert.match(sales, /recruiter_conversion_summary/);
   for (const stage of ["Homepage visits", "Form starts", "Form submissions", "Discovery booked", "Qualified", "Proposal sent", "Clients won"]) {

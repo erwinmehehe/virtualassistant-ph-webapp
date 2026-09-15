@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateApplicationStatusAction, inviteVaAction } from "@/app/actions/applications";
 import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs";
-import { matchLabel } from "@/lib/matching";
+import { clientMatchLabel } from "@/lib/matching";
 import { dateShort, money } from "@/lib/format";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
@@ -27,7 +27,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
   const [{data:commercial},{data:releasedRows},{data:access}]=await Promise.all([
     supabase.from("job_commercials").select("*").eq("job_id",id).maybeSingle(),
     admin.from("job_shortlist_candidates")
-      .select("va_id,match_score,match_confidence,released_at")
+      .select("va_id,match_score,released_at,client_recommendation")
       .eq("job_id",id)
       .eq("shortlist_status","released")
       .order("match_score",{ascending:false}),
@@ -115,7 +115,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
         <thead><tr><th>Candidate</th><th>Fit</th><th>Availability</th><th>Rate</th><th>Status</th><th>Applied</th><th></th></tr></thead>
         <tbody>{visibleApplications.map((application:any)=>{const score=Number(application.match_score||0);const profile=application.profile_snapshot||{};return <tr key={application.id}>
           <td data-label="Candidate"><strong>{profile.full_name||"Virtual Assistant applicant"}</strong><div className="small muted">{profile.headline||profile.primary_category||"Virtual Assistant"}</div></td>
-          <td data-label="Fit"><strong>{matchLabel(score)}</strong><div className="small muted">{score}/100</div></td>
+          <td data-label="Fit"><span className="badge">{clientMatchLabel(score)}</span></td>
           <td data-label="Availability">{profile.weekly_hours?`${profile.weekly_hours} hrs/week`:"Not set"}</td>
           <td data-label="Rate">{profile.hourly_rate?`USD ${profile.hourly_rate}/hr`:"Not set"}</td>
           <td data-label="Status">{application.status==="hired"?<span className="badge badge-success">Hired</span>:<form action={updateApplicationStatusAction} className="row"><input type="hidden" name="application_id" value={application.id}/><input type="hidden" name="return_to" value={`/workspace/client/jobs/${job.id}`}/><label className="sr-only" htmlFor={`job-status-${application.id}`}>Candidate status</label><select id={`job-status-${application.id}`} name="status" defaultValue={application.status} className="compact-select">{stages.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select><button className="btn btn-sm" type="submit">Save</button></form>}</td>
@@ -127,13 +127,13 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
 
     <div className="card curated-shortlist-card">
       <div className="row-between wrap" style={{marginBottom:14}}>
-        <div><div className="row wrap"><Sparkles size={18}/><h3 style={{margin:0}}>Recruiter shortlist</h3></div><span className="small muted">We rank the vetted pool against this role before applications arrive and release the strongest matches for your review.</span></div>
+        <div><div className="row wrap"><Sparkles size={18}/><h3 style={{margin:0}}>Recruiter shortlist</h3></div><span className="small muted">Your recruiting team has reviewed the vetted pool and selected the candidates that best fit this role.</span></div>
       </div>
       {releasedRows?.length?(canReviewCandidates?<div className="grid-3">{releasedRows.map((row:any)=>{const profile=profileMap.get(row.va_id) as any;const va=vaMap.get(row.va_id) as any;const inviteStatus=inviteMap.get(row.va_id);return <div className="card recommendation-card" key={row.va_id}>
-        <div className="row-between"><div><strong>{profile?.full_name||"Matched Virtual Assistant"}</strong><div className="small muted">{va?.headline||va?.primary_category||"Virtual Assistant"}</div></div><div className="fit-badge"><strong>{matchLabel(Number(row.match_score||0))}</strong><span>{row.match_score}/100</span></div></div>
-        <div className="small muted">Match confidence: {row.match_confidence}% of weighted criteria could be assessed.</div>
+        <div className="row-between"><div><strong>{profile?.full_name||"Matched Virtual Assistant"}</strong><div className="small muted">{va?.headline||va?.primary_category||"Virtual Assistant"}</div></div><div className="fit-badge"><strong>{clientMatchLabel(Number(row.match_score||0))}</strong></div></div>
         <div className="pill-list" style={{margin:"12px 0"}}>{mergeUniqueStrings(va?.primary_category,va?.categories).slice(0,3).map((value,index)=><span className="badge" key={`${String(value)}-${index}`}>{value}</span>)}</div>
         <div className="small muted" style={{marginBottom:10}}>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Availability not set"}{va?.hourly_rate?` · USD ${Number(va.hourly_rate).toFixed(2)}/hr`:""}</div>
+        {row.client_recommendation?<div className="info-banner" style={{marginBottom:12}}><strong>Why your recruiter recommends this VA</strong><p style={{margin:"6px 0 0"}}>{row.client_recommendation}</p></div>:null}
         <div className="row wrap">{va?.directory_visible&&va?.slug?<Link className="btn btn-sm" href={`/va/${va.slug}`} target="_blank">View profile</Link>:null}{inviteStatus?<span className="badge">Invite: {inviteStatus}</span>:job.status!=="published"?null:<details className="invite-details"><summary className="btn btn-sm btn-primary">Invite to role</summary><form action={inviteVaAction} className="invite-popover stack"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="va_id" value={row.va_id}/><div className="field"><label>Personal note</label><textarea name="note" maxLength={500} placeholder={`Hi ${String(profile?.full_name||"").split(" ")[0]}, your background looks relevant to this role. Would you like to review it?`}/></div><button className="btn btn-primary btn-sm" type="submit">Send invitation</button></form></details>}</div>
       </div>})}</div>:roleApproved?<div className="empty"><strong>{releasedCount} curated match{releasedCount===1?" is":"es are"} ready.</strong><p>Activate candidate access to review identities, full profile evidence, and interview actions.</p></div>:<div className="empty">{releasedCount} strong match{releasedCount===1?" has":"es have"} already been prepared. Profiles will appear after you approve the role and candidate access is active.</div>):<div className="empty">No recruiter-selected matches have been released yet. Matching can continue while the role is still in review.</div>}
     </div>

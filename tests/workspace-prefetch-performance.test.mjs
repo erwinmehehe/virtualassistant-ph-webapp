@@ -8,6 +8,8 @@ const dashUi = read("src/components/dash-ui.tsx");
 const recruiter = read("src/app/workspace/recruiter/page.tsx");
 const clientSuccess = read("src/app/workspace/client-success/page.tsx");
 
+// Authenticated workspace links are intentionally click-to-load. The production
+// regression was caused by eager prefetch multiplying auth and server data work.
 test("workspace navigation does not eagerly prefetch every authenticated route", () => {
   assert.match(nav, /<Link prefetch=\{false\} href=\{href\}/);
 });

@@ -19,9 +19,7 @@ function readShortlist(): ShortlistTalent[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed)
-      ? parsed
-          .filter((item) => item && typeof item.slug === "string" && typeof item.name === "string")
-          .slice(0, MAX_SHORTLIST)
+      ? parsed.filter((item) => item && typeof item.slug === "string" && typeof item.name === "string").slice(0, MAX_SHORTLIST)
       : [];
   } catch {
     return [];
@@ -37,13 +35,7 @@ function saveShortlist(items: ShortlistTalent[]) {
   window.dispatchEvent(new CustomEvent(EVENT_NAME));
 }
 
-export function TalentShortlistButton({
-  talent,
-  className = "cro-shortlist-button",
-}: {
-  talent: ShortlistTalent;
-  className?: string;
-}) {
+export function TalentShortlistButton({ talent, className = "cro-shortlist-button" }: { talent: ShortlistTalent; className?: string }) {
   const [items, setItems] = useState<ShortlistTalent[]>([]);
 
   useEffect(() => {
@@ -70,20 +62,9 @@ export function TalentShortlistButton({
     saveShortlist([...current, talent]);
   };
 
-  return (
-    <button
-      type="button"
-      className={`${className}${selected ? " selected" : ""}`}
-      onClick={toggle}
-      disabled={full}
-      aria-pressed={selected}
-      aria-label={selected ? `Remove ${talent.name} from shortlist` : `Add ${talent.name} to shortlist`}
-      title={full ? `Shortlist up to ${MAX_SHORTLIST} candidates` : undefined}
-    >
-      {selected ? <Check size={16} /> : <BookmarkPlus size={16} />}
-      {selected ? "Shortlisted" : full ? "Shortlist full" : "Shortlist"}
-    </button>
-  );
+  return <button type="button" className={`${className}${selected ? " selected" : ""}`} onClick={toggle} disabled={full} aria-pressed={selected} aria-label={selected ? `Remove ${talent.name} from recruiter preferences` : `Save ${talent.name} for recruiter review`} title={full ? `Save up to ${MAX_SHORTLIST} profile preferences` : undefined}>
+    {selected ? <Check size={16}/> : <BookmarkPlus size={16}/>} {selected ? "Saved for recruiter" : full ? "Preference list full" : "Save for recruiter"}
+  </button>;
 }
 
 export function TalentShortlistBar() {
@@ -109,28 +90,8 @@ export function TalentShortlistBar() {
 
   if (!items.length) return null;
 
-  return (
-    <div className="cro-shortlist-bar" role="complementary" aria-label="Candidate shortlist">
-      <div className="cro-shortlist-bar-main">
-        <span className="cro-shortlist-icon"><UsersRound size={17} /></span>
-        <div>
-          <strong>{items.length} candidate{items.length === 1 ? "" : "s"} shortlisted</strong>
-          <small>Compare up to {MAX_SHORTLIST}, then send them to our recruiter.</small>
-        </div>
-      </div>
-      <div className="cro-shortlist-bar-actions">
-        <button
-          className="cro-shortlist-clear"
-          type="button"
-          onClick={() => saveShortlist([])}
-          aria-label="Clear shortlist"
-        >
-          <X size={15} />
-        </button>
-        <Link className="btn btn-primary" href={href} data-track="shortlist_hire_click">
-          Interview this shortlist
-        </Link>
-      </div>
-    </div>
-  );
+  return <div className="cro-shortlist-bar" role="complementary" aria-label="Recruiter profile preferences">
+    <div className="cro-shortlist-bar-main"><span className="cro-shortlist-icon"><UsersRound size={17}/></span><div><strong>{items.length} profile preference{items.length === 1 ? "" : "s"} saved</strong><small>Share these with our recruiter. We still verify role fit, availability, and capacity before anyone reaches your client shortlist.</small></div></div>
+    <div className="cro-shortlist-bar-actions"><button className="cro-shortlist-clear" type="button" onClick={() => saveShortlist([])} aria-label="Clear recruiter preferences"><X size={15}/></button><Link className="btn btn-primary" href={href} data-track="shortlist_hire_click">Send preferences to recruiter</Link></div>
+  </div>;
 }

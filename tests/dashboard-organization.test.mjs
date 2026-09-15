@@ -17,7 +17,7 @@ test("workspace shell leaves the page-level h1 to route content", () => {
 });
 
 test("desktop and mobile navigation use labelled groups", () => {
-  for (const label of ["Hiring", "Collaboration", "Account", "Get ready", "Opportunities", "Client pipeline", "Talent operations", "Insights"]) {
+  for (const label of ["Hiring", "Collaboration", "Account", "Get recruiter-ready", "Recruiter opportunities", "Client pipeline", "Talent operations", "Insights"]) {
     assert.match(nav, new RegExp(`label: "${label}"`));
   }
   assert.match(nav, /mobile-more-group/);

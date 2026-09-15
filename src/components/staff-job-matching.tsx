@@ -1,105 +1,81 @@
 import Link from "next/link";
-import { LockKeyhole, Sparkles, UsersRound } from "lucide-react";
+import { ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { candidateAccessLabel, candidateAccessUnlocked } from "@/lib/candidate-access";
 import { matchAssessment } from "@/lib/matching";
-import { hideShortlistCandidateAction, saveJobShortlistAction, updateCandidateAccessAction } from "@/app/actions/matching";
+import { hideShortlistCandidateAction, saveJobShortlistAction } from "@/app/actions/matching";
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
+import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 
-type Props = {
-  job: any;
-  viewerRole: "admin" | "recruiter";
-  returnTo: string;
-};
+type Props={job:any;viewerRole:"admin"|"recruiter";returnTo:string};
 
-export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
-  const admin = createAdminClient();
-  const [{ data: vettingRows }, { data: shortlistRows }, { data: access }, { count: applicationsCount }, { data: settings }] = await Promise.all([
-    admin.from("va_vetting").select("va_id,stage").in("stage", ["approved", "bench"]),
-    admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at").eq("job_id", job.id),
-    admin.from("job_candidate_access").select("*").eq("job_id", job.id).maybeSingle(),
-    admin.from("applications").select("id", { count: "exact", head: true }).eq("job_id", job.id),
-    admin.from("admin_settings").select("default_candidate_access_fee").eq("id",1).maybeSingle()
+export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
+  const admin=createAdminClient();
+  const [{data:vettingRows},{data:shortlistRows},{data:interestRows},{data:commercial}]=await Promise.all([
+    admin.from("va_vetting").select("va_id,stage").in("stage",["approved","bench"]),
+    admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at").eq("job_id",job.id),
+    admin.from("applications").select("id,va_id,status,cover_note,match_score,applied_at").eq("job_id",job.id).not("status","in",'(withdrawn,rejected)'),
+    admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle()
   ]);
 
-  const ids = [...new Set((vettingRows || []).map((row: any) => row.va_id))];
-  const [{ data: profiles }, { data: vas }, { data: releasedAcross }, { data: processRows }, { data: activeJobs }] = ids.length
-    ? await Promise.all([
-        admin.from("profiles").select("id,full_name,avatar_url").in("id", ids),
-        admin.from("va_profiles").select("*").in("user_id", ids),
-        admin.from("job_shortlist_candidates").select("job_id,va_id,client_decision").in("va_id", ids).eq("shortlist_status", "released"),
-        admin.from("applications").select("job_id,va_id,status").in("va_id", ids).in("status", ["interview", "offered", "hired"]),
-        admin.from("jobs").select("id,title,hours_per_week,status").neq("status", "closed")
-      ])
-    : [{ data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }];
+  const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
+  const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs}]=ids.length?await Promise.all([
+    admin.from("profiles").select("id,full_name,avatar_url").in("id",ids),
+    admin.from("va_profiles").select("*").in("user_id",ids),
+    admin.from("job_shortlist_candidates").select("job_id,va_id,client_decision").in("va_id",ids).eq("shortlist_status","released"),
+    admin.from("applications").select("job_id,va_id,status").in("va_id",ids).in("status",["interview","offered","hired"]),
+    admin.from("jobs").select("id,title,hours_per_week,status").neq("status","closed")
+  ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
 
-  const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
-  const shortlistMap = new Map((shortlistRows || []).map((row: any) => [row.va_id, row]));
-  const activeJobMap = new Map((activeJobs || []).map((row: any) => [row.id, row]));
-  const pool = (vas || []).map((va: any) => {
-    const assessment = matchAssessment(job, va);
-    const account = profileMap.get(va.user_id) as any;
-    const shortlist = shortlistMap.get(va.user_id) as any;
-    const otherClientReviews = (releasedAcross || []).filter((row: any) => row.va_id === va.user_id && row.job_id !== job.id && row.client_decision !== "pass" && activeJobMap.has(row.job_id)).length;
-    const activeProcesses = (processRows || []).filter((row: any) => row.va_id === va.user_id && row.job_id !== job.id && activeJobMap.has(row.job_id));
-    const potentialCommittedHours = activeProcesses.filter((row: any) => ["offered", "hired"].includes(row.status)).reduce((sum: number, row: any) => sum + Number((activeJobMap.get(row.job_id) as any)?.hours_per_week || 0), 0);
-    return { va, account, shortlist, job, ...assessment, otherClientReviews, activeProcessCount: activeProcesses.length, potentialCommittedHours };
-  }).sort((a: any, b: any) => {
-    const availability = Number(b.va.availability_status === "available") - Number(a.va.availability_status === "available");
-    return b.score - a.score || b.confidence - a.confidence || availability || Number(b.va.years_experience || 0) - Number(a.va.years_experience || 0);
-  });
+  const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
+  const shortlistMap=new Map((shortlistRows||[]).map((row:any)=>[row.va_id,row]));
+  const interestMap=new Map((interestRows||[]).map((row:any)=>[row.va_id,row]));
+  const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
+  const pool=(vas||[]).map((va:any)=>{
+    const assessment=matchAssessment(job,va);
+    const account=profileMap.get(va.user_id) as any;
+    const shortlist=shortlistMap.get(va.user_id) as any;
+    const interest=interestMap.get(va.user_id) as any;
+    const otherClientReviews=(releasedAcross||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&row.client_decision!=="pass"&&activeJobMap.has(row.job_id)).length;
+    const activeProcesses=(processRows||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&activeJobMap.has(row.job_id));
+    const potentialCommittedHours=activeProcesses.filter((row:any)=>["offered","hired"].includes(row.status)).reduce((sum:number,row:any)=>sum+Number((activeJobMap.get(row.job_id) as any)?.hours_per_week||0),0);
+    return{va,account,shortlist,job,interest,...assessment,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
+  }).sort((a:any,b:any)=>b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
 
-  const proposedCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "proposed").length;
-  const releasedCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "released").length;
-  const awaitingClientCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "released" && !row.client_decision).length;
-  const unlocked = candidateAccessUnlocked(access?.access_status);
-  const recommended = pool.filter((row:any)=>row.score>=60).slice(0,3);
-  const canInviteClient = !job.client_id && Boolean(job.lead_id);
+  const proposedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed").length;
+  const releasedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="released").length;
+  const awaitingClientCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="released"&&!row.client_decision).length;
+  const interested=pool.filter((row:any)=>row.interest).sort((a:any,b:any)=>b.score-a.score);
+  const recommended=pool.filter((row:any)=>row.score>=60&&row.eligible!==false).slice(0,3);
+  const canInviteClient=!job.client_id&&Boolean(job.lead_id);
+  const canSendClient=Boolean(job.client_id&&job.status==="published"&&commercial?.commercial_status==="accepted");
+
+  const missing:string[]=[];
+  if(!job.title||String(job.title).trim().length<3)missing.push("role title");
+  if(!job.summary||String(job.summary).trim().length<20)missing.push("role outcome / summary");
+  if(!Array.isArray(job.responsibilities)||!job.responsibilities.length)missing.push("responsibilities");
+  if(!Array.isArray(job.required_skills)||job.required_skills.length<2)missing.push("2+ required skills");
+  if(!job.hours_per_week)missing.push("weekly hours");
+  if(!job.timezone)missing.push("timezone / working region");
+  if(job.min_hourly_rate==null)missing.push("VA budget");
+  if(!job.start_timing)missing.push("start timing");
+  const roleReady=!missing.length;
 
   return <section className="card staff-matching-card">
-    <div className="row-between wrap staff-matching-head">
-      <div>
-        <div className="row wrap"><Sparkles size={18}/><h2>Match this role</h2></div>
-        <p className="muted">Step 1: review the brief. Step 2: choose from approved Virtual Assistants. Step 3: keep the shortlist internal or send the reviewed VAs to the client for review.</p>
-      </div>
-      <div className="row wrap">
-        <span className="badge">{pool.length} vetted Virtual Assistants assessed</span>
-        <span className="badge">{applicationsCount || 0} applications</span>
-        {viewerRole === "recruiter" ? <Link className="btn btn-sm" href="/workspace/recruiter/client-review">Waiting for client{awaitingClientCount ? ` · ${awaitingClientCount}` : ""}</Link> : null}
-      </div>
-    </div>
+    <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Recruit this role</h2></div><p className="muted">Qualify the role, review recruiter-only match suggestions and VA interest, then present only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"?<Link className="btn btn-sm" href="/workspace/recruiter/client-review">Waiting for client{awaitingClientCount?` · ${awaitingClientCount}`:""}</Link>:null}</div></div>
 
-    <div className="matching-workflow-steps"><span className="done">1. Understand role</span><span className="current">2. Choose reviewed VAs</span><span>3. Client review</span></div>
-    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended action</span><h3>Start with the strongest {recommended.length} matches</h3><p>They have the best fit across the role’s category, required skills, tools, hours, and overlap requirements. Availability comes directly from each VA's current profile; check client conflicts before sending.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% match</span>)}</div></div>:null}
+    <div className="matching-workflow-steps"><span className={roleReady?"done":"current"}>1. Qualify role</span><span className={roleReady?"current":""}>2. Recruiter review</span><span>3. Client shortlist</span><span>4. Interview & offer</span></div>
 
-    <div className="matching-summary-grid">
-      <div className="matching-summary-card"><span>Internal shortlist</span><strong>{proposedCount}</strong><small>Recruiter-only</small></div>
-      <div className="matching-summary-card"><span>Client review</span><strong>{releasedCount}</strong><small>{awaitingClientCount ? `${awaitingClientCount} waiting on feedback` : "Sent to the client"}</small></div>
-      <div className="matching-summary-card"><span>Client candidate access</span><strong className={unlocked ? "access-active-text" : ""}>{candidateAccessLabel(access?.access_status)}</strong><small>{access?.access_fee != null ? `USD ${Number(access.access_fee).toFixed(2)}` : "No access fee set"}</small></div>
-    </div>
+    <section className="card" style={{margin:"14px 0"}}><div className="row-between wrap"><div><div className="row"><ShieldCheck size={17}/><strong>Role quality & commercial gate</strong></div><p className="small muted" style={{margin:"5px 0 0"}}>Standard curated-placement roles can be moved forward by the recruiter. Managed-service pricing and unusual commercial exceptions stay with Admin.</p></div><span className={`badge ${roleReady?"badge-success":"badge-warning"}`}>{roleReady?"Brief ready":`${missing.length} item${missing.length===1?"":"s"} missing`}</span></div>{missing.length?<div className="alert" style={{marginTop:12}}><strong>Complete before quoting:</strong> {missing.join(", ")}.</div>:null}{commercial?.commercial_status?<div className="info-banner" style={{marginTop:12}}><strong>Commercial status:</strong> {String(commercial.commercial_status).replaceAll("_"," ")}{commercial.placement_fee!=null?` · USD ${Number(commercial.placement_fee).toFixed(2)} placement fee`:commercial.managed_markup_percent!=null?` · ${Number(commercial.managed_markup_percent).toFixed(2)}% managed-service margin`:""}.</div>:viewerRole==="recruiter"&&job.status==="pending"&&job.service_model!=="managed_service"&&job.client_id&&roleReady?<form action={prepareStandardPlacementTermsAction} style={{marginTop:12}}><input type="hidden" name="job_id" value={job.id}/><button className="btn btn-primary" type="submit">Prepare standard terms for client</button></form>:job.service_model==="managed_service"&&!commercial?<div className="info-banner" style={{marginTop:12}}><strong>Admin exception:</strong> Managed-service margin must be reviewed by Admin before the client can approve terms.</div>:null}</section>
 
-    {viewerRole === "admin" ? <details className="candidate-access-admin" open={access?.access_status === "requested"}>
-      <summary><LockKeyhole size={16}/> Candidate access & billing</summary>
-      <form action={updateCandidateAccessAction} className="candidate-access-form">
-        <input type="hidden" name="job_id" value={job.id}/>
-        <div className="field"><label htmlFor={`access-status-${job.id}`}>Access status</label><select id={`access-status-${job.id}`} name="access_status" defaultValue={access?.access_status || "locked"}><option value="locked">Locked</option><option value="requested">Requested</option><option value="quoted">Quoted</option><option value="invoiced">Invoiced</option><option value="paid">Paid — unlock</option><option value="comped">Comped — unlock</option></select></div>
-        <div className="field"><label htmlFor={`access-fee-${job.id}`}>Candidate access fee, USD</label><input id={`access-fee-${job.id}`} type="number" name="access_fee" min="0" step="25" defaultValue={access?.access_fee ?? settings?.default_candidate_access_fee ?? ""} placeholder="Example: 199"/></div>
-        <div className="field"><label htmlFor={`payment-ref-${job.id}`}>Invoice / payment reference</label><input id={`payment-ref-${job.id}`} name="payment_reference" defaultValue={access?.payment_reference || ""} placeholder="Optional invoice or Stripe reference"/></div>
-        <div className="field candidate-access-notes"><label htmlFor={`access-notes-${job.id}`}>Internal note</label><input id={`access-notes-${job.id}`} name="notes" defaultValue={access?.notes || ""} placeholder="Optional note"/></div>
-        <button className="btn btn-primary" type="submit">Save access status</button>
-      </form>
-      <p className="small muted">Paid or comped unlocks applicant identity, private profile evidence, resumes, comparison, messaging, and hiring actions. Quoted/invoiced states keep those details protected.</p>
-    </details> : job.client_id ? <div className={`info-banner ${unlocked ? "access-active-banner" : ""}`}><strong>Client access:</strong> {candidateAccessLabel(access?.access_status)}{access?.access_fee != null ? ` · USD ${Number(access.access_fee).toFixed(2)}` : ""}. Recruiters can curate and send reviewed talent to the client; billing status is controlled by Admin.</div> : <div className="info-banner"><strong>Client account not linked yet.</strong> Select reviewed VAs and use “Save + invite client to review.” The client will receive a secure account-claim link, and only that invited shortlist will move into client review after the account is linked.</div>}
+    {interested.length?<div className="info-banner" style={{marginBottom:14}}><strong>{interested.length} vetted VA{interested.length===1?" has":"s have"} expressed interest</strong><p style={{margin:"5px 0 8px"}}>Interest is internal. Review their evidence and fit before adding them to the recruiter shortlist.</p><div className="row wrap">{interested.slice(0,8).map((row:any)=><Link className="badge" key={row.va.user_id} href={`/workspace/recruiter/candidates/${row.va.user_id}`}>{row.account?.full_name||"VA candidate"} · {row.score}% internal match</Link>)}</div></div>:null}
 
-    {pool.length ? <form action={saveJobShortlistAction} className="staff-match-form">
-      <input type="hidden" name="job_id" value={job.id}/>
-      <input type="hidden" name="return_to" value={returnTo}/>
-      <div className="row-between wrap shortlist-controls">
-        <div><strong>Reviewed candidates</strong><div className="small muted">Only approved or bench VAs appear here. Select the people you want for this role. Add a client-facing recommendation where useful, use the VA's current profile availability and hours, and check conflict warnings. “Save internal shortlist” keeps them recruiter-only. {job.client_id ? "“Send selected for client review” makes the curated shortlist available in the linked client workspace." : canInviteClient ? "“Save + invite client to review” stores your reviewed selection and emails the lead a secure link to claim the client workspace." : "This role has no linked client or claimable lead yet, so the shortlist can only be kept internal."}</div></div>
-        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button>{job.client_id?<button className="btn btn-primary" type="submit" name="mode" value="release">Send selected for client review</button>:canInviteClient?<button className="btn btn-primary" type="submit" name="mode" value="invite">Save + invite client to review</button>:null}</div>
-      </div>
-      <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction}/>
-    </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
+    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Match scores are recruiter-only screening aids. Hard requirements, verified evidence, capacity, and recruiter judgment should decide who reaches the client.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
+
+    <div className="matching-summary-grid"><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Internal only</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms active · client can review":"Client + approved terms required"}</small></div></div>
+
+    {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> The role must be published with client-approved service terms before anything can be marked as sent to the client.</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
+
+    {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only candidates you have reviewed. Use current profile availability, weekly hours, and conflict signals as operational inputs. Add a client-facing “Why we recommend this VA” note. Internal match percentages never appear to the client.</div></div><div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button>{canSendClient?<button className="btn btn-primary" type="submit" name="mode" value="release">Send selected for client review</button>:canInviteClient?<button className="btn btn-primary" type="submit" name="mode" value="invite">Save + invite client to review</button>:null}</div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;
 }

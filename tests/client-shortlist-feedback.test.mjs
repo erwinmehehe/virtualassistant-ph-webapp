@@ -34,7 +34,7 @@ test("client shortlist records viewed state and offers interested interview and 
   assert.match(clientCandidates, />Interested</);
   assert.match(clientCandidates, />Request interview</);
   assert.match(clientCandidates, />Confirm pass</);
-  assert.match(clientCandidates, /Why your recruiter recommends this VA/);
+  assert.match(clientCandidates, /Why we recommend this VA/);
 });
 
 test("recruiter client-review queue exposes follow-up and replacement states", () => {

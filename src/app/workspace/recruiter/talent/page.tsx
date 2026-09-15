@@ -55,7 +55,7 @@ export default async function RecruiterTalentDirectory({
     query.range(from, from + PAGE_SIZE - 1),
     admin
       .from("jobs")
-      .select("id,title,company_name,status")
+      .select("id,title,company_name,status,client_id")
       .in("status", ["pending", "published"])
       .order("created_at", { ascending: false })
       .limit(100)
@@ -112,6 +112,8 @@ export default async function RecruiterTalentDirectory({
       </div>
     </div>
 
+    {params.shortlist_released ? <div className="success-banner">Selected reviewed VAs were sent to the client for review.</div> : null}
+    {params.shortlist_error ? <div className="alert">{params.shortlist_error}</div> : null}
     {params.bulk_done ? (
       <div className="success-banner">
         Bulk action complete: {String(params.bulk_done).replaceAll("_", " ")} · {affected} affected
@@ -192,11 +194,12 @@ export default async function RecruiterTalentDirectory({
           <option value="remind">Email completion reminder</option>
           <option value="hide">Hide from public directory</option>
           <option value="reject">Reject</option>
-          <option value="assign">Assign to role</option>
+          <option value="assign">Assign to role internally</option>
+          <option value="send_client_review">Send approved VAs to client review</option>
         </select>
         <select name="job_id" defaultValue="">
-          <option value="">Role for assignment…</option>
-          {(roles || []).map((job: any) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}</option>)}
+          <option value="">Role for assignment / client review…</option>
+          {(roles || []).map((job: any) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}{job.client_id ? " · client linked" : " · internal only"}</option>)}
         </select>
         <button className="btn btn-primary" type="submit">Apply</button>
       </div>

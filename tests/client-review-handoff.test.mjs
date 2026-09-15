@@ -21,14 +21,16 @@ test("recruiters can explicitly send reviewed VAs through the existing release f
 
 test("client shortlist surfaces require active candidate access before loading identities", () => {
   assert.match(clientJob, /job_candidate_access/);
-  assert.match(clientJob, /candidateAccessUnlocked/);
-  assert.match(clientJob, /CandidateAccessGate/);
+  assert.match(clientJob, /candidateAccessLabel/);
+  assert.match(clientJob, /You do not need to manage raw applicants/);
   assert.match(clientCandidates, /job_candidate_access/);
   assert.match(clientCandidates, /selectedAccessUnlocked/);
   assert.match(clientCandidate, /job_candidate_access/);
+  assert.match(clientCandidate, /candidateAccessUnlocked/);
   assert.match(clientCandidate, /CandidateAccessGate/);
   assert.match(compare, /job_candidate_access/);
   assert.match(compare, /candidateAccessUnlocked/);
+  assert.match(compare, /shortlist_status","released/);
 });
 
 test("client hiring mutations still enforce candidate access server-side", () => {

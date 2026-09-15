@@ -44,7 +44,10 @@ test("client VA and Client Success surfaces complete the support loop",()=>{
   assert.match(csSupport,/Support queue/);
   assert.match(csSupport,/resolvePlacementSupportRequestAction/);
   assert.match(supportActions,/workspace\/client-success\/support\?request=/);
-  assert.doesNotMatch(nav,/\["Support", "\/workspace\/client\/support"/);\n  assert.doesNotMatch(nav,/\["Schedule & support", "\/workspace\/va\/support"/);\n  assert.doesNotMatch(nav,/\["Support queue", "\/workspace\/client-success\/support"/);\n});
+  assert.ok(!nav.includes('["Support", "/workspace/client/support"'));
+  assert.ok(!nav.includes('["Schedule & support", "/workspace/va/support"'));
+  assert.ok(!nav.includes('["Support queue", "/workspace/client-success/support"'));
+});
 
 test("work readiness is private VA evidence with recruiter verification",()=>{
   assert.match(migration,/work_setup_submitted_at/);

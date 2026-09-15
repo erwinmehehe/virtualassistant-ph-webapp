@@ -28,10 +28,10 @@ test("candidate profile layout collapses before the compact dashboard rail can o
   assert.match(css, /\.contact-email-link[\s\S]*overflow-wrap:\s*anywhere/);
 });
 
-test("workspace fixes do not override the app shell at an invented mobile breakpoint", () => {
+test("workspace fixes do not override shell or score-card responsive behavior", () => {
   const compactBlock = css.match(/@media \(max-width: 760px\) \{([\s\S]*?)\n\}/)?.[1] || "";
   assert.doesNotMatch(compactBlock, /\.dashboard-shell\s*\{/);
   assert.doesNotMatch(compactBlock, /\.app-main\s*\{/);
+  assert.doesNotMatch(compactBlock, /\.score-grid/);
   assert.match(compactBlock, /\.profile-sidebar/);
-  assert.match(compactBlock, /\.score-grid/);
 });

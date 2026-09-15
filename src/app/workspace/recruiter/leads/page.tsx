@@ -158,7 +158,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   return (
     <>
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
-      {params.contact_sent ? <div className="success-banner">Client follow-up email sent, logged, and the follow-up clock was updated.</div> : null}
+      {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
       {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
@@ -221,6 +221,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const response = responseLabel(lead.created_at, lead.first_contact_at);
           const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
           const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
+          const replyMessage = lead.first_contact_at
+            ? `Hi ${firstName},\n\nFollowing up on your VirtualAssistant.com.ph request. I wanted to keep things moving and confirm the best next step for your VA search.`
+            : `Hi ${firstName},\n\nThanks for reaching out to VirtualAssistant.com.ph. I reviewed your request${lead.service ? ` for ${lead.service}` : ""} and would like to confirm a few details so we can recommend the right vetted VA. Are you available for a short discovery call?`;
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
           const suggestedHours = inferHours(lead.hours) || 40;
 
@@ -346,31 +349,31 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             </div> : null}
 
             <div className="crm-contact-bar">
+              <details className="staff-followup-details" open={!lead.first_contact_at || slaMissed}>
+                <summary className="btn btn-sm btn-primary"><Mail size={14}/> Reply to client</summary>
+                <form action={sendClientFollowupAction} className="stack staff-followup-form">
+                  <input type="hidden" name="lead_id" value={lead.id}/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <div className="small muted">To: <strong>{lead.email}</strong></div>
+                  <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
+                  <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
+                  <div className="row wrap"><button className="btn btn-primary" type="submit">Send reply</button><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
+                </form>
+              </details>
+
               <div className="row wrap">
-                <a className="btn btn-sm" href={`mailto:${lead.email}?subject=${encodeURIComponent(emailSubject)}`}><Mail size={14}/> Email</a>
+                <a className="btn btn-sm" href={`mailto:${lead.email}?subject=${encodeURIComponent(emailSubject)}`}><ExternalLink size={13}/> Open email app</a>
                 {lead.phone ? <a className="btn btn-sm" href={`tel:${String(lead.phone).replace(/[^+\d]/g, "")}`}><Phone size={14}/> Call</a> : null}
-                <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Mark emailed</button></form>
+                <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Log external email</button></form>
                 {lead.phone ? <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="call"/><button className="btn btn-sm" type="submit">Mark called</button></form> : null}
               </div>
 
-              <div className="row wrap">
-                <details className="staff-followup-details">
-                  <summary className="btn btn-sm btn-primary">Send follow-up</summary>
-                  <form action={sendClientFollowupAction} className="stack staff-followup-form">
-                    <input type="hidden" name="lead_id" value={lead.id}/>
-                    <input type="hidden" name="return_to" value={returnTo}/>
-                    <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-                    <div className="field"><label>Message</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={`Hi ${firstName},\n\nThanks for your VirtualAssistant.com.ph request. I wanted to follow up so we can confirm what you need, your timeline, and the best next step.`}/></div>
-                    <button className="btn btn-primary" type="submit">Send and log email</button>
-                  </form>
-                </details>
-                <form action={recordLeadContactAction} className="row wrap">
-                  <input type="hidden" name="lead_id" value={lead.id}/>
-                  <input type="hidden" name="contact_type" value="follow_up"/>
-                  <input name="note" maxLength={1000} placeholder="Add private follow-up note" aria-label="Follow-up note"/>
-                  <button className="btn btn-sm" type="submit">Save note</button>
-                </form>
-              </div>
+              <form action={recordLeadContactAction} className="row wrap">
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="contact_type" value="follow_up"/>
+                <input name="note" maxLength={1000} placeholder="Add private follow-up note" aria-label="Follow-up note"/>
+                <button className="btn btn-sm" type="submit">Save private note</button>
+              </form>
             </div>
           </article>;
         }) : <div className="card empty"><h3>Nothing needs attention here.</h3><p>Change the filter or move on to the next recruiter queue.</p></div>}

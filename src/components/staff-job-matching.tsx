@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessLabel, candidateAccessUnlocked } from "@/lib/candidate-access";
 import { matchAssessment } from "@/lib/matching";
 import { hideShortlistCandidateAction, saveJobShortlistAction, updateCandidateAccessAction } from "@/app/actions/matching";
-import { markVaAvailabilityConfirmedAction, requestVaAvailabilityConfirmationAction, saveClientRecommendationAction } from "@/app/actions/client-shortlist";
+import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 
 type Props = {
@@ -12,8 +12,6 @@ type Props = {
   viewerRole: "admin" | "recruiter";
   returnTo: string;
 };
-
-const MS_DAY = 24 * 60 * 60 * 1000;
 
 export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
   const admin = createAdminClient();
@@ -39,17 +37,14 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
   const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
   const shortlistMap = new Map((shortlistRows || []).map((row: any) => [row.va_id, row]));
   const activeJobMap = new Map((activeJobs || []).map((row: any) => [row.id, row]));
-  const now = Date.now();
   const pool = (vas || []).map((va: any) => {
     const assessment = matchAssessment(job, va);
     const account = profileMap.get(va.user_id) as any;
     const shortlist = shortlistMap.get(va.user_id) as any;
-    const confirmedAt = va.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : NaN;
-    const availabilityAgeDays = Number.isFinite(confirmedAt) ? Math.max(0, Math.floor((now - confirmedAt) / MS_DAY)) : null;
     const otherClientReviews = (releasedAcross || []).filter((row: any) => row.va_id === va.user_id && row.job_id !== job.id && row.client_decision !== "pass" && activeJobMap.has(row.job_id)).length;
     const activeProcesses = (processRows || []).filter((row: any) => row.va_id === va.user_id && row.job_id !== job.id && activeJobMap.has(row.job_id));
     const potentialCommittedHours = activeProcesses.filter((row: any) => ["offered", "hired"].includes(row.status)).reduce((sum: number, row: any) => sum + Number((activeJobMap.get(row.job_id) as any)?.hours_per_week || 0), 0);
-    return { va, account, shortlist, job, ...assessment, availabilityAgeDays, availabilityFresh: availabilityAgeDays != null && availabilityAgeDays <= 30, otherClientReviews, activeProcessCount: activeProcesses.length, potentialCommittedHours };
+    return { va, account, shortlist, job, ...assessment, otherClientReviews, activeProcessCount: activeProcesses.length, potentialCommittedHours };
   }).sort((a: any, b: any) => {
     const availability = Number(b.va.availability_status === "available") - Number(a.va.availability_status === "available");
     return b.score - a.score || b.confidence - a.confidence || availability || Number(b.va.years_experience || 0) - Number(a.va.years_experience || 0);
@@ -60,6 +55,7 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
   const awaitingClientCount = (shortlistRows || []).filter((row: any) => row.shortlist_status === "released" && !row.client_decision).length;
   const unlocked = candidateAccessUnlocked(access?.access_status);
   const recommended = pool.filter((row:any)=>row.score>=60).slice(0,3);
+  const canInviteClient = !job.client_id && Boolean(job.lead_id);
 
   return <section className="card staff-matching-card">
     <div className="row-between wrap staff-matching-head">
@@ -94,16 +90,16 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
         <button className="btn btn-primary" type="submit">Save access status</button>
       </form>
       <p className="small muted">Paid or comped unlocks applicant identity, private profile evidence, resumes, comparison, messaging, and hiring actions. Quoted/invoiced states keep those details protected.</p>
-    </details> : <div className={`info-banner ${unlocked ? "access-active-banner" : ""}`}><strong>Client access:</strong> {candidateAccessLabel(access?.access_status)}{access?.access_fee != null ? ` · USD ${Number(access.access_fee).toFixed(2)}` : ""}. Recruiters can curate and send reviewed talent to the client; billing status is controlled by Admin.</div>}
+    </details> : job.client_id ? <div className={`info-banner ${unlocked ? "access-active-banner" : ""}`}><strong>Client access:</strong> {candidateAccessLabel(access?.access_status)}{access?.access_fee != null ? ` · USD ${Number(access.access_fee).toFixed(2)}` : ""}. Recruiters can curate and send reviewed talent to the client; billing status is controlled by Admin.</div> : <div className="info-banner"><strong>Client account not linked yet.</strong> Select reviewed VAs and use “Save + invite client to review.” The client will receive a secure account-claim link, and only that invited shortlist will move into client review after the account is linked.</div>}
 
     {pool.length ? <form action={saveJobShortlistAction} className="staff-match-form">
       <input type="hidden" name="job_id" value={job.id}/>
       <input type="hidden" name="return_to" value={returnTo}/>
       <div className="row-between wrap shortlist-controls">
-        <div><strong>Reviewed candidates</strong><div className="small muted">Only approved or bench VAs appear here. Select the people you want for this role. Add a client-facing recommendation where useful, use the VA's current profile availability and hours, and check conflict warnings. “Save internal shortlist” keeps them recruiter-only; “Send selected for client review” makes the curated shortlist available in the client workspace.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
-        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Send selected for client review</button></div>
+        <div><strong>Reviewed candidates</strong><div className="small muted">Only approved or bench VAs appear here. Select the people you want for this role. Add a client-facing recommendation where useful, use the VA's current profile availability and hours, and check conflict warnings. “Save internal shortlist” keeps them recruiter-only. {job.client_id ? "“Send selected for client review” makes the curated shortlist available in the linked client workspace." : canInviteClient ? "“Save + invite client to review” stores your reviewed selection and emails the lead a secure link to claim the client workspace." : "This role has no linked client or claimable lead yet, so the shortlist can only be kept internal."}</div></div>
+        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button>{job.client_id?<button className="btn btn-primary" type="submit" name="mode" value="release">Send selected for client review</button>:canInviteClient?<button className="btn btn-primary" type="submit" name="mode" value="invite">Save + invite client to review</button>:null}</div>
       </div>
-      <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} requestVaAvailabilityConfirmationAction={requestVaAvailabilityConfirmationAction} markVaAvailabilityConfirmedAction={markVaAvailabilityConfirmedAction}/>
+      <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction}/>
     </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;
 }

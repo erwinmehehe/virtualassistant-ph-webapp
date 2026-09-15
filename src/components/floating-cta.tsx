@@ -42,9 +42,13 @@ export function FloatingCta() {
       setDismissed(false);
     }
 
-    setVisible(pathname === "/");
+    const mobile = window.matchMedia("(max-width: 640px)").matches;
+    setVisible(pathname === "/" && !mobile);
 
-    const onScroll = () => setVisible((current) => current || (pathname !== "/" && isHighIntentPath(pathname) && window.scrollY > 600));
+    const onScroll = () => {
+      const threshold = pathname === "/" ? 420 : 600;
+      setVisible((current) => current || (isHighIntentPath(pathname) && window.scrollY > threshold));
+    };
     const onFormFocus = (event: FocusEvent) => {
       const target = event.target;
       if (target instanceof HTMLElement && target.closest("main form")) {

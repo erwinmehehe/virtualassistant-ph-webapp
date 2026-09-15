@@ -52,10 +52,8 @@ select * from private.public_company_profile_rows();
 revoke all on public.public_company_profiles from anon;
 grant select on public.public_company_profiles to anon,authenticated;
 
--- Human-readable labels stay in code. This function only calculates a score
--- from structured facts. Missing signals increase coverage only when evidence
--- actually exists, so the system never pretends an unmeasured placement is
--- healthy.
+-- Code calculates health. AI may later explain the result, but it never
+-- invents the number. Missing signals do not count as healthy evidence.
 create or replace function public.recompute_placement_health(p_workroom_id uuid)
 returns jsonb
 language plpgsql
@@ -197,9 +195,6 @@ drop trigger if exists placement_review_health_sync on public.reviews;
 create trigger placement_review_health_sync after insert or update or delete on public.reviews
 for each row execute function public.recompute_placement_health_trigger();
 
--- Client/VA pulse responses complete independently. When both are present the
--- milestone closes automatically. Yellow/red signals are escalated by the
--- scheduled sweep below.
 create or replace function public.sync_placement_checkin_status()
 returns trigger
 language plpgsql
@@ -232,7 +227,7 @@ set search_path=public
 as $$
 declare r record; prompted integer:=0; begin
   for r in
-    select v.user_id,v.weekly_hours,v.schedule,v.hourly_rate,v.availability_confirmed_at,v.availability_last_prompted_at
+    select v.user_id,v.availability_confirmed_at,v.availability_last_prompted_at
     from va_profiles v
     join profiles p on p.id=v.user_id
     where v.availability_status='available'
@@ -256,15 +251,21 @@ end;
 $$;
 
 -- Once freshness is more than 14 days old, do not release the candidate to a
--- client until the VA confirms again. Proposed recruiter-only suggestions are
--- still allowed.
+-- client until the VA confirms again. Recruiter-only proposals are still fine.
 create or replace function public.guard_released_candidate_availability()
 returns trigger
 language plpgsql
 set search_path=public
 as $$
-declare v record; begin
-  if new.shortlist_status='released' and (tg_op='INSERT' or old.shortlist_status is distinct from new.shortlist_status) then
+declare v record; v_should_check boolean:=false; begin
+  if new.shortlist_status='released' then
+    if tg_op='INSERT' then
+      v_should_check:=true;
+    elsif tg_op='UPDATE' and old.shortlist_status is distinct from new.shortlist_status then
+      v_should_check:=true;
+    end if;
+  end if;
+  if v_should_check then
     select availability_status,availability_confirmed_at into v from va_profiles where user_id=new.va_id;
     if v.availability_status is distinct from 'available'
        or v.availability_confirmed_at is null
@@ -296,6 +297,7 @@ declare
   escalations integer:=0;
   monthly_created integer:=0;
   lifecycle_updates integer:=0;
+  v_rows integer:=0;
   v_month integer;
   v_checkpoint text;
   v_due timestamptz;
@@ -308,9 +310,9 @@ begin
   update workrooms
   set placement_stage='active',placement_stage_entered_at=now()
   where placement_stage='launch' and coalesce(start_date,current_date)<=current_date-7;
-  get diagnostics lifecycle_updates=lifecycle_updates+row_count;
+  get diagnostics v_rows=row_count;
+  lifecycle_updates:=lifecycle_updates+v_rows;
 
-  -- Build the next monthly pulse after Day 90 without pre-creating years of rows.
   for r in
     select id,start_date,created_at
     from workrooms
@@ -377,7 +379,6 @@ begin
     end if;
   end loop;
 
-  -- Recalculate all live placements after automation. This stays deterministic.
   for r in select id from workrooms where placement_stage<>'ended' loop
     perform recompute_placement_health(r.id);
   end loop;
@@ -407,6 +408,4 @@ where not exists(select 1 from cron.job where jobname='va-availability-freshness
 select cron.schedule('placement-client-success-hourly','19 * * * *',$$select public.placement_client_success_sweep();$$)
 where not exists(select 1 from cron.job where jobname='placement-client-success-hourly');
 
--- Calculate an initial honest health state. Placements with too little evidence
--- remain Building instead of receiving a made-up score.
 select recompute_placement_health(id) from workrooms where status<>'completed';

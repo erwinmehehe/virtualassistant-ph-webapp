@@ -25,7 +25,7 @@ try {
 
     const response = await page.goto(`${baseUrl}/book-client-call`, { waitUntil: "networkidle", timeout: 90000 });
     if (!response?.ok()) throw new Error(`Booking page returned HTTP ${response?.status() || "unknown"}.`);
-    await page.getByRole("heading", { name: "Book a focused client discovery call" }).waitFor();
+    await page.getByRole("heading", { name: "Choose a time to talk with our team" }).waitFor();
     await page.screenshot({ path: path.join(outputDir, `booking-gate-${viewport.name}.png`), fullPage: true });
 
     await page.getByRole("radio", { name: /I am hiring/ }).click();

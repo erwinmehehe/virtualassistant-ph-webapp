@@ -16,7 +16,7 @@ test("workspace loads layout safeguards after the premium dashboard CSS", () => 
 test("workspace keeps natural document scrolling instead of trapping the viewport", () => {
   assert.doesNotMatch(css, /overflow:\s*hidden/);
   assert.doesNotMatch(css, /overflow-y:\s*auto/);
-  assert.doesNotMatch(css, /height:\s*100dvh/);
+  assert.doesNotMatch(css, /(?:^|\n)\s*height:\s*100dvh\s*;/m);
   assert.doesNotMatch(css, /\.dashboard-shell\s*\{[\s\S]*display:\s*block/);
   assert.match(css, /min-height:\s*100dvh/);
 });

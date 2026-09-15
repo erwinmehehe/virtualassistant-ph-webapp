@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
 import { isUuid } from "@/lib/public-routing";
@@ -25,5 +25,5 @@ export default async function LegacyTalentProfilePage({ params }: { params: Prom
     }
   }
 
-  notFound();
+  redirect("/find-talent");
 }

@@ -68,7 +68,7 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction, sav
       </div>
       {!query && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
     </div>
-    <div className="table-wrap responsive-table matching-table"><table>
+    <div className="table-wrap responsive-table matching-table" style={{ maxHeight: "none", overflowX: "auto", overflowY: "visible" }}><table>
       <thead><tr><th><span className="sr-only">Select</span></th><th>Rank</th><th>VA</th><th>Match</th><th>Availability</th><th>Hours</th><th>Rate</th><th>Client recommendation</th><th>Client review</th></tr></thead>
       <tbody>{visible.map((row) => {
         const index = pool.indexOf(row);

@@ -146,6 +146,7 @@ export function matchLabel(score: number) {
   return "Review fit";
 }
 
+// Client-facing fit stays qualitative while recruiter scoring remains internal.
 export function clientMatchLabel(score: number) {
   if (score >= 80) return "Strong fit";
   if (score >= 60) return "Good fit";

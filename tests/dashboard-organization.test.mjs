@@ -27,7 +27,8 @@ test("desktop and mobile navigation use labelled groups", () => {
 test("role dashboards share the organized dashboard surface", () => {
   assert.match(client, /dash-page role-overview client-overview/);
   assert.match(va, /dash-page role-overview va-overview/);
-  assert.match(recruiter, /Today’s priority actions/);
+  assert.match(recruiter, /Next actions/);
+  assert.match(recruiter, /recruiter_today_queue/);
   assert.match(recruiter, /Analytics and maintenance/);
   for (const page of [recruiter, client, va]) assert.match(page, /refreshed when this page opened/);
 });

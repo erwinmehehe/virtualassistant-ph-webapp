@@ -62,7 +62,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   if (error) throw error;
 
   if (action === "send_client_review") {
-    const ids = [...new Set((data || []).map((row: any) => String(row.user_id)).filter(Boolean))];
+    const ids: string[] = [...new Set<string>((data || []).map((row: any) => String(row.user_id)).filter((id: string) => Boolean(id)))];
     if (!ids.length) return clientReviewError(formData, "No reviewed VAs matched that selection.");
     if (ids.length > 50) return clientReviewError(formData, "Your filtered selection has more than 50 VAs. Narrow the filters before sending to client review.");
     return saveJobShortlistAction(clientReviewForm(formData, ids));

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { MarketingHero } from "@/components/marketing-hero";
 import { RoleBriefForm } from "@/components/role-brief-form";
 import { VaCostCalculator } from "@/components/va-tools";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath } from "@/lib/seo-url";
+import "./pricing-page.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "How Virtual Assistant Pricing Works", description: "Estimate Virtual Assistant compensation and understand curated placement and managed service pricing before you make a hiring commitment.", keywords: ["virtual assistant pricing philippines", "how much does a virtual assistant cost", "virtual assistant rates"] , alternates: { canonical: canonicalPath("/pricing") }};
@@ -22,15 +22,31 @@ export default async function PricingPage(){
   const managedMarkup=settings.managedMarkupPercent;
   const minHourlyRate=settings.minHourlyRate;
 
-  return <><SiteHeader/><main id="main-content">
-    <MarketingHero
-      eyebrow="Transparent client pricing"
-      title={<h1 className="public-page-title">See the Virtual Assistant cost first. Know what our service adds.</h1>}
-      intro={<p className="public-lede">Clients pay the Virtual Assistant&apos;s agreed compensation plus the applicable VirtualAssistant.com.ph recruiting, placement, or managed-service fee. The two are shown separately so you know what the professional earns and what the agency service costs.</p>}
-      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Get Your Shortlist <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/book-client-call">Book a Hiring Call</Link></>}
-      trust={<><span><CheckCircle2 size={15}/>VA compensation shown separately</span><span><CheckCircle2 size={15}/>Service terms before commitment</span><span><CheckCircle2 size={15}/>Replacement support for managed placements</span></>}
-      form={<RoleBriefForm sourcePath="/pricing" heading="Get a role and pricing review" subheading="Share the role, hours, budget, and overlap. We will review the fit before you make a hiring commitment." />}
-    />
+  return <><SiteHeader/><main id="main-content" className="pricing-page">
+    <section className="pricing-hero">
+      <div className="container pricing-hero-grid">
+        <div className="pricing-hero-copy">
+          <div className="pricing-kicker">Transparent client pricing</div>
+          <h1>Virtual Assistant pricing, without hidden fees.</h1>
+          <p className="pricing-hero-lede">See the Virtual Assistant&apos;s compensation and our service fee separately before you commit.</p>
+          <p className="pricing-hero-support">Choose managed support or direct hire. We review the role, hours, budget, and schedule first so you can see the real hiring cost before moving forward.</p>
+          <div className="pricing-hero-actions">
+            <Link className="btn btn-primary" href="/hire">Get Your Shortlist <ArrowRight size={16}/></Link>
+            <Link className="btn" href="/book-client-call">Book a Hiring Call</Link>
+          </div>
+          <div className="pricing-trust-row" aria-label="Pricing assurances">
+            <span><CheckCircle2 size={15}/>VA compensation shown separately</span>
+            <span><CheckCircle2 size={15}/>Terms before commitment</span>
+            <span><CheckCircle2 size={15}/>Replacement support on managed placements</span>
+          </div>
+        </div>
+
+        <aside className="pricing-hero-form-shell" aria-label="Get a role and pricing review">
+          <div className="pricing-hero-form-badge"><ShieldCheck size={14}/> Private hiring request</div>
+          <RoleBriefForm sourcePath="/pricing" heading="Get a role and pricing review" subheading="Share the role in about 60 seconds. We will review the fit and pricing before you make a hiring commitment." />
+        </aside>
+      </div>
+    </section>
 
     <section className="section section-white"><div className="container"><div className="section-head"><h2>Current pricing structure</h2><p>Virtual Assistant compensation and our service fee are separate. You see both before you commit.</p></div><div className="grid-2">
       <article className="card pricing-card"><span className="pricing-label">Managed Virtual Assistant service <span className="badge badge-success">Recommended</span></span><h3>Ongoing service margin</h3><div className="pricing-value">{managedMarkup > 0 ? `${managedMarkup}%` : "Custom quote"}</div><p className="muted">Added on top of Virtual Assistant compensation for recruiting, vetting, matching, onboarding, Client Success, placement monitoring, recovery, replacement support, and billing administration. {managedMarkup > 0 ? "Your exact role terms are confirmed before you make a hiring commitment." : "The managed-service margin is quoted against the actual role before you accept the engagement."}</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured placement launch</li><li>Ongoing Client Success and placement monitoring</li><li>Recovery and replacement support under your agreed terms</li></ul><Link className="btn btn-primary" href="/hire">Get Your Shortlist <ArrowRight size={16}/></Link></article>

@@ -122,37 +122,82 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
   if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access must be active before recording a shortlist decision.");
   if (!shortlist) throw new Error("This VA is not in the released shortlist.");
-  if (shortlist.client_decision === decision && decision !== "pass") redirectWithFlag(returnTo, "decision_saved");
+  if (shortlist.client_decision === decision && decision === "interested") redirectWithFlag(returnTo, "decision_saved");
 
   const now = new Date().toISOString();
   const { error } = await admin.from("job_shortlist_candidates").update({ client_decision: decision, client_decision_note: decisionNote, client_decision_at: now }).eq("id", shortlist.id);
   if (error) throw error;
 
-  let inviteCreated = false;
+  let interviewCreated = false;
+  let interviewId: string | null = null;
   if (decision === "interview") {
-    const { data: existingInvite } = await admin.from("job_invites").select("id,status").eq("job_id", jobId).eq("va_id", vaId).maybeSingle();
-    if (!existingInvite) {
-      const { error: inviteError } = await admin.from("job_invites").insert({ job_id: jobId, va_id: vaId, client_id: user.id, note: "The client requested an interview from the curated shortlist.", status: "pending" });
-      if (inviteError) throw inviteError;
-      inviteCreated = true;
-      await admin.from("notifications").insert({ user_id: vaId, title: `Interview requested for ${job.title}`, body: "A client would like to move forward with an interview. Open your applications workspace for the next step.", href: "/workspace/va/applications" });
+    const { data: existingInterview, error: existingInterviewError } = await admin
+      .from("candidate_interviews")
+      .select("id,status")
+      .eq("job_id", jobId)
+      .eq("va_id", vaId)
+      .neq("status", "cancelled")
+      .maybeSingle();
+    if (existingInterviewError) throw existingInterviewError;
+
+    interviewId = existingInterview?.id || null;
+    if (!existingInterview) {
+      const { data: createdInterview, error: interviewError } = await admin.from("candidate_interviews").insert({
+        job_id: jobId,
+        va_id: vaId,
+        client_id: user.id,
+        shortlist_candidate_id: shortlist.id,
+        status: "requested"
+      }).select("id").single();
+
+      if (interviewError?.code === "23505") {
+        const { data: concurrentInterview, error: concurrentError } = await admin
+          .from("candidate_interviews")
+          .select("id")
+          .eq("job_id", jobId)
+          .eq("va_id", vaId)
+          .neq("status", "cancelled")
+          .maybeSingle();
+        if (concurrentError) throw concurrentError;
+        interviewId = concurrentInterview?.id || null;
+      } else if (interviewError) {
+        throw interviewError;
+      } else {
+        interviewId = createdInterview?.id || null;
+        interviewCreated = true;
+      }
+    }
+
+    if (!interviewId) throw new Error("The interview request could not be created.");
+    if (interviewCreated) {
+      await admin.from("notifications").insert({
+        user_id: vaId,
+        title: `Interview requested for ${job.title}`,
+        body: "A client would like to interview you. Open Interviews for scheduling details and the next step.",
+        href: "/workspace/va/interviews",
+        type: "interview",
+        priority: "high"
+      });
     }
   }
 
   const label = decision === "interested" ? "interested" : decision === "interview" ? "requested an interview" : "passed on a shortlist candidate";
   try {
-    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, invite_created: inviteCreated } });
-    await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote } });
+    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, interview_created: interviewCreated, interview_id: interviewId } });
+    await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote, interview_id: interviewId } });
   } catch {}
   const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
   if (recruiters?.length) {
-    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: decision === "interview" ? "Client requested an interview" : decision === "interested" ? "Client marked a VA interested" : "Client passed on a VA", body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: "/workspace/recruiter/client-review" })));
+    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: decision === "interview" ? "Client requested an interview" : decision === "interested" ? "Client marked a VA interested" : "Client passed on a VA", body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/matching/${jobId}` })));
   }
 
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath("/workspace/client/candidates");
+  revalidatePath("/workspace/client/interviews");
+  revalidatePath("/workspace/va/interviews");
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
   revalidatePath("/workspace/recruiter/client-review");
+  if (decision === "interview") redirect("/workspace/client/interviews?requested=1");
   redirectWithFlag(returnTo, "decision_saved");
 }
 

@@ -1,0 +1,44 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+const actions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");
+const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
+const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
+const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const recruiterQueue = fs.readFileSync("src/app/workspace/recruiter/client-review/page.tsx", "utf8");
+const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20260915005739_client_shortlist_feedback_and_availability.sql", "utf8");
+
+test("client shortlist feedback is authorized and keeps release state separate from client decisions", () => {
+  assert.match(actions, /requireRole\("client"\)/);
+  assert.match(actions, /candidateAccessUnlocked/);
+  assert.match(actions, /shortlist_status", "released"/);
+  assert.match(actions, /client_decision/);
+  assert.match(migration, /client_decision in \('interested','interview','pass'\)/);
+});
+
+test("recruiters can attach client-facing recommendations and confirm availability freshness", () => {
+  assert.match(matchingTable, /Why this VA is a strong fit for this client/);
+  assert.match(matchingTable, /Ask VA/);
+  assert.match(matchingTable, /Mark confirmed/);
+  assert.match(actions, /availability_confirmation_requested/);
+  assert.match(actions, /availability_confirmed_at/);
+  assert.match(matching, /otherClientReviews/);
+  assert.match(matching, /potentialCommittedHours/);
+});
+
+test("client shortlist records viewed state and offers interested interview and pass decisions", () => {
+  assert.match(clientCandidates, /client_shortlist_viewed/);
+  assert.match(clientCandidates, />Interested</);
+  assert.match(clientCandidates, />Request interview</);
+  assert.match(clientCandidates, />Confirm pass</);
+  assert.match(clientCandidates, /Why your recruiter recommends this VA/);
+});
+
+test("recruiter client-review queue exposes follow-up and replacement states", () => {
+  assert.match(recruiterQueue, /Waiting for client/);
+  assert.match(recruiterQueue, /Send follow-up/);
+  assert.match(recruiterQueue, /Needs replacement matches/);
+  assert.match(nav, /\/workspace\/recruiter\/client-review/);
+});

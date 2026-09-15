@@ -1,0 +1,179 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireAnyRole, requireRole } from "@/lib/auth";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { matchAssessment } from "@/lib/matching";
+import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const CLIENT_DECISIONS = new Set(["interested", "interview", "pass"]);
+const PASS_REASONS = new Set(["skills", "rate", "schedule_timezone", "experience", "communication_video", "industry_fit", "availability", "other"]);
+const AVAILABILITY_FRESH_DAYS = 30;
+
+function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
+  const path = String(value || "");
+  return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+}
+
+function redirectWithFlag(path: string, flag: string) {
+  redirect(`${path}${path.includes("?") ? "&" : "?"}${flag}=1`);
+}
+
+function cleanNote(value: FormDataEntryValue | null, max = 500) {
+  return String(value || "").trim().slice(0, max) || null;
+}
+
+async function requireApprovedVa(vaId: string) {
+  const admin = createAdminClient();
+  const { data: vetting } = await admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle();
+  if (!vetting || !["approved", "bench"].includes(vetting.stage)) throw new Error("This VA is no longer approved for client matching.");
+  return admin;
+}
+
+export async function saveClientRecommendationAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("recommendation_va_id") || "");
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  if (!jobId || !vaId) throw new Error("Role and VA are required.");
+  const recommendation = cleanNote(formData.get(`recommendation_${vaId}`));
+  const admin = await requireApprovedVa(vaId);
+  const [{ data: job }, { data: va }, { data: existing }] = await Promise.all([
+    admin.from("jobs").select("*").eq("id", jobId).single(),
+    admin.from("va_profiles").select("*").eq("user_id", vaId).single(),
+    admin.from("job_shortlist_candidates").select("shortlist_status,released_at").eq("job_id", jobId).eq("va_id", vaId).maybeSingle()
+  ]);
+  if (!job || !va) throw new Error("Role or VA profile was not found.");
+  const assessment = matchAssessment(job, va);
+  const status = existing?.shortlist_status === "released" ? "released" : "proposed";
+  const { error } = await admin.from("job_shortlist_candidates").upsert({
+    job_id: jobId,
+    va_id: vaId,
+    match_score: assessment.score,
+    match_confidence: assessment.confidence,
+    shortlist_status: status,
+    client_recommendation: recommendation,
+    created_by: user.id,
+    released_at: status === "released" ? existing?.released_at || new Date().toISOString() : null
+  }, { onConflict: "job_id,va_id" });
+  if (error) throw error;
+  await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: "client_recommendation_saved", description: recommendation ? `Client-facing recommendation updated for ${job.title}` : `Client-facing recommendation cleared for ${job.title}`, actorId: user.id, metadata: { job_id: jobId } });
+  revalidatePath(returnTo);
+  revalidatePath(`/workspace/client/candidates`);
+  redirectWithFlag(returnTo, "recommendation_saved");
+}
+
+export async function requestVaAvailabilityConfirmationAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("availability_va_id") || "");
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  if (!vaId) throw new Error("VA is required.");
+  const admin = await requireApprovedVa(vaId);
+  const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
+  const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "va").eq("subject_id", vaId).eq("action", "availability_confirmation_requested").gte("created_at", cutoff);
+  if (!count) {
+    await admin.from("notifications").insert({ user_id: vaId, title: "Please confirm your availability", body: "A recruiter is considering you for a client role. Please review your profile availability, weekly hours, and schedule so the team can present accurate information.", href: "/workspace/va/profile" });
+    await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: "availability_confirmation_requested", description: "Asked VA to reconfirm availability", actorId: user.id, metadata: jobId ? { job_id: jobId } : {} });
+  }
+  revalidatePath(returnTo);
+  redirectWithFlag(returnTo, "availability_requested");
+}
+
+export async function markVaAvailabilityConfirmedAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("availability_va_id") || "");
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  if (!vaId) throw new Error("VA is required.");
+  const admin = await requireApprovedVa(vaId);
+  const now = new Date().toISOString();
+  const { error } = await admin.from("va_profiles").update({ availability_confirmed_at: now }).eq("user_id", vaId);
+  if (error) throw error;
+  await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: "availability_confirmed", description: `Availability confirmed for the next ${AVAILABILITY_FRESH_DAYS} days`, actorId: user.id, metadata: jobId ? { job_id: jobId } : {} });
+  revalidatePath(returnTo);
+  revalidatePath("/workspace/recruiter/talent");
+  redirectWithFlag(returnTo, "availability_confirmed");
+}
+
+export async function clientShortlistDecisionAction(formData: FormData) {
+  const { user } = await requireRole("client");
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("va_id") || "");
+  const decision = String(formData.get("decision") || "");
+  const returnTo = safeReturnTo(formData.get("return_to"), `/workspace/client/candidates?role=${encodeURIComponent(jobId)}`);
+  if (!jobId || !vaId || !CLIENT_DECISIONS.has(decision)) throw new Error("Invalid shortlist decision.");
+
+  const passReason = String(formData.get("pass_reason") || "");
+  const otherNote = cleanNote(formData.get("decision_note"), 300);
+  if (decision === "pass" && passReason && !PASS_REASONS.has(passReason)) throw new Error("Invalid pass reason.");
+  const decisionNote = decision === "pass"
+    ? [passReason ? passReason.replaceAll("_", " / ") : null, otherNote].filter(Boolean).join(": ").slice(0, 500) || null
+    : otherNote;
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: access }, { data: shortlist }] = await Promise.all([
+    admin.from("jobs").select("id,title,client_id,status").eq("id", jobId).eq("client_id", user.id).single(),
+    admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle(),
+    admin.from("job_shortlist_candidates").select("id,client_decision").eq("job_id", jobId).eq("va_id", vaId).eq("shortlist_status", "released").maybeSingle()
+  ]);
+  if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
+  if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access must be active before recording a shortlist decision.");
+  if (!shortlist) throw new Error("This VA is not in the released shortlist.");
+  if (shortlist.client_decision === decision && decision !== "pass") redirectWithFlag(returnTo, "decision_saved");
+
+  const now = new Date().toISOString();
+  const { error } = await admin.from("job_shortlist_candidates").update({ client_decision: decision, client_decision_note: decisionNote, client_decision_at: now }).eq("id", shortlist.id);
+  if (error) throw error;
+
+  let inviteCreated = false;
+  if (decision === "interview") {
+    const { data: existingInvite } = await admin.from("job_invites").select("id,status").eq("job_id", jobId).eq("va_id", vaId).maybeSingle();
+    if (!existingInvite) {
+      const { error: inviteError } = await admin.from("job_invites").insert({ job_id: jobId, va_id: vaId, client_id: user.id, note: "The client requested an interview from the curated shortlist.", status: "pending" });
+      if (inviteError) throw inviteError;
+      inviteCreated = true;
+      await admin.from("notifications").insert({ user_id: vaId, title: `Interview requested for ${job.title}`, body: "A client would like to move forward with an interview. Open your applications workspace for the next step.", href: "/workspace/va/applications" });
+    }
+  }
+
+  const label = decision === "interested" ? "interested" : decision === "interview" ? "requested an interview" : "passed on a shortlist candidate";
+  try {
+    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, invite_created: inviteCreated } });
+    await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote } });
+  } catch {}
+  const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
+  if (recruiters?.length) {
+    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: decision === "interview" ? "Client requested an interview" : decision === "interested" ? "Client marked a VA interested" : "Client passed on a VA", body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: "/workspace/recruiter/client-review" })));
+  }
+
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath("/workspace/client/candidates");
+  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath("/workspace/recruiter/client-review");
+  redirectWithFlag(returnTo, "decision_saved");
+}
+
+export async function sendClientShortlistFollowupAction(formData: FormData) {
+  const { user } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "");
+  const returnTo = safeReturnTo(formData.get("return_to"), "/workspace/recruiter/client-review");
+  if (!jobId) throw new Error("Role is required.");
+  const admin = createAdminClient();
+  const [{ data: job }, { count: releasedCount }] = await Promise.all([
+    admin.from("jobs").select("id,title,client_id,status").eq("id", jobId).single(),
+    admin.from("job_shortlist_candidates").select("id", { count: "exact", head: true }).eq("job_id", jobId).eq("shortlist_status", "released")
+  ]);
+  if (!job?.client_id || !releasedCount) throw new Error("This role does not have a released client shortlist.");
+  if (job.status === "closed") throw new Error("This role is already closed.");
+  const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
+  const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "job").eq("subject_id", jobId).eq("action", "client_shortlist_followup").gte("created_at", cutoff);
+  if (!count) {
+    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as interested, request an interview, or pass so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
+    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "client_shortlist_followup", description: "Sent client shortlist feedback reminder", actorId: user.id });
+  }
+  revalidatePath(returnTo);
+  redirectWithFlag(returnTo, "followup_sent");
+}

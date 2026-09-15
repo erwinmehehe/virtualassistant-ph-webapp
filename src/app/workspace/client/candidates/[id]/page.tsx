@@ -84,7 +84,7 @@ export default async function CandidateReviewPage({params,searchParams}:{params:
 
     <div className="profile-layout">
       <article className="card candidate-review-card">
-        <div className="row wrap"><span className="badge badge-success"><ShieldCheck size={14}/> Vetted VA</span><span className="badge">{matchLabel(score)} · {score}/100</span></div>
+        <div className="row wrap"><span className="badge badge-success"><ShieldCheck size={14}/> Vetted VA</span><span className="badge">{matchLabel(score)}</span></div>
         <h2>Professional summary</h2><p className="muted profile-copy">{profile.bio||"No professional summary was included in this application."}</p>
         {application.cover_note?<><h2>Application note</h2><div className="detail-note"><p>{application.cover_note}</p></div></>:null}
         {vetting?.video_url?<><h2>Video introduction</h2><div className="candidate-video-row"><PlayCircle size={20}/><div><strong>Recorded introduction</strong><span className="small muted">Two minutes, recorded during vetting. Opens in a new tab.</span></div><a className="btn btn-primary" href={vetting.video_url} target="_blank" rel="noopener noreferrer">Watch video</a></div></>:null}

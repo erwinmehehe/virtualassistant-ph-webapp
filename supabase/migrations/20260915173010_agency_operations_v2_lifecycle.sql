@@ -44,7 +44,7 @@ declare v_stage text; v_status public.job_status; v_client uuid; begin
   select status,client_id into v_status,v_client from jobs where id=p_job_id;
   if not found then return null; end if;
 
-  if exists(select 1 from workrooms where job_id=p_job_id) then
+  if exists(select 1 from workrooms where job_id=p_job_id and status in ('active','paused','completed')) then
     v_stage:='filled';
   elsif exists(select 1 from placement_offers where job_id=p_job_id and status='accepted') then
     v_stage:='pre_start';
@@ -79,8 +79,11 @@ end; $$;
 create or replace function public.sync_job_hiring_stage_trigger()
 returns trigger language plpgsql security definer set search_path=public as $$
 begin
-  if tg_op='DELETE' then perform sync_job_hiring_stage(old.job_id);
-  else perform sync_job_hiring_stage(new.job_id); end if;
+  if tg_op='DELETE' then
+    perform sync_job_hiring_stage(old.job_id);
+  else
+    perform sync_job_hiring_stage(new.job_id);
+  end if;
   return null;
 end; $$;
 
@@ -97,79 +100,91 @@ drop trigger if exists workroom_hiring_stage_sync on public.workrooms;
 create trigger workroom_hiring_stage_sync after insert or update or delete on public.workrooms
 for each row execute function public.sync_job_hiring_stage_trigger();
 
--- A confirmed hire becomes a managed placement. Client Success ownership comes
--- from agency settings rather than silently assigning the recruiter.
 create or replace function public.initialize_agency_placement()
 returns trigger language plpgsql security definer set search_path=public as $$
 declare v_owner uuid; v_base timestamptz; begin
-  select default_client_success_owner_id into v_owner from admin_settings where id=1;
+  -- Client Success ownership is an agency setting, not a recruiter fallback.
+  select client_success_owner_id into v_owner from admin_settings where id=1;
 
   update workrooms set
     client_success_owner_id=coalesce(client_success_owner_id,v_owner),
-    placement_stage='pre_start',
-    placement_stage_entered_at=now(),
-    health_status='building'
+    placement_stage=case
+      when coalesce(start_date,current_date) <= current_date then 'launch'
+      else 'pre_start'
+    end,
+    placement_stage_entered_at=coalesce(placement_stage_entered_at,now())
   where id=new.id;
 
   insert into workroom_checklist(workroom_id,title,sort_order,owner_role) values
-    (new.id,'Provide access to required tools and accounts',1,'client'),
-    (new.id,'Review SOPs and training materials',2,'va'),
-    (new.id,'Confirm communication and feedback cadence',3,'client'),
-    (new.id,'Set first-week priorities and success expectations',4,'client'),
     (new.id,'Confirm business hours and primary manager',5,'client'),
-    (new.id,'Confirm 30-day expectations',6,'client'),
-    (new.id,'Confirm schedule and start date',7,'va'),
-    (new.id,'Confirm equipment and primary internet',8,'va'),
-    (new.id,'Confirm backup internet and backup power where applicable',9,'va'),
-    (new.id,'Join required communication channels',10,'va'),
+    (new.id,'Provide first-week tasks and success expectations',6,'client'),
+    (new.id,'Confirm client access and communication channel',7,'client'),
+    (new.id,'Confirm schedule and start date',8,'va'),
+    (new.id,'Confirm equipment, primary internet and backup connection',9,'va'),
+    (new.id,'Join client communication channels',10,'va'),
     (new.id,'Confirm service terms and billing setup',11,'agency'),
     (new.id,'Assign Client Success owner',12,'agency'),
     (new.id,'Complete recruiter to Client Success handoff',13,'agency')
-  on conflict(workroom_id,title) do update set sort_order=excluded.sort_order,owner_role=excluded.owner_role;
+  on conflict(workroom_id,title) do nothing;
 
   v_base:=coalesce(new.start_date::timestamp at time zone 'Asia/Manila',new.created_at);
   insert into placement_checkins(workroom_id,checkpoint,due_at) values
-    (new.id,'day1',v_base+interval '12 hours'),
+    (new.id,'day1',v_base+interval '1 day'),
     (new.id,'day3',v_base+interval '3 days'),
     (new.id,'day7',v_base+interval '7 days'),
     (new.id,'day14',v_base+interval '14 days'),
     (new.id,'day30',v_base+interval '30 days'),
     (new.id,'day60',v_base+interval '60 days'),
     (new.id,'day90',v_base+interval '90 days')
-  on conflict(workroom_id,checkpoint,due_at) do nothing;
+  on conflict(workroom_id,checkpoint) do nothing;
   return new;
 end; $$;
 drop trigger if exists workroom_agency_placement_init on public.workrooms;
 create trigger workroom_agency_placement_init after insert on public.workrooms
 for each row execute function public.initialize_agency_placement();
 
--- Placement Ready means all pre-start responsibilities are complete, a Client
--- Success owner exists, and the recruiter has formally marked the handoff ready.
 create or replace function public.recompute_placement_readiness(p_workroom_id uuid)
 returns timestamptz language plpgsql security definer set search_path=public as $$
-declare v_all_done boolean; v_owner uuid; v_handoff timestamptz; v_ready timestamptz; begin
+declare v_all_done boolean; v_handoff timestamptz; v_ready timestamptz; v_start date; v_stage text; begin
   select coalesce(bool_and(completed_at is not null),false)
   into v_all_done from workroom_checklist where workroom_id=p_workroom_id;
-  select client_success_owner_id,handoff_ready_at,placement_ready_at
-  into v_owner,v_handoff,v_ready from workrooms where id=p_workroom_id;
+  select handoff_completed_at,placement_ready_at,start_date,placement_stage
+    into v_handoff,v_ready,v_start,v_stage
+  from workrooms where id=p_workroom_id;
 
-  if v_all_done and v_owner is not null and v_handoff is not null then
+  if v_all_done and v_handoff is not null then
     v_ready:=coalesce(v_ready,now());
   else
     v_ready:=null;
   end if;
 
-  update workrooms set placement_ready_at=v_ready
-  where id=p_workroom_id and placement_ready_at is distinct from v_ready;
+  update workrooms set
+    placement_ready_at=v_ready,
+    placement_stage=case
+      when v_stage in ('recovery','replacement','ended') then v_stage
+      when coalesce(v_start,current_date) <= current_date then 'launch'
+      else 'pre_start'
+    end,
+    placement_stage_entered_at=case
+      when placement_stage is distinct from (case
+        when v_stage in ('recovery','replacement','ended') then v_stage
+        when coalesce(v_start,current_date) <= current_date then 'launch'
+        else 'pre_start' end) then now()
+      else placement_stage_entered_at end
+  where id=p_workroom_id;
   return v_ready;
 end; $$;
 
 create or replace function public.recompute_placement_readiness_trigger()
 returns trigger language plpgsql security definer set search_path=public as $$
 declare v_id uuid; begin
-  if tg_table_name='workrooms' then v_id:=new.id;
-  elsif tg_op='DELETE' then v_id:=old.workroom_id;
-  else v_id:=new.workroom_id; end if;
+  if tg_table_name='workrooms' then
+    v_id:=new.id;
+  elsif tg_op='DELETE' then
+    v_id:=old.workroom_id;
+  else
+    v_id:=new.workroom_id;
+  end if;
   perform recompute_placement_readiness(v_id);
   return null;
 end; $$;
@@ -177,38 +192,43 @@ drop trigger if exists checklist_readiness_sync on public.workroom_checklist;
 create trigger checklist_readiness_sync after insert or update or delete on public.workroom_checklist
 for each row execute function public.recompute_placement_readiness_trigger();
 drop trigger if exists handoff_readiness_sync on public.workrooms;
-create trigger handoff_readiness_sync after update of handoff_ready_at,client_success_owner_id on public.workrooms
+create trigger handoff_readiness_sync after update of handoff_completed_at,start_date on public.workrooms
 for each row execute function public.recompute_placement_readiness_trigger();
 
--- Safe backfill for existing workrooms. No generated user id is hard-coded.
-update workrooms w
-set client_success_owner_id=s.default_client_success_owner_id,
-    placement_stage=coalesce(nullif(w.placement_stage,''),'pre_start'),
-    health_status=coalesce(w.health_status,'building')
+-- Existing placements inherit the configured Client Success owner only when
+-- one has been intentionally configured.
+update workrooms w set client_success_owner_id=s.client_success_owner_id
 from admin_settings s
-where s.id=1 and w.client_success_owner_id is null and s.default_client_success_owner_id is not null;
+where s.id=1 and s.client_success_owner_id is not null and w.client_success_owner_id is null;
 
 insert into workroom_checklist(workroom_id,title,sort_order,owner_role)
 select w.id,x.title,x.sort_order,x.owner_role from workrooms w cross join (values
   ('Confirm business hours and primary manager',5,'client'),
-  ('Confirm 30-day expectations',6,'client'),
-  ('Confirm schedule and start date',7,'va'),
-  ('Confirm equipment and primary internet',8,'va'),
-  ('Confirm backup internet and backup power where applicable',9,'va'),
-  ('Join required communication channels',10,'va'),
+  ('Provide first-week tasks and success expectations',6,'client'),
+  ('Confirm client access and communication channel',7,'client'),
+  ('Confirm schedule and start date',8,'va'),
+  ('Confirm equipment, primary internet and backup connection',9,'va'),
+  ('Join client communication channels',10,'va'),
   ('Confirm service terms and billing setup',11,'agency'),
   ('Assign Client Success owner',12,'agency'),
   ('Complete recruiter to Client Success handoff',13,'agency')
 ) as x(title,sort_order,owner_role)
-on conflict(workroom_id,title) do update set sort_order=excluded.sort_order,owner_role=excluded.owner_role;
+on conflict(workroom_id,title) do nothing;
 
 insert into placement_checkins(workroom_id,checkpoint,due_at)
 select w.id,x.checkpoint,coalesce(w.start_date::timestamp at time zone 'Asia/Manila',w.created_at)+x.offset_value
 from workrooms w cross join (values
-  ('day1',interval '12 hours'),('day3',interval '3 days'),('day7',interval '7 days'),
+  ('day1',interval '1 day'),('day3',interval '3 days'),('day7',interval '7 days'),
   ('day14',interval '14 days'),('day30',interval '30 days'),('day60',interval '60 days'),('day90',interval '90 days')
 ) as x(checkpoint,offset_value)
-on conflict(workroom_id,checkpoint,due_at) do nothing;
+on conflict(workroom_id,checkpoint) do nothing;
+
+update workrooms set placement_stage=case
+  when status='completed' then 'ended'
+  when coalesce(start_date,current_date) <= current_date then 'launch'
+  else 'pre_start'
+end
+where placement_stage not in ('recovery','replacement','ended');
 
 select sync_job_hiring_stage(id) from jobs;
 

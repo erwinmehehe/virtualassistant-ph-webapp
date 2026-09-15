@@ -40,7 +40,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Recent leads and roles are prioritized. Current interviews, offers, client delays, and capacity risks are surfaced automatically.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
-        {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} current items are below. Scroll this queue to review every item.</div> : null}
+        {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}
         <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Today's work queue, ${queue.length} items`}>
           {queue.map((item:any) => {
             const leadId = String(item.metadata?.lead_id || "");

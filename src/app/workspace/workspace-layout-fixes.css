@@ -1,0 +1,87 @@
+/* Workspace overflow and detail-page resilience.
+   Keep authenticated pages inside the viewport and let the document own
+   vertical scrolling instead of creating accidental horizontal scroll areas. */
+.dashboard-shell {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100dvh;
+  height: auto;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.dashboard-shell .app-main,
+.dashboard-shell .app-content {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Recruiter candidate and other two-column profile/detail screens. */
+.dashboard-shell .profile-layout {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 330px);
+}
+
+.dashboard-shell .profile-layout > *,
+.dashboard-shell .profile-layout .stack,
+.dashboard-shell .profile-layout .card,
+.dashboard-shell .profile-sidebar,
+.dashboard-shell .profile-sidebar > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-shell .profile-sidebar select,
+.dashboard-shell .profile-sidebar input,
+.dashboard-shell .profile-sidebar textarea,
+.dashboard-shell .recruiter-note-form textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.dashboard-shell .contact-email-link,
+.dashboard-shell .profile-layout p,
+.dashboard-shell .profile-layout strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.dashboard-shell .score-grid {
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+}
+
+/* A 330px sticky rail is too aggressive once the dashboard itself enters its
+   compact rail layout. Stack the sidebar before it can force page overflow. */
+@media (max-width: 1240px) {
+  .dashboard-shell .profile-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .profile-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-shell .profile-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-shell .score-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -9,6 +9,8 @@ import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs"
 import { matchLabel } from "@/lib/matching";
 import { dateShort, money } from "@/lib/format";
 import { mergeUniqueStrings } from "@/lib/collections";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { CandidateAccessGate } from "@/components/candidate-access-gate";
 
 const stages = [["new","Applied"],["reviewing","Reviewing"],["shortlisted","Shortlisted"],["interview","Interview"],["offered","Offered"],["rejected","Rejected"]] as const;
 const stageFilters = [["","All"],["new","Applied"],["reviewing","Reviewing"],["shortlisted","Shortlisted"],["interview","Interview"],["offered","Offered"],["hired","Hired"],["rejected","Rejected"]] as const;
@@ -22,16 +24,18 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
   if(!job)notFound();
 
   const admin=createAdminClient();
-  const [{data:commercial},{data:releasedRows}]=await Promise.all([
+  const [{data:commercial},{data:releasedRows},{data:access}]=await Promise.all([
     supabase.from("job_commercials").select("*").eq("job_id",id).maybeSingle(),
     admin.from("job_shortlist_candidates")
       .select("va_id,match_score,match_confidence,released_at")
       .eq("job_id",id)
       .eq("shortlist_status","released")
-      .order("match_score",{ascending:false})
+      .order("match_score",{ascending:false}),
+    admin.from("job_candidate_access").select("*").eq("job_id",id).maybeSingle()
   ]);
 
-  const canReviewCandidates=job.status==="published"||commercial?.commercial_status==="accepted";
+  const roleApproved=job.status==="published"||commercial?.commercial_status==="accepted";
+  const canReviewCandidates=roleApproved&&candidateAccessUnlocked(access?.access_status);
   const {data:applications}=canReviewCandidates
     ? await admin.from("applications").select("*").eq("job_id",id).order("applied_at",{ascending:false})
     : await admin.from("applications").select("id,status,match_score,applied_at").eq("job_id",id).order("applied_at",{ascending:false});
@@ -90,9 +94,11 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
       {commercial?.commercial_status==="quoted"?<form action={acceptCommercialTermsAction} style={{marginTop:14}}><input type="hidden" name="job_id" value={job.id}/><label className="confirmation-check" style={{marginBottom:12}}><input type="checkbox" name="fee_ack" required/><span>I understand this service fee is separate from the Virtual Assistant’s compensation.</span></label><button className="btn btn-primary" type="submit">Approve terms and start recruiting</button></form>:null}
     </div>
 
-    {!canReviewCandidates?<div className="card recruiter-prep-card" style={{marginBottom:18}}>
-      <div className="row-between wrap"><div><h3 style={{margin:"0 0 4px"}}>Your recruiter is preparing the shortlist</h3><p className="small muted" style={{margin:0}}>We can screen and rank candidates privately while the role is in review. Full candidate profiles appear automatically after the role is approved.</p></div><span className="badge">{releasedCount} match{releasedCount===1?"":"es"} prepared</span></div>
+    {!roleApproved?<div className="card recruiter-prep-card" style={{marginBottom:18}}>
+      <div className="row-between wrap"><div><h3 style={{margin:"0 0 4px"}}>Your recruiter is preparing the shortlist</h3><p className="small muted" style={{margin:0}}>We can screen and rank candidates privately while the role is in review. Full candidate profiles appear after the role is approved and candidate access is active.</p></div><span className="badge">{releasedCount} match{releasedCount===1?"":"es"} prepared</span></div>
     </div>:null}
+
+    {roleApproved&&!canReviewCandidates?<div style={{marginBottom:18}}><CandidateAccessGate jobId={job.id} access={access} applicantCount={applicantCount} releasedCount={releasedCount} returnTo={`/workspace/client/jobs/${job.id}`}/></div>:null}
 
     <div className="grid-3" style={{marginBottom:18}}>
       <div className="card"><div className="small muted">Candidates</div><strong style={{fontSize:28}}>{applicantCount}</strong></div>
@@ -102,7 +108,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
 
     <div className="card" style={{marginBottom:18}}>
       <div className="row-between wrap" style={{marginBottom:14}}>
-        <div><h3 style={{margin:0}}>Candidate pipeline</h3><span className="small muted">{canReviewCandidates?"Review profiles and move strong candidates through shortlist, interview, offer, and hire.":"Candidate identities and evidence appear here once the role is approved."}</span></div>
+        <div><h3 style={{margin:0}}>Candidate pipeline</h3><span className="small muted">{canReviewCandidates?"Review profiles and move strong candidates through shortlist, interview, offer, and hire.":roleApproved?"Candidate identities and evidence unlock when candidate access is active.":"Candidate identities and evidence appear after the role is approved and candidate access is active."}</span></div>
         {canReviewCandidates?<div className="pipeline-filter" aria-label="Filter applicant stage">{stageFilters.map(([value,label])=><Link key={value||"all"} className={`btn btn-sm ${selectedStage===value?"btn-primary":""}`} href={`/workspace/client/jobs/${job.id}${value?`?stage=${value}`:""}`}>{label} ({stageCounts.get(value)||0})</Link>)}</div>:null}
       </div>
       {canReviewCandidates?(visibleApplications.length?<div className="table-wrap responsive-table"><table>
@@ -116,7 +122,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
           <td data-label="Applied">{dateShort(application.applied_at)}</td>
           <td><div className="row wrap"><Link className="btn btn-sm" href={`/workspace/client/candidates/${application.id}`}>{application.status==="hired"?"View hire":"Review profile"}</Link>{profile.resume_path?<a className="btn btn-sm" href={`/api/resume/${application.id}`} target="_blank">Private resume</a>:null}</div></td>
         </tr>})}</tbody>
-      </table></div>:<div className="empty">{selectedStage?"No candidates are in this stage yet.":"No applicants have reached this role yet."}</div>):<div className="empty">Your recruiting team is working privately. Candidate profiles will appear after approval.</div>}
+      </table></div>:<div className="empty">{selectedStage?"No candidates are in this stage yet.":"No applicants have reached this role yet."}</div>):<div className="empty">Your recruiting team can keep working privately. Candidate profiles remain protected until the role is approved and candidate access is active.</div>}
     </div>
 
     <div className="card curated-shortlist-card">
@@ -129,7 +135,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
         <div className="pill-list" style={{margin:"12px 0"}}>{mergeUniqueStrings(va?.primary_category,va?.categories).slice(0,3).map((value,index)=><span className="badge" key={`${String(value)}-${index}`}>{value}</span>)}</div>
         <div className="small muted" style={{marginBottom:10}}>{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Availability not set"}{va?.hourly_rate?` · USD ${Number(va.hourly_rate).toFixed(2)}/hr`:""}</div>
         <div className="row wrap">{va?.directory_visible&&va?.slug?<Link className="btn btn-sm" href={`/va/${va.slug}`} target="_blank">View profile</Link>:null}{inviteStatus?<span className="badge">Invite: {inviteStatus}</span>:job.status!=="published"?null:<details className="invite-details"><summary className="btn btn-sm btn-primary">Invite to role</summary><form action={inviteVaAction} className="invite-popover stack"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="va_id" value={row.va_id}/><div className="field"><label>Personal note</label><textarea name="note" maxLength={500} placeholder={`Hi ${String(profile?.full_name||"").split(" ")[0]}, your background looks relevant to this role. Would you like to review it?`}/></div><button className="btn btn-primary btn-sm" type="submit">Send invitation</button></form></details>}</div>
-      </div>})}</div>:<div className="empty">{releasedCount} strong match{releasedCount===1?" has":"es have"} already been prepared. Profiles will appear automatically after you approve the role.</div>):<div className="empty">No recruiter-selected matches have been released yet. Matching can continue while the role is still in review.</div>}
+      </div>})}</div>:roleApproved?<div className="empty"><strong>{releasedCount} curated match{releasedCount===1?" is":"es are"} ready.</strong><p>Activate candidate access to review identities, full profile evidence, and interview actions.</p></div>:<div className="empty">{releasedCount} strong match{releasedCount===1?" has":"es have"} already been prepared. Profiles will appear after you approve the role and candidate access is active.</div>):<div className="empty">No recruiter-selected matches have been released yet. Matching can continue while the role is still in review.</div>}
     </div>
   </>;
 }

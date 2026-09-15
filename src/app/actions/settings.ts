@@ -10,6 +10,11 @@ export async function updateMarketplaceSettingsAction(formData: FormData){
   const placementFee=Math.max(0,Number(formData.get("default_placement_fee")??0));
   const markup=Math.max(0,Math.min(100,Number(formData.get("default_managed_markup_percent")??0)));
   const clientSuccessOwnerId=String(formData.get("client_success_owner_id")??"").trim()||null;
+  const financeMinMargin=Math.max(0,Math.min(100,Number(formData.get("finance_min_margin_percent")??15)));
+  const financeTargetMargin=Math.max(financeMinMargin,Math.min(100,Number(formData.get("finance_target_margin_percent")??25)));
+  const financePaymentCost=Math.max(0,Math.min(100,Number(formData.get("finance_default_payment_cost_percent")??3)));
+  const financeOpsCost=Math.max(0,Number(formData.get("finance_default_ops_cost_monthly")??0));
+  const financeOverdueDays=Math.max(1,Math.min(120,Math.round(Number(formData.get("finance_invoice_overdue_days")??7))));
   const admin=createAdminClient();
   if(clientSuccessOwnerId){
     const {data:owner}=await admin.from("profiles").select("id,role,account_status").eq("id",clientSuccessOwnerId).maybeSingle();
@@ -20,10 +25,17 @@ export async function updateMarketplaceSettingsAction(formData: FormData){
     default_placement_fee:placementFee,
     default_managed_markup_percent:markup,
     client_success_owner_id:clientSuccessOwnerId,
+    finance_min_margin_percent:financeMinMargin,
+    finance_target_margin_percent:financeTargetMargin,
+    finance_default_payment_cost_percent:financePaymentCost,
+    finance_default_ops_cost_monthly:financeOpsCost,
+    finance_invoice_overdue_days:financeOverdueDays,
     updated_at:new Date().toISOString()
   }).eq("id",1);
   if(error) throw error;
   revalidatePath("/workspace/admin/settings");
+  revalidatePath("/workspace/admin/finance");
+  revalidatePath("/workspace/recruiter/finance");
   revalidatePath("/pricing");
   revalidatePath("/");
   revalidatePath("/jobs");

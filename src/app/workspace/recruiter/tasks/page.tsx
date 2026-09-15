@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Clock3, ListTodo, Plus } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, ListTodo, Plus } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, createRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
@@ -29,7 +29,7 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
   return <div className="dash-page">
     {params.task_saved?<div className="success-banner">Task saved.</div>:null}
     {params.task_error?<div className="alert" role="alert">{params.task_error}</div>:null}
-    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>Tasks & Reminders</h1><p>Track calls, shortlists, client follow-ups, VA documents, and recurring recruiter work.</p></div><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link></div>
+    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>Tasks & Reminders</h1><p>Click a task to go straight to the client, role, candidate, interview, or offer that needs action.</p></div><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link></div>
 
     <details className="card" open={!rows.length}>
       <summary className="row"><Plus size={16}/><strong>Create task</strong></summary>
@@ -54,17 +54,18 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
       {rows.length?rows.map((task:any)=>{
         const overdue=task.status==="todo"&&task.due_at&&new Date(task.due_at).getTime()<now;
         const own=task.assignee_id===userId;
+        const content=<>
+          <div className="row wrap"><strong>{task.title}</strong><span className={`badge ${task.priority==="urgent"||task.priority==="high"?"badge-warning":""}`}>{task.priority}</span>{overdue?<span className="badge badge-warning">Overdue</span>:null}{task.repeat_rule!=="none"?<span className="badge">Repeats {task.repeat_rule}</span>:null}{task.status==="done"?<span className="badge badge-success"><CheckCircle2 size={12}/> Done</span>:null}</div>
+          {task.description?<p className="muted" style={{margin:"6px 0"}}>{task.description}</p>:null}
+          <div className="small muted"><Clock3 size={12}/> {manilaLabel(task.due_at)} · Assigned to {peopleMap.get(task.assignee_id)||"Recruiter"}{task.href?<> · Click to act <ArrowRight size={12}/></>:null}</div>
+        </>;
         return <article className={`card ${overdue?"needs-attention":""}`} key={task.id}>
-          <div className="row-between wrap">
-            <div>
-              <div className="row wrap"><strong>{task.title}</strong><span className={`badge ${task.priority==="urgent"||task.priority==="high"?"badge-warning":""}`}>{task.priority}</span>{overdue?<span className="badge badge-warning">Overdue</span>:null}{task.repeat_rule!=="none"?<span className="badge">Repeats {task.repeat_rule}</span>:null}{task.status==="done"?<span className="badge badge-success"><CheckCircle2 size={12}/> Done</span>:null}</div>
-              {task.description?<p className="muted" style={{margin:"6px 0"}}>{task.description}</p>:null}
-              <div className="small muted"><Clock3 size={12}/> {manilaLabel(task.due_at)} · Assigned to {peopleMap.get(task.assignee_id)||"Recruiter"}</div>
-            </div>
+          <div className="row-between wrap" style={{gap:16}}>
+            {task.href?<Link href={task.href} style={{display:"block",minWidth:0,flex:"1 1 520px",color:"inherit",textDecoration:"none"}}>{content}</Link>:<div style={{minWidth:0,flex:"1 1 520px"}}>{content}</div>}
             <div className="row wrap">
-              {task.href?<Link className="btn btn-sm" href={task.href}>Open</Link>:null}
+              {task.href?<Link className="btn btn-sm btn-primary" href={task.href}>Act now <ArrowRight size={13}/></Link>:null}
               {task.status==="todo"&&own?<form action={snoozeRecruiterTaskAction} className="row"><input type="hidden" name="task_id" value={task.id}/><select name="minutes" defaultValue="1440" aria-label="Snooze task"><option value="60">1 hour</option><option value="1440">1 day</option><option value="4320">3 days</option></select><button className="btn btn-sm" type="submit">Snooze</button></form>:null}
-              {task.status==="todo"&&own?<form action={completeRecruiterTaskAction}><input type="hidden" name="task_id" value={task.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/tasks?view=${view}`}/><button className="btn btn-sm btn-primary" type="submit">Done</button></form>:null}
+              {task.status==="todo"&&own?<form action={completeRecruiterTaskAction}><input type="hidden" name="task_id" value={task.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/tasks?view=${view}`}/><button className="btn btn-sm" type="submit">Done</button></form>:null}
             </div>
           </div>
         </article>;

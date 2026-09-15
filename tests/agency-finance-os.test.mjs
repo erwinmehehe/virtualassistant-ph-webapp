@@ -57,8 +57,8 @@ test("Low-margin exceptions require recruiter ownership and admin review",()=>{
 });
 
 test("Finance OS is available only in staff navigation and not added to client or VA billing",()=>{
-  assert.match(nav,/\["Finance OS", "\/workspace\/admin\/finance"/);
-  assert.match(nav,/\["Margin review", "\/workspace\/recruiter\/finance"/);
+  assert.match(nav,/\["Finance", "\/workspace\/admin\/finance"/);
+  assert.doesNotMatch(nav,/\["Margin review", "\/workspace\/recruiter\/finance"/);
   assert.doesNotMatch(clientPayments,/placement_finance_profiles/);
   assert.doesNotMatch(vaPayments,/placement_finance_profiles/);
   assert.doesNotMatch(clientPayments,/finance_min_margin_percent/);

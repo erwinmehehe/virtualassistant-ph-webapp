@@ -10,6 +10,7 @@ import { recordProductEvent } from "@/lib/product-events";
 import { sendVaMatchEmail } from "@/lib/match-email";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
+const CLIENT_INVITE_COOLDOWN_HOURS = 20;
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -107,8 +108,8 @@ export async function saveJobShortlistAction(formData: FormData) {
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
 
   if (!jobId) return fail("Job is required.");
-  if (!selected.length) return fail("Select at least one VA before saving or releasing a shortlist.");
-  if (!["save", "release"].includes(mode)) return fail("Invalid shortlist action.");
+  if (!selected.length) return fail("Select at least one VA before saving or sending a shortlist.");
+  if (!["save", "release", "invite"].includes(mode)) return fail("Invalid shortlist action.");
 
   const admin = createAdminClient();
   const [{ data: job }, { data: vetting }] = await Promise.all([
@@ -118,7 +119,27 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (!job) return fail("Job not found.");
   const approvedIds = new Set((vetting || []).map((row: any) => row.va_id));
   if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer approved for matching.");
-  if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet (it's from an unlinked lead) -- link it to a client before releasing a shortlist. You can still save an internal shortlist.");
+  if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet. Use Save + invite client to review instead.");
+
+  let inviteLead: { id: string; name?: string | null; email: string } | null = null;
+  if (mode === "invite") {
+    if (job.client_id) return fail("This client account is already linked. Use Send selected for client review instead.");
+    if (!job.lead_id) return fail("No client lead is attached to this role, so an invite cannot be sent.");
+    const { data: lead } = await admin.from("lead_intake").select("id,name,email,client_id").eq("id", job.lead_id).maybeSingle();
+    if (!lead?.email) return fail("No client email is attached to this lead. Add a valid client email before inviting them.");
+    if (lead.client_id) return fail("This lead is already linked to a client account. Refresh the page and send the shortlist normally.");
+    const cooldownCutoff = new Date(Date.now() - CLIENT_INVITE_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
+    const { data: recentInvite } = await admin.from("recruiter_activity")
+      .select("id")
+      .eq("subject_type", "job")
+      .eq("subject_id", jobId)
+      .eq("action", "client_review_invited")
+      .gte("created_at", cooldownCutoff)
+      .limit(1)
+      .maybeSingle();
+    if (recentInvite) return fail("A client-review invite was already sent for this role in the last 20 hours.");
+    inviteLead = { id: lead.id, name: lead.name, email: lead.email };
+  }
 
   const [{ data: vas }, { data: existing }] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", selected),
@@ -127,7 +148,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
   const now = new Date().toISOString();
-  if (mode === "save") {
+  if (mode !== "release") {
     const deselectedProposed = (existing || []).filter((row: any) => row.shortlist_status === "proposed" && !selected.includes(row.va_id)).map((row: any) => row.va_id);
     if (deselectedProposed.length) await admin.from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).in("va_id", deselectedProposed);
   }
@@ -148,14 +169,63 @@ export async function saveJobShortlistAction(formData: FormData) {
     };
   });
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
-  if (!error) {
-    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
-    await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: mode === "release" ? "shortlist_released" : "candidates_assigned", description: `${selected.length} VA${selected.length === 1 ? "" : "s"} ${mode === "release" ? "released to the client" : "assigned internally"}`, actorId: user.id, metadata: { va_ids: selected } });
-    await Promise.all(selected.map((vaId) => writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: mode === "release" ? "released_to_client" : "assigned_to_role", description: `${mode === "release" ? "Released" : "Assigned"} to ${job.title}`, actorId: user.id, metadata: { job_id: jobId } })));
-  }
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
     return fail("Could not save the shortlist. Please try again.");
+  }
+
+  const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+
+  if (mode === "invite" && inviteLead) {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+    const nextPath = `/workspace/client/jobs/${jobId}`;
+    const params = new URLSearchParams({ lead: inviteLead.id, next: nextPath });
+    const claimUrl = `${appUrl}/auth/join/client?${params.toString()}`;
+    const firstName = String(inviteLead.name || "there").trim().split(/\s+/)[0] || "there";
+    const { sendTransactionalEventEmail } = await import("@/lib/email");
+    const delivery = await sendTransactionalEventEmail({
+      to: inviteLead.email,
+      subject: `Your VA shortlist is ready to review: ${job.title}`,
+      heading: "Your recruiter has a shortlist ready",
+      body: `Hi ${firstName}, we reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
+      href: claimUrl,
+      hrefLabel: "Review my shortlist"
+    });
+    if (!delivery.sent) return fail("The shortlist was saved internally, but the client invite email could not be sent. Check the email configuration and try again.");
+
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: jobId,
+      action: "client_review_invited",
+      description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
+      actorId: user.id,
+      metadata: { va_ids: selected, lead_id: inviteLead.id }
+    });
+    await Promise.all(selected.map((vaId) => writeRecruiterActivity({
+      subjectType: "va",
+      subjectId: vaId,
+      action: "assigned_to_role",
+      description: `Selected for ${job.title}; waiting for the client account to be linked`,
+      actorId: user.id,
+      metadata: { job_id: jobId }
+    })));
+  } else {
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: jobId,
+      action: mode === "release" ? "shortlist_released" : "candidates_assigned",
+      description: `${selected.length} VA${selected.length === 1 ? "" : "s"} ${mode === "release" ? "released to the client" : "assigned internally"}`,
+      actorId: user.id,
+      metadata: { va_ids: selected }
+    });
+    await Promise.all(selected.map((vaId) => writeRecruiterActivity({
+      subjectType: "va",
+      subjectId: vaId,
+      action: mode === "release" ? "released_to_client" : "assigned_to_role",
+      description: `${mode === "release" ? "Released" : "Assigned"} to ${job.title}`,
+      actorId: user.id,
+      metadata: { job_id: jobId }
+    })));
   }
 
   const newlyReleasedGoodMatches = mode === "release"
@@ -198,7 +268,8 @@ export async function saveJobShortlistAction(formData: FormData) {
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${mode === "release" ? "shortlist_released" : "shortlist_saved"}=1`);
+  const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
 }
 
 export async function hideShortlistCandidateAction(formData: FormData) {

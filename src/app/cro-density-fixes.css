@@ -1,0 +1,201 @@
+/* Focused CRO density fixes. Keep required fields and functionality intact. */
+
+/* Mobile discovery CTA: compact, safe-area aware, and no full-width takeover. */
+@media (max-width: 640px) {
+  .floating-cta.floating-cta-compact {
+    left: auto !important;
+    right: 10px !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 6px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 12px 34px rgba(16,24,40,.16) !important;
+  }
+  .floating-cta.floating-cta-compact .btn {
+    width: auto !important;
+    min-height: 40px !important;
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    font-size: .8rem !important;
+  }
+  .floating-cta.floating-cta-compact .floating-cta-close {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 999px !important;
+  }
+}
+
+/* Homepage hiring form: remove duplicate helper copy without removing fields. */
+.pva-home .pva-hero-form-shell .compact-hire-form-head > p,
+.pva-home .pva-hero-form-shell .compact-contact-head,
+.pva-home .pva-hero-form-shell .form-draft-note,
+.pva-home .pva-hero-form-shell .role-brief-note {
+  display: none !important;
+}
+.pva-home .pva-hero-form-shell {
+  max-width: 570px !important;
+  padding: .5rem !important;
+  border-radius: 1.2rem !important;
+}
+.pva-home .pva-hero-form-shell .compact-hire-form {
+  gap: .5rem !important;
+  padding: .9rem !important;
+}
+.pva-home .pva-hero-form-shell .compact-hire-form-head h2 {
+  margin-bottom: .1rem !important;
+  font-size: clamp(1.25rem,1.8vw,1.55rem) !important;
+}
+.pva-home .pva-hero-form-shell .compact-form-grid {
+  gap: .55rem !important;
+}
+.pva-home .pva-hero-form-shell .field {
+  gap: .2rem !important;
+}
+.pva-home .pva-hero-form-shell .field label {
+  font-size: .67rem !important;
+}
+.pva-home .pva-hero-form-shell .field input,
+.pva-home .pva-hero-form-shell .field select,
+.pva-home .pva-hero-form-shell .field textarea {
+  min-height: 2.35rem !important;
+  padding: .48rem .65rem !important;
+}
+.pva-home .pva-hero-form-shell .field textarea {
+  min-height: 3.7rem !important;
+}
+.pva-home .pva-hero-form-shell .compact-hire-submit {
+  min-height: 2.6rem !important;
+  margin-top: .1rem !important;
+}
+
+/* Homepage Philippines authority section: keep the content, reduce its footprint. */
+.pva-home .pva-philippines-grid {
+  gap: clamp(1.4rem, 3vw, 2.4rem) !important;
+  padding: clamp(1.4rem, 2.8vw, 2.35rem) !important;
+  border-radius: 1.45rem !important;
+  align-items: start !important;
+}
+.pva-home .pva-philippines-grid::before {
+  width: 16rem !important;
+  height: 16rem !important;
+  right: -6rem !important;
+  top: -8rem !important;
+}
+.pva-home .pva-philippines-copy h2 {
+  margin: .55rem 0 .85rem !important;
+  font-size: clamp(2.05rem, 3.15vw, 3.25rem) !important;
+  line-height: 1.02 !important;
+}
+.pva-home .pva-philippines-copy > p {
+  margin-bottom: .65rem !important;
+  font-size: clamp(.9rem, 1vw, .98rem) !important;
+  line-height: 1.55 !important;
+}
+.pva-home .pva-resource-links {
+  margin-top: 1rem !important;
+  gap: .45rem .65rem !important;
+}
+.pva-home .pva-resource-links a:nth-child(1),
+.pva-home .pva-resource-links a:nth-child(2) {
+  min-height: 2.7rem !important;
+  padding: .58rem .8rem !important;
+}
+.pva-home .pva-reason-grid {
+  gap: .7rem !important;
+}
+.pva-home .pva-reason-card {
+  grid-template-columns: 3.2rem minmax(0,1fr) !important;
+  column-gap: .85rem !important;
+  min-height: 98px !important;
+  padding: .9rem 1rem !important;
+  border-radius: 1rem !important;
+}
+.pva-home .pva-reason-card::before {
+  width: 3.2rem !important;
+  height: 3.2rem !important;
+  border-radius: .85rem !important;
+}
+.pva-home .pva-reason-card:nth-child(1) {
+  padding-right: 8.4rem !important;
+}
+.pva-home .pva-reason-card:nth-child(1)::after {
+  top: .75rem !important;
+  right: .75rem !important;
+  padding: .34rem .5rem !important;
+}
+.pva-home .pva-reason-card h3 {
+  margin-bottom: .2rem !important;
+  font-size: .98rem !important;
+}
+.pva-home .pva-reason-card p {
+  font-size: .76rem !important;
+  line-height: 1.48 !important;
+}
+.pva-home .pva-reason-grid::after {
+  margin-top: 0 !important;
+  padding: .65rem .8rem !important;
+  font-size: .67rem !important;
+}
+
+/* If a saved-profile bar appears on mobile, keep it from fighting the booking CTA. */
+@media (max-width: 620px) {
+  .cro-shortlist-bar {
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+    width: calc(100% - 16px) !important;
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .cro-shortlist-bar-main {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  .cro-shortlist-bar-main small {
+    display: none !important;
+  }
+  .cro-shortlist-bar-main strong {
+    font-size: .76rem !important;
+    line-height: 1.2 !important;
+  }
+  .cro-shortlist-icon {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .cro-shortlist-bar-actions {
+    flex: none !important;
+    gap: 4px !important;
+  }
+  .cro-shortlist-bar-actions .btn {
+    width: auto !important;
+    min-height: 36px !important;
+    padding: 7px 9px !important;
+    font-size: .68rem !important;
+  }
+  .cro-shortlist-clear {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .pva-home .pva-philippines-grid {
+    grid-template-columns: 1fr !important;
+    padding: 1.25rem !important;
+    gap: 1.15rem !important;
+  }
+  .pva-home .pva-philippines-copy h2 {
+    font-size: clamp(2rem, 8vw, 2.65rem) !important;
+  }
+  .pva-home .pva-reason-card:nth-child(1) {
+    padding-right: 1rem !important;
+  }
+  .pva-home .pva-reason-card:nth-child(1)::after {
+    display: none !important;
+  }
+}

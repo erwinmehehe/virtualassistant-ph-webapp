@@ -76,7 +76,7 @@ export function StatCard({
       {chip ? <span className={`dash-chip-status ${chip.tone}`}>{chip.label}</span> : null}
     </>
   );
-  return href ? <Link className="dash-stat" href={href}>{body}</Link> : <div className="dash-stat">{body}</div>;
+  return href ? <Link prefetch={false} className="dash-stat" href={href}>{body}</Link> : <div className="dash-stat">{body}</div>;
 }
 
 export function Panel({ title, subtitle, action, children, className }: { title?: string; subtitle?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
@@ -165,7 +165,7 @@ export function SignalList({ items }: { items: { label: string; count: number; h
   return (
     <div className="dash-signals">
       {items.map((item) => (
-        <Link className="dash-signal" href={item.href} key={item.label}>
+        <Link prefetch={false} className="dash-signal" href={item.href} key={item.label}>
           <span className="dash-signal-icon" aria-hidden="true">{item.icon}</span>
           <span className="dash-signal-copy"><strong>{item.label}</strong>{item.hint ? <small>{item.hint}</small> : null}</span>
           <span className={`dash-signal-count${item.count ? " has" : ""}`}>{item.count}</span>

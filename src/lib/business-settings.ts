@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 
+// Agency Operations v2 release marker: production schema verified on 2026-09-15.
 export type BusinessSettings = {
   minHourlyRate: number;
   placementFee: number;

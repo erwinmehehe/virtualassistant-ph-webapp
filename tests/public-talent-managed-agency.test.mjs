@@ -13,18 +13,18 @@ test("public talent directory behaves like managed recruiting, not a marketplace
   assert.doesNotMatch(directory, /last_active_at|Active \{/);
   assert.doesNotMatch(directory, /hourly_rate|min_rate|max_rate|Lowest rate/);
   assert.doesNotMatch(directory, /Email verified|Identity verified/);
+  assert.doesNotMatch(directory, /Get candidates like this|View profile|requestHref/);
+  assert.doesNotMatch(directory, /href=\{`\/va\/\$\{va\.slug\}`\}/);
   assert.match(directory, /Get a vetted shortlist/);
-  assert.match(directory, /Get candidates like this/);
   assert.match(directory, /recruiter confirms current fit and availability/i);
 });
 
-test("public talent profile keeps internal recruiting signals private", () => {
+test("public talent profile route stays disabled and exposes no internal recruiting signals", () => {
   const profile = source("src/app/va/[slug]/page.tsx");
 
+  assert.match(profile, /notFound\(\)/);
+  assert.match(profile, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
   assert.doesNotMatch(profile, /TalentShortlistButton|TalentShortlistBar|Save for recruiter|Saved for recruiter/);
-  assert.doesNotMatch(profile, /hourly_rate|Preferred rate/);
-  assert.doesNotMatch(profile, /Email verified|Identity verified/);
-  assert.match(profile, /Recruiter reviewed/);
-  assert.match(profile, /Get a vetted shortlist/);
-  assert.match(profile, /confirm current availability and recommend the strongest fits/i);
+  assert.doesNotMatch(profile, /hourly_rate|Preferred rate|last_active_at|match_score|Email verified|Identity verified/);
+  assert.doesNotMatch(profile, /Recruiter reviewed|Get a vetted shortlist|confirm current availability/);
 });

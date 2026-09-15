@@ -9,11 +9,12 @@ const notificationOpen = read("src/app/actions/notification-open.ts");
 const today = read("src/app/workspace/recruiter/today/page.tsx");
 const stalled = read("src/app/workspace/recruiter/stalled/page.tsx");
 const exactActionsMigration = read("supabase/migrations/20260915090000_recruiter_today_exact_actions.sql");
-const agencyMigration = read("supabase/migrations/20260915173000_agency_operations_v2.sql");
 const clientShortlist = read("src/app/actions/client-shortlist.ts");
 const clientInterviews = read("src/app/workspace/client/interviews/page.tsx");
 const maintenance = read("src/app/api/cron/maintenance/route.ts");
 const interviewReminderMigration = read("supabase/migrations/20260915042944_candidate_interview_reminders.sql");
+const clientSuccess = read("src/app/workspace/client-success/page.tsx");
+const recruiterPlacements = read("src/app/workspace/recruiter/placements/page.tsx");
 
 test("client and VA notification cards open their linked action and mark it read", () => {
   for (const source of [clientNotifications, vaNotifications]) {
@@ -39,8 +40,13 @@ test("My Day routes to exact control centers and can send shortlist follow-up in
 
 test("My Day does not duplicate the 5-day client overdue stage", () => {
   assert.match(exactActionsMigration, /q\.action_type='client_shortlist_waiting' and q\.age_hours>=120/);
-  assert.match(agencyMigration, /when q\.subject_type='job' then '\/workspace\/recruiter\/roles\/'\|\|q\.subject_id/);
-  assert.match(agencyMigration, /when q\.subject_type='va' then '\/workspace\/recruiter\/candidates\/'\|\|q\.subject_id/);
+  assert.match(today, /meta\.subject_type==="job"/);
+  assert.match(today, /meta\.subject_type==="va"/);
+});
+
+test("post-hire work has one shared Client Success workspace", () => {
+  assert.match(clientSuccess,/Client Success Today/);
+  assert.match(recruiterPlacements,/redirect\("\/workspace\/client-success"\)/);
 });
 
 test("stalled work uses canonical shortlist interview and offer state", () => {

@@ -22,7 +22,8 @@ test("contact details are always visible while phone stays optional", () => {
   assert.doesNotMatch(form, /name="phone" type="tel" required/);
 });
 
-test("homepage hiring budget begins at the supported six-dollar minimum", () => {
-  assert.match(form, /USD 6 to 8\/hour/);
-  assert.doesNotMatch(form, /USD 5 to 8\/hour/);
+test("public hiring budget uses the canonical minimum-rate constant", () => {
+  assert.match(form, /MIN_HOURLY_RATE/);
+  assert.match(form, /const entryBudget = `USD \$\{MIN_HOURLY_RATE\} to 8\/hour`/);
+  assert.doesNotMatch(form, /USD 6 to 8\/hour/);
 });

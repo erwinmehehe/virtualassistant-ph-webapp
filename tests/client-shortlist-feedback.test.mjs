@@ -41,5 +41,5 @@ test("recruiter client-review queue exposes follow-up and replacement states", (
   assert.match(recruiterQueue, /Waiting for client/);
   assert.match(recruiterQueue, /Send follow-up/);
   assert.match(recruiterQueue, /Needs replacement matches/);
-  assert.match(nav, /\/workspace\/recruiter\/client-review/);
+  assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
 });

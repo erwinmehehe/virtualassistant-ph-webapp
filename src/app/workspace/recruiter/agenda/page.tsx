@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, CheckCircle2, ExternalLink, ListTodo, Video } from "lucide-react";
+import { CalendarDays, CheckCircle2, ExternalLink, ListTodo, Mail, UserRound, Video } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
@@ -14,14 +14,14 @@ export default async function RecruiterAgendaPage(){
   const {start,end}=weekRange();
   const startIso=start.toISOString(),endIso=end.toISOString();
   const [{data:discoveries,error:discoveryError},{data:tasks,error:taskError},{data:interviews,error:interviewError}]=await Promise.all([
-    admin.from("lead_intake").select("id,name,company,service,timezone,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,owner_id").not("discovery_scheduled_at","is",null).is("discovery_completed_at",null).is("discovery_cancelled_at",null).gte("discovery_scheduled_at",startIso).lt("discovery_scheduled_at",endIso).or(`owner_id.eq.${userId},owner_id.is.null`).order("discovery_scheduled_at"),
+    admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,owner_id").not("discovery_scheduled_at","is",null).is("discovery_completed_at",null).is("discovery_cancelled_at",null).gte("discovery_scheduled_at",startIso).lt("discovery_scheduled_at",endIso).or(`owner_id.eq.${userId},owner_id.is.null`).order("discovery_scheduled_at"),
     admin.from("recruiter_tasks").select("id,title,description,due_at,priority,href,repeat_rule").eq("assignee_id",userId).eq("status","todo").not("due_at","is",null).gte("due_at",startIso).lt("due_at",endIso).order("due_at"),
     admin.from("va_vetting").select("va_id,recruiter_interview_at,candidate:profiles!va_vetting_va_id_fkey(full_name)").eq("recruiter_id",userId).not("recruiter_interview_at","is",null).gte("recruiter_interview_at",startIso).lt("recruiter_interview_at",endIso).order("recruiter_interview_at")
   ]);
   if(discoveryError)throw discoveryError;if(taskError)throw taskError;if(interviewError)throw interviewError;
 
   const items:any[]=[
-    ...(discoveries||[]).map((lead:any)=>({kind:"discovery",at:lead.discovery_scheduled_at,title:lead.company||lead.name||"Discovery call",subtitle:lead.service||"Client discovery",timezone:lead.timezone||"Asia/Manila",meetingUrl:lead.discovery_meeting_url,id:lead.id,duration:lead.discovery_duration_minutes||30})),
+    ...(discoveries||[]).map((lead:any)=>({kind:"discovery",at:lead.discovery_scheduled_at,title:lead.company||lead.name||"Discovery call",bookedBy:lead.name||null,email:lead.email||null,company:lead.company||null,subtitle:lead.service||"Client discovery",timezone:lead.timezone||"Asia/Manila",meetingUrl:lead.discovery_meeting_url,id:lead.id,duration:lead.discovery_duration_minutes||30})),
     ...(tasks||[]).map((task:any)=>({kind:"task",at:task.due_at,title:task.title,subtitle:task.description||"Recruiter task",priority:task.priority,href:task.href,id:task.id,repeatRule:task.repeat_rule})),
     ...(interviews||[]).map((row:any)=>({kind:"interview",at:row.recruiter_interview_at,title:row.candidate?.full_name||"VA candidate",subtitle:"Recruiter interview",id:row.va_id}))
   ].sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime());
@@ -38,11 +38,14 @@ export default async function RecruiterAgendaPage(){
           <div>
             <div className="row wrap"><strong>{item.title}</strong><span className="badge">{item.kind==="discovery"?"Discovery":item.kind==="interview"?"VA interview":"Task"}</span>{item.priority?<span className={`badge ${item.priority==="urgent"||item.priority==="high"?"badge-warning":""}`}>{item.priority}</span>:null}</div>
             <p className="small muted" style={{margin:"5px 0"}}>{item.subtitle}</p>
-            {item.kind==="discovery"?<div className="small muted">Client: {timeLabel(item.at,item.timezone)} ({item.timezone}) · Recruiter: {timeLabel(item.at,"Asia/Manila")} (Manila) · {item.duration} min</div>:<div className="small muted">{timeLabel(item.at,"Asia/Manila")} · Manila</div>}
+            {item.kind==="discovery"?<>
+              <div className="row wrap small" style={{margin:"6px 0"}}><span><UserRound size={13}/> <strong>Booked by:</strong> {item.bookedBy||"Client"}</span>{item.email?<a href={`mailto:${item.email}`}><Mail size={13}/> {item.email}</a>:null}</div>
+              <div className="small muted">Client: {timeLabel(item.at,item.timezone)} ({item.timezone}) · Recruiter: {timeLabel(item.at,"Asia/Manila")} (Manila) · {item.duration} min</div>
+            </>:<div className="small muted">{timeLabel(item.at,"Asia/Manila")} · Manila</div>}
           </div>
           <div className="row wrap">
             {item.kind==="discovery"&&item.meetingUrl?<a className="btn btn-sm btn-primary" href={item.meetingUrl} target="_blank" rel="noreferrer"><Video size={13}/> Join Zoom <ExternalLink size={12}/></a>:null}
-            {item.kind==="discovery"?<><Link className="btn btn-sm" href="/workspace/recruiter/leads?view=discovery">View brief</Link><Link className="btn btn-sm" href="/workspace/recruiter/leads?view=discovery">Complete discovery</Link></>:null}
+            {item.kind==="discovery"?<><Link className="btn btn-sm" href={`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(item.email||item.bookedBy||item.title)}`}>View booking</Link><Link className="btn btn-sm" href={`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(item.email||item.bookedBy||item.title)}`}>Complete discovery</Link></>:null}
             {item.kind==="interview"?<Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${item.id}`}>View VA</Link>:null}
             {item.kind==="task"&&item.href?<Link className="btn btn-sm" href={item.href}>Open</Link>:null}
             {item.kind==="task"?<><form action={snoozeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="minutes" value="1440"/><button className="btn btn-sm" type="submit">Snooze</button></form><form action={completeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/agenda"/><button className="btn btn-sm btn-primary" type="submit"><CheckCircle2 size={13}/> Done</button></form></>:null}

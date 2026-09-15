@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { matchLabel } from "@/lib/matching";
 import { inviteVaAction } from "@/app/actions/applications";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
 
 export default async function ClientCandidatesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
@@ -30,13 +31,15 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
   const activeJobs=jobRows.filter((job:any)=>job.status!=="closed");
   const selectedJob=activeJobs.find((job:any)=>job.id===query.role)||activeJobs[0]||null;
 
-  const [{data:applications},{data:releasedRows},{data:existingInvites}]=await Promise.all([
+  const [{data:applications},{data:releasedRows},{data:existingInvites},{data:accessRows}]=await Promise.all([
     admin.from("applications").select("id,job_id,status,match_score,applied_at").in("job_id",jobIds).order("applied_at",{ascending:false}),
     admin.from("job_shortlist_candidates").select("job_id,va_id,match_score,match_confidence,released_at").in("job_id",jobIds).eq("shortlist_status","released").order("match_score",{ascending:false}),
-    admin.from("job_invites").select("job_id,va_id,status").in("job_id",jobIds)
+    admin.from("job_invites").select("job_id,va_id,status").in("job_id",jobIds),
+    admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds)
   ]);
 
-  const reviewableJobIds=new Set(jobRows.filter((job:any)=>job.status==="published").map((job:any)=>job.id));
+  const accessMap=new Map((accessRows||[]).map((row:any)=>[row.job_id,row.access_status]));
+  const reviewableJobIds=new Set(jobRows.filter((job:any)=>job.status==="published"&&candidateAccessUnlocked(accessMap.get(job.id))).map((job:any)=>job.id));
   const reviewableApplications=(applications||[]).filter((app:any)=>reviewableJobIds.has(app.job_id));
   const applicationIds=reviewableApplications.map((app:any)=>app.id);
   const {data:detailRows}=applicationIds.length
@@ -46,7 +49,8 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
 
   const selectedReleased=(releasedRows||[]).filter((row:any)=>row.job_id===selectedJob?.id);
   const selectedPublished=selectedJob?.status==="published";
-  const releasedVaIds=selectedPublished?[...new Set(selectedReleased.map((row:any)=>row.va_id))]:[];
+  const selectedAccessUnlocked=selectedJob?candidateAccessUnlocked(accessMap.get(selectedJob.id)):false;
+  const releasedVaIds=selectedPublished&&selectedAccessUnlocked?[...new Set(selectedReleased.map((row:any)=>row.va_id))]:[];
   const [{data:profiles},{data:vas}]=releasedVaIds.length?await Promise.all([
     admin.from("profiles").select("id,full_name").in("id",releasedVaIds),
     admin.from("va_profiles").select("user_id,slug,headline,primary_category,weekly_hours,hourly_rate,skills").in("user_id",releasedVaIds)
@@ -65,7 +69,9 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
       : readyToReview
         ? {title:`${readyToReview} candidate${readyToReview===1?"":"s"} ready for review`,copy:"Compare the strongest candidates and decide who should move forward.",label:"Review candidates"}
         : selectedReleased.length
-          ? {title:`${selectedReleased.length} recruiter match${selectedReleased.length===1?"":"es"} prepared`,copy:selectedPublished?"Your shortlist is ready for review.":"Your recruiter has prepared matches while the role is in review.",label:selectedPublished?"Review shortlist":"View role"}
+          ? selectedPublished&&selectedAccessUnlocked
+            ? {title:`${selectedReleased.length} recruiter match${selectedReleased.length===1?"":"es"} prepared`,copy:"Your shortlist is ready for review.",label:"Review shortlist"}
+            : {title:`${selectedReleased.length} recruiter match${selectedReleased.length===1?"":"es"} prepared`,copy:selectedPublished?"Your shortlist is prepared. Activate candidate access to review full identities and evidence.":"Your recruiter has prepared matches while the role is in review.",label:"View role"}
           : {title:"We’re finding candidates",copy:"Your recruiting team is screening approved Virtual Assistants against your role.",label:"View roles"};
 
   return <>
@@ -73,7 +79,7 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
 
     <section className="candidate-next-action">
       <div className="candidate-next-icon"><Sparkles size={21}/></div>
-      <div><span className="small">Your next action</span><h2>{next.title}</h2><p>{next.copy}</p><small className="muted">{offers||interviews||readyToReview||(selectedReleased.length&&selectedPublished)?"Waiting on you":"Waiting on our recruiting team"}</small></div>
+      <div><span className="small">Your next action</span><h2>{next.title}</h2><p>{next.copy}</p><small className="muted">{offers||interviews||readyToReview||(selectedReleased.length&&selectedPublished&&selectedAccessUnlocked)?"Waiting on you":"Waiting on our recruiting team"}</small></div>
       <Link className="btn btn-primary" href={selectedJob?`/workspace/client/jobs/${selectedJob.id}`:"/workspace/client/jobs"}>{next.label}<ArrowRight size={16}/></Link>
     </section>
 
@@ -84,7 +90,7 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Recruiter shortlist{selectedJob?` for ${selectedJob.title}`:""}</h2><p>These are staff-selected matches, not a marketplace directory.</p></div></div>
-      {selectedReleased.length?(selectedPublished?<div className="grid-3 browse-va-grid">{selectedReleased.map((row:any)=>{
+      {selectedReleased.length?(selectedPublished&&selectedAccessUnlocked?<div className="grid-3 browse-va-grid">{selectedReleased.map((row:any)=>{
         const profile=profileMap.get(row.va_id) as any;
         const va=vaMap.get(row.va_id) as any;
         const invited=selectedJob?inviteMap.get(`${selectedJob.id}:${row.va_id}`):null;
@@ -95,11 +101,11 @@ export default async function ClientCandidatesPage({ searchParams }: { searchPar
           <div className="pill-list">{(va?.skills||[]).slice(0,3).map((skill:string,index:number)=><span className="badge" key={`${skill}-${index}`}>{skill}</span>)}</div>
           <div className="row wrap browse-va-actions">{va?.slug?<Link className="btn btn-sm" href={`/va/${va.slug}`} target="_blank">View profile</Link>:null}{invited?<span className="badge">Invite: {invited}</span>:selectedJob?<details className="invite-details"><summary className="btn btn-sm btn-primary">Invite to interview process</summary><form action={inviteVaAction} className="invite-popover stack"><input type="hidden" name="va_id" value={row.va_id}/><input type="hidden" name="job_id" value={selectedJob.id}/><div className="field"><label>Personal note</label><textarea name="note" maxLength={500} placeholder="We would like to move forward with your profile for this role."/></div><button className="btn btn-primary btn-sm" type="submit">Send invitation</button></form></details>:null}</div>
         </article>;
-      })}</div>:<div className="empty"><strong>{selectedReleased.length} match{selectedReleased.length===1?" is":"es are"} prepared.</strong><p>Full profiles will appear here as soon as the role is approved.</p></div>):<div className="empty">Your recruiter has not released a shortlist for this role yet.</div>}
+      })}</div>:selectedPublished?<div className="empty"><strong>{selectedReleased.length} curated match{selectedReleased.length===1?" is":"es are"} ready.</strong><p>Candidate identities and private profile evidence remain protected until candidate access is active.</p><Link className="btn btn-primary" href={`/workspace/client/jobs/${selectedJob?.id}`}>View candidate access</Link></div>:<div className="empty"><strong>{selectedReleased.length} match{selectedReleased.length===1?" is":"es are"} prepared.</strong><p>Full profiles will appear after the role is approved and candidate access is active.</p></div>):<div className="empty">Your recruiter has not released a shortlist for this role yet.</div>}
     </section>
 
     <section className="card dashboard-section-card" id="candidate-list">
-      <div className="dashboard-section-head"><div><h2>Candidate pipeline</h2><p>Applications and interview-stage candidates across your approved roles.</p></div></div>
+      <div className="dashboard-section-head"><div><h2>Candidate pipeline</h2><p>Applications and interview-stage candidates across your approved roles with active candidate access.</p></div></div>
       {reviewableApplications.length?<form action="/workspace/client/compare" method="get">
         <div className="row-between wrap" style={{marginBottom:12}}><p className="small muted" style={{margin:0}}>Select 2 to 4 candidates to compare role fit side by side.</p><button className="btn btn-sm" type="submit">Compare selected</button></div>
         <div className="table-wrap responsive-table candidate-review-table"><table>

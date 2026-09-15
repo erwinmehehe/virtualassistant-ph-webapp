@@ -1,5 +1,7 @@
 "use server";
 
+import { redirect } from "next/navigation";
+import { saveJobShortlistAction } from "@/app/actions/matching";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -8,8 +10,36 @@ function filterValue(formData: FormData, name: string) {
   return String(formData.get(name) || "");
 }
 
+function safeReturnTo(formData: FormData) {
+  const value = String(formData.get("return_to") || "/workspace/recruiter/talent");
+  return value.startsWith("/") && !value.startsWith("//") ? value : "/workspace/recruiter/talent";
+}
+
+function clientReviewForm(formData: FormData, ids: string[]) {
+  const forwarded = new FormData();
+  forwarded.set("job_id", String(formData.get("job_id") || ""));
+  forwarded.set("mode", "release");
+  forwarded.set("return_to", safeReturnTo(formData));
+  for (const id of ids) forwarded.append("va_id", id);
+  return forwarded;
+}
+
+function clientReviewError(formData: FormData, message: string): never {
+  const returnTo = safeReturnTo(formData);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
+}
+
 export async function bulkRecruiterTalentAction(formData: FormData) {
-  if (String(formData.get("selection_scope") || "selected") !== "filtered") {
+  const action = String(formData.get("bulk_action") || "");
+  const filteredScope = String(formData.get("selection_scope") || "selected") === "filtered";
+
+  if (!filteredScope) {
+    if (action === "send_client_review") {
+      const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))];
+      if (!selected.length) return clientReviewError(formData, "Select at least one reviewed VA to send to the client.");
+      if (selected.length > 50) return clientReviewError(formData, "Send at most 50 VAs to client review at a time.");
+      return saveJobShortlistAction(clientReviewForm(formData, selected));
+    }
     return bulkRecruiterVaAction(formData);
   }
 
@@ -30,6 +60,13 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
 
   const { data, error } = await query;
   if (error) throw error;
+
+  if (action === "send_client_review") {
+    const ids = [...new Set((data || []).map((row: any) => String(row.user_id)).filter(Boolean))];
+    if (!ids.length) return clientReviewError(formData, "No reviewed VAs matched that selection.");
+    if (ids.length > 50) return clientReviewError(formData, "Your filtered selection has more than 50 VAs. Narrow the filters before sending to client review.");
+    return saveJobShortlistAction(clientReviewForm(formData, ids));
+  }
 
   const forwarded = new FormData();
   for (const [key, value] of formData.entries()) {

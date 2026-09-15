@@ -3,80 +3,114 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read=(path)=>readFileSync(path,"utf8");
-const migration=read("supabase/migrations/20260915173000_agency_operations_v2.sql");
-const normalizer=read("supabase/migrations/20260915173100_normalize_sales_terms_stage.sql");
+const core=read("supabase/migrations/20260915173000_agency_operations_v2.sql");
+const lifecycle=read("supabase/migrations/20260915173010_agency_operations_v2_lifecycle.sql");
+const automation=read("supabase/migrations/20260915173020_placement_health_privacy_and_automation.sql");
+const guardrails=read("supabase/migrations/20260915173025_availability_and_rate_guardrails.sql");
 const actions=read("src/app/actions/agency-operations-v2.ts");
-const roles=read("src/app/workspace/recruiter/roles/page.tsx");
-const roleDetail=read("src/app/workspace/recruiter/roles/[id]/page.tsx");
-const placements=read("src/app/workspace/recruiter/placements/page.tsx");
-const placementDetail=read("src/app/workspace/recruiter/placements/[id]/page.tsx");
+const csToday=read("src/app/workspace/client-success/page.tsx");
+const placement=read("src/app/workspace/client-success/[id]/page.tsx");
+const clientTeam=read("src/app/workspace/client/team/page.tsx");
+const vaWorkroom=read("src/app/workspace/va/workroom/page.tsx");
+const vaProfile=read("src/app/workspace/va/profile/page.tsx");
+const company=read("src/app/workspace/client/company/page.tsx");
+const companyVisibility=read("src/app/actions/company-visibility.ts");
+const jobs=read("src/app/jobs/page.tsx");
+const jobCard=read("src/components/job-card.tsx");
+const pricing=read("src/app/pricing/page.tsx");
+const settings=read("src/app/workspace/admin/settings/page.tsx");
+const businessSettings=read("src/lib/business-settings.ts");
 const nav=read("src/components/app-nav-links.tsx");
-const today=read("src/app/workspace/recruiter/today/page.tsx");
-const leadCrm=read("src/lib/lead-crm.ts");
+const oldPlacements=read("src/app/workspace/recruiter/placements/page.tsx");
 
-test("agency lifecycle separates Sales Hiring and Placement state",()=>{
-  assert.match(leadCrm,/terms_sent/);
-  assert.match(migration,/hiring_stage text not null default 'intake'/);
-  assert.match(migration,/client_success_owner_id uuid references public\.profiles/);
-  assert.match(migration,/placement_stage text not null default 'onboarding'/);
-  assert.match(migration,/create table if not exists public\.placement_checkins/);
-  for(const checkpoint of ["day3","day7","day14","day30"]) assert.match(migration,new RegExp(`'${checkpoint}'`));
-  assert.match(normalizer,/new\.crm_stage='shortlist_sent'/);
-  assert.match(normalizer,/new\.crm_stage:='terms_sent'/);
+test("sales hiring and placement are separate lifecycles",()=>{
+  assert.match(core,/hiring_stage text not null default 'intake'/);
+  for(const stage of ["pre_start","launch","active","recovery","replacement","ended"]) assert.match(core,new RegExp(`'${stage}'`));
+  assert.match(core,/client_success_owner_id uuid references public\.profiles/);
+  assert.match(lifecycle,/client_success_owner_id into v_owner from admin_settings/);
+  assert.doesNotMatch(lifecycle,/coalesce\(j\.recruiter_id/);
 });
 
-test("placement health uses actionable states instead of fake numeric scoring",()=>{
-  for(const state of ["healthy","watch","at_risk","recovery","replacement","ended"]) assert.match(migration,new RegExp(`'${state}'`));
-  assert.doesNotMatch(migration,/health_score|placement_health_score/);
-  assert.doesNotMatch(placementDetail,/\/100|92\/100|Health \d+/);
-  assert.match(placementDetail,/Healthy/);
-  assert.match(placementDetail,/At Risk/);
-  assert.match(placementDetail,/Recovery/);
+test("placement health is numeric deterministic and separate from lifecycle",()=>{
+  assert.match(core,/health_score integer/);
+  assert.match(core,/health_status text not null default 'building'/);
+  assert.match(automation,/create or replace function public\.recompute_placement_health/);
+  assert.match(automation,/health_client_sentiment_weight/);
+  assert.match(automation,/health_va_sentiment_weight/);
+  assert.match(automation,/health_task_completion_weight/);
+  assert.match(automation,/health_timesheet_weight/);
+  assert.match(automation,/health_performance_weight/);
+  assert.match(automation,/v_score:=null/);
+  assert.match(placement,/health_score!=null/);
+  assert.match(placement,/Waiting for enough real signals/);
+  assert.doesNotMatch(automation,/openai|llm|gpt/i);
 });
 
-test("Client Success ownership and recruiter handoff are explicit",()=>{
-  assert.match(actions,/assignClientSuccessOwnerAction/);
-  assert.match(actions,/completeRecruiterHandoffAction/);
-  assert.match(actions,/client_success_owner_id/);
-  assert.match(actions,/handoff_completed_at/);
-  assert.match(placementDetail,/Recruiter → Client Success handoff/);
-  assert.match(placementDetail,/Client Success owner/);
-  assert.match(migration,/Complete recruiter to Client Success handoff/);
+test("milestone pulses are automated and only concerns escalate",()=>{
+  for(const checkpoint of ["day1","day3","day7","day14","day30","day60","day90"]) assert.match(lifecycle,new RegExp(`'${checkpoint}'`));
+  assert.match(automation,/placement-client-success-hourly/);
+  assert.match(automation,/month'\|\|v_month/);
+  assert.match(automation,/client_signal in \('yellow','red'\)/);
+  assert.match(automation,/va_signal in \('yellow','red'\)/);
+  assert.match(actions,/submitPlacementPulseAction/);
+  assert.match(clientTeam,/Great/);
+  assert.match(clientTeam,/Some concerns/);
+  assert.match(clientTeam,/Need help/);
+  assert.match(vaWorkroom,/Need support/);
+  assert.match(vaWorkroom,/Serious concern/);
 });
 
-test("placement readiness has client VA and agency ownership",()=>{
-  assert.match(migration,/\['client'::text,'va'::text,'agency'::text\]/);
-  assert.match(migration,/placement_ready_at/);
-  assert.match(migration,/recompute_placement_readiness/);
-  assert.match(placementDetail,/>Client</);
-  assert.match(placementDetail,/>VA</);
-  assert.match(placementDetail,/>Agency</);
-  assert.match(actions,/toggleAgencyChecklistAction/);
+test("Client Success is a shared post-hire workspace instead of a duplicate recruiter system",()=>{
+  assert.match(csToday,/Client Success Today/);
+  assert.match(csToday,/Who needs attention today/);
+  assert.match(placement,/Recruiter → Client Success handoff/);
+  assert.match(placement,/Placement readiness/);
+  assert.match(oldPlacements,/redirect\("\/workspace\/client-success"\)/);
+  assert.match(nav,/\["Client Success", "\/workspace\/client-success"/);
+  assert.match(nav,/\["My Team", "\/workspace\/client\/team"/);
 });
 
-test("Role and Placement control centers replace more disconnected recruiter pages",()=>{
-  assert.match(roles,/Role Control Center|control center/);
-  assert.match(roleDetail,/Role Control Center/);
-  assert.match(placements,/Client Success/);
-  assert.match(placementDetail,/Placement Control Center/);
-  assert.match(nav,/\["Roles", "\/workspace\/recruiter\/roles"/);
-  assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements"/);
+test("client My Team centers the managed placement relationship",()=>{
+  assert.match(clientTeam,/<h1>My Team<\/h1>/);
+  assert.match(clientTeam,/Placement Ready|Setup in progress/);
+  assert.match(clientTeam,/Client Success/);
+  assert.match(clientTeam,/health_score/);
+  assert.match(clientTeam,/submitPlacementPulseAction/);
+  assert.match(clientTeam,/Health is still building/);
 });
 
-test("My Day carries Client Success exceptions when the same operator owns them",()=>{
-  assert.match(migration,/placement_checkin/);
-  assert.match(migration,/placement_risk/);
-  assert.match(migration,/placement_handoff/);
-  assert.match(today,/Complete check-in/);
-  assert.match(today,/Open placement/);
-  assert.match(today,/Complete handoff/);
+test("availability freshness is VA self-service and blocks stale client presentation",()=>{
+  assert.match(automation,/va-availability-freshness-daily/);
+  assert.match(automation,/availability_confirmed_at<now\(\)-interval '14 days'/);
+  assert.match(automation,/guard_released_candidate_availability/);
+  assert.match(automation,/new\.shortlist_status='released'/);
+  assert.match(actions,/confirmVaAvailabilityAction/);
+  assert.match(actions,/availability_self_confirmed/);
+  assert.match(vaProfile,/Confirm my current availability/);
+  assert.match(vaProfile,/Availability confirmed/);
+  assert.match(guardrails,/invalidate_va_availability_confirmation/);
 });
 
-test("check-ins turn serious concerns into operational risk",()=>{
-  assert.match(actions,/signals\.includes\("red"\)/);
-  assert.match(actions,/nextStage = "at_risk"/);
-  assert.match(actions,/signals\.includes\("yellow"\)/);
-  assert.match(actions,/nextStage = "watch"/);
-  assert.match(actions,/room\.placement_ready_at/);
-  assert.match(actions,/nextStage = "healthy"/);
+test("public client identity is private unless the client opts in",()=>{
+  assert.match(core,/public_company_visible boolean not null default false/);
+  assert.match(automation,/where c\.public_company_visible=true/);
+  assert.match(company,/Public company identity/);
+  assert.match(companyVisibility,/public_company_visible:visible/);
+  assert.match(jobCard,/company\?\.company_name\|\|"Confidential Client"/);
+  assert.doesNotMatch(jobCard,/job\.company_name/);
+  assert.doesNotMatch(jobs,/company_name\.ilike/);
+});
+
+test("commercial defaults have one server source of truth",()=>{
+  assert.match(businessSettings,/admin_settings/);
+  assert.match(businessSettings,/min_hourly_rate/);
+  assert.match(pricing,/getBusinessSettings/);
+  assert.match(settings,/Minimum managed placement hourly rate/);
+  assert.match(guardrails,/guard_configured_minimum_rate/);
+});
+
+test("placement automation reads as managed service rather than an AI product",()=>{
+  for(const source of [clientTeam,vaWorkroom,csToday,placement]) assert.doesNotMatch(source,/AI assistant|AI-powered|copilot|chatbot/i);
+  assert.match(placement,/Client Success/);
+  assert.match(clientTeam,/Client Success/);
 });

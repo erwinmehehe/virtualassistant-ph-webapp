@@ -5,6 +5,10 @@ const pullRequestId = String(process.env.VERCEL_GIT_PULL_REQUEST_ID || "");
 const currentSha = String(process.env.VERCEL_GIT_COMMIT_SHA || "HEAD");
 const previousSha = String(process.env.VERCEL_GIT_PREVIOUS_SHA || "");
 
+// Never suppress production. This keeps main deploys safe even if an older
+// Vercel project-level Ignored Build Step still points at this script.
+if (branch === "main") process.exit(1);
+
 function changedFiles() {
   const ranges = [
     previousSha ? `${previousSha}...${currentSha}` : null,
@@ -36,13 +40,8 @@ const nonRuntimeOnly = files.every((file) =>
   file.startsWith(".github/")
 );
 
-// Production should deploy runtime changes, but tests/docs/workflow-only commits
-// do not change the shipped application and should not consume a Vercel build.
-if (branch === "main") process.exit(nonRuntimeOnly ? 0 : 1);
-
 // Branch pushes that are not attached to a pull request do not need a preview.
 if (!pullRequestId) process.exit(0);
 
-// PRs still receive previews for runtime changes while non-runtime-only changes
-// are skipped.
+// PRs receive previews for runtime changes while non-runtime-only changes are skipped.
 process.exit(nonRuntimeOnly ? 0 : 1);

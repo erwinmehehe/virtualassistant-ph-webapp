@@ -266,8 +266,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. ${zoom.joinUrl ? "The Zoom link is available in your workspace." : "Meeting details will be available in your workspace."}`;
   try { await Promise.all([
-    sendTransactionalEventEmail({ to: vaAuth.data.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/va/interviews`, hrefLabel: "Open interview" }),
-    sendTransactionalEventEmail({ to: clientAuth.data.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/client/interviews`, hrefLabel: "Open interview" })
+    sendTransactionalEventEmail({ to: vaAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/va/interviews`, hrefLabel: "Open interview" }),
+    sendTransactionalEventEmail({ to: clientAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/client/interviews`, hrefLabel: "Open interview" })
   ]); } catch (emailError) { console.error("[interview] confirmation email failed", emailError); }
   revalidatePath("/workspace/client/interviews");
   revalidatePath("/workspace/va/interviews");

@@ -18,12 +18,13 @@ test("client shortlist feedback is authorized and keeps release state separate f
   assert.match(migration, /client_decision in \('interested','interview','pass'\)/);
 });
 
-test("recruiters can attach client-facing recommendations and confirm availability freshness", () => {
+test("recruiters can attach client-facing recommendations and matcher uses current VA profile availability", () => {
   assert.match(matchingTable, /Why this VA is a strong fit for this client/);
-  assert.match(matchingTable, /Ask VA/);
-  assert.match(matchingTable, /Mark confirmed/);
-  assert.match(actions, /availability_confirmation_requested/);
-  assert.match(actions, /availability_confirmed_at/);
+  assert.match(matchingTable, /From the VA's current profile/);
+  assert.doesNotMatch(matchingTable, />Ask VA</);
+  assert.doesNotMatch(matchingTable, />Mark confirmed</);
+  assert.doesNotMatch(matchingTable, /Needs confirmation/);
+  assert.match(matching, /current profile availability/);
   assert.match(matching, /otherClientReviews/);
   assert.match(matching, /potentialCommittedHours/);
 });

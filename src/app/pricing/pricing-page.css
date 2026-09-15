@@ -1,0 +1,258 @@
+.pricing-page {
+  background: #fff;
+  overflow: hidden;
+}
+
+.pricing-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2.6rem, 4.2vw, 3.7rem) 0 clamp(2.35rem, 3.7vw, 3.25rem);
+  border-bottom: 1px solid #edf1f6;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(99, 102, 241, .14), transparent 31%),
+    radial-gradient(circle at 92% 68%, rgba(16, 185, 129, .11), transparent 27%),
+    linear-gradient(180deg, #f8faff 0%, #ffffff 88%);
+}
+
+.pricing-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .45;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, .05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, .05) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: linear-gradient(to bottom, #000, transparent 84%);
+}
+
+.pricing-hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(430px, 1.1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: start;
+}
+
+.pricing-hero-copy {
+  min-width: 0;
+  padding-top: .4rem;
+}
+
+.pricing-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: .35rem .68rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  color: #4338ca;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 8px 24px rgba(30, 41, 59, .05);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.pricing-hero h1 {
+  max-width: 690px;
+  margin: 1rem 0 .85rem;
+  color: #0b1220;
+  font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+  font-weight: 880;
+  letter-spacing: -.052em;
+  line-height: 1.02;
+}
+
+.pricing-hero-lede {
+  max-width: 620px;
+  margin: 0;
+  color: #475569;
+  font-size: clamp(1.04rem, 1.35vw, 1.18rem);
+  line-height: 1.65;
+}
+
+.pricing-hero-support {
+  max-width: 610px;
+  margin: .65rem 0 0;
+  color: #64748b;
+  font-size: .94rem;
+  line-height: 1.6;
+}
+
+.pricing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  margin-top: 1.35rem;
+}
+
+.pricing-hero-actions .btn {
+  min-height: 46px;
+  border-radius: 12px;
+  padding: .72rem 1.05rem;
+}
+
+.pricing-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem 1rem;
+  margin-top: 1.15rem;
+}
+
+.pricing-trust-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: .34rem;
+  color: #526070;
+  font-size: .74rem;
+  font-weight: 700;
+}
+
+.pricing-trust-row svg {
+  color: #059669;
+  flex: 0 0 auto;
+}
+
+.pricing-hero-form-shell {
+  position: relative;
+  width: 100%;
+  max-width: 610px;
+  justify-self: end;
+  padding: .65rem;
+  border: 1px solid rgba(199, 210, 254, .82);
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, .74);
+  box-shadow: 0 28px 70px -24px rgba(68, 76, 231, .25);
+  backdrop-filter: blur(18px);
+}
+
+.pricing-hero-form-badge {
+  position: absolute;
+  z-index: 3;
+  top: -.8rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .65rem;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  color: #047857;
+  background: #ecfdf5;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.pricing-hero-form-shell .compact-hire-form {
+  gap: .68rem;
+  margin: 0;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 0;
+  border-radius: 1.05rem;
+  box-shadow: none;
+}
+
+.pricing-hero-form-shell .compact-hire-form-head h2 {
+  margin-bottom: .22rem;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  line-height: 1.15;
+}
+
+.pricing-hero-form-shell .compact-hire-form-head h3 {
+  margin-bottom: .18rem;
+}
+
+.pricing-hero-form-shell .compact-hire-form-head p {
+  margin-bottom: 0;
+  line-height: 1.42;
+}
+
+.pricing-hero-form-shell .field {
+  gap: .25rem;
+}
+
+.pricing-hero-form-shell .field label {
+  font-size: .7rem;
+}
+
+.pricing-hero-form-shell .field input,
+.pricing-hero-form-shell .field select,
+.pricing-hero-form-shell .field textarea {
+  min-height: 2.55rem;
+  padding: .55rem .7rem;
+}
+
+.pricing-hero-form-shell .field textarea {
+  min-height: 4.5rem;
+}
+
+.pricing-hero-form-shell .compact-contact-head {
+  margin-top: .05rem;
+}
+
+.pricing-hero-form-shell .compact-hire-submit {
+  min-height: 2.85rem;
+}
+
+.pricing-hero-form-shell .role-brief-note {
+  margin: -.15rem 0 0;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .pricing-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .pricing-hero-copy {
+    padding-top: 0;
+  }
+
+  .pricing-hero h1,
+  .pricing-hero-lede,
+  .pricing-hero-support {
+    max-width: 760px;
+  }
+
+  .pricing-hero-form-shell {
+    max-width: 760px;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .pricing-hero {
+    padding: 2.2rem 0 2rem;
+  }
+
+  .pricing-hero h1 {
+    font-size: clamp(2.2rem, 11vw, 3rem);
+  }
+
+  .pricing-hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-hero-actions .btn {
+    width: 100%;
+  }
+
+  .pricing-hero-form-shell {
+    padding: .45rem;
+    border-radius: 1.1rem;
+  }
+
+  .pricing-hero-form-shell .compact-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-hero-form-shell .compact-form-grid > * {
+    grid-column: auto;
+  }
+}

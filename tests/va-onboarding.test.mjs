@@ -20,7 +20,7 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 test("new VA signups land in quick setup instead of a 0% dashboard", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
   assert.match(quickPage, /Start with the details recruiters need first/);
-  assert.match(nav, /"Quick setup", "\/workspace\/va\/onboarding"/);
+  assert.doesNotMatch(nav, /\["Quick setup", "\/workspace\/va\/onboarding"/);
 });
 
 test("returning zero-completion VAs are recovered into quick setup without blocking every VA route", () => {
@@ -86,5 +86,5 @@ test("recruiter dashboard has canonical category labels including SMM", () => {
   assert.match(constants, /"Marketing & Social Media": "SMM \/ Social Media"/);
   assert.match(categories, /VA categories & onboarding health/);
   assert.match(categories, /Verified but still 0%/);
-  assert.match(nav, /"VA categories", "\/workspace\/recruiter\/categories"/);
+  assert.doesNotMatch(nav, /\["VA categories", "\/workspace\/recruiter\/categories"/);
 });

@@ -10,8 +10,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import "./booking.css";
 
 export const metadata: Metadata = {
-  title: "Book a Client Discovery Call",
-  description: "Choose a time and tell us about the Virtual Assistant role you want to hire for.",
+  title: "Talk to Our Hiring Team",
+  description: "Choose a time to talk through the Virtual Assistant role you want to hire for.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
 };
@@ -52,17 +52,17 @@ export default async function BookClientCallPage({
           <div className="container booking-hero-grid">
             <div>
               <span className="kicker">For businesses hiring a Virtual Assistant</span>
-              <h1>Book a focused client discovery call</h1>
-              <p>Choose a time, answer a few practical questions, and let our recruiting team prepare before you meet.</p>
+              <h1>Choose a time to talk with our team</h1>
+              <p>Pick a time, answer a few practical questions, and we will prepare around the role before we speak.</p>
               <div className="booking-hero-points">
-                <span><CalendarCheck2 size={16} /> 30-minute call</span>
+                <span><CalendarCheck2 size={16} /> 30-minute conversation</span>
                 <span><ShieldCheck size={16} /> Private business details</span>
                 <span><CheckCircle2 size={16} /> No payment required</span>
               </div>
             </div>
             <aside className="booking-hero-note">
               <strong>Applying as a VA?</strong>
-              <p>Do not book a client call. Choose “I am a Virtual Assistant” below and we will send you to the application and recruiter interview process.</p>
+              <p>This scheduling form is for businesses hiring a Virtual Assistant. Choose “I am a Virtual Assistant” below and we will send you to the application and recruiter interview process.</p>
               <Link href="/auth/join/va">Go directly to the VA application</Link>
             </aside>
           </div>
@@ -74,9 +74,9 @@ export default async function BookClientCallPage({
               <div className="booking-success" role="status">
                 <span><CheckCircle2 size={30} /></span>
                 <div>
-                  <p className="kicker">Booking confirmed</p>
-                  <h2>We will see you on {bookedWhen}</h2>
-                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your questionnaire and send the video meeting details before the call.</p>
+                  <p className="kicker">Time confirmed</p>
+                  <h2>We will talk on {bookedWhen}</h2>
+                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your questionnaire and send the video meeting details before the conversation.</p>
                   <div className="booking-success-actions">
                     <Link className="btn btn-primary" href="/hire">Add more hiring details</Link>
                     <Link className="btn" href="/">Return home</Link>

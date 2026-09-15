@@ -25,7 +25,7 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.doesNotMatch(floating, /Hiring a Virtual Assistant\?/);
   assert.match(floating, /INTERNAL_PATHS/);
   assert.match(floating, /floating-cta-compact/);
-  assert.match(floating, /<span>Book a call<\/span>/);
+  assert.match(floating, /<span>Discuss your VA needs<\/span>/);
   assert.match(footer, /<FooterCta\s*\/>/);
   assert.doesNotMatch(footer, /HomepageShowcase/);
   assert.match(footerCta, /href="\/book-client-call"/);

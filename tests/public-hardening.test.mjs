@@ -39,7 +39,7 @@ test("public accessibility defaults include keyboard focus and reduced motion", 
   assert.match(styles, /prefers-reduced-motion: reduce/);
   assert.match(styles, /\.skip-link:focus-visible/);
   assert.match(nav, /aria-label="Navigation menu"/);
-  assert.match(cta, /aria-label="Dismiss booking prompt"/);
+  assert.match(cta, /aria-label="Dismiss contact prompt"/);
   assert.match(avatar, /width=\{pixels\}/);
   assert.match(avatar, /height=\{pixels\}/);
   assert.match(avatar, /loading="lazy"/);

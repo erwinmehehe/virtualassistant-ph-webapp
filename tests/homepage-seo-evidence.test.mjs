@@ -19,7 +19,8 @@ test("homepage does not render the removed live talent statistics block or its e
 
 test("homepage explains Philippines hiring intent high on the page and links to commercial journeys", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /Why hire a Virtual Assistant in the Philippines\?/);
+  assert.match(home, /Why the Philippines/);
+  assert.match(home, /A global hub for experienced virtual assistants\./);
   for (const href of [
     "/hire",
     "/find-talent",
@@ -52,14 +53,15 @@ test("homepage service headings use explicit Virtual Assistant entities", () => 
   assert.match(home, /GROUP_DISPLAY_NAMES\[group\]/);
 });
 
-test("homepage visible FAQ covers commercial hiring questions without obsolete FAQ rich-result schema", () => {
+test("homepage visible FAQ covers commercial hiring questions and emits matching FAQ schema", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /How much does a Virtual Assistant in the Philippines cost\?/);
-  assert.match(home, /How do you vet Filipino Virtual Assistants\?/);
-  assert.match(home, /Can a Filipino Virtual Assistant work US, UK, or Australian business hours\?/);
-  assert.match(home, /What tasks can a Filipino Virtual Assistant handle\?/);
-  assert.match(home, /Can I interview candidates before hiring\?/);
-  assert.doesNotMatch(home, /FAQPage/);
+  assert.match(home, /What does it cost to get started\?/);
+  assert.match(home, /How fast can my virtual assistant start\?/);
+  assert.match(home, /What if my virtual assistant is not the right fit\?/);
+  assert.match(home, /What hours do Filipino virtual assistants work\?/);
+  assert.match(home, /How do you screen and vet candidates\?/);
+  assert.match(home, /\"@type\": \"FAQPage\"/);
+  assert.match(home, /mainEntity: faqs\.map/);
 });
 
 test("homepage Organization schema carries useful entity context and removes obsolete search action markup", () => {
@@ -77,9 +79,9 @@ test("homepage comparison is a compact three-card premium choice section", () =>
   const home = source("src/app/page.tsx");
   const css = source("src/app/homepage-seo-evidence.css");
   assert.match(home, /pva-compare-section/);
-  assert.match(home, /Choose the hiring model that gives you the right level of control/);
+  assert.match(home, /Reliable support without the hiring headache\./);
   assert.match(home, /pva-compare-card pva-compare-featured/);
-  assert.match(home, /Compare hiring options/);
+  assert.match(home, /Compare your options/);
   assert.match(css, /grid-template-columns: repeat\(3, minmax\(0,1fr\)\)/);
   assert.match(css, /linear-gradient\(145deg,#312e81 0%,#4f46e5 58%,#5b21b6 100%\)/);
 });

@@ -11,7 +11,7 @@ const clientSuccess = read("src/app/workspace/client-success/page.tsx");
 // Authenticated workspace links are intentionally click-to-load. The production
 // regression was caused by eager prefetch multiplying auth and server data work.
 test("workspace navigation does not eagerly prefetch every authenticated route", () => {
-  assert.match(nav, /<Link prefetch=\{false\} href=\{href\}/);
+  assert.match(nav, /<Link[\s\S]*?prefetch=\{false\}[\s\S]*?href=\{href\}/);
 });
 
 test("shared dashboard cards and signal links avoid background route prefetch", () => {
@@ -28,6 +28,3 @@ test("recruiter overview does not preload record-level action pages", () => {
 test("Client Success queue does not prefetch every placement detail", () => {
   assert.match(clientSuccess, /<Link prefetch=\{false\} className="card" href=\{`\/workspace\/client-success\/\$\{r\.id\}`\}/);
 });
-
-// Keep this test file touched when upstream workspace-layout fixes move so the
-// PR merge ref is regenerated against the newest main before release checks run.

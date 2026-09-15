@@ -40,20 +40,24 @@ export function RoleBriefForm({
   const resolvedSent = sent ?? urlState.sent ?? false;
   const formId = `role-brief-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const entryBudget = `USD ${MIN_HOURLY_RATE} to 8/hour`;
+  const resolvedHeading =
+    sourcePath === "/" && heading === "Get a vetted shortlist"
+      ? "Get your free virtual assistant match"
+      : heading;
 
   if (resolvedSent) {
     return (
       <div className="card compact-hire-form role-brief-sent" role="status">
         <h2>Hiring request received</h2>
         <p className="muted">Our recruiting team will review the role, screen for fit, and follow up using the contact details you provide. You do not need to create an account to get started.</p>
-        <a className="btn btn-primary" href="/book-client-call">Book a client discovery call</a>
+        <a className="btn btn-primary" href="/book-client-call">Discuss your VA needs</a>
       </div>
     );
   }
 
   return (
     <form id={formId} action={submitRoleBriefAction} className="card stack compact-hire-form">
-      <div className="compact-hire-form-head"><h2>{heading}</h2><p className="small muted">{subheading}</p></div>
+      <div className="compact-hire-form-head"><h2>{resolvedHeading}</h2><p className="small muted">{subheading}</p></div>
       {resolvedError ? <div className="alert" role="alert">{resolvedError}</div> : null}
       <AttributionFields sourcePath={sourcePath} />
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off"/></label></div>
@@ -93,7 +97,7 @@ export function RoleBriefForm({
         <div className="field"><label htmlFor="rb-phone">Phone / WhatsApp <span className="muted">(optional)</span></label><input id="rb-phone" name="phone" type="tel" autoComplete="tel" maxLength={50} placeholder="+1 555 123 4567"/></div>
       </div>
 
-      <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{heading}</button>
+      <button className="btn btn-primary compact-hire-submit" type="submit" data-track="role_brief_submit">{resolvedHeading}</button>
       <FormDraftPersistence formId={formId} storageKey={sourcePath} />
       <p className="small muted role-brief-note">Private hiring request. No account is required to start the search.</p>
     </form>

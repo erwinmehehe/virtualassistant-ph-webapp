@@ -6,8 +6,9 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("recruiter navigation exposes focused daily operations without a command palette", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
-  for (const label of ["My Day", "Agenda", "Tasks", "Notifications"]) assert.match(nav, new RegExp(`\\["${label}"`));
-  assert.match(nav, /label: "Daily work"/);
+  assert.ok(nav.includes('["My Day", "/workspace/recruiter/today"'));
+  for (const removed of ["Agenda", "Tasks", "Notifications"]) assert.ok(!nav.includes(`["${removed}",`));
+  assert.match(nav, /label: "Workspace"/);
   assert.doesNotMatch(nav, /Command palette|Cmd\+K|Ctrl\+K/);
 });
 

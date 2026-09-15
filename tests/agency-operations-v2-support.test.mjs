@@ -44,9 +44,9 @@ test("client VA and Client Success surfaces complete the support loop",()=>{
   assert.match(csSupport,/Support queue/);
   assert.match(csSupport,/resolvePlacementSupportRequestAction/);
   assert.match(supportActions,/workspace\/client-success\/support\?request=/);
-  assert.match(nav,/\["Support", "\/workspace\/client\/support"/);
-  assert.match(nav,/\["Schedule & support", "\/workspace\/va\/support"/);
-  assert.match(nav,/\["Support queue", "\/workspace\/client-success\/support"/);
+  assert.ok(!nav.includes('["Support", "/workspace/client/support"'));
+  assert.ok(!nav.includes('["Schedule & support", "/workspace/va/support"'));
+  assert.ok(!nav.includes('["Support queue", "/workspace/client-success/support"'));
 });
 
 test("work readiness is private VA evidence with recruiter verification",()=>{
@@ -61,6 +61,6 @@ test("work readiness is private VA evidence with recruiter verification",()=>{
   assert.match(recruiterReadiness,/Verify work setup/);
   assert.match(clientTeam,/Work setup verified/);
   assert.doesNotMatch(clientTeam,/primary_internet|backup_internet|work_setup_computer/);
-  assert.match(nav,/\["Work readiness", "\/workspace\/va\/work-readiness"/);
-  assert.match(nav,/\["Work readiness", "\/workspace\/recruiter\/work-readiness"/);
+  assert.doesNotMatch(nav,/\["Work readiness", "\/workspace\/va\/work-readiness"/);
+  assert.doesNotMatch(nav,/\["Work readiness", "\/workspace\/recruiter\/work-readiness"/);
 });

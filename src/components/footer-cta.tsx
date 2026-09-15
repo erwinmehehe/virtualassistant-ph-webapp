@@ -18,7 +18,7 @@ export function FooterCta() {
       <div className="va-footer-actions">
         <Link className="btn btn-primary" href="/hire">Get matched <ArrowRight size={15}/></Link>
         <Link className="btn va-footer-outline" href="/find-talent">Browse Virtual Assistants</Link>
-        <Link className="btn va-footer-outline" href="/book-client-call" data-track="booking_click"><CalendarDays size={15}/> Book a discovery call</Link>
+        <Link className="btn va-footer-outline" href="/book-client-call" data-track="booking_click"><CalendarDays size={15}/> Discuss your VA needs</Link>
       </div>
     </div>
   );

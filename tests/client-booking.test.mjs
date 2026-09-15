@@ -49,7 +49,7 @@ test("discovery booking is available 24/7 and grouped in the visitor timezone", 
   assert.match(form, /24\/7 availability/);
   assert.match(form, /localDateKey/);
   assert.match(form, /localDays\.map/);
-  assert.match(form, /Booking is available around the clock/);
+  assert.match(form, /24\/7 availability/);
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {

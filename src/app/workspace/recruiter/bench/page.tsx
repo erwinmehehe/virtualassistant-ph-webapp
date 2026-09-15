@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Clock3, ShieldCheck, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
 import { addBenchMemberAction, updateBenchMemberAction } from "@/app/actions/vetting";
 import { requireRole } from "@/lib/auth";
 import { DEFAULT_BENCH_TARGET, VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";

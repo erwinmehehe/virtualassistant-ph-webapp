@@ -7,10 +7,10 @@ const page = read("src/app/workspace/recruiter/bench/page.tsx");
 const model = read("src/lib/talent-operations.ts");
 const nav = read("src/components/app-nav-links.tsx");
 
-test("Talent OS reuses the existing bench destination instead of adding navigation clutter", () => {
-  assert.match(nav, /\["Talent OS", "\/workspace\/recruiter\/bench", UsersRound\]/);
+test("Talent OS stays contextual behind the durable Talent workspace", () => {
+  assert.match(nav, /\["Talent", "\/workspace\/recruiter\/talent", Search\]/);
   assert.doesNotMatch(nav, /\/workspace\/recruiter\/talent-operations/);
-  assert.match(nav, /<Link prefetch=\{false\} href=\{href\}/);
+  assert.match(nav, /<Link[\s\S]*prefetch=\{false\}[\s\S]*href=\{href\}/);
 });
 
 test("client-ready status requires recorded operational evidence", () => {

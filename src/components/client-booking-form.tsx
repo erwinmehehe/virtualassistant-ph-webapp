@@ -150,7 +150,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
             </div>
             {localDays.length ? (
               <>
-                <div className="booking-date-tabs" role="tablist" aria-label="Available discovery call dates">
+                <div className="booking-date-tabs" role="tablist" aria-label="Available conversation dates">
                   {localDays.map((day) => (
                     <button
                       key={day.dateKey}
@@ -178,10 +178,10 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                     </button>
                   ))}
                 </div>
-                <p className="booking-time-note">Booking is available around the clock in 30-minute slots. Times are shown in your local timezone, and your confirmation also includes Asia/Manila for our recruiting team.</p>
+                <p className="booking-time-note">Scheduling is available around the clock in 30-minute slots. Times are shown in your local timezone, and your confirmation also includes Asia/Manila for our recruiting team.</p>
               </>
             ) : (
-              <div className="booking-no-slots">No online slots are currently available. Please use the hiring request form and our team will contact you.</div>
+              <div className="booking-no-slots">No online times are currently available. Please use the hiring request form and our team will contact you.</div>
             )}
           </div>
 
@@ -189,7 +189,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
             <div className="booking-section-title">
               <span>Step 3 of 3</span>
               <h3>Tell us what you need</h3>
-              <p>Your answers let us prepare before the call.</p>
+              <p>Your answers let us prepare before we talk.</p>
             </div>
 
             {error ? <div className="alert error" role="alert">{error}</div> : null}
@@ -252,9 +252,9 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
             </div>
 
             <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot || !localDays.length}>
-              Confirm client discovery call
+              Confirm this time
             </button>
-            <p className="small muted booking-consent">By booking, you agree that our hiring team may contact you about this request. No payment is required.</p>
+            <p className="small muted booking-consent">By scheduling, you agree that our hiring team may contact you about this request. No payment is required.</p>
           </div>
         </form>
       ) : null}

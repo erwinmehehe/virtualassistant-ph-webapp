@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchLabel } from "@/lib/matching";
 import { uniqueStrings } from "@/lib/collections";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
 
 export default async function CompareCandidatesPage({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}){
   const query=await searchParams;
@@ -18,7 +19,12 @@ export default async function CompareCandidatesPage({searchParams}:{searchParams
       .select("id,job_id,jobs!inner(id,title,status,client_id)")
       .in("id",ids)
       .eq("jobs.client_id",user.id);
-    const allowedIds=(summaries||[]).filter((row:any)=>row.jobs?.status==="published").map((row:any)=>row.id);
+    const jobIds=[...new Set((summaries||[]).map((row:any)=>String(row.job_id)).filter(Boolean))];
+    const {data:accessRows}=jobIds.length
+      ? await admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds)
+      : {data:[]};
+    const accessMap=new Map((accessRows||[]).map((row:any)=>[row.job_id,row.access_status]));
+    const allowedIds=(summaries||[]).filter((row:any)=>row.jobs?.status==="published"&&candidateAccessUnlocked(accessMap.get(row.job_id))).map((row:any)=>row.id);
     excludedCount=(summaries||[]).length-allowedIds.length;
     if(allowedIds.length){
       const {data}=await admin.from("applications")
@@ -31,9 +37,9 @@ export default async function CompareCandidatesPage({searchParams}:{searchParams
 
   const jobTitles=new Set(candidates.map((candidate)=>candidate.jobs?.title).filter(Boolean));
   return <>
-    <div className="page-head"><div><div className="row wrap"><Link className="text-link small" href="/workspace/client/candidates">← Candidates</Link></div><h1>Compare candidates</h1><p>Compare evidence, availability, and role fit for candidates attached to approved hiring requests.</p></div></div>
-    {excludedCount?<div className="alert" style={{marginBottom:16}}>{excludedCount} selected candidate{excludedCount===1?" was":"s were"} excluded because that role is still in review.</div>:null}
-    {candidates.length<2?<div className="card empty"><p>Select at least two candidates from approved roles.</p><Link className="btn btn-primary" href="/workspace/client/candidates">Choose candidates</Link></div>:<>
+    <div className="page-head"><div><div className="row wrap"><Link className="text-link small" href="/workspace/client/candidates">← Candidates</Link></div><h1>Compare candidates</h1><p>Compare evidence, availability, and role fit for candidates attached to approved hiring requests with active candidate access.</p></div></div>
+    {excludedCount?<div className="alert" style={{marginBottom:16}}>{excludedCount} selected candidate{excludedCount===1?" was":"s were"} excluded because the role is still in review or candidate access is not active.</div>:null}
+    {candidates.length<2?<div className="card empty"><p>Select at least two candidates from roles with active candidate access.</p><Link className="btn btn-primary" href="/workspace/client/candidates">Choose candidates</Link></div>:<>
       {jobTitles.size>1?<div className="alert" style={{marginBottom:16}}>You selected candidates from different roles. Each fit score was calculated against its own hiring request.</div>:null}
       <div className="compare-grid">{candidates.map((application:any)=>{const profile=application.profile_snapshot||{};const score=Number(application.match_score||0);return <article className="card stack" key={application.id}>
         <div><span className="badge">{String(application.status).replaceAll("_"," ")}</span><h2 style={{margin:"10px 0 2px"}}>{profile.full_name||"Virtual Assistant applicant"}</h2><p className="muted" style={{margin:0}}>{profile.headline||profile.primary_category||"Virtual Assistant"}</p></div>

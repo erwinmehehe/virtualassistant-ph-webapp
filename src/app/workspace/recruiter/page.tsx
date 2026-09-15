@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const SIGNUP_WEEKS = 10;
 const QUEUE_PREVIEW = 5;
-const PRIORITY_TONE: Record<string, Tone> = { urgent: "rose", high: "amber", medium: "indigo", low: "slate" };
+const PRIORITY_TONE: Record<string, Tone> = { urgent: "rose", high: "amber", medium: "indigo", normal: "slate", low: "slate" };
 const RESULT_WORD: Record<string, string> = {
   approve: "approved", approve_publish: "approved", reject: "rejected", bench: "moved to bench",
   request_changes: "sent back for changes", hide: "hidden", remind: "reminded", assign: "assigned", mark_reviewed: "marked reviewed"
@@ -45,6 +45,20 @@ type RecruiterDashboardOverview = {
 };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+function exactActionHref(item: any) {
+  const meta = item?.metadata || {};
+  if (meta.subject_type === "job" && meta.subject_id) return `/workspace/recruiter/matching/${meta.subject_id}`;
+  if (meta.subject_type === "va" && meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
+  if (["role_review", "role_without_shortlist", "client_shortlist_waiting", "all_candidates_passed", "client_response_overdue", "interview_today", "interview_feedback_missing", "offer_waiting_va", "offer_waiting_client"].includes(String(item?.kind)) && item?.id) return `/workspace/recruiter/matching/${item.id}`;
+  if (item?.kind === "candidate_capacity_conflict" && item?.id) return `/workspace/recruiter/candidates/${item.id}`;
+  return item?.href || "/workspace/recruiter/today";
+}
+
+function queueTimeLabel(value?: string | null) {
+  if (!value) return "Needs action";
+  return new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(value));
+}
 
 function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; queueRows: any[] }) {
   return <Panel
@@ -122,7 +136,7 @@ function RecruiterDashboardFallback() {
         <div className="workspace-skeleton-card" />
       </div>
       <div className="dash-grid recruiter-priority-grid">
-        <Panel title="Today’s priority actions" subtitle="Loading live client and hiring signals">
+        <Panel title="Next actions" subtitle="Loading your exact current work">
           <div className="workspace-skeleton-card" />
         </Panel>
         <Panel title="Hiring and talent signals" subtitle="Loading live workspace data">
@@ -187,30 +201,23 @@ async function RecruiterAnalytics({ metrics }: { metrics: Partial<RecruiterDashb
   </details>;
 }
 
-async function RecruiterDashboardContent() {
+async function RecruiterDashboardContent({ userId }: { userId: string }) {
   const admin = createAdminClient();
-  const { data, error } = await admin.rpc("recruiter_dashboard_overview", { p_queue_limit: QUEUE_PREVIEW });
+  const [{ data, error }, { data: myDayData, error: myDayError }] = await Promise.all([
+    admin.rpc("recruiter_dashboard_overview", { p_queue_limit: QUEUE_PREVIEW }),
+    admin.rpc("recruiter_today_queue", { p_user_id: userId, p_limit: 5 })
+  ]);
   if (error) throw error;
+  if (myDayError) throw myDayError;
 
   const overview = (data || {}) as RecruiterDashboardOverview;
   const metrics = overview.metrics || {};
   const queueRows = Array.isArray(overview.vetting_queue) ? overview.vetting_queue : [];
   const jobs = Array.isArray(overview.roles_needing_matching) ? overview.roles_needing_matching : [];
+  const nextActions = Array.isArray(myDayData) ? myDayData.slice(0, 5) : [];
   const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
   const unreviewed = value("unreviewed");
   const rolesWithoutCandidates = value("roles_without_candidates");
-
-  const today = [
-    { priority: "urgent", title: "Client leads need first contact", count: value("untouched_leads"), copy: "Reply first. The CRM tracks a 30-minute first-response target.", href: "/workspace/recruiter/leads?view=attention" },
-    { priority: "urgent", title: "Client follow-ups are due", count: value("followups_due"), copy: "Open overdue follow-ups before working lower-value queues.", href: "/workspace/recruiter/leads?view=attention" },
-    { priority: "high", title: "Discovery calls today / tomorrow", count: value("discovery_next_two_days"), copy: "Review the brief before the call, qualify the client, then send the proposal while intent is high.", href: "/workspace/recruiter/leads?view=discovery" },
-    { priority: "urgent", title: "New client roles", count: value("pending_jobs"), copy: "Review submitted hiring briefs, confirm terms, and begin matching.", href: "/workspace/recruiter/matching" },
-    { priority: "high", title: "Roles waiting for candidates", count: rolesWithoutCandidates, copy: "Open the role and work from the recommended candidate list.", href: "/workspace/recruiter/matching?view=needs_candidates" },
-    { priority: "medium", title: "Vetted VAs not yet listed", count: value("vetted_hidden"), copy: "Screening is done but the profile is incomplete. Send a reminder naming what is missing.", href: "/workspace/recruiter/talent?readiness=vetted_hidden" },
-    { priority: "medium", title: "VAs waiting for review", count: unreviewed, copy: "Complete screening so strong talent can become matchable.", href: "/workspace/recruiter/queue" },
-    { priority: "low", title: "Client decisions to follow up", count: value("released_shortlists"), copy: "Check released shortlists and unblock the next hiring step.", href: "/workspace/recruiter/matching" }
-  ];
-  const openActions = today.reduce((total, item) => total + item.count, 0);
 
   return (
     <>
@@ -223,16 +230,21 @@ async function RecruiterDashboardContent() {
 
       <div className="dash-grid recruiter-priority-grid">
         <div className="dash-col">
-          <Panel title="Today’s priority actions" subtitle="Ordered by what is blocking a client, candidate, or active role" action={<Pill tone={openActions ? "amber" : "emerald"}>{plural(openActions, "open action")}</Pill>}>
-            <div className="dash-actions">
-              {today.map((item) => (
-                <Link key={item.title} href={item.href} className={`dash-action${item.count ? "" : " clear"}`}>
-                  <span className="dash-action-count">{item.count}</span>
-                  <span className="dash-action-copy"><span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority]} dot={false}>{item.priority}</Pill></span><small>{item.copy}</small></span>
-                  <span className="dash-action-go">{item.count ? <ArrowRight size={16} aria-label="Open" /> : "Clear"}</span>
-                </Link>
-              ))}
-            </div>
+          <Panel title="Next actions" subtitle="Your highest-priority current work. Click any item to open the exact record." action={<Link className="dash-link" href="/workspace/recruiter/today">View all My Day <ArrowRight size={14}/></Link>}>
+            {nextActions.length ? <div className="dash-actions">
+              {nextActions.map((item: any) => {
+                const href = exactActionHref(item);
+                return <Link key={`${item.kind}-${item.id}`} href={href} className="dash-action">
+                  <span className="dash-action-count"><Clock3 size={15}/></span>
+                  <span className="dash-action-copy">
+                    <span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority] || "slate"} dot={false}>{item.priority || "normal"}</Pill></span>
+                    <small>{item.subtitle || "Open this item and complete the next step."}</small>
+                    <small className="muted">{queueTimeLabel(item.due_at)}</small>
+                  </span>
+                  <span className="dash-action-go"><ArrowRight size={16} aria-label="Act now" /></span>
+                </Link>;
+              })}
+            </div> : <Empty title="You’re caught up" desc="No current recruiter action is waiting right now." />}
           </Panel>
           <RecruiterVettingQueue unreviewed={unreviewed} queueRows={queueRows}/>
         </div>
@@ -245,7 +257,7 @@ async function RecruiterDashboardContent() {
               { label: "Active client roles", count: value("active_jobs"), href: "/workspace/recruiter/matching", icon: <BriefcaseBusiness size={16} />, hint: `${rolesWithoutCandidates} with no candidates yet` },
               { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" },
               { label: "New applications", count: value("new_apps"), href: "/workspace/recruiter/matching?view=applications", icon: <CheckCircle2 size={16} />, hint: "Across all roles" },
-              { label: "Unread messages", count: value("unread_messages"), href: "/workspace/recruiter/activity?type=messages", icon: <MessageSquare size={16} />, hint: "Marketplace-wide activity" }
+              { label: "Unread messages", count: value("unread_messages"), href: "/workspace/recruiter/activity?type=messages", icon: <MessageSquare size={16} />, hint: "Managed-agency activity" }
             ]} />
           </Panel>
         </div>
@@ -259,7 +271,7 @@ async function RecruiterDashboardContent() {
 }
 
 export default async function RecruiterDashboard({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireRoleFast("recruiter");
+  const { userId } = await requireRoleFast("recruiter");
   const params = await searchParams;
 
   return (
@@ -267,10 +279,10 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       <DashHeader
         kicker="Recruiter control center"
         title="Today’s work"
-        subtitle={<>Revenue first: respond to new clients, unblock active roles, then work the talent pipeline. <span className="dash-freshness">Live data · refreshed when this page opened · streaming now</span></>}
+        subtitle={<>Open this page and work top to bottom. The first item is the next thing that needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>}
         actions={<>
           <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
-          <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/matching"><Sparkles size={15} aria-hidden="true" /> Match active roles</Link>
+          <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/today"><Sparkles size={15} aria-hidden="true" /> Open My Day</Link>
         </>}
       />
 
@@ -279,7 +291,7 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       {params.bulk_error ? <Notice tone="error">{params.bulk_error}</Notice> : null}
 
       <Suspense fallback={<RecruiterDashboardFallback />}>
-        <RecruiterDashboardContent />
+        <RecruiterDashboardContent userId={userId} />
       </Suspense>
     </div>
   );

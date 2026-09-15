@@ -1,38 +1,17 @@
-/* Workspace overflow and detail-page resilience.
-   Use one explicit vertical scroll owner for authenticated workspaces so long
-   recruiter/detail pages always scroll while the sidebar stays stable. */
+/* Workspace layout resilience.
+   Keep one natural document scroll path and only fix the elements that can
+   force recruiter/detail pages wider than the viewport. */
 .dashboard-shell {
   width: 100%;
-  max-width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
+  max-width: 100%;
+  min-height: 100dvh;
 }
 
-.dashboard-shell .app-sidebar {
-  min-height: 0;
-  max-height: 100vh;
-  max-height: 100dvh;
-}
-
-.dashboard-shell .app-main {
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-  height: 100vh;
-  height: 100dvh;
-  overflow-x: clip;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-}
-
+.dashboard-shell .app-main,
 .dashboard-shell .app-content {
   width: 100%;
   min-width: 0;
-  max-width: 1480px;
-  height: auto;
-  overflow: visible;
+  max-width: 100%;
 }
 
 /* Recruiter candidate and other two-column profile/detail screens. */
@@ -47,7 +26,9 @@
 .dashboard-shell .profile-layout .stack,
 .dashboard-shell .profile-layout .card,
 .dashboard-shell .profile-sidebar,
-.dashboard-shell .profile-sidebar > * {
+.dashboard-shell .profile-sidebar > *,
+.dashboard-shell .page-head > *,
+.dashboard-shell .row > * {
   min-width: 0;
   max-width: 100%;
 }
@@ -63,7 +44,8 @@
 
 .dashboard-shell .contact-email-link,
 .dashboard-shell .profile-layout p,
-.dashboard-shell .profile-layout strong {
+.dashboard-shell .profile-layout strong,
+.dashboard-shell .profile-layout a {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -87,20 +69,9 @@
   }
 }
 
+/* This only changes the profile cards. The shell itself keeps the app's real
+   680px mobile breakpoint from globals.css/dashboard-premium.css. */
 @media (max-width: 760px) {
-  .dashboard-shell {
-    display: block;
-    height: 100vh;
-    height: 100dvh;
-  }
-
-  .dashboard-shell .app-main {
-    height: 100vh;
-    height: 100dvh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .dashboard-shell .profile-sidebar {
     grid-template-columns: minmax(0, 1fr);
   }

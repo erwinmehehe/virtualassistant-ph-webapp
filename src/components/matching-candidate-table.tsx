@@ -16,8 +16,6 @@ type Row = {
   shortlist: any;
   score: number;
   confidence: number;
-  availabilityAgeDays?: number | null;
-  availabilityFresh?: boolean;
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
@@ -47,7 +45,7 @@ function decisionLabel(value?: string | null) {
   return null;
 }
 
-export function MatchingCandidateTable({ pool, hideShortlistCandidateAction, saveClientRecommendationAction, requestVaAvailabilityConfirmationAction, markVaAvailabilityConfirmedAction }: { pool: Row[]; hideShortlistCandidateAction: FormAction; saveClientRecommendationAction: FormAction; requestVaAvailabilityConfirmationAction: FormAction; markVaAvailabilityConfirmedAction: FormAction }) {
+export function MatchingCandidateTable({ pool, hideShortlistCandidateAction, saveClientRecommendationAction }: { pool: Row[]; hideShortlistCandidateAction: FormAction; saveClientRecommendationAction: FormAction; requestVaAvailabilityConfirmationAction: FormAction; markVaAvailabilityConfirmedAction: FormAction }) {
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
 
@@ -82,7 +80,7 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction, sav
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div><div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>{hasConflict?<div className="small" style={{marginTop:8}}><strong>Check capacity:</strong>{row.otherClientReviews ? ` also with ${row.otherClientReviews} client role${row.otherClientReviews===1?"":"s"}.` : ""}{row.activeProcessCount ? ` ${row.activeProcessCount} active interview/offer process${row.activeProcessCount===1?"":"es"}.` : ""}{row.potentialCommittedHours ? ` ${row.potentialCommittedHours} hrs/week potentially committed.` : ""}</div>:null}</td>
           <td data-label="Match"><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></td>
-          <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span><div className="small muted">{row.availabilityFresh ? `Confirmed ${row.availabilityAgeDays === 0 ? "today" : `${row.availabilityAgeDays}d ago`}` : row.availabilityAgeDays != null ? `Last confirmed ${row.availabilityAgeDays}d ago` : "Needs confirmation"}</div><div className="row wrap" style={{marginTop:6}}>{!row.availabilityFresh?<button className="text-button" type="submit" formAction={requestVaAvailabilityConfirmationAction} name="availability_va_id" value={row.va.user_id}>Ask VA</button>:null}<button className="text-button" type="submit" formAction={markVaAvailabilityConfirmedAction} name="availability_va_id" value={row.va.user_id}>Mark confirmed</button></div></td>
+          <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span><div className="small muted">From the VA's current profile</div></td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>
           <td data-label="Client recommendation"><textarea name={`recommendation_${row.va.user_id}`} defaultValue={row.shortlist?.client_recommendation || ""} maxLength={500} rows={3} placeholder="Why this VA is a strong fit for this client..."/><button className="text-button" type="submit" formAction={saveClientRecommendationAction} name="recommendation_va_id" value={row.va.user_id}>Save client note</button></td>

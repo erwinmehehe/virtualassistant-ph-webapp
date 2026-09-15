@@ -1,0 +1,184 @@
+/* Homepage growth content and comparison refinements. Scoped to .pva-home. */
+.pva-home .pva-philippines-grid {
+  align-items: start;
+}
+
+.pva-home .pva-reason-grid.pva-why-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem;
+}
+
+.pva-home .pva-reason-grid.pva-why-grid::after {
+  grid-column: 1 / -1;
+  content: "Recruiter screened  •  Matched to your role and schedule  •  You make the final hiring decision";
+}
+
+.pva-home .pva-why-grid .pva-reason-card,
+.pva-home .pva-why-grid .pva-reason-card:nth-child(1) {
+  display: block;
+  min-height: 0;
+  padding: 1.25rem;
+  border: 1px solid #e3e8f2;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 32px rgba(15,23,42,.045);
+}
+
+.pva-home .pva-why-grid .pva-reason-card::before,
+.pva-home .pva-why-grid .pva-reason-card::after {
+  display: none;
+}
+
+.pva-home .pva-why-grid .pva-reason-card h3,
+.pva-home .pva-why-grid .pva-reason-card p {
+  grid-column: auto;
+}
+
+.pva-home .pva-why-grid .pva-reason-icon {
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  margin-bottom: .8rem;
+  border-radius: .8rem;
+  background: linear-gradient(145deg,#eef2ff,#f5f3ff);
+  font-size: 1.1rem;
+}
+
+.pva-home .pva-seo-story {
+  border-top: 1px solid #edf1f6;
+  border-bottom: 1px solid #edf1f6;
+  background: linear-gradient(180deg,#fbfcff,#f8fafc);
+}
+
+.pva-home .pva-seo-story-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.pva-home .pva-seo-story-intro {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.pva-home .pva-seo-story-intro h2 {
+  margin: .65rem 0 1rem;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  line-height: 1.03;
+  letter-spacing: -.045em;
+}
+
+.pva-home .pva-seo-story-intro p,
+.pva-home .pva-seo-story-copy p {
+  color: #526178;
+  line-height: 1.75;
+}
+
+.pva-home .pva-story-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: .7rem;
+  margin-top: 1.25rem;
+}
+
+.pva-home .pva-story-points div {
+  padding: .9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.pva-home .pva-story-points strong,
+.pva-home .pva-story-points span {
+  display: block;
+}
+
+.pva-home .pva-story-points strong {
+  color: #312e81;
+  font-size: .88rem;
+}
+
+.pva-home .pva-story-points span {
+  margin-top: .2rem;
+  color: #64748b;
+  font-size: .7rem;
+  line-height: 1.45;
+}
+
+.pva-home .pva-seo-story-copy {
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  border: 1px solid #e2e8f0;
+  border-radius: 1.4rem;
+  background: #fff;
+  box-shadow: 0 20px 46px rgba(15,23,42,.05);
+}
+
+.pva-home .pva-seo-story-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.pva-home .cro-cost-compare-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: .7rem;
+}
+
+.pva-home .cro-cost-compare-results > div {
+  min-width: 0;
+  padding: .8rem;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: .8rem;
+  background: rgba(255,255,255,.1);
+}
+
+.pva-home .cro-cost-compare-results span,
+.pva-home .cro-cost-compare-results strong {
+  display: block;
+}
+
+.pva-home .cro-cost-compare-results span {
+  margin-bottom: .3rem;
+}
+
+.pva-home .pva-cost-options .pva-compare-card {
+  min-height: 280px;
+}
+
+.pva-home .pva-cost-options .pva-compare-card ul {
+  display: grid;
+  gap: .55rem;
+  margin: .9rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: #64748b;
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.pva-home .pva-cost-options .pva-compare-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: .48rem;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.pva-home .pva-cost-options .pva-compare-card li strong {
+  color: #0f172a;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .pva-home .pva-reason-grid.pva-why-grid,
+  .pva-home .pva-seo-story-grid {
+    grid-template-columns: 1fr;
+  }
+  .pva-home .pva-seo-story-intro { position: static; }
+  .pva-home .cro-cost-compare-results { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .pva-home .pva-story-points { grid-template-columns: 1fr; }
+  .pva-home .pva-reason-grid.pva-why-grid { grid-template-columns: 1fr; }
+}

@@ -32,7 +32,7 @@ export default async function PricingPage(){
           <p className="pricing-hero-support">Choose managed support or direct hire. We review the role, hours, budget, and schedule first so you can see the real hiring cost before moving forward.</p>
           <div className="pricing-hero-actions">
             <Link className="btn btn-primary" href="/hire">Get Your Shortlist <ArrowRight size={16}/></Link>
-            <Link className="btn" href="/book-client-call">Book a Hiring Call</Link>
+            <Link className="btn" href="/book-client-call">Talk to Our Team</Link>
           </div>
           <div className="pricing-trust-row" aria-label="Pricing assurances">
             <span><CheckCircle2 size={15}/>VA compensation shown separately</span>

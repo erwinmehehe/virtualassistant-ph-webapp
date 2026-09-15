@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const read = (path) => readFileSync(path, "utf8");
+const nav = read("src/components/app-nav-links.tsx");
+const dashUi = read("src/components/dash-ui.tsx");
+const recruiter = read("src/app/workspace/recruiter/page.tsx");
+
+test("workspace navigation does not eagerly prefetch every authenticated route", () => {
+  assert.match(nav, /<Link prefetch=\{false\} href=\{href\}/);
+});
+
+test("shared dashboard cards and signal links avoid background route prefetch", () => {
+  assert.match(dashUi, /href \? <Link prefetch=\{false\} className="dash-stat"/);
+  assert.match(dashUi, /<Link prefetch=\{false\} className="dash-signal"/);
+});
+
+test("recruiter overview does not preload record-level action pages", () => {
+  assert.match(recruiter, /<Link prefetch=\{false\} key=\{`\$\{item\.kind\}-\$\{item\.id\}`\}/);
+  assert.match(recruiter, /<Link prefetch=\{false\} className="dash-list-row" href=\{`\/workspace\/recruiter\/matching\/\$\{job\.id\}`\}/);
+  assert.match(recruiter, /<Link prefetch=\{false\} className="dash-btn dash-btn-light" href=\{`\/workspace\/recruiter\/candidates\/\$\{row\.va_id\}`\}/);
+});

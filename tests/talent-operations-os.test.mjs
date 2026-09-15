@@ -8,7 +8,7 @@ const model = read("src/lib/talent-operations.ts");
 const nav = read("src/components/app-nav-links.tsx");
 
 test("Talent OS reuses the existing bench destination instead of adding navigation clutter", () => {
-  assert.match(nav, /\["Talent OS", "\/workspace\/recruiter\/bench", UsersRound\]/);
+  assert.match(nav, /\["Talent", "\/workspace\/recruiter\/bench", UsersRound\]/);
   assert.doesNotMatch(nav, /\/workspace\/recruiter\/talent-operations/);
   assert.match(nav, /<Link prefetch=\{false\} href=\{href\}/);
 });

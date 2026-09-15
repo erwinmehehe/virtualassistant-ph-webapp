@@ -16,9 +16,28 @@ test("workspace shell leaves the page-level h1 to route content", () => {
   assert.match(recruiter, /<DashHeader/);
 });
 
-test("desktop and mobile navigation use labelled groups", () => {
-  for (const label of ["Hiring", "My team", "Account", "Get recruiter-ready", "Recruiter opportunities", "Agency operations", "Talent operations", "Insights"]) {
-    assert.match(nav, new RegExp(`label: "${label}"`));
+test("desktop and mobile navigation use simplified durable workspace groups", () => {
+  assert.equal((nav.match(/label: "Workspace"/g) || []).length, 4);
+  for (const label of [
+    "Overview",
+    "Hiring",
+    "My Team",
+    "Home",
+    "Opportunities",
+    "My Day",
+    "Leads",
+    "Roles",
+    "Talent",
+    "Client Success",
+    "Finance",
+    "Analytics",
+    "Users",
+    "Settings",
+  ]) {
+    assert.match(nav, new RegExp(`\\["${label}",`));
+  }
+  for (const removedGroup of ["Get recruiter-ready", "Recruiter opportunities", "Agency operations", "Talent operations", "Insights"]) {
+    assert.doesNotMatch(nav, new RegExp(`label: "${removedGroup}"`));
   }
   assert.match(nav, /mobile-more-group/);
   assert.match(css, /max-height: min\(70vh/);

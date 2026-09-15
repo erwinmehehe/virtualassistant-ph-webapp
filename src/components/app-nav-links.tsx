@@ -21,7 +21,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     { label: "Account", items: [["Notifications", "/workspace/va/notifications", Bell],["Payouts", "/workspace/va/payments", CircleDollarSign]]}
   ],
   recruiter: [
-    { label: "Client pipeline", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/matching", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound]]},
+    { label: "Agency operations", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/roles", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound],["Placements", "/workspace/recruiter/placements", Wrench]]},
     { label: "Daily work", items: [["Agenda", "/workspace/recruiter/agenda", CalendarDays],["Tasks", "/workspace/recruiter/tasks", ListTodo],["Notifications", "/workspace/recruiter/notifications", Bell]]},
     { label: "Talent operations", items: [["Talent", "/workspace/recruiter/talent", Search],["Vetting", "/workspace/recruiter/queue", FileText],["Bench", "/workspace/recruiter/bench", UsersRound],["Stalled", "/workspace/recruiter/stalled", Flag]]},
     { label: "Insights", items: [["Activity", "/workspace/recruiter/activity", History],["Conversion", "/workspace/recruiter/analytics", BarChart3],["VA categories", "/workspace/recruiter/categories", Tags]]}
@@ -37,7 +37,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/matching", "/workspace/recruiter/agenda"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/placements"],
   admin: ["/workspace/admin", "/workspace/admin/jobs", "/workspace/admin/vetting", "/workspace/admin/leads"]
 };
 

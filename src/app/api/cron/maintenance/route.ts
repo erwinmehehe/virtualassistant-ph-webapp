@@ -142,16 +142,22 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
 }
 
 async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>) {
-  const [{ data: recruiters }, { data: jobs }, { data: shortlist }, { data: apps }] = await Promise.all([
+  const [{ data: recruiters }, { data: jobs }, { data: shortlist }, { data: apps }, { data: interviews }, { data: offers }] = await Promise.all([
     admin.from("profiles").select("id").eq("role", "recruiter"),
     admin.from("jobs").select("id,client_id,title,status,created_at,recruiter_id").in("status", ["pending", "published"]).gte("created_at", daysAgo(30)).limit(300),
     admin.from("job_shortlist_candidates").select("job_id,shortlist_status,released_at,client_decision").eq("shortlist_status", "released"),
-    admin.from("applications").select("id,job_id,va_id,status,updated_at").in("status", ["interview", "offered"]).gte("updated_at", daysAgo(30)).limit(300)
+    admin.from("applications").select("id,job_id,va_id,status,updated_at").in("status", ["interview", "offered"]).gte("updated_at", daysAgo(30)).limit(300),
+    admin.from("candidate_interviews").select("id,job_id,va_id,client_id,application_id,status,created_at,scheduled_at").in("status", ["requested", "scheduled", "completed"]).gte("created_at", daysAgo(30)).limit(300),
+    admin.from("placement_offers").select("id,job_id,va_id,client_id,application_id,status,created_at,va_accepted_at").in("status", ["pending_va", "pending_client", "accepted"]).gte("created_at", daysAgo(30)).limit(300)
   ]);
   const shortlistByJob = new Map<string, any[]>();
   for (const row of shortlist || []) { const rows = shortlistByJob.get(row.job_id) || []; rows.push(row); shortlistByJob.set(row.job_id, rows); }
   const appJobIds = new Set((apps || []).map((row: any) => row.job_id));
-  let recruiterNudges = 0; let client24h = 0; let client48h = 0; let vaNudges = 0;
+  const canonicalApplicationIds = new Set([...(interviews || []), ...(offers || [])].map((row: any) => row.application_id).filter(Boolean));
+  const interviewPairs = new Set((interviews || []).map((row: any) => `${row.job_id}:${row.va_id}`));
+  const offerPairs = new Set((offers || []).map((row: any) => `${row.job_id}:${row.va_id}`));
+  const jobMap = new Map((jobs || []).map((row: any) => [row.id, row]));
+  let recruiterNudges = 0; let client24h = 0; let client48h = 0; let vaNudges = 0; let interviewScheduleNudges = 0; let offerNudges = 0;
 
   for (const job of jobs || []) {
     const released = shortlistByJob.get(job.id) || [];
@@ -172,11 +178,59 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     }
   }
 
+  for (const interview of interviews || []) {
+    if (interview.status !== "requested" || new Date(interview.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000) continue;
+    const job: any = jobMap.get(interview.job_id);
+    if (await sendWorkflowReminder(admin, {
+      subjectType: "job",
+      subjectId: interview.job_id,
+      recipientId: interview.client_id,
+      action: `schedule_interview_${interview.id}`,
+      title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
+      body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
+      href: "/workspace/client/interviews",
+      repeatDays: 1
+    })) interviewScheduleNudges++;
+  }
+
+  for (const offer of offers || []) {
+    const job: any = jobMap.get(offer.job_id);
+    if (offer.status === "pending_va" && new Date(offer.created_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "job",
+        subjectId: offer.job_id,
+        recipientId: offer.va_id,
+        action: `placement_offer_va_${offer.id}`,
+        title: `Placement offer waiting${job?.title ? `: ${job.title}` : ""}`,
+        body: "A placement offer is waiting for your review. Open Offers to review the final rate, hours, schedule, and start date.",
+        href: "/workspace/va/offers",
+        repeatDays: 2
+      })) offerNudges++;
+    }
+    if (offer.status === "pending_client" && offer.va_accepted_at && new Date(offer.va_accepted_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "job",
+        subjectId: offer.job_id,
+        recipientId: offer.client_id,
+        action: `placement_offer_client_${offer.id}`,
+        title: `Confirm the placement${job?.title ? `: ${job.title}` : ""}`,
+        body: "The VA accepted the placement offer. Open Offers to confirm the final placement and start onboarding.",
+        href: "/workspace/client/offers",
+        repeatDays: 2
+      })) offerNudges++;
+    }
+  }
+
   for (const application of apps || []) {
     if (new Date(application.updated_at).getTime() > Date.now() - 3 * 24 * 60 * 60 * 1000) continue;
+    const pair = `${application.job_id}:${application.va_id}`;
+    const managedByCanonicalFlow = canonicalApplicationIds.has(application.id)
+      || (application.status === "interview" && interviewPairs.has(pair))
+      || (application.status === "offered" && offerPairs.has(pair));
+    if (managedByCanonicalFlow) continue;
     if (await sendWorkflowReminder(admin, { subjectType: "application", subjectId: application.id, recipientId: application.va_id, action: "application_follow_up", title: "Your application has an update waiting", body: `Your application is still in the ${application.status} stage. Check the role and messages for any next steps.`, href: "/workspace/va/applications" })) vaNudges++;
   }
-  return { recruiterNudges, client24h, client48h, vaNudges };
+  return { recruiterNudges, client24h, client48h, vaNudges, interviewScheduleNudges, offerNudges };
 }
 
 async function runTalentHealthNudges(admin: ReturnType<typeof createAdminClient>) {

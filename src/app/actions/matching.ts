@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candidate-access";
-import { matchAssessment } from "@/lib/matching";
+import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
+import { sendVaMatchEmail } from "@/lib/match-email";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 
@@ -103,11 +104,6 @@ export async function saveJobShortlistAction(formData: FormData) {
   const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
   const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
 
-  // Expected, recoverable problems (nothing selected, job not linked to a
-  // client yet, etc.) redirect back with a clear inline message instead of
-  // throwing -- an uncaught throw here crashes to the generic Next.js error
-  // boundary, which reads as "the site is broken" for something that's
-  // really just "pick a candidate first" or "link a client account first."
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
 
   if (!jobId) return fail("Job is required.");
@@ -160,6 +156,30 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
     return fail("Could not save the shortlist. Please try again.");
+  }
+
+  const newlyReleasedGoodMatches = mode === "release"
+    ? rows.filter((row) => row.match_score >= 60 && existingMap.get(row.va_id) !== "released")
+    : [];
+  if (newlyReleasedGoodMatches.length) {
+    await admin.from("notifications").insert(newlyReleasedGoodMatches.map((row) => ({
+      user_id: row.va_id,
+      title: "A client role may be a good fit",
+      body: `Your recruiter shortlisted your profile as a ${matchLabel(row.match_score)} for client review. Keep your availability and profile current while the client reviews the shortlist.`,
+      href: "/workspace/va/profile"
+    })));
+    await Promise.all(newlyReleasedGoodMatches.map(async (row) => {
+      const { data: authUser } = await admin.auth.admin.getUserById(row.va_id);
+      try {
+        await sendVaMatchEmail({
+          to: authUser.user?.email,
+          fitLabel: matchLabel(row.match_score),
+          appUrl: process.env.NEXT_PUBLIC_APP_URL
+        });
+      } catch (emailError) {
+        console.error("[email] VA match alert delivery failed", emailError);
+      }
+    }));
   }
 
   if (mode === "release" && job.client_id) {

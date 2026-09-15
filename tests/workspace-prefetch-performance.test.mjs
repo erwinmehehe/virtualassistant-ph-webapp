@@ -28,3 +28,6 @@ test("recruiter overview does not preload record-level action pages", () => {
 test("Client Success queue does not prefetch every placement detail", () => {
   assert.match(clientSuccess, /<Link prefetch=\{false\} className="card" href=\{`\/workspace\/client-success\/\$\{r\.id\}`\}/);
 });
+
+// Keep this test file touched when upstream workspace-layout fixes move so the
+// PR merge ref is regenerated against the newest main before release checks run.

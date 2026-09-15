@@ -44,6 +44,24 @@ export async function markRecruiterNotificationReadAction(formData: FormData) {
   refreshRecruiterOps();
 }
 
+export async function openRecruiterNotificationAction(formData: FormData) {
+  const { userId } = await requireRoleFast("recruiter");
+  const id = String(formData.get("notification_id") || "");
+  if (!id) redirect("/workspace/recruiter/notifications");
+  const admin = createAdminClient();
+  const { data: notification } = await admin
+    .from("notifications")
+    .select("id,href")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!notification) redirect("/workspace/recruiter/notifications");
+  const now = new Date().toISOString();
+  await admin.from("notifications").update({ read_at: now }).eq("id", id).eq("user_id", userId);
+  refreshRecruiterOps();
+  redirect(safePath(notification.href, "/workspace/recruiter/notifications"));
+}
+
 export async function markAllRecruiterNotificationsReadAction() {
   const { userId } = await requireRoleFast("recruiter");
   await createAdminClient().from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", userId).is("read_at", null);

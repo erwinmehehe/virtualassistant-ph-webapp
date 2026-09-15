@@ -76,7 +76,7 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: {
       {!query && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
     </div>
     <div className="table-wrap responsive-table matching-table"><table>
-      <thead><tr><th><span className="sr-only">Select</span></th><th>Rank</th><th>VA</th><th>Match</th><th>Confidence</th><th>Availability</th><th>Hours</th><th>Rate</th><th>Shortlist</th></tr></thead>
+      <thead><tr><th><span className="sr-only">Select</span></th><th>Rank</th><th>VA</th><th>Match</th><th>Confidence</th><th>Availability</th><th>Hours</th><th>Rate</th><th>Client review</th></tr></thead>
       <tbody>{visible.map((row) => {
         const index = pool.indexOf(row);
         const selected = row.shortlist && ["proposed", "released"].includes(row.shortlist.shortlist_status);
@@ -89,7 +89,7 @@ export function MatchingCandidateTable({ pool, hideShortlistCandidateAction }: {
           <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span>{row.va.directory_visible ? <div className="small muted">Public directory</div> : <div className="small muted">Private pool</div>}</td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>
-          <td data-label="Shortlist">{row.shortlist?.shortlist_status === "released" ? <div className="stack-inline"><span className="badge badge-success"><CheckCircle2 size={13}/> Released</span><button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={row.va.user_id}>Remove</button></div> : row.shortlist?.shortlist_status === "proposed" ? <div className="stack-inline"><span className="badge">Internal</span><button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={row.va.user_id}>Remove</button></div> : <span className="small muted">—</span>}</td>
+          <td data-label="Client review">{row.shortlist?.shortlist_status === "released" ? <div className="stack-inline"><span className="badge badge-success"><CheckCircle2 size={13}/> Sent to client</span><button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={row.va.user_id}>Remove</button></div> : row.shortlist?.shortlist_status === "proposed" ? <div className="stack-inline"><span className="badge">Internal only</span><button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={row.va.user_id}>Remove</button></div> : <span className="small muted">—</span>}</td>
         </tr>;
       })}</tbody>
     </table></div>

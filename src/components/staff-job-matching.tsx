@@ -50,7 +50,7 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
     <div className="row-between wrap staff-matching-head">
       <div>
         <div className="row wrap"><Sparkles size={18}/><h2>Match this role</h2></div>
-        <p className="muted">Step 1: review the brief. Step 2: choose recommended candidates. Step 3: save internally, then release a curated shortlist to the client.</p>
+        <p className="muted">Step 1: review the brief. Step 2: choose from approved Virtual Assistants. Step 3: keep the shortlist internal or send the reviewed VAs to the client for review.</p>
       </div>
       <div className="row wrap">
         <span className="badge">{pool.length} vetted Virtual Assistants assessed</span>
@@ -58,12 +58,12 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
       </div>
     </div>
 
-    <div className="matching-workflow-steps"><span className="done">1. Understand role</span><span className="current">2. Choose candidates</span><span>3. Send to client</span></div>
+    <div className="matching-workflow-steps"><span className="done">1. Understand role</span><span className="current">2. Choose reviewed VAs</span><span>3. Client review</span></div>
     {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended action</span><h3>Start with the strongest {recommended.length} matches</h3><p>They have the best fit across the role’s category, required skills, tools, hours, and overlap requirements.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% match</span>)}</div></div>:null}
 
     <div className="matching-summary-grid">
-      <div className="matching-summary-card"><span>Internal shortlist</span><strong>{proposedCount}</strong><small>Saved by staff</small></div>
-      <div className="matching-summary-card"><span>Released shortlist</span><strong>{releasedCount}</strong><small>Prepared for client review</small></div>
+      <div className="matching-summary-card"><span>Internal shortlist</span><strong>{proposedCount}</strong><small>Recruiter-only</small></div>
+      <div className="matching-summary-card"><span>Client review</span><strong>{releasedCount}</strong><small>Sent to the client</small></div>
       <div className="matching-summary-card"><span>Client candidate access</span><strong className={unlocked ? "access-active-text" : ""}>{candidateAccessLabel(access?.access_status)}</strong><small>{access?.access_fee != null ? `USD ${Number(access.access_fee).toFixed(2)}` : "No access fee set"}</small></div>
     </div>
 
@@ -78,14 +78,14 @@ export async function StaffJobMatching({ job, viewerRole, returnTo }: Props) {
         <button className="btn btn-primary" type="submit">Save access status</button>
       </form>
       <p className="small muted">Paid or comped unlocks applicant identity, private profile evidence, resumes, comparison, messaging, and hiring actions. Quoted/invoiced states keep those details protected.</p>
-    </details> : <div className={`info-banner ${unlocked ? "access-active-banner" : ""}`}><strong>Client access:</strong> {candidateAccessLabel(access?.access_status)}{access?.access_fee != null ? ` · USD ${Number(access.access_fee).toFixed(2)}` : ""}. Recruiters can curate/release talent; billing status is controlled by Admin.</div>}
+    </details> : <div className={`info-banner ${unlocked ? "access-active-banner" : ""}`}><strong>Client access:</strong> {candidateAccessLabel(access?.access_status)}{access?.access_fee != null ? ` · USD ${Number(access.access_fee).toFixed(2)}` : ""}. Recruiters can curate and send reviewed talent to the client; billing status is controlled by Admin.</div>}
 
     {pool.length ? <form action={saveJobShortlistAction} className="staff-match-form">
       <input type="hidden" name="job_id" value={job.id}/>
       <input type="hidden" name="return_to" value={returnTo}/>
       <div className="row-between wrap shortlist-controls">
-        <div><strong>Recommended candidates</strong><div className="small muted">Every candidate explains why they match below. Select the people you want assigned to this role. Internal assignments stay recruiter-only; release sends the curated shortlist to the client. Client identity access remains protected until access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
-        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Assign selected to role</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Release selected to client</button></div>
+        <div><strong>Reviewed candidates</strong><div className="small muted">Only approved or bench VAs appear here. Select the people you want for this role. “Save internal shortlist” keeps them recruiter-only; “Send selected for client review” makes the curated shortlist available in the client workspace. Client identity access remains protected until access is active.{!job.client_id ? " This role has no linked client account yet, so it can only be saved internally until it's linked." : ""}</div></div>
+        <div className="row wrap"><button className="btn" type="submit" name="mode" value="save">Save internal shortlist</button><button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!job.client_id} title={!job.client_id ? "Link this role to a client account first." : undefined}>Send selected for client review</button></div>
       </div>
       <MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction}/>
     </form> : <div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}

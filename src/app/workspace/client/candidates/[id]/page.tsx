@@ -9,6 +9,8 @@ import { dateShort } from "@/lib/format";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { uniqueStrings } from "@/lib/collections";
 import { recordProductEvent } from "@/lib/product-events";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { CandidateAccessGate } from "@/components/candidate-access-gate";
 
 const statusOptions = [["new","Applied"],["reviewing","Reviewing"],["shortlisted","Shortlisted"],["interview","Interview"],["offered","Offered"],["rejected","Rejected"]] as const;
 
@@ -27,7 +29,6 @@ export default async function CandidateReviewPage({params,searchParams}:{params:
 
   const job=Array.isArray(summary.jobs)?summary.jobs[0]:summary.jobs;
   const approved=job?.status==="published";
-  await recordProductEvent("candidate_viewed",{userId:user.id,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,approved}});
 
   if(!approved){
     return <>
@@ -35,9 +36,23 @@ export default async function CandidateReviewPage({params,searchParams}:{params:
         <div><Link className="text-link small" href={`/workspace/client/jobs/${summary.job_id}`}>← Back to role</Link><h1 style={{marginTop:8}}>Candidate profile is being prepared</h1><p>Applicant for {job?.title}</p></div>
         <span className="badge badge-warning">Role in review</span>
       </div>
-      <div className="card empty"><h3>Your recruiter is still preparing this role.</h3><p>Full candidate profiles become available automatically when the hiring request is approved.</p><Link className="btn btn-primary" href={`/workspace/client/jobs/${summary.job_id}`}>View role progress</Link></div>
+      <div className="card empty"><h3>Your recruiter is still preparing this role.</h3><p>Full candidate profiles become available automatically when the hiring request is approved and candidate access is active.</p><Link className="btn btn-primary" href={`/workspace/client/jobs/${summary.job_id}`}>View role progress</Link></div>
     </>;
   }
+
+  const [{data:access},{count:applicantCount},{count:releasedCount}]=await Promise.all([
+    admin.from("job_candidate_access").select("*").eq("job_id",summary.job_id).maybeSingle(),
+    admin.from("applications").select("id",{count:"exact",head:true}).eq("job_id",summary.job_id),
+    admin.from("job_shortlist_candidates").select("va_id",{count:"exact",head:true}).eq("job_id",summary.job_id).eq("shortlist_status","released")
+  ]);
+  if(!candidateAccessUnlocked(access?.access_status)){
+    return <>
+      <div className="page-head"><div><Link className="text-link small" href={`/workspace/client/jobs/${summary.job_id}`}>← Back to role</Link><h1 style={{marginTop:8}}>Candidate access required</h1><p>Candidate identity and private hiring evidence remain protected for {job?.title}.</p></div></div>
+      <CandidateAccessGate jobId={summary.job_id} access={access} applicantCount={applicantCount||0} releasedCount={releasedCount||0} returnTo={`/workspace/client/candidates/${id}`}/>
+    </>;
+  }
+
+  await recordProductEvent("candidate_viewed",{userId:user.id,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,approved}});
 
   try{
     const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();
@@ -85,7 +100,7 @@ export default async function CandidateReviewPage({params,searchParams}:{params:
       </article>
 
       <aside className="profile-sidebar stack">
-        <div className="card candidate-contact-card"><div className="row"><Mail size={18}/><div><div className="small muted">Contact email</div>{vaEmail?<a className="contact-email-link" href={`mailto:${vaEmail}`}>{vaEmail}</a>:<strong>Not available</strong>}</div></div><p className="small muted">Included with your approved hiring request.</p></div>
+        <div className="card candidate-contact-card"><div className="row"><Mail size={18}/><div><div className="small muted">Contact email</div>{vaEmail?<a className="contact-email-link" href={`mailto:${vaEmail}`}>{vaEmail}</a>:<strong>Not available</strong>}</div></div><p className="small muted">Included with your active candidate access.</p></div>
 
         <div className="card profile-facts"><h3>Working fit</h3><div><span>Primary specialty</span><strong>{profile.primary_category||"Not set"}</strong></div><div><span>Experience</span><strong>{profile.years_experience!=null?`${profile.years_experience}+ years`:"Not set"}</strong></div><div><span>Availability</span><strong>{profile.weekly_hours?`${profile.weekly_hours} hrs/week`:"Not set"}</strong></div><div><span>Preferred rate</span><strong>{profile.hourly_rate?`USD ${profile.hourly_rate}/hr`:"Not set"}</strong></div><div><span>Schedule</span><strong>{profile.schedule||"Flexible"}</strong></div><div><span>Live overlap</span><strong>{profile.overlap_hours!=null?`${profile.overlap_hours} hrs/day`:"Flexible"}</strong></div></div>
 

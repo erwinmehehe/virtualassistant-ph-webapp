@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { submitRoleBriefAction } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
-import { VA_CATEGORIES } from "@/lib/constants";
+import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
 
 /**
@@ -39,6 +39,7 @@ export function RoleBriefForm({
   const resolvedError = error ?? urlState.error;
   const resolvedSent = sent ?? urlState.sent ?? false;
   const formId = `role-brief-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
+  const entryBudget = `USD ${MIN_HOURLY_RATE} to 8/hour`;
 
   if (resolvedSent) {
     return (
@@ -66,7 +67,7 @@ export function RoleBriefForm({
           <select id="rb-hours" name="hours" required defaultValue=""><option value="" disabled>Select hours</option><option>Under 10 hours/week</option><option>10 to 20 hours/week</option><option>20 to 30 hours/week</option><option>30 to 40 hours/week</option><option>40+ hours/week</option></select>
         </div>
         <div className="field"><label htmlFor="rb-budget">Hourly budget *</label>
-          <select id="rb-budget" name="budget" required defaultValue=""><option value="" disabled>Select budget</option><option>USD 6 to 8/hour</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select>
+          <select id="rb-budget" name="budget" required defaultValue=""><option value="" disabled>Select budget</option><option>{entryBudget}</option><option>USD 8 to 12/hour</option><option>USD 12 to 18/hour</option><option>USD 18 to 25/hour</option><option>USD 25+/hour</option><option>Not sure yet</option></select>
         </div>
       </div>
 

@@ -79,9 +79,9 @@ test("homepage comparison is a compact three-card premium choice section", () =>
   const home = source("src/app/page.tsx");
   const css = source("src/app/homepage-seo-evidence.css");
   assert.match(home, /pva-compare-section/);
-  assert.match(home, /Choose the hiring model that gives you the right level of control/);
+  assert.match(home, /Reliable support without the hiring headache\./);
   assert.match(home, /pva-compare-card pva-compare-featured/);
-  assert.match(home, /Compare hiring options/);
+  assert.match(home, /Compare your options/);
   assert.match(css, /grid-template-columns: repeat\(3, minmax\(0,1fr\)\)/);
   assert.match(css, /linear-gradient\(145deg,#312e81 0%,#4f46e5 58%,#5b21b6 100%\)/);
 });

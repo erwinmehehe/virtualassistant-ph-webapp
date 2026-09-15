@@ -10,18 +10,20 @@ const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const matchingLib = fs.readFileSync("src/lib/matching.ts", "utf8");
 const matchEmail = fs.readFileSync("src/lib/match-email.ts", "utf8");
 
-const clientSurfaces = [candidates, candidate, compare, job];
+const clientCandidateSurfaces = [candidates, candidate, compare];
 
 test("client candidate surfaces use qualitative fit labels without numeric match scores", () => {
-  for (const source of clientSurfaces) {
+  for (const source of clientCandidateSurfaces) {
     assert.match(source, /clientMatchLabel/);
     assert.doesNotMatch(source, /Match confidence:/);
     assert.doesNotMatch(source, /\{score\}\/100/);
     assert.doesNotMatch(source, /\{row\.match_score\}\/100/);
     assert.doesNotMatch(source, /\{row\.match_score\}%/);
   }
-  assert.match(candidates, /Why your recruiter recommends this VA/);
-  assert.match(job, /Why your recruiter recommends this VA/);
+  assert.match(candidates, /Why we recommend this VA/);
+  assert.match(candidate, /Why we recommend this VA/);
+  assert.match(job, /You do not need to manage raw applicants/);
+  assert.doesNotMatch(job, /match_score|Match confidence|\/100/);
 });
 
 test("client fit vocabulary is limited to strong good and potential", () => {

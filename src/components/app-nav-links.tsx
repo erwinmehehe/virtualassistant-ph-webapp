@@ -11,7 +11,7 @@ type NavGroup = { label: string; items: readonly NavItem[] };
 const nav: Record<Role, readonly NavGroup[]> = {
   client: [
     { label: "Hiring", items: [["Overview", "/workspace/client", LayoutDashboard],["Roles", "/workspace/client/jobs", BriefcaseBusiness],["Shortlist", "/workspace/client/candidates", UsersRound],["Interviews", "/workspace/client/interviews", CalendarDays],["Offers", "/workspace/client/offers", FileText]]},
-    { label: "Collaboration", items: [["Messages", "/workspace/client/messages", MessageSquare],["Workroom", "/workspace/client/workroom", Wrench],["Notifications", "/workspace/client/notifications", Bell]]},
+    { label: "My team", items: [["My Team", "/workspace/client/team", UsersRound],["Workroom", "/workspace/client/workroom", Wrench],["Messages", "/workspace/client/messages", MessageSquare],["Notifications", "/workspace/client/notifications", Bell]]},
     { label: "Account", items: [["Payments", "/workspace/client/payments", CircleDollarSign],["Company", "/workspace/client/company", Building2]]}
   ],
   va: [
@@ -21,13 +21,13 @@ const nav: Record<Role, readonly NavGroup[]> = {
     { label: "Account", items: [["Notifications", "/workspace/va/notifications", Bell],["Payouts", "/workspace/va/payments", CircleDollarSign]]}
   ],
   recruiter: [
-    { label: "Agency operations", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/roles", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound],["Placements", "/workspace/recruiter/placements", Wrench]]},
+    { label: "Agency operations", items: [["My Day", "/workspace/recruiter/today", ListTodo],["Overview", "/workspace/recruiter", LayoutDashboard],["Client leads", "/workspace/recruiter/leads", BriefcaseBusiness],["Roles", "/workspace/recruiter/roles", Sparkles],["Client review", "/workspace/recruiter/client-review", UsersRound],["Client Success", "/workspace/client-success", Wrench]]},
     { label: "Daily work", items: [["Agenda", "/workspace/recruiter/agenda", CalendarDays],["Tasks", "/workspace/recruiter/tasks", ListTodo],["Notifications", "/workspace/recruiter/notifications", Bell]]},
     { label: "Talent operations", items: [["Talent", "/workspace/recruiter/talent", Search],["Vetting", "/workspace/recruiter/queue", FileText],["Bench", "/workspace/recruiter/bench", UsersRound],["Stalled", "/workspace/recruiter/stalled", Flag]]},
     { label: "Insights", items: [["Activity", "/workspace/recruiter/activity", History],["Conversion", "/workspace/recruiter/analytics", BarChart3],["VA categories", "/workspace/recruiter/categories", Tags]]}
   ],
   admin: [
-    { label: "Operations", items: [["Overview", "/workspace/admin", ShieldCheck],["Lead inbox", "/workspace/admin/leads", MessageSquare],["Job exceptions", "/workspace/admin/jobs", BriefcaseBusiness],["Vetting finalists", "/workspace/admin/vetting", FileText],["Users", "/workspace/admin/users", UsersRound]]},
+    { label: "Operations", items: [["Overview", "/workspace/admin", ShieldCheck],["Client Success", "/workspace/client-success", UsersRound],["Lead inbox", "/workspace/admin/leads", MessageSquare],["Job exceptions", "/workspace/admin/jobs", BriefcaseBusiness],["Vetting finalists", "/workspace/admin/vetting", FileText],["Users", "/workspace/admin/users", UsersRound]]},
     { label: "Risk and finance", items: [["Payments", "/workspace/admin/payments", CircleDollarSign],["Moderation", "/workspace/admin/moderation", Flag],["Audit log", "/workspace/admin/audit", History]]},
     { label: "Insights", items: [["Analytics", "/workspace/admin/analytics", BarChart3],["Sales analytics", "/workspace/admin/sales", TrendingUp]]},
     { label: "Configuration", items: [["Agency settings", "/workspace/admin/settings", Settings],["System setup", "/workspace/admin/system", Wrench],["Release health", "/workspace/admin/health", ShieldCheck]]}
@@ -35,10 +35,10 @@ const nav: Record<Role, readonly NavGroup[]> = {
 };
 
 const mobilePrimary: Record<Role, string[]> = {
-  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
+  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/placements"],
-  admin: ["/workspace/admin", "/workspace/admin/jobs", "/workspace/admin/vetting", "/workspace/admin/leads"]
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/client-success"],
+  admin: ["/workspace/admin", "/workspace/client-success", "/workspace/admin/jobs", "/workspace/admin/leads"]
 };
 
 function activeFor(pathname: string, href: string) {

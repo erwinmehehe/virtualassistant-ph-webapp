@@ -29,7 +29,7 @@ try {
     await page.screenshot({ path: path.join(outputDir, `booking-gate-${viewport.name}.png`), fullPage: true });
 
     await page.getByRole("radio", { name: /I am hiring/ }).click();
-    await page.getByRole("heading", { name: "Choose a time" }).waitFor();
+    await page.getByRole("heading", { name: "Choose a time", exact: true }).waitFor();
     await page.screenshot({ path: path.join(outputDir, `client-calendar-${viewport.name}.png`), fullPage: true });
 
     await page.getByRole("radio", { name: /I am a Virtual Assistant/ }).click();

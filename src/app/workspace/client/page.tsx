@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AlertCircle, ArrowRight, BriefcaseBusiness, MessageSquare, Plus, Sparkles, UserRoundCheck, UsersRound } from "lucide-react";
+import { ArrowRight, CalendarDays, MessageSquare, Plus, Sparkles, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -8,107 +8,72 @@ import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
 
-type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof AlertCircle};
+type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof Sparkles};
 
 export default async function ClientDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
   const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
-
   const requestedPromise=params.talent
     ? supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle()
     : Promise.resolve({data:null,error:null} as any);
 
-  const [dashboardResult,{data:requested,error:requestedError}]=await Promise.all([
-    getClientDashboardSummary(userId),
-    requestedPromise
-  ]);
-
+  const [dashboardResult,{data:requested,error:requestedError}]=await Promise.all([getClientDashboardSummary(userId),requestedPromise]);
   const dashboard=dashboardResult.data;
   const company=dashboard?.company||{};
   const hiringOwner=dashboard?.hiring_owner||null;
   const jobRows=dashboard?.jobs||[];
   const jobCount=Number(dashboard?.job_count||0);
   const unreadMessages=Number(dashboard?.unread_messages||0);
-
   if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent)redirect("/workspace/client/onboarding");
 
-  const issues=collectQueryIssues({
-    "your hiring workspace":dashboardResult.error,
-    "your requested Virtual Assistant":params.talent?requestedError:null
-  });
-
+  const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null});
   const hires=Number(dashboard?.hire_count||0);
-  const applicants=Number(dashboard?.application_count||0);
-  const pipeline=dashboard?.pipeline||{
-    applied:0,
-    shortlisted:0,
-    interview:0,
-    offered:0,
-    hired:0,
-    rejected:0
-  };
+  const shortlistCount=Number(dashboard?.application_count||0);
+  const pipeline=dashboard?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};
 
   const attention:AttentionItem[]=[];
-  if(!jobCount) attention.push({title:"Post your first job",copy:"Tell us the role, budget, schedule, and skills. We can start recruiting from the brief.",href:"/workspace/client/jobs/new",count:1,icon:Plus});
-  if(pipeline.applied) attention.push({title:"New applicants to review",copy:"Review the newest applicants and move strong candidates into your shortlist.",href:"/workspace/client/candidates",count:pipeline.applied,icon:UsersRound});
-  if(pipeline.interview) attention.push({title:"Interviews in progress",copy:"Review interview-stage candidates and keep decisions moving.",href:"/workspace/client/candidates",count:pipeline.interview,icon:BriefcaseBusiness});
-  if(pipeline.offered) attention.push({title:"Offers awaiting a hiring decision",copy:"Open the candidate pipeline to confirm the final hire when terms are agreed.",href:"/workspace/client/candidates",count:pipeline.offered,icon:Sparkles});
-  if(unreadMessages>0) attention.push({title:"Unread candidate messages",copy:"Reply to candidate questions, interview follow-ups, and hiring conversations.",href:"/workspace/client/messages",count:unreadMessages,icon:MessageSquare});
+  if(!jobCount) attention.push({title:"Start your first hiring request",copy:"Tell us the role, schedule, budget, and must-haves. Your recruiter will shape the brief and source the VA.",href:"/workspace/client/jobs/new",count:1,icon:Plus});
+  if(pipeline.shortlisted) attention.push({title:"Recruiter shortlist waiting",copy:"Review only the vetted VAs your recruiter selected for you.",href:"/workspace/client/candidates",count:pipeline.shortlisted,icon:Sparkles});
+  if(pipeline.interview) attention.push({title:"Interview action needed",copy:"Schedule, join, or record a Proceed / Hold / Pass decision.",href:"/workspace/client/interviews",count:pipeline.interview,icon:CalendarDays});
+  if(pipeline.offered) attention.push({title:"Final offer in progress",copy:"Review the final placement terms once the VA has accepted or when confirmation is required.",href:"/workspace/client/offers",count:pipeline.offered,icon:Sparkles});
+  if(unreadMessages>0) attention.push({title:"Message from your hiring team",copy:"Reply to recruiter questions or active placement conversations.",href:"/workspace/client/messages",count:unreadMessages,icon:MessageSquare});
 
   const steps=[
     {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
-    {label:"Send your first hiring request",description:"Tell us what you need and we will shape the brief, recruit, and match for the role.",done:Boolean(jobCount),href:"/workspace/client/jobs/new"},
-    {label:"Review your shortlist",description:"Review the candidates our recruiting team puts in front of you.",done:Boolean(applicants),href:"/workspace/client/candidates"},
-    {label:"Confirm a hire",description:"Choose the strongest fit once interviews and terms are complete.",done:Boolean(hires),href:"/workspace/client/workroom"}
+    {label:"Send your first hiring request",description:"Tell us what you need. Your recruiter will refine the role and manage the search.",done:Boolean(jobCount),href:"/workspace/client/jobs/new"},
+    {label:"Review a recruiter shortlist",description:"You only review candidates already screened and selected by our recruiting team.",done:Boolean(shortlistCount),href:"/workspace/client/candidates"},
+    {label:"Confirm a placement",description:"After interview and final terms, confirm the VA and start the managed workroom.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
   const currentAction=pipeline.offered
-    ? {title:`${pipeline.offered} hiring decision${pipeline.offered===1?"":"s"} waiting`,copy:"Review the final candidates and confirm who you want to hire.",href:"/workspace/client/candidates",label:"Review decisions",step:4}
+    ? {title:`${pipeline.offered} final offer${pipeline.offered===1?"":"s"} in progress`,copy:"Open the offer and complete the final confirmation step.",href:"/workspace/client/offers",label:"Review offers",step:4}
     : pipeline.interview
-      ? {title:`${pipeline.interview} interview${pipeline.interview===1?"":"s"} in progress`,copy:"Keep the process moving by reviewing interview-stage candidates.",href:"/workspace/client/candidates",label:"Review interviews",step:3}
+      ? {title:`${pipeline.interview} interview${pipeline.interview===1?"":"s"} need attention`,copy:"Schedule the interview or record your decision after the call.",href:"/workspace/client/interviews",label:"Open interviews",step:3}
       : pipeline.shortlisted
-        ? {title:`${pipeline.shortlisted} candidate${pipeline.shortlisted===1?"":"s"} ready for review`,copy:"Your recruiter has prepared a shortlist for you.",href:"/workspace/client/candidates",label:"Review shortlist",step:2}
-        : pipeline.applied
-          ? {title:`${pipeline.applied} new candidate${pipeline.applied===1?"":"s"} ready to review`,copy:"New applicants are waiting. Review them now so promising candidates do not sit idle.",href:"/workspace/client/candidates",label:"Review candidates",step:2}
-          : jobCount
-          ? {title:"We’re finding candidates",copy:"Your recruiting team is reviewing the role and preparing the strongest matches.",href:"/workspace/client/jobs",label:"View role progress",step:1}
-          : {title:"Tell us who you need",copy:"Share the work in your own words. We’ll turn it into a clear hiring brief.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
+        ? {title:`${pipeline.shortlisted} recruiter-selected VA${pipeline.shortlisted===1?"":"s"} ready`,copy:"Review the shortlist and tell your recruiter who should move forward.",href:"/workspace/client/candidates",label:"Review shortlist",step:2}
+        : jobCount
+          ? {title:"Your recruiter is working the role",copy:"We are screening the vetted VA pool and will only send people ready for your review.",href:"/workspace/client/jobs",label:"View role progress",step:1}
+          : {title:"Tell us who you need",copy:"Share the work in your own words. We will turn it into a clear hiring brief and manage the search.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
 
   return <div className="dash-page role-overview client-overview">
     <DashboardDegradedNotice issues={issues}/>
-    {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">Create a role and this Virtual Assistant preference will stay attached to it.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create role for this Virtual Assistant</Link></div>:null}
+    {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create hiring request</Link></div>:null}
 
-    <div className="dash-header"><div><div className="dash-kicker">Client hiring workspace</div><h1>Your hiring progress</h1><p>Follow one clear path from your hiring request to a successful start.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
+    <div className="dash-header"><div><div className="dash-kicker">Managed VA hiring</div><h1>Your hiring progress</h1><p>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
-    <section className="client-concierge-strip">
-      <div><span className="small">Your hiring team</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>We handle screening, matching, and shortlist preparation. You step in when a decision needs your attention.</p></div>
-      <Link className="btn" href="/workspace/client/messages"><MessageSquare size={16}/> Message hiring team</Link>
-    </section>
+    <section className="client-concierge-strip"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/messages"><MessageSquare size={16}/> Message hiring team</Link></section>
 
-    <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We find candidates","Review shortlist","Interview","Hire & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on our recruiting team":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
+    <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We recruit & vet","Review shortlist","Interview","Confirm & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on your recruiter":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
 
-    {!jobCount?<section className="client-primary-action"><div><span className="small">Start or expand your team</span><h2>Tell us who you need. We will recruit for the role.</h2><p>You do not need to write a perfect job description. Start with the work you want off your plate, then refine the brief with our guidance.</p></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Create hiring brief <ArrowRight size={17}/></Link></section>:null}
+    <section className="card dashboard-section-card"><div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>No raw applicants or internal recruiter tasks appear here. Only client decisions do.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>{attention.length?<div className="attention-grid">{attention.slice(0,6).map((item)=>{const Icon=item.icon;return <Link className="attention-card" href={item.href} key={item.title}><div className="attention-count">{item.count}</div><div><div className="row"><Icon size={16}/><strong>{item.title}</strong></div><p>{item.copy}</p></div><ArrowRight size={16}/></Link>})}</div>:<div className="dashboard-caught-up"><UserRoundCheck size={22}/><div><strong>No hiring decision is waiting on you.</strong><p>Your recruiter owns the next step until a shortlist, interview, offer, or placement issue needs your input.</p></div></div>}</section>
 
-    <section className="card dashboard-section-card">
-      <div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>Only items that require a hiring decision or response appear here.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>
-      {attention.length?<div className="attention-grid">{attention.slice(0,6).map((item)=>{const Icon=item.icon;return <Link className="attention-card" href={item.href} key={item.title}><div className="attention-count">{item.count}</div><div><div className="row"><Icon size={16}/><strong>{item.title}</strong></div><p>{item.copy}</p></div><ArrowRight size={16}/></Link>})}</div>:<div className="dashboard-caught-up"><UserRoundCheck size={22}/><div><strong>No urgent hiring actions right now.</strong><p>Keep an eye on new applicants and messages, or post another role when you are ready.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs/new">Post another job</Link></div>}
-    </section>
-
-    <section className="card dashboard-section-card">
-      <div className="dashboard-section-head"><div><h2>Hiring pipeline</h2><p>Combined status across all of your current and past applications.</p></div><Link className="btn btn-sm" href="/workspace/client/candidates">Open candidates</Link></div>
-      <div className="pipeline-summary" aria-label="Client hiring pipeline">{[["Applied",pipeline.applied],["Shortlisted",pipeline.shortlisted],["Interview",pipeline.interview],["Offered",pipeline.offered],["Hired",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
-      {pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} rejected candidate{pipeline.rejected===1?"":"s"} kept outside the active pipeline.</div>:null}
-    </section>
+    <section className="card dashboard-section-card"><div className="dashboard-section-head"><div><h2>Managed hiring pipeline</h2><p>This is the part of the process you actually need to see.</p></div><Link className="btn btn-sm" href="/workspace/client/candidates">Open shortlist</Link></div><div className="pipeline-summary" aria-label="Client hiring pipeline">{[["Shortlist",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Hired",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>{pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} recruiter-presented candidate{pipeline.rejected===1?"":"s"} passed by clients and kept outside the active pipeline.</div>:null}</section>
 
     {!onboardingDone?<OnboardingChecklist title="Finish your hiring setup" steps={steps}/>:null}
 
-    <div className="grid-2 dashboard-after-onboarding">
-      <section className="card"><div className="dashboard-section-head"><div><h2>Your roles</h2><p>Applicant counts and pipeline stages are visible without opening every job.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs">View all</Link></div>
-        {jobRows.length?<div className="role-dashboard-list">{jobRows.map((job)=><Link href={`/workspace/client/jobs/${job.id}`} key={job.id} className="role-dashboard-row"><div className="role-dashboard-main"><div className="row wrap"><strong>{job.title}</strong><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{String(job.status).replaceAll("_"," ")}</span></div><div className="role-dashboard-pipeline"><span><b>{job.applicants}</b> applicants</span><span><b>{job.shortlisted}</b> shortlisted</span><span><b>{job.interview}</b> interview</span><span><b>{job.offered}</b> offered</span><span><b>{job.hired}</b> hired</span></div></div><ArrowRight size={16}/></Link>)}</div>:<div className="empty"><p>You have not posted a job yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Post your first job</Link></div>}
-      </section>
+    <div className="grid-2 dashboard-after-onboarding"><section className="card"><div className="dashboard-section-head"><div><h2>Your roles</h2><p>See where each managed search stands without managing raw applicants.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs">View all</Link></div>{jobRows.length?<div className="role-dashboard-list">{jobRows.map((job)=><Link href={`/workspace/client/jobs/${job.id}`} key={job.id} className="role-dashboard-row"><div className="role-dashboard-main"><div className="row wrap"><strong>{job.title}</strong><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":String(job.status).replaceAll("_"," ")}</span></div><div className="role-dashboard-pipeline"><span><b>{job.shortlisted}</b> shortlist</span><span><b>{job.interview}</b> interview</span><span><b>{job.offered}</b> offer</span><span><b>{job.hired}</b> hired</span></div></div><ArrowRight size={16}/></Link>)}</div>:<div className="empty"><p>You have not started a hiring request yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start hiring</Link></div>}</section>
 
-      <section className="card"><div className="dashboard-section-head"><div><h2>We handle the recruiting work</h2><p>Your team should not have to manage a marketplace. We review the brief, screen the pool, and bring the strongest candidates forward.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Tell us what you need</li><li>We screen and shortlist vetted Virtual Assistants</li><li>You review, interview, and choose</li></ol><div className="unlock-benefits"><span>Full candidate profiles appear once your role is approved</span><span>Recruiter-led shortlist instead of profile hunting</span><span>Direct messaging when candidates are ready</span><span>One clear path from request to hire</span></div><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section>
-    </div>
+      <section className="card"><div className="dashboard-section-head"><div><h2>What your recruiting team handles</h2><p>This is a managed hiring service, not a talent marketplace.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Qualify and improve the role brief</li><li>Screen the vetted VA pool and verify fit</li><li>Present only recruiter-approved VAs</li><li>Coordinate interviews, offer, placement, and follow-up</li></ol><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section></div>
   </div>;
 }

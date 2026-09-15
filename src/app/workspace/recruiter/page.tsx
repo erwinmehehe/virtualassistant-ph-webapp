@@ -64,7 +64,7 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
   return <Panel
     title="Vetting queue"
     subtitle={unreviewed > QUEUE_PREVIEW ? `Longest-waiting ${QUEUE_PREVIEW} of ${unreviewed} · ring shows profile completion` : `${plural(unreviewed, "candidate")} waiting · ring shows profile completion`}
-    action={<Link className="dash-link" href="/workspace/recruiter/queue">Open queue <ArrowRight size={14} aria-hidden="true" /></Link>}
+    action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/queue">Open queue <ArrowRight size={14} aria-hidden="true" /></Link>}
   >
     {queueRows.length ? (
       <div className="dash-queue">
@@ -95,7 +95,7 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
                   <input type="hidden" name="return_to" value="/workspace/recruiter" />
                   <button className="dash-btn dash-btn-success" type="submit"><CheckCircle2 size={15} aria-hidden="true" /> Approve</button>
                 </form>
-                <Link className="dash-btn dash-btn-light" href={`/workspace/recruiter/candidates/${row.va_id}`}>Review</Link>
+                <Link prefetch={false} className="dash-btn dash-btn-light" href={`/workspace/recruiter/candidates/${row.va_id}`}>Review</Link>
                 <form action={bulkRecruiterVaAction}>
                   <input type="hidden" name="va_id" value={row.va_id} />
                   <input type="hidden" name="bulk_action" value="reject" />
@@ -112,11 +112,11 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
 }
 
 function RecruiterRolesNeedingMatching({ count, jobs }: { count: number; jobs: any[] }) {
-  return <Panel title="Roles that need matching" subtitle="No applications or shortlist yet" action={count ? <Link className="dash-link" href="/workspace/recruiter/matching?view=needs_candidates">View all <ArrowRight size={14} aria-hidden="true" /></Link> : undefined}>
+  return <Panel title="Roles that need matching" subtitle="No applications or shortlist yet" action={count ? <Link prefetch={false} className="dash-link" href="/workspace/recruiter/matching?view=needs_candidates">View all <ArrowRight size={14} aria-hidden="true" /></Link> : undefined}>
     {jobs.length ? (
       <div className="dash-list">
         {jobs.map((job: any) => (
-          <Link className="dash-list-row" href={`/workspace/recruiter/matching/${job.id}`} key={job.id}>
+          <Link prefetch={false} className="dash-list-row" href={`/workspace/recruiter/matching/${job.id}`} key={job.id}>
             <span><strong>{job.title}</strong><small>{job.company_name || "Client role"}</small></span>
             <Pill tone="amber">needs candidates</Pill>
           </Link>
@@ -191,9 +191,9 @@ async function RecruiterAnalytics({ metrics }: { metrics: Partial<RecruiterDashb
         </Panel>
         <Panel title="Fast cleanup" subtitle="Open a filtered directory before applying any bulk action">
           <div className="dash-button-stack">
-            <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
-            <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
-            <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
+            <Link prefetch={false} className="dash-btn dash-btn-dark" href="/workspace/recruiter/talent?readiness=incomplete">Clean incomplete profiles</Link>
+            <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?stale=60">Review stale VAs</Link>
+            <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/talent?readiness=zero">Email 0% profiles</Link>
           </div>
         </Panel>
       </div>
@@ -230,11 +230,11 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
 
       <div className="dash-grid recruiter-priority-grid">
         <div className="dash-col">
-          <Panel title="Next actions" subtitle="Your highest-priority current work. Click any item to open the exact record." action={<Link className="dash-link" href="/workspace/recruiter/today">View all My Day <ArrowRight size={14}/></Link>}>
+          <Panel title="Next actions" subtitle="Your highest-priority current work. Click any item to open the exact record." action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/today">View all My Day <ArrowRight size={14}/></Link>}>
             {nextActions.length ? <div className="dash-actions">
               {nextActions.map((item: any) => {
                 const href = exactActionHref(item);
-                return <Link key={`${item.kind}-${item.id}`} href={href} className="dash-action">
+                return <Link prefetch={false} key={`${item.kind}-${item.id}`} href={href} className="dash-action">
                   <span className="dash-action-count"><Clock3 size={15}/></span>
                   <span className="dash-action-copy">
                     <span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority] || "slate"} dot={false}>{item.priority || "normal"}</Pill></span>
@@ -281,8 +281,8 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
         title="Today’s work"
         subtitle={<>Open this page and work top to bottom. The first item is the next thing that needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>}
         actions={<>
-          <Link className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
-          <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/today"><Sparkles size={15} aria-hidden="true" /> Open My Day</Link>
+          <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/leads?view=attention"><Mail size={15} aria-hidden="true" /> Open sales CRM</Link>
+          <Link prefetch={false} className="dash-btn dash-btn-dark" href="/workspace/recruiter/today"><Sparkles size={15} aria-hidden="true" /> Open My Day</Link>
         </>}
       />
 

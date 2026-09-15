@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, CalendarDays, CheckCircle2, Clock3, ExternalLink, ListTodo } from "lucide-react";
+import { Bell, CalendarDays, CheckCircle2, Clock3, ExternalLink, ListTodo, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RecruiterTemplateComposer } from "@/components/recruiter-template-composer";
@@ -29,7 +29,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.contact_sent ? <div className="success-banner">Email sent and the next follow-up was scheduled.</div> : null}
     {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
     <div className="dash-header">
-      <div><div className="dash-kicker">Recruiter daily workflow</div><h1>My Day</h1><p>Work the highest-priority client and hiring actions from top to bottom.</p><span className="dash-freshness">Live queue · only current work is loaded</span></div>
+      <div><div className="dash-kicker">Recruiter daily workflow</div><h1>My Day</h1><p>Work the highest-priority current client and hiring actions from top to bottom.</p><span className="dash-freshness">Recent active work first · older backlog stays in CRM and role views</span></div>
       <div className="row wrap">
         <Link className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
         <Link className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
@@ -38,7 +38,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     </div>
 
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
-      <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Finish an item, return here, and the next priority moves up automatically.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
+      <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Recent leads and roles are prioritized. Current interviews, offers, client delays, and capacity risks are surfaced automatically.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
         {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}
         <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Today's work queue, ${queue.length} items`}>
@@ -53,11 +53,12 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               <span className="dash-action-copy">
                 <span className="dash-action-title"><strong>{item.title}</strong><span className={`badge ${PRIORITY_CLASS[item.priority] || ""}`}>{item.priority}</span></span>
                 <small>{item.subtitle}</small>
+                {isDiscovery && item.metadata?.name ? <small className="muted"><UserRound size={12}/> Booked by {item.metadata.name}{item.metadata.email ? ` · ${item.metadata.email}` : ""}</small> : null}
                 <small className="muted">{manilaTime(item.due_at)} · Manila</small>
                 <div className="row wrap" style={{marginTop:8}}>
                   {isLead && leadId ? <RecruiterTemplateComposer leadId={leadId} firstName={firstName} defaultTemplateId={item.kind === "lead_first_contact" ? "first_response" : "proposal_followup"} returnTo="/workspace/recruiter/today"/> : null}
                   {isDiscovery && item.action_url ? <a className="btn btn-sm btn-primary" href={item.action_url} target="_blank" rel="noreferrer">Join Zoom <ExternalLink size={13}/></a> : null}
-                  {item.href ? <Link className="btn btn-sm" href={item.href}>{isDiscovery ? "View brief" : isTask ? "Open" : "Review"}</Link> : null}
+                  {item.href ? <Link className="btn btn-sm" href={item.href}>{isDiscovery ? "View booking" : isTask ? "Open" : "Review"}</Link> : null}
                   {isTask ? <>
                     <form action={completeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><CheckCircle2 size={13}/> Done</button></form>
                     <form action={snoozeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="minutes" value="1440"/><button className="btn btn-sm" type="submit">Snooze 1 day</button></form>
@@ -67,7 +68,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             </article>;
           })}
         </div>
-      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No urgent recruiter work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
+      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current recruiter work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
     </section>
   </div>;
 }

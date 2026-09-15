@@ -10,13 +10,13 @@ type NavGroup = { label: string; items: readonly NavItem[] };
 
 const nav: Record<Role, readonly NavGroup[]> = {
   client: [
-    { label: "Hiring", items: [["Overview", "/workspace/client", LayoutDashboard],["Roles", "/workspace/client/jobs", BriefcaseBusiness],["Candidates", "/workspace/client/candidates", UsersRound],["Saved VAs", "/workspace/client/saved", Heart]]},
+    { label: "Hiring", items: [["Overview", "/workspace/client", LayoutDashboard],["Roles", "/workspace/client/jobs", BriefcaseBusiness],["Candidates", "/workspace/client/candidates", UsersRound],["Interviews", "/workspace/client/interviews", CalendarDays],["Offers", "/workspace/client/offers", FileText],["Saved VAs", "/workspace/client/saved", Heart]]},
     { label: "Collaboration", items: [["Messages", "/workspace/client/messages", MessageSquare],["Workroom", "/workspace/client/workroom", Wrench],["Notifications", "/workspace/client/notifications", Bell]]},
     { label: "Account", items: [["Payments", "/workspace/client/payments", CircleDollarSign],["Company", "/workspace/client/company", Building2]]}
   ],
   va: [
     { label: "Get ready", items: [["Overview", "/workspace/va", LayoutDashboard],["Quick setup", "/workspace/va/onboarding", Sparkles],["My profile", "/workspace/va/profile", CircleUserRound],["Vetting", "/workspace/va/vetting", ShieldCheck]]},
-    { label: "Opportunities", items: [["Find jobs", "/workspace/va/jobs", Search],["Applications", "/workspace/va/applications", FileText],["Saved jobs", "/workspace/va/saved", Heart]]},
+    { label: "Opportunities", items: [["Find jobs", "/workspace/va/jobs", Search],["Applications", "/workspace/va/applications", FileText],["Interviews", "/workspace/va/interviews", CalendarDays],["Offers", "/workspace/va/offers", CircleDollarSign],["Saved jobs", "/workspace/va/saved", Heart]]},
     { label: "Work", items: [["Messages", "/workspace/va/messages", MessageSquare],["Workroom", "/workspace/va/workroom", Wrench]]},
     { label: "Account", items: [["Notifications", "/workspace/va/notifications", Bell],["Payouts", "/workspace/va/payments", CircleDollarSign]]}
   ],

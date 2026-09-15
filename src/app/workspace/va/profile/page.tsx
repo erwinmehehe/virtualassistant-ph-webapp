@@ -1,25 +1,36 @@
 import Link from "next/link";
-import { Eye, ShieldCheck } from "lucide-react";
+import { Clock3, Eye, ShieldCheck } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateVaProfileAction } from "@/app/actions/profile";
+import { confirmVaAvailabilityAction } from "@/app/actions/agency-operations-v2";
 import { updateVaPublicProfileConsentAction } from "@/app/actions/privacy-consent";
 import { LiveProfileStrength } from "@/components/live-profile-strength";
 import { ResumeAutoFill } from "@/components/resume-autofill";
 import { VA_CATEGORIES } from "@/lib/constants";
+import { getBusinessSettings } from "@/lib/business-settings";
 import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
+
+function availabilityAge(value?:string|null){
+  if(!value)return{label:"Not yet confirmed",stale:true};
+  const days=Math.max(0,Math.floor((Date.now()-new Date(value).getTime())/86400000));
+  return{label:days===0?"Confirmed today":days===1?"Confirmed 1 day ago":`Confirmed ${days} days ago`,stale:days>=14};
+}
 
 export default async function VaProfilePage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
-  const { user, profile } = await requireRole("va");
+  const [{ user, profile },settings] = await Promise.all([requireRole("va"),getBusinessSettings()]);
   const supabase = await createClient();
   const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).single();
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" }) : null;
+  const freshness=availabilityAge(va?.availability_confirmed_at);
+  const canConfirm=va?.availability_status==="available"&&Boolean(va?.weekly_hours)&&Boolean(va?.schedule)&&Boolean(va?.hourly_rate);
 
   return <>
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
     {params.saved ? <div className="success-banner" role="status">Profile saved successfully.</div> : null}
+    {params.availability_confirmed ? <div className="success-banner" role="status">Availability confirmed. Recruiters can rely on your current hours, schedule, and rate for the next matching cycle.</div> : null}
     {params.consent === "granted" ? <div className="success-banner" role="status">Public profile consent saved. Your profile can appear publicly once all eligibility and approval requirements are met.</div> : null}
     {params.consent === "withdrawn" ? <div className="success-banner" role="status">Public profile consent withdrawn. Your profile is no longer eligible to appear in the public directory.</div> : null}
     <div className="page-head"><div><h1>Build your VA profile</h1><p>Keep one strong profile for matching, applications, and your public page after approval.</p></div><Link className="btn" href="/workspace/va/profile/preview" target="_blank"><Eye size={16}/> Preview profile</Link></div>
@@ -32,12 +43,18 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
 
           <section className="card profile-section" id="expertise"><div className="profile-section-head"><div><span>02</span><div><h2>Experience & expertise</h2><p>Your specialty, skills, tools, and experience drive both matching and public-directory eligibility.</p></div></div></div><div className="form-grid"><div className="field"><label>Primary specialty</label><select name="primary_category" defaultValue={va?.primary_category || ""}><option value="">Choose a specialty</option>{VA_CATEGORIES.map((x, index) => <option key={`${String(x)}-${index}`}>{x}</option>)}</select></div><div className="field"><label>Years of professional experience</label><input type="number" min="0" max="60" name="years_experience" defaultValue={va?.years_experience ?? ""}/><span className="field-help">Public discovery requires at least 2 years.</span></div><div className="field span-2"><label>Additional specialties <span className="muted">(up to 3)</span></label><input name="categories" defaultValue={(va?.categories || []).join(", ")} placeholder="Customer Service, Ecommerce"/></div><div className="field span-2"><label>Core skills</label><input name="skills" defaultValue={(va?.skills || []).join(", ")} placeholder="Calendar management, recruitment coordination, customer support, reporting, research"/><span className="field-help">Add at least 5 specific skills. Separate them with commas.</span></div><div className="field span-2"><label>Tools & software</label><input name="tools" defaultValue={(va?.tools || []).join(", ")} placeholder="Google Workspace, HubSpot, Slack, Canva, ClickUp"/><span className="field-help">Add tools you can use without training.</span></div><div className="field"><label>Industries</label><input name="industries" defaultValue={(va?.industries || []).join(", ")} placeholder="SaaS, dental, real estate"/></div><div className="field"><label>Languages</label><input name="languages" defaultValue={(va?.languages || []).join(", ")} placeholder="English, Filipino"/></div></div></section>
 
-          <section className="card profile-section" id="availability"><div className="profile-section-head"><div><span>03</span><div><h2>Availability & rate</h2><p>Give matching enough information to avoid jobs that do not fit your schedule or expectations.</p></div></div></div><div className="form-grid"><div className="field"><label>Hours available per week</label><input type="number" min="1" max="80" name="weekly_hours" defaultValue={va?.weekly_hours || ""}/></div><div className="field"><label>Preferred hourly rate, USD</label><input type="number" min="5" step="0.01" name="hourly_rate" defaultValue={va?.hourly_rate || ""}/></div><div className="field"><label>Preferred schedule</label><input name="schedule" defaultValue={va?.schedule || ""} placeholder="Flexible · Evening PH · US overlap"/></div><div className="field"><label>Maximum live client overlap/day</label><input type="number" min="0" max="12" name="overlap_hours" defaultValue={va?.overlap_hours ?? 4}/></div><div className="field"><label>Availability status</label><select name="availability_status" defaultValue={va?.availability_status || "available"}><option value="available">Available now</option><option value="limited">Limited availability</option><option value="unavailable">Not available</option></select></div></div></section>
+          <section className="card profile-section" id="availability"><div className="profile-section-head"><div><span>03</span><div><h2>Availability & rate</h2><p>Keep this current so recruiters do not present you for schedules or rates that no longer work.</p></div></div><span className={`badge ${freshness.stale?"badge-warning":"badge-success"}`}><Clock3 size={13}/>{freshness.label}</span></div><div className="form-grid"><div className="field"><label>Hours available per week</label><input type="number" min="1" max="80" name="weekly_hours" defaultValue={va?.weekly_hours || ""}/></div><div className="field"><label>Preferred hourly rate, USD</label><input type="number" min={settings.minHourlyRate} step="0.01" name="hourly_rate" defaultValue={va?.hourly_rate || ""}/><span className="field-help">Current agency minimum: USD {settings.minHourlyRate}/hour.</span></div><div className="field"><label>Preferred schedule</label><input name="schedule" defaultValue={va?.schedule || ""} placeholder="Flexible · Evening PH · US overlap"/></div><div className="field"><label>Maximum live client overlap/day</label><input type="number" min="0" max="12" name="overlap_hours" defaultValue={va?.overlap_hours ?? 4}/></div><div className="field"><label>Availability status</label><select name="availability_status" defaultValue={va?.availability_status || "available"}><option value="available">Available now</option><option value="limited">Limited availability</option><option value="unavailable">Not available</option></select></div></div>{freshness.stale?<div className="alert" style={{marginTop:14}}><div><strong>Your availability needs confirmation.</strong><p style={{margin:"4px 0 0"}}>Recruiters will not release you to a new client shortlist after your availability becomes stale. Save any changes first, then confirm below.</p></div></div>:null}</section>
 
           <section className="card profile-section" id="trust"><div className="profile-section-head"><div><span>04</span><div><h2>Proof & trust</h2><p>Private evidence supports vetting; public links help clients understand your work.</p></div></div></div><div className="form-grid"><div className="field"><label>LinkedIn URL</label><input type="url" name="linkedin_url" defaultValue={va?.linkedin_url || ""} placeholder="https://linkedin.com/in/..."/></div><div className="field"><label>Portfolio URL</label><input type="url" name="portfolio_url" defaultValue={va?.portfolio_url || ""} placeholder="https://..."/></div><div className="field span-2"><label>Private resume <span className="muted">PDF/DOC/DOCX, max 5 MB</span></label><input type="file" name="resume" accept=".pdf,.doc,.docx"/><span className="field-help">Your uploaded resume is never exposed on the public profile.</span></div></div></section>
 
           <div className="profile-savebar"><span className="small muted">Save whenever you make meaningful changes. Some vetted evidence may require re-approval.</span><div className="row wrap"><Link className="btn" href="/workspace/va/vetting">Vetting status</Link><button className="btn btn-primary" type="submit">Save profile</button></div></div>
         </form>
+
+        <section className="card profile-section">
+          <div className="row-between wrap"><div><h2 style={{margin:"0 0 4px"}}>Confirm current availability</h2><p className="small muted" style={{margin:0}}>A quick confirmation tells recruiters that the hours, schedule, availability status, and rate saved above are still accurate.</p></div><span className={`badge ${freshness.stale?"badge-warning":"badge-success"}`}>{freshness.label}</span></div>
+          <form action={confirmVaAvailabilityAction} style={{marginTop:14}}><button className="btn btn-primary" type="submit" disabled={!canConfirm}>Confirm my current availability</button></form>
+          {!canConfirm?<p className="small muted" style={{marginBottom:0}}>Set Available now, weekly hours, a preferred schedule, and your current rate, then save the profile before confirming.</p>:<p className="small muted" style={{marginBottom:0}}>We will remind you periodically so recruiters never have to guess whether you are still available.</p>}
+        </section>
 
         <section className="card profile-section" id="visibility">
           <div className="profile-section-head"><div><span>05</span><div><h2>Public profile & privacy choice</h2><p>Your account and recruiter profile stay private unless you separately choose public discovery.</p></div></div></div>

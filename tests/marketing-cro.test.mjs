@@ -38,7 +38,7 @@ test("high-value public heroes keep their H1 copy and carry a conversion form", 
     ["src/app/industries/page.tsx", "Hire a virtual assistant who already understands your type of business.", "RoleBriefForm"],
     ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", "RoleBriefForm"],
     ["src/app/blog/page.tsx", "Build a better remote team, one clear workflow at a time.", "RoleBriefForm"],
-    ["src/app/pricing/page.tsx", "See the Virtual Assistant cost first. Know how the service fee is added.", "RoleBriefForm"],
+    ["src/app/pricing/page.tsx", "See the Virtual Assistant cost first. Know what our service adds.", "RoleBriefForm"],
     ["src/app/faq/page.tsx", "Questions before you hire or apply.", "RoleBriefForm"],
     ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", "RoleBriefForm"],
     ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", "RoleBriefForm"],
@@ -49,7 +49,7 @@ test("high-value public heroes keep their H1 copy and carry a conversion form", 
 
   for (const [path, h1Text, formSignal] of checks) {
     const file = source(path);
-    assert.ok(file.includes(h1Text), `${path} must preserve its existing H1 text`);
+    assert.ok(file.includes(h1Text), `${path} must preserve its approved H1 text`);
     assert.ok(file.includes(formSignal), `${path} must keep a working hero conversion form`);
   }
 });

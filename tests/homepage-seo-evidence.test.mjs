@@ -35,11 +35,11 @@ test("homepage explains Philippines hiring intent high on the page and links to 
 
 test("homepage exposes verified operations accountability without inventing recruiter titles", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /Human recruiting and operations, not an anonymous marketplace/);
-  assert.match(home, /<strong>Jervis<\/strong>/);
+  assert.match(home, /Human recruiting and Client Success, not an anonymous marketplace/);
+  assert.match(home, /<strong>Jervis Accad<\/strong>/);
   assert.match(home, /<strong>Bryan Batarina<\/strong>/);
   assert.match(home, /Operations team/);
-  assert.doesNotMatch(home, /Jervis[^\n]*Recruiter/);
+  assert.doesNotMatch(home, /Jervis Accad[^\n]*Recruiter/);
   assert.doesNotMatch(home, /Bryan Batarina[^\n]*Recruiter/);
 });
 

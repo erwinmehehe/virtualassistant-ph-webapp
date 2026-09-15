@@ -3,7 +3,10 @@ export const LEAD_CRM_STAGES = [
   { value: "contacted", label: "Contacted" },
   { value: "discovery_booked", label: "Discovery booked" },
   { value: "qualified", label: "Qualified" },
-  { value: "shortlist_sent", label: "Shortlist / proposal sent" },
+  { value: "terms_sent", label: "Terms sent" },
+  // Kept only for compatibility with records written by an older deployment.
+  // New proposal sends use terms_sent; client shortlist state belongs to jobs.
+  { value: "shortlist_sent", label: "Legacy proposal sent" },
   { value: "nurture", label: "Nurture" },
   { value: "won", label: "Won" },
   { value: "lost", label: "Lost" }
@@ -16,6 +19,7 @@ export const OPEN_LEAD_STAGES: LeadCrmStage[] = [
   "contacted",
   "discovery_booked",
   "qualified",
+  "terms_sent",
   "shortlist_sent",
   "nurture"
 ];
@@ -30,7 +34,7 @@ export function leadStageLabel(value?: string | null) {
 
 export function legacyLeadStatus(stage: LeadCrmStage) {
   if (stage === "lost") return "archived";
-  if (["qualified", "shortlist_sent", "won"].includes(stage)) return "converted";
+  if (["qualified", "terms_sent", "shortlist_sent", "won"].includes(stage)) return "converted";
   return "new";
 }
 

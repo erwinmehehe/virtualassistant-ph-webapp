@@ -103,7 +103,7 @@ const roleGroups = Array.from(
 const faqs = [
   [
     "How much does a Virtual Assistant in the Philippines cost?",
-    "Compensation varies by experience, specialty, tools, hours, and schedule. Ongoing hourly roles through our service cannot be budgeted below USD 6/hour, and the service fee is shown separately before you make a hiring commitment.",
+    "Compensation varies by experience, specialty, tools, hours, and schedule. Virtual Assistant compensation and the VirtualAssistant.com.ph service fee are shown separately before you make a hiring commitment.",
   ],
   [
     "How do you vet Filipino Virtual Assistants?",
@@ -126,8 +126,8 @@ const faqs = [
     "No. Our recruiting team can review the role and build a focused shortlist so you spend your time on stronger matches instead of a large applicant pool.",
   ],
   [
-    "What happens after I send a hiring request?",
-    "Your request stays private. Our recruiting team reviews the role, screens for fit, and follows up with the strongest next step. You do not need to create an account to get started.",
+    "What happens after I hire?",
+    "Hiring is only the beginning. Managed placements continue with structured onboarding, Client Success check-ins, placement monitoring, early problem recovery, and replacement support under your agreed terms.",
   ],
 ] as const;
 
@@ -205,7 +205,7 @@ export default async function HomePage({
         },
       ],
       member: [
-        { "@type": "Person", name: "Jervis" },
+        { "@type": "Person", name: "Jervis Accad" },
         { "@type": "Person", name: "Bryan Batarina" },
       ],
     },
@@ -240,18 +240,18 @@ export default async function HomePage({
                 Hire a Vetted Virtual Assistant <em>in the Philippines</em>
               </h1>
               <p className="pva-hero-lede">
-                We recruit, screen, and match experienced Filipino virtual assistants to your business, with placement support after they start, not just an introduction.
+                We recruit, vet, match and support experienced Filipino professionals for growing businesses.
               </p>
               <p className="pva-hero-sub">
-                A clearer way to build a reliable Filipino remote team without sorting through hundreds of applications yourself.
+                Get a focused shortlist, choose who you hire, and keep Client Success support after your new team member starts.
               </p>
 
               <div className="pva-hero-actions">
                 <a className="pva-btn pva-btn-primary" href="#hero-hiring-form" data-track="hero_hiring_request">
-                  Start your hiring request <ArrowRight size={18} />
+                  Get Your Shortlist <ArrowRight size={18} />
                 </a>
                 <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} data-track="booking_click">
-                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a client call
+                  <span className="pva-call-icon"><PhoneCall size={14} /></span> Book a Hiring Call
                 </a>
               </div>
 
@@ -278,10 +278,10 @@ export default async function HomePage({
 
         <section className="pva-trust-strip" aria-label="Hiring advantages">
           <div className="container pva-trust-grid">
-            <div><span>01</span><strong>Skip the resume pile</strong><small>Start with screened candidates worth interviewing.</small></div>
-            <div><span>02</span><strong>Skills + communication checked</strong><small>Practical screening backed by human recruiter review.</small></div>
-            <div><span>03</span><strong>You choose who you hire</strong><small>Compare profiles, interview, and make the final call.</small></div>
-            <div><span>04</span><strong>Support after placement</strong><small>Managed hiring stays involved after your VA starts.</small></div>
+            <div><span>01</span><strong>Human vetted</strong><small>Recruiters review evidence, communication, and role fit.</small></div>
+            <div><span>02</span><strong>Skills tested</strong><small>Practical screening helps separate claims from client-ready ability.</small></div>
+            <div><span>03</span><strong>You choose</strong><small>Compare the shortlist, interview, and make the final decision.</small></div>
+            <div><span>04</span><strong>Support after placement</strong><small>Client Success stays involved after your VA starts.</small></div>
           </div>
         </section>
 
@@ -341,7 +341,7 @@ export default async function HomePage({
               <h2>Why hire a Virtual Assistant in the Philippines?</h2>
               <p>Filipino professionals support international businesses across administration, executive assistance, customer service, lead generation, marketing, ecommerce, finance, real estate, healthcare support, and specialist operational roles.</p>
               <p>The advantage is not simply lower cost. The better hiring outcome comes from matching the right experience, communication style, tools, schedule, and ownership to the work your team needs to hand off.</p>
-              <p>Our model combines a public talent directory with human recruiting, so you can <Link href="/find-talent">browse vetted Filipino Virtual Assistants</Link> or <Link href="/hire">send a private hiring brief</Link> and have the team build a focused shortlist around the role.</p>
+              <p>Our model combines public talent discovery with human recruiting, so you can <Link href="/find-talent">browse vetted Filipino Virtual Assistants</Link> or <Link href="/hire">send a private hiring brief</Link> and have the team build a focused shortlist around the role.</p>
               <div className="pva-resource-links" aria-label="Virtual Assistant hiring resources">
                 <Link href="/hire">Hire a Virtual Assistant <ArrowRight size={13} /></Link>
                 <Link href="/find-talent">Browse vetted Filipino VAs <ArrowRight size={13} /></Link>
@@ -365,21 +365,21 @@ export default async function HomePage({
           <div className="container">
             <div className="pva-section-head pva-centered">
               <span className="pva-kicker">How it works</span>
-              <h2>From workload to shortlist to hire, without the marketplace chaos.</h2>
-              <p>One hiring workflow connects your brief, recruiter screening, interviews, and placement support.</p>
+              <h2>From hiring brief to a supported placement.</h2>
+              <p>One managed workflow connects role design, recruiting, interviews, launch, and Client Success.</p>
             </div>
             <div className="pva-process-grid">
               <article>
                 <span className="pva-process-icon"><ClipboardCheck size={22} /></span><small>Step 1</small><h3>Tell us the role</h3><p>Share responsibilities, schedule, timezone, tools, budget, and what success should look like.</p>
               </article>
               <article>
-                <span className="pva-process-icon"><SearchCheck size={22} /></span><small>Step 2</small><h3>We screen for fit</h3><p>Recruiters review experience, practical skills, communication, availability, and role fit.</p>
+                <span className="pva-process-icon"><SearchCheck size={22} /></span><small>Step 2</small><h3>We recruit and vet</h3><p>Recruiters review experience, practical skills, communication, availability, and role fit.</p>
               </article>
               <article>
-                <span className="pva-process-icon"><CalendarCheck2 size={22} /></span><small>Step 3</small><h3>Interview the shortlist</h3><p>Spend your interview time on stronger matches instead of sorting a large applicant pool.</p>
+                <span className="pva-process-icon"><CalendarCheck2 size={22} /></span><small>Step 3</small><h3>Review the shortlist</h3><p>Interview a focused group of client-ready candidates and choose who you want to hire.</p>
               </article>
               <article>
-                <span className="pva-process-icon"><Headphones size={22} /></span><small>Step 4</small><h3>Hire with support</h3><p>You make the final decision, and managed placements continue with support after the start date.</p>
+                <span className="pva-process-icon"><Headphones size={22} /></span><small>Step 4</small><h3>We manage the launch</h3><p>Managed placements continue with onboarding, Client Success check-ins, monitoring, and support after the start date.</p>
               </article>
             </div>
           </div>
@@ -389,21 +389,21 @@ export default async function HomePage({
           <div className="container">
             <div className="pva-section-head pva-centered">
               <span className="pva-kicker">Who is behind the workflow</span>
-              <h2>Human recruiting and operations, not an anonymous marketplace.</h2>
-              <p>Jervis and Bryan Batarina are active members of the platform operations team. Candidate approval still requires human recruiter review before a profile becomes publicly visible.</p>
+              <h2>Human recruiting and Client Success, not an anonymous marketplace.</h2>
+              <p>Recruiters own the hire. Jervis Accad owns Client Success after placement, so there is a clear human responsible for launch, check-ins, recovery, retention, and account growth.</p>
             </div>
             <div className="pva-team-grid">
               <article className="pva-team-card">
-                <div className="pva-team-person"><span className="pva-team-avatar">J</span><div><small>Operations team</small><strong>Jervis</strong></div></div>
-                <p>Supports the operational workflow connecting client requests, recruiter activity, and hiring follow-through inside the platform.</p>
+                <div className="pva-team-person"><span className="pva-team-avatar">JA</span><div><small>Client Success Manager</small><strong>Jervis Accad</strong></div></div>
+                <p>Owns the post-hire relationship, placement check-ins, early issue recovery, retention, and ongoing client success.</p>
               </article>
               <article className="pva-team-card">
                 <div className="pva-team-person"><span className="pva-team-avatar">BB</span><div><small>Operations team</small><strong>Bryan Batarina</strong></div></div>
-                <p>Supports the platform operations behind client and recruiter workflows as hiring activity moves from brief to placement.</p>
+                <p>Supports the operating workflows that keep client, recruiter, and placement activity connected.</p>
               </article>
               <article className="pva-team-card pva-team-proof">
-                <div className="pva-team-person"><span className="pva-team-avatar"><UsersRound size={17} /></span><div><small>Approval standard</small><strong>Human review before public visibility</strong></div></div>
-                <p>Public profiles are not automatically published from a signup. Required screening and approval steps must be completed first.</p>
+                <div className="pva-team-person"><span className="pva-team-avatar"><UsersRound size={17} /></span><div><small>Approval standard</small><strong>Human review before client presentation</strong></div></div>
+                <p>Client shortlists are recruiter-curated. Automated matching can suggest candidates internally, but a human decides who is presented.</p>
               </article>
             </div>
             <div className="pva-team-actions"><Link className="pva-text-link" href="/about">About VirtualAssistant.com.ph <ArrowRight size={14} /></Link><Link className="pva-text-link" href="/how-vetting-works">See the vetting process <ArrowRight size={14} /></Link></div>
@@ -413,36 +413,36 @@ export default async function HomePage({
         <section className="pva-dark-section">
           <div className="container pva-dark-grid">
             <div className="pva-dark-copy">
-              <span className="pva-dark-kicker"><Sparkles size={14} /> Built for a real hiring team</span>
-              <h2>A better view of what happens after you click “hire.”</h2>
-              <p>Hiring should not disappear into email threads. The platform keeps the client, recruiter, and Virtual Assistant journey connected from brief through placement.</p>
+              <span className="pva-dark-kicker"><Sparkles size={14} /> Hiring is only the beginning</span>
+              <h2>The service continues after your new team member starts.</h2>
+              <p>Recruiting gets the right person into the role. Client Success helps the placement launch well, catches problems early, and coordinates recovery or replacement when needed.</p>
               <ul>
-                <li><CheckCircle2 size={17} /> Client role briefs and candidate shortlists</li>
-                <li><CheckCircle2 size={17} /> Recruiter vetting and matching workflows</li>
-                <li><CheckCircle2 size={17} /> Interview, proposal, onboarding, and workroom continuity</li>
-                <li><CheckCircle2 size={17} /> Separate experiences for clients, recruiters, and VAs</li>
+                <li><CheckCircle2 size={17} /> Recruiting, vetting, matching, and client choice</li>
+                <li><CheckCircle2 size={17} /> Structured placement readiness and onboarding</li>
+                <li><CheckCircle2 size={17} /> Day 1 through Day 90 Client Success check-ins</li>
+                <li><CheckCircle2 size={17} /> Monitoring, recovery, and replacement support</li>
               </ul>
               <div className="pva-dark-actions">
-                <Link className="pva-btn pva-btn-light" href="/hire">Start hiring <ArrowRight size={17} /></Link>
-                <Link className="pva-dark-link" href="/how-vetting-works">See how vetting works</Link>
+                <Link className="pva-btn pva-btn-light" href="/hire">Get Your Shortlist <ArrowRight size={17} /></Link>
+                <Link className="pva-dark-link" href="/pricing">See transparent pricing</Link>
               </div>
             </div>
 
-            <div className="pva-dashboard-mock" aria-label="Client hiring dashboard preview">
+            <div className="pva-dashboard-mock" aria-label="Managed placement workflow preview">
               <div className="pva-dashboard-bar">
-                <div><i /><i /><i /></div><span>Client hiring workspace</span><small>Live workflow</small>
+                <div><i /><i /><i /></div><span>Managed placement</span><small>Client Success</small>
               </div>
               <div className="pva-dashboard-stats">
-                <div><small>Role brief</small><strong>Reviewed</strong><span>Ready for matching</span></div>
-                <div><small>Candidate pipeline</small><strong>Screened</strong><span>Recruiter curated</span></div>
-                <div><small>Interviews</small><strong>Organized</strong><span>One place to decide</span></div>
+                <div><small>Recruiting</small><strong>Curated</strong><span>Role-ready shortlist</span></div>
+                <div><small>Launch</small><strong>Structured</strong><span>Readiness + onboarding</span></div>
+                <div><small>Support</small><strong>Ongoing</strong><span>Check-ins + recovery</span></div>
               </div>
               <div className="pva-pipeline">
-                <div className="pva-pipeline-head"><strong>Hiring pipeline</strong><span>One clear next step</span></div>
+                <div className="pva-pipeline-head"><strong>Placement journey</strong><span>One clear owner at each stage</span></div>
                 {[
-                  ["Recruiter screening", "Complete", "Skills + communication reviewed"],
-                  ["Candidate shortlist", "Ready", "Strongest role matches surfaced"],
-                  ["Client interviews", "Next", "Compare and choose your preferred VA"],
+                  ["Recruiter handoff", "Ready", "Hiring context moves into Client Success"],
+                  ["Placement launch", "Next", "Access, schedule, goals, and first-week plan"],
+                  ["Ongoing health", "Active", "Client and VA pulses surface issues early"],
                 ].map(([title, status, copy], index) => (
                   <div className="pva-pipeline-row" key={title}>
                     <span className="pva-pipeline-index">{index + 1}</span>
@@ -539,13 +539,13 @@ export default async function HomePage({
           <div className="pva-final-orb" aria-hidden="true" />
           <div className="container pva-final-inner">
             <span className="pva-dark-kicker"><Star size={14} /> Ready when you are</span>
-            <h2>Build your shortlist around the role, not the resume pile.</h2>
+            <h2>Get a shortlist built around the role, not a pile of resumes.</h2>
             <p>Send a private hiring brief or browse approved Filipino Virtual Assistants first. You stay in control of the final hiring decision.</p>
             <div className="pva-final-actions">
-              <Link className="pva-btn pva-btn-light" href="/hire">Start your hiring request <ArrowRight size={17} /></Link>
-              <Link className="pva-btn pva-btn-dark-outline" href="/find-talent">Browse approved talent</Link>
+              <Link className="pva-btn pva-btn-light" href="/hire">Get Your Shortlist <ArrowRight size={17} /></Link>
+              <Link className="pva-btn pva-btn-dark-outline" href={BOOKING_URL}>Book a Hiring Call</Link>
             </div>
-            <div className="pva-final-proof"><span><Check size={14} /> Private brief</span><span><Check size={14} /> Human screening</span><span><Check size={14} /> No account required to start</span></div>
+            <div className="pva-final-proof"><span><Check size={14} /> Private brief</span><span><Check size={14} /> Human screening</span><span><Check size={14} /> Support after placement</span></div>
           </div>
         </section>
       </main>

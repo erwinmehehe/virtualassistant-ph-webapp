@@ -19,9 +19,10 @@ function exactActionHref(item:any) {
   const email=String(meta.email||"").trim();
   if(["lead_first_contact","lead_followup"].includes(String(item.kind))&&email) return `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(email)}`;
   if(item.kind==="discovery"&&email) return `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(email)}`;
-  if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/matching/${meta.subject_id}`;
+  if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
+  if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
-  if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/matching/${item.id}`;
+  if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
   if(item.kind==="candidate_capacity_conflict"&&item.id) return `/workspace/recruiter/candidates/${item.id}`;
   return item.href||null;
 }
@@ -33,6 +34,9 @@ function actionLabel(item:any) {
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
   if(["interview_today","interview_feedback_missing"].includes(String(item.kind))) return "Open interview";
   if(["offer_waiting_va","offer_waiting_client"].includes(String(item.kind))) return "Open offer";
+  if(item.kind==="placement_checkin") return "Complete check-in";
+  if(item.kind==="placement_risk") return "Open placement";
+  if(item.kind==="placement_handoff") return "Complete handoff";
   if(item.kind==="candidate_capacity_conflict") return "Review VA";
   if(item.kind==="task") return "Act now";
   return "Review role";
@@ -56,7 +60,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
     <div className="dash-header">
-      <div><div className="dash-kicker">Recruiter daily workflow</div><h1>My Day</h1><p>Work the highest-priority current client and hiring actions from top to bottom.</p><span className="dash-freshness">Recent active work first · older backlog stays in CRM and role views</span></div>
+      <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>Work the highest-priority Sales, Recruitment, and Client Success actions from top to bottom.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
       <div className="row wrap">
         <Link className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
         <Link className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
@@ -65,7 +69,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     </div>
 
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
-      <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Do the action here when possible. Otherwise, one click opens the exact client, role, interview, offer, or VA.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
+      <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Do the action here when possible. Otherwise, one click opens the exact lead, role, placement, interview, offer, or VA.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
         {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}
         <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Today's work queue, ${queue.length} items`}>
@@ -98,7 +102,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             </article>;
           })}
         </div>
-      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current recruiter work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
+      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current agency work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
     </section>
   </div>;
 }

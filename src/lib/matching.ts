@@ -90,3 +90,11 @@ export function matchLabel(score: number) {
   if (score >= 40) return "Potential fit";
   return "Review fit";
 }
+
+// Clients should see an understandable qualitative recommendation, not the
+// internal scoring scale or a low-score operational label.
+export function clientMatchLabel(score: number) {
+  if (score >= 80) return "Strong fit";
+  if (score >= 60) return "Good fit";
+  return "Potential fit";
+}

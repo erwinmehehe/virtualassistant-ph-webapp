@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createInvoiceAction, releasePayoutAction, resolveDisputeReleaseAction, resolveDisputeRefundAction } from "@/app/actions/payments";
@@ -23,7 +24,7 @@ export default async function AdminPaymentsPage({searchParams}:{searchParams:Pro
 
   return <>
     {params.time_invoice?<div className="success-banner">Invoice created from approved, uninvoiced VA time.</div>:null}
-    <div className="page-head"><div><h1>Payments</h1><p>Bill only approved work, collect client payment, then release the full VA compensation manually after funds are confirmed. Service fees remain separate.</p></div></div>
+    <div className="page-head"><div><div className="kicker">Finance · invoices & payouts</div><h1>Payments</h1><p>Bill approved work, collect client payment, release VA compensation, and resolve disputes from the Finance OS.</p></div><Link className="btn" href="/workspace/admin/finance">Back to Finance</Link></div>
     {!paymongoConfigured?<div className="alert" style={{marginBottom:20}}>PayMongo is not configured yet (<code>PAYMONGO_SECRET_KEY</code> is empty). Invoices can be created, but clients cannot pay until it is configured.</div>:null}
 
     <section className="card" style={{marginBottom:24}}><div className="row-between wrap"><div><h2 style={{margin:0}}>Approved work ready to invoice</h2><p className="small muted">The system calculates approved, uninvoiced hours × the confirmed workroom rate. Admin still confirms before the invoice is created.</p></div><span className={`badge ${ready.length?"badge-warning":"badge-success"}`}>{ready.length} ready</span></div>

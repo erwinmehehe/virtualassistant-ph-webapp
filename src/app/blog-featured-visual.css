@@ -399,3 +399,13 @@
     transform: none;
   }
 }
+
+/* Editorial cover treatment for blog index cards */
+.blog-featured-card .blog-featured-visual{width:100%;min-height:220px;margin:0 0 18px;aspect-ratio:16/9;border-radius:18px;overflow:hidden}
+.blog-featured-card.blog-featured-primary .blog-featured-visual{min-height:280px}
+.blog-featured-card .blog-card-copy{display:grid;gap:8px}
+.blog-list-card-visual{display:grid!important;grid-template-columns:180px minmax(0,1fr);align-items:center;gap:18px}
+.blog-list-card-visual .blog-featured-visual{width:180px;min-height:112px;aspect-ratio:16/10;margin:0;border-radius:14px;overflow:hidden}
+.blog-list-card-visual .blog-featured-window{transform:scale(.72)}
+.blog-list-card-visual .blog-featured-float-card{display:none}
+@media(max-width:760px){.blog-list-card-visual{grid-template-columns:1fr}.blog-list-card-visual .blog-featured-visual{width:100%;min-height:180px;aspect-ratio:16/9}.blog-featured-card.blog-featured-primary .blog-featured-visual{min-height:220px}}

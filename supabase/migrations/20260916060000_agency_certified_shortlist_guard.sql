@@ -17,7 +17,7 @@ create or replace function public.is_va_agency_certified(
 returns boolean
 language sql
 stable
-security definer
+security invoker
 set search_path = ''
 as $$
   select
@@ -57,7 +57,7 @@ grant execute on function public.is_va_agency_certified(uuid, timestamptz) to se
 create or replace function public.enforce_agency_certified_shortlist_release()
 returns trigger
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 begin
@@ -83,6 +83,7 @@ end;
 $$;
 
 revoke execute on function public.enforce_agency_certified_shortlist_release() from public, anon, authenticated;
+grant execute on function public.enforce_agency_certified_shortlist_release() to service_role;
 
 drop trigger if exists job_shortlist_agency_certified_release_guard on public.job_shortlist_candidates;
 create trigger job_shortlist_agency_certified_release_guard

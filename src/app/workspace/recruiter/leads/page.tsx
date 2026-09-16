@@ -9,6 +9,7 @@ import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm
 import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { CloseLeadForm } from "@/components/close-lead-form";
 
 const PAGE_SIZE = 25;
 
@@ -367,6 +368,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Log external email</button></form>
                 {lead.phone ? <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="call"/><button className="btn btn-sm" type="submit">Mark called</button></form> : null}
               </div>
+
+              {isOpenLeadStage(stage) ? <CloseLeadForm leadId={lead.id} returnTo={returnTo} hasLinkedRole={Boolean(lead.job_id)}/> : null}
 
               <form action={recordLeadContactAction} className="row wrap">
                 <input type="hidden" name="lead_id" value={lead.id}/>

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, Clock3, DollarSign, Sparkles } from "lucide-react";
 import { VA_CATEGORIES } from "@/lib/constants";
-import { TalentShortlistButton, type ShortlistTalent } from "@/components/talent-shortlist";
+import type { ShortlistTalent } from "@/components/talent-shortlist";
 
 export type MatchTalent = ShortlistTalent & {
   category?: string | null;
@@ -113,7 +113,7 @@ export function FindMyVaWizard({ talent }: { talent: MatchTalent[] }) {
           <div className="cro-match-results-head">
             <div>
               <strong>{recommendations.length ? "Best matches from the current approved pool" : "No close match in the current pool"}</strong>
-              <span>{recommendations.length ? "Shortlist anyone you want to interview. A recruiter will confirm the final fit and availability." : "Send the role anyway. We can recruit beyond the public profiles."}</span>
+              <span>{recommendations.length ? "These are matching talent examples. A recruiter will confirm current fit and availability before presenting candidates." : "Send the role anyway. We can recruit beyond the public profiles."}</span>
             </div>
             <Link href={hireHref}>Send role to recruiter <ArrowRight size={14} /></Link>
           </div>
@@ -128,10 +128,6 @@ export function FindMyVaWizard({ talent }: { talent: MatchTalent[] }) {
                     <span>{va.yearsExperience || 2}+ yrs experience</span>
                     <span>{va.weeklyHours ? `${va.weeklyHours} hrs/week` : "Flexible hours"}</span>
                     {va.hourlyRate ? <span>${Number(va.hourlyRate).toFixed(0)}/hr preferred</span> : null}
-                  </div>
-                  <div className="cro-match-card-actions">
-                    <Link href={`/va/${va.slug}`}>View profile</Link>
-                    <TalentShortlistButton talent={{ slug: va.slug, name: va.name, headline: va.headline }} />
                   </div>
                 </article>
               ))}

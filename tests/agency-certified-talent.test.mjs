@@ -21,7 +21,13 @@ test("Agency Certified uses the same deterministic evidence as Talent OS client-
   assert.match(migration, /v\.work_setup_verified_at is not null/);
 });
 
-test("new client releases are blocked at the database boundary when certification is stale", () => {
+test("Agency Certified enforcement is staged off by default", () => {
+  assert.match(migration, /require_agency_certified_release boolean not null default false/);
+  assert.match(migration, /select coalesce\(s\.require_agency_certified_release, false\)/);
+  assert.match(migration, /if not coalesce\(v_required, false\) then[\s\S]*return new/);
+});
+
+test("once enabled, new client releases are blocked when certification is stale", () => {
   assert.match(migration, /create trigger job_shortlist_agency_certified_release_guard/);
   assert.match(migration, /before insert or update of shortlist_status on public\.job_shortlist_candidates/);
   assert.match(migration, /if new\.shortlist_status <> 'released' then/);
@@ -35,7 +41,9 @@ test("internal shortlist work and already-released client records stay intact", 
   assert.match(migration, /if tg_op = 'UPDATE' and old\.shortlist_status = 'released' then[\s\S]*return new/);
 });
 
-test("Agency Certified helper is server-only", () => {
+test("Agency Certified helper is server-only and uses invoker security", () => {
+  assert.match(migration, /security invoker/);
+  assert.doesNotMatch(migration, /security definer/);
   assert.match(migration, /revoke execute on function public\.is_va_agency_certified\(uuid, timestamptz\) from public, anon, authenticated/);
   assert.match(migration, /grant execute on function public\.is_va_agency_certified\(uuid, timestamptz\) to service_role/);
   assert.match(migration, /revoke execute on function public\.enforce_agency_certified_shortlist_release\(\) from public, anon, authenticated/);

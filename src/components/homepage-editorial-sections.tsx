@@ -19,7 +19,7 @@ import styles from "./homepage-editorial-sections.module.css";
 
 const serviceAreas = [
   { label: "Executive Assistance", href: "/service/general-virtual-assistant", icon: BriefcaseBusiness },
-  { label: "Customer Support", href: "/service/customer-service-virtual-assistant", icon: Headphones },
+  { label: "Customer Support", href: "/service/customer-service", icon: Headphones },
   { label: "Ecommerce Support", href: "/service/ecommerce", icon: ShoppingCart },
   { label: "Bookkeeping & Accounting", href: "/service/bookkeeping", icon: Calculator },
   { label: "Digital Marketing", href: "/service/digital-marketing-virtual-assistant", icon: BarChart3 },

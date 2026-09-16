@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Mail, Phone, Search, UserRound } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
@@ -72,7 +72,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   await requireRoleFast("recruiter");
   const admin = createAdminClient();
 
-  const view = params.view || "recent";
+  const view = params.view || "open";
   const q = String(params.q || "").trim();
   const ownerFilter = String(params.owner || "");
   const parsedPage = Number.parseInt(String(params.page || "1"), 10);
@@ -127,9 +127,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const openPipelineValue = Number(metrics.open_pipeline_value || 0);
 
   const viewTabs = [
+    ["open", "Open pipeline"],
     ["recent", "Newest leads"],
     ["attention", "Attention"],
-    ["open", "Open pipeline"],
     ["discovery", "Discovery"],
     ["qualified", "Qualified"],
     ["nurture", "Nurture"],
@@ -277,7 +277,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 </div> : null}
 
                 {latest ? <div className="crm-latest-contact"><strong>{activityLabel(latest.action)}</strong><span>{dateShort(latest.created_at)}{contactCount > 1 ? ` · ${contactCount} contact updates` : ""}</span>{latest.description ? <small>{latest.description}</small> : null}</div> : null}
-                {lead.job_id ? <Link className="btn btn-sm" href={`/workspace/recruiter/matching/${lead.job_id}`}>Open linked role</Link> : null}
+                {lead.job_id ? <Link className="btn btn-sm" href={`/workspace/recruiter/matching/${lead.job_id}`}>View linked role</Link> : null}
               </section>
 
               <form action={updateLeadCrmAction} className="crm-update-card">
@@ -364,8 +364,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               </details>
 
               <div className="row wrap">
-                <a className="btn btn-sm" href={`mailto:${lead.email}?subject=${encodeURIComponent(emailSubject)}`}><ExternalLink size={13}/> Open email app</a>
-                {lead.phone ? <a className="btn btn-sm" href={`tel:${String(lead.phone).replace(/[^+\d]/g, "")}`}><Phone size={14}/> Call</a> : null}
                 <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Log external email</button></form>
                 {lead.phone ? <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="call"/><button className="btn btn-sm" type="submit">Mark called</button></form> : null}
               </div>

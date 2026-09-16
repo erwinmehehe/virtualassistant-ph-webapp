@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Clock3,
-  Globe2,
   Headphones,
   HeartPulse,
   Home,
@@ -21,7 +20,6 @@ import {
   Scale,
   SearchCheck,
   ShoppingCart,
-  Sparkles,
   Store,
   Users,
   UsersRound,
@@ -114,6 +112,66 @@ export function ServicesSection() {
 /* 2. Why the Philippines                                                     */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * A 9am-5pm business day in each market, shown on a 24-hour Manila clock.
+ *
+ * Manila is UTC+8 with no daylight saving. Sydney AEST is UTC+10, London GMT is
+ * UTC+0, New York EST is UTC-5, so in standard time:
+ *   Sydney   09:00-17:00 -> Manila 07:00-15:00
+ *   London   09:00-17:00 -> Manila 17:00-01:00 (next day)
+ *   New York 09:00-17:00 -> Manila 22:00-06:00 (next day)
+ * Shifts that cross midnight are drawn as two segments. Daylight saving in the
+ * client's market moves each window by one hour, which the note states.
+ */
+const SHIFTS: { code: string; city: string; manila: string; segments: [number, number][] }[] = [
+  { code: "AU", city: "Sydney", manila: "7:00 AM - 3:00 PM", segments: [[7, 15]] },
+  { code: "UK", city: "London", manila: "5:00 PM - 1:00 AM", segments: [[17, 24], [0, 1]] },
+  { code: "US", city: "New York", manila: "10:00 PM - 6:00 AM", segments: [[22, 24], [0, 6]] },
+];
+
+function WorkingHoursCard() {
+  return (
+    <aside className="hs-tz" aria-labelledby="hs-tz-title">
+      <div className="hs-tz-head">
+        <Chip icon={Clock3} tone={1} size={20} />
+        <div>
+          <strong id="hs-tz-title">Your VA works your business hours</strong>
+          <small>A 9am-5pm day in each market, shown in Manila time</small>
+        </div>
+      </div>
+
+      <ul className="hs-tz-rows">
+        {SHIFTS.map(({ code, city, manila, segments }) => (
+          <li key={code}>
+            <div className="hs-tz-label">
+              <span className="hs-tz-code">{code}</span>
+              <span className="hs-tz-city">{city} business day</span>
+              <strong>{manila}</strong>
+            </div>
+            <div className="hs-tz-track" aria-hidden="true">
+              <span className="hs-tz-night" style={{ left: 0, width: "25%" }} />
+              <span className="hs-tz-night" style={{ left: "75%", width: "25%" }} />
+              {segments.map(([from, to]) => (
+                <span key={from} className="hs-tz-bar" style={{ left: `${(from / 24) * 100}%`, width: `${((to - from) / 24) * 100}%` }} />
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hs-tz-axis" aria-hidden="true">
+        <span style={{ left: "0%" }}>12am</span>
+        <span style={{ left: "25%" }}>6am</span>
+        <span style={{ left: "50%" }}>12pm</span>
+        <span style={{ left: "75%" }}>6pm</span>
+        <span style={{ left: "100%" }}>12am</span>
+      </div>
+
+      <p className="hs-tz-note">Manila time, UTC+8. Standard time shown; windows move by an hour while your market is on daylight saving. Shaded areas are night in Manila.</p>
+    </aside>
+  );
+}
+
 const REASONS = [
   ["Fluent English", "Clear written and spoken English for clients, customers, and teams."],
   ["Attention to detail", "Careful execution means fewer mistakes and less back-and-forth."],
@@ -123,24 +181,7 @@ const REASONS = [
   ["Already tool-proficient", "Google Workspace, Slack, Asana, HubSpot, Shopify, Canva, Xero, QuickBooks."],
 ] as const;
 
-const STORY_POINTS = [
-  ["Flexible", "Start part-time or hire for full-time availability."],
-  ["Role matched", "Match skills, tools, schedule, and working style."],
-  ["Human screened", "Recruiters review candidates before client presentation."],
-] as const;
-
-export function WhyPhilippinesSection({ bookingUrl }: { bookingUrl: string }) {
-  const resources: [string, string][] = [
-    ["Get your free VA match", "/hire"],
-    ["Browse vetted Filipino VAs", "/find-talent"],
-    ["Virtual Assistant services", "/services"],
-    ["Virtual Assistant pricing", "/pricing"],
-    ["How we vet Virtual Assistants", "/how-vetting-works"],
-    ["Virtual Assistants by industry", "/industries"],
-    ["Managed VA vs. direct hire", "/managed-vs-direct-hire"],
-    ["Discuss your VA needs", bookingUrl],
-  ];
-
+export function WhyPhilippinesSection() {
   return (
     <section className="hs-section hs-band-soft" aria-labelledby="hs-why-title">
       <div className="container">
@@ -155,27 +196,22 @@ export function WhyPhilippinesSection({ bookingUrl }: { bookingUrl: string }) {
             </div>
           </div>
 
-          <aside className="hs-reasons" aria-label="What Filipino virtual assistants bring">
-            <div className="hs-reasons-head">
-              <Chip icon={Sparkles} tone={1} size={20} />
-              <div><strong>What Filipino VAs bring</strong><small>Why teams keep hiring from the Philippines</small></div>
-            </div>
-            <ul className="hs-reason-list">
-              {REASONS.map(([title, copy]) => (
-                <li key={title}>
-                  <CheckCircle2 size={18} aria-hidden="true" />
-                  <div><strong>{title}</strong><span>{copy}</span></div>
-                </li>
-              ))}
-            </ul>
-            <span className="hs-reasons-note"><Globe2 size={15} aria-hidden="true" /> Working hours set to overlap with AU, US, or UK time</span>
-          </aside>
+          <WorkingHoursCard />
         </div>
 
-        <div className="hs-points">
-          {STORY_POINTS.map(([title, copy]) => (
-            <div className="hs-point" key={title}><strong>{title}</strong><span>{copy}</span></div>
-          ))}
+        <div className="hs-reasons-panel">
+          <div className="hs-reasons-intro">
+            <strong>What Filipino virtual assistants bring</strong>
+            <span>Why teams keep hiring from the Philippines</span>
+          </div>
+          <ul className="hs-reasons-grid">
+            {REASONS.map(([title, copy]) => (
+              <li key={title}>
+                <CheckCircle2 size={19} aria-hidden="true" />
+                <div><strong>{title}</strong><span>{copy}</span></div>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="hs-why-more">
@@ -193,12 +229,6 @@ export function WhyPhilippinesSection({ bookingUrl }: { bookingUrl: string }) {
           <p>If you are spending too much time on work that someone else could reliably handle, it may be time to delegate.</p>
           <Link className="hs-btn hs-btn-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
         </div>
-
-        <nav className="hs-resources" aria-label="Virtual Assistant hiring resources">
-          {resources.map(([label, href]) => (
-            <Link key={label} href={href}>{label} <ArrowRight size={12} aria-hidden="true" /></Link>
-          ))}
-        </nav>
       </div>
     </section>
   );
@@ -215,6 +245,9 @@ const MODEL_ROWS = [
   ["Ongoing support", "Limited", "None", "Yes"],
   ["Best for", "Experienced hirers", "Businesses that want to manage directly", "Businesses that want vetted candidates and hiring support"],
 ] as const;
+
+// The last row is a description, not an outcome, so it gets no check mark.
+const CHECKED_ROWS = MODEL_ROWS.length - 1;
 
 export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
   return (
@@ -243,12 +276,16 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
                 </tr>
               </thead>
               <tbody>
-                {MODEL_ROWS.map(([label, marketplace, direct, managed]) => (
+                {MODEL_ROWS.map(([label, marketplace, direct, managed], index) => (
                   <tr key={label}>
                     <th scope="row">{label}</th>
                     <td>{marketplace}</td>
                     <td>{direct}</td>
-                    <td className="hs-managed">{managed}</td>
+                    <td className="hs-managed">
+                      {index < CHECKED_ROWS
+                        ? <span className="hs-cell-check"><CheckCircle2 size={15} aria-hidden="true" />{managed}</span>
+                        : managed}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -338,7 +375,7 @@ export function HowItWorksSection() {
           <p className="hs-lede">One managed workflow connects role design, recruiting, interviews, launch, and Client Success.</p>
         </div>
 
-        <ol className="hs-steps" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+        <ol className="hs-steps">
           {STEPS.map(({ title, copy, icon }, index) => (
             <li className="hs-step" key={title}>
               <div className="hs-step-top">
@@ -412,23 +449,24 @@ export function IndustriesSection() {
   return (
     <section className="hs-section hs-band-soft" aria-labelledby="hs-industries-title">
       <div className="container">
-        <div className="hs-head">
-          <Kicker>Supporting businesses across industries</Kicker>
-          <h2 className="hs-h2" id="hs-industries-title">Filipino Virtual Assistants for Growing Businesses</h2>
-          <p className="hs-lede">We help businesses of all sizes find the right Filipino talent.</p>
+        <div className="hs-head hs-head-row">
+          <div>
+            <Kicker>Supporting businesses across industries</Kicker>
+            <h2 className="hs-h2" id="hs-industries-title">Filipino Virtual Assistants for Growing Businesses</h2>
+            <p className="hs-lede">We help businesses of all sizes find the right Filipino talent.</p>
+          </div>
+          <Link className="hs-link" href="/industries">View all industries <ArrowRight size={14} /></Link>
         </div>
 
-        <div className="hs-tiles-8">
+        <div className="hs-tiles-row">
           {AUDIENCES.map(({ label, href, icon }, index) => (
-            <Link key={label} href={href} className="hs-tile">
-              <Chip icon={icon} tone={index} size={22} />
+            <Link key={label} href={href} className="hs-tile-h">
+              <Chip icon={icon} tone={index} size={20} />
               <strong>{label}</strong>
-              <ArrowRight className="hs-tile-arrow" size={14} aria-hidden="true" />
+              <ArrowRight className="hs-tile-arrow" size={15} aria-hidden="true" />
             </Link>
           ))}
         </div>
-
-        <div className="hs-center-action"><Link className="hs-link" href="/industries">View all industries <ArrowRight size={14} /></Link></div>
       </div>
     </section>
   );

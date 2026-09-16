@@ -17,7 +17,6 @@
   --hs-line: #e6eaf2;
   --hs-line-strong: #d7ddea;
   --hs-surface: #ffffff;
-  --hs-soft: #f7f8fe;
   --hs-brand: #444ce7;
   --hs-brand-2: #6236ff;
   --hs-brand-ink: #3538cd;
@@ -145,6 +144,7 @@
   font-size: .88rem;
   font-weight: 750;
   text-decoration: none;
+  white-space: nowrap;
 }
 .hs-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 
@@ -197,43 +197,70 @@
 /* ==========================================================================
    2. Why the Philippines
    ========================================================================== */
-.hs-why { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 3.25rem; align-items: start; }
+.hs-why { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 3.25rem; align-items: center; }
 
-.hs-reasons {
-  position: relative;
-  padding: 1.5rem;
+/* Working-hours chart: a 24-hour Manila clock, one row per client market. */
+.hs-tz {
+  padding: 1.6rem;
   border: 1px solid var(--hs-line);
   border-radius: 24px;
   background: var(--hs-surface);
-  box-shadow: 0 30px 60px -36px rgba(15, 23, 42, .3);
+  box-shadow: 0 30px 60px -36px rgba(15, 23, 42, .32);
 }
-.hs-reasons-head { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--hs-line); }
-.hs-reasons-head strong { display: block; font-size: 1rem; font-weight: 800; letter-spacing: -.01em; }
-.hs-reasons-head small { display: block; color: var(--hs-muted); font-size: .8rem; }
-.hs-reason-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem 1.1rem; margin: 0; padding: 0; list-style: none; }
-.hs-reason-list li { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: start; }
-.hs-reason-list svg { margin-top: .1rem; color: var(--hs-green); }
-.hs-reason-list strong { display: block; font-size: .88rem; font-weight: 750; }
-.hs-reason-list span { display: block; margin-top: .15rem; color: var(--hs-muted); font-size: .8rem; line-height: 1.45; }
-.hs-reasons-note {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  margin-top: 1.2rem;
-  padding: .55rem .8rem;
-  border-radius: 999px;
-  background: var(--hs-blue-soft);
-  color: var(--hs-blue);
-  font-size: .78rem;
-  font-weight: 700;
+.hs-tz-head { display: flex; align-items: center; gap: .8rem; margin-bottom: 1.4rem; }
+.hs-tz-head strong { display: block; font-size: 1.02rem; font-weight: 800; letter-spacing: -.015em; }
+.hs-tz-head small { display: block; margin-top: .1rem; color: var(--hs-muted); font-size: .8rem; }
+
+.hs-tz-rows { display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
+.hs-tz-label { display: flex; align-items: center; gap: .55rem; margin-bottom: .45rem; }
+.hs-tz-code {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 1.45rem;
+  padding: 0 .35rem;
+  border-radius: 7px;
+  background: var(--hs-ink);
+  color: #fff;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .06em;
 }
+.hs-tz-city { color: var(--hs-muted); font-size: .8rem; }
+.hs-tz-label strong { margin-left: auto; color: var(--hs-ink); font-size: .84rem; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.hs-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; margin: 2.5rem 0 2rem; }
-.hs-point { padding: 1.1rem 1.2rem; border: 1px solid var(--hs-line); border-radius: 16px; background: rgba(255, 255, 255, .72); }
-.hs-point strong { display: block; margin-bottom: .25rem; font-size: .95rem; font-weight: 800; }
-.hs-point span { color: var(--hs-muted); font-size: .86rem; line-height: 1.5; }
+.hs-tz-track { position: relative; height: 12px; overflow: hidden; border-radius: 999px; background: #eef2ff; }
+.hs-tz-night { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(15, 23, 42, .06) 0 4px, transparent 4px 8px); }
+.hs-tz-bar { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--hs-brand), #7c3aed); }
 
-.hs-why-more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; }
+.hs-tz-axis { position: relative; height: 1rem; margin-top: .55rem; }
+.hs-tz-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--hs-faint); font-size: .68rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hs-tz-axis span:first-child { transform: none; }
+.hs-tz-axis span:last-child { transform: translateX(-100%); }
+
+.hs-tz-note { margin: 1.1rem 0 0; padding-top: .9rem; border-top: 1px solid var(--hs-line); color: var(--hs-muted); font-size: .76rem; line-height: 1.5; }
+
+/* Reasons as one checklist panel, not six separate cards. */
+.hs-reasons-panel {
+  display: grid;
+  grid-template-columns: minmax(0, .32fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  margin-top: 3rem;
+  padding: 1.75rem;
+  border: 1px solid var(--hs-line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .78);
+}
+.hs-reasons-intro strong { display: block; font-size: 1.1rem; font-weight: 800; line-height: 1.25; letter-spacing: -.02em; }
+.hs-reasons-intro span { display: block; margin-top: .35rem; color: var(--hs-muted); font-size: .86rem; line-height: 1.5; }
+.hs-reasons-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem 1.5rem; margin: 0; padding: 0; list-style: none; }
+.hs-reasons-grid li { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: start; }
+.hs-reasons-grid svg { margin-top: .12rem; color: var(--hs-green); }
+.hs-reasons-grid strong { display: block; font-size: .9rem; font-weight: 750; }
+.hs-reasons-grid span { display: block; margin-top: .2rem; color: var(--hs-muted); font-size: .82rem; line-height: 1.5; }
+
+.hs-why-more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; margin-top: 2.5rem; }
 .hs-why-more .hs-prose p { max-width: none; }
 
 .hs-delegate {
@@ -250,23 +277,6 @@
 }
 .hs-delegate p { margin: 0; color: var(--hs-ink); font-size: 1rem; font-weight: 700; line-height: 1.45; }
 
-.hs-resources { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
-.hs-resources a {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  padding: .45rem .8rem;
-  border: 1px solid var(--hs-line);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--hs-text);
-  font-size: .8rem;
-  font-weight: 650;
-  text-decoration: none;
-  transition: border-color .15s ease, color .15s ease;
-}
-.hs-resources a:hover { border-color: #c7d2fe; color: var(--hs-brand-ink); }
-
 /* ==========================================================================
    3. Hiring models comparison
    ========================================================================== */
@@ -282,8 +292,10 @@
 .hs-table tbody th { color: var(--hs-text); font-weight: 600; text-align: left; }
 .hs-table td { color: var(--hs-text); }
 .hs-table .hs-managed { background: var(--hs-blue-soft); color: #164ec7; font-weight: 700; }
-.hs-table thead .hs-managed { position: relative; background: linear-gradient(180deg, #e3edff, var(--hs-blue-soft)); color: #123e9e; }
+.hs-table thead .hs-managed { background: linear-gradient(180deg, #e3edff, var(--hs-blue-soft)); color: #123e9e; }
 .hs-table thead .hs-managed small { display: block; margin-top: .2rem; color: #3b5fc4; font-size: .7rem; font-weight: 700; }
+.hs-cell-check { display: inline-flex; align-items: center; gap: .4rem; }
+.hs-cell-check svg { flex: none; color: var(--hs-green); }
 .hs-recommended {
   display: inline-block;
   margin-bottom: .35rem;
@@ -344,9 +356,8 @@
 /* ==========================================================================
    5. How it works
    ========================================================================== */
-.hs-steps { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; counter-reset: hs-step; }
+.hs-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
 .hs-step {
-  position: relative;
   padding: 1.4rem 1.25rem 1.3rem;
   border: 1px solid var(--hs-line);
   border-radius: 20px;
@@ -402,14 +413,27 @@
 .hs-process-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1.5rem; margin-top: 1.5rem; }
 
 /* ==========================================================================
-   6. Industries
+   6. Industries -- horizontal tiles, so they read differently from services
    ========================================================================== */
-.hs-tiles-8 { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: .75rem; }
-.hs-tiles-8 .hs-tile { min-height: 8.4rem; padding: 1rem .6rem; }
-.hs-tiles-8 .hs-tile strong { font-size: .8rem; }
-.hs-tile-arrow { color: var(--hs-faint); transition: transform .2s ease, color .2s ease; }
-.hs-tile:hover .hs-tile-arrow { color: var(--hs-brand); transform: translateX(2px); }
-.hs-center-action { display: flex; justify-content: center; margin-top: 1.75rem; }
+.hs-tiles-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.hs-tile-h {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  min-height: 4.6rem;
+  padding: .8rem 1rem;
+  border: 1px solid var(--hs-line);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--hs-ink);
+  text-decoration: none;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.hs-tile-h .hs-chip { width: 2.6rem; height: 2.6rem; border-radius: 12px; }
+.hs-tile-h strong { flex: 1; font-size: .9rem; font-weight: 700; line-height: 1.25; }
+.hs-tile-h:hover { transform: translateY(-2px); border-color: #cfd5ff; box-shadow: var(--hs-shadow-lift); }
+.hs-tile-arrow { flex: none; color: var(--hs-faint); transition: transform .2s ease, color .2s ease; }
+.hs-tile-h:hover .hs-tile-arrow { color: var(--hs-brand); transform: translateX(2px); }
 
 /* ==========================================================================
    7. Savings calculator
@@ -475,27 +499,32 @@
   .hs-why,
   .hs-models,
   .hs-support,
-  .hs-faq { grid-template-columns: minmax(0, 1fr); }
+  .hs-faq,
+  .hs-reasons-panel { grid-template-columns: minmax(0, 1fr); }
   .hs-services { gap: 2.25rem; }
   .hs-why { gap: 2rem; }
+  .hs-reasons-panel { gap: 1.25rem; }
   .hs-faq { gap: 1.75rem; }
   .hs-faq-intro { position: static; }
-  .hs-tiles-8 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .hs-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hs-talent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hs-tiles-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hs-reasons-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
   .hs-section { padding: 3.25rem 0; }
   .hs-head { margin-bottom: 1.6rem; }
-  .hs-points,
   .hs-why-more,
-  .hs-reason-list,
+  .hs-reasons-grid,
   .hs-talent-grid,
-  .hs-steps { grid-template-columns: minmax(0, 1fr); }
+  .hs-steps,
+  .hs-tiles-row { grid-template-columns: minmax(0, 1fr); }
   .hs-tiles-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hs-tiles-8 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hs-support { padding: 1.6rem; }
+  .hs-tz,
+  .hs-reasons-panel,
+  .hs-support { padding: 1.25rem; }
+  .hs-tz-city { display: none; }
   .hs-cta { padding: 2.5rem 1.25rem; border-radius: 22px; }
   .hs-calc-card { padding: 1.1rem; }
   .hs-head-row { align-items: flex-start; }
@@ -506,6 +535,7 @@
   .hs-root *::before,
   .hs-root *::after { transition: none !important; }
   .hs-tile:hover,
+  .hs-tile-h:hover,
   .hs-talent-card:hover,
   .hs-btn:hover { transform: none; }
 }

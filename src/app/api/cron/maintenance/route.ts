@@ -136,8 +136,11 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
   if (error) return false;
   await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href });
   const { data: auth } = await admin.auth.admin.getUserById(args.recipientId);
+  const recipientEmail = auth.user?.email?.trim();
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  try { await sendTransactionalEventEmail({ to: auth.user?.email, subject: args.title, heading: args.title, body: args.body, href: `${appUrl}${args.href}`, hrefLabel: "Open workspace" }); } catch (error) { console.error("[email] Workflow reminder delivery failed", error); }
+  if (recipientEmail) {
+    try { await sendTransactionalEventEmail({ to: recipientEmail, subject: args.title, heading: args.title, body: args.body, href: `${appUrl}${args.href}`, hrefLabel: "Open workspace" }); } catch (error) { console.error("[email] Workflow reminder delivery failed", error); }
+  }
   return true;
 }
 

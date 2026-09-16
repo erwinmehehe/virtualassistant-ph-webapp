@@ -80,7 +80,7 @@ export async function closeLeadAction(formData: FormData) {
         .from("jobs")
         .update({ status: "closed", closed_at: now, updated_at: now })
         .eq("id", lead.job_id)
-        .in("status", ["pending", "published"])
+        .in("status", ["draft", "pending", "published"])
         .select("id")
         .maybeSingle()
     : Promise.resolve({ data: null, error: null });

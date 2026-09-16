@@ -19,7 +19,6 @@ function money(value: number) {
 export default async function PricingPage(){
   const settings=await getBusinessSettings();
   const placementFee=settings.placementFee;
-  const minHourlyRate=settings.minHourlyRate;
 
   return <><SiteHeader/><main id="main-content" className="pricing-page">
     <section className="pricing-hero">
@@ -51,7 +50,7 @@ export default async function PricingPage(){
       <article className="card pricing-card"><span className="pricing-label">Managed Virtual Assistant service <span className="badge badge-success">Recommended</span></span><h3>Ongoing managed support</h3><div className="pricing-value">Role-based quote</div><p className="muted">Your client quote covers recruiting, vetting, matching, onboarding, Client Success, placement monitoring, recovery, replacement support, and billing administration. Your exact managed-service price and terms are confirmed privately before commitment.</p><ul className="check-list"><li>Recruiting, screening, and matching</li><li>Structured placement launch</li><li>Ongoing Client Success and placement monitoring</li><li>Recovery and replacement support under your agreed terms</li></ul><Link className="btn btn-primary" href="/hire">Get Your Shortlist <ArrowRight size={16}/></Link></article>
       <article className="card pricing-card"><span className="pricing-label">Direct hire</span><h3>One-time placement fee</h3><div className="pricing-value">{money(placementFee)}</div><p className="muted">Prefer to manage the Virtual Assistant yourself after the hire? Pay a one-time {money(placementFee)} placement fee for role review, candidate sourcing, screening, vetting, shortlist preparation, interview coordination, and placement support. You manage the Virtual Assistant directly after placement.</p></article>
     </div>
-    <p className="pricing-note" style={{ marginTop: 20 }}>Standard managed placements currently start at USD {minHourlyRate}/hour in Virtual Assistant compensation. Experienced specialists should cost more, and the exact managed-service client price is confirmed during role review. <Link href="/managed-vs-direct-hire">See Managed Virtual Assistant vs. Direct Hire →</Link></p>
+    <p className="pricing-note" style={{ marginTop: 20 }}>Managed-service client pricing is confirmed during role review based on the role, hours, schedule, and required experience. <Link href="/managed-vs-direct-hire">See Managed Virtual Assistant vs. Direct Hire →</Link></p>
     </div></section>
 
     <section className="section"><div className="container"><div className="section-head"><h2>Estimate the monthly Virtual Assistant cost.</h2><p>Use your intended hours and hourly rate to estimate VA compensation. The one-time direct-hire placement fee is shown separately; managed-service pricing is confirmed during role review.</p></div><VaCostCalculator placementFee={placementFee}/></div></section>

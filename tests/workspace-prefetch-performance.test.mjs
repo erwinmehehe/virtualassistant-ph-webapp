@@ -26,5 +26,5 @@ test("recruiter overview does not preload record-level action pages", () => {
 });
 
 test("Client Success queue does not prefetch every placement detail", () => {
-  assert.match(clientSuccess, /<Link prefetch=\{false\} className="card" href=\{`\/workspace\/client-success\/\$\{r\.id\}`\}/);
+  assert.match(clientSuccess, /<Link prefetch=\{false\} className="card" href=\{`\/workspace\/client-success\/\$\{r\.workroom_id\}`\}/);
 });

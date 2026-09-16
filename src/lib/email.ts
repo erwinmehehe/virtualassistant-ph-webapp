@@ -331,12 +331,13 @@ export async function sendStaffClientFollowupEmail(args: {
 
 export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; teamCc?: boolean }) {
   const config = resendConfig();
-  if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const link = args.href ? `<p><a href="${escapeHtml(args.href)}">${escapeHtml(args.hrefLabel || "Open VirtualAssistant.com.ph")}</a></p>` : "";
   const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
   await trackedSend(config, {
     from: config.from,
-    to: [args.to],
+    to: [recipient],
     subject: args.subject,
     html: `<h2>${escapeHtml(args.heading)}</h2><p>${escapeHtml(args.body)}</p>${link}`
   }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false && !isPasswordChangeNotice });

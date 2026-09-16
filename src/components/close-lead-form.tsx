@@ -1,4 +1,12 @@
+"use client";
+
+import { useFormStatus } from "react-dom";
 import { closeLeadAction } from "@/app/actions/close-lead";
+
+function CloseLeadSubmitButton() {
+  const { pending } = useFormStatus();
+  return <button className="btn btn-sm" type="submit" disabled={pending}>{pending ? "Closing..." : "Close lead"}</button>;
+}
 
 export function CloseLeadForm({
   leadId,
@@ -35,7 +43,7 @@ export function CloseLeadForm({
           </label>
         ) : null}
         <div className="row wrap">
-          <button className="btn btn-sm" type="submit">Close lead</button>
+          <CloseLeadSubmitButton/>
           <span className="small muted">Moves the lead to Lost, clears follow-up, and keeps the CRM history.</span>
         </div>
       </form>

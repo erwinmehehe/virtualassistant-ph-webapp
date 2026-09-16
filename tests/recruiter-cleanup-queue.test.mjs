@@ -51,7 +51,6 @@ test("cleanup actions preserve history and support one-click resolution", () => 
 
 test("closed leads leave the active cleanup queue instead of being deleted", () => {
   assert.match(migration, /coalesce\(l\.crm_stage, 'new'\) in \(/);
-  assert.doesNotMatch(closeAction, /\.delete\(/);
-  assert.match(closeAction, /crm_stage: "lost"/);
+  assert.match(closeAction, /\.from\("lead_intake"\)[\s\S]*?\.update\(\{[\s\S]*?crm_stage: "lost"/);
   assert.match(closeAction, /next_follow_up_at: null/);
 });

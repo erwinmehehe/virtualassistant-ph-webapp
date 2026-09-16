@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { RoleBriefForm } from "@/components/role-brief-form";
+import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
 
@@ -42,9 +43,9 @@ export default function BlogPage() {
       return <Link className="blog-topic-card" href={`/blog/topic/${slug}`} key={slug}><span>{String(count).padStart(2,"0")} guides</span><h3>{topic.label}</h3><p>{topic.description}</p><strong>Explore topic <ArrowRight size={14}/></strong></Link>;
     })}</div></div></section>
 
-    <section className="section section-soft"><div className="container"><div className="section-head"><div className="kicker">Start here</div><h2>High-value guides for buyers.</h2><p>These pages answer the questions that usually come before a role brief, shortlist, or interview.</p></div><div className="blog-featured-grid">{featured.map((post, i) => <Link href={blogHref(post)} className={`blog-featured-card ${i===0?"blog-featured-primary":""}`} key={post.slug} data-track="blog_related_click"><span>{BLOG_TOPICS[post.topic].label}</span><h3>{post.title}</h3><p>{post.excerpt}</p><strong>Read guide <ArrowRight size={14}/></strong></Link>)}</div></div></section>
+    <section className="section section-soft"><div className="container"><div className="section-head"><div className="kicker">Start here</div><h2>High-value guides for buyers.</h2><p>These pages answer the questions that usually come before a role brief, shortlist, or interview.</p></div><div className="blog-featured-grid">{featured.map((post, i) => <Link href={blogHref(post)} className={`blog-featured-card ${i===0?"blog-featured-primary":""}`} key={post.slug} data-track="blog_related_click"><BlogFeaturedVisual topic={post.topic} title={post.title} label={BLOG_TOPICS[post.topic].label} detail={post.clusterLabel}/><div className="blog-card-copy"><span>{BLOG_TOPICS[post.topic].label}</span><h3>{post.title}</h3><p>{post.excerpt}</p><strong>Read guide <ArrowRight size={14}/></strong></div></Link>)}</div></div></section>
 
-    <section className="section section-white"><div className="container"><div className="section-head row-between wrap"><div><div className="kicker">Latest resources</div><h2>New and refreshed guides</h2></div><Link className="btn" href="/services">Browse service guides</Link></div><div className="blog-list-grid">{recent.map((post) => <Link className="blog-list-card" href={blogHref(post)} key={post.slug} data-track="blog_related_click"><div className="blog-list-icon"><BookOpen size={19}/></div><div><span>{BLOG_TOPICS[post.topic].label} · {post.clusterLabel}</span><h3>{post.title}</h3><p>{post.excerpt}</p></div></Link>)}</div></div></section>
+    <section className="section section-white"><div className="container"><div className="section-head row-between wrap"><div><div className="kicker">Latest resources</div><h2>New and refreshed guides</h2></div><Link className="btn" href="/services">Browse service guides</Link></div><div className="blog-list-grid">{recent.map((post) => <Link className="blog-list-card blog-list-card-visual" href={blogHref(post)} key={post.slug} data-track="blog_related_click"><BlogFeaturedVisual topic={post.topic} title={post.title} label={BLOG_TOPICS[post.topic].label} detail={post.clusterLabel}/><div><span>{BLOG_TOPICS[post.topic].label} · {post.clusterLabel}</span><h3>{post.title}</h3><p>{post.excerpt}</p></div></Link>)}</div></div></section>
 
   </main><SiteFooter/></>;
 }

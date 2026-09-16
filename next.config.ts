@@ -81,6 +81,18 @@ const nextConfig: NextConfig = {
       { source: "/service/research-data-entry", destination: "/service/research-data", permanent: true },
       { source: "/service/research-data-entry/", destination: "/service/research-data", permanent: true },
       { source: "/services/social-media", destination: "/service/social-media", permanent: true },
+      // Preserve legacy /services/* URLs that still have backlinks/internal links.
+      { source: "/services/healthcare-virtual-assistant", destination: "/service/healthcare-virtual-assistant", permanent: true },
+      { source: "/services/general-virtual-assistant", destination: "/service/general-virtual-assistant", permanent: true },
+      { source: "/services/real-estate-virtual-assistant", destination: "/service/real-estate-virtual-assistant", permanent: true },
+      { source: "/services/executive-virtual-assistant", destination: "/service/executive-virtual-assistant", permanent: true },
+      { source: "/services/ecommerce-virtual-assistant", destination: "/service/ecommerce-virtual-assistant", permanent: true },
+      { source: "/contact-us", destination: "/contact", permanent: true },
+      // Legacy article slugs from the crawl. Keep their authority instead of returning 404.
+      { source: "/blog/average-hourly-rate-for-virtual-assistants-in-the-philippines-in-depth-2026-guide", destination: "/average-hourly-rate-virtual-assistants-philippines", permanent: true },
+      { source: "/blog/how-much-virtual-assistant-philippines", destination: "/average-hourly-rate-virtual-assistants-philippines", permanent: true },
+      { source: "/blog/hire-ecommerce-virtual-assistant-philippines", destination: "/service/ecommerce-virtual-assistant", permanent: true },
+      { source: "/blog/benefits-of-hiring-filipino-virtual-assistants", destination: "/", permanent: true },
       { source: "/sign-in", destination: "/auth/login", permanent: true },
       { source: "/sign-in/", destination: "/auth/login", permanent: true },
       { source: "/virtual-assistant-agency-philippines-guide", destination: "/blog/virtual-assistant-agency-philippines-guide", permanent: true },

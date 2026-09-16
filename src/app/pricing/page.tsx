@@ -43,7 +43,7 @@ export default async function PricingPage(){
 
         <aside className="pricing-hero-form-shell" aria-label="Get a role and pricing review">
           <div className="pricing-hero-form-badge"><ShieldCheck size={14}/> Private hiring request</div>
-          <RoleBriefForm sourcePath="/pricing" heading="Get a role and pricing review" subheading="Share the role in about 60 seconds. We will review the fit and pricing before you make a hiring commitment." />
+          <RoleBriefForm sourcePath="/pricing" heading="Get your free virtual assistant match" subheading="Tell us what you need. We will review your role, schedule, tools, and budget to identify suitable candidates." />
         </aside>
       </div>
     </section>

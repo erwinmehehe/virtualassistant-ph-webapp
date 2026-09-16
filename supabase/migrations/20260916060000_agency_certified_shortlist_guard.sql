@@ -1,6 +1,7 @@
 -- Keep client presentation aligned with the internal Talent OS definition of
 -- client-ready talent. A VA may remain in an internal shortlist while work is
--- still being completed, but a new client release requires current evidence.
+-- still being completed, but once enforcement is enabled a new client release
+-- requires current evidence.
 --
 -- Agency Certified is intentionally deterministic. It is not an AI score and
 -- it is not inferred from profile copy. The status requires:
@@ -9,6 +10,13 @@
 --   * active talent-pool membership
 --   * availability currently marked available and confirmed in the last 30 days
 --   * recruiter-verified work setup
+--
+-- Enforcement defaults OFF so the readiness backlog can be cleared without
+-- stopping current hiring. Turn it on only after Agency Certified coverage is
+-- operationally ready.
+
+alter table public.admin_settings
+  add column if not exists require_agency_certified_release boolean not null default false;
 
 create or replace function public.is_va_agency_certified(
   p_va_id uuid,
@@ -60,6 +68,8 @@ language plpgsql
 security invoker
 set search_path = ''
 as $$
+declare
+  v_required boolean := false;
 begin
   -- Internal/proposed shortlist work is intentionally unaffected.
   if new.shortlist_status <> 'released' then
@@ -69,6 +79,17 @@ begin
   -- Do not retroactively hide or break candidates a client already received.
   -- Only the transition into released status is guarded.
   if tg_op = 'UPDATE' and old.shortlist_status = 'released' then
+    return new;
+  end if;
+
+  select coalesce(s.require_agency_certified_release, false)
+    into v_required
+  from public.admin_settings s
+  where s.id = 1;
+
+  -- Safe rollout: calculate the status immediately, but do not block hiring
+  -- until operations deliberately enables the release requirement.
+  if not coalesce(v_required, false) then
     return new;
   end if;
 

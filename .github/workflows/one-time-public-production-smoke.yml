@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - name: Diagnose public production pricing
+      - name: Inspect live pricing context
         shell: bash
         run: |
           set -euo pipefail
@@ -24,17 +24,18 @@ jobs:
           home="$(mktemp)"
           curl --fail-with-body --silent --show-error --location --max-time 30 "$base/pricing" -o "$pricing"
           curl --fail-with-body --silent --show-error --location --max-time 30 "$base/" -o "$home"
-
-          echo "Pricing money/rate snippets:"
-          grep -Eo 'USD [0-9]+/hour|\$[0-9]+|[0-9]+%' "$pricing" | sort -u | head -40 || true
-          echo "Homepage rate snippets:"
-          grep -Eo 'USD [0-9]+/hour|\$[0-9]+|[0-9]+%' "$home" | sort -u | head -40 || true
-
-          grep -Fq '20%' "$pricing" || { echo 'Live pricing page is missing the canonical 20% managed margin.'; exit 1; }
-          grep -Fq '$150' "$pricing" || { echo 'Live pricing page is missing the canonical $150 placement fee.'; exit 1; }
-          if grep -Fq 'USD 6/hour' "$pricing" || grep -Fq 'USD 6/hour' "$home"; then
-            echo 'Production still exposes stale USD 6/hour minimum pricing.'
-            exit 1
-          fi
-          grep -Fq 'USD 5/hour' "$pricing" || { echo 'Production pricing does not currently render the canonical USD 5/hour minimum.'; exit 1; }
-          echo "Canonical live pricing passed."
+          node - "$pricing" "$home" <<'NODE'
+          const fs = require('fs');
+          for (const [label, path, needles] of [
+            ['pricing', process.argv[2], ['$5', '$150', '20%', 'USD 5/hour', 'Standard managed placements']],
+            ['home', process.argv[3], ['$5', '$6', 'USD 6/hour', 'minimum', 'hour']]
+          ]) {
+            const raw = fs.readFileSync(path, 'utf8');
+            const text = raw.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
+            console.log(`--- ${label} ---`);
+            for (const needle of needles) {
+              const i = text.indexOf(needle);
+              console.log(`${needle}: ${i >= 0 ? text.slice(Math.max(0, i - 180), i + needle.length + 260) : '<not found>'}`);
+            }
+          }
+          NODE

@@ -29,12 +29,13 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const scheduledAt = String(formData.get("scheduled_at") || "").trim();
   if (token.length < 32 || !isAllowedDiscoverySlot(scheduledAt)) redirect(managePath(token, "error=slot"));
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,timezone,discovery_duration_minutes").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
   const now = new Date().toISOString();
+  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* a stale Zoom meeting must not block rescheduling */ }
   let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> = { configured: false, joinUrl: null, meetingId: null };
   try { zoom = await createZoomDiscoveryMeeting({ topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`, startsAt: scheduledAt, durationMinutes: lead.discovery_duration_minutes || 30 }); } catch { /* keep the existing link if Zoom is unavailable */ }
-  const update: Record<string, unknown> = { discovery_scheduled_at: scheduledAt, discovery_cancelled_at: null, discovery_rescheduled_at: now, discovery_outcome: "rescheduled", discovery_reminder_24h_sent_at: null, discovery_reminder_1h_sent_at: null, crm_stage: "discovery_booked", stage_updated_at: now };
+  const update: Record<string, unknown> = { discovery_scheduled_at: scheduledAt, discovery_cancelled_at: null, discovery_rescheduled_at: now, discovery_outcome: "rescheduled", discovery_reminder_24h_sent_at: null, discovery_reminder_1h_sent_at: null, crm_stage: "discovery_booked", stage_updated_at: now, discovery_meeting_url: zoom.joinUrl, discovery_zoom_meeting_id: zoom.meetingId };
   if (zoom.joinUrl) { update.discovery_meeting_url = zoom.joinUrl; update.discovery_zoom_meeting_id = zoom.meetingId; }
   const { error } = await admin.from("lead_intake").update(update).eq("id", lead.id);
   if (error) redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));

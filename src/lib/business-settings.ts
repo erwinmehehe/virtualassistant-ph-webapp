@@ -17,7 +17,7 @@ export type BusinessSettings = {
 
 const fallback: BusinessSettings = {
   minHourlyRate: MIN_HOURLY_RATE,
-  placementFee: 0,
+  placementFee: 350,
   managedMarkupPercent: 0,
   clientSuccessOwnerId: null,
   financeMinMarginPercent: 15,
@@ -39,7 +39,7 @@ export async function getBusinessSettings(): Promise<BusinessSettings> {
     if (error || !data) return fallback;
     return {
       minHourlyRate: Number(data.min_hourly_rate ?? fallback.minHourlyRate),
-      placementFee: Number(data.default_placement_fee ?? 0),
+      placementFee: Number(data.default_placement_fee ?? fallback.placementFee),
       managedMarkupPercent: Number(data.default_managed_markup_percent ?? 0),
       clientSuccessOwnerId: data.client_success_owner_id || null,
       financeMinMarginPercent: Number(data.finance_min_margin_percent ?? fallback.financeMinMarginPercent),

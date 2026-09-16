@@ -27,7 +27,7 @@ export function VaCostCalculator({ placementFee = 0, managedMarkup = 0 }: { plac
   return <div className="tool-shell">
     <div className="tool-inputs">
       <div className="field"><label htmlFor="cost-hours">Hours needed per week</label><input id="cost-hours" type="number" min="1" max="80" value={hours} onChange={(e)=>setHours(Math.max(1, Number(e.target.value)||1))}/></div>
-      <div className="field"><label htmlFor="cost-va-rate">VA hourly rate, USD</label><input id="cost-va-rate" type="number" min="5" step="0.01" value={vaRate} onChange={(e)=>setVaRate(Math.max(5, Number(e.target.value)||5))}/><span className="small muted">VirtualAssistant.com.ph does not accept ongoing hourly roles below $5.00/hour.</span></div>
+      <div className="field"><label htmlFor="cost-va-rate">VA hourly rate, USD</label><input id="cost-va-rate" type="number" min="1" step="0.01" value={vaRate} onChange={(e)=>setVaRate(Math.max(1, Number(e.target.value)||1))}/></div>
       <div className="field"><label htmlFor="cost-local-rate">Comparable local hourly cost, USD</label><input id="cost-local-rate" type="number" min="1" step="0.01" value={localRate} onChange={(e)=>setLocalRate(Math.max(1, Number(e.target.value)||1))}/></div>
       <div className="field"><label htmlFor="cost-overhead">Local benefits and overhead, %</label><input id="cost-overhead" type="number" min="0" max="200" value={overhead} onChange={(e)=>setOverhead(Math.max(0, Number(e.target.value)||0))}/></div>
     </div>

@@ -9,6 +9,7 @@ const join = fs.readFileSync("src/components/join-account-form.tsx", "utf8");
 const bootstrap = fs.readFileSync("src/lib/profile-bootstrap.ts", "utf8");
 const quickAction = fs.readFileSync("src/app/actions/va-onboarding.ts", "utf8");
 const quickPage = fs.readFileSync("src/app/workspace/va/onboarding/page.tsx", "utf8");
+const profilePage = fs.readFileSync("src/app/workspace/va/profile/page.tsx", "utf8");
 const vaLayout = fs.readFileSync("src/app/workspace/va/layout.tsx", "utf8");
 const vaPage = fs.readFileSync("src/app/workspace/va/page.tsx", "utf8");
 const social = fs.readFileSync("src/lib/social-login.ts", "utf8");
@@ -19,7 +20,8 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 
 test("new VA signups land in quick setup instead of a 0% dashboard", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
-  assert.match(quickPage, /Start with the details recruiters need first/);
+  assert.match(quickPage, /redirect\("\/workspace\/va\/profile#basics"\)/);
+  assert.match(profilePage, /Get ready for client matching/);
   assert.doesNotMatch(nav, /\["Quick setup", "\/workspace\/va\/onboarding"/);
 });
 

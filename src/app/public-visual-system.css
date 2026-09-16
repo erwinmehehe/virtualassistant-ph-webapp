@@ -1,0 +1,599 @@
+/* Canonical public visual system
+   ---------------------------------------------------------------
+   This is the final public-site layer. It intentionally scopes itself to
+   marketing routes and never targets authenticated workspace UI.
+
+   Source-of-truth palette:
+   indigo  #4f46e5
+   violet  #7c3aed
+   green   #059669
+   emerald #10b981
+*/
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process),
+  main:has(.service-hero-v2),
+  .premium-services-directory
+) {
+  --public-indigo: #4f46e5;
+  --public-violet: #7c3aed;
+  --public-green: #059669;
+  --public-emerald: #10b981;
+  --public-ink: #101828;
+  --public-text: #475467;
+  --public-muted: #667085;
+  --public-line: #e4e7ec;
+  --public-soft: #f7f8fc;
+  --public-indigo-soft: #eef2ff;
+  --public-green-soft: #ecfdf3;
+  --brand: var(--public-indigo);
+  --success: var(--public-green);
+  --pm-indigo: var(--public-indigo);
+  --pm-violet: var(--public-violet);
+  --pm-green: var(--public-emerald);
+  --pm-blue: var(--public-indigo-soft);
+  color: var(--public-ink);
+}
+
+/* Services already have the premium structure. Normalize their palette only,
+   then let their purpose-built layout remain intact. */
+:is(main:has(.service-hero-v2), .premium-services-directory) {
+  --pm-indigo: #4f46e5;
+  --pm-violet: #7c3aed;
+  --pm-green: #10b981;
+  --pm-blue: #eef2ff;
+}
+
+:is(main:has(.service-hero-v2), .premium-services-directory) :is(.service-match-submit, .premium-service-primary) {
+  background: linear-gradient(100deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 14px 30px rgba(79, 70, 229, .22) !important;
+}
+
+:is(main:has(.service-hero-v2), .premium-services-directory) :is(.service-talent-card, .service-task-card, .service-use-card, .premium-service-card):hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 20px 44px rgba(79, 70, 229, .10);
+}
+
+/* Shared editorial rhythm for the older public routes. */
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) {
+  background:
+    radial-gradient(900px 430px at 8% 0%, rgba(79, 70, 229, .055), transparent 62%),
+    radial-gradient(760px 420px at 94% 12%, rgba(5, 150, 105, .045), transparent 64%),
+    #f8f9fc;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) > .section {
+  border-top: 0;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) :is(.section-white, .jobs-directory) {
+  background: rgba(255, 255, 255, .92);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(4.2rem, 7vw, 6.1rem) clamp(3.2rem, 5vw, 4.8rem);
+  border-bottom: 1px solid rgba(228, 231, 236, .82);
+  background:
+    radial-gradient(880px 430px at 12% -4%, rgba(79, 70, 229, .15), transparent 62%),
+    radial-gradient(720px 410px at 92% 10%, rgba(5, 150, 105, .10), transparent 62%),
+    linear-gradient(180deg, #fcfcff 0%, #f5f6ff 58%, #f8f9fc 100%);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .55;
+  background-image:
+    linear-gradient(rgba(16, 24, 40, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 24, 40, .035) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 18%, #000 30%, transparent 78%);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero-grid {
+  position: relative;
+  z-index: 1;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero .kicker {
+  color: #4338ca;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero h1 {
+  max-width: 780px;
+  color: var(--public-ink);
+  font-size: clamp(2.75rem, 5vw, 4.65rem);
+  line-height: 1.01;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-hero :is(.public-lede, .va-marketing-hero-copy > p) {
+  max-width: 690px;
+  color: var(--public-text);
+  font-size: 1.04rem;
+  line-height: 1.72;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-trust-row span {
+  border: 1px solid rgba(79, 70, 229, .10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .72);
+  color: #344054;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-trust-row svg {
+  color: var(--public-green);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main:has(.responsive-table):has(.four-step-process)
+) .va-marketing-form-shell {
+  border: 1px solid rgba(255, 255, 255, .92);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .86);
+  box-shadow: 0 34px 78px -30px rgba(79, 70, 229, .26);
+  backdrop-filter: blur(18px);
+}
+
+/* Canonical controls and links on the migrated public routes. */
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) .btn-primary {
+  border-color: transparent !important;
+  color: #fff !important;
+  background: linear-gradient(100deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 12px 28px rgba(79, 70, 229, .22);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) :is(.btn, button) {
+  border-radius: 14px;
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) :is(.text-link, .industry-card-link, .contact-routing-link, .directory-reset) {
+  color: var(--public-indigo);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) :is(input, select, textarea) {
+  border-color: #d8deea;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .94);
+}
+
+:is(
+  main:has(.industries-directory-section),
+  main:has(.vetting-steps),
+  main:has(.contact-routing),
+  main.public-jobs-page,
+  main:has(.industry-conversion-hero-grid),
+  main:has(.responsive-table):has(.four-step-process)
+) :is(input, select, textarea):focus {
+  border-color: #a5b4fc;
+  outline: 3px solid rgba(79, 70, 229, .10);
+  box-shadow: none;
+}
+
+/* Industry directory. */
+main:has(.industries-directory-section) .industries-stat-strip {
+  border-block: 1px solid var(--public-line);
+  background: rgba(255, 255, 255, .88);
+}
+
+main:has(.industries-directory-section) .industries-stats strong {
+  color: var(--public-indigo);
+}
+
+main:has(.industries-directory-section) .industries-directory-section {
+  background: transparent;
+}
+
+main:has(.industries-directory-section) .industries-directory-head h2,
+main:has(.industries-directory-section) .industries-bottom-grid h2 {
+  color: var(--public-ink);
+  letter-spacing: -.04em;
+}
+
+main:has(.industries-directory-section) .industry-directory-card {
+  border: 1px solid var(--public-line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, .045);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+main:has(.industries-directory-section) .industry-directory-card:hover {
+  transform: translateY(-3px);
+  border-color: #c7d2fe;
+  box-shadow: 0 18px 40px rgba(79, 70, 229, .09);
+}
+
+main:has(.industries-directory-section) .industry-directory-icon {
+  color: var(--public-indigo);
+  background: var(--public-indigo-soft);
+}
+
+main:has(.industries-directory-section) .industry-workflow-list span svg {
+  color: var(--public-green);
+}
+
+/* Industry detail pages. */
+main:has(.industry-conversion-hero-grid) .specialty-seo-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(860px 420px at 10% 0%, rgba(79, 70, 229, .14), transparent 62%),
+    radial-gradient(700px 390px at 92% 12%, rgba(5, 150, 105, .08), transparent 62%),
+    linear-gradient(180deg, #fcfcff, #f5f6ff 62%, #f8f9fc);
+}
+
+main:has(.industry-conversion-hero-grid) .public-page-title {
+  color: var(--public-ink);
+  font-size: clamp(2.7rem, 4.7vw, 4.35rem);
+  line-height: 1.02;
+  letter-spacing: -.052em;
+  text-wrap: balance;
+}
+
+main:has(.industry-conversion-hero-grid) .public-lede {
+  color: var(--public-text);
+  line-height: 1.72;
+}
+
+main:has(.industry-conversion-hero-grid) :is(.card, .tool-chip, .faq-item) {
+  border-color: var(--public-line);
+  border-radius: 18px;
+}
+
+main:has(.industry-conversion-hero-grid) .card {
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 10px 28px rgba(16, 24, 40, .04);
+}
+
+main:has(.industry-conversion-hero-grid) .card-hover:hover {
+  transform: translateY(-3px);
+  border-color: #c7d2fe;
+  box-shadow: 0 18px 38px rgba(79, 70, 229, .08);
+}
+
+main:has(.industry-conversion-hero-grid) :is(.process-number, .tool-chip svg) {
+  color: var(--public-indigo);
+}
+
+main:has(.industry-conversion-hero-grid) .centered-actions .btn-primary {
+  min-height: 48px;
+}
+
+/* Vetting page. */
+main:has(.vetting-steps) .vetting-steps {
+  overflow: hidden;
+  border: 1px solid var(--public-line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 44px rgba(16, 24, 40, .05);
+}
+
+main:has(.vetting-steps) .vetting-step {
+  margin: 0;
+  padding: 1.45rem 1.55rem;
+  border: 0;
+  border-bottom: 1px solid #edf0f5;
+  border-radius: 0;
+  background: transparent;
+}
+
+main:has(.vetting-steps) .vetting-step:last-child {
+  border-bottom: 0;
+}
+
+main:has(.vetting-steps) .vetting-step-number {
+  color: #4338ca;
+  background: var(--public-indigo-soft);
+}
+
+main:has(.vetting-steps) .vetting-step-check {
+  color: var(--public-green);
+}
+
+main:has(.vetting-steps) .grid-2 .card {
+  border: 1px solid var(--public-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, .045);
+}
+
+main:has(.vetting-steps) .grid-2 .card > svg {
+  color: var(--public-indigo);
+}
+
+/* Contact. */
+main:has(.contact-routing) .contact-form-card {
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: none;
+}
+
+main:has(.contact-routing) .contact-routing {
+  gap: 16px;
+}
+
+main:has(.contact-routing) .contact-routing-card {
+  border: 1px solid var(--public-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, .045);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+main:has(.contact-routing) .contact-routing-card:hover {
+  transform: translateY(-3px);
+  border-color: #c7d2fe;
+  box-shadow: 0 18px 38px rgba(79, 70, 229, .08);
+}
+
+main:has(.contact-routing) .contact-routing-icon {
+  color: var(--public-indigo);
+  background: var(--public-indigo-soft);
+}
+
+/* Public jobs. */
+main.public-jobs-page .jobs-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(4rem, 7vw, 5.8rem);
+  border-bottom: 1px solid var(--public-line);
+  background:
+    radial-gradient(850px 410px at 10% 0%, rgba(79, 70, 229, .15), transparent 62%),
+    radial-gradient(700px 390px at 92% 12%, rgba(5, 150, 105, .09), transparent 62%),
+    linear-gradient(180deg, #fcfcff, #f5f6ff 62%, #f8f9fc);
+}
+
+main.public-jobs-page .jobs-eyeline {
+  color: #4338ca;
+  background: rgba(238, 242, 255, .88);
+}
+
+main.public-jobs-page .jobs-eyeline svg {
+  color: var(--public-green);
+}
+
+main.public-jobs-page .jobs-hero h1 {
+  max-width: 780px;
+  color: var(--public-ink);
+  font-size: clamp(2.8rem, 5vw, 4.6rem);
+  line-height: 1.01;
+  letter-spacing: -.055em;
+}
+
+main.public-jobs-page .jobs-hero p {
+  color: var(--public-text);
+  line-height: 1.72;
+}
+
+main.public-jobs-page .jobs-hero-side {
+  border: 1px solid rgba(255, 255, 255, .92);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 28px 64px -32px rgba(79, 70, 229, .28);
+  backdrop-filter: blur(16px);
+}
+
+main.public-jobs-page .jobs-hero-side > svg {
+  color: var(--public-indigo);
+}
+
+main.public-jobs-page .jobs-filterbar {
+  border: 1px solid var(--public-line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, .05);
+}
+
+main.public-jobs-page :is(.job-card, .jobs-list > .card) {
+  border-color: var(--public-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 9px 28px rgba(16, 24, 40, .04);
+}
+
+main.public-jobs-page .job-card:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 18px 40px rgba(79, 70, 229, .08);
+}
+
+/* Managed vs direct hire. */
+main:has(.responsive-table):has(.four-step-process) .responsive-table {
+  overflow: hidden;
+  border: 1px solid var(--public-line);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, .045);
+}
+
+main:has(.responsive-table):has(.four-step-process) .responsive-table thead th {
+  color: #fff;
+  background: linear-gradient(100deg, #4f46e5, #6d4ce6);
+}
+
+main:has(.responsive-table):has(.four-step-process) .responsive-table tbody tr:nth-child(even) {
+  background: #fafbff;
+}
+
+main:has(.responsive-table):has(.four-step-process) .process-step,
+main:has(.responsive-table):has(.four-step-process) .public-content-grid .card {
+  border: 1px solid var(--public-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(16, 24, 40, .04);
+}
+
+main:has(.responsive-table):has(.four-step-process) .process-number {
+  color: #4338ca;
+  background: var(--public-indigo-soft);
+}
+
+main:has(.responsive-table):has(.four-step-process) .public-content-grid .card h3 svg {
+  color: var(--public-green);
+}
+
+/* Responsive public routes. */
+@media (max-width: 900px) {
+  :is(
+    main:has(.industries-directory-section),
+    main:has(.vetting-steps),
+    main:has(.contact-routing),
+    main:has(.responsive-table):has(.four-step-process)
+  ) .va-marketing-hero-grid {
+    gap: 2rem;
+  }
+
+  main.public-jobs-page .jobs-hero-grid {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :is(
+    main:has(.industries-directory-section),
+    main:has(.vetting-steps),
+    main:has(.contact-routing),
+    main:has(.responsive-table):has(.four-step-process)
+  ) .va-marketing-hero {
+    padding-block: 3.2rem 2.8rem;
+  }
+
+  :is(
+    main:has(.industries-directory-section),
+    main:has(.vetting-steps),
+    main:has(.contact-routing),
+    main:has(.responsive-table):has(.four-step-process)
+  ) .va-marketing-hero h1,
+  main.public-jobs-page .jobs-hero h1,
+  main:has(.industry-conversion-hero-grid) .public-page-title {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+  }
+
+  main:has(.vetting-steps) .vetting-step {
+    padding: 1.1rem;
+  }
+
+  main.public-jobs-page .jobs-filterbar {
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    main:has(.industries-directory-section),
+    main:has(.contact-routing),
+    main.public-jobs-page,
+    main:has(.industry-conversion-hero-grid)
+  ) :is(.industry-directory-card, .contact-routing-card, .job-card, .card-hover) {
+    transition: none;
+    transform: none;
+  }
+}

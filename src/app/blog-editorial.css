@@ -397,7 +397,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 28px;
-  align-items: end;
+  align-items: flex-end;
   margin: 45px 0 12px;
   padding: 30px;
   border: 0;
@@ -716,7 +716,7 @@
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  align-items: end;
+  align-items: flex-end;
   margin-bottom: 30px;
 }
 

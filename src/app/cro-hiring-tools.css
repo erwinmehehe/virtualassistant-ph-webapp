@@ -63,7 +63,7 @@
 }
 .cro-match-submit { grid-column: 1/-1; justify-content: center; min-height: 48px; margin-top: 2px; }
 .cro-match-results { grid-column: 1/-1; border-top: 1px solid #e6e9f1; padding-top: 22px; }
-.cro-match-results-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 14px; }
+.cro-match-results-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 14px; }
 .cro-match-results-head div { display: grid; gap: 4px; }
 .cro-match-results-head strong { color: #172033; }
 .cro-match-results-head span { color: #64748b; font-size: .84rem; line-height: 1.5; }

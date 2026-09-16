@@ -1,27 +1,9 @@
 /* Shared service-page visual QA. Loaded after the main marketing styles. */
 
-/* Keep the discovery CTA useful without covering content. */
-.floating-cta.floating-cta-compact {
-  right: 16px;
-  bottom: 16px;
-  gap: 7px;
-  width: auto;
-  max-width: calc(100vw - 32px);
-  padding: 7px;
-  border-radius: 999px;
-  box-shadow: 0 14px 36px rgba(16,24,40,.16);
-}
-.floating-cta.floating-cta-compact .btn {
-  width: auto;
-  min-height: 40px;
-  padding: 9px 14px;
-  white-space: nowrap;
-}
-.floating-cta.floating-cta-compact .floating-cta-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-}
+
+
+
+
 
 /* Service hero should feel premium without consuming the whole first screen. */
 .service-hero-v2 {
@@ -357,18 +339,6 @@ main > .service-hero-v2 ~ .section .section-head > p {
   .service-talent-actions { flex-direction: column; }
   .service-talent-actions .btn { width: 100%; justify-content: center; }
 
-  .floating-cta.floating-cta-compact {
-    left: auto;
-    right: 10px;
-    bottom: 10px;
-    max-width: calc(100vw - 20px);
-    flex-wrap: nowrap;
-    padding: 6px;
-  }
-  .floating-cta.floating-cta-compact .btn {
-    width: auto !important;
-    min-height: 38px;
-    padding: 8px 12px;
-    font-size: 13px;
-  }
+  
+  
 }

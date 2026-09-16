@@ -271,12 +271,8 @@ main:has(> .service-hero-v2) .centered-actions .btn-lg {
 }
 
 /* CTA: one compact action only. Keep internal workspaces completely free of public sales overlays. */
-.floating-cta.floating-cta-compact {
-  bottom: max(12px, env(safe-area-inset-bottom));
-}
-.floating-cta-label-mobile {
-  display: none;
-}
+
+
 
 @media (max-width: 980px) {
   main:has(> .service-hero-v2) .grid-4,
@@ -371,26 +367,11 @@ main:has(> .service-hero-v2) .centered-actions .btn-lg {
     overflow-wrap: anywhere;
   }
 
-  .floating-cta-label-desktop {
-    display: none;
-  }
-  .floating-cta-label-mobile {
-    display: inline;
-  }
-  .floating-cta.floating-cta-compact {
-    right: 8px;
-    bottom: max(8px, env(safe-area-inset-bottom));
-    max-width: calc(100vw - 16px);
-  }
-  .floating-cta.floating-cta-compact .btn {
-    min-height: 36px;
-    padding: 7px 11px;
-    font-size: 12.5px;
-  }
-  .floating-cta.floating-cta-compact .floating-cta-close {
-    width: 30px;
-    height: 30px;
-  }
+  
+  
+  
+  
+  
 }
 
 @media (hover: none) {

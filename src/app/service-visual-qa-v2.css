@@ -220,25 +220,12 @@ main:has(> .service-hero-v2) .grid-4 {
   }
 }
 
-/* Keep the global discovery CTA compact and out of the way. */
-.floating-cta.floating-cta-compact {
-  right: 10px;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  padding: 5px !important;
-  gap: 4px !important;
-  border-radius: 12px !important;
-}
 
-.floating-cta.floating-cta-compact .btn {
-  min-height: 34px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-}
 
-.floating-cta.floating-cta-compact .floating-cta-close {
-  width: 26px !important;
-  height: 26px !important;
-}
+
+
+
+
 
 @media (max-width: 1080px) {
   .service-conversion-hero-grid {
@@ -357,17 +344,9 @@ main:has(> .service-hero-v2) .grid-4 {
     grid-template-columns: 1fr !important;
   }
 
-  .floating-cta.floating-cta-compact {
-    right: 6px;
-    bottom: max(6px, env(safe-area-inset-bottom));
-    max-width: calc(100vw - 12px);
-  }
+  
 
-  .floating-cta.floating-cta-compact .btn {
-    min-height: 32px !important;
-    padding: 5px 9px !important;
-    font-size: 11.5px !important;
-  }
+  
 }
 
 @media (hover: none) {

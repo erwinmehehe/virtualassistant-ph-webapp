@@ -1,35 +1,7 @@
 /* Focused CRO density fixes. Keep required fields and functionality intact. */
 
-/* Mobile discovery CTA: compact, safe-area aware, and no full-width takeover. */
-@media (max-width: 640px) {
-  .floating-cta.floating-cta-compact {
-    left: auto !important;
-    right: 10px !important;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-    width: auto !important;
-    max-width: calc(100vw - 20px) !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 4px !important;
-    padding: 5px !important;
-    border-radius: 999px !important;
-    box-shadow: 0 10px 28px rgba(16,24,40,.14) !important;
-    z-index: 40 !important;
-  }
-  .floating-cta.floating-cta-compact .btn {
-    width: auto !important;
-    min-height: 38px !important;
-    padding: 7px 11px !important;
-    border-radius: 999px !important;
-    font-size: .78rem !important;
-    line-height: 1 !important;
-  }
-  .floating-cta.floating-cta-compact .floating-cta-close {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 999px !important;
-  }
-}
+
+
 
 /* Homepage hiring form: remove duplicate helper copy without removing fields. */
 .pva-home .pva-hero-form-shell .compact-hire-form-head > p,

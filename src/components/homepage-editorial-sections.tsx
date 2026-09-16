@@ -62,12 +62,14 @@ const hiringModels = [
     label: "Marketplace",
     eyebrow: "You own the search",
     copy: "You search the database, review applicants, screen skills, run interviews, check fit, and manage the hire yourself. You get broad access, but your team carries the sourcing and screening workload.",
+    featured: false,
   },
   {
     number: "02",
     label: "Direct hire",
     eyebrow: "You own the placement",
     copy: "Recruiting support can reduce the sourcing and screening work, then you employ or contract with the Virtual Assistant directly and manage the working relationship after placement.",
+    featured: false,
   },
   {
     number: "03",

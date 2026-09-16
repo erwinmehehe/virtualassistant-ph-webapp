@@ -39,7 +39,7 @@ import "./homepage-growth.css";
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
   description:
-    "Hire vetted Filipino virtual assistants matched to your role, tools, schedule, and budget with recruiter support from first brief through placement.",
+    "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines, matched to your role, tools, schedule, and budget with expert recruiter support.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",

@@ -8,21 +8,11 @@ import { sendStaffClientFollowupEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { legacyLeadStatus } from "@/lib/lead-crm";
 
-const ACTIONS = new Set([
-  "send_followup",
-  "follow_up_later",
-  "close_no_response",
-  "close_spam",
-  "close_not_fit"
-]);
+const ACTIONS = new Set(["send_followup", "follow_up_later"]);
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
-}
-
-function firstName(value?: string | null) {
-  return String(value || "").trim().split(/\s+/)[0] || "there";
 }
 
 export async function recruiterCleanupLeadAction(formData: FormData) {
@@ -36,7 +26,7 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: lead, error: leadError } = await admin.from("lead_intake")
-    .select("id,name,email,company,service,crm_stage,owner_id,job_id,first_contact_at,last_contact_at,next_follow_up_at,lost_at")
+    .select("id,name,email,service,crm_stage,owner_id,job_id,first_contact_at")
     .eq("id", leadId)
     .maybeSingle();
   if (leadError) return fail(leadError.message || "Could not load this lead.");
@@ -50,15 +40,14 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
 
   if (action === "send_followup") {
     if (!lead.email) return fail("This lead has no email address.");
-    const greeting = firstName(lead.name);
     const serviceContext = lead.service ? ` about ${lead.service}` : "";
     const isFirstContact = !lead.first_contact_at;
     const subject = isFirstContact ? "Your Virtual Assistant hiring request" : "Following up on your Virtual Assistant hiring request";
     const message = isFirstContact
-      ? `Hi ${greeting}, thanks for reaching out to VirtualAssistant.com.ph${serviceContext}. I’m following up so we can understand the role, schedule, and priorities and move your search forward. Reply here with any details you want us to consider, or book a discovery call when convenient.`
-      : `Hi ${greeting}, I’m following up on your Virtual Assistant hiring request${serviceContext}. If the role is still active, reply here with any updates or questions and we’ll move the next step forward. If your plans changed, just let us know and we’ll update the search.`;
+      ? `Thanks for reaching out to VirtualAssistant.com.ph${serviceContext}. I’m following up so we can understand the role, schedule, and priorities and move your search forward. Reply here with any details you want us to consider, or book a discovery call when convenient.`
+      : `I’m following up on your Virtual Assistant hiring request${serviceContext}. If the role is still active, reply here with any updates or questions and we’ll move the next step forward. If your plans changed, just let us know and we’ll update the search.`;
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-    const href = lead.job_id ? `${appUrl}/workspace/client/jobs/${lead.job_id}` : `${appUrl}/book-a-call`;
+    const href = lead.job_id ? `${appUrl}/workspace/client/jobs/${lead.job_id}` : `${appUrl}/book-client-call`;
     const result = await sendStaffClientFollowupEmail({
       to: lead.email,
       subject,
@@ -90,7 +79,7 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
       actorId: user.id,
       metadata: { job_id: lead.job_id || null, next_follow_up_at: patch.next_follow_up_at }
     });
-  } else if (action === "follow_up_later") {
+  } else {
     const nextFollowUpAt = new Date(now.getTime() + 3 * 86400000).toISOString();
     const { error } = await admin.from("lead_intake").update({ owner_id: ownerId, next_follow_up_at: nextFollowUpAt }).eq("id", leadId);
     if (error) return fail(error.message || "Could not reschedule this lead.");
@@ -101,31 +90,6 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
       description: "Lead follow-up moved 3 days forward",
       actorId: user.id,
       metadata: { next_follow_up_at: nextFollowUpAt }
-    });
-  } else {
-    const lostReasons: Record<string, string> = {
-      close_no_response: "No response",
-      close_spam: "Spam / invalid inquiry",
-      close_not_fit: "Not a fit"
-    };
-    const lostReason = lostReasons[action];
-    const { error } = await admin.from("lead_intake").update({
-      crm_stage: "lost",
-      status: legacyLeadStatus("lost"),
-      owner_id: ownerId,
-      next_follow_up_at: null,
-      lost_reason: lostReason,
-      stage_updated_at: nowIso,
-      lost_at: lead.lost_at || nowIso
-    }).eq("id", leadId);
-    if (error) return fail(error.message || "Could not close this lead.");
-    await writeRecruiterActivity({
-      subjectType: "lead",
-      subjectId: leadId,
-      action: `lead_cleanup_${action}`,
-      description: `Lead closed: ${lostReason}`,
-      actorId: user.id,
-      metadata: { lost_reason: lostReason, job_id: lead.job_id || null }
     });
   }
 

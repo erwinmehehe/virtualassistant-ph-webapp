@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
+import { bookingManageUrl } from "@/lib/booking-operations";
+import { formatDiscoverySlot } from "@/lib/discovery-booking";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -15,6 +17,45 @@ const MAX_WORKFLOW_REMINDERS = 3;
 
 function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+
+async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdminClient>) {
+  const now = Date.now();
+  const upper = new Date(now + 25 * 60 * 60 * 1000).toISOString();
+  const lower = new Date(now + 30 * 60 * 1000).toISOString();
+  const { data: bookings, error } = await admin.from("lead_intake")
+    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
+    .not("discovery_scheduled_at", "is", null)
+    .is("discovery_cancelled_at", null)
+    .is("discovery_completed_at", null)
+    .gte("discovery_scheduled_at", lower)
+    .lte("discovery_scheduled_at", upper)
+    .limit(300);
+  if (error) throw error;
+
+  let reminder24h = 0;
+  let reminder1h = 0;
+  for (const booking of bookings || []) {
+    if (!booking.email || !booking.discovery_scheduled_at || !booking.discovery_manage_token) continue;
+    const minutesUntil = (new Date(booking.discovery_scheduled_at).getTime() - now) / 60_000;
+    const scheduledLabel = formatDiscoverySlot(booking.discovery_scheduled_at, booking.timezone || "Asia/Manila");
+    const manageUrl = bookingManageUrl(booking.discovery_manage_token);
+    if (minutesUntil <= 90 && minutesUntil >= 30 && !booking.discovery_reminder_1h_sent_at) {
+      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "1h" });
+      if (result.sent) {
+        await admin.from("lead_intake").update({ discovery_reminder_1h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_1h_sent_at", null);
+        reminder1h++;
+      }
+    } else if (minutesUntil <= 25 * 60 && minutesUntil >= 23 * 60 && !booking.discovery_reminder_24h_sent_at) {
+      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "24h" });
+      if (result.sent) {
+        await admin.from("lead_intake").update({ discovery_reminder_24h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_24h_sent_at", null);
+        reminder24h++;
+      }
+    }
+  }
+  return { checked: bookings?.length || 0, reminder24h, reminder1h };
 }
 
 async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
@@ -302,15 +343,16 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
   const quoteResult = await autoQuoteStraightforwardJobs();
-  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult] = await Promise.all([
+  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult] = await Promise.all([
     runProfileNudges(admin),
     runStaleVaCleanup(admin),
     runLeadClaimNudges(admin),
     runPendingJobMatching(admin),
     runWorkflowReminders(admin),
     runTalentHealthNudges(admin),
-    runSalesCrmReminders(admin)
+    runSalesCrmReminders(admin),
+    runDiscoveryBookingReminders(admin)
   ]);
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult });
 }

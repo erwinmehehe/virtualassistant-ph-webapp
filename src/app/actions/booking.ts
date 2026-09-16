@@ -29,16 +29,48 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const scheduledAt = String(formData.get("scheduled_at") || "").trim();
   if (token.length < 32 || !isAllowedDiscoverySlot(scheduledAt)) redirect(managePath(token, "error=slot"));
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_meeting_url,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
+
   const now = new Date().toISOString();
-  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* a stale Zoom meeting must not block rescheduling */ }
+  const previousMeetingId = lead.discovery_zoom_meeting_id;
+  const previousMeetingUrl = lead.discovery_meeting_url;
   let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> = { configured: false, joinUrl: null, meetingId: null };
-  try { zoom = await createZoomDiscoveryMeeting({ topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`, startsAt: scheduledAt, durationMinutes: lead.discovery_duration_minutes || 30 }); } catch { /* keep the existing link if Zoom is unavailable */ }
-  const update: Record<string, unknown> = { discovery_scheduled_at: scheduledAt, discovery_cancelled_at: null, discovery_rescheduled_at: now, discovery_outcome: "rescheduled", discovery_reminder_24h_sent_at: null, discovery_reminder_1h_sent_at: null, crm_stage: "discovery_booked", stage_updated_at: now, discovery_meeting_url: zoom.joinUrl, discovery_zoom_meeting_id: zoom.meetingId };
-  if (zoom.joinUrl) { update.discovery_meeting_url = zoom.joinUrl; update.discovery_zoom_meeting_id = zoom.meetingId; }
+  try {
+    zoom = await createZoomDiscoveryMeeting({
+      topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
+      startsAt: scheduledAt,
+      durationMinutes: lead.discovery_duration_minutes || 30,
+    });
+  } catch {
+    // Keep the existing meeting if Zoom is temporarily unavailable.
+  }
+
+  const update: Record<string, unknown> = {
+    discovery_scheduled_at: scheduledAt,
+    discovery_cancelled_at: null,
+    discovery_rescheduled_at: now,
+    discovery_outcome: "rescheduled",
+    discovery_reminder_24h_sent_at: null,
+    discovery_reminder_1h_sent_at: null,
+    crm_stage: "discovery_booked",
+    stage_updated_at: now,
+    discovery_meeting_url: zoom.joinUrl || previousMeetingUrl || null,
+    discovery_zoom_meeting_id: zoom.meetingId || previousMeetingId || null,
+  };
+
   const { error } = await admin.from("lead_intake").update(update).eq("id", lead.id);
-  if (error) redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
+  if (error) {
+    if (zoom.meetingId && zoom.meetingId !== previousMeetingId) {
+      try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup of the unsaved replacement meeting */ }
+    }
+    redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
+  }
+
+  if (zoom.meetingId && previousMeetingId && zoom.meetingId !== previousMeetingId) {
+    try { await cancelZoomDiscoveryMeeting(previousMeetingId); } catch { /* the successful CRM reschedule must not be rolled back if Zoom cleanup fails */ }
+  }
+
   const label = formatDiscoverySlot(scheduledAt, lead.timezone || "Asia/Manila");
   await sendTransactionalEventEmail({ to: lead.email, subject: `Discovery call rescheduled: ${label}`, heading: "Your discovery call was rescheduled", body: `Your new time is ${label}.`, href: bookingManageUrl(token), hrefLabel: "Manage booking" });
   redirect(managePath(token, "rescheduled=1"));

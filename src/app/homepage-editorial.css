@@ -1,0 +1,335 @@
+/* Homepage editorial system. Loaded last and scoped to the marketing homepage. */
+.pva-home {
+  --pva-primary: #4f46e5;
+  --pva-primary-strong: #4338ca;
+  --pva-accent: #7c3aed;
+  --pva-success: #059669;
+  --pva-ink: #101828;
+  --pva-muted: #667085;
+  --pva-border: #e4e7ec;
+  --pva-soft-surface: #f8f9fc;
+  --pva-radius: 20px;
+  --pva-shadow: 0 18px 44px rgba(16, 24, 40, 0.07);
+}
+
+.pva-home .pva-btn-primary {
+  background: var(--pva-primary);
+  border-color: var(--pva-primary);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.2);
+}
+
+.pva-home .pva-btn-primary:hover {
+  background: var(--pva-primary-strong);
+  border-color: var(--pva-primary-strong);
+}
+
+.pva-home .pva-kicker,
+.pva-home .pva-text-link,
+.pva-home .pva-editorial-copy a,
+.pva-home .pva-model-actions a {
+  color: var(--pva-primary-strong);
+}
+
+.va-site-nav .brand .ph {
+  color: #4f46e5;
+}
+
+.va-site-nav .header-hire-cta {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.18);
+}
+
+.pva-editorial-section,
+.pva-why-editorial,
+.pva-who-help {
+  border-top: 1px solid #eef0f4;
+}
+
+.pva-editorial-grid,
+.pva-why-editorial-grid,
+.pva-who-help-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+  gap: clamp(2.2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.pva-editorial-heading,
+.pva-why-editorial-copy {
+  max-width: 680px;
+}
+
+.pva-editorial-heading h2,
+.pva-why-editorial-copy h2,
+.pva-editorial-head h2 {
+  margin: .65rem 0 1rem;
+  color: var(--pva-ink);
+  font-size: clamp(2.1rem, 3.5vw, 3.65rem);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+}
+
+.pva-editorial-heading p,
+.pva-editorial-copy p,
+.pva-why-editorial-copy p,
+.pva-editorial-head p,
+.pva-model-rows p,
+.pva-model-positioning p,
+.pva-who-help p {
+  color: var(--pva-muted);
+  line-height: 1.75;
+}
+
+.pva-editorial-copy {
+  max-width: 760px;
+  font-size: 1.02rem;
+}
+
+.pva-editorial-copy p:first-child {
+  margin-top: 0;
+}
+
+.pva-editorial-copy a {
+  font-weight: 650;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(79, 70, 229, .25);
+}
+
+.pva-why-editorial {
+  background: linear-gradient(180deg, #fff 0%, #fafaff 100%);
+}
+
+.pva-why-editorial-copy p {
+  max-width: 760px;
+}
+
+.pva-why-checklist {
+  position: sticky;
+  top: 6rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: var(--pva-radius);
+  background: #f7f7fe;
+  border: 1px solid #e5e5fb;
+}
+
+.pva-why-checklist h3 {
+  margin: .65rem 0 1.35rem;
+  color: var(--pva-ink);
+  font-size: clamp(1.45rem, 2.3vw, 2rem);
+  letter-spacing: -.025em;
+}
+
+.pva-why-checklist > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  padding: .95rem 0;
+  border-top: 1px solid #dedff3;
+}
+
+.pva-why-checklist strong {
+  color: #312e81;
+}
+
+.pva-why-checklist span {
+  color: #667085;
+  line-height: 1.55;
+}
+
+.pva-editorial-proof {
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+  margin: 1.3rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid #dedff3;
+  color: #344054;
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.pva-editorial-proof svg {
+  flex: 0 0 auto;
+  margin-top: .15rem;
+  color: var(--pva-success);
+}
+
+.pva-hiring-models {
+  border-top: 1px solid #eceef3;
+  border-bottom: 1px solid #eceef3;
+}
+
+.pva-editorial-head {
+  max-width: 900px;
+  margin-bottom: clamp(2rem, 4vw, 3.4rem);
+}
+
+.pva-editorial-head p {
+  max-width: 760px;
+}
+
+.pva-model-rows {
+  border-top: 1px solid #dfe3eb;
+}
+
+.pva-model-rows article {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #dfe3eb;
+}
+
+.pva-model-rows article > span {
+  color: #98a2b3;
+  font-size: .78rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.pva-model-rows h3 {
+  margin: 0 0 .35rem;
+  color: var(--pva-ink);
+  font-size: 1.25rem;
+}
+
+.pva-model-rows p {
+  max-width: 820px;
+  margin: 0;
+}
+
+.pva-model-rows .pva-model-featured h3,
+.pva-model-rows .pva-model-featured > span {
+  color: var(--pva-primary-strong);
+}
+
+.pva-model-positioning {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+  margin-top: 1.75rem;
+  padding: 1.5rem 0 0 64px;
+}
+
+.pva-model-positioning strong {
+  color: var(--pva-ink);
+  font-size: 1.05rem;
+}
+
+.pva-model-positioning p {
+  max-width: 760px;
+  margin: .35rem 0 0;
+}
+
+.pva-model-actions {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pva-model-actions a {
+  display: inline-flex;
+  gap: .35rem;
+  align-items: center;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pva-who-help-grid {
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+}
+
+.pva-who-links {
+  border-top: 1px solid #e4e7ec;
+}
+
+.pva-who-links > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem .1rem;
+  border-bottom: 1px solid #e4e7ec;
+  color: inherit;
+  text-decoration: none;
+  transition: transform .18s ease, color .18s ease;
+}
+
+.pva-who-links > a:hover {
+  color: var(--pva-primary-strong);
+  transform: translateX(3px);
+}
+
+.pva-who-links span,
+.pva-who-links strong,
+.pva-who-links small {
+  display: block;
+}
+
+.pva-who-links strong {
+  margin-bottom: .18rem;
+  color: var(--pva-ink);
+  font-size: 1rem;
+}
+
+.pva-who-links small {
+  max-width: 650px;
+  color: var(--pva-muted);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+/* Reduce card-heavy treatment on explanatory homepage sections. */
+.pva-home .pva-story-points div {
+  border: 0;
+  border-top: 2px solid #d9d9f7;
+  border-radius: 0;
+  background: transparent;
+  padding: .9rem 0;
+}
+
+.pva-home .pva-seo-story-copy {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .pva-editorial-grid,
+  .pva-why-editorial-grid,
+  .pva-who-help-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .pva-why-checklist {
+    position: static;
+  }
+
+  .pva-model-positioning {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .pva-editorial-heading h2,
+  .pva-why-editorial-copy h2,
+  .pva-editorial-head h2 {
+    font-size: clamp(1.85rem, 10vw, 2.5rem);
+  }
+
+  .pva-why-checklist > div,
+  .pva-model-rows article {
+    grid-template-columns: 1fr;
+    gap: .35rem;
+  }
+
+  .pva-model-rows article > span {
+    margin-bottom: .15rem;
+  }
+}

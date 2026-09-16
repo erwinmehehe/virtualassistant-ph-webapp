@@ -131,7 +131,7 @@
 .pva-white { background: #fff; }
 .pva-soft { background: linear-gradient(180deg,#fafbfe,#f6f7fb); border-top: 1px solid #f0f2f6; border-bottom: 1px solid #f0f2f6; }
 .pva-section-head { max-width: 760px; margin-bottom: 2.2rem; }
-.pva-section-head-row { max-width: none; display: flex; align-items: end; justify-content: space-between; gap: 2rem; }
+.pva-section-head-row { max-width: none; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
 .pva-section-head-row > div { max-width: 720px; }
 .pva-centered { margin-left: auto; margin-right: auto; text-align: center; }
 .pva-kicker { display: inline-flex; margin-bottom: .75rem; color: #4f46e5; font-size: .72rem; font-weight: 850; text-transform: uppercase; letter-spacing: .11em; }

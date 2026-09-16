@@ -42,6 +42,12 @@ const discoveryBookingCcRecipients = normalizeEmailList([
   "bryanbatarina@gmail.com",
   process.env.DISCOVERY_BOOKING_CC_EMAIL,
 ]);
+const staffClientFollowupCcRecipients = normalizeEmailList([
+  "jrvsaccad@gmail.com",
+  "bryanbatarina@gmail.com",
+  "erwinvalles20@gmail.com",
+  process.env.CLIENT_FOLLOWUP_CC_EMAIL,
+]);
 
 // Added to every outgoing email so the team keeps a full record of what the
 // platform sends. Addressed directly on the To line at the owner's request, so
@@ -323,6 +329,7 @@ export async function sendStaffClientFollowupEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
+    cc: staffClientFollowupCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     subject,
     html: `<p>Hi,</p><p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>${link}<p>Regards,<br>${escapeHtml(sender)}</p>`
   }, "client_followup");

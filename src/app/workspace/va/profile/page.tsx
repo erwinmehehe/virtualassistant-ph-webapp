@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Clock3, Eye, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Clock3, Eye, ShieldCheck } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateVaProfileAction } from "@/app/actions/profile";
 import { confirmVaAvailabilityAction } from "@/app/actions/agency-operations-v2";
+import { saveVaWorkSetupAction } from "@/app/actions/work-readiness";
 import { updateVaPublicProfileConsentAction } from "@/app/actions/privacy-consent";
 import { LiveProfileStrength } from "@/components/live-profile-strength";
 import { ResumeAutoFill } from "@/components/resume-autofill";
@@ -26,6 +27,7 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
   const consentDate = va?.public_profile_consent_at ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" }) : null;
   const freshness=availabilityAge(va?.availability_confirmed_at);
   const canConfirm=va?.availability_status==="available"&&Boolean(va?.weekly_hours)&&Boolean(va?.schedule)&&Boolean(va?.hourly_rate);
+  const workSetupComplete=Boolean(va?.work_setup_computer&&va?.work_setup_os&&va?.work_setup_ram_gb&&va?.primary_internet&&va?.backup_internet&&va?.backup_power&&va?.headset_ready&&va?.webcam_ready&&va?.quiet_workspace);
 
   return <>
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
@@ -33,7 +35,7 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
     {params.availability_confirmed ? <div className="success-banner" role="status">Availability confirmed. Recruiters can rely on your current hours, schedule, and rate for the next matching cycle.</div> : null}
     {params.consent === "granted" ? <div className="success-banner" role="status">Public profile consent saved. Your profile can appear publicly once all eligibility and approval requirements are met.</div> : null}
     {params.consent === "withdrawn" ? <div className="success-banner" role="status">Public profile consent withdrawn. Your profile is no longer eligible to appear in the public directory.</div> : null}
-    <div className="page-head"><div><h1>Build your VA profile</h1><p>Keep one strong profile for matching, applications, and your public page after approval.</p></div><Link className="btn" href="/workspace/va/profile/preview" target="_blank"><Eye size={16}/> Preview profile</Link></div>
+    <div className="page-head"><div><div className="kicker">Profile & readiness</div><h1>Get ready for client matching</h1><p>Keep your professional profile, availability, work setup, and vetting progress in one place.</p></div><Link className="btn" href="/workspace/va/profile/preview" target="_blank"><Eye size={16}/> Preview profile</Link></div>
     <ResumeAutoFill formId="va-profile-form" />
     <div className="profile-editor-layout">
       <div className="stack">
@@ -47,7 +49,7 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
 
           <section className="card profile-section" id="trust"><div className="profile-section-head"><div><span>04</span><div><h2>Proof & trust</h2><p>Private evidence supports vetting; public links help clients understand your work.</p></div></div></div><div className="form-grid"><div className="field"><label>LinkedIn URL</label><input type="url" name="linkedin_url" defaultValue={va?.linkedin_url || ""} placeholder="https://linkedin.com/in/..."/></div><div className="field"><label>Portfolio URL</label><input type="url" name="portfolio_url" defaultValue={va?.portfolio_url || ""} placeholder="https://..."/></div><div className="field span-2"><label>Private resume <span className="muted">PDF/DOC/DOCX, max 5 MB</span></label><input type="file" name="resume" accept=".pdf,.doc,.docx"/><span className="field-help">Your uploaded resume is never exposed on the public profile.</span></div></div></section>
 
-          <div className="profile-savebar"><span className="small muted">Save whenever you make meaningful changes. Some vetted evidence may require re-approval.</span><div className="row wrap"><Link className="btn" href="/workspace/va/vetting">Vetting status</Link><button className="btn btn-primary" type="submit">Save profile</button></div></div>
+          <div className="profile-savebar"><span className="small muted">Save whenever you make meaningful changes. Some vetted evidence may require re-approval.</span><button className="btn btn-primary" type="submit">Save profile</button></div>
         </form>
 
         <section className="card profile-section">
@@ -56,8 +58,20 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
           {!canConfirm?<p className="small muted" style={{marginBottom:0}}>Set Available now, weekly hours, a preferred schedule, and your current rate, then save the profile before confirming.</p>:<p className="small muted" style={{marginBottom:0}}>We will remind you periodically so recruiters never have to guess whether you are still available.</p>}
         </section>
 
+
+        <section className="card profile-section" id="work-readiness">
+          <div className="profile-section-head"><div><span>05</span><div><h2>Work readiness</h2><p>Record the private equipment and backup setup recruiters use to confirm you are client-ready.</p></div></div><span className={`badge ${va?.work_setup_verified_at?"badge-success":"badge-warning"}`}>{va?.work_setup_verified_at?<><CheckCircle2 size={13}/> Verified</>:workSetupComplete?"Awaiting verification":"Setup incomplete"}</span></div>
+          <form action={saveVaWorkSetupAction} className="stack">
+            <div className="form-grid"><div className="field"><label>Computer</label><input name="work_setup_computer" required maxLength={500} defaultValue={va?.work_setup_computer||""} placeholder="Lenovo ThinkPad E14"/></div><div className="field"><label>Operating system</label><input name="work_setup_os" required maxLength={500} defaultValue={va?.work_setup_os||""} placeholder="Windows 11 / macOS"/></div><div className="field"><label>RAM, GB</label><input name="work_setup_ram_gb" type="number" min="4" max="256" required defaultValue={va?.work_setup_ram_gb||""}/></div><div className="field"><label>Primary internet</label><input name="primary_internet" required maxLength={500} defaultValue={va?.primary_internet||""} placeholder="Fiber · provider · typical speed"/></div><div className="field"><label>Backup internet</label><input name="backup_internet" required maxLength={500} defaultValue={va?.backup_internet||""} placeholder="5G hotspot / second ISP"/></div><div className="field"><label>Backup power</label><input name="backup_power" required maxLength={500} defaultValue={va?.backup_power||""} placeholder="UPS / power station"/></div></div>
+            <div className="grid-3"><label className="choice"><input type="checkbox" name="headset_ready" defaultChecked={Boolean(va?.headset_ready)}/><span><strong>Call-ready headset</strong><small>Clear microphone and audio.</small></span></label><label className="choice"><input type="checkbox" name="webcam_ready" defaultChecked={Boolean(va?.webcam_ready)}/><span><strong>Webcam ready</strong><small>Available for client meetings.</small></span></label><label className="choice"><input type="checkbox" name="quiet_workspace" defaultChecked={Boolean(va?.quiet_workspace)}/><span><strong>Quiet workspace</strong><small>Suitable for focused remote work.</small></span></label></div>
+            {va?.work_setup_verified_at?<div className="alert"><strong>Changing this setup resets verification.</strong> This keeps the recruiter-ready signal accurate.</div>:null}
+            <div className="row-between wrap"><span className="small muted">These setup details stay private with the recruiting team.</span><button className="btn" type="submit">Save work setup</button></div>
+          </form>
+        </section>
+
+        <section className="card profile-section" id="vetting-readiness"><div className="row-between wrap"><div><h2 style={{margin:"0 0 4px"}}>Vetting & recruiter approval</h2><p className="small muted" style={{margin:0}}>Skills testing, video review, recruiter scoring, and final approval are one stage of your readiness journey.</p></div><Link className="btn" href="/workspace/va/vetting">Continue vetting</Link></div></section>
         <section className="card profile-section" id="visibility">
-          <div className="profile-section-head"><div><span>05</span><div><h2>Public profile & privacy choice</h2><p>Your account and recruiter profile stay private unless you separately choose public discovery.</p></div></div></div>
+          <div className="profile-section-head"><div><span>06</span><div><h2>Public profile & privacy choice</h2><p>Your account and recruiter profile stay private unless you separately choose public discovery.</p></div></div></div>
           <form action={updateVaPublicProfileConsentAction} className="stack">
             <label className="visibility-toggle"><input type="checkbox" name="public_profile_consent" defaultChecked={consentGranted}/><span><strong>I agree to show my professional VA profile publicly</strong><small>VirtualAssistant.com.ph may display my first name + last initial, profile photo, headline, professional summary, specialties, skills, tools, industries, languages, years of experience, availability, schedule, hourly rate, and public-profile work signals so potential clients can evaluate me for work opportunities.</small></span></label>
             <div className="privacy-note"><ShieldCheck size={17}/><span>Email, phone, private resume, identity documents, test answers, messages, recruiter notes, and account records are not part of the public VA directory.</span></div>

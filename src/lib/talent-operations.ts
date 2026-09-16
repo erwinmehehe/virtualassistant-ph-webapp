@@ -25,6 +25,20 @@ function freshSince(value: string | null | undefined, days: number, nowMs: numbe
   return timestamp >= nowMs - days * 86_400_000;
 }
 
+export function isTalentAgencyCertified(
+  input: TalentReadinessInput,
+  nowMs = Date.now(),
+  freshnessDays = TALENT_AVAILABILITY_FRESH_DAYS,
+) {
+  const stage = String(input.stage || "profile");
+  const approved = stage === "approved" || stage === "bench";
+  const available = input.availabilityStatus === "available";
+  const freshAvailability = freshSince(input.availabilityConfirmedAt, freshnessDays, nowMs);
+  const setupVerified = Boolean(input.workSetupVerifiedAt);
+
+  return approved && input.activePool && available && freshAvailability && setupVerified;
+}
+
 export function talentReadiness(
   input: TalentReadinessInput,
   nowMs = Date.now(),
@@ -33,12 +47,9 @@ export function talentReadiness(
   const stage = String(input.stage || "profile");
   const approved = stage === "approved" || stage === "bench";
   const finalistOrApproved = approved || stage === "finalist";
-  const available = input.availabilityStatus === "available";
   const explicitlyUnavailable = input.availabilityStatus === "unavailable";
-  const freshAvailability = freshSince(input.availabilityConfirmedAt, freshnessDays, nowMs);
-  const setupVerified = Boolean(input.workSetupVerifiedAt);
 
-  if (approved && input.activePool && available && freshAvailability && setupVerified) return "client_ready";
+  if (isTalentAgencyCertified(input, nowMs, freshnessDays)) return "client_ready";
   if (explicitlyUnavailable && finalistOrApproved) return "unavailable";
   if (finalistOrApproved) return "near_ready";
   return "pipeline";

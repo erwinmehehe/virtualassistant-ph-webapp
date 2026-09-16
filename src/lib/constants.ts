@@ -63,7 +63,7 @@ export const VETTING_STAGES = [
   "rejected"
 ] as const;
 
-export const MIN_HOURLY_RATE = 5;
+export const MIN_HOURLY_RATE = 6;
 export const VETTING_PROFILE_MIN = 80;
 export const VETTING_TEST_PASS = 70;
 export const VETTING_SCORECARD_PASS = 75;

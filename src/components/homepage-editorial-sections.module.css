@@ -1,0 +1,298 @@
+.wrap {
+  margin-top: clamp(3.5rem, 7vw, 6.5rem);
+  color: #101828;
+}
+
+.editorialSection,
+.hiringModels,
+.whoHelp {
+  padding: clamp(3.8rem, 7vw, 6.5rem) 0;
+  border-top: 1px solid #e9ecf2;
+}
+
+.editorialGrid,
+.whoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(2.2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.headingBlock {
+  max-width: 650px;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  color: #4338ca;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.headingBlock h2,
+.sectionHead h2 {
+  margin: .7rem 0 1rem;
+  color: #101828;
+  font-size: clamp(2rem, 3.7vw, 3.55rem);
+  line-height: 1.03;
+  letter-spacing: -.045em;
+}
+
+.headingBlock > p,
+.sectionHead > p,
+.editorialCopy p,
+.modelRows p,
+.positioning p {
+  color: #667085;
+  line-height: 1.75;
+}
+
+.editorialCopy {
+  max-width: 790px;
+  font-size: 1rem;
+}
+
+.editorialCopy p:first-child {
+  margin-top: 0;
+}
+
+.inlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .85rem 1.35rem;
+  margin-top: 1.5rem;
+}
+
+.inlineActions a,
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  color: #4338ca;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.proofLine {
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+  margin-top: 1.45rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid #e4e7ec;
+  color: #344054 !important;
+  font-size: .9rem;
+}
+
+.proofLine svg {
+  flex: 0 0 auto;
+  margin-top: .2rem;
+  color: #059669;
+}
+
+.hiringModels {
+  background: linear-gradient(180deg, rgba(248, 249, 252, .72), rgba(255, 255, 255, 0));
+}
+
+.sectionHead {
+  max-width: 900px;
+  margin-bottom: clamp(2rem, 4vw, 3.25rem);
+}
+
+.sectionHead > p {
+  max-width: 760px;
+}
+
+.modelRows {
+  border-top: 1px solid #dfe3eb;
+}
+
+.modelRows article {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #dfe3eb;
+}
+
+.modelRows article > span {
+  color: #98a2b3;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.modelRows h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.22rem;
+  letter-spacing: -.02em;
+}
+
+.modelRows p {
+  max-width: 850px;
+  margin: 0;
+}
+
+.featuredModel {
+  background: linear-gradient(90deg, rgba(79,70,229,.055), rgba(79,70,229,0));
+}
+
+.featuredModel h3,
+.featuredModel > span {
+  color: #4338ca !important;
+}
+
+.positioning {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+  margin-top: 1.65rem;
+  padding-top: 1.4rem;
+}
+
+.positioning strong {
+  font-size: 1.05rem;
+}
+
+.positioning p {
+  max-width: 790px;
+  margin: .4rem 0 0;
+}
+
+.whoGrid {
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+}
+
+.viewAll {
+  margin-top: 1rem;
+}
+
+.audienceLinks {
+  border-top: 1px solid #e4e7ec;
+}
+
+.audienceLinks > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem .1rem;
+  border-bottom: 1px solid #e4e7ec;
+  color: inherit;
+  text-decoration: none;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.audienceLinks > a:hover {
+  color: #4338ca;
+  transform: translateX(3px);
+}
+
+.audienceLinks span,
+.audienceLinks strong,
+.audienceLinks small {
+  display: block;
+}
+
+.audienceLinks strong {
+  margin-bottom: .2rem;
+  color: #101828;
+  font-size: 1rem;
+}
+
+.audienceLinks small {
+  max-width: 660px;
+  color: #667085;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+/* Turn the existing Philippines explainer into an editorial layout instead of a card wall. */
+:global(.pva-home .pva-philippines-grid) {
+  align-items: start !important;
+  gap: clamp(2.5rem, 6vw, 5.5rem) !important;
+}
+
+:global(.pva-home .pva-reason-grid.pva-why-grid) {
+  grid-template-columns: 1fr !important;
+  gap: 0 !important;
+  border-top: 1px solid #e4e7ec;
+}
+
+:global(.pva-home .pva-why-grid .pva-reason-card),
+:global(.pva-home .pva-why-grid .pva-reason-card:nth-child(1)) {
+  display: grid !important;
+  grid-template-columns: 3rem minmax(0, 1fr) !important;
+  column-gap: 1rem !important;
+  min-height: 0 !important;
+  padding: 1rem 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #e4e7ec !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:global(.pva-home .pva-why-grid .pva-reason-icon) {
+  grid-row: 1 / 3;
+  width: 2.65rem !important;
+  height: 2.65rem !important;
+  margin: 0 !important;
+  border-radius: .8rem !important;
+  background: #f4f3ff !important;
+}
+
+:global(.pva-home .pva-why-grid .pva-reason-card h3),
+:global(.pva-home .pva-why-grid .pva-reason-card p) {
+  grid-column: 2 !important;
+}
+
+:global(.pva-home .pva-reason-grid.pva-why-grid::after) {
+  content: none !important;
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .editorialGrid,
+  .whoGrid,
+  .positioning {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    margin-top: 2.75rem;
+  }
+
+  .editorialSection,
+  .hiringModels,
+  .whoHelp {
+    padding: 3rem 0;
+  }
+
+  .headingBlock h2,
+  .sectionHead h2 {
+    font-size: clamp(1.9rem, 10vw, 2.55rem);
+  }
+
+  .modelRows article {
+    grid-template-columns: 1fr;
+    gap: .35rem;
+  }
+
+  .inlineActions {
+    display: grid;
+  }
+
+  :global(.pva-home .pva-why-grid .pva-reason-card),
+  :global(.pva-home .pva-why-grid .pva-reason-card:nth-child(1)) {
+    grid-template-columns: 2.7rem minmax(0, 1fr) !important;
+  }
+}

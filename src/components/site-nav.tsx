@@ -12,7 +12,7 @@ const serviceGroups = Array.from(
   }, new Map<string, typeof SERVICE_PAGES>())
 ).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
 
-const industryLinks = INDUSTRIES.slice(0, 12);
+const industryLinks = INDUSTRIES.slice(0, 8);
 
 export function SiteNav() {
   return (
@@ -30,11 +30,11 @@ export function SiteNav() {
                 {serviceGroups.map(([group, pages]) => (
                   <div className="va-nav-column" key={group}>
                     <span>{group}</span>
-                    {pages.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}
+                    {pages.slice(0, 2).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}
                   </div>
                 ))}
               </div>
-              <Link className="va-nav-all" href="/services">View all {SERVICE_PAGES.length} services</Link>
+              <Link className="va-nav-all" href="/services">View all services</Link>
             </div>
           </details>
 
@@ -44,7 +44,7 @@ export function SiteNav() {
               <div className="va-nav-industries-grid">
                 {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
               </div>
-              <Link className="va-nav-all" href="/industries">View all {INDUSTRIES.length} industries</Link>
+              <Link className="va-nav-all" href="/industries">View all industries</Link>
             </div>
           </details>
 

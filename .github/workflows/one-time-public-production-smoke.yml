@@ -1,0 +1,39 @@
+name: One-time public production smoke
+
+on:
+  push:
+    branches: [ops/public-production-smoke]
+    paths:
+      - ".github/workflows/one-time-public-production-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check public production routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://virtualassistant.com.ph"
+          check() {
+            path="$1"
+            marker="$2"
+            body="$(mktemp)"
+            code="$(curl --fail-with-body --silent --show-error --location --max-time 30 -o "$body" -w '%{http_code}' "$base$path")"
+            echo "$path -> HTTP $code"
+            test "$code" = "200"
+            grep -Fq "$marker" "$body" || { echo "Missing marker on $path: $marker"; head -c 1000 "$body"; exit 1; }
+          }
+          check "/" "Get your free VA match"
+          check "/pricing" "Virtual Assistant pricing, without hidden fees."
+          check "/hire" "Virtual Assistant"
+          check "/services" "Virtual Assistant"
+          check "/about" "A recruiting team for businesses hiring Filipino Virtual Assistants."
+          check "/blog" "Build a better remote team, one clear workflow at a time."
+          check "/book-client-call" "Virtual Assistant"
+          echo "Public production smoke passed."

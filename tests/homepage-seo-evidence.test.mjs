@@ -6,6 +6,10 @@ function source(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
+function homepageSource() {
+  return `${source("src/app/page.tsx")}\n${source("src/components/homepage-sections.tsx")}`;
+}
+
 test("homepage does not render the removed live talent statistics block or its extra query", () => {
   const home = source("src/app/page.tsx");
   assert.doesNotMatch(home, /Live approved talent data/);
@@ -17,10 +21,10 @@ test("homepage does not render the removed live talent statistics block or its e
   assert.doesNotMatch(home, /select\("years_experience,weekly_hours,primary_category"\)/);
 });
 
-test("homepage explains Philippines hiring intent high on the page and links to commercial journeys", () => {
-  const home = source("src/app/page.tsx");
-  assert.match(home, /Why the Philippines/);
-  assert.match(home, /A global hub for experienced virtual assistants\./);
+test("homepage explains Philippines hiring intent and links to core commercial journeys", () => {
+  const home = homepageSource();
+  assert.match(home, /Why Hire a Virtual Assistant/);
+  assert.match(home, /global hub for experienced virtual assistants/);
   for (const href of [
     "/hire",
     "/find-talent",
@@ -28,29 +32,30 @@ test("homepage explains Philippines hiring intent high on the page and links to 
     "/pricing",
     "/how-vetting-works",
     "/industries",
-    "/managed-vs-direct-hire",
   ]) {
     assert.ok(home.includes(`href=\"${href}\"`) || home.includes(`href={BOOKING_URL}`), `missing homepage internal link ${href}`);
   }
 });
 
-test("homepage exposes verified operations accountability without inventing recruiter titles", () => {
-  const home = source("src/app/page.tsx");
-  assert.match(home, /Human recruiting and Client Success, not an anonymous marketplace/);
+test("homepage exposes named operations accountability without inventing recruiter titles", () => {
+  const home = homepageSource();
   assert.match(home, /<strong>Jervis Accad<\/strong>/);
   assert.match(home, /<strong>Bryan Batarina<\/strong>/);
+  assert.match(home, /Client Success Manager/);
   assert.match(home, /Operations team/);
+  assert.match(home, /Human review before client presentation/);
   assert.doesNotMatch(home, /Jervis Accad[^\n]*Recruiter/);
   assert.doesNotMatch(home, /Bryan Batarina[^\n]*Recruiter/);
 });
 
-test("homepage service headings use explicit Virtual Assistant entities", () => {
-  const home = source("src/app/page.tsx");
-  assert.match(home, /Administrative & Executive Virtual Assistants/);
-  assert.match(home, /Customer Service Virtual Assistants/);
-  assert.match(home, /Sales & Lead Generation Virtual Assistants/);
-  assert.match(home, /Bookkeeping & Finance Virtual Assistants/);
-  assert.match(home, /GROUP_DISPLAY_NAMES\[group\]/);
+test("homepage service section uses explicit Virtual Assistant service entities", () => {
+  const home = homepageSource();
+  assert.match(home, /Virtual Assistant Services in the Philippines/);
+  assert.match(home, /Executive Assistance/);
+  assert.match(home, /Customer Support/);
+  assert.match(home, /Bookkeeping & Accounting/);
+  assert.match(home, /Lead Generation/);
+  assert.match(home, /Social Media Management/);
 });
 
 test("homepage visible FAQ covers commercial hiring questions and emits matching FAQ schema", () => {
@@ -75,13 +80,14 @@ test("homepage Organization schema carries useful entity context and removes obs
   assert.doesNotMatch(home, /SearchAction/);
 });
 
-test("homepage comparison is a compact three-card premium choice section", () => {
-  const home = source("src/app/page.tsx");
-  const css = source("src/app/homepage-seo-evidence.css");
-  assert.match(home, /pva-compare-section/);
-  assert.match(home, /Reliable support without the hiring headache\./);
-  assert.match(home, /pva-compare-card pva-compare-featured/);
-  assert.match(home, /Compare your options/);
-  assert.match(css, /grid-template-columns: repeat\(3, minmax\(0,1fr\)\)/);
-  assert.match(css, /linear-gradient\(145deg,#312e81 0%,#4f46e5 58%,#5b21b6 100%\)/);
+test("homepage comparison presents marketplace, direct hire, and recruiter-supported options", () => {
+  const home = homepageSource();
+  const css = source("src/app/homepage-sections.css");
+  assert.match(home, /Hiring a .*Filipino.* Virtual Assistant: Agency vs Marketplace vs Direct Hire/s);
+  assert.match(home, /Marketplace/);
+  assert.match(home, /Direct hire/);
+  assert.match(home, /Managed \/ Recruiter-Supported/);
+  assert.match(home, /We make hiring simpler and safer\./);
+  assert.match(css, /\.hs-models/);
+  assert.match(css, /\.hs-managed/);
 });

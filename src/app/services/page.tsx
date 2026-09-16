@@ -49,9 +49,9 @@ export default async function ServicesPage() {
         eyebrow={<span><Briefcase size={14} /> {SERVICE_PAGES.length} role hiring guides</span>}
         title={<h1 className="premium-services-title">Find the Virtual Assistant role that matches <span>the work you need done.</span></h1>}
         intro={<p className="premium-services-lede">Start with the workload, not a generic job title. Browse role-specific guides for responsibilities, tools, interview questions, hiring criteria, and the skills worth verifying.</p>}
-        actions={<><Link className="btn btn-primary btn-lg premium-service-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16} /></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
+        actions={<><Link className="btn btn-primary btn-lg premium-service-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
         trust={<><span><ShieldCheck size={15}/>Private hiring request</span><span><Search size={15}/>Role-specific matching</span><span>No account required</span></>}
-        form={<RoleBriefForm sourcePath="/services" heading="Get a vetted shortlist" subheading="Share the workload, hours, budget, and schedule. We will help narrow the right role." />}
+        form={<RoleBriefForm sourcePath="/services" heading="Get your free virtual assistant match" subheading="Share the workload, hours, budget, and schedule. We will help narrow the right role." />}
       />
 
       <section className="premium-services-nav-wrap">
@@ -61,7 +61,7 @@ export default async function ServicesPage() {
           </nav>
           <div className="premium-services-help">
             <div><Search size={21} /><span><strong>Not sure which role fits?</strong><small>Describe what is falling behind and our recruiting team will help narrow the role.</small></span></div>
-            <Link className="btn premium-service-primary" href="/hire">Send the workload <ArrowRight size={15} /></Link>
+            <Link className="btn premium-service-primary" href="/hire">Get your free VA match <ArrowRight size={15} /></Link>
           </div>
         </div>
       </section>
@@ -92,8 +92,8 @@ export default async function ServicesPage() {
 
       <div className="container">
         <section className="premium-services-bottom">
-          <div><h2>Still comparing roles?</h2><p>Send the workload instead of guessing the title. Your request stays private until you review the next step.</p></div>
-          <Link className="btn" href="/hire">Send the workload <ArrowRight size={16} /></Link>
+          <div><h2>Still comparing roles?</h2><p>Get your free VA match instead of guessing the title. Your request stays private until you review the next step.</p></div>
+          <Link className="btn" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
         </section>
       </div>
     </main>

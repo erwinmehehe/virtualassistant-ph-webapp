@@ -94,8 +94,7 @@ as $function$
         case when f.missed_first_response then 'Missed first response' end,
         case when f.follow_up_overdue then 'Follow-up overdue' end,
         case when f.no_next_step then 'No next step' end,
-        case when f.stale_3d then 'Stale 3 days' end,
-        case when f.stale_7d then 'Stale 7 days' end,
+        case when f.stale_7d then 'Stale 7 days' when f.stale_3d then 'Stale 3 days' end,
         case when f.ready_to_close then 'Ready to close' end
       ]::text[], null) as cleanup_labels,
       case

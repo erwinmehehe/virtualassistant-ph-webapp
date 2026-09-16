@@ -27,6 +27,7 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
 function activeReturnPath(returnTo: string, role: string) {
   if (role !== "recruiter") return returnTo;
   const url = new URL(returnTo, "https://virtualassistant.com.ph");
+  if (url.pathname !== "/workspace/recruiter/leads") return returnTo;
   const view = url.searchParams.get("view");
   if (!view || view === "recent") {
     url.searchParams.set("view", "open");
@@ -53,10 +54,11 @@ export async function closeLeadAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: lead } = await admin
     .from("lead_intake")
-    .select("id,crm_stage,job_id,lost_at,discovery_scheduled_at,discovery_zoom_meeting_id")
+    .select("id,crm_stage,owner_id,job_id,lost_at,discovery_scheduled_at,discovery_zoom_meeting_id")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
+  if (profile.role === "recruiter" && lead.owner_id && lead.owner_id !== user.id) return fail("This lead belongs to another recruiter.");
 
   const now = new Date().toISOString();
   const leadUpdate = admin
@@ -121,6 +123,7 @@ export async function closeLeadAction(formData: FormData) {
   });
 
   revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);

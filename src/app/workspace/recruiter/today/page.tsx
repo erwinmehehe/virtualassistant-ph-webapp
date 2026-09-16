@@ -4,6 +4,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
+import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import styles from "./today.module.css";
 
@@ -80,6 +81,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
     {params.cleanup_saved ? <div className="success-banner">Lead updated. The cleanup queue has been refreshed.</div> : null}
     {params.cleanup_error ? <div className="alert" role="alert">{params.cleanup_error}</div> : null}
+    {params.lead_closed ? <div className="success-banner">Lead closed and removed from the active cleanup queue.</div> : null}
+    {params.crm_error ? <div className="alert" role="alert">{params.crm_error}</div> : null}
+    {params.role_close_warning ? <div className="alert" role="alert">The lead closed, but its linked role could not be closed automatically. Review the role before continuing.</div> : null}
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
     <div className="dash-header">
@@ -114,9 +118,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 </div>
                 <div className="row wrap" style={{marginTop:6}}>
                   <span className="small muted">Close:</span>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="close_no_response"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">No response</button></form>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="close_spam"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Spam</button></form>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="close_not_fit"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Not a fit</button></form>
+                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="No response"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">No response</button></form>
+                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="Spam"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Spam</button></form>
+                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="Not a fit"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Not a fit</button></form>
                 </div>
               </span>
             </article>;

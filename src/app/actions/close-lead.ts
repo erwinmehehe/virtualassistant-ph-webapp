@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cancelZoomDiscoveryMeeting } from "@/lib/booking-operations";
@@ -21,6 +22,17 @@ const CLOSE_REASONS = new Set([
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+}
+
+function activeReturnPath(returnTo: string, role: string) {
+  if (role !== "recruiter") return returnTo;
+  const url = new URL(returnTo, "https://virtualassistant.com.ph");
+  const view = url.searchParams.get("view");
+  if (!view || view === "recent") {
+    url.searchParams.set("view", "open");
+    url.searchParams.delete("page");
+  }
+  return `${url.pathname}${url.search}`;
 }
 
 export async function closeLeadAction(formData: FormData) {
@@ -47,7 +59,7 @@ export async function closeLeadAction(formData: FormData) {
   if (!lead) return fail("Lead not found.");
 
   const now = new Date().toISOString();
-  const { error } = await admin
+  const leadUpdate = admin
     .from("lead_intake")
     .update({
       crm_stage: "lost",
@@ -62,48 +74,59 @@ export async function closeLeadAction(formData: FormData) {
       discovery_meeting_url: lead.discovery_scheduled_at ? null : undefined
     })
     .eq("id", leadId);
-  if (error) return fail(error.message || "Could not close the lead.");
 
-  let linkedRoleClosed = false;
-  if (closeLinkedRole && lead.job_id) {
-    const { data: job } = await admin.from("jobs").select("id,status").eq("id", lead.job_id).maybeSingle();
-    if (job && ["pending", "published"].includes(String(job.status))) {
-      const { error: roleError } = await admin
+  const linkedRoleUpdate = closeLinkedRole && lead.job_id
+    ? admin
         .from("jobs")
         .update({ status: "closed", closed_at: now, updated_at: now })
-        .eq("id", lead.job_id);
-      if (roleError) return fail(roleError.message || "Lead closed, but the linked role could not be closed.");
-      linkedRoleClosed = true;
-    }
-  }
+        .eq("id", lead.job_id)
+        .in("status", ["pending", "published"])
+        .select("id")
+        .maybeSingle()
+    : Promise.resolve({ data: null, error: null });
 
-  if (lead.discovery_scheduled_at && lead.discovery_zoom_meeting_id) {
+  const [{ error: leadError }, linkedRoleResult] = await Promise.all([leadUpdate, linkedRoleUpdate]);
+  if (leadError) return fail(leadError.message || "Could not close the lead.");
+
+  const linkedRoleClosed = Boolean(linkedRoleResult.data?.id);
+  const linkedRoleCloseFailed = Boolean(linkedRoleResult.error);
+
+  after(async () => {
+    if (lead.discovery_scheduled_at && lead.discovery_zoom_meeting_id) {
+      try {
+        await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id);
+      } catch {
+        // CRM state is already closed even if Zoom is temporarily unavailable.
+      }
+    }
+
     try {
-      await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id);
+      await writeRecruiterActivity({
+        subjectType: "lead",
+        subjectId: leadId,
+        action: "lead_closed",
+        description: `Lead closed: ${rawReason}`,
+        actorId: user.id,
+        metadata: {
+          previous_stage: lead.crm_stage || null,
+          close_reason: rawReason,
+          job_id: lead.job_id || null,
+          linked_role_closed: linkedRoleClosed,
+          linked_role_close_failed: linkedRoleCloseFailed
+        }
+      });
     } catch {
-      // The CRM close remains the source of truth if Zoom is unavailable.
-    }
-  }
-
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: leadId,
-    action: "lead_closed",
-    description: `Lead closed: ${rawReason}`,
-    actorId: user.id,
-    metadata: {
-      previous_stage: lead.crm_stage || null,
-      close_reason: rawReason,
-      job_id: lead.job_id || null,
-      linked_role_closed: linkedRoleClosed
+      // Closing the lead should not feel blocked by non-critical activity logging.
     }
   });
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  revalidatePath("/workspace/recruiter/matching");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
 
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_saved=1&lead_closed=1`);
+  const destination = activeReturnPath(returnTo, profile.role);
+  const params = new URLSearchParams({ crm_saved: "1", lead_closed: "1" });
+  if (linkedRoleCloseFailed) params.set("role_close_warning", "1");
+  redirect(`${destination}${destination.includes("?") ? "&" : "?"}${params.toString()}`);
 }

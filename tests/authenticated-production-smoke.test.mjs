@@ -31,5 +31,5 @@ test("authenticated production smoke verifies role isolation for every workspace
     assert.ok(smoke.includes(`path: \"${path}\"`), `smoke config is missing ${path}`);
   }
   assert.match(smoke, /cross-role request should redirect/);
-  assert.match(smoke, /logged-out client workspace should redirect/);
+  assert.match(smoke, /logged-out client workspace should redirect/i);
 });

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Profiles",
-  robots: { index: false, follow: false }
+  robots: { index: false, follow: true }
 };
 
 export default function TalentProfilePage() {
-  notFound();
+  redirect("/find-talent");
 }

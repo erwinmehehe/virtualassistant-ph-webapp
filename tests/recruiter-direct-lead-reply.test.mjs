@@ -11,8 +11,9 @@ test("recruiter CRM exposes direct in-platform replies", () => {
   assert.match(leads, /action=\{sendClientFollowupAction\}/);
   assert.match(leads, /To: <strong>\{lead\.email\}<\/strong>/);
   assert.match(leads, /open=\{!lead\.first_contact_at \|\| slaMissed\}/);
-  assert.match(leads, /Open email app/);
   assert.match(leads, /Log external email/);
+  assert.doesNotMatch(leads, /Open email app/);
+  assert.doesNotMatch(leads, /href=\{`mailto:/);
 });
 
 test("direct replies update CRM operations state", () => {

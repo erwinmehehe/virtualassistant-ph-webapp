@@ -14,6 +14,20 @@ function manilaTime(value?: string | null) {
   return new Intl.DateTimeFormat("en-PH", { dateStyle:"medium", timeStyle:"short", timeZone:"Asia/Manila" }).format(new Date(value));
 }
 
+function meetingActionLabel(value: unknown) {
+  const raw = String(value || "").trim();
+  try {
+    const host = new URL(raw).hostname.toLowerCase();
+    if (host === "meet.google.com") return "Join Google Meet";
+    if (host === "zoom.us" || host.endsWith(".zoom.us")) return "Join Zoom";
+    if (host === "teams.microsoft.com" || host.endsWith(".teams.microsoft.com") || host === "teams.live.com") return "Join Microsoft Teams";
+    if (host === "calendar.google.com") return "Open Google Calendar";
+  } catch {
+    // Unknown or malformed URLs get a provider-neutral label below.
+  }
+  return "Join call";
+}
+
 function exactActionHref(item:any) {
   const meta=item?.metadata||{};
   const email=String(meta.email||"").trim();
@@ -90,7 +104,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <small className="muted">{manilaTime(item.due_at)} · Manila</small>
                 <div className="row wrap" style={{marginTop:8}}>
                   {isLead && leadId ? <RecruiterTemplateComposer leadId={leadId} firstName={firstName} defaultTemplateId={item.kind === "lead_first_contact" ? "first_response" : "proposal_followup"} returnTo="/workspace/recruiter/today"/> : null}
-                  {isDiscovery && item.action_url ? <a className="btn btn-sm btn-primary" href={item.action_url} target="_blank" rel="noreferrer">Join Zoom <ExternalLink size={13}/></a> : null}
+                  {isDiscovery && item.action_url ? <a className="btn btn-sm btn-primary" href={item.action_url} target="_blank" rel="noreferrer">{meetingActionLabel(item.action_url)} <ExternalLink size={13}/></a> : null}
                   {isClientFollowup&&item.id?<form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send client follow-up</button></form>:null}
                   {actionHref ? <Link className="btn btn-sm" href={actionHref}>{actionLabel(item)}</Link> : null}
                   {isTask ? <>

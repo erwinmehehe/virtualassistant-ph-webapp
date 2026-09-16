@@ -31,7 +31,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const shortlistMap=new Map((shortlistRows||[]).map((row:any)=>[row.va_id,row]));
   const interestMap=new Map((interestRows||[]).map((row:any)=>[row.va_id,row]));
   const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
-  const pool=(vas||[]).map((va:any)=>{
+  const validVas=(vas||[]).filter((va:any)=>Boolean(va?.user_id));
+  const pool=validVas.map((va:any)=>{
     const assessment=matchAssessment(job,va);
     const account=profileMap.get(va.user_id) as any;
     const shortlist=shortlistMap.get(va.user_id) as any;

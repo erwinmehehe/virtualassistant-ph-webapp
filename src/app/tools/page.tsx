@@ -11,7 +11,7 @@ export const metadata: Metadata={title:"Free Virtual Assistant Hiring Tools",des
 const tools=[
   [Calculator,"VA Cost Calculator","Estimate monthly VA cost and compare it with a local hourly cost.","/tools/virtual-assistant-cost-calculator"],
   [WalletCards,"Hourly to Monthly Calculator","Turn an hourly VA rate into weekly, monthly, and annual budget estimates.","/tools/virtual-assistant-hourly-to-monthly-calculator"],
-  [ClipboardList,"VA Job Description Generator","Build a clear first draft with tasks, tools, hours, success measures, and the $5 floor.","/tools/virtual-assistant-job-description-generator"],
+  [ClipboardList,"VA Job Description Generator","Build a clear first draft with tasks, tools, hours, and success measures.","/tools/virtual-assistant-job-description-generator"],
   [Search,"What Type of VA Do I Need?","Start with the workload and get pointed to the closest service page.","/tools/what-type-of-va-do-i-need"]
 ] as const;
 

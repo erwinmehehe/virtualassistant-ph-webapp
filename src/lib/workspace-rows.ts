@@ -173,10 +173,12 @@ export type PlacementCheckinRow = {
   id: string;
   workroom_id: string;
   checkpoint: string;
-  due_at: string | null;
+  due_at: string;
   status: string;
   client_signal: string | null;
   va_signal: string | null;
+  client_note?: string | null;
+  va_note?: string | null;
 };
 
 export type JobSummaryRow = {

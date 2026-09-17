@@ -21,28 +21,50 @@ function scheduleJobEnrichment(jobId?: string | null) {
   });
 }
 
-function scheduleLatestLeadEnrichment(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim();
-  if (!email) return;
-
+function scheduleLeadEnrichment(leadId?: string | null) {
+  if (!leadId) return;
   after(async () => {
     try {
       const admin = createAdminClient();
-      const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
       const { data: lead } = await admin
         .from("lead_intake")
         .select("job_id")
-        .ilike("email", email)
-        .not("job_id", "is", null)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(1)
+        .eq("id", leadId)
         .maybeSingle();
       if (lead?.job_id) await enrichPendingLeadJob(lead.job_id);
     } catch {
-      // A redirect or AI failure must never change the original form outcome.
+      // AI enrichment is best effort. The saved lead and fallback job draft remain valid.
     }
   });
+}
+
+function redirectTarget(error: unknown) {
+  if (!error || typeof error !== "object") return null;
+  const digest = (error as { digest?: unknown }).digest;
+  if (typeof digest !== "string" || !digest.startsWith("NEXT_REDIRECT;")) return null;
+  return digest.split(";").find((part) => part.startsWith("/")) || null;
+}
+
+function scheduleRoleBriefRedirectEnrichment(error: unknown) {
+  const target = redirectTarget(error);
+  if (!target) return;
+
+  try {
+    const url = new URL(target, "https://virtualassistant.com.ph");
+    const clientJobMatch = url.pathname.match(/^\/workspace\/client\/jobs\/([^/]+)$/);
+    if (clientJobMatch?.[1]) {
+      scheduleJobEnrichment(decodeURIComponent(clientJobMatch[1]));
+      return;
+    }
+
+    // Anonymous successful submissions include the exact lead id in the redirect.
+    // Validation/error redirects and duplicate redirects do not, so they never
+    // guess at a recent lead by email.
+    if (url.searchParams.get("sent") !== "1") return;
+    scheduleLeadEnrichment(url.searchParams.get("lead"));
+  } catch {
+    // Preserve the original redirect even if its target cannot be parsed.
+  }
 }
 
 export async function submitServiceMatchWithAiAction(
@@ -67,9 +89,9 @@ export async function submitRoleBriefWithAiAction(formData: FormData) {
   try {
     return await submitRoleBriefAction(formData);
   } catch (error) {
-    // submitRoleBriefAction completes with Next.js redirect(), so enrich the
-    // just-created linked job after the response and preserve that redirect.
-    scheduleLatestLeadEnrichment(formData);
+    // submitRoleBriefAction finishes through redirect(). Only successful redirects
+    // that carry the exact new job or lead id are eligible for enrichment.
+    scheduleRoleBriefRedirectEnrichment(error);
     throw error;
   }
 }

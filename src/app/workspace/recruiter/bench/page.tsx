@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { bulkAddBenchMembersAction } from "@/app/actions/bench";
 import { addBenchMemberAction, updateBenchMemberAction } from "@/app/actions/vetting";
+import { BenchBulkSelectAll } from "@/components/bench-bulk-select-all";
 import { requireRole } from "@/lib/auth";
 import { DEFAULT_BENCH_TARGET, VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { dateShort } from "@/lib/format";
@@ -93,7 +95,7 @@ export default async function RecruiterTalentOperations() {
   const coverageRows = VA_CATEGORIES.map((category) => {
     const ready = readyRows.filter((candidate) => candidate.category === category).length;
     const nearReady = nearReadyRows.filter((candidate) => candidate.category === category).length;
-    const unavailable = unavailableRows.filter((candidate) => candidate.category === category).length;
+    const unavailable = unavailableRows.filter((candidate) => candidate.readiness === "unavailable").filter((candidate) => candidate.category === category).length;
     const demand = demandCounts.get(category) || 0;
     const model = talentCoverage({ ready, nearReady, demand, target: DEFAULT_BENCH_TARGET });
     return { category, ready, nearReady, unavailable, demand, target: DEFAULT_BENCH_TARGET, ...model };
@@ -182,10 +184,20 @@ export default async function RecruiterTalentOperations() {
     <details className="card dashboard-section-card">
       <summary style={{ cursor: "pointer" }}><strong>Add approved VAs to the talent pool</strong> <span className="small muted">· {approvedWaiting.length} waiting</span></summary>
       <p className="small muted">Approved candidates are not counted as client-ready supply until a recruiter intentionally activates them in a talent-pool category.</p>
-      {approvedWaiting.length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Primary category</th><th>Availability</th><th>Work setup</th><th>Add to pool</th></tr></thead><tbody>{approvedWaiting.map((row) => {
-        const profile = profileMap.get(row.va_id); const va = vaMap.get(row.va_id);
-        return <tr key={row.va_id}><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || "Virtual Assistant"}</div></td><td data-label="Primary category">{vaCategoryLabel(va?.primary_category)}</td><td data-label="Availability">{va?.availability_status || "Not set"}{va?.availability_confirmed_at ? <div className="small muted">Confirmed {dateShort(va.availability_confirmed_at)}</div> : null}</td><td data-label="Work setup">{va?.work_setup_verified_at ? <span className="badge badge-success">Verified</span> : <span className="badge badge-warning">Needs verification</span>}</td><td data-label="Add to pool"><form action={addBenchMemberAction} className="row wrap"><input type="hidden" name="va_id" value={row.va_id}/><select name="category" defaultValue={va?.primary_category || VA_CATEGORIES[0]}>{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select><select name="priority" defaultValue="3"><option value="5">Priority 5</option><option value="4">Priority 4</option><option value="3">Priority 3</option><option value="2">Priority 2</option><option value="1">Priority 1</option></select><button className="btn btn-sm btn-primary" type="submit">Add</button></form></td></tr>;
-      })}</tbody></table></div> : <div className="empty">No approved VAs are waiting for a talent-pool category.</div>}
+      {approvedWaiting.length ? <>
+        <form id="bench-bulk-add" action={bulkAddBenchMembersAction} className="row wrap" style={{ alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <BenchBulkSelectAll formId="bench-bulk-add" checkboxName="va_id" />
+          <button className="btn btn-sm" type="reset">Clear</button>
+          <span className="small muted">Add selected to</span>
+          <select name="category" defaultValue={VA_CATEGORIES[0]} aria-label="Bulk talent-pool category">{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select>
+          <select name="priority" defaultValue="3" aria-label="Bulk talent-pool priority"><option value="5">Priority 5</option><option value="4">Priority 4</option><option value="3">Priority 3</option><option value="2">Priority 2</option><option value="1">Priority 1</option></select>
+          <button className="btn btn-sm btn-primary" type="submit">Add selected</button>
+        </form>
+        <div className="table-wrap responsive-table"><table><thead><tr><th aria-label="Select"></th><th>VA</th><th>Primary category</th><th>Availability</th><th>Work setup</th><th>Add to pool</th></tr></thead><tbody>{approvedWaiting.map((row) => {
+          const profile = profileMap.get(row.va_id); const va = vaMap.get(row.va_id);
+          return <tr key={row.va_id}><td data-label="Select"><input type="checkbox" form="bench-bulk-add" name="va_id" value={row.va_id} aria-label={`Select ${profile?.full_name || "VA"}`} /></td><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || "Virtual Assistant"}</div></td><td data-label="Primary category">{vaCategoryLabel(va?.primary_category)}</td><td data-label="Availability">{va?.availability_status || "Not set"}{va?.availability_confirmed_at ? <div className="small muted">Confirmed {dateShort(va.availability_confirmed_at)}</div> : null}</td><td data-label="Work setup">{va?.work_setup_verified_at ? <span className="badge badge-success">Verified</span> : <span className="badge badge-warning">Needs verification</span>}</td><td data-label="Add to pool"><form action={addBenchMemberAction} className="row wrap"><input type="hidden" name="va_id" value={row.va_id}/><select name="category" defaultValue={va?.primary_category || VA_CATEGORIES[0]}>{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select><select name="priority" defaultValue="3"><option value="5">Priority 5</option><option value="4">Priority 4</option><option value="3">Priority 3</option><option value="2">Priority 2</option><option value="1">Priority 1</option></select><button className="btn btn-sm btn-primary" type="submit">Add</button></form></td></tr>;
+        })}</tbody></table></div>
+      </> : <div className="empty">No approved VAs are waiting for a talent-pool category.</div>}
     </details>
   </>;
 }

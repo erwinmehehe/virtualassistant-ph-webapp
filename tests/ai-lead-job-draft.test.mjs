@@ -25,7 +25,7 @@ test("general role brief enrichment binds to the exact success redirect instead 
   const actions = await read("src/app/actions/ai-leads.ts");
 
   assert.match(actions, /NEXT_REDIRECT;/);
-  assert.match(actions, /\/workspace\/client\/jobs\//);
+  assert.ok(actions.includes('url.pathname.match(/^\\/workspace\\/client\\/jobs\\/([^/]+)$/)'));
   assert.match(actions, /searchParams\.get\("lead"\)/);
   assert.match(actions, /\.eq\("id", leadId\)/);
   assert.match(actions, /searchParams\.get\("sent"\) !== "1"/);

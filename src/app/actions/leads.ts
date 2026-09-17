@@ -8,7 +8,8 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail } from "@/lib/email";
+import { sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
+import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, createBookingManageToken, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
@@ -19,9 +20,43 @@ export type ServiceMatchState = {
   leadId?: string;
   jobId?: string;
   clientLinked?: boolean;
+  /** The submission read like a Virtual Assistant applying for work. */
+  vaApplicant?: boolean;
 };
 
 const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 5;
+
+/**
+ * Stores a hiring-form submission that reads like a VA applying for work as a
+ * va_support lead (kept out of the client pipeline and recruiter SLAs, still
+ * visible to admins), and emails the sender the VA sign-up link. No job is
+ * created and recruiters are not notified.
+ */
+async function routeVaApplicant(args: { name?: string | null; email: string; phone?: string | null; service: string; hours?: string | null; message: string; sourcePath: string; sessionId?: string | null }) {
+  try {
+    const admin = createAdminClient();
+    const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+    await admin.from("lead_intake").insert({
+      name: args.name?.trim() || null,
+      email: args.email,
+      phone: args.phone?.trim() || null,
+      service: args.service,
+      hours: args.hours || null,
+      message: args.message,
+      source_page: VA_APPLICANT_SOURCE_PAGE,
+      lead_type: "va_support",
+      page_url: `${base}${args.sourcePath}`,
+      session_id: args.sessionId || null
+    });
+  } catch {
+    // Routing a likely applicant is best effort; never fail the visitor's submission.
+  }
+  try {
+    await sendVaApplicantRedirectEmail({ to: args.email, name: args.name });
+  } catch {
+    // Email delivery is best effort.
+  }
+}
 
 /**
  * Finds a lead already submitted by this same email, for the same
@@ -173,6 +208,11 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
 
+  if (looksLikeVaApplication(parsed.data.message)) {
+    await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
+    return { status: "success", vaApplicant: true };
+  }
+
   const service = servicePageBySlug(parsed.data.slug);
   if (!service || service.directoryCategory !== parsed.data.category) {
     return { status: "error", message: "We could not verify this service request. Please refresh the page and try again." };
@@ -307,6 +347,11 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     return { status: "error", message };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
+
+  if (looksLikeVaApplication(parsed.data.message)) {
+    await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: `Industry: ${parsed.data.slug}`, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
+    return { status: "success", vaApplicant: true };
+  }
 
   const industry = INDUSTRIES.find((item) => item.slug === parsed.data.slug);
   if (!industry) return { status: "error", message: "We could not verify this industry request. Please refresh the page and try again." };
@@ -455,6 +500,11 @@ export async function submitRoleBriefAction(formData: FormData) {
     redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
+
+  if (looksLikeVaApplication(parsed.data.message, parsed.data.company)) {
+    await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: returnTo, sessionId: parsed.data.session_id });
+    redirect(`${returnTo}?sent=1&va=1`);
+  }
 
   const category = VA_CATEGORIES.includes(parsed.data.category as (typeof VA_CATEGORIES)[number]) ? parsed.data.category : parsed.data.category.trim();
   const shortlistSlugs = String(parsed.data.shortlist || "")

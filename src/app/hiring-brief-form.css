@@ -190,3 +190,26 @@
 .contact-route-copy small { color: #475467; font-size: 13.5px; line-height: 1.5; }
 .contact-route-copy em { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; color: #3538cd; font-size: 13.5px; font-style: normal; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { .contact-route:hover { transform: none; } }
+
+/* ---------- "Hire a VA / Find VA work" choice (asked before any hiring fields) ---------- */
+.hb-card .hb-form[hidden] { display: none; }
+.hb-audience { margin: 16px 0 0; padding: 0; border: 0; min-width: 0; }
+.hb-audience legend { margin-bottom: 8px; padding: 0; color: #344054; font-size: 12.5px; font-weight: 650; }
+.hb-audience-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hb-audience-options label { position: relative; display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 12px; background: #fff; color: #344054; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease; }
+.hb-audience-options label:hover { border-color: #a4bcfd; }
+.hb-audience-options label.is-selected { border-color: #444ce7; background: #f5f6ff; box-shadow: 0 0 0 3px rgba(68, 76, 231, .12); color: #101828; }
+.hb-audience-options input { position: absolute; opacity: 0; pointer-events: none; }
+.hb-audience-options label:has(input:focus-visible) { outline: 2px solid #444ce7; outline-offset: 2px; }
+.hb-audience-options svg { flex: none; color: #444ce7; }
+.hb-audience-options span { display: grid; gap: 1px; line-height: 1.25; }
+.hb-audience-options strong { font-size: 14px; font-weight: 750; }
+.hb-audience-options small { color: #667085; font-size: 12px; }
+.hb-va-panel { display: grid; gap: 8px; margin-top: 14px; padding: 16px; border: 1px solid #eaecf0; border-radius: 14px; background: #f9fafb; }
+.hb-va-panel strong { color: #101828; font-size: 14.5px; line-height: 1.4; }
+.hb-card .hb-va-panel p { font-size: 13.5px; }
+.hb-card .hb-va-panel .hb-submit { margin-top: 6px; }
+.hb-va-panel .hb-links { margin-top: 4px; }
+@media (max-width: 380px) {
+  .hb-audience-options { grid-template-columns: 1fr; }
+}

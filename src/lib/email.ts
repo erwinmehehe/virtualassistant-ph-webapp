@@ -236,6 +236,42 @@ export async function sendLeadAcknowledgementEmail(args: {
 }
 
 /**
+ * Sent when a hiring-form submission reads like a Virtual Assistant applying for
+ * work. Neutral and helpful: points them to the VA sign-up without implying they
+ * made a mistake. Not archived (it is not client correspondence).
+ */
+export async function sendVaApplicantRedirectEmail(args: { to: string; name?: string | null }) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const firstName = args.name?.trim().split(/\s+/)[0] || "there";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const joinUrl = `${base}/auth/join/va`;
+  const jobsUrl = `${base}/jobs`;
+  const bodyHtml = [
+    "Thanks for your interest in working with VirtualAssistant.com.ph.",
+    "The form you sent is used by businesses to request a Virtual Assistant, so we have not added your message to our client hiring requests.",
+    `To be considered for client roles, create your free Virtual Assistant profile and complete the screening steps. You can also <a href="${escapeHtml(jobsUrl)}" style="color:#4f46e5;">browse open roles</a>. There is no fee to join or apply.`
+  ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
+
+  await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: "Applying to work as a Virtual Assistant",
+    text: `Hi ${firstName},\n\nThanks for your interest in working with VirtualAssistant.com.ph.\n\nThe form you sent is used by businesses to request a Virtual Assistant, so we have not added your message to our client hiring requests.\n\nTo be considered for client roles, create your free Virtual Assistant profile and complete the screening steps: ${joinUrl}\nBrowse open roles: ${jobsUrl}\n\nThere is no fee to join or apply.\n\nBest,\nVirtualAssistant.com.ph Talent Team`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Talent Team",
+      ctaHref: joinUrl,
+      ctaLabel: "Create my VA profile"
+    })
+  }, "va_applicant_redirect", { archive: false });
+  return { sent: true as const };
+}
+
+/**
  * Notifies you when a client directly posts a job for review (as opposed to
  * a public match-request lead, which goes through sendLeadNotificationEmail
  * instead). Without this, a job submitted straight from a client's own

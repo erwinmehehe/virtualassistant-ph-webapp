@@ -70,10 +70,10 @@ export function SiteNav() {
 
           <Link href="/how-vetting-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/for-virtual-assistants">For VAs</Link>
         </nav>
 
         <div className="nav-actions">
-          <Link className="header-va-link" href="/for-virtual-assistants">For Virtual Assistants</Link>
           <details className="va-nav-menu va-nav-login">
             <summary>Log in <ChevronDown size={14} aria-hidden="true" /></summary>
             <div className="va-nav-panel va-nav-panel-login">

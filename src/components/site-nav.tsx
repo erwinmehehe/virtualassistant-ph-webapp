@@ -73,7 +73,6 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
-          <Link className="header-va-link" href="/for-virtual-assistants" data-track="nav_find_va_work">Find VA work</Link>
           <details className="va-nav-menu va-nav-login">
             <summary>Log in <ChevronDown size={14} aria-hidden="true" /></summary>
             <div className="va-nav-panel va-nav-panel-login">

@@ -7,8 +7,42 @@ import type { Role } from "@/lib/types";
 export type WorkspaceBadges = Record<string, number>;
 type QueryError = { message?: string; code?: string } | null;
 
+async function getAdminBadges(): Promise<{ badges: WorkspaceBadges; error: QueryError }> {
+  try {
+    const admin = createAdminClient();
+    const [salesResult, financeResult, payoutResult, vettingResult] = await Promise.all([
+      admin.from("lead_intake").select("id", { count: "exact", head: true }).eq("lead_type", "client_hiring").eq("crm_stage", "new"),
+      admin.from("placement_finance_profiles").select("workroom_id", { count: "exact", head: true }).eq("exception_status", "pending"),
+      admin.from("payments").select("id", { count: "exact", head: true }).eq("status", "release_pending"),
+      admin.from("va_vetting").select("va_id", { count: "exact", head: true }).eq("stage", "finalist"),
+    ]);
+
+    const firstError = salesResult.error || financeResult.error || payoutResult.error || vettingResult.error;
+    if (firstError) return { badges: {}, error: firstError };
+
+    const sales = salesResult.count || 0;
+    const finance = (financeResult.count || 0) + (payoutResult.count || 0);
+    const vetting = vettingResult.count || 0;
+
+    return {
+      badges: {
+        "/workspace/admin": sales + finance + vetting,
+        "/workspace/admin/sales": sales,
+        "/workspace/admin/finance": finance,
+        "/workspace/admin/vetting": vetting,
+      },
+      error: null,
+    };
+  } catch (error) {
+    return {
+      badges: {},
+      error: { message: error instanceof Error ? error.message : "Admin workspace badge query failed" },
+    };
+  }
+}
+
 export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeResult(role: Role, userId: string): Promise<{ badges: WorkspaceBadges; error: QueryError }> {
-  if (role === "admin") return { badges: {}, error: null };
+  if (role === "admin") return getAdminBadges();
 
   try {
     const admin = createAdminClient();
@@ -23,9 +57,9 @@ export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeRes
           "/workspace/recruiter/queue": Number(raw.vetting || 0),
           "/workspace/recruiter/matching": Number(raw.pending_roles || 0),
           "/workspace/recruiter/notifications": Number(raw.notifications || 0),
-          "/workspace/recruiter/tasks": Number(raw.tasks || 0)
+          "/workspace/recruiter/tasks": Number(raw.tasks || 0),
         },
-        error: null
+        error: null,
       };
     }
 
@@ -33,14 +67,14 @@ export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeRes
     return {
       badges: {
         [`${base}/messages`]: Number(raw.messages || 0),
-        [`${base}/notifications`]: Number(raw.notifications || 0)
+        [`${base}/notifications`]: Number(raw.notifications || 0),
       },
-      error: null
+      error: null,
     };
   } catch (error) {
     return {
       badges: {},
-      error: { message: error instanceof Error ? error.message : "Workspace badge query failed" }
+      error: { message: error instanceof Error ? error.message : "Workspace badge query failed" },
     };
   }
 });

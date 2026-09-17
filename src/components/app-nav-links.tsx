@@ -82,6 +82,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Performance",
       items: [
+        ["Agency Funnel", "/workspace/recruiter/funnel", Activity],
         ["Analytics", "/workspace/recruiter/analytics", BarChart3],
         ["Finance", "/workspace/recruiter/finance", CircleDollarSign],
       ],
@@ -95,6 +96,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Finance", "/workspace/admin/finance", CircleDollarSign],
         ["Sales", "/workspace/admin/sales", BriefcaseBusiness],
         ["Client Success", "/workspace/client-success", UsersRound],
+        ["Agency Funnel", "/workspace/admin/funnel", Activity],
         ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
       ],

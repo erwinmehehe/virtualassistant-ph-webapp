@@ -23,7 +23,7 @@ function CallCard({ title, body }: { title: string; body: string }) {
       <CalendarCheck size={20} aria-hidden="true" />
       <strong>{title}</strong>
       <p>{body}</p>
-      <Link href="/book-client-call" data-track="nav_booking_click">Book a discovery call <ArrowRight size={14} aria-hidden="true" /></Link>
+      <Link href="/hire" data-track="nav_hiring_brief_click">Start a hiring brief <ArrowRight size={14} aria-hidden="true" /></Link>
     </aside>
   );
 }
@@ -51,7 +51,7 @@ export function SiteNav() {
                 </div>
                 <Link className="va-nav-all" href="/services">View all {SERVICE_PAGES.length} services</Link>
               </div>
-              <CallCard title="Not sure which role?" body="Tell us the work on a 20-minute call and we'll scope the right VA." />
+              <CallCard title="Not sure which role?" body="Describe the work and our recruiters will scope the right VA with you." />
             </div>
           </details>
 
@@ -95,7 +95,6 @@ export function SiteNav() {
               <Link href="/industries">Industries</Link>
               <Link href="/how-vetting-works">How it works</Link>
               <Link href="/pricing">Pricing</Link>
-              <Link href="/book-client-call">Book a discovery call</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse Virtual Assistant jobs</Link>

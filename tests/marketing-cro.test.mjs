@@ -71,24 +71,22 @@ test("commercial detail pages keep hiring forms while blog articles stay editori
   assert.match(article, /href="\/book-client-call"/);
 });
 
-test("service and industry legacy match forms stay compact", () => {
-  const serviceForm = source("src/components/service-match-form.tsx");
-  const industryForm = source("src/components/industry-match-form.tsx");
+test("shared hiring form stays compact on service and industry pages", () => {
+  const form = source("src/components/hiring-brief-form.tsx");
+  const service = source("src/app/service/[slug]/page.tsx");
+  const industry = source("src/app/industries/[slug]/page.tsx");
   const floating = source("src/components/floating-cta.tsx");
   const finalServiceCss = source("src/app/service-visual-qa-final.css");
-  const serviceFormCss = source("src/app/service-match-form-final.css");
 
-  assert.match(serviceForm, /service-match-form-compact/);
-  assert.doesNotMatch(serviceForm, /name="phone"/);
-  assert.doesNotMatch(serviceForm, /<textarea/);
-  assert.match(serviceForm, /name="message" value=\{example\}/);
-  assert.match(serviceForm, /First name \*/);
-  assert.match(serviceForm, /Work email \*/);
-  assert.match(serviceForm, /Get my shortlist/);
-  assert.match(serviceFormCss, /service-match-message|service-match-form-compact/);
-  assert.match(industryForm, /service-match-form-compact/);
-  assert.doesNotMatch(industryForm, /name="phone"/);
-  assert.doesNotMatch(industryForm, /<textarea/);
+  assert.match(service, /<HiringBriefForm[\s\S]*variant="service"/);
+  assert.match(industry, /<HiringBriefForm variant="industry"/);
+  assert.doesNotMatch(form, /name="phone"/);
+  assert.doesNotMatch(form, /name="company"/);
+  assert.match(form, />First name</);
+  assert.match(form, />Work email</);
+  assert.match(form, /name="budget"/);
+  assert.match(form, /submitServiceMatchAction/);
+  assert.match(form, /submitIndustryMatchAction/);
   assert.match(floating, /INLINE_MATCH_PATHS/);
   assert.match(finalServiceCss, /service-avoid-section/);
   assert.match(finalServiceCss, /interview-item/);

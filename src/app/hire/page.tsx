@@ -203,7 +203,7 @@ export default async function HirePage({
                     defaultBudget={params.budget}
                     talent={talent}
                     shortlist={selectedShortlist.length ? selectedShortlist.map((candidate: any) => candidate.slug).join(",") : undefined}
-                    allowAttachment
+                    defaultStartTime={params.start_time}
                   />
                 )}
               </div>

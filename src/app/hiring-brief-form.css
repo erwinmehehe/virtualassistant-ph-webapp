@@ -71,7 +71,6 @@
 .hb-card .hb-submit:disabled { opacity: .7; cursor: progress; }
 .hb-card .hb-foot { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #667085; }
 .hb-optional { margin-left: 4px; color: #98a2b3; font-weight: 500; }
-.hb-card .hb-field input[type="file"] { min-height: 0; padding: 8px; font-size: 13px; }
 .hb-error { padding: 10px 12px; border-radius: 10px; background: #fef3f2; color: #b42318; font-size: 13px; }
 .hb-success-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-top: 16px; border-radius: 12px; background: #eef0ff; color: #444ce7; }
 .hb-success h2, .hb-cta h2 { margin-top: 12px; }

@@ -26,20 +26,15 @@ test("service pages stay compact and mobile safe", () => {
   assert.match(css, /content-visibility: auto/);
 });
 
-test("service shortlist form is integrated with the hero instead of boxed like a dashboard card", () => {
-  const form = source("src/components/service-match-form.tsx");
-  const css = source("src/app/service-match-form-final.css");
+test("service hiring form sits in the hero as a single card, not inside another frame", () => {
+  const hero = source("src/components/hiring-hero.tsx");
+  const css = source("src/app/hiring-brief-form.css");
 
-  assert.match(form, /Private shortlist/);
-  assert.match(form, /Get a shortlist for this role\./);
-  assert.match(form, /Get my shortlist/);
-  assert.doesNotMatch(form, /Quick match|Want us to narrow the list\?|About 20 seconds/);
-
-  assert.match(css, /background: transparent !important/);
-  assert.match(css, /border-left: 1px solid rgba/);
-  assert.match(css, /box-shadow: none !important/);
-  assert.match(css, /border-top: 1px solid rgba/);
-  assert.match(css, /grid-template-columns: 1fr !important/);
+  assert.match(hero, /<div className="hh-form">\{form\}<\/div>/);
+  assert.match(css, /\.hh-form > \.hb-card \{ max-width: none; \}/);
+  assert.match(css, /\.pricing-hero-form-shell:has\(> \.hb-card\)/);
+  assert.match(css, /\.pvh-form-card:has\(> \.hb-card\)/);
+  assert.match(css, /\.hh-grid \{ grid-template-columns: 1fr; gap: 32px; \}/);
 });
 
 test("discovery prompt is compact and never competes with service forms or workspaces", () => {

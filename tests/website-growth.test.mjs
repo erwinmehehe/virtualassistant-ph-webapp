@@ -5,18 +5,17 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("public hiring forms save drafts and keep the homepage request lightweight", async () => {
-  const [shared, hire, migration] = await Promise.all([
-    read("src/components/role-brief-form.tsx"), read("src/app/hire/page.tsx"),
+  const [shared, hire, home, migration] = await Promise.all([
+    read("src/components/hiring-brief-form.tsx"), read("src/app/hire/page.tsx"), read("src/app/page.tsx"),
     read("supabase/migrations/20260913100907_website_conversion_features.sql")
   ]);
   assert.match(shared, /FormDraftPersistence/);
-  assert.match(hire, /FormDraftPersistence/);
+  assert.match(hire, /<HiringBriefForm/);
+  assert.match(home, /<HiringBriefForm variant="general"/);
   assert.doesNotMatch(shared, /name="attachment"/);
   assert.doesNotMatch(shared, /Job description or SOP/i);
   assert.match(shared, /name="name" required/);
-  assert.match(shared, /name="company" required/);
   assert.match(shared, /name="email" type="email" required/);
-  assert.match(shared, /name="phone" type="tel" autoComplete="tel"/);
   assert.doesNotMatch(shared, /name="phone" type="tel" required/);
   assert.match(migration, /lead-attachments/);
   assert.match(migration, /public = false/);

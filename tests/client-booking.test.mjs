@@ -9,8 +9,7 @@ test("all client call entry points use the qualified booking route", async () =>
     read("src/app/page.tsx"),
     read("src/app/hire/page.tsx"),
     read("src/components/floating-cta.tsx"),
-    read("src/components/service-match-form.tsx"),
-    read("src/components/industry-match-form.tsx"),
+    read("src/components/hiring-brief-form.tsx"),
     read("src/app/contact/page.tsx"),
   ]);
 

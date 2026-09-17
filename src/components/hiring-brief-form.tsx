@@ -10,6 +10,7 @@ import {
   type ServiceMatchState
 } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
+import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 
@@ -39,7 +40,7 @@ type GeneralOptions = {
   /** Talent introduction / shortlist requests from the directory. */
   talent?: string;
   shortlist?: string;
-  allowAttachment?: boolean;
+  defaultStartTime?: string;
 };
 
 function Steps({ done }: { done: boolean }) {
@@ -154,7 +155,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   );
 }
 
-function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, allowAttachment }: { sourcePath: string } & GeneralOptions) {
+function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
   const [url, setUrl] = useState<{ sent: boolean; error?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -168,11 +169,12 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
   return (
     <div className="hb-card" id="hiring-brief">
       <Head title={title} sub="Share a quick brief, then book a discovery call with our recruiting team." />
-      <form action={submitRoleBriefAction} className="hb-form">
+      <form id={id} action={submitRoleBriefAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}
         {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
+        {defaultStartTime ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
         {url.error ? <div className="hb-error" role="alert">{url.error}</div> : null}
         <div className="hb-field">
           <label htmlFor={`${id}-category`}>Type of help</label>
@@ -182,13 +184,8 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        {allowAttachment ? (
-          <div className="hb-field">
-            <label htmlFor={`${id}-attachment`}>Job description or SOP <span className="hb-optional">optional</span></label>
-            <input id={`${id}-attachment`} name="attachment" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" />
-          </div>
-        ) : null}
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Continue to booking <ArrowRight size={16} /></button>
+        <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>
     </div>

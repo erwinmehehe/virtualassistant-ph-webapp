@@ -73,6 +73,7 @@ test("commercial detail pages keep hiring forms while blog articles stay editori
 
 test("shared hiring form stays compact on service and industry pages", () => {
   const form = source("src/components/hiring-brief-form.tsx");
+  const actions = source("src/app/actions/ai-leads.ts");
   const service = source("src/app/service/[slug]/page.tsx");
   const industry = source("src/app/industries/[slug]/page.tsx");
   const floating = source("src/components/floating-cta.tsx");
@@ -85,8 +86,10 @@ test("shared hiring form stays compact on service and industry pages", () => {
   assert.match(form, />First name</);
   assert.match(form, />Work email</);
   assert.match(form, /name="budget"/);
-  assert.match(form, /submitServiceMatchAction/);
-  assert.match(form, /submitIndustryMatchAction/);
+  assert.match(form, /submitServiceMatchWithAiAction/);
+  assert.match(form, /submitIndustryMatchWithAiAction/);
+  assert.match(actions, /submitServiceMatchAction/);
+  assert.match(actions, /submitIndustryMatchAction/);
   assert.match(floating, /INLINE_MATCH_PATHS/);
   assert.match(finalServiceCss, /service-avoid-section/);
   assert.match(finalServiceCss, /interview-item/);

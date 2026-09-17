@@ -3,12 +3,12 @@
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, Check, LockKeyhole } from "lucide-react";
+import { type ServiceMatchState } from "@/app/actions/leads";
 import {
-  submitIndustryMatchAction,
-  submitRoleBriefAction,
-  submitServiceMatchAction,
-  type ServiceMatchState
-} from "@/app/actions/leads";
+  submitIndustryMatchWithAiAction,
+  submitRoleBriefWithAiAction,
+  submitServiceMatchWithAiAction
+} from "@/app/actions/ai-leads";
 import { AttributionFields } from "@/components/attribution-fields";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { getBrowserSessionId } from "@/lib/browser-session";
@@ -121,7 +121,7 @@ function Foot() {
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
-  const action = props.variant === "service" ? submitServiceMatchAction : submitIndustryMatchAction;
+  const action = props.variant === "service" ? submitServiceMatchWithAiAction : submitIndustryMatchWithAiAction;
   const [state, formAction, pending] = useActionState(action, initialState);
   const [sessionId, setSessionId] = useState("");
   useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
@@ -169,7 +169,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
   return (
     <div className="hb-card" id="hiring-brief">
       <Head title={title} sub="Share a quick brief, then book a discovery call with our recruiting team." />
-      <form id={id} action={submitRoleBriefAction} className="hb-form">
+      <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}

@@ -53,7 +53,7 @@ export default async function BookClientCallPage({
             <div>
               <span className="kicker">For businesses hiring a Virtual Assistant</span>
               <h1>Choose a time to talk with our team</h1>
-              <p>Pick a time, answer a few practical questions, and we will prepare around the role before we speak.</p>
+              <p>Pick a time, leave your contact details, and we will cover the role, schedule, budget, and next steps together on the call.</p>
               <div className="booking-hero-points">
                 <span><CalendarCheck2 size={16} /> 30-minute conversation</span>
                 <span><ShieldCheck size={16} /> Private business details</span>
@@ -76,7 +76,7 @@ export default async function BookClientCallPage({
                 <div>
                   <p className="kicker">Time confirmed</p>
                   <h2>We will talk on {bookedWhen}</h2>
-                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your questionnaire and send the video meeting details before the conversation.</p>
+                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your request and make sure the conversation is focused on the role you need to fill.</p>
                   <div className="booking-success-actions">
                     <Link className="btn btn-primary" href="/hire">Add more hiring details</Link>
                     <Link className="btn" href="/">Return home</Link>

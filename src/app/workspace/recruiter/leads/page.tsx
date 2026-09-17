@@ -12,6 +12,50 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
 
 const PAGE_SIZE = 25;
+
+/** Row returned in recruiter_leads_page().leads: a lead_intake row plus activity and proposal context. */
+type LeadActivity = { id: string; action: string; description: string | null; created_at: string };
+type LeadProposal = { id: string; status: string; role_title: string | null; service_model: string | null; public_token: string | null; sent_at: string | null; viewed_at: string | null; decline_reason: string | null };
+type RecruiterLeadRow = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  service: string | null;
+  hours: string | null;
+  start_time: string | null;
+  message: string | null;
+  source_page: string | null;
+  crm_stage: string | null;
+  owner_id: string | null;
+  job_id: string | null;
+  estimated_value_usd: number | null;
+  first_contact_at: string | null;
+  last_contact_at: string | null;
+  next_follow_up_at: string | null;
+  lost_reason: string | null;
+  attachment_name: string | null;
+  attachment_path: string | null;
+  discovery_scheduled_at: string | null;
+  discovery_duration_minutes: number | null;
+  discovery_meeting_url: string | null;
+  discovery_completed_at: string | null;
+  discovery_outcome: string | null;
+  discovery_notes: string | null;
+  created_at: string;
+  contact_count?: number | null;
+  latest_activity?: LeadActivity | null;
+  latest_proposal?: LeadProposal | null;
+};
+type RecruiterLeadsPayload = {
+  leads?: RecruiterLeadRow[];
+  metrics?: Partial<Record<"needs_first_contact" | "followups_due" | "discovery_booked" | "qualified" | "won_this_month" | "open_pipeline_value", number>>;
+  total?: number;
+  page?: number;
+  page_size?: number;
+};
+type LeadOwner = { id: string; full_name: string | null; role: string | null };
 const ageLabel = (value: string) => elapsedLabel(value, { precision: "minutes" });
 
 function activityLabel(action: string) {
@@ -73,7 +117,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   ]);
   if (pageError) throw pageError;
 
-  const payload = (pagePayload || {}) as any;
+  const payload = (pagePayload || {}) as RecruiterLeadsPayload;
   const visible = Array.isArray(payload.leads) ? payload.leads : [];
   const metrics = payload.metrics || {};
   const total = Number(payload.total || 0);
@@ -81,16 +125,16 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const pageSize = Math.max(1, Number(payload.page_size || PAGE_SIZE));
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const latestByLead = new Map<string, any>();
+  const latestByLead = new Map<string, LeadActivity>();
   const countByLead = new Map<string, number>();
-  const latestProposalByLead = new Map<string, any>();
+  const latestProposalByLead = new Map<string, LeadProposal>();
   for (const lead of visible) {
     if (lead.latest_activity) latestByLead.set(lead.id, lead.latest_activity);
     countByLead.set(lead.id, Number(lead.contact_count || 0));
     if (lead.latest_proposal) latestProposalByLead.set(lead.id, lead.latest_proposal);
   }
 
-  const ownerMap = new Map((owners || []).map((owner: any) => [owner.id, owner.full_name || (owner.role === "admin" ? "Admin" : "Recruiter")]));
+  const ownerMap = new Map(((owners || []) as LeadOwner[]).map((owner) => [owner.id, owner.full_name || (owner.role === "admin" ? "Admin" : "Recruiter")]));
   const now = Date.now();
   const needsFirstContact = Number(metrics.needs_first_contact || 0);
   const followUpsDue = Number(metrics.followups_due || 0);
@@ -171,7 +215,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} placeholder="Search name, company, email, need"/></div>
         <select name="owner" defaultValue={ownerFilter}>
           <option value="">All owners</option>
-          {(owners || []).map((owner: any) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}
+          {((owners || []) as LeadOwner[]).map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}
         </select>
         <button className="btn btn-primary" type="submit">Filter</button>
         <Link className="btn" href={`/workspace/recruiter/leads?view=${view}`}>Reset</Link>
@@ -183,7 +227,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       </div>
 
       <div className="stack crm-lead-list">
-        {visible.length ? visible.map((lead: any) => {
+        {visible.length ? visible.map((lead) => {
           const stage = lead.crm_stage || "new";
           const latest = latestByLead.get(lead.id);
           const proposal = latestProposalByLead.get(lead.id);
@@ -259,7 +303,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <div className="crm-form-head"><strong>Next sales move</strong><span className="small muted">Keep this current so nobody has to remember it.</span></div>
                 <div className="grid-2">
                   <div className="field"><label>Stage</label><select name="crm_stage" defaultValue={stage}>{LEAD_CRM_STAGES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
-                  <div className="field"><label>Owner</label><select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{(owners || []).map((owner: any) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></div>
+                  <div className="field"><label>Owner</label><select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{((owners || []) as LeadOwner[]).map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></div>
                   <div className="field"><label>Next follow-up</label><input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/></div>
                   <div className="field"><label>Est. agency value, USD</label><input type="number" min="0" step="50" name="estimated_value_usd" defaultValue={lead.estimated_value_usd ?? ""} placeholder="1500"/></div>
                 </div>

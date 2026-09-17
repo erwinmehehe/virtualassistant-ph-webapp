@@ -3,6 +3,9 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { archiveStaleRolesAction, hideIncompletePublicProfilesAction, repairVaRecordsAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
+
+type ErrorEventRow = { id: string; message: string | null; path: string | null; role: string | null; created_at: string };
+type FailedEmailRow = { id: string; event_type: string | null; recipient: string | null; error_message: string | null; created_at: string };
 import { getRuntimeSetupStatus } from "@/lib/env-status";
 
 export default async function AdminHealthPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -54,12 +57,12 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
   const orphanedApplications = Number(summary.orphaned_applications || 0);
   const rolesWithoutCandidates = Number(summary.roles_without_candidates || 0);
 
-  const commercialMap = new Map((commercialsRes.data || []).map((row: any) => [row.job_id, String(row.commercial_status || "")]));
+  const commercialMap = new Map(((commercialsRes.data || []) as { job_id: string; commercial_status: string | null }[]).map((row) => [row.job_id, String(row.commercial_status || "")]));
   const approvedCommercialStatuses = new Set(["accepted", "invoiced", "paid"]);
-  const publishedWithoutTerms = (publishedJobsRes.data || []).filter((job: any) => job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
-  const legacyPublicRolesWithoutTerms = (publishedJobsRes.data || []).filter((job: any) => !job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
-  const acceptedProposalMissingJob = (acceptedProposalsRes.data || []).filter((proposal: any) => !proposal.job_id || !proposal.accepted_at).length;
-  const wonLeadMissingHandoff = (wonLeadsRes.data || []).filter((lead: any) => !lead.client_id || !lead.job_id).length;
+  const publishedWithoutTerms = ((publishedJobsRes.data || []) as { id: string; client_id: string | null }[]).filter((job) => job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
+  const legacyPublicRolesWithoutTerms = ((publishedJobsRes.data || []) as { id: string; client_id: string | null }[]).filter((job) => !job.client_id && !approvedCommercialStatuses.has(commercialMap.get(job.id) || "")).length;
+  const acceptedProposalMissingJob = ((acceptedProposalsRes.data || []) as { job_id: string | null; accepted_at: string | null }[]).filter((proposal) => !proposal.job_id || !proposal.accepted_at).length;
+  const wonLeadMissingHandoff = ((wonLeadsRes.data || []) as { client_id: string | null; job_id: string | null }[]).filter((lead) => !lead.client_id || !lead.job_id).length;
   const staleSentProposals = expiredSentProposalsRes.count || 0;
 
   const runtimeChecks = [
@@ -110,7 +113,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
 
     <div className="grid-2">
       <section className="card"><div className="row"><Wrench size={20}/><h2 style={{ margin: 0 }}>Safe housekeeping</h2></div><p className="muted">Admin-only repair actions for known structural issues.</p><div className="stack"><form action={repairVaRecordsAction}><button className="btn btn-primary" type="submit">Repair missing VA records & slugs</button></form><form action={hideIncompletePublicProfilesAction}><button className="btn" type="submit">Hide incomplete public profiles</button></form><form action={archiveStaleRolesAction} className="row wrap"><input type="hidden" name="days" value="90"/><button className="btn" type="submit">Archive 90+ day stale roles</button></form></div></section>
-      <section className="card"><div className="row"><Database size={20}/><h2 style={{ margin: 0 }}>Recent failures</h2></div>{errorRowsRes.data?.length ? <><h3 className="ops-subhead">Application errors</h3><div className="compact-list">{errorRowsRes.data.map((row: any) => <div className="compact-static" key={row.id}><span><strong>{row.message}</strong><small>{row.path || "Unknown path"} · {row.role || "visitor"}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{failedEmailRowsRes.data?.length ? <><h3 className="ops-subhead">Email delivery</h3><div className="compact-list">{failedEmailRowsRes.data.map((row: any) => <div className="compact-static" key={row.id}><span><strong>{String(row.event_type).replaceAll("_", " ")}</strong><small>{row.error_message || "Provider rejected the message"}{row.recipient ? ` · ${row.recipient}` : ""}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{!errorRowsRes.data?.length && !failedEmailRowsRes.data?.length ? <div className="empty">No unresolved application or recent email errors.</div> : null}</section>
+      <section className="card"><div className="row"><Database size={20}/><h2 style={{ margin: 0 }}>Recent failures</h2></div>{errorRowsRes.data?.length ? <><h3 className="ops-subhead">Application errors</h3><div className="compact-list">{(errorRowsRes.data as ErrorEventRow[]).map((row) => <div className="compact-static" key={row.id}><span><strong>{row.message}</strong><small>{row.path || "Unknown path"} · {row.role || "visitor"}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{failedEmailRowsRes.data?.length ? <><h3 className="ops-subhead">Email delivery</h3><div className="compact-list">{(failedEmailRowsRes.data as FailedEmailRow[]).map((row) => <div className="compact-static" key={row.id}><span><strong>{String(row.event_type).replaceAll("_", " ")}</strong><small>{row.error_message || "Provider rejected the message"}{row.recipient ? ` · ${row.recipient}` : ""}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{!errorRowsRes.data?.length && !failedEmailRowsRes.data?.length ? <div className="empty">No unresolved application or recent email errors.</div> : null}</section>
     </div>
   </>;
 }

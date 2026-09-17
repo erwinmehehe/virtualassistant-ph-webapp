@@ -440,7 +440,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
           <div className="service-talent-head">
             <div>
               <div className="kicker">Approved talent</div>
-              <h2>{talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory.toLowerCase()} Virtual Assistants`}</h2>
+              <h2>{talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory} Virtual Assistants`}</h2>
               <p>{copy.talentIntro}</p>
             </div>
             <Link className="text-link" href={talentHref}>See all relevant talent <ArrowRight size={14}/></Link>

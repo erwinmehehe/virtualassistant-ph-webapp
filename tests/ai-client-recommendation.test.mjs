@@ -4,11 +4,10 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("selecting a VA can trigger a grounded AI client recommendation without releasing the candidate", async () => {
+test("selecting a VA triggers a grounded AI client recommendation without releasing the candidate", async () => {
   const generator = await read("src/lib/ai-client-recommendation.ts");
-  const actions = await read("src/app/actions/client-shortlist.ts");
+  const action = await read("src/app/actions/ai-client-recommendation.ts");
   const table = await read("src/components/matching-candidate-table.tsx");
-  const matching = await read("src/components/staff-job-matching.tsx");
 
   assert.match(generator, /openai\/gpt-5\.6-luna/);
   assert.match(generator, /ai-gateway\.vercel\.sh\/v1\/chat\/completions/);
@@ -17,25 +16,29 @@ test("selecting a VA can trigger a grounded AI client recommendation without rel
   assert.match(generator, /500/);
   assert.match(generator, /generateClientRecommendation/);
 
-  assert.match(actions, /export async function generateClientRecommendationAction/);
-  assert.match(actions, /generateClientRecommendation/);
-  assert.match(actions, /client_recommendation/);
-  assert.match(actions, /shortlist_status:\s*status/);
-  assert.doesNotMatch(actions, /shortlist_status:\s*"released"/);
+  assert.match(action, /export async function generateClientRecommendationAction/);
+  assert.match(action, /generateClientRecommendation/);
+  assert.match(action, /client_recommendation/);
+  assert.match(action, /shortlist_status:\s*status/);
+  assert.doesNotMatch(action, /shortlist_status:\s*"released"/);
 
   assert.match(table, /generateClientRecommendationAction/);
   assert.match(table, /onChange=/);
   assert.match(table, /Generating recommendation/);
   assert.match(table, /Regenerate with AI/);
-  assert.match(matching, /generateClientRecommendationAction/);
+  assert.match(table, /AI-generated, recruiter editable/);
 });
 
-test("client release backfills missing AI recommendations but preserves recruiter edits", async () => {
-  const matchingActions = await read("src/app/actions/matching.ts");
+test("AI recommendation generation is optional, editable and never changes the release gate", async () => {
+  const generator = await read("src/lib/ai-client-recommendation.ts");
+  const action = await read("src/app/actions/ai-client-recommendation.ts");
+  const table = await read("src/components/matching-candidate-table.tsx");
 
-  assert.match(matchingActions, /generateClientRecommendation/);
-  assert.match(matchingActions, /client_recommendation/);
-  assert.match(matchingActions, /mode === "release"/);
-  assert.match(matchingActions, /existingRecommendation/);
-  assert.match(matchingActions, /existingRecommendation \|\|/);
+  assert.match(generator, /AI_GATEWAY_API_KEY/);
+  assert.match(generator, /VERCEL_OIDC_TOKEN/);
+  assert.match(generator, /if \(!apiKey\) return null/);
+  assert.match(generator, /AbortSignal\.timeout\(10_000\)/);
+  assert.match(action, /existing\?\.shortlist_status === "released" \? "released" : "proposed"/);
+  assert.match(table, /Save client note/);
+  assert.match(table, /textarea/);
 });

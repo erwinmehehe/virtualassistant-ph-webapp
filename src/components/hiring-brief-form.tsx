@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarCheck, Check, LockKeyhole, UserRound } from "lucide-react";
+import { ArrowRight, CalendarCheck, Check, LockKeyhole } from "lucide-react";
 import {
   submitIndustryMatchAction,
   submitRoleBriefAction,
@@ -68,18 +68,6 @@ function Success({ message, talentHref, portalHref }: { message?: string; talent
   );
 }
 
-function VaApplicantSuccess() {
-  return (
-    <div className="hb-card hb-success" aria-live="polite">
-      <div className="hb-success-icon"><UserRound size={22} /></div>
-      <h2>Looking for Virtual Assistant work?</h2>
-      <p>This form is for businesses hiring a VA, so your message was not added to client hiring requests. We emailed you the link to create your free VA profile.</p>
-      <Link className="hb-submit" href="/auth/join/va" data-track="va_redirect_join">Create my VA profile <ArrowRight size={16} /></Link>
-      <div className="hb-links"><Link href="/jobs">Browse open roles</Link></div>
-    </div>
-  );
-}
-
 function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "" }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string }) {
   return (
     <>
@@ -129,10 +117,7 @@ function Head({ title, sub }: { title: string; sub: string }) {
 }
 
 function Foot() {
-  return <>
-    <p className="hb-foot"><LockKeyhole size={13} />Private request · No account needed · About 30 seconds</p>
-    <p className="hb-foot hb-va-link">Looking for VA work? <Link href="/auth/join/va" data-track="va_redirect_join">Apply here</Link></p>
-  </>;
+  return <p className="hb-foot"><LockKeyhole size={13} />Private request · No account needed · About 30 seconds</p>;
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
@@ -141,17 +126,13 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   const [sessionId, setSessionId] = useState("");
   useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
 
-  if (state.status === "success" && state.vaApplicant) return <VaApplicantSuccess />;
   if (state.status === "success") {
     const portalHref = state.clientLinked && state.jobId ? `/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1` : undefined;
     return <Success message={state.message} talentHref={props.talentHref} portalHref={portalHref} />;
   }
 
   const base = (props.variant === "service" ? props.roleLabel : props.industryLabel).replace(/\s+(virtual assistants?|VAs?)$/i, "").trim();
-  // "an" before vowel sounds, including acronyms read letter by letter (an SEO VA, an HR VA).
-  const firstWord = base.split(/\s+/)[0] || "";
-  const vowelSound = /^[aeiou]/i.test(base) || (/^[A-Z]{2,}$/.test(firstWord) && /^[AEFHILMNORSX]/.test(firstWord));
-  const label = `${vowelSound ? "an" : "a"} ${base} VA`;
+  const label = `${/^[aeiou]/i.test(base) ? "an" : "a"} ${base} VA`;
   const sourcePath = props.sourcePath || (props.variant === "service" ? `/service/${props.slug}/` : `/industries/${props.slug}/`);
   const id = `hb-${props.variant}-${props.slug}`;
 
@@ -166,7 +147,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
-          {pending ? "Sending..." : <>Send my hiring request <ArrowRight size={16} /></>}
+          {pending ? "Sending..." : <>Continue to booking <ArrowRight size={16} /></>}
         </button>
         <Foot />
       </form>
@@ -175,13 +156,12 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 }
 
 function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
-  const [url, setUrl] = useState<{ sent: boolean; va: boolean; error?: string }>({ sent: false, va: false });
+  const [url, setUrl] = useState<{ sent: boolean; error?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setUrl({ sent: params.get("sent") === "1", va: params.get("va") === "1", error: params.get("error") || undefined });
+    setUrl({ sent: params.get("sent") === "1", error: params.get("error") || undefined });
   }, []);
 
-  if (url.sent && url.va) return <VaApplicantSuccess />;
   if (url.sent) return <Success talentHref="/find-talent" />;
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
@@ -204,7 +184,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">Send my hiring request <ArrowRight size={16} /></button>
+        <button className="hb-submit" type="submit" data-track="role_brief_submit">Continue to booking <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>

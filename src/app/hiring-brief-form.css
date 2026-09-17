@@ -190,8 +190,3 @@
 .contact-route-copy small { color: #475467; font-size: 13.5px; line-height: 1.5; }
 .contact-route-copy em { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; color: #3538cd; font-size: 13.5px; font-style: normal; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { .contact-route:hover { transform: none; } }
-
-/* Quiet pointer for Virtual Assistants who land on a hiring form. */
-.hb-card .hb-va-link { margin-top: -6px; }
-.hb-card .hb-va-link a { color: #475467; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-.hb-card .hb-va-link a:hover { color: #3538cd; }

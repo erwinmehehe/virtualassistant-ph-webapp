@@ -40,11 +40,10 @@ test("normal client briefs are not treated as VA applications", () => {
   ]) assert.equal(looksLikeVaApplication(message), false, message);
 });
 
-test("hiring forms ask hiring vs VA work first and route applicants away from the client pipeline", () => {
+test("hiring forms point VAs to the sign-up and route detected applicants away from the client pipeline", () => {
   const form = readFileSync(new URL("../src/components/hiring-brief-form.tsx", import.meta.url), "utf8");
   const leads = readFileSync(new URL("../src/app/actions/leads.ts", import.meta.url), "utf8");
-  assert.match(form, /<AudienceChoice/);
-  assert.match(form, /hidden=\{audience !== "client"\}/);
+  assert.match(form, /Looking for VA work\?/);
   assert.match(form, /\/auth\/join\/va/);
   assert.equal((leads.match(/looksLikeVaApplication\(/g) || []).length, 3);
   assert.match(leads, /lead_type: "va_support"/);

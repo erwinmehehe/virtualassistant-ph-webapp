@@ -5,8 +5,12 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { DiscoveryCallCard } from "@/components/hiring-brief-form";
+import { Band, CtaBand, SectionHead } from "@/components/hiring-page-sections";
 import { softwarePages } from "@/lib/software-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import "../homepage-sections.css";
+import "../hiring-pages.css";
+import "../info-pages.css";
 
 export const metadata: Metadata = {
   title: "Virtual Assistants by Software & Platform",
@@ -15,9 +19,18 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalPath("/software") }
 };
 
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 export default function SoftwareIndexPage() {
+  // Group guides by field, keeping the order categories first appear in the registry.
+  const groups = new Map<string, typeof softwarePages>();
+  for (const page of softwarePages) groups.set(page.category, [...(groups.get(page.category) || []), page]);
+
   return <><SiteHeader/><main id="main-content">
     <MarketingHero
+      className="mh-tight"
       eyebrow="Software-specific Virtual Assistant hiring"
       title={<h1 className="public-page-title">Hire a virtual assistant who already knows your software.</h1>}
       intro={<p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>}
@@ -25,12 +38,35 @@ export default function SoftwareIndexPage() {
       trust={<><span><CheckCircle2 size={15}/>Platform-aware matching</span><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span></>}
       form={<DiscoveryCallCard />}
     />
-    <section className="section"><div className="container">
-      <div className="section-head"><h2>Choose the platform your team runs on.</h2><p>Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority.</p></div>
-      <div className="grid-3">{softwarePages.map((page) => <article className="card card-hover stack" key={page.slug}>
-        <div><span className="badge">{page.category}</span><h2 style={{ marginTop: 10 }}>{page.software}</h2><p className="muted">{page.metaDescription}</p></div>
-        <Link className="btn btn-primary" href={`/software/${page.slug}`}>View {page.software} guide <ArrowRight size={16}/></Link>
-      </article>)}</div>
-    </div></section>
+
+    <div className="hs-root sp-root">
+      <Band>
+        <SectionHead kicker={`${softwarePages.length} platform guides`} title="Choose the platform your team runs on." lede="Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority."/>
+        <nav className="ip-chips" aria-label="Jump to a field">
+          {[...groups.entries()].map(([category, pages]) => <a key={category} href={`#${slugify(category)}`}>{category} <span>{pages.length}</span></a>)}
+        </nav>
+
+        <div className="ip-groups">
+          {[...groups.entries()].map(([category, pages]) => <section className="ip-group" id={slugify(category)} key={category} aria-labelledby={`${slugify(category)}-title`}>
+            <div className="ip-group-head"><h3 id={`${slugify(category)}-title`}>{category}</h3><span>{pages.length} guide{pages.length === 1 ? "" : "s"}</span></div>
+            <div className="ip-link-grid">
+              {pages.map((page) => <Link className="ip-link-card" href={`/software/${page.slug}`} key={page.slug}>
+                <strong>{page.software}</strong>
+                <p>{page.metaDescription}</p>
+                <span className="hs-link">View {page.software} guide <ArrowRight size={14}/></span>
+              </Link>)}
+            </div>
+          </section>)}
+        </div>
+      </Band>
+
+      <CtaBand
+        kicker="Not listed?"
+        title="Your platform isn't here? Tell us what your team uses."
+        body="Recruiters screen for the systems in your brief, even when there is no dedicated guide yet."
+        primary={{ href: "/hire", label: "Start a hiring brief", track: "software_index_final_cta" }}
+        secondary={{ href: "/services", label: "Browse Virtual Assistant services" }}
+      />
+    </div>
   </main><SiteFooter/></>;
 }

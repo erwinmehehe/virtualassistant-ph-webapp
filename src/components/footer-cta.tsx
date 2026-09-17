@@ -4,10 +4,15 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { usePathname } from "next/navigation";
 
+// Pages that end with their own closing call to action (CtaBand); showing this one
+// too would stack two back-to-back "ready to hire" sections.
+const PAGES_WITH_OWN_CTA = [/^\/service\/[^/]+\/?$/, /^\/industries(\/[^/]+)?\/?$/, /^\/pricing\/?$/, /^\/how-vetting-works\/?$/, /^\/software\/?$/];
+
 export function FooterCta() {
   const pathname = usePathname();
 
   if (pathname === "/") return null;
+  if (PAGES_WITH_OWN_CTA.some((pattern) => pattern.test(pathname))) return null;
 
   return (
     <div className="container va-footer-cta">

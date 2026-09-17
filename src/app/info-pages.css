@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Pricing, How vetting works, Industries and Software index pages.
+   Builds on hs-* (homepage-sections.css) and sp-* (hiring-pages.css).
+   ========================================================================== */
+
+/* Shared heroes (MarketingHero): keep long headlines to three or four lines. */
+.va-marketing-hero.mh-tight h1 { font-size: clamp(2.3rem, 3.9vw, 3.5rem) !important; line-height: 1.06 !important; max-width: 17ch; }
+
+/* ---------- Pricing plans ---------- */
+.ip-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; align-items: stretch; max-width: 1040px; margin: 0 auto; }
+.ip-plan { display: flex; flex-direction: column; gap: .8rem; padding: 1.75rem; border: 1px solid var(--hs-line); border-radius: 24px; background: #fff; box-shadow: var(--hs-shadow); }
+.ip-plan.is-featured { border-color: #c7d2fe; box-shadow: 0 24px 50px -30px rgba(68, 76, 231, .45); background: linear-gradient(180deg, #f7f7ff 0%, #fff 38%); }
+.ip-plan-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.ip-plan-label { color: var(--hs-brand-ink); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.ip-plan h3 { margin: 0; color: var(--hs-ink); font-size: 1.15rem; font-weight: 800; }
+.ip-plan-price { color: var(--hs-ink); font-size: clamp(2rem, 3vw, 2.6rem); font-weight: 800; line-height: 1; letter-spacing: -.04em; }
+.ip-plan > p { margin: 0; color: var(--hs-text); font-size: .92rem; line-height: 1.65; }
+.ip-plan .sp-checks { padding-top: .9rem; border-top: 1px solid var(--hs-line); }
+.ip-plan-cta { width: 100%; margin-top: auto; }
+.ip-plan-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .3rem .8rem; max-width: 900px; margin: 1.4rem auto 0; color: var(--hs-muted); font-size: .9rem; text-align: center; line-height: 1.55; }
+
+/* ---------- Pricing calculator: inputs as a 2x2 grid so the left column is not half empty ---------- */
+.ip-calc { max-width: 1000px; margin: 0 auto; }
+.ip-calc .tool-shell { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.ip-calc .tool-inputs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.ip-calc .tool-results { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem 1.5rem; align-items: center; }
+.ip-calc .tool-results > div { border-bottom: 0; }
+.ip-calc .tool-results > .tool-result-highlight { grid-column: span 2; }
+.ip-calc .tool-results > .btn { align-self: center; }
+.ip-calc .tool-results > p { grid-column: 1 / -1; margin: 0; }
+
+/* ---------- Fee inclusions ---------- */
+.ip-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; max-width: 1040px; margin: 0 auto; }
+.ip-feature { display: flex; align-items: center; gap: .85rem; padding: 1.1rem 1.2rem; border: 1px solid var(--hs-line); border-radius: 18px; background: #fff; }
+.ip-feature .sp-card-icon { margin: 0; flex: none; }
+.ip-feature strong { color: var(--hs-ink); font-size: .95rem; font-weight: 750; line-height: 1.35; }
+
+/* ---------- Vetting: private vs verifiable ---------- */
+.ip-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; max-width: 1040px; margin: 0 auto; }
+.ip-lock-list svg { color: #a5b4fc; }
+
+/* ---------- Industries ---------- */
+.ip-stats { border-bottom: 1px solid #eaecf0; background: #fff; }
+.ip-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ip-stats-grid > div { display: grid; gap: .2rem; padding: 1.35rem 1.25rem; border-right: 1px solid #eaecf0; }
+.ip-stats-grid > div:last-child { border-right: 0; }
+.ip-stats-grid strong { color: #0f172a; font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
+.ip-stats-grid span { color: #667085; font-size: .82rem; }
+
+.ip-industry-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.ip-industry { display: flex; flex-direction: column; gap: .7rem; padding: 1.35rem; border: 1px solid var(--hs-line); border-radius: 20px; background: #fff; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.ip-industry:hover { transform: translateY(-3px); border-color: #cfd5ff; box-shadow: var(--hs-shadow-lift); }
+.ip-industry-head { display: flex; align-items: center; gap: .75rem; }
+.ip-industry-head .sp-card-icon { margin: 0; flex: none; }
+.ip-industry h3 { margin: 0; font-size: 1.08rem; font-weight: 800; letter-spacing: -.015em; }
+.ip-industry h3 a { color: var(--hs-ink); text-decoration: none; }
+.ip-industry h3 a:hover { color: var(--hs-brand-ink); }
+.ip-industry-desc { display: -webkit-box; overflow: hidden; margin: 0; color: var(--hs-muted); font-size: .86rem; line-height: 1.55; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.ip-bullets { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.ip-bullets li { position: relative; padding-left: .9rem; color: var(--hs-text); font-size: .85rem; line-height: 1.4; }
+.ip-bullets li::before { content: ""; position: absolute; left: 0; top: .5em; width: 5px; height: 5px; border-radius: 999px; background: #a5b4fc; }
+.ip-spokes { display: grid; gap: .45rem; padding-top: .7rem; border-top: 1px dashed var(--hs-line); }
+.ip-spokes > span { color: var(--hs-faint); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.ip-spokes > div { display: flex; flex-wrap: wrap; gap: .35rem; }
+.ip-spokes a { padding: .25rem .6rem; border: 1px solid var(--hs-line); border-radius: 999px; background: #f8fafc; color: #344054; font-size: .76rem; font-weight: 650; text-decoration: none; }
+.ip-spokes a:hover { border-color: #c7d2fe; color: var(--hs-brand-ink); }
+.ip-industry-link { margin-top: auto; padding-top: .3rem; }
+
+/* ---------- Software ---------- */
+.ip-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: -.5rem 0 2rem; }
+.ip-chips a { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .85rem; border: 1px solid var(--hs-line); border-radius: 999px; background: #fff; color: #344054; font-size: .85rem; font-weight: 650; text-decoration: none; }
+.ip-chips a span { display: grid; place-items: center; min-width: 1.35rem; height: 1.35rem; padding: 0 .3rem; border-radius: 999px; background: var(--hs-brand-soft); color: var(--hs-brand-ink); font-size: .72rem; font-weight: 800; }
+.ip-chips a:hover { border-color: #c7d2fe; color: var(--hs-brand-ink); }
+.ip-groups { display: grid; gap: 2.25rem; }
+.ip-group { scroll-margin-top: 110px; }
+.ip-group-head { display: flex; align-items: baseline; gap: .75rem; margin-bottom: .9rem; padding-bottom: .6rem; border-bottom: 1px solid var(--hs-line); }
+.ip-group-head h3 { margin: 0; color: var(--hs-ink); font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; }
+.ip-group-head span { color: var(--hs-faint); font-size: .82rem; font-weight: 650; }
+.ip-link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: .9rem; }
+.ip-link-card { display: flex; flex-direction: column; gap: .45rem; padding: 1.2rem 1.25rem; border: 1px solid var(--hs-line); border-radius: 18px; background: #fff; color: var(--hs-ink); text-decoration: none; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.ip-link-card:hover { transform: translateY(-2px); border-color: #cfd5ff; box-shadow: var(--hs-shadow-lift); }
+.ip-link-card strong { font-size: 1.05rem; font-weight: 800; }
+.ip-link-card p { display: -webkit-box; overflow: hidden; margin: 0; color: var(--hs-muted); font-size: .86rem; line-height: 1.55; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.ip-link-card .hs-link { margin-top: auto; padding-top: .35rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .ip-industry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ip-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .ip-plans, .ip-pair, .ip-industry-grid, .ip-features { grid-template-columns: minmax(0, 1fr); }
+  .ip-calc .tool-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ip-calc .tool-results { grid-template-columns: minmax(0, 1fr); }
+  .ip-calc .tool-results > .tool-result-highlight { grid-column: auto; }
+  .ip-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ip-stats-grid > div:nth-child(2) { border-right: 0; }
+  .ip-stats-grid > div:nth-child(-n + 2) { border-bottom: 1px solid #eaecf0; }
+  .ip-plan { padding: 1.3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ip-industry:hover, .ip-link-card:hover { transform: none; }
+}

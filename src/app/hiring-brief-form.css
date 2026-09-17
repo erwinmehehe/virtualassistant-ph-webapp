@@ -1,0 +1,84 @@
+/* ==========================================================================
+   The one hiring form (src/components/hiring-brief-form.tsx).
+   Used on service, software, industry and pricing pages; DiscoveryCallCard
+   replaces forms on informational pages. Keep all styling for both here.
+   ========================================================================== */
+.hb-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 24px;
+  border: 1px solid #e4e7ec;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 48px -24px rgba(16, 24, 40, .22);
+  color: #101828;
+  text-align: left;
+}
+.hb-card h2 { margin: 12px 0 6px; font-size: 21px; line-height: 1.25; font-weight: 750; letter-spacing: -.01em; color: #101828; }
+.hb-card p { margin: 0; font-size: 14px; line-height: 1.55; color: #475467; }
+.hb-steps { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hb-steps li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; background: #f2f4f7; color: #667085; font-size: 12px; font-weight: 650; }
+.hb-steps li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: #fff; font-size: 11px; font-weight: 750; }
+.hb-steps li.is-active { background: #eef0ff; color: #3538cd; }
+.hb-steps li.is-active span { background: #444ce7; color: #fff; }
+.hb-steps li.is-done { background: #ecfdf3; color: #067647; }
+.hb-steps li.is-done span { background: #17b26a; color: #fff; }
+.hb-form { display: grid; gap: 12px; margin-top: 18px; }
+.hb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hb-field { display: grid; gap: 5px; min-width: 0; }
+.hb-field label { font-size: 12.5px; font-weight: 650; color: #344054; }
+.hb-card .hb-field input,
+.hb-card .hb-field select,
+.hb-card .hb-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #fff;
+  color: #101828;
+  font: inherit;
+  font-size: 14px;
+  box-shadow: none;
+}
+.hb-card .hb-field textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+.hb-card .hb-field input:focus,
+.hb-card .hb-field select:focus,
+.hb-card .hb-field textarea:focus { outline: none; border-color: #444ce7; box-shadow: 0 0 0 3px rgba(68, 76, 231, .14); }
+.hb-card .hb-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 4px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #444ce7, #6236ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.hb-card .hb-submit:hover { filter: brightness(1.07); }
+.hb-card .hb-submit:disabled { opacity: .7; cursor: progress; }
+.hb-card .hb-foot { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #667085; }
+.hb-error { padding: 10px 12px; border-radius: 10px; background: #fef3f2; color: #b42318; font-size: 13px; }
+.hb-success-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-top: 16px; border-radius: 12px; background: #eef0ff; color: #444ce7; }
+.hb-success h2, .hb-cta h2 { margin-top: 12px; }
+.hb-success .hb-submit, .hb-cta .hb-submit { margin-top: 18px; }
+.hb-cta .hb-success-icon { margin-top: 0; }
+.hb-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: 12px; }
+.hb-links a { color: #3538cd; font-size: 13px; font-weight: 600; text-decoration: none; }
+.hb-links a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  .hb-card { max-width: none; padding: 20px 16px; border-radius: 16px; }
+  .hb-row { grid-template-columns: 1fr; }
+}

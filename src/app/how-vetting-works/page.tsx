@@ -4,7 +4,7 @@ import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = { title: "How Virtual Assistant Vetting Works", description: "See the screening steps required before a virtual assistant can appear in the VirtualAssistant.com.ph public talent directory.", keywords: ["virtual assistant vetting process", "how are virtual assistants screened", "vetted filipino virtual assistants"] , alternates: { canonical: canonicalPath("/how-vetting-works") }};
@@ -16,7 +16,7 @@ export default function VettingPage(){const steps=[["Structured profile","Experi
     intro={<p className="public-lede">VirtualAssistant.com.ph uses a staged screening workflow before a Virtual Assistant can appear in the public directory. The goal is to reduce weak-fit filtering for clients while keeping private candidate evidence protected.</p>}
     actions={<><Link className="btn btn-primary" href="/find-talent">Browse Virtual Assistants</Link><Link className="btn" href="/hire">Start a Hiring Request</Link></>}
     trust={<><span><ShieldCheck size={15}/>Structured screening</span><span><CheckCircle2 size={15}/>Human recruiter review</span><span><LockKeyhole size={15}/>Private evidence stays private</span></>}
-    form={<RoleBriefForm sourcePath="/how-vetting-works" heading="Hire against the actual role" subheading="Share the workload, hours, budget, and schedule. We will use the brief to screen for role fit, not just profile keywords." />}
+    form={<DiscoveryCallCard />}
   />
   <section className="section section-white"><div className="container"><div className="vetting-steps">{steps.map(([title,copy],i)=><div className="vetting-step" key={title}><div className="vetting-step-number-wrap"><div className="vetting-step-number">{String(i+1).padStart(2,"0")}</div><CheckCircle2 className="vetting-step-check" size={16}/></div><div><h2>{title}</h2><p className="muted">{copy}</p></div></div>)}</div></div></section>
   <section className="section"><div className="container grid-2"><div className="card"><LockKeyhole/><h2>What stays private</h2><p className="muted">Raw test answers, recruiter notes, video URLs, uploaded resumes, contact information, and internal review comments are not published in the talent directory.</p></div><div className="card"><CheckCircle2/><h2>What clients can verify</h2><p className="muted">Public profiles show the approved status, category, experience, skills, tools, industries, languages, availability, schedule preferences, and the milestones completed in the screening process.</p></div></div></section>

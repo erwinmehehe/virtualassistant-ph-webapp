@@ -16,7 +16,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
-import { ServiceMatchForm } from "@/components/service-match-form";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { SERVICE_PAGES, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { INDUSTRIES } from "@/lib/industries";
@@ -436,7 +436,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
               </div>
             </div>
 
-            <ServiceMatchForm
+            <HiringBriefForm
+              variant="service"
               slug={s.slug}
               category={s.directoryCategory}
               roleLabel={roleName(s.name)}

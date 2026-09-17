@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { softwarePages } from "@/lib/software-pages";
 import { canonicalPath } from "@/lib/seo-url";
 
@@ -23,7 +23,7 @@ export default function SoftwareIndexPage() {
       intro={<p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></>}
       trust={<><span><CheckCircle2 size={15}/>Platform-aware matching</span><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span></>}
-      form={<RoleBriefForm sourcePath="/software" heading="Get matched by tools and workflow" subheading="Tell us the software, workload, hours, and budget. We will use it to narrow relevant talent." />}
+      form={<DiscoveryCallCard />}
     />
     <section className="section"><div className="container">
       <div className="section-head"><h2>Choose the platform your team runs on.</h2><p>Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority.</p></div>

@@ -4,7 +4,7 @@ import { ArrowRight, BriefcaseBusiness, CheckCircle2, Search, ShieldCheck, Users
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
 
@@ -52,7 +52,7 @@ export default function IndustriesPage() {
       intro={<p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
       trust={<><span><ShieldCheck size={16}/>Approved talent</span><span><UsersRound size={16}/>Role-specific matching</span><span><Search size={16}/>Industry hiring guides</span></>}
-      form={<RoleBriefForm sourcePath="/industries" heading="Get an industry-fit shortlist" subheading="Share the workflow, hours, budget, and schedule. We will screen for relevant experience and tools." />}
+      form={<DiscoveryCallCard />}
     />
 
     <section className="industries-stat-strip" aria-label="Industry directory summary">

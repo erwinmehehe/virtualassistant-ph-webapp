@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { VaCostCalculator } from "@/components/va-tools";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath } from "@/lib/seo-url";
@@ -40,8 +40,7 @@ export default async function PricingPage(){
         </div>
 
         <aside className="pricing-hero-form-shell" aria-label="Get a role and pricing review">
-          <div className="pricing-hero-form-badge"><ShieldCheck size={14}/> Private hiring request</div>
-          <RoleBriefForm sourcePath="/pricing" heading="Get your free virtual assistant match" subheading="Tell us what you need. We will review your role, schedule, tools, and budget to identify suitable candidates." />
+          <HiringBriefForm variant="general" sourcePath="/pricing" />
         </aside>
       </div>
     </section>

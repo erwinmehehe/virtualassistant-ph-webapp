@@ -18,6 +18,7 @@ import "./blog-editorial.css";
 import "./blog-featured-visual.css";
 import "./cro-density-fixes.css";
 import "./homepage-reference-polish.css";
+import "./hiring-brief-form.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

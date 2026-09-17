@@ -4,7 +4,7 @@ import { ArrowRight, Calculator, CheckCircle2, ClipboardList, Search, WalletCard
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata={title:"Free Virtual Assistant Hiring Tools",description:"Free VA cost, budget, job description, and role-finder tools for businesses hiring virtual assistants from the Philippines.",alternates:{canonical:canonicalPath("/tools")}};
@@ -22,7 +22,7 @@ export default function ToolsPage(){return <><SiteHeader/><main id="main-content
     intro={<p className="public-lede">Use simple calculators and templates to turn a vague need into a clearer budget, job description, and VA role.</p>}
     actions={<><Link className="btn btn-primary btn-lg" href="/tools/virtual-assistant-cost-calculator">Estimate VA cost <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/tools/what-type-of-va-do-i-need">Find the right VA role</Link></>}
     trust={<><span><CheckCircle2 size={15}/>Free planning tools</span><span><CheckCircle2 size={15}/>Private hiring request</span><span><CheckCircle2 size={15}/>No account required</span></>}
-    form={<RoleBriefForm sourcePath="/tools" heading="Already know what you need?" subheading="Share the workload, hours, budget, and schedule. We will turn the plan into a focused hiring search." />}
+    form={<DiscoveryCallCard />}
   />
   <section className="section section-white"><div className="container"><div className="tools-grid">{tools.map(([Icon,title,desc,href])=><Link className="tool-card" href={href} key={href} data-track="tool_open"><div className="tool-card-icon"><Icon size={22}/></div><h2>{title}</h2><p>{desc}</p><strong>Open tool <ArrowRight size={14}/></strong></Link>)}</div></div></section>
 </main><SiteFooter/></>}

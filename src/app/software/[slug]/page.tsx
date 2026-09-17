@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ServiceMatchForm } from "@/components/service-match-form";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { ArrowRight, BadgeCheck, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -115,7 +115,8 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
           </div>
         </div>
 
-        {matchService ? <ServiceMatchForm
+        {matchService ? <HiringBriefForm
+          variant="service"
           slug={matchService.slug}
           category={matchService.directoryCategory}
           roleLabel={`${page.software} virtual assistant`}

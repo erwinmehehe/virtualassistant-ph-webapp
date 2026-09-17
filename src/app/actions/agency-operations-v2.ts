@@ -190,7 +190,7 @@ export async function submitPlacementPulseAction(formData: FormData) {
   redirect(source === "client" ? "/workspace/client/team?pulse_saved=1" : "/workspace/va/workroom?pulse_saved=1");
 }
 
-export async function confirmVaAvailabilityAction(formData: FormData) {
+export async function confirmVaAvailabilityAction(_formData: FormData) {
   const { user } = await requireRole("va");
   const admin = createAdminClient();
   const { data: va } = await admin.from("va_profiles").select("availability_status,weekly_hours,schedule,hourly_rate").eq("user_id", user.id).maybeSingle();

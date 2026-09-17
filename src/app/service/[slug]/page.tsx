@@ -283,7 +283,7 @@ function serviceEditorial(s: ServiceSeoPage) {
   };
 }
 
-function useCaseCopy(item: string, s: ServiceSeoPage) {
+function bestFitCopy(item: string, s: ServiceSeoPage) {
   if (s.slug === "law-firm-virtual-assistant") {
     const copy: Record<string, string> = {
       "solo attorneys": "Protect attorney time by delegating intake follow-up, scheduling, matter setup, file organization, and routine client communication.",
@@ -560,7 +560,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <Band>
           <SectionHead kicker="Best-fit teams" title={copy.fitTitle} lede={copy.fitIntro}/>
           <div className="sp-cards-4">
-            {uniqueStrings(s.bestFor).map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}><span className="sp-card-icon" aria-hidden="true"><UsersRound size={18}/></span><h3>{toTitle(item)}</h3><p>{useCaseCopy(item, s)}</p></article>)}
+            {uniqueStrings(s.bestFor).map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}><span className="sp-card-icon" aria-hidden="true"><UsersRound size={18}/></span><h3>{toTitle(item)}</h3><p>{bestFitCopy(item, s)}</p></article>)}
           </div>
           {regulated ? <div className="sp-notice"><ShieldCheck size={22} aria-hidden="true"/><div><strong>Scope and compliance: keep regulated judgment with the responsible professional.</strong><p>{regulated}</p></div></div> : null}
         </Band>

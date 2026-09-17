@@ -3,17 +3,11 @@ import { Clock3, MessageSquare, UsersRound } from "lucide-react";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { elapsedLabel } from "@/lib/format";
 
 const HOUR = 60 * 60 * 1000;
+const ageLabel = (value?: string | null) => elapsedLabel(value, { empty: "Not recorded", underHour: "less than 1 hour ago" });
 
-function ageLabel(value?: string | null) {
-  if (!value) return "Not recorded";
-  const hours = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / HOUR));
-  if (hours < 1) return "less than 1 hour ago";
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
 
 export default async function RecruiterClientReviewPage() {
   await requireRole("recruiter");

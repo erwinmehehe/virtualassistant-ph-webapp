@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dateShort } from "@/lib/format";
+import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
 import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, updateLeadCrmAction } from "@/app/actions/recruiter";
 import { createAndSendProposalAction } from "@/app/actions/proposals";
 import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
@@ -12,6 +12,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
 
 const PAGE_SIZE = 25;
+const ageLabel = (value: string) => elapsedLabel(value, { precision: "minutes" });
 
 function activityLabel(action: string) {
   const labels: Record<string, string> = {
@@ -24,13 +25,6 @@ function activityLabel(action: string) {
   return labels[action] || action.replaceAll("_", " ");
 }
 
-function ageLabel(value: string) {
-  const minutes = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 60000));
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-}
 
 function responseLabel(createdAt: string, firstContactAt?: string | null) {
   if (!firstContactAt) return null;
@@ -39,29 +33,8 @@ function responseLabel(createdAt: string, firstContactAt?: string | null) {
   return `${(minutes / 60).toFixed(1)}h first response`;
 }
 
-function dateInput(value?: string | null) {
-  return value ? new Date(value).toISOString().slice(0, 10) : "";
-}
 
-function dateTimeInput(value?: string | null) {
-  if (!value) return "";
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Manila",
-    year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", hourCycle: "h23"
-  }).formatToParts(new Date(value));
-  const get = (type: string) => parts.find((part) => part.type === type)?.value || "";
-  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
-}
 
-function dateTimeLabel(value?: string | null) {
-  if (!value) return "Not scheduled";
-  return new Intl.DateTimeFormat("en-PH", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Manila"
-  }).format(new Date(value));
-}
 
 function usd(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);

@@ -62,7 +62,7 @@ export default async function ClientMessagesPage({ searchParams }: { searchParam
   const accessRows = (accessData || []) as AccessRef[];
   const accessMap = new Map(accessRows.map((row) => [row.job_id, row.access_status]));
   const applicationJobMap = new Map(applicationRefs.map((application) => [application.id, application.job_id]));
-  const unlockedRefs = threadRefs.filter((thread) => thread.application_id && candidateAccessUnlocked(accessMap.get(applicationJobMap.get(thread.application_id))));
+  const unlockedRefs = threadRefs.filter((thread) => thread.application_id && candidateAccessUnlocked(accessMap.get(applicationJobMap.get(thread.application_id) ?? "")));
   const unlockedApplicationIds = unlockedRefs.map((thread) => thread.application_id).filter((id): id is string => Boolean(id));
 
   const { data: unlockedData } = unlockedApplicationIds.length

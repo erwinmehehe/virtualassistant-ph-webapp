@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { DiscoveryCallCard } from "@/components/hiring-brief-form";
-import { BLOG_POSTS, BLOG_TOPICS, blogHref, topicPosts, type BlogTopic } from "@/lib/blog";
+import { BLOG_TOPICS, blogHref, topicPosts, type BlogTopic } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
 
 export function generateStaticParams() { return Object.keys(BLOG_TOPICS).map((slug) => ({ slug })); }

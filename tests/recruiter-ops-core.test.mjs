@@ -7,7 +7,11 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("recruiter navigation exposes focused daily operations without a command palette", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
   assert.ok(nav.includes('["My Day", "/workspace/recruiter/today"'));
-  for (const removed of ["Agenda", "Tasks", "Notifications"]) assert.ok(!nav.includes(`["${removed}",`));
+  // Agenda, Tasks and Notifications live inside My Day and the badge counts for
+  // recruiters; other roles (e.g. client Notifications) may still link them.
+  const recruiterNav = nav.slice(nav.indexOf("  recruiter: ["), nav.indexOf("  admin: ["));
+  assert.ok(recruiterNav.length > 0);
+  for (const removed of ["Agenda", "Tasks", "Notifications"]) assert.ok(!recruiterNav.includes(`["${removed}",`));
   assert.match(nav, /label: "Workspace"/);
   assert.doesNotMatch(nav, /Command palette|Cmd\+K|Ctrl\+K/);
 });

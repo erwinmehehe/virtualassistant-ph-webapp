@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src",
+    "format": "prettier --write",
+    "format:check": "prettier --check",
     "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "content:check": "node scripts/check-blog-quality.mjs",
@@ -31,10 +33,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "3.3.7",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
+    "eslint": "9.39.5",
+    "eslint-config-next": "15.5.24",
     "playwright": "^1.63.0",
+    "prettier": "3.9.7",
     "typescript": "^5.7.2"
   },
   "engines": {

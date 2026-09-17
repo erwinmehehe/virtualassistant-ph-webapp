@@ -14,9 +14,6 @@ function duration(minutes: number | null) {
   return `${(minutes / 1440).toFixed(1)} days`;
 }
 
-function number(value: number | null) {
-  return value == null ? "No data yet" : String(value);
-}
 
 export async function SalesAnalyticsDashboard({
   days,

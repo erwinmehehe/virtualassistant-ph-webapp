@@ -10,7 +10,6 @@ import { sendApplicationEmail, sendApplicationStatusEmail } from "@/lib/email";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import type { ApplicationStatus } from "@/lib/types";
-import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { recordProductEvent } from "@/lib/product-events";
 
 function snapshot(profile: any, va: any, vettingStage?: string | null) {

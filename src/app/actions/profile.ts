@@ -5,11 +5,9 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { MIN_HOURLY_RATE, VETTING_PROFILE_MIN } from "@/lib/constants";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-import { getVaCompletion } from "@/lib/profile-completeness";
-import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
 // Each tag is meant to be a short label ("Customer Service", "HubSpot"),
 // not a pasted paragraph. A missing comma between entries (usually from
@@ -141,7 +139,6 @@ export async function updateVaProfileAction(formData: FormData) {
   }
 
   const avatar = formData.get("avatar");
-  let hasProfilePhoto = Boolean(currentProfile?.avatar_url);
   if (avatar instanceof File && avatar.size > 0) {
     if (avatar.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
     const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -160,7 +157,6 @@ export async function updateVaProfileAction(formData: FormData) {
     // segment after "/avatars/" in its public URL.
     const previousPath = currentProfile?.avatar_url?.split("/avatars/")[1];
     if (previousPath && previousPath !== path) await supabase.storage.from("avatars").remove([previousPath]);
-    hasProfilePhoto = true;
     materialChanged = true;
   }
 

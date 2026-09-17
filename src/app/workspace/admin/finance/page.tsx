@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculatePlacementFinance, financeStatusLabel } from "@/lib/agency-finance";
-import { money, dateShort } from "@/lib/format";
+import { money } from "@/lib/format";
 
 const statusClass:Record<string,string>={healthy:"badge-success",watch:"badge-warning",approval_required:"badge-danger",approved_exception:"badge-warning",needs_setup:""};
 

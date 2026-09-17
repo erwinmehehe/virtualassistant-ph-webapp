@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Calculator, CheckCircle2, Clipboard, Search } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clipboard, Search } from "lucide-react";
 
 const WEEKS_PER_MONTH = 52 / 12;
 

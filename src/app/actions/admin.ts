@@ -97,7 +97,7 @@ export async function convertLeadToJobAction(formData: FormData) {
  * replacement for the normal pipeline -- use sparingly.
  */
 export async function bulkApproveExperiencedVAsAction() {
-  const { user } = await requireRole("admin");
+  await requireRole("admin");
   const admin = createAdminClient();
 
   const { data: pending } = await admin.from("va_vetting").select("va_id").not("stage", "in", "(approved,bench,rejected)");

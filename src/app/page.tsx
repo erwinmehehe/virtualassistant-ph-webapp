@@ -1,32 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
-  BriefcaseBusiness,
-  CalendarCheck2,
-  Check,
   CheckCircle2,
   ClipboardCheck,
-  Clock3,
-  Globe2,
   Headphones,
   PhoneCall,
-  SearchCheck,
   ShieldCheck,
-  Sparkles,
-  Star,
-  UsersRound,
   Video,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
-import { PublicAvatar } from "@/components/public-avatar";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
-import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
-import { SERVICE_PAGES } from "@/lib/service-pages";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
   FaqSection,
@@ -74,44 +60,6 @@ export const metadata: Metadata = {
 };
 
 const BOOKING_URL = "/book-client-call";
-
-const GROUP_BLURBS: Record<string, string> = {
-  "Admin & Operations": "Inbox, calendar, data, and recurring coordination that keeps the business moving.",
-  Healthcare: "Patient scheduling, records, insurance follow-up, and dependable front-desk support.",
-  "Marketing & Growth": "Content, campaigns, reporting, and the execution work between strategy reviews.",
-  "Finance & Accounting": "Bookkeeping, invoicing, reconciliations, and month-end support kept current.",
-  "Sales & CRM": "Prospect research, outreach, appointment setting, and CRM hygiene your team can trust.",
-  Ecommerce: "Listings, orders, returns, supplier follow-up, and day-to-day storefront operations.",
-  "Real Estate": "Listing coordination, transaction paperwork, lead follow-up, and calendar management.",
-  "Customer & Front Desk": "Email, chat, and phone coverage with consistent service standards.",
-  "Creative & Content": "Editing, design support, and production work that keeps publishing on schedule.",
-  "Executive Support": "Calendar control, travel, briefing notes, and follow-through after meetings.",
-};
-
-const GROUP_DISPLAY_NAMES: Record<string, string> = {
-  "Admin & Operations": "Administrative & Executive Virtual Assistants",
-  Healthcare: "Healthcare Virtual Assistants",
-  "Marketing & Growth": "Marketing & Social Media Virtual Assistants",
-  "Finance & Accounting": "Bookkeeping & Finance Virtual Assistants",
-  "Sales & CRM": "Sales & Lead Generation Virtual Assistants",
-  Ecommerce: "Ecommerce Virtual Assistants",
-  "Real Estate": "Real Estate Virtual Assistants",
-  "Customer & Front Desk": "Customer Service Virtual Assistants",
-  "Creative & Content": "Creative & Content Virtual Assistants",
-  "Executive Support": "Executive Virtual Assistants",
-};
-
-const roleGroups = Array.from(
-  SERVICE_PAGES.reduce((groups, page) => {
-    const list = groups.get(page.group) || [];
-    list.push(page);
-    groups.set(page.group, list);
-    return groups;
-  }, new Map<string, typeof SERVICE_PAGES>()),
-)
-  .filter(([group]) => GROUP_BLURBS[group])
-  .sort((a, b) => b[1].length - a[1].length)
-  .slice(0, 6);
 
 const faqs = [
   [
@@ -173,7 +121,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const query = await searchParams;
+  await searchParams;
   const supabase = await createClient();
   const { data: featured } = await supabase
     .from("public_va_directory")
@@ -190,20 +138,6 @@ export default async function HomePage({
   const featuredWithPhotos = (featured ?? [])
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
     .slice(0, 6);
-  const matchTalent = (featured ?? [])
-    .filter((va: any) => va.slug)
-    .map((va: any) => ({
-      slug: va.slug,
-      name: va.full_name,
-      headline: va.headline,
-      category: va.primary_category,
-      categories: va.categories,
-      weeklyHours: va.weekly_hours,
-      hourlyRate: va.hourly_rate,
-      yearsExperience: va.years_experience,
-      schedule: va.schedule,
-    }));
-
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const schema = [
     {

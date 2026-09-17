@@ -14,7 +14,7 @@ import { PublicAvatar } from "@/components/public-avatar";
 const Rating=({name,label}:{name:string;label:string})=><div className="field"><label>{label}</label><select name={name} defaultValue="3" required><option value="1">1 - weak</option><option value="2">2 - below standard</option><option value="3">3 - meets standard</option><option value="4">4 - strong</option><option value="5">5 - excellent</option></select></div>;
 
 export default async function RecruiterCandidate({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
-  const {id}=await params;const query=await searchParams;const {user}=await requireRole("recruiter");const admin=createAdminClient();
+  const {id}=await params;const query=await searchParams;await requireRole("recruiter");const admin=createAdminClient();
   const [{data:profile},{data:va},{data:vetting},{data:attempt},{data:scorecards},{data:authUser},{data:roles},{data:notes},{data:activity},{data:publicListing}]=await Promise.all([
     admin.from("profiles").select("id,full_name,avatar_url,created_at,email_verified,identity_verified_at,last_active_at").eq("id",id).eq("role","va").maybeSingle(),
     admin.from("va_profiles").select("*").eq("user_id",id).maybeSingle(),

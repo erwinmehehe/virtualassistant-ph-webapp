@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CheckCircle2, ClipboardList, Clock3, KeyRound, MessageSquareText, Search, Split, TriangleAlert, Wrench } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -9,7 +8,6 @@ import { HiringHero } from "@/components/hiring-hero";
 import { Band, CheckList, CtaBand, FaqBlock, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
 import { servicePageBySlug } from "@/lib/service-pages";
-import { canonicalPath } from "@/lib/seo-url";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 

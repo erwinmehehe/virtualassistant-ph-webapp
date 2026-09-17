@@ -22,7 +22,7 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
   const roleLabel = roleLabels[role];
   const nav = badges
     ? <AppNavLinks role={role} badges={badges}/>
-    : userId && role !== "admin"
+    : userId
       ? <Suspense fallback={<AppNavLinks role={role}/>}><WorkspaceNavWithBadges role={role} userId={userId}/></Suspense>
       : <AppNavLinks role={role}/>;
 

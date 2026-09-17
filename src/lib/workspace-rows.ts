@@ -148,3 +148,116 @@ export type JobOptionRow = {
   status: string;
   client_id: string | null;
 };
+
+/* ---------- Placements (workrooms) ---------- */
+
+export type WorkroomRow = {
+  id: string;
+  job_id: string;
+  client_id: string | null;
+  va_id: string | null;
+  application_id: string | null;
+  client_success_owner_id: string | null;
+  status: string | null;
+  placement_stage: string | null;
+  health_status: string | null;
+  health_score: number | null;
+  start_date: string | null;
+  agreed_schedule: string | null;
+  agreed_hourly_rate: number | null;
+  placement_ready_at: string | null;
+  created_at: string;
+};
+
+export type PlacementCheckinRow = {
+  id: string;
+  workroom_id: string;
+  checkpoint: string;
+  due_at: string | null;
+  status: string;
+  client_signal: string | null;
+  va_signal: string | null;
+};
+
+export type JobSummaryRow = {
+  id: string;
+  title: string | null;
+  company_name?: string | null;
+  recruiter_id?: string | null;
+  hours_per_week?: number | null;
+  timezone?: string | null;
+  status?: string | null;
+  created_at?: string | null;
+};
+
+export type AvatarProfileRow = {
+  id: string;
+  full_name: string | null;
+  avatar_url?: string | null;
+};
+
+export type WorkroomTaskRow = {
+  id: string;
+  workroom_id: string;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  status: string;
+};
+
+export type WorkroomChecklistRow = {
+  id: string;
+  workroom_id: string;
+  owner_role: string | null;
+  title: string;
+  completed_at: string | null;
+};
+
+export type TimeEntryRow = {
+  id: string;
+  workroom_id: string;
+  hours: number | string;
+  status: string;
+  work_date: string;
+  note: string | null;
+  client_note: string | null;
+};
+
+export type PlacementSupportRequestRow = {
+  id: string;
+  workroom_id: string;
+  requester_role: string;
+  request_type: string;
+  priority: string;
+  status: string;
+  details: string | null;
+  resolution: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+};
+
+/* ---------- Finance ---------- */
+
+export type PlacementFinanceProfileRow = {
+  workroom_id: string;
+  expected_monthly_client_revenue: number | string | null;
+  expected_monthly_va_compensation: number | string | null;
+  payment_cost_percent: number | string | null;
+  monthly_ops_cost: number | string | null;
+  other_monthly_cost: number | string | null;
+  exception_status: string | null;
+  reconciled_at: string | null;
+  updated_at: string;
+};
+
+export type PaymentRow = {
+  id: string;
+  workroom_id: string | null;
+  amount_total: number | string | null;
+  currency: string | null;
+  status: string;
+  created_at: string;
+  paid_at: string | null;
+  released_at: string | null;
+};

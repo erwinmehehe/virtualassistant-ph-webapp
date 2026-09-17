@@ -21,6 +21,18 @@ test("public hiring briefs schedule AI enrichment only after the original lead a
   assert.doesNotMatch(form, /action=\{submitRoleBriefAction\}/);
 });
 
+test("general role brief enrichment binds to the exact success redirect instead of guessing by email", async () => {
+  const actions = await read("src/app/actions/ai-leads.ts");
+
+  assert.match(actions, /NEXT_REDIRECT;/);
+  assert.match(actions, /\/workspace\/client\/jobs\//);
+  assert.match(actions, /searchParams\.get\("lead"\)/);
+  assert.match(actions, /\.eq\("id", leadId\)/);
+  assert.match(actions, /searchParams\.get\("sent"\) !== "1"/);
+  assert.doesNotMatch(actions, /\.ilike\("email"/);
+  assert.doesNotMatch(actions, /10 \* 60 \* 1000/);
+});
+
 test("AI job drafts are grounded and cannot publish or release candidates", async () => {
   const generator = await read("src/lib/ai-job-draft.ts");
 
@@ -50,7 +62,7 @@ test("AI generation is optional and preserves the saved fallback draft when unav
   assert.match(generator, /ai-gateway\.vercel\.sh\/v1\/chat\/completions/);
   assert.match(generator, /AbortSignal\.timeout\(10_000\)/);
   assert.match(actions, /AI enrichment is best effort/);
-  assert.match(actions, /A redirect or AI failure must never change the original form outcome/);
+  assert.match(actions, /Preserve the original redirect/);
   assert.match(env, /AI_GATEWAY_API_KEY=/);
   assert.match(env, /AI_JOB_DRAFT_MODEL=/);
 });

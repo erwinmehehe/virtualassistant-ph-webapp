@@ -11,7 +11,7 @@ test("homepage keeps one compact hiring form in the hero", async () => {
   ]);
 
   assert.match(page, /id="hero-hiring-form"/);
-  assert.equal((page.match(/<RoleBriefForm/g) || []).length, 1);
+  assert.equal((page.match(/<HiringBriefForm/g) || []).length, 1);
   assert.doesNotMatch(page, /pva-workflow-card/);
   assert.match(page, /href="#hero-hiring-form"/);
   assert.match(css, /\.pva-hero-form-shell/);

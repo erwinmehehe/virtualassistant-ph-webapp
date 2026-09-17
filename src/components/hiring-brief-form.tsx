@@ -82,6 +82,10 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
           <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
         </div>
       </div>
+      <div className="hb-field">
+        <label htmlFor={`${id}-company`}>Company name</label>
+        <input id={`${id}-company`} name="company" required maxLength={160} autoComplete="organization" placeholder="Your company" />
+      </div>
       <div className="hb-row">
         <div className="hb-field">
           <label htmlFor={`${id}-hours`}>Hours per week</label>

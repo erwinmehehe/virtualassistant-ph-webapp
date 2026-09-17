@@ -82,7 +82,7 @@ test("shared hiring form stays compact on service and industry pages", () => {
   assert.match(service, /<HiringBriefForm[\s\S]*variant="service"/);
   assert.match(industry, /<HiringBriefForm variant="industry"/);
   assert.doesNotMatch(form, /name="phone"/);
-  assert.doesNotMatch(form, /name="company"/);
+  assert.match(form, /name="company" required/);
   assert.match(form, />First name</);
   assert.match(form, />Work email</);
   assert.match(form, /name="budget"/);

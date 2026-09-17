@@ -6,6 +6,7 @@ import { dateShort } from "@/lib/format";
 import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
+import type { JobOptionRow, RecruiterVaDirectoryRow, VaProfileReminderRow } from "@/lib/workspace-rows";
 
 const PAGE_SIZE = 25;
 
@@ -32,6 +33,8 @@ export default async function RecruiterTalentDirectory({
   const admin = createAdminClient();
   const page = Math.max(1, num(params.page) || 1);
 
+  // The shared filter helper works on the untyped Supabase builder (no generated DB types).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = admin
     .from("recruiter_va_directory")
     .select("*", { count: "exact" })
@@ -51,7 +54,7 @@ export default async function RecruiterTalentDirectory({
   });
 
   const from = (page - 1) * PAGE_SIZE;
-  const [{ data: rows, count, error }, { data: roles }] = await Promise.all([
+  const [{ data: rowData, count, error }, { data: roles }] = await Promise.all([
     query.range(from, from + PAGE_SIZE - 1),
     admin
       .from("jobs")
@@ -62,7 +65,8 @@ export default async function RecruiterTalentDirectory({
   ]);
   if (error) throw error;
 
-  const ids = (rows || []).map((row: any) => row.user_id);
+  const rows = (rowData || []) as RecruiterVaDirectoryRow[];
+  const ids = rows.map((row) => row.user_id);
   const [{ data: reminders }, { data: publicRows }] = ids.length
     ? await Promise.all([
         admin
@@ -73,8 +77,8 @@ export default async function RecruiterTalentDirectory({
       ])
     : [{ data: [] }, { data: [] }];
 
-  const reminderMap = new Map((reminders || []).map((row: any) => [row.va_id, row]));
-  const publicIds = new Set((publicRows || []).map((row: any) => row.user_id));
+  const reminderMap = new Map(((reminders || []) as VaProfileReminderRow[]).map((row) => [row.va_id, row]));
+  const publicIds = new Set(((publicRows || []) as { user_id: string }[]).map((row) => row.user_id));
   const total = count || 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentUrl = `/workspace/recruiter/talent${qs(params, { page })}`;
@@ -199,7 +203,7 @@ export default async function RecruiterTalentDirectory({
         </select>
         <select name="job_id" defaultValue="">
           <option value="">Role for assignment / client review…</option>
-          {(roles || []).map((job: any) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}{job.client_id ? " · client linked" : " · internal only"}</option>)}
+          {((roles || []) as JobOptionRow[]).map((job) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}{job.client_id ? " · client linked" : " · internal only"}</option>)}
         </select>
         <button className="btn btn-primary" type="submit">Apply</button>
       </div>
@@ -208,9 +212,9 @@ export default async function RecruiterTalentDirectory({
         <table>
           <thead><tr><th></th><th>VA</th><th>Stage</th><th>Readiness</th><th>Missing</th><th>Experience / rate</th><th>Activity</th><th>Reminder</th><th></th></tr></thead>
           <tbody>
-            {(rows || []).length ? (rows || []).map((row: any) => {
+            {rows.length ? rows.map((row) => {
               const missing = Array.isArray(row.missing_items) ? row.missing_items : [];
-              const reminder: any = reminderMap.get(row.user_id);
+              const reminder = reminderMap.get(row.user_id);
               const activity = row.last_activity_at ? Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000) : null;
               const publicNow = publicIds.has(row.user_id);
               const approved = ["approved", "bench"].includes(String(row.stage || ""));

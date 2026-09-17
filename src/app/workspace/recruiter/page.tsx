@@ -7,6 +7,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { VaProfile } from "@/lib/types";
 
 const SIGNUP_WEEKS = 10;
 const QUEUE_PREVIEW = 5;
@@ -38,15 +39,42 @@ type RecruiterDashboardMetrics = {
   discovery_next_two_days: number;
 };
 
+/** Row from recruiter_dashboard_overview().vetting_queue: VA profile fields plus review context. */
+type VettingQueueRow = Partial<VaProfile> & {
+  va_id: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  test_score?: number | null;
+  video_url?: string | null;
+};
+
+/** Row from recruiter_dashboard_overview().roles_needing_matching. */
+type RoleNeedingMatching = { id: string; title: string | null; company_name: string | null };
+
+/** Item from recruiter_today_queue(). */
+type TodayQueueItem = {
+  id?: string | null;
+  kind?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  priority?: string | null;
+  due_at?: string | null;
+  href?: string | null;
+  metadata?: { subject_type?: string | null; subject_id?: string | null } | null;
+};
+
+/** Row from recruiter_dashboard_signups(). */
+type SignupWeek = { week_start: string; count: number | string | null };
+
 type RecruiterDashboardOverview = {
   metrics?: Partial<RecruiterDashboardMetrics>;
-  vetting_queue?: any[];
-  roles_needing_matching?: any[];
+  vetting_queue?: VettingQueueRow[];
+  roles_needing_matching?: RoleNeedingMatching[];
 };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-function exactActionHref(item: any) {
+function exactActionHref(item: TodayQueueItem) {
   const meta = item?.metadata || {};
   if (meta.subject_type === "job" && meta.subject_id) return `/workspace/recruiter/matching/${meta.subject_id}`;
   if (meta.subject_type === "va" && meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
@@ -60,7 +88,7 @@ function queueTimeLabel(value?: string | null) {
   return new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(value));
 }
 
-function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; queueRows: any[] }) {
+function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; queueRows: VettingQueueRow[] }) {
   return <Panel
     title="Vetting queue"
     subtitle={unreviewed > QUEUE_PREVIEW ? `Longest-waiting ${QUEUE_PREVIEW} of ${unreviewed} · ring shows profile completion` : `${plural(unreviewed, "candidate")} waiting · ring shows profile completion`}
@@ -68,7 +96,7 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
   >
     {queueRows.length ? (
       <div className="dash-queue">
-        {queueRows.map((row: any) => {
+        {queueRows.map((row) => {
           const va = row;
           const testScore = row.test_score ?? null;
           const completion = getVaCompletion(va, row.avatar_url).score;
@@ -111,11 +139,11 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
   </Panel>;
 }
 
-function RecruiterRolesNeedingMatching({ count, jobs }: { count: number; jobs: any[] }) {
+function RecruiterRolesNeedingMatching({ count, jobs }: { count: number; jobs: RoleNeedingMatching[] }) {
   return <Panel title="Roles that need matching" subtitle="No applications or shortlist yet" action={count ? <Link prefetch={false} className="dash-link" href="/workspace/recruiter/matching?view=needs_candidates">View all <ArrowRight size={14} aria-hidden="true" /></Link> : undefined}>
     {jobs.length ? (
       <div className="dash-list">
-        {jobs.map((job: any) => (
+        {jobs.map((job) => (
           <Link prefetch={false} className="dash-list-row" href={`/workspace/recruiter/matching/${job.id}`} key={job.id}>
             <span><strong>{job.title}</strong><small>{job.company_name || "Client role"}</small></span>
             <Pill tone="amber">needs candidates</Pill>
@@ -157,8 +185,8 @@ async function RecruiterAnalytics({ metrics }: { metrics: Partial<RecruiterDashb
   if (error) throw error;
 
   const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
-  const signupRows = Array.isArray(data) ? data : [];
-  const signups = signupRows.map((week: any, index: number) => {
+  const signupRows: SignupWeek[] = Array.isArray(data) ? data : [];
+  const signups = signupRows.map((week, index) => {
     const start = new Date(week.week_start);
     return { label: `${start.getUTCMonth() + 1}/${start.getUTCDate()}`, value: Number(week.count || 0), highlight: index === signupRows.length - 1 };
   });
@@ -214,7 +242,7 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
   const metrics = overview.metrics || {};
   const queueRows = Array.isArray(overview.vetting_queue) ? overview.vetting_queue : [];
   const jobs = Array.isArray(overview.roles_needing_matching) ? overview.roles_needing_matching : [];
-  const nextActions = Array.isArray(myDayData) ? myDayData.slice(0, 5) : [];
+  const nextActions: TodayQueueItem[] = Array.isArray(myDayData) ? myDayData.slice(0, 5) : [];
   const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
   const unreviewed = value("unreviewed");
   const rolesWithoutCandidates = value("roles_without_candidates");
@@ -232,12 +260,12 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
         <div className="dash-col">
           <Panel title="Next actions" subtitle="Your highest-priority current work. Click any item to open the exact record." action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/today">View all My Day <ArrowRight size={14}/></Link>}>
             {nextActions.length ? <div className="dash-actions">
-              {nextActions.map((item: any) => {
+              {nextActions.map((item) => {
                 const href = exactActionHref(item);
                 return <Link prefetch={false} key={`${item.kind}-${item.id}`} href={href} className="dash-action">
                   <span className="dash-action-count"><Clock3 size={15}/></span>
                   <span className="dash-action-copy">
-                    <span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority] || "slate"} dot={false}>{item.priority || "normal"}</Pill></span>
+                    <span className="dash-action-title"><strong>{item.title}</strong><Pill tone={PRIORITY_TONE[item.priority ?? ""] || "slate"} dot={false}>{item.priority || "normal"}</Pill></span>
                     <small>{item.subtitle || "Open this item and complete the next step."}</small>
                     <small className="muted">{queueTimeLabel(item.due_at)}</small>
                   </span>

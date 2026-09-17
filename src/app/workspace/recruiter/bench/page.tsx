@@ -13,6 +13,7 @@ import {
   type TalentCoverageStatus,
 } from "@/lib/talent-operations";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { BenchMembershipRow, OpenJobRow, ProfileSummaryRow, TalentHealthRow, VaReadinessRow, VettingStageRow } from "@/lib/workspace-rows";
 
 const HEALTH_TONE: Record<string, string> = { Hot: "badge-success", Active: "badge-success", Cooling: "badge-warning", Stale: "badge-warning", Placed: "" };
 const COVERAGE_TONE: Record<TalentCoverageStatus, string> = { source: "badge-danger", develop: "badge-warning", covered: "badge-success", surplus: "" };
@@ -22,15 +23,20 @@ export default async function RecruiterTalentOperations() {
   const admin = createAdminClient();
   const now = Date.now();
 
-  const [{ data: members }, { data: vettingRows }, { data: healthRows }, { data: openJobs }] = await Promise.all([
+  const [{ data: memberData }, { data: vettingData }, { data: healthData }, { data: openJobData }] = await Promise.all([
     admin.from("bench_memberships").select("*").order("category").order("priority", { ascending: false }),
     admin.from("va_vetting").select("va_id,stage").in("stage", ["finalist", "approved", "bench"]).limit(500),
     admin.rpc("recruiter_talent_health"),
     admin.from("jobs").select("id,title,status,categories,created_at").in("status", ["pending", "published"]).order("created_at", { ascending: false }).limit(500),
   ]);
 
-  const candidateIds = [...new Set([...(members || []).map((row: any) => row.va_id), ...(vettingRows || []).map((row: any) => row.va_id)])];
-  const [{ data: profiles }, { data: vas }] = candidateIds.length
+  const members = (memberData || []) as BenchMembershipRow[];
+  const vettingRows = (vettingData || []) as VettingStageRow[];
+  const healthRows = (healthData || []) as TalentHealthRow[];
+  const openJobs = (openJobData || []) as OpenJobRow[];
+
+  const candidateIds = [...new Set([...members.map((row) => row.va_id), ...vettingRows.map((row) => row.va_id)])];
+  const [{ data: profileData }, { data: vaData }] = candidateIds.length
     ? await Promise.all([
         admin.from("profiles").select("id,full_name,account_status").in("id", candidateIds),
         admin
@@ -40,19 +46,19 @@ export default async function RecruiterTalentOperations() {
       ])
     : [{ data: [] }, { data: [] }];
 
-  const profileMap = new Map((profiles || []).map((row: any) => [row.id, row]));
-  const vaMap = new Map((vas || []).map((row: any) => [row.user_id, row]));
-  const healthMap = new Map((healthRows || []).map((row: any) => [row.va_id, row]));
-  const vettingMap = new Map((vettingRows || []).map((row: any) => [row.va_id, row]));
-  const activeMembershipMap = new Map((members || []).filter((row: any) => row.status === "active").map((row: any) => [row.va_id, row]));
-  const anyMembershipIds = new Set((members || []).map((row: any) => row.va_id));
+  const profileMap = new Map(((profileData || []) as ProfileSummaryRow[]).map((row) => [row.id, row]));
+  const vaMap = new Map(((vaData || []) as VaReadinessRow[]).map((row) => [row.user_id, row]));
+  const healthMap = new Map(healthRows.map((row) => [row.va_id, row]));
+  const vettingMap = new Map(vettingRows.map((row) => [row.va_id, row]));
+  const activeMembershipMap = new Map(members.filter((row) => row.status === "active").map((row) => [row.va_id, row]));
+  const anyMembershipIds = new Set(members.map((row) => row.va_id));
 
   const candidates = candidateIds.map((vaId) => {
-    const profile: any = profileMap.get(vaId);
-    const va: any = vaMap.get(vaId);
-    const vetting: any = vettingMap.get(vaId);
-    const membership: any = activeMembershipMap.get(vaId);
-    const health: any = healthMap.get(vaId);
+    const profile = profileMap.get(vaId);
+    const va = vaMap.get(vaId);
+    const vetting = vettingMap.get(vaId);
+    const membership = activeMembershipMap.get(vaId);
+    const health = healthMap.get(vaId);
     const readinessInput = {
       stage: vetting?.stage,
       activePool: Boolean(membership),
@@ -78,8 +84,8 @@ export default async function RecruiterTalentOperations() {
   const unavailableRows = candidates.filter((candidate) => candidate.readiness === "unavailable");
 
   const demandCounts = new Map<string, number>();
-  for (const job of openJobs || []) {
-    const rawCategories: unknown[] = Array.isArray((job as any).categories) ? (job as any).categories : [];
+  for (const job of openJobs) {
+    const rawCategories: unknown[] = Array.isArray(job.categories) ? job.categories : [];
     const categories = [...new Set(rawCategories.filter((value): value is string => typeof value === "string" && value.length > 0))];
     for (const category of categories) demandCounts.set(category, (demandCounts.get(category) || 0) + 1);
   }
@@ -97,7 +103,7 @@ export default async function RecruiterTalentOperations() {
   const developmentQueue = [...nearReadyRows]
     .sort((a, b) => a.actions.length - b.actions.length || Number(Boolean(b.health?.health === "Hot")) - Number(Boolean(a.health?.health === "Hot")))
     .slice(0, 12);
-  const approvedWaiting = (vettingRows || []).filter((row: any) => ["approved", "bench"].includes(row.stage) && !anyMembershipIds.has(row.va_id));
+  const approvedWaiting = vettingRows.filter((row) => ["approved", "bench"].includes(row.stage) && !anyMembershipIds.has(row.va_id));
 
   return <>
     <div className="page-head">
@@ -116,7 +122,7 @@ export default async function RecruiterTalentOperations() {
       <div className="stat-card"><span className="small muted">Client-ready now</span><strong>{readyRows.length}</strong><small className="muted">Approved, active pool, fresh availability, setup verified</small></div>
       <div className="stat-card"><span className="small muted">Source-now categories</span><strong>{sourceNext.length}</strong><small className="muted">Current pool + near-ready supply cannot cover demand/target</small></div>
       <div className="stat-card"><span className="small muted">Near-ready talent</span><strong>{nearReadyRows.length}</strong><small className="muted">Closest candidates to client-ready</small></div>
-      <div className="stat-card"><span className="small muted">Open roles</span><strong>{(openJobs || []).length}</strong><small className="muted">Pending + published hiring demand</small></div>
+      <div className="stat-card"><span className="small muted">Open roles</span><strong>{openJobs.length}</strong><small className="muted">Pending + published hiring demand</small></div>
     </div>
 
     <section className="card dashboard-section-card" style={{ marginBottom: 18 }}>
@@ -151,7 +157,7 @@ export default async function RecruiterTalentOperations() {
         <div className="dashboard-section-head"><div><h2>Client-ready now</h2><p>Only approved pool members with availability confirmed in the last {TALENT_AVAILABILITY_FRESH_DAYS} days and recruiter-verified work setup appear here.</p></div><UsersRound size={20}/></div>
         {readyRows.length ? <div className="compact-list">{readyRows.slice(0, 12).map((candidate) => <Link prefetch={false} href={`/workspace/recruiter/candidates/${candidate.vaId}`} key={candidate.vaId}>
           <span><strong>{candidate.profile?.full_name || "VA"}</strong><small>{vaCategoryLabel(candidate.category)} · {candidate.va?.weekly_hours ? `${candidate.va.weekly_hours} hrs/week` : "Hours not set"}</small></span>
-          <span className={`badge ${HEALTH_TONE[candidate.health?.health] || "badge-success"}`}>{candidate.health?.health || "Ready"}</span>
+          <span className={`badge ${HEALTH_TONE[candidate.health?.health ?? ""] || "badge-success"}`}>{candidate.health?.health || "Ready"}</span>
         </Link>)}</div> : <div className="empty"><AlertTriangle size={20}/><p>No VA currently meets every client-ready requirement.</p></div>}
       </section>
 
@@ -165,19 +171,19 @@ export default async function RecruiterTalentOperations() {
     </div>
 
     <details className="card dashboard-section-card" style={{ marginBottom: 18 }}>
-      <summary style={{ cursor: "pointer" }}><strong>Manage current talent pool</strong> <span className="small muted">· {(members || []).length} membership{(members || []).length === 1 ? "" : "s"}</span></summary>
+      <summary style={{ cursor: "pointer" }}><strong>Manage current talent pool</strong> <span className="small muted">· {members.length} membership{members.length === 1 ? "" : "s"}</span></summary>
       <p className="small muted">Activation and category assignment remain manual recruiter decisions. Talent OS only calculates operational readiness and coverage from recorded evidence.</p>
-      {(members || []).length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Health</th><th>Category</th><th>Priority</th><th>Hours</th><th>Availability</th><th>Status</th><th></th></tr></thead><tbody>{(members || []).map((member: any) => {
-        const profile: any = profileMap.get(member.va_id); const va: any = vaMap.get(member.va_id); const health: any = healthMap.get(member.va_id);
-        return <tr key={member.id}><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || va?.primary_category}</div></td><td data-label="Health"><span className={`badge ${HEALTH_TONE[health?.health] || ""}`}>{health?.health || "Unknown"}</span></td><td data-label="Category">{member.category}</td><td data-label="Priority">{member.priority}/5</td><td data-label="Hours">{va?.weekly_hours ? `${va.weekly_hours}/week` : "Not set"}</td><td data-label="Availability">{va?.availability_status || "unknown"}</td><td data-label="Status"><span className={`badge ${member.status === "active" ? "badge-success" : ""}`}>{member.status}</span></td><td data-label="Action"><div className="row wrap"><Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/candidates/${member.va_id}`}>Profile</Link><form action={updateBenchMemberAction}><input type="hidden" name="membership_id" value={member.id}/><input type="hidden" name="status" value={member.status === "active" ? "paused" : "active"}/><button className="btn btn-sm" type="submit">{member.status === "active" ? "Pause" : "Activate"}</button></form></div></td></tr>;
+      {members.length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Health</th><th>Category</th><th>Priority</th><th>Hours</th><th>Availability</th><th>Status</th><th></th></tr></thead><tbody>{members.map((member) => {
+        const profile = profileMap.get(member.va_id); const va = vaMap.get(member.va_id); const health = healthMap.get(member.va_id);
+        return <tr key={member.id}><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || va?.primary_category}</div></td><td data-label="Health"><span className={`badge ${HEALTH_TONE[health?.health ?? ""] || ""}`}>{health?.health || "Unknown"}</span></td><td data-label="Category">{member.category}</td><td data-label="Priority">{member.priority}/5</td><td data-label="Hours">{va?.weekly_hours ? `${va.weekly_hours}/week` : "Not set"}</td><td data-label="Availability">{va?.availability_status || "unknown"}</td><td data-label="Status"><span className={`badge ${member.status === "active" ? "badge-success" : ""}`}>{member.status}</span></td><td data-label="Action"><div className="row wrap"><Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/candidates/${member.va_id}`}>Profile</Link><form action={updateBenchMemberAction}><input type="hidden" name="membership_id" value={member.id}/><input type="hidden" name="status" value={member.status === "active" ? "paused" : "active"}/><button className="btn btn-sm" type="submit">{member.status === "active" ? "Pause" : "Activate"}</button></form></div></td></tr>;
       })}</tbody></table></div> : <div className="empty">No VAs are in the talent pool yet.</div>}
     </details>
 
     <details className="card dashboard-section-card">
       <summary style={{ cursor: "pointer" }}><strong>Add approved VAs to the talent pool</strong> <span className="small muted">· {approvedWaiting.length} waiting</span></summary>
       <p className="small muted">Approved candidates are not counted as client-ready supply until a recruiter intentionally activates them in a talent-pool category.</p>
-      {approvedWaiting.length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Primary category</th><th>Availability</th><th>Work setup</th><th>Add to pool</th></tr></thead><tbody>{approvedWaiting.map((row: any) => {
-        const profile: any = profileMap.get(row.va_id); const va: any = vaMap.get(row.va_id);
+      {approvedWaiting.length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Primary category</th><th>Availability</th><th>Work setup</th><th>Add to pool</th></tr></thead><tbody>{approvedWaiting.map((row) => {
+        const profile = profileMap.get(row.va_id); const va = vaMap.get(row.va_id);
         return <tr key={row.va_id}><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || "Virtual Assistant"}</div></td><td data-label="Primary category">{vaCategoryLabel(va?.primary_category)}</td><td data-label="Availability">{va?.availability_status || "Not set"}{va?.availability_confirmed_at ? <div className="small muted">Confirmed {dateShort(va.availability_confirmed_at)}</div> : null}</td><td data-label="Work setup">{va?.work_setup_verified_at ? <span className="badge badge-success">Verified</span> : <span className="badge badge-warning">Needs verification</span>}</td><td data-label="Add to pool"><form action={addBenchMemberAction} className="row wrap"><input type="hidden" name="va_id" value={row.va_id}/><select name="category" defaultValue={va?.primary_category || VA_CATEGORIES[0]}>{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select><select name="priority" defaultValue="3"><option value="5">Priority 5</option><option value="4">Priority 4</option><option value="3">Priority 3</option><option value="2">Priority 2</option><option value="1">Priority 1</option></select><button className="btn btn-sm btn-primary" type="submit">Add</button></form></td></tr>;
       })}</tbody></table></div> : <div className="empty">No approved VAs are waiting for a talent-pool category.</div>}
     </details>

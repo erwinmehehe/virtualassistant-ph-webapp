@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { dateShort } from "@/lib/format";
 import { vettingStatusLabel } from "@/lib/vetting";
+import type { RecruiterVaDirectoryRow } from "@/lib/workspace-rows";
 
 export default async function RecruiterVaCategoriesPage() {
   await requireRole("recruiter");
@@ -16,13 +17,13 @@ export default async function RecruiterVaCategoriesPage() {
     .limit(2000);
   if (error) throw error;
 
-  const rows = data || [];
+  const rows = (data || []) as RecruiterVaDirectoryRow[];
   const sevenDaysAgo = Date.now() - 7 * 86400000;
-  const newAccounts = rows.filter((row: any) => row.account_created_at && new Date(row.account_created_at).getTime() >= sevenDaysAgo);
-  const newStarted = newAccounts.filter((row: any) => Number(row.completion_score || 0) > 0);
-  const zeroProfiles = rows.filter((row: any) => Number(row.completion_score || 0) === 0);
-  const verifiedZero = zeroProfiles.filter((row: any) => Boolean(row.email_verified));
-  const uncategorized = rows.filter((row: any) => !row.primary_category);
+  const newAccounts = rows.filter((row) => row.account_created_at && new Date(row.account_created_at).getTime() >= sevenDaysAgo);
+  const newStarted = newAccounts.filter((row) => Number(row.completion_score || 0) > 0);
+  const zeroProfiles = rows.filter((row) => Number(row.completion_score || 0) === 0);
+  const verifiedZero = zeroProfiles.filter((row) => Boolean(row.email_verified));
+  const uncategorized = rows.filter((row) => !row.primary_category);
   const startedRate = newAccounts.length ? Math.round((newStarted.length / newAccounts.length) * 100) : 0;
 
   const counts = new Map<string, number>();
@@ -60,7 +61,7 @@ export default async function RecruiterVaCategoriesPage() {
 
     <section className="card dashboard-section-card">
       <div className="dashboard-section-head"><div><h2>Recent 0% accounts</h2><p>Use this as the quick check for VA signup friction. Verified accounts that stay here need onboarding help, not another registration attempt.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all 0% profiles</Link></div>
-      {stalled.length ? <div className="compact-list">{stalled.map((row: any) => {
+      {stalled.length ? <div className="compact-list">{stalled.map((row) => {
         const lastActiveDays = row.last_activity_at ? Math.max(0, Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000)) : null;
         return <Link href={`/workspace/recruiter/candidates/${row.user_id}`} key={row.user_id}>
           <span><strong>{row.full_name || "VA account"}</strong><small>{dateShort(row.account_created_at)} · {row.email_verified ? "Email verified" : "Email not verified"} · {vettingStatusLabel(row.stage || "profile")}</small></span>

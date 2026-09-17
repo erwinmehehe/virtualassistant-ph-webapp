@@ -5,6 +5,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
+import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
   intake: "Intake",
@@ -61,11 +62,11 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
   const [
     { data: lead },
     { data: commercial },
-    { data: shortlist },
-    { data: interviews },
-    { data: offers },
+    { data: shortlistData },
+    { data: interviewData },
+    { data: offerData },
     { data: room },
-    { data: activity },
+    { data: activityData },
   ] = await Promise.all([
     job.lead_id
       ? admin
@@ -91,26 +92,30 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
       .order("created_at", { ascending: false })
       .limit(12),
   ]);
+  const shortlist = (shortlistData || []) as ShortlistCandidateRow[];
+  const interviews = (interviewData || []) as CandidateInterviewRow[];
+  const offers = (offerData || []) as PlacementOfferRow[];
+  const activity = (activityData || []) as RecruiterActivityRow[];
   const vaIds = [
     ...new Set(
-      (shortlist || [])
-        .map((x: any) => x.va_id)
-        .concat((interviews || []).map((x: any) => x.va_id))
+      shortlist
+        .map((x) => x.va_id)
+        .concat(interviews.map((x) => x.va_id))
         .filter(Boolean),
     ),
   ];
   const staffIds = [job.client_id, job.recruiter_id, room?.client_success_owner_id].filter(Boolean);
-  const [{ data: vas }, { data: staff }] = await Promise.all([
-    vaIds.length ? admin.from("profiles").select("id,full_name").in("id", vaIds) : Promise.resolve({ data: [] as any[] }),
-    staffIds.length ? admin.from("profiles").select("id,full_name,role").in("id", staffIds) : Promise.resolve({ data: [] as any[] }),
+  const [{ data: vaData }, { data: staffData }] = await Promise.all([
+    vaIds.length ? admin.from("profiles").select("id,full_name").in("id", vaIds) : Promise.resolve({ data: [] }),
+    staffIds.length ? admin.from("profiles").select("id,full_name,role").in("id", staffIds) : Promise.resolve({ data: [] }),
   ]);
-  const vaMap = new Map((vas || []).map((v: any) => [v.id, v.full_name || "VA"]));
-  const staffMap = new Map((staff || []).map((v: any) => [v.id, v.full_name || v.role]));
-  const proposed = (shortlist || []).filter((x: any) => x.shortlist_status === "proposed");
-  const released = (shortlist || []).filter((x: any) => x.shortlist_status === "released");
-  const waiting = released.filter((x: any) => !x.client_decision);
-  const activeInterviews = (interviews || []).filter((x: any) => x.status !== "cancelled");
-  const currentOffer = (offers || []).find((x: any) => !["declined", "cancelled"].includes(x.status));
+  const vaMap = new Map(((vaData || []) as ProfileSummaryRow[]).map((v) => [v.id, v.full_name || "VA"]));
+  const staffMap = new Map(((staffData || []) as StaffProfileRow[]).map((v) => [v.id, v.full_name || v.role]));
+  const proposed = shortlist.filter((x) => x.shortlist_status === "proposed");
+  const released = shortlist.filter((x) => x.shortlist_status === "released");
+  const waiting = released.filter((x) => !x.client_decision);
+  const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
+  const currentOffer = offers.find((x) => !["declined", "cancelled"].includes(x.status));
   const sla = slaLabel(job.hiring_stage, job.hiring_stage_entered_at);
   const requirementCount =
     (job.must_have_skills?.length || 0) +
@@ -276,7 +281,7 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
         </div>
         {released.length ? (
           <div className="stack" style={{ marginTop: 14 }}>
-            {released.map((x: any) => (
+            {released.map((x) => (
               <div className="row-between card" key={x.id}>
                 <div>
                   <strong>{vaMap.get(x.va_id) || "VA"}</strong>
@@ -304,7 +309,7 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
           <h2 style={{ marginTop: 0 }}>Interviews</h2>
           {activeInterviews.length ? (
             <div className="stack">
-              {activeInterviews.map((x: any) => (
+              {activeInterviews.map((x) => (
                 <div key={x.id} className="row-between">
                   <div>
                     <strong>{vaMap.get(x.va_id) || "VA"}</strong>
@@ -361,9 +366,9 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
           </div>
           <CalendarClock size={20} />
         </div>
-        {(activity || []).length ? (
+        {activity.length ? (
           <div className="stack" style={{ marginTop: 14 }}>
-            {(activity || []).map((a: any, index: number) => (
+            {activity.map((a, index) => (
               <div className="row-between" key={`${a.created_at}-${index}`}>
                 <div>
                   <strong className="small">{a.description || a.action.replaceAll("_", " ")}</strong>

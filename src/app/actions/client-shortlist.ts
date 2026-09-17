@@ -8,7 +8,8 @@ import { matchAssessment } from "@/lib/matching";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const CLIENT_DECISIONS = new Set(["interested", "interview", "pass"]);
+const CLIENT_DECISIONS = new Set(["interested", "interview", "hold", "pass"]);
+const HOLD_REASONS = new Set(["need_more_information", "comparing_candidates", "rate_concern", "schedule_timezone_concern", "team_approval", "other"]);
 const PASS_REASONS = new Set(["skills", "rate", "schedule_timezone", "experience", "communication_video", "industry_fit", "availability", "other"]);
 const AVAILABILITY_FRESH_DAYS = 30;
 
@@ -23,6 +24,10 @@ function redirectWithFlag(path: string, flag: string) {
 
 function cleanNote(value: FormDataEntryValue | null, max = 500) {
   return String(value || "").trim().slice(0, max) || null;
+}
+
+function reasonLabel(value: string) {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 async function requireApprovedVa(vaId: string) {
@@ -106,12 +111,16 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   const returnTo = safeReturnTo(formData.get("return_to"), `/workspace/client/candidates?role=${encodeURIComponent(jobId)}`);
   if (!jobId || !vaId || !CLIENT_DECISIONS.has(decision)) throw new Error("Invalid shortlist decision.");
 
+  const holdReason = String(formData.get("hold_reason") || "");
   const passReason = String(formData.get("pass_reason") || "");
   const otherNote = cleanNote(formData.get("decision_note"), 300);
+  if (decision === "hold" && holdReason && !HOLD_REASONS.has(holdReason)) throw new Error("Invalid hold reason.");
   if (decision === "pass" && passReason && !PASS_REASONS.has(passReason)) throw new Error("Invalid pass reason.");
-  const decisionNote = decision === "pass"
-    ? [passReason ? passReason.replaceAll("_", " / ") : null, otherNote].filter(Boolean).join(": ").slice(0, 500) || null
-    : otherNote;
+  const decisionNote = decision === "hold"
+    ? [holdReason ? reasonLabel(holdReason) : null, otherNote].filter(Boolean).join(": ").slice(0, 500) || null
+    : decision === "pass"
+      ? [passReason ? reasonLabel(passReason) : null, otherNote].filter(Boolean).join(": ").slice(0, 500) || null
+      : otherNote;
 
   const admin = createAdminClient();
   const [{ data: job }, { data: access }, { data: shortlist }] = await Promise.all([
@@ -181,14 +190,27 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     }
   }
 
-  const label = decision === "interested" ? "interested" : decision === "interview" ? "requested an interview" : "passed on a shortlist candidate";
+  const label = decision === "interested"
+    ? "marked a VA interested"
+    : decision === "interview"
+      ? "requested an interview"
+      : decision === "hold"
+        ? "placed a shortlist candidate on hold"
+        : "passed on a shortlist candidate";
   try {
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, interview_created: interviewCreated, interview_id: interviewId } });
     await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote, interview_id: interviewId } });
   } catch {}
   const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
   if (recruiters?.length) {
-    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: decision === "interview" ? "Client requested an interview" : decision === "interested" ? "Client marked a VA interested" : "Client passed on a VA", body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/matching/${jobId}` })));
+    const notificationTitle = decision === "interview"
+      ? "Client requested an interview"
+      : decision === "interested"
+        ? "Client marked a VA interested"
+        : decision === "hold"
+          ? "Client placed a VA on hold"
+          : "Client passed on a VA";
+    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: notificationTitle, body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/matching/${jobId}` })));
   }
 
   revalidatePath(`/workspace/client/jobs/${jobId}`);
@@ -216,7 +238,7 @@ export async function sendClientShortlistFollowupAction(formData: FormData) {
   const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
   const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "job").eq("subject_id", jobId).eq("action", "client_shortlist_followup").gte("created_at", cutoff);
   if (!count) {
-    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as interested, request an interview, or pass so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
+    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as interested, request an interview, place them on hold with context, or pass so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "client_shortlist_followup", description: "Sent client shortlist feedback reminder", actorId: user.id });
   }
   revalidatePath(returnTo);

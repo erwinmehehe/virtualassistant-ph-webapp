@@ -3,18 +3,26 @@
 import Link from "next/link";
 import {
   BarChart3,
+  Bell,
+  Bookmark,
   BriefcaseBusiness,
   CalendarDays,
   CircleDollarSign,
   CircleEllipsis,
   CircleUserRound,
+  ClipboardCheck,
+  Gauge,
+  History,
   LayoutDashboard,
   ListTodo,
   MessageSquare,
   Search,
   Settings,
   ShieldCheck,
+  Tags,
+  TimerReset,
   UsersRound,
+  WalletCards,
   Wrench,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -24,10 +32,8 @@ type NavItem = readonly [string, string, typeof LayoutDashboard];
 type NavGroup = { label: string; items: readonly NavItem[] };
 
 /*
- * Primary navigation is intentionally limited to durable work areas.
- * Workflow stages such as bench, stalled, client review, vetting, support
- * queue, and margin review remain available contextually inside those areas
- * instead of competing for permanent sidebar space.
+ * Keep the first group focused on daily work. Less-frequent but fully-built
+ * workspaces live in a secondary group instead of becoming URL-only features.
  */
 const nav: Record<Role, readonly NavGroup[]> = {
   client: [
@@ -39,6 +45,13 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["My Team", "/workspace/client/team", UsersRound],
         ["Messages", "/workspace/client/messages", MessageSquare],
         ["Payments", "/workspace/client/payments", CircleDollarSign],
+      ],
+    },
+    {
+      label: "Keep track",
+      items: [
+        ["Saved VAs", "/workspace/client/saved", Bookmark],
+        ["Notifications", "/workspace/client/notifications", Bell],
       ],
     },
   ],
@@ -55,6 +68,13 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
       ],
     },
+    {
+      label: "Progress",
+      items: [
+        ["Work Readiness", "/workspace/va/work-readiness", Gauge],
+        ["Notifications", "/workspace/va/notifications", Bell],
+      ],
+    },
   ],
   recruiter: [
     {
@@ -67,6 +87,18 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Client Success", "/workspace/client-success", Wrench],
       ],
     },
+    {
+      label: "Operations",
+      items: [
+        ["Bench", "/workspace/recruiter/bench", UsersRound],
+        ["Stalled", "/workspace/recruiter/stalled", TimerReset],
+        ["Work Readiness", "/workspace/recruiter/work-readiness", Gauge],
+        ["Categories", "/workspace/recruiter/categories", Tags],
+        ["Analytics", "/workspace/recruiter/analytics", BarChart3],
+        ["Finance", "/workspace/recruiter/finance", WalletCards],
+        ["Notifications", "/workspace/recruiter/notifications", Bell],
+      ],
+    },
   ],
   admin: [
     {
@@ -74,10 +106,18 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Overview", "/workspace/admin", ShieldCheck],
         ["Finance", "/workspace/admin/finance", CircleDollarSign],
+        ["Sales", "/workspace/admin/sales", BriefcaseBusiness],
         ["Client Success", "/workspace/client-success", UsersRound],
         ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
         ["Settings", "/workspace/admin/settings", Settings],
+      ],
+    },
+    {
+      label: "Governance",
+      items: [
+        ["Audit Log", "/workspace/admin/audit", History],
+        ["Vetting", "/workspace/admin/vetting", ClipboardCheck],
       ],
     },
   ],
@@ -87,7 +127,7 @@ const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/messages"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
-  admin: ["/workspace/admin", "/workspace/admin/finance", "/workspace/client-success", "/workspace/admin/analytics"],
+  admin: ["/workspace/admin", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 
 function activeFor(pathname: string, href: string) {

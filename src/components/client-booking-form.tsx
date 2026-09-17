@@ -90,7 +90,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   return (
     <div className="booking-flow-card">
       <div className="booking-step-head">
-        <span>Step 1 of 3</span>
+        <span>Step 1 of 2</span>
         <h2>First, which best describes you?</h2>
         <p>This calendar is reserved for businesses looking to hire a Virtual Assistant.</p>
       </div>
@@ -140,14 +140,24 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <input type="hidden" name="audience" value="client" />
           <input type="hidden" name="scheduled_at" value={selectedSlot} />
           <input type="hidden" name="timezone" value={displayTimeZone} />
+          <input type="hidden" name="phone" value="" />
+          <input type="hidden" name="company_url" value="" />
+          <input type="hidden" name="service" value="Virtual Assistant hiring" />
+          <input type="hidden" name="hours" value="To discuss on the call" />
+          <input type="hidden" name="budget" value="To discuss on the call" />
+          <input type="hidden" name="start_time" value="To discuss on the call" />
+          <input type="hidden" name="message" value="Client booked a discovery call. Role details will be confirmed during the conversation." />
           <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
           <div className="booking-section">
             <div className="booking-section-title">
-              <span>Step 2 of 3</span>
+              <span>Step 2 of 2</span>
               <h3>Choose a time</h3>
               <p aria-live="polite"><Clock3 size={14} /> 30 minutes. 24/7 availability. {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)} (${displayTimeZone}).` : "Loading times in your local timezone…"}</p>
             </div>
+
+            {error ? <div className="alert error" role="alert">{error}</div> : null}
+
             {localDays.length ? (
               <>
                 <div className="booking-date-tabs" role="tablist" aria-label="Available conversation dates">
@@ -179,82 +189,21 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                   ))}
                 </div>
                 <p className="booking-time-note">Scheduling is available around the clock in 30-minute slots. Times are shown in your local timezone, and your confirmation also includes Asia/Manila for our recruiting team.</p>
+
+                <div className="booking-question-grid">
+                  <div className="field"><label htmlFor="booking-name">Your name *</label><input id="booking-name" name="name" required minLength={2} autoComplete="name" /></div>
+                  <div className="field"><label htmlFor="booking-email">Work email *</label><input id="booking-email" name="email" required type="email" autoComplete="email" /></div>
+                  <div className="field"><label htmlFor="booking-company">Company *</label><input id="booking-company" name="company" required minLength={2} autoComplete="organization" /></div>
+                </div>
+
+                <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
+                  Confirm this time
+                </button>
+                <p className="small muted booking-consent">We only need your contact details here. We will confirm the role, schedule, and priorities together on the call.</p>
               </>
             ) : (
               <div className="booking-no-slots">No online times are currently available. Please use the hiring request form and our team will contact you.</div>
             )}
-          </div>
-
-          <div className="booking-section">
-            <div className="booking-section-title">
-              <span>Step 3 of 3</span>
-              <h3>Tell us what you need</h3>
-              <p>Your answers let us prepare before we talk.</p>
-            </div>
-
-            {error ? <div className="alert error" role="alert">{error}</div> : null}
-            <div className="booking-question-grid">
-              <div className="field"><label htmlFor="booking-name">Your name *</label><input id="booking-name" name="name" required minLength={2} autoComplete="name" /></div>
-              <div className="field"><label htmlFor="booking-email">Work email *</label><input id="booking-email" name="email" required type="email" autoComplete="email" /></div>
-              <div className="field"><label htmlFor="booking-phone">Phone or WhatsApp</label><input id="booking-phone" name="phone" autoComplete="tel" /></div>
-              <div className="field"><label htmlFor="booking-company">Company *</label><input id="booking-company" name="company" required minLength={2} autoComplete="organization" /></div>
-              <div className="field"><label htmlFor="booking-company-url">Company website</label><input id="booking-company-url" name="company_url" type="url" placeholder="https://" inputMode="url" /></div>
-              <div className="field">
-                <label htmlFor="booking-service">What type of VA do you need? *</label>
-                <select id="booking-service" name="service" required defaultValue="">
-                  <option value="" disabled>Select a role</option>
-                  <option>Administrative Support</option>
-                  <option>Executive Assistance</option>
-                  <option>Customer Service</option>
-                  <option>Lead Generation &amp; Sales</option>
-                  <option>Marketing &amp; Social Media</option>
-                  <option>SEO</option>
-                  <option>Bookkeeping &amp; Finance</option>
-                  <option>Ecommerce</option>
-                  <option>Real Estate</option>
-                  <option>Web &amp; WordPress</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="booking-hours">Hours needed each week *</label>
-                <select id="booking-hours" name="hours" required defaultValue="">
-                  <option value="" disabled>Select hours</option>
-                  <option>10 hours or less</option>
-                  <option>11-20 hours</option>
-                  <option>21-30 hours</option>
-                  <option>31-40 hours</option>
-                  <option>Not sure yet</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="booking-budget">Hourly VA budget *</label>
-                <select id="booking-budget" name="budget" required defaultValue="">
-                  <option value="" disabled>Select budget</option>
-                  <option>USD 5-7/hour</option>
-                  <option>USD 8-10/hour</option>
-                  <option>USD 11-15/hour</option>
-                  <option>USD 16+/hour</option>
-                  <option>I need guidance</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="booking-timeline">When do you want the VA to start? *</label>
-                <select id="booking-timeline" name="start_time" required defaultValue="">
-                  <option value="" disabled>Select timeline</option>
-                  <option>As soon as possible</option>
-                  <option>Within 2 weeks</option>
-                  <option>Within 30 days</option>
-                  <option>Researching for later</option>
-                </select>
-              </div>
-              <div className="field span-2"><label htmlFor="booking-challenge">What should the VA own, and what is your biggest challenge? *</label><textarea id="booking-challenge" name="message" required minLength={15} rows={4} placeholder="Share the main tasks, tools, schedule, and the result you want." /></div>
-            </div>
-
-            <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot || !localDays.length}>
-              Confirm this time
-            </button>
-            <p className="small muted booking-consent">By scheduling, you agree that our hiring team may contact you about this request. No payment is required.</p>
           </div>
         </form>
       ) : null}

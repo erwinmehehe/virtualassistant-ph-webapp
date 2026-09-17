@@ -49,7 +49,22 @@ test("discovery booking is available 24/7 and grouped in the visitor timezone", 
   assert.match(form, /24\/7 availability/);
   assert.match(form, /localDateKey/);
   assert.match(form, /localDays\.map/);
-  assert.match(form, /24\/7 availability/);
+});
+
+test("client booking is two steps and does not repeat the hiring questionnaire", async () => {
+  const form = await read("src/components/client-booking-form.tsx");
+
+  assert.match(form, /Step 1 of 2/);
+  assert.match(form, /Step 2 of 2/);
+  assert.doesNotMatch(form, /Step 3 of 3/);
+  assert.doesNotMatch(form, /What type of VA do you need\?/);
+  assert.doesNotMatch(form, /Hourly VA budget \*/);
+  assert.doesNotMatch(form, /What should the VA own, and what is your biggest challenge\?/);
+  assert.match(form, /name="name"/);
+  assert.match(form, /name="email"/);
+  assert.match(form, /name="company"/);
+  assert.match(form, /name="service" value="Virtual Assistant hiring"/);
+  assert.match(form, /Role details will be confirmed during the conversation/);
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {
@@ -59,16 +74,13 @@ test("floating call prompt is restricted to high-intent behavior", async () => {
   assert.match(cta, /isHighIntentPath/);
 });
 
-test("client booking saves the questionnaire, prevents slot conflicts, and copies both owners", async () => {
+test("client booking prevents slot conflicts, records CRM state, and copies both owners", async () => {
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
     read("supabase/migrations/20260912162238_prevent_duplicate_discovery_slots.sql"),
   ]);
 
-  for (const field of ["company_url", "service", "hours", "budget", "start_time", "message"]) {
-    assert.match(action, new RegExp(field));
-  }
   assert.match(action, /crm_stage: "discovery_booked"/);
   assert.match(action, /event_name: "booking_completed"/);
   assert.match(migration, /create unique index/);
@@ -77,7 +89,8 @@ test("client booking saves the questionnaire, prevents slot conflicts, and copie
   assert.match(email, /bryanbatarina@gmail\.com/);
   assert.match(email, /Jervis or Bryan/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);
-  assert.match(email, /Booking questionnaire/);
+  assert.match(email, /Booking details/);
+  assert.doesNotMatch(email, /Booking questionnaire/);
 });
 
 test("discovery bookings support Zoom, reminders, self-service changes, and recruiter outcomes", async () => {

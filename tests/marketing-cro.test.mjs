@@ -32,29 +32,29 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(footerCta, /pathname === "\/"/);
 });
 
-test("high-value public heroes keep their H1 copy and carry a conversion form", () => {
+test("high-value public heroes keep their H1 copy and a valid conversion path", () => {
   const checks = [
-    ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", "RoleBriefForm"],
-    ["src/app/industries/page.tsx", "Hire a virtual assistant who already understands your type of business.", "RoleBriefForm"],
-    ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", "RoleBriefForm"],
-    ["src/app/blog/page.tsx", "Build a better remote team, one clear workflow at a time.", "RoleBriefForm"],
-    ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", "RoleBriefForm"],
-    ["src/app/faq/page.tsx", "Questions before you hire or apply.", "RoleBriefForm"],
-    ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", "RoleBriefForm"],
-    ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", "RoleBriefForm"],
-    ["src/app/managed-vs-direct-hire/page.tsx", "Managed Virtual Assistant vs. Direct Hire", "RoleBriefForm"],
-    ["src/app/tools/page.tsx", "Plan the role before you post it.", "RoleBriefForm"],
-    ["src/app/contact/page.tsx", "What can we help with?", "submitContactAction"]
+    ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /<DiscoveryCallCard/],
+    ["src/app/industries/page.tsx", "Hire a virtual assistant who already understands your type of business.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/blog/page.tsx", "Build a better remote team, one clear workflow at a time.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/faq/page.tsx", "Questions before you hire or apply.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/managed-vs-direct-hire/page.tsx", "Managed Virtual Assistant vs. Direct Hire", /<DiscoveryCallCard|<HiringBriefForm|href="\/book-client-call"/],
+    ["src/app/tools/page.tsx", "Plan the role before you post it.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/contact/page.tsx", "What can we help with?", /submitContactAction/]
   ];
 
-  for (const [path, h1Text, formSignal] of checks) {
+  for (const [path, h1Text, conversionSignal] of checks) {
     const file = source(path);
     assert.ok(file.includes(h1Text), `${path} must preserve its approved H1 text`);
-    assert.ok(file.includes(formSignal), `${path} must keep a working hero conversion form`);
+    assert.match(file, conversionSignal, `${path} must keep a working conversion path`);
   }
 });
 
-test("commercial detail pages keep forms while blog articles stay editorial", () => {
+test("commercial detail pages keep hiring forms while blog articles stay editorial", () => {
   const home = source("src/app/page.tsx");
   const service = source("src/app/service/[slug]/page.tsx");
   const industry = source("src/app/industries/[slug]/page.tsx");
@@ -62,16 +62,16 @@ test("commercial detail pages keep forms while blog articles stay editorial", ()
   const article = source("src/components/blog-article.tsx");
 
   assert.match(home, /pva-hero-form-shell/);
-  assert.match(home, /<RoleBriefForm/);
-  assert.match(service, /<ServiceMatchForm/);
-  assert.match(industry, /<IndustryMatchForm/);
-  assert.match(software, /<ServiceMatchForm/);
+  assert.match(home, /<HiringBriefForm/);
+  assert.match(service, /<HiringBriefForm/);
+  assert.match(industry, /<HiringBriefForm/);
+  assert.match(software, /<HiringBriefForm/);
   assert.match(article, /blog-editorial-hero/);
-  assert.doesNotMatch(article, /<RoleBriefForm|<ServiceMatchForm/);
+  assert.doesNotMatch(article, /<RoleBriefForm|<ServiceMatchForm|<IndustryMatchForm|<HiringBriefForm/);
   assert.match(article, /href="\/book-client-call"/);
 });
 
-test("service and industry detail forms stay compact", () => {
+test("service and industry legacy match forms stay compact", () => {
   const serviceForm = source("src/components/service-match-form.tsx");
   const industryForm = source("src/components/industry-match-form.tsx");
   const floating = source("src/components/floating-cta.tsx");

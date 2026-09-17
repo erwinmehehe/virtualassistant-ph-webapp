@@ -47,6 +47,7 @@ const serviceMatchSchema = z.object({
   email: z.string().trim().email(),
   phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
+  budget: z.string().trim().max(100).optional(),
   message: z.string().trim().min(10).max(3000),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") && !value.startsWith("//")),
   session_id: z.string().uuid().or(z.literal("")).optional(),
@@ -177,6 +178,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     return { status: "error", message: "We could not verify this service request. Please refresh the page and try again." };
   }
 
+  const briefMessage = [parsed.data.budget ? `Virtual Assistant budget: ${parsed.data.budget}.` : "", parsed.data.message].filter(Boolean).join("\n\n");
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   try {
     const admin = createAdminClient();
@@ -201,7 +203,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       phone: parsed.data.phone?.trim() || null,
       service: service.name,
       hours: parsed.data.hours,
-      message: parsed.data.message,
+      message: briefMessage,
       source_page: sourcePage,
       page_url: pageUrl,
       session_id: parsed.data.session_id || null
@@ -216,7 +218,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       title: service.name,
       service: service.directoryCategory,
       hours: parsed.data.hours,
-      message: parsed.data.message
+      message: briefMessage
     });
 
     await recordLeadAnalytics(admin, {
@@ -236,7 +238,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         phone: parsed.data.phone?.trim() || null,
         service: service.name,
         hours: parsed.data.hours,
-        message: parsed.data.message,
+        message: briefMessage,
         sourcePage,
         pageUrl
       });
@@ -274,6 +276,7 @@ const industryMatchSchema = z.object({
   email: z.string().trim().email(),
   phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
+  budget: z.string().trim().max(100).optional(),
   message: z.string().trim().max(3000).optional().default(""),
   tasks: z.array(z.string().trim().min(2).max(140)).max(6).optional().default([]),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/industries/") && !value.startsWith("//")),
@@ -310,7 +313,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
 
   const primaryService = industry.serviceSlugs.map((slug) => servicePageBySlug(slug)).find(Boolean);
   const selectedTasks = parsed.data.tasks.filter((task) => industry.workflows.includes(task));
-  const combinedMessage = [selectedTasks.length ? `Requested workflows: ${selectedTasks.join(", ")}.` : "", parsed.data.message].filter(Boolean).join("\n\n");
+  const combinedMessage = [selectedTasks.length ? `Requested workflows: ${selectedTasks.join(", ")}.` : "", parsed.data.budget ? `Virtual Assistant budget: ${parsed.data.budget}.` : "", parsed.data.message].filter(Boolean).join("\n\n");
   const category = primaryService?.directoryCategory || inferCategories(industry.label, industry.primaryKeyword, combinedMessage)[0] || "Administrative Support";
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
 

@@ -11,7 +11,7 @@ import {
 } from "@/app/actions/leads";
 import { AttributionFields } from "@/components/attribution-fields";
 import { getBrowserSessionId } from "@/lib/browser-session";
-import { VA_CATEGORIES } from "@/lib/constants";
+import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 
 /**
  * The one hiring form used across the site's hiring pages (service, software,
@@ -22,6 +22,7 @@ import { VA_CATEGORIES } from "@/lib/constants";
 
 const BOOKING_URL = "/book-client-call";
 const HOURS = ["Under 10 hours/week", "10 to 20 hours/week", "20 to 30 hours/week", "30 to 40 hours/week", "40+ hours/week", "Not sure yet"];
+const BUDGETS = [`USD ${MIN_HOURLY_RATE} to 8/hour`, "USD 8 to 12/hour", "USD 12 to 18/hour", "USD 18 to 25/hour", "USD 25+/hour", "Not sure yet"];
 const initialState: ServiceMatchState = { status: "idle" };
 
 type Variant =
@@ -67,12 +68,21 @@ function Fields({ id, messageMin, placeholder }: { id: string; messageMin: numbe
           <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
         </div>
       </div>
-      <div className="hb-field">
-        <label htmlFor={`${id}-hours`}>Hours per week</label>
-        <select id={`${id}-hours`} name="hours" required defaultValue="">
-          <option value="" disabled>Select hours</option>
-          {HOURS.map((h) => <option key={h}>{h}</option>)}
-        </select>
+      <div className="hb-row">
+        <div className="hb-field">
+          <label htmlFor={`${id}-hours`}>Hours per week</label>
+          <select id={`${id}-hours`} name="hours" required defaultValue="">
+            <option value="" disabled>Select hours</option>
+            {HOURS.map((h) => <option key={h}>{h}</option>)}
+          </select>
+        </div>
+        <div className="hb-field">
+          <label htmlFor={`${id}-budget`}>Hourly budget</label>
+          <select id={`${id}-budget`} name="budget" required defaultValue="">
+            <option value="" disabled>Select budget</option>
+            {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+          </select>
+        </div>
       </div>
       <div className="hb-field">
         <label htmlFor={`${id}-message`}>What should your VA handle?</label>
@@ -147,7 +157,6 @@ function GeneralVariant({ sourcePath }: { sourcePath: string }) {
       <Head title="Hire a Filipino VA" sub="Share a quick brief, then book a discovery call with our recruiting team." />
       <form action={submitRoleBriefAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        <input type="hidden" name="budget" value="Not sure yet" />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
         {url.error ? <div className="hb-error" role="alert">{url.error}</div> : null}
         <div className="hb-field">

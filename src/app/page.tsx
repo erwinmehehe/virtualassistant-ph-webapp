@@ -27,7 +27,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { SERVICE_PAGES } from "@/lib/service-pages";
-import { RoleBriefForm } from "@/components/role-brief-form";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
   FaqSection,
   FinalCtaSection,
@@ -308,14 +308,7 @@ export default async function HomePage({
             </div>
 
             <div id="hero-hiring-form" className="pva-hero-form-shell">
-              <div className="pva-hero-form-badge"><ShieldCheck size={14} /> Private hiring request</div>
-              <RoleBriefForm
-                sourcePath="/"
-                error={query.error}
-                sent={Boolean(query.sent)}
-                heading="Get your free virtual assistant match"
-                subheading="Tell us what you need. We will review your role, schedule, tools, and budget to identify suitable candidates."
-              />
+              <HiringBriefForm variant="general" sourcePath="/" />
             </div>
           </div>
         </section>

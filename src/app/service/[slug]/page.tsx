@@ -17,6 +17,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
+import { HiringHero } from "@/components/hiring-hero";
 import { SERVICE_PAGES, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { INDUSTRIES } from "@/lib/industries";
@@ -409,50 +410,28 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
     <main id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />
 
-      <section className="section public-hero-small specialty-seo-hero service-hero-v2">
-        <div className="container">
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/services">Services</Link><span aria-hidden="true">/</span><span aria-current="page">{s.name}</span>
-          </nav>
-          <div className="specialty-hero-grid service-conversion-hero-grid">
-            <div className="public-page-head service-conversion-copy">
-              
-              <h1 className="public-page-title">Hire {article} {s.name} in the Philippines</h1>
-              <p className="public-lede service-hero-lede">{copy.hero}</p>
-
-              <div className="service-hero-proof" aria-label="Hiring benefits">
-                <span><BadgeCheck size={16}/>Approved talent</span>
-                <span><ShieldCheck size={16}/>Private request</span>
-                <span><CheckCircle2 size={16}/>No account required</span>
-              </div>
-
-              <div className="service-hero-signals" aria-label="Common responsibilities">
-                {s.tasks.slice(0, 4).map((task) => <span key={task}><CheckCircle2 size={14}/>{toTitle(task)}</span>)}
-              </div>
-
-              <div className="service-hero-secondary-actions">
-                <a className="btn btn-lg" href="#talent" data-track={`service_${s.slug.replaceAll("-", "_")}_browse`}>Browse {roleName(s.name)} Virtual Assistants <ArrowRight size={15}/></a>
-                <a className="text-link" href="#responsibilities">See what you can delegate</a>
-              </div>
-            </div>
-
-            <HiringBriefForm
-              variant="service"
-              slug={s.slug}
-              category={s.directoryCategory}
-              roleLabel={roleName(s.name)}
-              example={matchExample}
-              talentHref={talentHref}
-            />
-          </div>
-
-          <div className="service-trust-bar" aria-label="Hiring safeguards">
-            <div><BadgeCheck size={20}/><span><strong>Approved profiles</strong><small>Review profile evidence, skills, tools, experience, and current availability.</small></span></div>
-            <div><ShieldCheck size={20}/><span><strong>Your request stays private</strong><small>Your hiring request goes to our recruiting team and stays private. We use it to refine the role and screen relevant candidates before the next step.</small></span></div>
-            <div><CheckCircle2 size={20}/><span><strong>You decide who to interview</strong><small>Compare candidates first, then confirm rate, schedule, scope, and start date before hiring.</small></span></div>
-          </div>
-        </div>
-      </section>
+      <HiringHero
+        crumbs={[{ href: "/", label: "Home" }, { href: "/services", label: "Services" }, { label: s.name }]}
+        eyebrow={`Filipino ${roleName(s.name)} VAs`}
+        titleLead={`Hire ${article}`}
+        titleAccent={s.name}
+        titleTail="in the Philippines"
+        lede={copy.hero}
+        tasks={s.tasks.slice(0, 6).map(toTitle)}
+        tools={s.tools}
+        talent={talent}
+        talentLabel={`Approved ${roleName(s.name)} VAs you can interview`}
+        primary={{ href: "#talent", label: `Browse ${roleName(s.name)} VAs`, track: `service_${s.slug.replaceAll("-", "_")}_browse` }}
+        secondary={{ href: "#responsibilities", label: "See what you can delegate" }}
+        form={<HiringBriefForm
+          variant="service"
+          slug={s.slug}
+          category={s.directoryCategory}
+          roleLabel={roleName(s.name)}
+          example={matchExample}
+          talentHref={talentHref}
+        />}
+      />
 
       <section className="section section-white specialty-talent-section service-anchor service-talent-priority" id="talent">
         <div className="container">

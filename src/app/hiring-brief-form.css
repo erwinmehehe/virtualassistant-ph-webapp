@@ -82,3 +82,96 @@
   .hb-card { max-width: none; padding: 20px 16px; border-radius: 16px; }
   .hb-row { grid-template-columns: 1fr; }
 }
+
+/* Wrappers that used to frame the old forms: the new card carries its own frame. */
+.pva-hero-form-shell:has(> .hb-card),
+.pricing-hero-form-shell:has(> .hb-card),
+.va-marketing-form-shell:has(> .hb-card) {
+  max-width: 460px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.pva-hero-form-shell > .hb-card,
+.pricing-hero-form-shell > .hb-card,
+.va-marketing-form-shell > .hb-card { max-width: none; }
+/* The homepage shell is sized with !important in cro-density-fixes.css. */
+.pva-home .pva-hero-form-shell:has(> .hb-card) {
+  max-width: 520px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ==========================================================================
+   Service and industry hiring hero (src/components/hiring-hero.tsx)
+   ========================================================================== */
+.hh {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 0 56px;
+  border-bottom: 1px solid #eaecf0;
+  background:
+    radial-gradient(640px 360px at 88% 18%, rgba(98, 54, 255, .10), transparent 70%),
+    radial-gradient(520px 320px at 4% 96%, rgba(23, 178, 106, .07), transparent 70%),
+    linear-gradient(180deg, #f8f9ff 0%, #fff 100%);
+}
+.hh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(#eef0f6 1px, transparent 1px), linear-gradient(90deg, #eef0f6 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.55), transparent 75%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.55), transparent 75%);
+}
+.hh > .container { position: relative; }
+.hh-crumbs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; font-size: 13px; color: #667085; }
+.hh-crumbs a { color: #3538cd; font-weight: 600; text-decoration: none; }
+.hh-crumbs a:hover { text-decoration: underline; }
+.hh-crumb-sep { margin-right: 6px; color: #98a2b3; }
+.hh-grid { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 56px; align-items: start; }
+.hh-copy { min-width: 0; }
+.hh-eyebrow { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 9px; border: 1px solid #d9dcfe; border-radius: 999px; background: #fff; color: #3538cd; font-size: 12.5px; font-weight: 700; }
+.hh .hh-title { margin: 16px 0 14px; max-width: 21ch; color: #101828; font-size: clamp(34px, 4.2vw, 52px); line-height: 1.05; font-weight: 800; letter-spacing: -.03em; text-wrap: balance; }
+.hh-accent { background: linear-gradient(135deg, #444ce7, #7a5af8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hh .hh-lede { max-width: 58ch; margin: 0; color: #475467; font-size: 17px; line-height: 1.6; }
+.hh-tasks { margin-top: 26px; padding: 18px 20px; border: 1px solid #eaecf0; border-radius: 16px; background: rgba(255, 255, 255, .85); }
+.hh-tasks-label { margin-bottom: 12px; color: #667085; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.hh-tasks ul { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 0; padding: 0; list-style: none; }
+.hh-tasks li { display: flex; align-items: flex-start; gap: 9px; color: #1d2939; font-size: 14px; font-weight: 550; line-height: 1.35; }
+.hh-tick { display: grid; place-items: center; flex: none; width: 18px; height: 18px; margin-top: 1px; border-radius: 6px; background: #ecfdf3; color: #079455; }
+.hh-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #eaecf0; }
+.hh-tools span { margin-right: 4px; color: #667085; font-size: 12px; font-weight: 700; }
+.hh-tools em { padding: 3px 9px; border-radius: 999px; background: #f2f4f7; color: #344054; font-size: 12px; font-style: normal; font-weight: 600; }
+.hh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 24px; }
+.hh .hh-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 1px solid #d0d5dd; border-radius: 12px; background: #fff; color: #101828; font-size: 14.5px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 2px rgba(16, 24, 40, .05); }
+.hh .hh-btn:hover { border-color: #444ce7; color: #3538cd; }
+.hh .hh-link { color: #3538cd; font-size: 14px; font-weight: 600; }
+.hh-talent { display: flex; align-items: center; gap: 12px; margin-top: 20px; color: #475467; font-size: 13.5px; font-weight: 600; }
+.hh-faces { display: flex; }
+.hh-faces .avatar { width: 34px; height: 34px; margin-left: -8px; border: 2px solid #fff; border-radius: 999px; overflow: hidden; }
+.hh-faces .avatar:first-child { margin-left: 0; }
+.hh-faces .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.hh-assurances { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 22px 0 0; padding: 0; list-style: none; }
+.hh-assurances li { display: inline-flex; align-items: center; gap: 6px; color: #475467; font-size: 13px; font-weight: 600; }
+.hh-assurances svg { color: #079455; }
+.hh-note { margin: 12px 0 0; color: #667085; font-size: 13px; }
+.hh-form { min-width: 0; }
+.hh-form > .hb-card { max-width: none; }
+@media (max-width: 1024px) {
+  .hh-grid { grid-template-columns: 1fr; gap: 32px; }
+  .hh-form { max-width: 560px; }
+}
+@media (max-width: 640px) {
+  .hh { padding: 18px 0 40px; }
+  .hh-crumbs { margin-bottom: 18px; }
+  .hh-tasks ul { grid-template-columns: 1fr; }
+  .hh .hh-lede { font-size: 16px; }
+}

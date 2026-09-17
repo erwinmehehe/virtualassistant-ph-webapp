@@ -130,7 +130,7 @@ export async function enrichPendingLeadJob(jobId: string) {
   const admin = createAdminClient();
   const { data: job } = await admin
     .from("jobs")
-    .select("id,lead_id,status,title,company_name,categories,timezone,start_timing")
+    .select("id,lead_id,status,title,company_name,categories,timezone,start_timing,responsibilities,required_skills,required_tools")
     .eq("id", jobId)
     .maybeSingle();
 
@@ -161,9 +161,9 @@ export async function enrichPendingLeadJob(jobId: string) {
   const { error } = await admin.from("jobs").update({
     summary: draft.summary,
     description: draft.description,
-    responsibilities: draft.responsibilities,
-    required_skills: draft.requiredSkills,
-    required_tools: draft.requiredTools
+    responsibilities: draft.responsibilities.length ? draft.responsibilities : cleanList(job.responsibilities),
+    required_skills: draft.requiredSkills.length ? draft.requiredSkills : cleanList(job.required_skills),
+    required_tools: draft.requiredTools.length ? draft.requiredTools : cleanList(job.required_tools)
   }).eq("id", job.id).eq("status", "pending").eq("lead_id", job.lead_id);
   if (error) throw error;
 

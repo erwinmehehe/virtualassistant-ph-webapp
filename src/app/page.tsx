@@ -315,10 +315,10 @@ export default async function HomePage({
 
         <section className="pva-trust-strip" aria-label="Hiring advantages">
           <div className="container pva-trust-grid">
-            <div><span>01</span><strong>Human vetted</strong><small>Recruiters review evidence, communication, and role fit.</small></div>
-            <div><span>02</span><strong>Skills tested</strong><small>Practical screening helps separate claims from client-ready ability.</small></div>
-            <div><span>03</span><strong>You choose</strong><small>Compare the shortlist, interview, and make the final decision.</small></div>
-            <div><span>04</span><strong>Support after placement</strong><small>Client Success stays involved after your VA starts.</small></div>
+            <div><span className="pva-trust-icon"><ShieldCheck size={18} aria-hidden="true" /></span><strong>Human vetted</strong><small>Recruiters review evidence, communication, and role fit before anyone is public.</small></div>
+            <div><span className="pva-trust-icon"><ClipboardCheck size={18} aria-hidden="true" /></span><strong>Skills tested</strong><small>Practical screening separates claims from client-ready ability.</small></div>
+            <div><span className="pva-trust-icon"><CheckCircle2 size={18} aria-hidden="true" /></span><strong>You choose</strong><small>Compare the shortlist, interview, and make the final hiring decision.</small></div>
+            <div><span className="pva-trust-icon"><Headphones size={18} aria-hidden="true" /></span><strong>Support after placement</strong><small>Client Success stays involved after your VA starts.</small></div>
           </div>
         </section>
 

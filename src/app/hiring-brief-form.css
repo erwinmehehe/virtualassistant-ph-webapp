@@ -178,3 +178,15 @@
   .hh-tasks ul { grid-template-columns: 1fr; }
   .hh .hh-lede { font-size: 16px; }
 }
+
+/* Contact page routes (src/app/contact/page.tsx), shown in the hh hero. */
+.contact-hh { padding-top: 56px; }
+.contact-routes { display: grid; gap: 12px; margin-top: 28px; }
+.contact-route { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; border: 1px solid #eaecf0; border-radius: 16px; background: #fff; color: #101828; text-decoration: none; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.contact-route:hover { transform: translateY(-2px); border-color: #c7d2fe; box-shadow: 0 18px 36px -24px rgba(68, 76, 231, .45); }
+.contact-route-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 12px; background: #eef0ff; color: #444ce7; }
+.contact-route-copy { display: grid; gap: 4px; min-width: 0; }
+.contact-route-copy strong { font-size: 15px; font-weight: 750; line-height: 1.3; }
+.contact-route-copy small { color: #475467; font-size: 13.5px; line-height: 1.5; }
+.contact-route-copy em { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; color: #3538cd; font-size: 13.5px; font-style: normal; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .contact-route:hover { transform: none; } }

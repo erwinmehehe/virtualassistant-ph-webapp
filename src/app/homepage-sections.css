@@ -260,7 +260,12 @@
 .hs-reasons-grid strong { display: block; font-size: .9rem; font-weight: 750; }
 .hs-reasons-grid span { display: block; margin-top: .2rem; color: var(--hs-muted); font-size: .82rem; line-height: 1.5; }
 
-.hs-why-more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; margin-top: 2.5rem; }
+.hs-more { margin-top: 1.75rem; border-top: 1px solid var(--hs-line); }
+.hs-more > summary { display: inline-flex; align-items: center; gap: .5rem; padding: 1rem 0 0; color: var(--hs-brand-ink); font-size: .9rem; font-weight: 750; list-style: none; cursor: pointer; }
+.hs-more > summary::-webkit-details-marker { display: none; }
+.hs-more > summary svg { transition: transform .2s ease; }
+.hs-more[open] > summary svg { transform: rotate(45deg); }
+.hs-why-more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; margin-top: 1.25rem; }
 .hs-why-more .hs-prose p { max-width: none; }
 
 .hs-delegate {
@@ -320,6 +325,9 @@
   box-shadow: var(--hs-shadow);
 }
 .hs-approach .hs-kicker { align-self: flex-start; }
+.hs-approach-list { display: grid; gap: .5rem; margin: 0 0 1.25rem; padding: 0; list-style: none; }
+.hs-approach-list li { display: flex; align-items: flex-start; gap: .5rem; color: var(--hs-text); font-size: .86rem; line-height: 1.45; }
+.hs-approach-list svg { flex: none; margin-top: .1rem; color: var(--hs-green); }
 .hs-approach h3 { margin: 0 0 .75rem; font-size: 1.55rem; font-weight: 800; line-height: 1.12; letter-spacing: -.035em; }
 .hs-approach p { margin: 0 0 1.2rem; color: var(--hs-text); font-size: .9rem; line-height: 1.62; }
 .hs-approach .hs-btn { align-self: flex-start; }
@@ -438,7 +446,8 @@
 /* ==========================================================================
    7. Savings calculator
    ========================================================================== */
-.hs-calc-card { max-width: 1000px; margin: 0 auto; padding: 1.75rem; border: 1px solid var(--hs-line); border-radius: 24px; background: #fff; box-shadow: var(--hs-shadow); }
+/* The calculator draws its own card; this wrapper only sets the width. */
+.hs-calc-card { max-width: 880px; margin: 0 auto; }
 
 /* ==========================================================================
    8. FAQ
@@ -526,7 +535,6 @@
   .hs-support { padding: 1.25rem; }
   .hs-tz-city { display: none; }
   .hs-cta { padding: 2.5rem 1.25rem; border-radius: 22px; }
-  .hs-calc-card { padding: 1.1rem; }
   .hs-head-row { align-items: flex-start; }
 }
 
@@ -538,4 +546,104 @@
   .hs-tile-h:hover,
   .hs-talent-card:hover,
   .hs-btn:hover { transform: none; }
+}
+
+/* ==========================================================================
+   Trust strip under the hero (markup in src/app/page.tsx)
+   ========================================================================== */
+.pva-home .pva-trust-grid > div { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: .85rem; align-content: start; align-items: start; padding: 1.5rem 1.25rem; }
+.pva-home .pva-trust-grid .pva-trust-icon { grid-row: span 2; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; margin: 0; border-radius: 12px; background: #eef2ff; color: #444ce7; letter-spacing: 0; }
+.pva-home .pva-trust-grid strong { color: #0f172a; font-size: .95rem; font-weight: 750; }
+.pva-home .pva-trust-grid small { color: #667085; font-size: .8rem; line-height: 1.5; }
+
+/* ==========================================================================
+   Comparison table v2 and industries v2 (homepage-sections.tsx)
+   ========================================================================== */
+.hs-root .hs-models { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.hs-root .hs-table { min-width: 0; table-layout: fixed; font-size: .88rem; }
+.hs-root .hs-table thead th { vertical-align: bottom; text-align: left; text-transform: none; letter-spacing: 0; }
+.hs-table thead th strong { display: block; color: var(--hs-ink); font-size: .95rem; font-weight: 800; }
+.hs-table thead th small { display: block; margin-top: .2rem; color: var(--hs-muted); font-size: .74rem; font-weight: 600; line-height: 1.35; }
+.hs-table thead .hs-managed strong { color: #123e9e; }
+.hs-table thead .hs-managed small { color: #3b5fc4; }
+.hs-root .hs-table tbody th { width: 24%; color: var(--hs-ink); font-size: .9rem; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.hs-root .hs-table th, .hs-root .hs-table td { padding: .95rem 1.1rem; }
+.hs-table td { text-align: left; }
+.hs-table .hs-managed { color: #173a8a; font-weight: 650; }
+.hs-cell { display: inline-flex; align-items: flex-start; gap: .5rem; line-height: 1.4; }
+.hs-v { flex: none; margin-top: .05rem; }
+.hs-v-yes { color: var(--hs-green); }
+.hs-v-partial { color: var(--hs-amber); }
+.hs-v-no { color: #c4cad6; }
+.hs-cell-no { color: var(--hs-muted); }
+.hs-table tfoot td { padding-top: 1rem; padding-bottom: 1.2rem; border-bottom: 0; }
+.hs-table tfoot .hs-managed-foot .hs-btn { width: 100%; }
+.hs-root .hs-table thead .hs-recommended { margin: 0 0 .45rem; }
+
+.hs-root .hs-models .hs-approach { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 2rem; padding: 1.25rem 1.5rem; box-shadow: none; background: #f8fafc; }
+.hs-models .hs-approach > div { max-width: 760px; }
+.hs-root .hs-models .hs-approach h3 { margin: 0 0 .3rem; font-size: 1.1rem; letter-spacing: -.02em; }
+.hs-root .hs-models .hs-approach p { margin: 0; font-size: .88rem; }
+
+.hs-models-cards { display: none; }
+.hs-model-card { display: grid; gap: .6rem; padding: 1.25rem; border: 1px solid var(--hs-line); border-radius: 20px; background: #fff; }
+.hs-model-card.is-managed { border-color: #c7d7fe; background: var(--hs-blue-soft); }
+.hs-model-card .hs-recommended { justify-self: start; }
+.hs-model-card h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+.hs-model-sub { margin: -.4rem 0 .2rem; color: var(--hs-muted); font-size: .8rem; }
+.hs-model-card ul { display: grid; gap: .65rem; margin: 0 0 .4rem; padding: 0; list-style: none; }
+.hs-model-card li { display: flex; align-items: flex-start; gap: .55rem; color: var(--hs-text); font-size: .88rem; line-height: 1.4; }
+.hs-model-card li small { display: block; color: var(--hs-muted); font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+
+.hs-industry-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; }
+.hs-industry {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  padding: 1.2rem 1.2rem 1.25rem;
+  border: 1px solid var(--hs-line);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--hs-ink);
+  text-decoration: none;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.hs-industry:hover { transform: translateY(-3px); border-color: #cfd5ff; box-shadow: var(--hs-shadow-lift); }
+.hs-industry:hover .hs-tile-arrow { color: var(--hs-brand); transform: translateX(2px); }
+.hs-industry-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .35rem; }
+.hs-industry .hs-chip { width: 2.6rem; height: 2.6rem; border-radius: 12px; }
+.hs-industry strong { font-size: 1rem; font-weight: 800; letter-spacing: -.015em; }
+.hs-industry-label { margin-top: .2rem; color: var(--hs-faint); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.hs-industry ul { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.hs-industry li { position: relative; padding-left: .85rem; color: var(--hs-text); font-size: .84rem; line-height: 1.4; }
+.hs-industry li::before { content: ""; position: absolute; left: 0; top: .5em; width: 5px; height: 5px; border-radius: 999px; background: #c7d2fe; }
+
+.hs-industry-more { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-top: 1.25rem; padding: 1rem 1.25rem; border: 1px solid var(--hs-line); border-radius: 16px; background: rgba(255, 255, 255, .7); }
+.hs-industry-more > span { color: var(--hs-muted); font-size: .8rem; font-weight: 700; }
+.hs-industry-more > div { display: flex; flex: 1; flex-wrap: wrap; gap: .4rem; }
+.hs-industry-more > div a { padding: .3rem .7rem; border: 1px solid var(--hs-line); border-radius: 999px; background: #fff; color: #344054; font-size: .8rem; font-weight: 650; text-decoration: none; }
+.hs-industry-more > div a:hover { border-color: #c7d2fe; color: var(--hs-brand-ink); }
+
+@media (max-width: 1100px) {
+  .hs-industry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .hs-models .hs-table-wrap { display: none; }
+  .hs-models-cards { display: grid; gap: .9rem; }
+  .hs-industry-grid { grid-template-columns: minmax(0, 1fr); }
+  .hs-industry-more > div { flex-basis: 100%; }
+  /* Compact cards on phones: icon beside the name, common work as one wrapped line. */
+  .hs-industry { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: .75rem; row-gap: .25rem; padding: .9rem 1rem; }
+  .hs-industry-top { display: contents; }
+  .hs-industry .hs-chip { grid-row: span 2; width: 2.3rem; height: 2.3rem; }
+  .hs-industry .hs-tile-arrow { grid-column: 3; grid-row: 1; align-self: center; }
+  .hs-industry strong { grid-column: 2; grid-row: 1; align-self: center; font-size: .95rem; }
+  .hs-industry-label { display: none; }
+  .hs-industry ul { grid-column: 2 / 4; grid-row: 2; display: block; }
+  .hs-industry li { display: inline; padding-left: 0; font-size: .8rem; color: var(--hs-muted); }
+  .hs-industry li::before { display: none; }
+  .hs-industry li + li::before { content: " · "; display: inline; position: static; width: auto; height: auto; background: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-industry:hover { transform: none; }
 }

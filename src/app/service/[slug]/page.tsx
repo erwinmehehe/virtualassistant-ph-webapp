@@ -5,10 +5,16 @@ import {
   ArrowRight,
   BadgeCheck,
   BookOpen,
-  CheckCircle2,
+  BriefcaseBusiness,
   CircleDollarSign,
+  ClipboardList,
+  Clock3,
+  KeyRound,
+  MessageSquareText,
   Search,
   ShieldCheck,
+  Split,
+  TriangleAlert,
   UsersRound,
   Wrench
 } from "lucide-react";
@@ -18,11 +24,14 @@ import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
+import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { SERVICE_PAGES, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import "../../homepage-sections.css";
+import "../../hiring-pages.css";
 
 export const revalidate = 3600;
 
@@ -435,175 +444,214 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         />}
       />
 
-      <section className="section section-white specialty-talent-section service-anchor service-talent-priority" id="talent">
-        <div className="container">
-          <div className="service-talent-head">
-            <div>
-              <div className="kicker">Approved talent</div>
-              <h2>{talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory} Virtual Assistants`}</h2>
-              <p>{copy.talentIntro}</p>
-            </div>
-            <Link className="text-link" href={talentHref}>See all relevant talent <ArrowRight size={14}/></Link>
-          </div>
-
+      <div className="hs-root sp-root">
+        <Band tone="soft" id="talent">
+          <SectionHead
+            kicker="Approved talent"
+            title={talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory} Virtual Assistants`}
+            lede={copy.talentIntro}
+            action={<Link className="hs-btn hs-btn-ghost" href={talentHref}>See all relevant talent <ArrowRight size={16}/></Link>}
+          />
           {talent.length ? <>
-            <div className="service-talent-grid">
-              {talent.slice(0, 3).map((va: any) => <article className="service-talent-card" key={va.user_id}>
-                <div className="service-talent-card-top">
+            <div className="hs-talent-grid">
+              {talent.slice(0, 3).map((va: any) => <article className="hs-talent-card" key={va.user_id}>
+                <div className="hs-talent-top">
                   <PublicAvatar name={va.full_name} src={va.avatar_url} size="lg"/>
-                  <div className="service-talent-identity">
-                    <h3>{va.full_name}</h3>
-                    <p>{va.headline || va.primary_category || "Virtual Assistant"}</p>
-                    <div className="verified-line"><BadgeCheck size={15}/> Approved for client discovery</div>
+                  <div className="hs-talent-badges">
+                    <span className="hs-badge hs-badge-green"><BadgeCheck size={13} aria-hidden="true"/> Approved</span>
+                    {va.years_experience != null ? <span className="hs-badge hs-badge-blue"><BriefcaseBusiness size={13} aria-hidden="true"/> {va.years_experience}+ yrs</span> : null}
                   </div>
                 </div>
-                <div className="pill-list service-talent-skills">{uniqueStrings(va.skills).slice(0, 4).map((x, index) => <span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div>
-                <div className="service-talent-facts">
-                  <div><strong>{va.years_experience != null ? `${va.years_experience}+` : "View"}</strong><span>{va.years_experience != null ? "years experience" : "experience details"}</span></div>
-                  <div><strong>{va.weekly_hours ? `${va.weekly_hours}` : "View"}</strong><span>{va.weekly_hours ? "hours available/week" : "current availability"}</span></div>
-                </div>
-                <div className="service-talent-actions">
-                  <Link className="btn btn-primary" href={`/va/${va.slug}`} data-track={`service_${s.slug.replaceAll("-", "_")}_profile`}>View profile</Link>
-                  <Link className="btn" href={`/hire?talent=${encodeURIComponent(va.slug)}&category=${encodeURIComponent(s.directoryCategory)}`} data-track={`service_${s.slug.replaceAll("-", "_")}_intro`}>Request introduction</Link>
+                <h3>{va.full_name}</h3>
+                <p className="hs-talent-role">{va.headline || va.primary_category || "Virtual Assistant"}</p>
+                <div className="hs-tags">{uniqueStrings(va.skills).slice(0, 4).map((x, index) => <span key={`${String(x)}-${index}`}>{x}</span>)}</div>
+                <div className="hs-facts">
+                  <span><Clock3 size={14} aria-hidden="true"/> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Availability confirmed on request"}</span>
                 </div>
               </article>)}
             </div>
-            <div className="service-talent-closer"><span>Want us to narrow the list for you?</span><a className="text-link" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={14}/></a></div>
-          </> : <div className="service-empty-state"><div><Search size={28}/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Get matched and give us the workload, hours, and workflow context so we can identify relevant approved talent.</p></div></div><a className="btn btn-primary" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={15}/></a></div>}
-        </div>
-      </section>
+            <p className="sp-note">Want us to narrow the list for you? <a className="hs-link" href="#hiring-brief">Send a quick brief <ArrowRight size={14}/></a></p>
+          </> : <div className="sp-empty"><Search size={24} aria-hidden="true"/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Send the workload, hours, and workflow context so we can identify relevant approved talent.</p></div><a className="hs-btn hs-btn-primary" href="#hiring-brief">Send a quick brief <ArrowRight size={16}/></a></div>}
+        </Band>
 
-      <nav className="service-jump-nav" aria-label="On this page">
-        <div className="container service-jump-links">
-          <span>On this page</span>
-          <a href="#talent">Talent</a>
-          <a href="#responsibilities">Responsibilities</a>
-          <a href="#tools">Tools & skills</a>
-          <a href="#hiring">Hiring process</a>
-          <a href="#interview">Interview guide</a>
-          <a href="#faqs">FAQs</a>
-        </div>
-      </nav>
+        <JumpNav links={[
+          { href: "#responsibilities", label: "Responsibilities" },
+          { href: "#onboarding", label: "First 30 days" },
+          { href: "#tools", label: "Tools & skills" },
+          { href: "#hiring", label: "Hiring process" },
+          { href: "#interview", label: "Interview guide" },
+          { href: "#faqs", label: "FAQs" }
+        ]}/>
 
-      <section className="section service-anchor" id="responsibilities">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Responsibilities</div><h2>{copy.responsibilityTitle}</h2><p>{copy.responsibilityIntro}</p></div>
-          <div className="seo-task-grid">{groups.map((group, index) => <article className="service-task-card" key={group.title}><div className="service-card-number">0{index + 1}</div><h3>{group.title}</h3><p>{group.intro}</p><ul className="plain-list">{group.tasks.map((task) => <li key={task}>{toTitle(task)}</li>)}</ul></article>)}</div>
-          <div className="specialty-inline-cta service-inline-cta"><div><div className="kicker">Not sure what to delegate?</div><h2>Start with the work that repeats every week.</h2><p>List the recurring tasks, bottlenecks, tools, response times, and approvals. That is usually enough to define the first version of the role.</p></div><a className="btn btn-primary" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={15}/></a></div>
-        </div>
-      </section>
-
-      <section className="section section-white service-depth-section">
-        <div className="container public-content-grid service-editorial-grid">
-          <div>
-            <div className="section-head"><div className="kicker">How the role works</div><h2>Set up the work before you hand it over.</h2></div>
-            <p>{editorial.context}</p>
-            <p>{editorial.operating}</p>
-            <p>{editorial.quality}</p>
-            <p>{editorial.handoff}</p>
+        <Band id="responsibilities">
+          <SectionHead kicker="Responsibilities" title={copy.responsibilityTitle} lede={copy.responsibilityIntro}/>
+          <div className="sp-cards-3">
+            {groups.map((group) => <article className="sp-card" key={group.title}>
+              <h3>{group.title}</h3>
+              <p>{group.intro}</p>
+              <CheckList items={group.tasks.map(toTitle)}/>
+            </article>)}
           </div>
-          <aside className="service-skill-panel">
-            <div className="kicker">What to verify in an interview</div>
-            <h3>Ask for proof that matches the job.</h3>
-            <ul className="plain-list">{editorial.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
-          </aside>
-        </div>
-      </section>
-
-      <section className="section service-onboarding-section">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">First 30 days</div><h2>A practical onboarding plan for {article} {s.name.toLowerCase()}</h2><p>Keep the first month narrow enough to review properly. Add scope only after the original workflow is accurate and predictable.</p></div>
-          <div className="process-grid three-step-process service-process">
-            <article className="process-step"><div className="process-number">01</div><h3>Week 1: learn the workflow</h3><p className="muted">{editorial.weekOne}</p></article>
-            <article className="process-step"><div className="process-number">02</div><h3>Weeks 2–3: add ownership</h3><p className="muted">{editorial.weekTwo}</p></article>
-            <article className="process-step"><div className="process-number">03</div><h3>Week 4: review by outcomes</h3><p className="muted">{editorial.monthOne}</p></article>
+          <div className="sp-inline-cta">
+            <div><strong>Not sure what to delegate? Start with the work that repeats every week.</strong><p>List the recurring tasks, bottlenecks, tools, response times, and approvals. That is usually enough to define the first version of the role.</p></div>
+            <a className="hs-btn hs-btn-primary" href="#hiring-brief">Send a quick brief <ArrowRight size={16}/></a>
           </div>
-        </div>
-      </section>
+        </Band>
 
-      <section className="section section-white service-avoid-section">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Common hiring mistakes</div><h2>Three mistakes that make this role harder than it needs to be</h2></div>
-          <div className="grid-3">{editorial.avoid.map((item, index) => <article className="card" key={item}><span className="service-card-number">0{index + 1}</span><p>{item}</p></article>)}</div>
-        </div>
-      </section>
-
-      <section className="section service-scorecard-section">
-        <div className="container public-content-grid service-editorial-grid">
-          <div>
-            <div className="section-head"><div className="kicker">Managing the role</div><h2>Use a small scorecard instead of watching every click.</h2><p>For the first month, review a few measures that tell you whether the work is dependable. The exact targets should come from your own workload and service standards.</p></div>
-            <ul className="plain-list">{editorial.scorecard.map((item) => <li key={item}>{item}</li>)}</ul>
+        <Band tone="soft">
+          <div className="sp-split">
+            <div>
+              <SectionHead kicker="How the role works" title="Set up the work before you hand it over."/>
+              <div className="hs-prose"><p>{editorial.context}</p><p>{editorial.operating}</p><p>{editorial.quality}</p><p>{editorial.handoff}</p></div>
+            </div>
+            <aside className="sp-panel">
+              <span className="sp-panel-label">What to verify in an interview</span>
+              <h3>Ask for proof that matches the job.</h3>
+              <CheckList items={editorial.evidence}/>
+            </aside>
           </div>
-          <aside className="service-skill-panel"><div className="kicker">When this role is not a fit</div><h3>Do not outsource a broken decision process.</h3><p>{editorial.notFit}</p></aside>
-        </div>
-      </section>
+        </Band>
 
-      <section className="section section-white service-anchor" id="tools">
-        <div className="container public-content-grid service-tools-layout">
-          <div>
-            <div className="section-head"><div className="kicker">Tools and skills</div><h2>{copy.toolsTitle}</h2><p>Software familiarity matters, but process judgment matters more. Ask candidates to explain what they completed inside the tool, how they checked accuracy, and what they escalated.</p></div>
-            <div className="tool-cloud">{uniqueStrings(s.tools).map((tool, index) => <span className="tool-pill" key={`${String(tool)}-${index}`}><Wrench size={14}/>{tool}</span>)}</div>
+        <Band id="onboarding">
+          <SectionHead center kicker="First 30 days" title={`A practical onboarding plan for ${article} ${s.name.toLowerCase()}`} lede="Keep the first month narrow enough to review properly. Add scope only after the original workflow is accurate and predictable."/>
+          <Steps columns={3} items={[
+            { label: "Week 1", title: "Learn the workflow", copy: editorial.weekOne },
+            { label: "Weeks 2–3", title: "Add ownership", copy: editorial.weekTwo },
+            { label: "Week 4", title: "Review by outcomes", copy: editorial.monthOne }
+          ]}/>
+        </Band>
+
+        <Band tone="soft">
+          <SectionHead kicker="Common hiring mistakes" title="Three mistakes that make this role harder than it needs to be"/>
+          <div className="sp-cards-3">
+            {editorial.avoid.map((item) => <article className="sp-card sp-card-warn" key={item}><TriangleAlert size={20} aria-hidden="true"/><p>{item}</p></article>)}
           </div>
-          <aside className="service-skill-panel"><div className="kicker">Skills to evaluate</div><h3>Look for evidence, not just keywords.</h3><ul className="plain-list">{uniqueStrings(s.skills).map((skill, index) => <li key={`${String(skill)}-${index}`}>{toTitle(skill)}</li>)}</ul><p className="small muted">Use your actual workflow during the interview. A practical example reveals more than a list of tools.</p></aside>
-        </div>
-      </section>
+        </Band>
 
-      <section className="section">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Best-fit teams</div><h2>{copy.fitTitle}</h2><p>{copy.fitIntro}</p></div>
-          <div className="grid-4 service-use-grid">{uniqueStrings(s.bestFor).map((item, index) => <article className="service-use-card" key={`${String(item)}-${index}`}><UsersRound size={21}/><div><h3>{toTitle(item)}</h3><p>{useCaseCopy(item, s)}</p></div></article>)}</div>
-        </div>
-      </section>
+        <Band>
+          <div className="sp-split">
+            <div>
+              <SectionHead kicker="Managing the role" title="Use a small scorecard instead of watching every click." lede="For the first month, review a few measures that tell you whether the work is dependable. The exact targets should come from your own workload and service standards."/>
+              <CheckList tone="green" items={editorial.scorecard}/>
+            </div>
+            <aside className="sp-panel sp-panel-dark">
+              <span className="sp-panel-label">When this role is not a fit</span>
+              <h3>Do not outsource a broken decision process.</h3>
+              <p>{editorial.notFit}</p>
+            </aside>
+          </div>
+        </Band>
 
-      {regulated ? <section className="section section-white service-compliance-section"><div className="container"><div className="service-compliance-panel"><div className="service-compliance-icon"><ShieldCheck size={24}/></div><div><div className="kicker">Scope and compliance</div><h2>Keep regulated judgment with the responsible professional.</h2><p>{regulated}</p></div></div></div></section> : null}
+        <Band tone="soft" id="tools">
+          <div className="sp-split">
+            <div>
+              <SectionHead kicker="Tools and skills" title={copy.toolsTitle} lede="Software familiarity matters, but process judgment matters more. Ask candidates to explain what they completed inside the tool, how they checked accuracy, and what they escalated."/>
+              <div className="sp-pills">{uniqueStrings(s.tools).map((tool, index) => <span key={`${String(tool)}-${index}`}><Wrench size={13} aria-hidden="true"/>{tool}</span>)}</div>
+            </div>
+            <aside className="sp-panel">
+              <span className="sp-panel-label">Skills to evaluate</span>
+              <h3>Look for evidence, not just keywords.</h3>
+              <CheckList items={uniqueStrings(s.skills).map(toTitle)}/>
+              <p className="sp-panel-foot">Use your actual workflow during the interview. A practical example reveals more than a list of tools.</p>
+            </aside>
+          </div>
+        </Band>
 
-      <section className="section section-white">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Write the role first</div><h2>What to include in your {s.name.toLowerCase()} job brief</h2><p>A clear role brief makes candidate comparison easier because everyone is being evaluated against the same work, systems, schedule, and decision boundaries.</p></div>
-          <div className="brief-grid"><article><span>01</span><h3>Responsibilities</h3><p>List recurring tasks and the result the Virtual Assistant should own. Separate daily, weekly, and occasional work.</p></article><article><span>02</span><h3>Tools and access</h3><p>Name the systems used from week one and decide which permissions can be granted safely after onboarding.</p></article><article><span>03</span><h3>Hours and overlap</h3><p>State weekly hours, timezone, required live coverage, response expectations, and whether the schedule is fixed or flexible.</p></article><article><span>04</span><h3>Decision boundaries</h3><p>Explain what the Virtual Assistant may handle independently, what needs approval, and what should be escalated immediately.</p></article></div>
-        </div>
-      </section>
+        <Band>
+          <SectionHead kicker="Best-fit teams" title={copy.fitTitle} lede={copy.fitIntro}/>
+          <div className="sp-cards-4">
+            {uniqueStrings(s.bestFor).map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}><span className="sp-card-icon" aria-hidden="true"><UsersRound size={18}/></span><h3>{toTitle(item)}</h3><p>{useCaseCopy(item, s)}</p></article>)}
+          </div>
+          {regulated ? <div className="sp-notice"><ShieldCheck size={22} aria-hidden="true"/><div><strong>Scope and compliance: keep regulated judgment with the responsible professional.</strong><p>{regulated}</p></div></div> : null}
+        </Band>
 
-      <section className="section service-anchor" id="hiring">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Hiring process</div><h2>How to hire {article} {s.name.toLowerCase()} in the Philippines</h2><p>Define the work first, then test candidates on the evidence and judgment that matter for that exact scope.</p></div>
-          <div className="process-grid four-step-process service-process"><div className="process-step"><div className="process-number">01</div><h3>Define the work</h3><p className="muted">Document responsibilities, tools, hours, budget, schedule, and the result the person should own.</p></div><div className="process-step"><div className="process-number">02</div><h3>Review relevant talent</h3><p className="muted">Compare role experience, tools, communication, schedule, and work evidence rather than broad profile claims.</p></div><div className="process-step"><div className="process-number">03</div><h3>Interview with real scenarios</h3><p className="muted">Use examples from your workflow to understand process, quality checks, judgment, and limits.</p></div><div className="process-step"><div className="process-number">04</div><h3>Confirm the hire</h3><p className="muted">Agree on final rate, start date, hours, responsibilities, reporting, and onboarding before work begins.</p></div></div>
-          <div className="centered-actions"><a className="btn btn-primary btn-lg" href="#match-request">Get a managed Virtual Assistant <ArrowRight size={16}/></a></div>
-        </div>
-      </section>
+        <Band tone="soft">
+          <SectionHead kicker="Write the role first" title={`What to include in your ${s.name.toLowerCase()} job brief`} lede="A clear role brief makes candidate comparison easier because everyone is being evaluated against the same work, systems, schedule, and decision boundaries."/>
+          <div className="sp-cards-4">
+            <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><ClipboardList size={18}/></span><h3>Responsibilities</h3><p>List recurring tasks and the result the Virtual Assistant should own. Separate daily, weekly, and occasional work.</p></article>
+            <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><KeyRound size={18}/></span><h3>Tools and access</h3><p>Name the systems used from week one and decide which permissions can be granted safely after onboarding.</p></article>
+            <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><Clock3 size={18}/></span><h3>Hours and overlap</h3><p>State weekly hours, timezone, required live coverage, response expectations, and whether the schedule is fixed or flexible.</p></article>
+            <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><Split size={18}/></span><h3>Decision boundaries</h3><p>Explain what the Virtual Assistant may handle independently, what needs approval, and what should be escalated immediately.</p></article>
+          </div>
+        </Band>
 
-      <section className="section section-white">
-        <div className="container public-content-grid service-context-grid">
-          <div><div className="section-head"><div className="kicker">Why the Philippines?</div><h2>Hire for role fit, communication, and execution quality.</h2></div><p>Philippines-based remote professionals work across international teams and common cloud tools, but location alone does not guarantee fit. Evaluate relevant experience, communication, work evidence, schedule, and judgment for the workflow you need.</p><p>VirtualAssistant.com.ph gives you a structured path from private role brief to approved profiles, candidate review, interview, and confirmed hiring terms.</p><Link className="text-link" href="/how-vetting-works">See how Virtual Assistants are vetted <ArrowRight size={14}/></Link></div>
-          <aside className="service-cost-panel"><CircleDollarSign size={22}/><div className="kicker">Cost and scope</div><h2>How much does {article} {s.name.toLowerCase()} cost?</h2><p>There is no single rate for this role. What moves the number for {article} {s.name.toLowerCase()} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p><ul className="plain-list">{costFactorsFor(s).map((factor) => <li key={factor}>{factor}</li>)}</ul><Link className="text-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link></aside>
-        </div>
-      </section>
+        <Band id="hiring">
+          <SectionHead center kicker="Hiring process" title={`How to hire ${article} ${s.name.toLowerCase()} in the Philippines`} lede="Define the work first, then test candidates on the evidence and judgment that matter for that exact scope."/>
+          <Steps items={[
+            { title: "Define the work", copy: "Document responsibilities, tools, hours, budget, schedule, and the result the person should own." },
+            { title: "Review relevant talent", copy: "Compare role experience, tools, communication, schedule, and work evidence rather than broad profile claims." },
+            { title: "Interview with real scenarios", copy: "Use examples from your workflow to understand process, quality checks, judgment, and limits." },
+            { title: "Confirm the hire", copy: "Agree on final rate, start date, hours, responsibilities, reporting, and onboarding before work begins." }
+          ]}/>
+          <div className="sp-center"><a className="hs-btn hs-btn-primary" href="#hiring-brief">Start with a quick brief <ArrowRight size={16}/></a></div>
+        </Band>
 
-      <section className="section service-anchor" id="interview">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Interview guide</div><h2>Questions to ask {s.name.toLowerCase()} candidates</h2><p>Use practical questions to reveal process, judgment, quality checks, communication, and decision boundaries.</p></div>
-          <div className="interview-list">{interviewQuestions.map((item, index) => <article className="interview-item" key={item.q}><div className="interview-number">{String(index + 1).padStart(2, "0")}</div><div><h3>{item.q}</h3><p><strong>Listen for:</strong> {item.a}</p></div></article>)}</div>
-        </div>
-      </section>
+        <Band tone="soft">
+          <div className="sp-split">
+            <div>
+              <SectionHead kicker="Why the Philippines?" title="Hire for role fit, communication, and execution quality."/>
+              <div className="hs-prose">
+                <p>Philippines-based remote professionals work across international teams and common cloud tools, but location alone does not guarantee fit. Evaluate relevant experience, communication, work evidence, schedule, and judgment for the workflow you need.</p>
+                <p>VirtualAssistant.com.ph gives you a structured path from private role brief to approved profiles, candidate review, interview, and confirmed hiring terms.</p>
+              </div>
+              <Link className="hs-link sp-link-gap" href="/how-vetting-works">See how Virtual Assistants are vetted <ArrowRight size={14}/></Link>
+            </div>
+            <aside className="sp-panel">
+              <span className="sp-panel-label"><CircleDollarSign size={14} aria-hidden="true"/> Cost and scope</span>
+              <h3>How much does {article} {s.name.toLowerCase()} cost?</h3>
+              <p>There is no single rate for this role. What moves the number for {article} {s.name.toLowerCase()} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p>
+              <CheckList items={costFactorsFor(s)}/>
+              <Link className="hs-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link>
+            </aside>
+          </div>
+        </Band>
 
-      <section className="section section-white service-anchor" id="faqs">
-        <div className="container faq-narrow"><div className="section-head specialty-section-head"><div className="kicker">Frequently asked questions</div><h2>Hiring {s.name.toLowerCase()} talent in the Philippines</h2><p>Common questions to resolve before you start interviewing.</p></div><div className="faq-list">{faqs.map((faq) => <details className="faq-item" key={faq.q}><summary>{faq.q}</summary><p>{faq.a}</p></details>)}</div></div>
-      </section>
+        <Band id="interview">
+          <SectionHead kicker="Interview guide" title={`Questions to ask ${s.name.toLowerCase()} candidates`} lede="Use practical questions to reveal process, judgment, quality checks, communication, and decision boundaries."/>
+          <div className="sp-qa">
+            {interviewQuestions.map((item) => <article className="sp-qa-item" key={item.q}>
+              <span className="sp-qa-icon" aria-hidden="true"><MessageSquareText size={17}/></span>
+              <div><h3>{item.q}</h3><p><strong>Listen for:</strong> {item.a}</p></div>
+            </article>)}
+          </div>
+        </Band>
 
-      {guides.length ? <section className="section service-guides-section">
-        <div className="container">
-          <div className="section-head specialty-section-head"><div className="kicker">Hiring guides</div><h2>Research the role before you interview.</h2><p>Use these supporting guides for task scope, cost planning, interview questions, job descriptions, tools, and onboarding. Each guide links back to this hiring page when you are ready to compare talent.</p></div>
-          <div className="service-guide-grid">{guides.map((guide) => <Link className="service-guide-card" href={blogHref(guide)} key={guide.slug} data-track="service_blog_guide"><span className="service-guide-icon"><BookOpen size={18}/></span><div><span className="small muted">{guide.intent === "comparison" ? "Comparison" : guide.intent === "commercial" ? "Hiring guide" : "Practical guide"}</span><h3>{guide.title}</h3><p>{guide.excerpt}</p><strong>Read guide <ArrowRight size={14}/></strong></div></Link>)}</div>
-        </div>
-      </section> : null}
+        <Band tone="soft" id="faqs">
+          <FaqBlock kicker="Frequently asked questions" title={`Hiring ${s.name.toLowerCase()} talent in the Philippines`} lede="Common questions to resolve before you start interviewing." faqs={faqs}/>
+        </Band>
 
-      <section className="section">
-        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Related services</div><h2>Build support around the workflow, not just the title.</h2><p>These roles often overlap with or complement {s.name.toLowerCase()} responsibilities.</p></div><div className="grid-4">{related.map((item) => item ? <Link className="card card-hover related-service-card" href={`/service/${item.slug}`} key={item.slug}><Search size={18}/><h3>{item.name}</h3><span className="text-link">Explore this service <ArrowRight size={13}/></span></Link> : null)}</div></div>
-      </section>
+        {guides.length ? <Band>
+          <SectionHead kicker="Hiring guides" title="Research the role before you interview." lede="Use these supporting guides for task scope, cost planning, interview questions, job descriptions, tools, and onboarding. Each guide links back to this hiring page when you are ready to compare talent."/>
+          <div className="sp-guides">
+            {guides.map((guide) => <Link className="sp-guide" href={blogHref(guide)} key={guide.slug} data-track="service_blog_guide">
+              <span className="sp-guide-type"><BookOpen size={14} aria-hidden="true"/>{guide.intent === "comparison" ? "Comparison" : guide.intent === "commercial" ? "Hiring guide" : "Practical guide"}</span>
+              <h3>{guide.title}</h3>
+              <p>{guide.excerpt}</p>
+              <span className="hs-link">Read guide <ArrowRight size={14}/></span>
+            </Link>)}
+          </div>
+        </Band> : null}
 
-      {relatedIndustries.length ? <section className="section section-white">
-        <div className="container"><div className="section-head specialty-section-head"><div className="kicker">Industry guides</div><h2>See how this role fits specific business workflows.</h2><p>Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type.</p></div><div className="grid-4">{relatedIndustries.map((industry) => <Link className="card card-hover related-service-card" href={`/industries/${industry.slug}`} key={industry.slug}><UsersRound size={18}/><h3>{industry.label}</h3><span className="text-link">View industry guide <ArrowRight size={13}/></span></Link>)}</div></div>
-      </section> : null}
+        <Band tone={guides.length ? "soft" : "white"}>
+          <div className="sp-related">
+            <div>
+              <SectionHead kicker="Related services" title="Build support around the workflow, not just the title." lede={`These roles often overlap with or complement ${s.name.toLowerCase()} responsibilities.`}/>
+              <LinkTiles items={related.filter(Boolean).map((item) => ({ href: `/service/${item!.slug}`, label: item!.name, icon: <Search size={16}/> }))}/>
+            </div>
+            {relatedIndustries.length ? <div>
+              <SectionHead kicker="Industry guides" title="See how this role fits specific business workflows." lede="Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type."/>
+              <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: industry.label, icon: <UsersRound size={16}/> }))}/>
+            </div> : null}
+          </div>
+        </Band>
+
+        <CtaBand
+          title={copy.finalTitle}
+          body={copy.finalBody}
+          primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `service_${s.slug.replaceAll("-", "_")}_final_cta` }}
+          secondary={{ href: "/pricing", label: "See how pricing works" }}
+        />
+      </div>
 
     </main>
     <SiteFooter />

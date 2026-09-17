@@ -8,6 +8,8 @@ import {
   CalendarCheck2,
   Check,
   CheckCircle2,
+  CircleX,
+  CircleMinus,
   ClipboardCheck,
   Clock3,
   Headphones,
@@ -27,6 +29,7 @@ import {
 import { PublicAvatar } from "@/components/public-avatar";
 import { VaCostCalculator } from "@/components/va-cost-calculator";
 import { mergeUniqueStrings } from "@/lib/collections";
+import { INDUSTRIES } from "@/lib/industries";
 
 /**
  * Everything on the homepage below the hero, in one visual system.
@@ -214,7 +217,9 @@ export function WhyPhilippinesSection() {
           </ul>
         </div>
 
-        <div className="hs-why-more">
+        <details className="hs-more">
+          <summary>More on hiring a virtual assistant from the Philippines <Plus size={15} aria-hidden="true" /></summary>
+          <div className="hs-why-more">
           <div className="hs-prose">
             <p>One of the biggest advantages when you <strong>hire a virtual assistant from the Philippines</strong> is flexibility. You may need someone for a few hours each week today and a larger commitment later. Your support can grow alongside your workload instead of forcing you into a larger hiring commitment before you are ready.</p>
             <p>We match for the role itself, including the tools you use, the hours you need, the communication style that works for your team, and the level of ownership you expect.</p>
@@ -223,7 +228,8 @@ export function WhyPhilippinesSection() {
             <p>An <Link href="/service/ecommerce">ecommerce virtual assistant</Link> can help with product listings, order administration, customer service, inventory updates, and supplier coordination.</p>
             <p>A <Link href="/service/social-media">social media virtual assistant</Link> can help schedule content, prepare graphics, manage comments, track campaigns, and keep your publishing calendar moving.</p>
           </div>
-        </div>
+          </div>
+        </details>
 
         <div className="hs-delegate">
           <p>If you are spending too much time on work that someone else could reliably handle, it may be time to delegate.</p>
@@ -238,16 +244,32 @@ export function WhyPhilippinesSection() {
 /* 3. Hiring models                                                           */
 /* -------------------------------------------------------------------------- */
 
-const MODEL_ROWS = [
-  ["Who sources the VA?", "You", "You", "We do"],
-  ["Screening and interviews", "You", "You", "We handle this"],
-  ["You employ and manage the VA", "Yes", "Yes", "No, we support"],
-  ["Ongoing support", "Limited", "None", "Yes"],
-  ["Best for", "Experienced hirers", "Businesses that want to manage directly", "Businesses that want vetted candidates and hiring support"],
+type Verdict = "yes" | "partial" | "no" | "info";
+type ModelCell = { verdict: Verdict; text: string };
+
+const MODEL_COLUMNS = [
+  { key: "agency", title: "VirtualAssistant.com.ph", subtitle: "Agency · Managed / Recruiter-Supported" },
+  { key: "marketplace", title: "Marketplace", subtitle: "Freelance platforms and job boards" },
+  { key: "direct", title: "Direct hire", subtitle: "You recruit and employ on your own" },
 ] as const;
 
-// The last row is a description, not an outcome, so it gets no check mark.
-const CHECKED_ROWS = MODEL_ROWS.length - 1;
+// Rows are phrased so a check always means "this is handled for you".
+const MODEL_ROWS: { label: string; cells: [ModelCell, ModelCell, ModelCell] }[] = [
+  { label: "Candidates found for you", cells: [{ verdict: "yes", text: "Recruiters source them" }, { verdict: "no", text: "You post and sort applicants" }, { verdict: "no", text: "You advertise and sort" }] },
+  { label: "Screening and interviews handled", cells: [{ verdict: "yes", text: "Screened before you meet them" }, { verdict: "no", text: "You screen every profile" }, { verdict: "no", text: "You run the whole process" }] },
+  { label: "You make the final hiring decision", cells: [{ verdict: "yes", text: "You choose from the shortlist" }, { verdict: "yes", text: "You choose" }, { verdict: "yes", text: "You choose" }] },
+  { label: "Support after the VA starts", cells: [{ verdict: "yes", text: "Client Success check-ins" }, { verdict: "partial", text: "Platform support only" }, { verdict: "no", text: "On your own" }] },
+  { label: "Help if the match doesn't work", cells: [{ verdict: "yes", text: "Recovery and replacement support" }, { verdict: "no", text: "Start the search again" }, { verdict: "no", text: "Start the search again" }] },
+  { label: "What you pay", cells: [{ verdict: "info", text: "VA rate + service fee, quoted before you commit" }, { verdict: "info", text: "VA rate + platform fees" }, { verdict: "info", text: "VA rate + your recruiting time" }] },
+  { label: "Best for", cells: [{ verdict: "info", text: "Businesses that want vetted candidates and hiring support" }, { verdict: "info", text: "Experienced hirers" }, { verdict: "info", text: "Businesses that want to manage directly" }] },
+];
+
+function VerdictIcon({ verdict }: { verdict: Verdict }) {
+  if (verdict === "yes") return <CheckCircle2 className="hs-v hs-v-yes" size={17} aria-label="Yes" />;
+  if (verdict === "partial") return <CircleMinus className="hs-v hs-v-partial" size={17} aria-label="Partly" />;
+  if (verdict === "no") return <CircleX className="hs-v hs-v-no" size={17} aria-label="No" />;
+  return null;
+}
 
 export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
   return (
@@ -256,48 +278,73 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
         <div className="hs-head">
           <Kicker>Clearer choices. A better hiring experience.</Kicker>
           <h2 className="hs-h2" id="hs-models-title">Hiring a <span className="hs-accent">Filipino</span> Virtual Assistant: Agency vs Marketplace vs Direct Hire</h2>
-          <p className="hs-lede">Different hiring paths. Here&apos;s how they compare, and where we fit in.</p>
+          <p className="hs-lede">Three ways to hire. Here&apos;s what each one leaves on your plate, and where we fit in.</p>
         </div>
 
         <div className="hs-models">
           <div className="hs-table-wrap">
             <table className="hs-table">
-              <caption className="sr-only">Comparison of marketplace, direct hire, and recruiter-supported hiring</caption>
+              <caption className="sr-only">Comparison of agency (recruiter-supported), marketplace, and direct hire</caption>
               <thead>
                 <tr>
                   <td aria-hidden="true" />
-                  <th scope="col">Marketplace</th>
-                  <th scope="col">Direct hire</th>
-                  <th scope="col" className="hs-managed">
-                    <span className="hs-recommended">Recommended</span>
-                    Managed / Recruiter-Supported
-                    <small>VirtualAssistant.com.ph</small>
-                  </th>
+                  {MODEL_COLUMNS.map((column, index) => (
+                    <th scope="col" key={column.key} className={index === 0 ? "hs-managed" : undefined}>
+                      {index === 0 ? <span className="hs-recommended">Recommended</span> : null}
+                      <strong>{column.title}</strong>
+                      <small>{column.subtitle}</small>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {MODEL_ROWS.map(([label, marketplace, direct, managed], index) => (
-                  <tr key={label}>
-                    <th scope="row">{label}</th>
-                    <td>{marketplace}</td>
-                    <td>{direct}</td>
-                    <td className="hs-managed">
-                      {index < CHECKED_ROWS
-                        ? <span className="hs-cell-check"><CheckCircle2 size={15} aria-hidden="true" />{managed}</span>
-                        : managed}
-                    </td>
+                {MODEL_ROWS.map((row) => (
+                  <tr key={row.label}>
+                    <th scope="row">{row.label}</th>
+                    {row.cells.map((cell, index) => (
+                      <td key={index} className={index === 0 ? "hs-managed" : undefined}>
+                        <span className={`hs-cell hs-cell-${cell.verdict}`}><VerdictIcon verdict={cell.verdict} />{cell.text}</span>
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td aria-hidden="true" />
+                  <td className="hs-managed hs-managed-foot"><Link className="hs-btn hs-btn-primary" href={bookingUrl}>Book a discovery call <ArrowRight size={16} /></Link></td>
+                  <td colSpan={2} />
+                </tr>
+              </tfoot>
             </table>
           </div>
 
-          <aside className="hs-approach">
-            <Kicker>Our approach</Kicker>
-            <h3>We make hiring simpler and safer.</h3>
-            <p>VirtualAssistant.com.ph is a recruiter-supported option. You get screened candidates, hiring guidance, and ongoing support, without having to source, interview, and manage everything on your own.</p>
-            <Link className="hs-btn hs-btn-primary" href={bookingUrl}>Book a discovery call <ArrowRight size={16} /></Link>
-          </aside>
+          <div className="hs-models-cards">
+            {MODEL_COLUMNS.map((column, columnIndex) => (
+              <article className={`hs-model-card${columnIndex === 0 ? " is-managed" : ""}`} key={column.key}>
+                {columnIndex === 0 ? <span className="hs-recommended">Recommended</span> : null}
+                <h3>{column.title}</h3>
+                <p className="hs-model-sub">{column.subtitle}</p>
+                <ul>
+                  {MODEL_ROWS.map((row) => (
+                    <li key={row.label}>
+                      <VerdictIcon verdict={row.cells[columnIndex].verdict} />
+                      <span><small>{row.label}</small>{row.cells[columnIndex].text}</span>
+                    </li>
+                  ))}
+                </ul>
+                {columnIndex === 0 ? <Link className="hs-btn hs-btn-primary" href={bookingUrl}>Book a discovery call <ArrowRight size={16} /></Link> : null}
+              </article>
+            ))}
+          </div>
+
+          <div className="hs-approach">
+            <div>
+              <h3>We make hiring simpler and safer.</h3>
+              <p>VirtualAssistant.com.ph is a recruiter-supported option. You get screened candidates, hiring guidance, and ongoing support, without having to source, interview, and manage everything on your own.</p>
+            </div>
+            <Link className="hs-link" href="/managed-vs-direct-hire">Compare managed vs. direct hire in detail <ArrowRight size={14} /></Link>
+          </div>
         </div>
       </div>
     </section>
@@ -434,18 +481,29 @@ export function HowItWorksSection() {
 /* 6. Industries                                                              */
 /* -------------------------------------------------------------------------- */
 
-const AUDIENCES: { label: string; href: string; icon: Icon }[] = [
-  { label: "Small Businesses", href: "/industries/small-business", icon: Store },
-  { label: "Startups", href: "/industries/startups", icon: Rocket },
-  { label: "Agencies", href: "/industries/professional-services-growth", icon: Users },
-  { label: "Ecommerce Stores", href: "/industries/ecommerce-stores", icon: ShoppingCart },
-  { label: "Real Estate Companies", href: "/industries/real-estate-agents", icon: Home },
-  { label: "Healthcare Practices", href: "/industries/healthcare-dental", icon: HeartPulse },
-  { label: "Law Firms", href: "/industries/law-firms", icon: Scale },
-  { label: "Professional Services", href: "/industries/professional-services-growth", icon: BriefcaseBusiness },
+const FEATURED_INDUSTRIES: { slug: string; icon: Icon }[] = [
+  { slug: "small-business", icon: Store },
+  { slug: "startups", icon: Rocket },
+  { slug: "ecommerce-stores", icon: ShoppingCart },
+  { slug: "real-estate-agents", icon: Home },
+  { slug: "healthcare-dental", icon: HeartPulse },
+  { slug: "law-firms", icon: Scale },
+  { slug: "accountants-cpas", icon: Calculator },
+  { slug: "professional-services-growth", icon: BriefcaseBusiness },
 ];
 
+const MORE_INDUSTRY_SLUGS = ["home-local-services", "property-management-companies", "insurance-agencies", "financial-advisors", "coaches", "construction-companies", "ndis-providers", "therapists"];
+
+function capitalise(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export function IndustriesSection() {
+  const featured = FEATURED_INDUSTRIES
+    .map(({ slug, icon }) => ({ industry: INDUSTRIES.find((item) => item.slug === slug), icon }))
+    .filter((item): item is { industry: (typeof INDUSTRIES)[number]; icon: Icon } => Boolean(item.industry));
+  const more = MORE_INDUSTRY_SLUGS.map((slug) => INDUSTRIES.find((item) => item.slug === slug)).filter((item): item is (typeof INDUSTRIES)[number] => Boolean(item));
+
   return (
     <section className="hs-section hs-band-soft" aria-labelledby="hs-industries-title">
       <div className="container">
@@ -453,19 +511,33 @@ export function IndustriesSection() {
           <div>
             <Kicker>Supporting businesses across industries</Kicker>
             <h2 className="hs-h2" id="hs-industries-title">Filipino Virtual Assistants for Growing Businesses</h2>
-            <p className="hs-lede">We help businesses of all sizes find the right Filipino talent.</p>
+            <p className="hs-lede">A good VA for a dental clinic and a good VA for an online store do very different work. We screen for the workflows, tools, and customer expectations of your industry, not just a job title.</p>
           </div>
-          <Link className="hs-link" href="/industries">View all industries <ArrowRight size={14} /></Link>
+          <Link className="hs-link" href="/industries">View all {INDUSTRIES.length} industries <ArrowRight size={14} /></Link>
         </div>
 
-        <div className="hs-tiles-row">
-          {AUDIENCES.map(({ label, href, icon }, index) => (
-            <Link key={label} href={href} className="hs-tile-h">
-              <Chip icon={icon} tone={index} size={20} />
-              <strong>{label}</strong>
-              <ArrowRight className="hs-tile-arrow" size={15} aria-hidden="true" />
+        <div className="hs-industry-grid">
+          {featured.map(({ industry, icon }, index) => (
+            <Link key={industry.slug} href={`/industries/${industry.slug}`} className="hs-industry">
+              <div className="hs-industry-top">
+                <Chip icon={icon} tone={index} size={20} />
+                <ArrowRight className="hs-tile-arrow" size={15} aria-hidden="true" />
+              </div>
+              <strong>{industry.label}</strong>
+              <span className="hs-industry-label">Common work</span>
+              <ul>
+                {industry.workflows.slice(0, 3).map((workflow) => <li key={workflow}>{capitalise(workflow)}</li>)}
+              </ul>
             </Link>
           ))}
+        </div>
+
+        <div className="hs-industry-more">
+          <span>Also hiring for</span>
+          <div>
+            {more.map((industry) => <Link key={industry.slug} href={`/industries/${industry.slug}`}>{industry.label}</Link>)}
+          </div>
+          <Link className="hs-link" href="/hire">Not listed? Tell us the work <ArrowRight size={14} /></Link>
         </div>
       </div>
     </section>

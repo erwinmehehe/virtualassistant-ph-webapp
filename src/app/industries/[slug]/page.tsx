@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, CheckCircle2, Search, ShieldCheck, Wrench } from "lucide-react";
+import { ArrowRight, CheckCircle2, ClipboardList, Clock3, KeyRound, MessageSquareText, Search, Split, TriangleAlert, Wrench } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
+import { Band, CheckList, CtaBand, FaqBlock, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import "../../homepage-sections.css";
+import "../../hiring-pages.css";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -88,21 +91,96 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       form={<HiringBriefForm variant="industry" slug={page.slug} industryLabel={page.label} example={matchExample} talentHref={talentHref} sourcePath={`/industries/${page.slug}`} />}
     />
 
-    <section className="section section-white" id="industry-workflows"><div className="container"><div className="section-head specialty-section-head"><h2>Delegate repeatable execution without blurring decision ownership.</h2><p>Industry knowledge matters most when it helps the Virtual Assistant understand terminology, systems, customer expectations, handoffs, and what should be escalated.</p></div><div className="grid-4">{page.workflows.map((item,index)=><article className="card" key={`${String(item)}-${index}`}><CheckCircle2 size={19}/><h3>{titleCase(item)}</h3><p className="muted">Document the inputs, expected output, turnaround, and escalation rule for this workflow before handing it over.</p></article>)}</div></div></section>
+    <div className="hs-root sp-root">
+      <Band id="industry-workflows">
+        <SectionHead kicker="Common workflows" title="Delegate repeatable execution without blurring decision ownership." lede="Industry knowledge matters most when it helps the Virtual Assistant understand terminology, systems, customer expectations, handoffs, and what should be escalated."/>
+        <div className="sp-cards-4">
+          {page.workflows.map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}>
+            <span className="sp-card-icon" aria-hidden="true"><CheckCircle2 size={18}/></span>
+            <h3>{titleCase(item)}</h3>
+            <p>Document the inputs, expected output, turnaround, and escalation rule for this workflow before handing it over.</p>
+          </article>)}
+        </div>
+      </Band>
 
-    {spokes.length ? <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>More specialized roles within {page.label.toLowerCase()}</h2><p>If your need is narrower than general {page.label.toLowerCase()} support, one of these dedicated guides is likely a closer fit.</p></div><div className="grid-3">{spokes.map((spoke)=><Link className="card card-hover" href={`/industries/${spoke.slug}`} key={spoke.slug}><h3>{spoke.label}</h3><p className="muted small">{spoke.metaDescription}</p><span className="text-link">View guide <ArrowRight size={13}/></span></Link>)}</div></div></section> : null}
+      {spokes.length ? <Band tone="soft">
+        <SectionHead kicker="Specializations" title={`More specialized roles within ${page.label.toLowerCase()}`} lede={`If your need is narrower than general ${page.label.toLowerCase()} support, one of these dedicated guides is likely a closer fit.`}/>
+        <LinkTiles items={spokes.map((spoke) => ({ href: `/industries/${spoke.slug}`, label: spoke.label, sub: spoke.metaDescription }))}/>
+      </Band> : null}
 
-    <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>Roles that commonly support {page.audience}</h2><p>Choose the service page closest to the work you need, or combine compatible responsibilities into one clearly scoped role.</p></div><div className="grid-4">{services.map((service)=>service?<Link className="card card-hover related-service-card" href={`/service/${service.slug}`} key={service.slug}><Search size={18}/><h3>{service.name}</h3><p className="muted small">{service.focus}</p><span className="text-link">View service guide <ArrowRight size={13}/></span></Link>:null)}</div></div></section>
+      <Band tone={spokes.length ? "white" : "soft"}>
+        <SectionHead kicker="Roles that fit" title={`Roles that commonly support ${page.audience}`} lede="Choose the service page closest to the work you need, or combine compatible responsibilities into one clearly scoped role."/>
+        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: service!.name, sub: service!.focus, icon: <Search size={16}/> }))}/>
+      </Band>
 
-    <section className="section section-white"><div className="container public-content-grid"><div><div className="section-head"><h2>Match the hire to the systems your team already uses.</h2><p>A candidate does not need every tool on this list. Prioritize the software that is central to the first 30 days, then test practical familiarity rather than relying on profile keywords.</p></div><div className="tool-cloud">{page.tools.map((tool,index)=><span className="tool-chip" key={`${String(tool)}-${index}`}><Wrench size={14}/>{tool}</span>)}</div></div><aside className="card stack"><div><h3>Define the operating rules.</h3></div>{page.hiringNotes.map((item,index)=><div className="review-answer" key={`${String(item)}-${index}`}>{item}</div>)}<div className="review-answer"><ShieldCheck size={16}/> Access, compliance, licensing, and supervision remain the client organization's responsibility.</div></aside></div></section>
+      <Band tone={spokes.length ? "soft" : "white"}>
+        <div className="sp-split">
+          <div>
+            <SectionHead kicker="Tools" title="Match the hire to the systems your team already uses." lede="A candidate does not need every tool on this list. Prioritize the software that is central to the first 30 days, then test practical familiarity rather than relying on profile keywords."/>
+            <div className="sp-pills">{page.tools.map((tool, index) => <span key={`${String(tool)}-${index}`}><Wrench size={13} aria-hidden="true"/>{tool}</span>)}</div>
+          </div>
+          <aside className="sp-panel">
+            <span className="sp-panel-label">Operating rules</span>
+            <h3>Define the operating rules.</h3>
+            <CheckList items={[...page.hiringNotes, "Access, compliance, licensing, and supervision remain the client organization's responsibility."]}/>
+          </aside>
+        </div>
+      </Band>
 
-    <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>How to structure a Virtual Assistant role for {page.audience}</h2><p>Start narrow enough that success can be measured. Expand the role only after the initial workflows are stable.</p></div><div className="grid-4"><article className="card"><h3>1. Pick recurring workflows</h3><p className="muted">Choose the tasks that happen every day or week and currently consume owner, manager, or specialist time.</p></article><article className="card"><h3>2. Define access</h3><p className="muted">List the systems, records, permissions, customer data, and approval boundaries the role needs.</p></article><article className="card"><h3>3. Define coverage</h3><p className="muted">Set weekly hours, timezone overlap, response expectations, and whether live phone or customer coverage is required.</p></article><article className="card"><h3>4. Define escalation</h3><p className="muted">Write down which exceptions, decisions, regulated actions, or high-risk situations must move to an internal owner.</p></article></div></div></section>
+      <Band tone={spokes.length ? "white" : "soft"}>
+        <SectionHead kicker="Structure the role" title={`How to structure a Virtual Assistant role for ${page.audience}`} lede="Start narrow enough that success can be measured. Expand the role only after the initial workflows are stable."/>
+        <div className="sp-cards-4">
+          <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><ClipboardList size={18}/></span><h3>Pick recurring workflows</h3><p>Choose the tasks that happen every day or week and currently consume owner, manager, or specialist time.</p></article>
+          <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><KeyRound size={18}/></span><h3>Define access</h3><p>List the systems, records, permissions, customer data, and approval boundaries the role needs.</p></article>
+          <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><Clock3 size={18}/></span><h3>Define coverage</h3><p>Set weekly hours, timezone overlap, response expectations, and whether live phone or customer coverage is required.</p></article>
+          <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><Split size={18}/></span><h3>Define escalation</h3><p>Write down which exceptions, decisions, regulated actions, or high-risk situations must move to an internal owner.</p></article>
+        </div>
+      </Band>
 
-    <section className="section section-white"><div className="container public-content-grid"><div><div className="section-head"><h2>Use real workflow scenarios in the interview.</h2><p>Generic interview questions are easy to rehearse. Ask candidates to explain how they would handle the same work, systems, and exceptions they will face after hiring.</p></div><div className="stack">{interviewScenarios.map((scenario, index)=><article className="card interview-scenario" key={scenario}><span className="process-number">0{index + 1}</span><p>{scenario}</p></article>)}</div></div><aside className="card stack"><h3>Common hiring mistakes to avoid</h3><div className="review-answer">Combining every workflow into one vague role before the first responsibilities are stable.</div><div className="review-answer">Granting broad system access before permissions, review rules, and escalation paths are documented.</div><div className="review-answer">Hiring for general availability without confirming the live coverage your team or customers actually need.</div></aside></div></section>
+      <Band tone={spokes.length ? "soft" : "white"}>
+        <div className="sp-split">
+          <div>
+            <SectionHead kicker="Interview scenarios" title="Use real workflow scenarios in the interview." lede="Generic interview questions are easy to rehearse. Ask candidates to explain how they would handle the same work, systems, and exceptions they will face after hiring."/>
+            <div className="sp-qa">
+              {interviewScenarios.map((scenario) => <article className="sp-qa-item" key={scenario}>
+                <span className="sp-qa-icon" aria-hidden="true"><MessageSquareText size={17}/></span>
+                <div><p className="sp-qa-text">{scenario}</p></div>
+              </article>)}
+            </div>
+          </div>
+          <aside className="sp-panel sp-panel-dark">
+            <span className="sp-panel-label">Common hiring mistakes to avoid</span>
+            <h3>Keep the first version of the role narrow.</h3>
+            <ul className="sp-warn-list">
+              <li><TriangleAlert size={16} aria-hidden="true"/>Combining every workflow into one vague role before the first responsibilities are stable.</li>
+              <li><TriangleAlert size={16} aria-hidden="true"/>Granting broad system access before permissions, review rules, and escalation paths are documented.</li>
+              <li><TriangleAlert size={16} aria-hidden="true"/>Hiring for general availability without confirming the live coverage your team or customers actually need.</li>
+            </ul>
+          </aside>
+        </div>
+      </Band>
 
-    <section className="section"><div className="container"><div className="section-head specialty-section-head"><h2>How to hire a virtual assistant for {page.label.toLowerCase()}</h2><p>Use the workflow to drive the interview and candidate comparison.</p></div><div className="process-grid four-step-process"><div className="process-step"><div className="process-number">01</div><h3>Document the role</h3><p className="muted">Tasks, tools, hours, budget, coverage, quality standards, and decision boundaries.</p></div><div className="process-step"><div className="process-number">02</div><h3>Review relevant talent</h3><p className="muted">Compare industry familiarity, role skills, communication, tools, and schedule.</p></div><div className="process-step"><div className="process-number">03</div><h3>Use real scenarios</h3><p className="muted">Ask how the candidate would handle the same exceptions and handoffs they will face after hiring.</p></div><div className="process-step"><div className="process-number">04</div><h3>Confirm onboarding</h3><p className="muted">Agree on rate, start date, responsibilities, access, reporting, and escalation before work starts.</p></div></div><div className="centered-actions"><Link className="btn btn-primary btn-lg" href={hireHref}>Get a managed Virtual Assistant <ArrowRight size={16}/></Link></div></div></section>
+      <Band tone={spokes.length ? "white" : "soft"}>
+        <SectionHead center kicker="Hiring process" title={`How to hire a virtual assistant for ${page.label.toLowerCase()}`} lede="Use the workflow to drive the interview and candidate comparison."/>
+        <Steps items={[
+          { title: "Document the role", copy: "Tasks, tools, hours, budget, coverage, quality standards, and decision boundaries." },
+          { title: "Review relevant talent", copy: "Compare industry familiarity, role skills, communication, tools, and schedule." },
+          { title: "Use real scenarios", copy: "Ask how the candidate would handle the same exceptions and handoffs they will face after hiring." },
+          { title: "Confirm onboarding", copy: "Agree on rate, start date, responsibilities, access, reporting, and escalation before work starts." }
+        ]}/>
+        <div className="sp-center"><a className="hs-btn hs-btn-primary" href="#hiring-brief">Start with a quick brief <ArrowRight size={16}/></a></div>
+      </Band>
 
-    <section className="section"><div className="container faq-narrow"><div className="section-head specialty-section-head"><h2>Virtual assistants for {page.label.toLowerCase()}</h2><p>Questions to resolve before you shortlist and interview.</p></div><div className="faq-list">{faqs.map((faq)=><details className="faq-item" key={faq.q}><summary>{faq.q}</summary><p>{faq.a}</p></details>)}</div></div></section>
+      <Band tone={spokes.length ? "soft" : "white"}>
+        <FaqBlock kicker="Frequently asked questions" title={`Virtual assistants for ${page.label.toLowerCase()}`} lede="Questions to resolve before you shortlist and interview." faqs={faqs}/>
+      </Band>
 
+      <CtaBand
+        title={`Build your ${page.label.toLowerCase()} support role.`}
+        body="Tell us the workflows, tools, hours, and access rules. Our recruiters use the brief to find approved Filipino Virtual Assistants who fit how your team already works."
+        primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
+        secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}
+      />
+    </div>
   </main><SiteFooter/></>;
 }

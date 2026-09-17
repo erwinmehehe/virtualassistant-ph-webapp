@@ -2,18 +2,23 @@
 
 import Link from "next/link";
 import {
+  Activity,
   BarChart3,
+  Bell,
+  Bookmark,
   BriefcaseBusiness,
   CalendarDays,
   CircleDollarSign,
   CircleEllipsis,
   CircleUserRound,
+  ClipboardCheck,
   LayoutDashboard,
   ListTodo,
   MessageSquare,
   Search,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
   UsersRound,
   Wrench,
 } from "lucide-react";
@@ -23,12 +28,9 @@ import type { Role } from "@/lib/types";
 type NavItem = readonly [string, string, typeof LayoutDashboard];
 type NavGroup = { label: string; items: readonly NavItem[] };
 
-/*
- * Primary navigation is intentionally limited to durable work areas.
- * Workflow stages such as bench, stalled, client review, vetting, support
- * queue, and margin review remain available contextually inside those areas
- * instead of competing for permanent sidebar space.
- */
+/* Keep the four highest-frequency destinations in the mobile bar. Everything
+ * else stays reachable from the desktop sidebar and the mobile More menu.
+ * Built workspace pages must never depend on someone knowing a URL by hand. */
 const nav: Record<Role, readonly NavGroup[]> = {
   client: [
     {
@@ -38,6 +40,8 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
         ["My Team", "/workspace/client/team", UsersRound],
         ["Messages", "/workspace/client/messages", MessageSquare],
+        ["Saved VAs", "/workspace/client/saved", Bookmark],
+        ["Notifications", "/workspace/client/notifications", Bell],
         ["Payments", "/workspace/client/payments", CircleDollarSign],
       ],
     },
@@ -52,6 +56,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
         ["Messages", "/workspace/va/messages", MessageSquare],
+        ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
       ],
     },
@@ -67,6 +72,22 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Client Success", "/workspace/client-success", Wrench],
       ],
     },
+    {
+      label: "Recruiting tools",
+      items: [
+        ["Bench", "/workspace/recruiter/bench", UsersRound],
+        ["Stalled", "/workspace/recruiter/stalled", Activity],
+        ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
+        ["Categories", "/workspace/recruiter/categories", SlidersHorizontal],
+      ],
+    },
+    {
+      label: "Performance",
+      items: [
+        ["Analytics", "/workspace/recruiter/analytics", BarChart3],
+        ["Finance", "/workspace/recruiter/finance", CircleDollarSign],
+      ],
+    },
   ],
   admin: [
     {
@@ -74,9 +95,16 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Overview", "/workspace/admin", ShieldCheck],
         ["Finance", "/workspace/admin/finance", CircleDollarSign],
+        ["Sales", "/workspace/admin/sales", BriefcaseBusiness],
         ["Client Success", "/workspace/client-success", UsersRound],
         ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
+      ],
+    },
+    {
+      label: "Administration",
+      items: [
+        ["Audit Log", "/workspace/admin/audit", Activity],
         ["Settings", "/workspace/admin/settings", Settings],
       ],
     },
@@ -87,7 +115,7 @@ const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/messages"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
-  admin: ["/workspace/admin", "/workspace/admin/finance", "/workspace/client-success", "/workspace/admin/analytics"],
+  admin: ["/workspace/admin", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 
 function activeFor(pathname: string, href: string) {

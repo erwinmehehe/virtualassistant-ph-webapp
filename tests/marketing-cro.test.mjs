@@ -35,7 +35,7 @@ test("public marketing shell loads the shared CRO design system", () => {
 test("high-value public heroes keep their H1 copy and a valid conversion path", () => {
   const checks = [
     ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /<DiscoveryCallCard/],
-    ["src/app/industries/page.tsx", "Hire a virtual assistant who already understands your type of business.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/industries/page.tsx", "Virtual Assistant services built around how your business actually works.", /<DiscoveryCallCard|<HiringBriefForm/],
     ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /<DiscoveryCallCard|<HiringBriefForm/],
     ["src/app/blog/page.tsx", "Build a better remote team, one clear workflow at a time.", /<DiscoveryCallCard|href="\/book-client-call"/],
     ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /<DiscoveryCallCard|<HiringBriefForm/],

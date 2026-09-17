@@ -6,12 +6,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
+import { industryMetaDescription, industrySeoTitle } from "@/lib/industry-seo-content";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
-  title: "Hire Virtual Assistants by Industry Philippines",
-  description: "Find Philippines-based virtual assistants by industry. Explore hiring guides for healthcare, legal, real estate, construction, ecommerce, finance, trades, and more.",
-  keywords: ["virtual assistant by industry", "industry-specific virtual assistant philippines", "hire virtual assistant for my industry"],
+  title: "Virtual Assistant Services by Industry",
+  description: "Explore Virtual Assistant services by industry, including legal, healthcare, real estate, finance, construction, ecommerce, home services and more.",
+  keywords: ["virtual assistant services by industry", "industry-specific virtual assistant services", "hire virtual assistant for my industry"],
   alternates: { canonical: canonicalPath("/industries") }
 };
 
@@ -20,8 +21,8 @@ function IndustryCard({ industry, compact }: { industry: IndustryPage; compact?:
     <div className="industry-directory-card-top">
       <div className="industry-directory-icon"><BriefcaseBusiness size={19}/></div>
       <div>
-        <h2>{industry.label}</h2>
-        <p>{industry.metaDescription}</p>
+        <h2>{industrySeoTitle(industry)}</h2>
+        <p>{industryMetaDescription(industry)}</p>
       </div>
     </div>
     <div className="industry-workflow-list" aria-label={`Common ${industry.label} workflows`}>
@@ -47,11 +48,11 @@ export default function IndustriesPage() {
   return <><SiteHeader/><main id="main-content">
     <MarketingHero
       className="industries-hero"
-      eyebrow="Industry-specific Virtual Assistant hiring"
-      title={<h1>Hire a virtual assistant who already understands your type of business.</h1>}
-      intro={<p>Start with your workflow, not a generic Virtual Assistant job description. Compare Philippines-based talent against the tools, handoffs, schedule, customer expectations, and decision boundaries that matter in your industry.</p>}
+      eyebrow="Virtual Assistant services by industry"
+      title={<h1>Virtual Assistant services built around how your business actually works.</h1>}
+      intro={<p>Start with the workflow, not a generic job description. Compare talent against the systems, handoffs, schedule, customer expectations and decision boundaries that matter in your industry.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
-      trust={<><span><ShieldCheck size={16}/>Approved talent</span><span><UsersRound size={16}/>Role-specific matching</span><span><Search size={16}/>Industry hiring guides</span></>}
+      trust={<><span><ShieldCheck size={16}/>Approved talent</span><span><UsersRound size={16}/>Role-specific matching</span><span><Search size={16}/>Industry workflow guides</span></>}
       form={<DiscoveryCallCard />}
     />
 
@@ -59,7 +60,7 @@ export default function IndustriesPage() {
       <div className="container industries-stats">
         <div><strong>{standalone.length}</strong><span>core industry guides</span></div>
         <div><strong>{specializationCount}</strong><span>specialized workflows</span></div>
-        <div><strong>Philippines</strong><span>focused talent pool</span></div>
+        <div><strong>Workflow-first</strong><span>role scoping and matching</span></div>
         <div><strong>Free</strong><span>for Virtual Assistants to join and apply</span></div>
       </div>
     </section>
@@ -67,7 +68,7 @@ export default function IndustriesPage() {
     <section className="section industries-directory-section">
       <div className="container">
         <div className="industries-directory-head">
-          <div><div className="kicker">Browse by industry</div><h2>Choose the business context closest to yours.</h2><p>Each guide explains what can be delegated, common systems, useful interview questions, and where approvals or regulated decisions should stay internal.</p></div>
+          <div><div className="kicker">Browse by industry</div><h2>Choose the business context closest to yours.</h2><p>Each guide explains what can be delegated, the systems involved, useful interview scenarios, a practical first-30-days plan, metrics to watch, and where approvals or regulated decisions should stay internal.</p></div>
           <Link className="btn" href="/services">Browse all Virtual Assistant services <ArrowRight size={15}/></Link>
         </div>
 

@@ -80,6 +80,12 @@ export type CandidateInterviewRow = {
   scheduled_at: string | null;
   client_decision: string | null;
   created_at: string;
+  client_id?: string;
+  timezone?: string | null;
+  duration_minutes?: number | null;
+  meeting_url?: string | null;
+  client_feedback?: string | null;
+  client_feedback_reason?: string | null;
 };
 
 export type PlacementOfferRow = {

@@ -344,6 +344,11 @@ function normalizeClientFollowup(subjectValue: string, messageValue: string) {
     .replace(/and would like to confirm a few details so we can recommend the right vetted VA\. Are you available for a short discovery call\?/i, "and I’m ready to narrow down the right candidates. Before I do that, I’d like to confirm a couple of details about the day-to-day work, schedule, and must-have experience. If a quick call is easiest, choose a time that works for you and we’ll go through it together.")
     .replace(/Following up on your VirtualAssistant\.com\.ph request\. I wanted to keep things moving and confirm the best next step for your VA search\./i, "Just following up on your VA request. I’m ready to keep this moving whenever you are. If anything has changed, reply here and I’ll adjust the search with you.");
 
+  // Templates ship with their own sign-off (e.g. "Best,\nVirtualAssistant.com.ph Hiring Team").
+  // renderHiringEmail() always appends its own "Best,\n<sender>" line, so strip any trailing
+  // sign-off here rather than let the two stack into a duplicate.
+  message = message.replace(/\n{2,}(?:Best|Regards|Thanks|Thank you|Cheers|Sincerely|Warm regards|Kind regards)[,]?\s*\n[^\n]*\s*$/i, "").trim();
+
   const rawSubject = subjectValue.trim().slice(0, 180) || "VirtualAssistant.com.ph follow-up";
   const legacyMatch = rawSubject.match(/^Your VirtualAssistant\.com\.ph enquiry\s*-\s*(.+)$/i);
   const subject = legacyMatch ? `About your ${legacyMatch[1].trim()} request` : rawSubject;

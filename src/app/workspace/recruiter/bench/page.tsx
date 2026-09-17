@@ -95,7 +95,7 @@ export default async function RecruiterTalentOperations() {
   const coverageRows = VA_CATEGORIES.map((category) => {
     const ready = readyRows.filter((candidate) => candidate.category === category).length;
     const nearReady = nearReadyRows.filter((candidate) => candidate.category === category).length;
-    const unavailable = unavailableRows.filter((candidate) => candidate.readiness === "unavailable").filter((candidate) => candidate.category === category).length;
+    const unavailable = unavailableRows.filter((candidate) => candidate.category === category).length;
     const demand = demandCounts.get(category) || 0;
     const model = talentCoverage({ ready, nearReady, demand, target: DEFAULT_BENCH_TARGET });
     return { category, ready, nearReady, unavailable, demand, target: DEFAULT_BENCH_TARGET, ...model };
@@ -189,7 +189,7 @@ export default async function RecruiterTalentOperations() {
           <BenchBulkSelectAll formId="bench-bulk-add" checkboxName="va_id" />
           <button className="btn btn-sm" type="reset">Clear</button>
           <span className="small muted">Add selected to</span>
-          <select name="category" defaultValue={VA_CATEGORIES[0]} aria-label="Bulk talent-pool category">{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select>
+          <select name="category" defaultValue="" required aria-label="Bulk talent-pool category"><option value="" disabled>Choose category</option>{VA_CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select>
           <select name="priority" defaultValue="3" aria-label="Bulk talent-pool priority"><option value="5">Priority 5</option><option value="4">Priority 4</option><option value="3">Priority 3</option><option value="2">Priority 2</option><option value="1">Priority 1</option></select>
           <button className="btn btn-sm btn-primary" type="submit">Add selected</button>
         </form>

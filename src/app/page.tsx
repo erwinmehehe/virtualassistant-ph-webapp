@@ -212,7 +212,7 @@ export default async function HomePage({
             <div className="pva-hero-copy">
               <div className="pva-eyebrow">
                 <span><ShieldCheck size={14} /> Vetted &amp; managed</span>
-                <strong>Virtual Assistant Philippines for AU, US &amp; UK teams</strong>
+                <strong>Vetted Filipino VAs for growing teams worldwide</strong>
               </div>
               <h1>
                 Hire a Vetted Virtual Assistant <em>in the Philippines</em>

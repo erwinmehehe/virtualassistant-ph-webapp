@@ -24,17 +24,21 @@ test("recruiter badges include tasks and notifications without loading their ful
   assert.match(badges, /Number\(raw\.tasks/);
 });
 
-test("My Day uses one compact operational queue RPC", async () => {
-  const [page, migration] = await Promise.all([
+test("My Day uses bounded operational queue RPCs", async () => {
+  const [page, coreMigration, cleanupMigration] = await Promise.all([
     read("src/app/workspace/recruiter/today/page.tsx"),
-    read("supabase/migrations/20260914012339_recruiter_ops_core.sql")
+    read("supabase/migrations/20260914012339_recruiter_ops_core.sql"),
+    read("supabase/migrations/20260917004500_recruiter_cleanup_queue.sql")
   ]);
   assert.match(page, /recruiter_today_queue/);
   assert.match(page, /p_limit:20/);
-  assert.match(page, /RecruiterTemplateComposer/);
+  assert.match(page, /recruiter_lead_cleanup_queue/);
+  assert.match(page, /p_limit:40/);
   assert.match(page, /completeRecruiterTaskAction/);
-  assert.match(migration, /create or replace function public\.recruiter_today_queue/);
-  assert.match(migration, /limit greatest\(coalesce\(p_limit,20\),1\)/);
+  assert.match(coreMigration, /create or replace function public\.recruiter_today_queue/);
+  assert.match(coreMigration, /limit greatest\(coalesce\(p_limit,20\),1\)/);
+  assert.match(cleanupMigration, /create or replace function public\.recruiter_lead_cleanup_queue/);
+  assert.match(cleanupMigration, /limit greatest\(coalesce\(p_limit, 50\), 1\)/);
 });
 
 test("recruiter tasks are server-only and indexed for due work", async () => {

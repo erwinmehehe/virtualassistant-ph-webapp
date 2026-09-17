@@ -79,3 +79,67 @@
   .va-mobile-drawer { display:block; margin-left:auto; }
   .va-site-nav .nav-actions { margin-left:auto; }
 }
+
+/* Mega panels: links on the left, a discovery-call card on the right. */
+/* Wide panels open from a fixed offset under their menu instead of centring on
+   the short summary, which pushed the 860px panel past the left edge. */
+.va-site-nav .nav-links .va-nav-menu .va-nav-panel.va-nav-mega { left: -110px; transform: translate(0, 8px); }
+.va-site-nav .nav-links .va-nav-menu .va-nav-panel-industries.va-nav-mega { left: -190px; }
+.va-site-nav .nav-links .va-nav-menu:hover .va-nav-panel.va-nav-mega,
+.va-site-nav .nav-links .va-nav-menu:focus-within .va-nav-panel.va-nav-mega { transform: translate(0, 0); }
+.va-site-nav .va-nav-panel.va-nav-mega {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 18px;
+  width: min(860px, calc(100vw - 32px));
+}
+.va-site-nav .va-nav-panel-industries.va-nav-mega { width: min(700px, calc(100vw - 32px)); }
+.va-site-nav .va-nav-mega .va-nav-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 12px; }
+.va-site-nav .va-nav-mega .va-nav-all { margin-top: 10px; }
+.va-nav-callcard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #eef0ff, #f6f3ff);
+  color: #3538cd;
+}
+.va-nav-callcard strong { color: #101828; font-size: 15px; line-height: 1.3; }
+.va-nav-callcard p { margin: 0 0 6px; color: #475467; font-size: 13px; line-height: 1.45; }
+.va-site-nav .va-nav-callcard a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #444ce7, #6236ff);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.va-site-nav .va-nav-callcard a:hover { filter: brightness(1.07); color: #fff; background: linear-gradient(135deg, #444ce7, #6236ff); }
+
+/* Log in menu replaces the separate VA and Client Portal links. */
+.va-site-nav .va-nav-login > summary { color: var(--va-slate-700); font-size: 14px; font-weight: 700; }
+.va-site-nav .va-nav-menu.va-nav-login .va-nav-panel-login,
+.va-site-nav .va-nav-menu.va-nav-login:hover .va-nav-panel-login,
+.va-site-nav .va-nav-menu.va-nav-login:focus-within .va-nav-panel-login {
+  left: auto;
+  right: 0;
+  width: 230px;
+  padding: 10px;
+}
+.va-site-nav .va-nav-menu.va-nav-login:not(:hover):not(:focus-within) .va-nav-panel-login { transform: translate(0, 8px); }
+.va-site-nav .va-nav-menu.va-nav-login:hover .va-nav-panel-login,
+.va-site-nav .va-nav-menu.va-nav-login:focus-within .va-nav-panel-login { transform: translate(0, 0); }
+.va-nav-panel-login > span { display: block; margin: 8px 8px 4px; color: var(--va-slate-500); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.va-nav-panel-login > span:first-child { margin-top: 2px; }
+.va-nav-panel-login a { display: block; padding: 7px 8px; border-radius: 9px; color: var(--va-slate-700); font-size: 13.5px; font-weight: 650; text-decoration: none; }
+.va-nav-panel-login a:hover { color: var(--va-indigo); background: rgba(68, 76, 231, .06); }
+@media (max-width: 1180px) {
+  .va-site-nav .va-nav-login { display: none; }
+}

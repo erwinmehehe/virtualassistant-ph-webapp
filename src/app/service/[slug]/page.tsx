@@ -331,8 +331,10 @@ async function getTalent(service: ServiceSeoPage) {
     return (data || [])
       .filter((va: any) => Boolean(va.slug) && [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(service.directoryCategory))
       .map((va: any) => ({ ...va, _serviceRelevance: talentRelevanceScore(va, service) }))
-      .filter((va: any) => va._serviceRelevance >= 4)
-      .sort((a: any, b: any) => Number(b._serviceRelevance) - Number(a._serviceRelevance) || Number(b.years_experience || 0) - Number(a.years_experience || 0))
+      .sort((a: any, b: any) => Number(b._serviceRelevance) - Number(a._serviceRelevance) || Number(Boolean(b.avatar_url)) - Number(Boolean(a.avatar_url)) || Number(b.years_experience || 0) - Number(a.years_experience || 0))
+      // Strong role matches first; when a role has fewer than 3, fill from the
+      // same directory category so the page never shows a lone candidate.
+      .filter((va: any, index: number) => va._serviceRelevance >= 4 || index < 3)
       .slice(0, 6);
   } catch {
     return [];
@@ -438,7 +440,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
           <div className="service-talent-head">
             <div>
               <div className="kicker">Approved talent</div>
-              <h2>{copy.talentTitle}</h2>
+              <h2>{talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory.toLowerCase()} Virtual Assistants`}</h2>
               <p>{copy.talentIntro}</p>
             </div>
             <Link className="text-link" href={talentHref}>See all relevant talent <ArrowRight size={14}/></Link>

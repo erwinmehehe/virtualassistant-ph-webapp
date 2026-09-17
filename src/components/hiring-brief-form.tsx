@@ -28,7 +28,19 @@ const initialState: ServiceMatchState = { status: "idle" };
 type Variant =
   | { variant: "service"; slug: string; category: string; roleLabel: string; example: string; talentHref: string; sourcePath?: string }
   | { variant: "industry"; slug: string; industryLabel: string; example: string; talentHref: string; sourcePath?: string }
-  | { variant: "general"; sourcePath: string };
+  | { variant: "general"; sourcePath: string } & GeneralOptions;
+
+type GeneralOptions = {
+  title?: string;
+  /** Prefills, e.g. from /hire?category=...&hours=... links. */
+  defaultCategory?: string;
+  defaultHours?: string;
+  defaultBudget?: string;
+  /** Talent introduction / shortlist requests from the directory. */
+  talent?: string;
+  shortlist?: string;
+  allowAttachment?: boolean;
+};
 
 function Steps({ done }: { done: boolean }) {
   return (
@@ -55,7 +67,7 @@ function Success({ message, talentHref, portalHref }: { message?: string; talent
   );
 }
 
-function Fields({ id, messageMin, placeholder }: { id: string; messageMin: number; placeholder: string }) {
+function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "" }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string }) {
   return (
     <>
       <div className="hb-row">
@@ -71,14 +83,14 @@ function Fields({ id, messageMin, placeholder }: { id: string; messageMin: numbe
       <div className="hb-row">
         <div className="hb-field">
           <label htmlFor={`${id}-hours`}>Hours per week</label>
-          <select id={`${id}-hours`} name="hours" required defaultValue="">
+          <select id={`${id}-hours`} name="hours" required defaultValue={HOURS.includes(defaultHours) ? defaultHours : ""}>
             <option value="" disabled>Select hours</option>
             {HOURS.map((h) => <option key={h}>{h}</option>)}
           </select>
         </div>
         <div className="hb-field">
           <label htmlFor={`${id}-budget`}>Hourly budget</label>
-          <select id={`${id}-budget`} name="budget" required defaultValue="">
+          <select id={`${id}-budget`} name="budget" required defaultValue={BUDGETS.includes(defaultBudget) ? defaultBudget : ""}>
             <option value="" disabled>Select budget</option>
             {BUDGETS.map((b) => <option key={b}>{b}</option>)}
           </select>
@@ -142,31 +154,40 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   );
 }
 
-function GeneralVariant({ sourcePath }: { sourcePath: string }) {
+function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, allowAttachment }: { sourcePath: string } & GeneralOptions) {
   const [url, setUrl] = useState<{ sent: boolean; error?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setUrl({ sent: params.get("sent") === "1", error: params.get("error") || undefined });
   }, []);
 
-  if (url.sent) return <Success talentHref="/talent" />;
+  if (url.sent) return <Success talentHref="/find-talent" />;
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
+  const categories: readonly string[] = VA_CATEGORIES;
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title="Hire a Filipino VA" sub="Share a quick brief, then book a discovery call with our recruiting team." />
+      <Head title={title} sub="Share a quick brief, then book a discovery call with our recruiting team." />
       <form action={submitRoleBriefAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
+        {talent ? <input type="hidden" name="talent" value={talent} /> : null}
+        {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
         {url.error ? <div className="hb-error" role="alert">{url.error}</div> : null}
         <div className="hb-field">
           <label htmlFor={`${id}-category`}>Type of help</label>
-          <select id={`${id}-category`} name="category" required defaultValue="">
+          <select id={`${id}-category`} name="category" required defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
             <option value="" disabled>Select a specialty</option>
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." />
+        <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+        {allowAttachment ? (
+          <div className="hb-field">
+            <label htmlFor={`${id}-attachment`}>Job description or SOP <span className="hb-optional">optional</span></label>
+            <input id={`${id}-attachment`} name="attachment" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" />
+          </div>
+        ) : null}
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Continue to booking <ArrowRight size={16} /></button>
         <Foot />
       </form>
@@ -175,7 +196,7 @@ function GeneralVariant({ sourcePath }: { sourcePath: string }) {
 }
 
 export function HiringBriefForm(props: Variant) {
-  if (props.variant === "general") return <GeneralVariant sourcePath={props.sourcePath} />;
+  if (props.variant === "general") { const { variant: _variant, ...options } = props; return <GeneralVariant {...options} />; }
   return <MatchVariant {...props} />;
 }
 
@@ -187,7 +208,7 @@ export function DiscoveryCallCard({ title = "Ready to hire a Filipino VA?", sub 
       <h2>{title}</h2>
       <p>{sub}</p>
       <a className="hb-submit" href={BOOKING_URL} data-track="booking_click">Book a discovery call <ArrowRight size={16} /></a>
-      <div className="hb-links"><Link href="/talent">Browse Virtual Assistants</Link><Link href="/pricing">See pricing</Link></div>
+      <div className="hb-links"><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/pricing">See pricing</Link></div>
     </div>
   );
 }

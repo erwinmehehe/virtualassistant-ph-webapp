@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronDown, Menu } from "lucide-react";
+import { ArrowRight, CalendarCheck, ChevronDown, Menu } from "lucide-react";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 
@@ -14,6 +14,20 @@ const serviceGroups = Array.from(
 
 const industryLinks = INDUSTRIES.slice(0, 8);
 
+const CLIENT_LOGIN = "/auth/login?next=%2Fworkspace%2Fclient";
+const VA_LOGIN = "/auth/login?next=%2Fworkspace%2Fva";
+
+function CallCard({ title, body }: { title: string; body: string }) {
+  return (
+    <aside className="va-nav-callcard">
+      <CalendarCheck size={20} aria-hidden="true" />
+      <strong>{title}</strong>
+      <p>{body}</p>
+      <Link href="/book-client-call" data-track="nav_booking_click">Book a discovery call <ArrowRight size={14} aria-hidden="true" /></Link>
+    </aside>
+  );
+}
+
 export function SiteNav() {
   return (
     <header className="site-header va-site-nav">
@@ -25,35 +39,51 @@ export function SiteNav() {
 
           <details className="va-nav-menu">
             <summary>Services <ChevronDown size={14} aria-hidden="true" /></summary>
-            <div className="va-nav-panel va-nav-panel-wide">
-              <div className="va-nav-columns">
-                {serviceGroups.map(([group, pages]) => (
-                  <div className="va-nav-column" key={group}>
-                    <span>{group}</span>
-                    {pages.slice(0, 2).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}
-                  </div>
-                ))}
+            <div className="va-nav-panel va-nav-panel-wide va-nav-mega">
+              <div>
+                <div className="va-nav-columns">
+                  {serviceGroups.map(([group, pages]) => (
+                    <div className="va-nav-column" key={group}>
+                      <span>{group}</span>
+                      {pages.slice(0, 3).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name.replace(/ Virtual Assistant$/, "")}</Link>)}
+                    </div>
+                  ))}
+                </div>
+                <Link className="va-nav-all" href="/services">View all {SERVICE_PAGES.length} services</Link>
               </div>
-              <Link className="va-nav-all" href="/services">View all services</Link>
+              <CallCard title="Not sure which role?" body="Tell us the work on a 20-minute call and we'll scope the right VA." />
             </div>
           </details>
 
           <details className="va-nav-menu">
             <summary>Industries <ChevronDown size={14} aria-hidden="true" /></summary>
-            <div className="va-nav-panel va-nav-panel-industries">
-              <div className="va-nav-industries-grid">
-                {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
+            <div className="va-nav-panel va-nav-panel-industries va-nav-mega">
+              <div>
+                <div className="va-nav-industries-grid">
+                  {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
+                </div>
+                <Link className="va-nav-all" href="/industries">View all industries</Link>
               </div>
-              <Link className="va-nav-all" href="/industries">View all industries</Link>
+              <CallCard title="Hiring for your industry?" body="We screen for the tools and workflows your team already uses." />
             </div>
           </details>
 
+          <Link href="/how-vetting-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>
         </nav>
 
         <div className="nav-actions">
-          <Link className="header-va-link" href="/for-virtual-assistants">For Virtual Assistants</Link>
-          <Link className="btn btn-ghost login-text va-client-portal" href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
+          <details className="va-nav-menu va-nav-login">
+            <summary>Log in <ChevronDown size={14} aria-hidden="true" /></summary>
+            <div className="va-nav-panel va-nav-panel-login">
+              <span>Clients</span>
+              <Link href={CLIENT_LOGIN}>Client Portal</Link>
+              <span>Virtual Assistants</span>
+              <Link href={VA_LOGIN}>VA log in</Link>
+              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
+              <Link href="/auth/join/va">Apply as a VA</Link>
+            </div>
+          </details>
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
 
           <details className="va-mobile-drawer">
@@ -63,13 +93,16 @@ export function SiteNav() {
               <Link href="/find-talent">Find a VA</Link>
               <Link href="/services">Services</Link>
               <Link href="/industries">Industries</Link>
+              <Link href="/how-vetting-works">How it works</Link>
               <Link href="/pricing">Pricing</Link>
+              <Link href="/book-client-call">Book a discovery call</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse Virtual Assistant jobs</Link>
               <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
+              <Link href={VA_LOGIN}>VA log in</Link>
               <span className="va-mobile-panel-label">Account</span>
-              <Link href="/auth/login?next=%2Fworkspace%2Fclient">Client Portal</Link>
+              <Link href={CLIENT_LOGIN}>Client Portal</Link>
             </nav>
           </details>
         </div>

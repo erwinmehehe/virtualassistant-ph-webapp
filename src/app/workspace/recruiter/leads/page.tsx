@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";

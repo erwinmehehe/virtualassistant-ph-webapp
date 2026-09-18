@@ -45,14 +45,17 @@ test("Google and Microsoft signup are enabled independently", () => {
   assert.doesNotMatch(envExample, /NEXT_PUBLIC_SOCIAL_LOGIN_ENABLED=/);
 });
 
-test("unconfirmed accounts can request another confirmation without account enumeration", () => {
+test("unconfirmed accounts can request another confirmation without cluttering normal login", () => {
+  assert.match(login, /showConfirmationRecovery/);
   assert.match(login, /resendSignupConfirmationAction/);
-  assert.match(login, /Resend confirmation email/);
+  assert.match(login, /Resend email/);
+  assert.doesNotMatch(login, /Didn&apos;t receive your confirmation email\?/);
   assert.match(resend, /auth\.resend\(\{/);
   assert.match(resend, /type: "signup"/);
   assert.match(resend, /auth_resend_confirmation/);
-  assert.match(resend, /workspace\/va\/onboarding/);
-  assert.match(resend, /same message whether|non-enumerating/);
+  assert.match(resend, /callbackParams\.set\("next", next\)/);
+  assert.doesNotMatch(resend, /workspace\/va\/onboarding/);
+  assert.match(resend, /non-enumerating/);
 });
 
 test("email signup callback uses the canonical site origin", () => {

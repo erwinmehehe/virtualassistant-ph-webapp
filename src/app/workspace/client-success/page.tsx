@@ -80,7 +80,7 @@ export default async function ClientSuccessTodayPage(){
 
   return <div className="dash-page role-overview client-success-overview">
     <DashHeader
-      kicker="Client Success"
+      kicker="Client Success Today"
       title="Placement health today"
       subtitle="Healthy placements stay quiet. Launches, missed check-ins, ownership gaps, and at-risk accounts rise to the top."
     />
@@ -115,13 +115,9 @@ export default async function ClientSuccessTodayPage(){
           const nextDue=r.next_due_at;
           const health=HEALTH_LABELS[r.health_status]||r.health_status;
           const stage=STAGE_LABELS[r.placement_stage]||r.placement_stage;
-          return <Link
-            prefetch={false}
-            className={`cs-placement-row ${placementClass(r)}`}
-            href={`/workspace/client-success/${r.workroom_id}`}
-            key={r.workroom_id}
-          >
-            <div className="cs-placement-main">
+          return <Link prefetch={false} className="card" href={`/workspace/client-success/${r.workroom_id}`} key={r.workroom_id}>
+            <div className={`cs-placement-row ${placementClass(r)}`}>
+              <div className="cs-placement-main">
               <div className="cs-placement-tags">
                 <span className={`badge ${healthBadge(r.health_status)}`}>{health}{r.health_score!=null?` · ${r.health_score}`:""}</span>
                 <span className={`badge ${stageBadge(r.placement_stage)}`}>{stage}</span>
@@ -147,7 +143,8 @@ export default async function ClientSuccessTodayPage(){
               <Pill tone={healthTone(r.health_status)}>{health}</Pill>
             </div>
 
-            {r.at_risk_reason?<p className="cs-placement-risk">{r.at_risk_reason}</p>:null}
+              {r.at_risk_reason?<p className="cs-placement-risk">{r.at_risk_reason}</p>:null}
+            </div>
           </Link>;
         })}
       </div>:<div className="empty">No active placements are assigned here yet.</div>}

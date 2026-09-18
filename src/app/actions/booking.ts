@@ -42,13 +42,13 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
           eventId: previousEventId,
           startsAt: scheduledAt,
           durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmail: lead.email,
+          attendeeEmails: [lead.email],
         })
       : await createGoogleMeetDiscoveryMeeting({
           topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
           startsAt: scheduledAt,
           durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmail: lead.email,
+          attendeeEmails: [lead.email],
         });
   } catch {
     // Keep the existing meeting if Google Calendar is temporarily unavailable.

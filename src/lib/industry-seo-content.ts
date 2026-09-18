@@ -43,7 +43,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "real-estate-agents": {
     seoLabel: "Real Estate Agents & Realtors",
-    metaDescription: "Virtual Assistant services for real estate agents and Realtors. Delegate lead follow-up, CRM updates, listing admin, appointments, transactions and marketing support.",
+    metaDescription: "Virtual Assistant services for real estate agents. Delegate lead follow-up, CRM updates, listing admin, appointments, transactions and marketing support.",
     heroIntro: "Real estate teams move quickly, but follow-up, listing administration and CRM work often fall behind when agents are in appointments or on the road. A Virtual Assistant can own the repeatable coordination work while licensed agents keep negotiations, advice and client decisions.",
     workflowDetails: {
       "lead follow-up": "Respond to new enquiries using approved scripts, capture qualification details, schedule the next step and keep follow-up dates visible so warm prospects do not disappear between calls and showings.",
@@ -73,7 +73,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "medical-practices": {
     seoLabel: "Doctors & Medical Practices",
-    metaDescription: "Virtual Assistant services for doctors and medical practices. Delegate scheduling, reminders, referrals, records admin, billing support, calls and intake follow-up.",
+    metaDescription: "Virtual Assistant services for medical practices. Delegate scheduling, reminders, referrals, records admin, billing support, calls and intake follow-up.",
     heroIntro: "Medical practices need reliable administrative follow-through without blurring clinical responsibility. A Virtual Assistant can support scheduling, reminders, referrals, records administration, billing workflows and routine patient communication while clinical decisions remain with qualified staff.",
     workflowDetails: {
       "appointment scheduling": "Book and reschedule appointments using the practice’s approved rules, record the correct visit type and provider, confirm required information and escalate exceptions that need clinical or front-desk judgment.",
@@ -95,7 +95,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "financial-advisors": {
     seoLabel: "Financial Advisors & RIAs",
-    metaDescription: "Virtual Assistant services for financial advisors and RIAs. Delegate scheduling, CRM upkeep, client follow-up, document collection, meeting prep and reporting support.",
+    metaDescription: "Virtual Assistant services for financial advisors. Delegate scheduling, CRM upkeep, client follow-up, document collection, meeting prep and reporting support.",
     heroIntro: "Advisory firms need clean client data, consistent preparation and reliable follow-through without delegating regulated advice. A Virtual Assistant can own recurring administrative workflows around meetings, CRM records, document collection and client coordination while recommendations and regulated decisions stay with licensed professionals.",
     workflowDetails: {
       "meeting scheduling": "Coordinate review meetings, confirmations and rescheduling, capture the correct meeting purpose and make sure the advisor has the relevant client context before the appointment.",
@@ -123,7 +123,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "property-management-companies": {
     seoLabel: "Property Management Companies",
-    metaDescription: "Virtual Assistant services for property management companies. Delegate tenant communication, maintenance coordination, leasing follow-up, vendors, documents and reporting.",
+    metaDescription: "Virtual Assistant services for property managers. Delegate tenant communication, maintenance coordination, leasing follow-up, vendor scheduling and reporting.",
     heroIntro: "Property managers juggle tenant communication, maintenance, leasing enquiries and vendor coordination at the same time. A Virtual Assistant can keep those queues organized, documented and moving while property-level decisions and regulated responsibilities stay with the manager.",
     workflowDetails: {
       "tenant communication": "Handle approved routine messages, record the interaction, route requests to the correct property or work order and escalate emergencies, disputes or policy exceptions immediately.",
@@ -152,7 +152,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "healthcare-dental": {
     seoLabel: "Healthcare & Dental Practices",
-    metaDescription: "Virtual Assistant services for healthcare and dental practices. Delegate scheduling, reminders, referrals, billing admin, front-desk communication and records coordination.",
+    metaDescription: "Virtual Assistant services for healthcare and dental practices. Delegate scheduling, reminders, referrals, billing admin, front-desk support and records.",
     heroIntro: "Healthcare and dental teams need consistent administrative support without moving clinical responsibility outside the practice. A Virtual Assistant can keep scheduling, reminders, referrals, records and front-desk workflows moving within clearly documented privacy and escalation rules.",
     workflowDetails: {
       "scheduling": "Book, reschedule and confirm appointments using the practice’s visit types, provider rules and escalation process so calendars stay accurate and exceptions reach the right staff member.",
@@ -172,7 +172,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "home-local-services": {
     seoLabel: "Home & Local Service Businesses",
-    metaDescription: "Virtual Assistant services for home and local service businesses. Delegate lead response, booking, dispatch support, estimate follow-up, CRM updates and reminders.",
+    metaDescription: "Virtual Assistant services for home service businesses. Delegate lead response, booking, dispatch support, estimate follow-up, CRM updates and reminders.",
     heroIntro: "Home-service companies lose revenue when calls are missed, estimates sit untouched or schedule changes are not communicated quickly. A Virtual Assistant can keep the service board, lead queue and customer follow-up organized while field and pricing decisions stay with the business.",
     workflowDetails: {
       "inbound lead handling": "Respond to new enquiries using approved service-area and qualification rules, capture the job details and move valid opportunities to booking or the correct internal owner.",
@@ -220,7 +220,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
     heroIntro: "Insurance agencies run on accurate records, timely renewal activity and disciplined follow-up. A Virtual Assistant can manage the administrative queues around leads, appointments, documents and renewals while licensed advice, binding authority and coverage decisions remain with authorized staff."
   },
   "accountants-cpas": {
-    metaDescription: "Virtual Assistant support for accountants and CPA firms. Delegate client document follow-up, file organization, bookkeeping admin, billing and workflow tracking.",
+    metaDescription: "Virtual Assistant support for accountants and CPA firms. Delegate document follow-up, file organization, bookkeeping admin, billing and workflow tracking.",
     heroIntro: "Accounting firms lose production time when client documents, calendars, files and routine billing administration are incomplete or late. A Virtual Assistant can keep those workflows organized so accountants spend more time on review, advisory work and regulated decisions."
   },
   "coaches": {
@@ -232,7 +232,7 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
     heroIntro: "Dental practices need reliable front-office follow-through without moving clinical responsibility outside the practice. A Virtual Assistant can support scheduling, recalls, reminders, insurance administration and billing follow-up within clear privacy and escalation rules."
   },
   "photographers-creatives": {
-    metaDescription: "Virtual Assistant support for photographers and creative studios. Delegate inquiry follow-up, onboarding, calendars, gallery admin, invoicing and social scheduling.",
+    metaDescription: "Virtual Assistant support for photographers and studios. Delegate inquiry follow-up, onboarding, calendars, gallery admin, invoicing and social scheduling.",
     heroIntro: "Creative businesses often lose selling and production time to enquiries, scheduling, onboarding and post-project administration. A Virtual Assistant can keep the client journey organized from first enquiry through delivery while creative direction and final client commitments stay with the studio."
   },
   "entrepreneurs": {

@@ -734,7 +734,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       topic: `VirtualAssistant.com.ph discovery call with ${parsed.data.company}`,
       startsAt: parsed.data.scheduled_at,
       durationMinutes: DISCOVERY_DURATION_MINUTES,
-      attendeeEmail: parsed.data.email,
+      attendeeEmails: [parsed.data.email],
     });
   } catch (error) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";

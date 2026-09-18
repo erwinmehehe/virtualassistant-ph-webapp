@@ -341,9 +341,9 @@ async function getTalent(service: ServiceSeoPage) {
       .filter((va: any) => Boolean(va.slug) && [va.primary_category, ...(va.categories || [])].filter(Boolean).includes(service.directoryCategory))
       .map((va: any) => ({ ...va, _serviceRelevance: talentRelevanceScore(va, service) }))
       .sort((a: any, b: any) => Number(b._serviceRelevance) - Number(a._serviceRelevance) || Number(Boolean(b.avatar_url)) - Number(Boolean(a.avatar_url)) || Number(b.years_experience || 0) - Number(a.years_experience || 0))
-      // Strong role matches first; when a role has fewer than 3, fill from the
-      // same directory category so the page never shows a lone candidate.
-      .filter((va: any, index: number) => va._serviceRelevance >= 4 || index < 3)
+      // Relevance beats density. A specialist page should show fewer people
+      // rather than backfill with weak matches from a broad directory category.
+      .filter((va: any) => va._serviceRelevance >= 4)
       .slice(0, 6);
   } catch {
     return [];
@@ -379,10 +379,10 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
   const faqs = [
     { q: `What does ${article} ${s.name.toLowerCase()} do?`, a: `${s.name} work can include ${s.tasks.slice(0, 5).join(", ")}. The right scope depends on your process, tools, decision boundaries, and the candidate's experience.` },
-    { q: `Can I hire ${article} ${s.name.toLowerCase()} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
-    { q: `What tools should ${article} ${s.name.toLowerCase()} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
-    { q: `How much does ${article} ${s.name.toLowerCase()} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
-    { q: `How do I choose the best ${s.name.toLowerCase()}?`, a: `Start with the work the person must own. Then compare relevant experience, ${s.skills.slice(0, 4).join(", ")}, communication, availability, and examples that show they can execute your workflow.` },
+    { q: `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
+    { q: `What tools should ${article} ${s.name} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
+    { q: `How much does ${article} ${s.name} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
+    { q: `How do I choose the best ${s.name}?`, a: `Start with the work the person must own. Then compare relevant experience, ${s.skills.slice(0, 4).join(", ")}, communication, availability, and examples that show they can execute your workflow.` },
     { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." }
   ];
 
@@ -513,7 +513,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         </Band>
 
         <Band id="onboarding">
-          <SectionHead center kicker="First 30 days" title={`A practical onboarding plan for ${article} ${s.name.toLowerCase()}`} lede="Keep the first month narrow enough to review properly. Add scope only after the original workflow is accurate and predictable."/>
+          <SectionHead center kicker="First 30 days" title={`A practical onboarding plan for ${article} ${s.name}`} lede="Keep the first month narrow enough to review properly. Add scope only after the original workflow is accurate and predictable."/>
           <Steps columns={3} items={[
             { label: "Week 1", title: "Learn the workflow", copy: editorial.weekOne },
             { label: "Weeks 2–3", title: "Add ownership", copy: editorial.weekTwo },
@@ -566,7 +566,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         </Band>
 
         <Band tone="soft">
-          <SectionHead kicker="Write the role first" title={`What to include in your ${s.name.toLowerCase()} job brief`} lede="A clear role brief makes candidate comparison easier because everyone is being evaluated against the same work, systems, schedule, and decision boundaries."/>
+          <SectionHead kicker="Write the role first" title={`What to include in your ${s.name} job brief`} lede="A clear role brief makes candidate comparison easier because everyone is being evaluated against the same work, systems, schedule, and decision boundaries."/>
           <div className="sp-cards-4">
             <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><ClipboardList size={18}/></span><h3>Responsibilities</h3><p>List recurring tasks and the result the Virtual Assistant should own. Separate daily, weekly, and occasional work.</p></article>
             <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><KeyRound size={18}/></span><h3>Tools and access</h3><p>Name the systems used from week one and decide which permissions can be granted safely after onboarding.</p></article>
@@ -576,7 +576,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         </Band>
 
         <Band id="hiring">
-          <SectionHead center kicker="Hiring process" title={`How to hire ${article} ${s.name.toLowerCase()} in the Philippines`} lede="Define the work first, then test candidates on the evidence and judgment that matter for that exact scope."/>
+          <SectionHead center kicker="Hiring process" title={`How to hire ${article} ${s.name} in the Philippines`} lede="Define the work first, then test candidates on the evidence and judgment that matter for that exact scope."/>
           <Steps items={[
             { title: "Define the work", copy: "Document responsibilities, tools, hours, budget, schedule, and the result the person should own." },
             { title: "Review relevant talent", copy: "Compare role experience, tools, communication, schedule, and work evidence rather than broad profile claims." },
@@ -598,8 +598,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
             </div>
             <aside className="sp-panel">
               <span className="sp-panel-label"><CircleDollarSign size={14} aria-hidden="true"/> Cost and scope</span>
-              <h3>How much does {article} {s.name.toLowerCase()} cost?</h3>
-              <p>There is no single rate for this role. What moves the number for {article} {s.name.toLowerCase()} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p>
+              <h3>How much does {article} {s.name} cost?</h3>
+              <p>There is no single rate for this role. What moves the number for {article} {s.name} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p>
               <CheckList items={costFactorsFor(s)}/>
               <Link className="hs-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link>
             </aside>
@@ -607,7 +607,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         </Band>
 
         <Band id="interview">
-          <SectionHead kicker="Interview guide" title={`Questions to ask ${s.name.toLowerCase()} candidates`} lede="Use practical questions to reveal process, judgment, quality checks, communication, and decision boundaries."/>
+          <SectionHead kicker="Interview guide" title={`Questions to ask ${s.name} candidates`} lede="Use practical questions to reveal process, judgment, quality checks, communication, and decision boundaries."/>
           <div className="sp-qa">
             {interviewQuestions.map((item) => <article className="sp-qa-item" key={item.q}>
               <span className="sp-qa-icon" aria-hidden="true"><MessageSquareText size={17}/></span>
@@ -617,7 +617,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         </Band>
 
         <Band tone="soft" id="faqs">
-          <FaqBlock kicker="Frequently asked questions" title={`Hiring ${s.name.toLowerCase()} talent in the Philippines`} lede="Common questions to resolve before you start interviewing." faqs={faqs}/>
+          <FaqBlock kicker="Frequently asked questions" title={`Hiring ${s.name} talent in the Philippines`} lede="Common questions to resolve before you start interviewing." faqs={faqs}/>
         </Band>
 
         {guides.length ? <Band>
@@ -635,12 +635,12 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <Band tone={guides.length ? "soft" : "white"}>
           <div className="sp-related">
             <div>
-              <SectionHead kicker="Related services" title="Build support around the workflow, not just the title." lede={`These roles often overlap with or complement ${s.name.toLowerCase()} responsibilities.`}/>
+              <SectionHead kicker="Related services" title="Build support around the workflow, not just the title." lede={`These roles often overlap with or complement ${s.name} responsibilities.`}/>
               <LinkTiles items={related.filter(Boolean).map((item) => ({ href: `/service/${item!.slug}`, label: item!.name, icon: <Search size={16}/> }))}/>
             </div>
             {relatedIndustries.length ? <div>
               <SectionHead kicker="Industry guides" title="See how this role fits specific business workflows." lede="Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type."/>
-              <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: industry.label, icon: <UsersRound size={16}/> }))}/>
+              <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: `${industry.label} Virtual Assistant guide`, sub: `See how ${s.name} work fits ${industry.audience} workflows.`, icon: <UsersRound size={16}/> }))}/>
             </div> : null}
           </div>
         </Band>

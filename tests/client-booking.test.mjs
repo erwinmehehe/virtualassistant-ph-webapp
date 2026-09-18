@@ -89,11 +89,11 @@ test("client booking prevents slot conflicts, records CRM state, and privately n
   assert.match(email, /erwinvalles20@gmail\.com/);
   assert.doesNotMatch(email, /Jervis or Bryan will add the meeting link/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);
-  assert.match(email, /Booking details/);
+  assert.match(email, /What we have on your brief/);
   assert.doesNotMatch(email, /Booking questionnaire/);
 });
 
-test("discovery bookings support Zoom, reminders, self-service changes, and recruiter outcomes", async () => {
+test("discovery bookings support Google Meet, reminders, self-service changes, and recruiter outcomes", async () => {
   const [operations, bookingAction, reminders, recruiter, migration] = await Promise.all([
     read("src/lib/booking-operations.ts"),
     read("src/app/actions/booking.ts"),
@@ -101,7 +101,9 @@ test("discovery bookings support Zoom, reminders, self-service changes, and recr
     read("src/app/actions/recruiter.ts"),
     read("supabase/migrations/20260913082319_discovery_booking_operations.sql"),
   ]);
-  assert.match(operations, /ZOOM_ACCOUNT_ID/);
+  assert.match(operations, /GOOGLE_CALENDAR_CLIENT_ID/);
+  assert.match(operations, /conferenceDataVersion=1/);
+  assert.match(operations, /hangoutsMeet/);
   assert.match(operations, /createCalendarInvite/);
   assert.match(bookingAction, /hashBookingManageToken/);
   assert.match(bookingAction, /rescheduleDiscoveryBookingAction/);

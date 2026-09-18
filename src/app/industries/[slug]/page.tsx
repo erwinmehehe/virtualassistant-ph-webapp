@@ -56,8 +56,9 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const talentHref = `/find-talent?category=${encodeURIComponent(category)}`;
   const seoTitle = industrySeoTitle(page);
   const seoDescription = industryMetaDescription(page);
-  const seoLabel = seoTitle.replace(/^Virtual Assistant Services for /, "");
-  const titleParts = ["Virtual Assistant Services for", seoLabel, ""];
+  // SEO title and visible H1 have different jobs. Keep the SERP title concise,
+  // while the H1 uses the reviewed, natural-language industry heading.
+  const titleParts = [page.h1, "", ""];
   const first30Days = industryFirst30Days(page);
   const metrics = industryMetrics(page);
   const matchExample = `We need help with ${page.workflows.slice(0, 3).join(", ")} for about 20 hours per week. Our team uses ${page.tools.slice(0, 2).join(" and ")}.`;
@@ -69,7 +70,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
 
   const faqs = [
     { q: `What can a Virtual Assistant do for ${page.audience}?`, a: `Common support includes ${page.workflows.slice(0, 6).join(", ")}. The final scope should match your systems, customer or client expectations, risk level, and the candidate's actual experience.` },
-    { q: `Can I hire a Virtual Assistant for ${page.label.toLowerCase()} work?`, a: `Yes. Define the workflow first, then compare candidates on relevant experience, tools, communication, availability, schedule overlap, and the evidence required for the role.` },
+    { q: `Can I hire a Virtual Assistant for ${page.audience}?`, a: `Yes. Define the workflow first, then compare candidates on relevant experience, tools, communication, availability, schedule overlap, and the evidence required for the role.` },
     { q: `Which Virtual Assistant roles fit ${page.audience}?`, a: `Relevant roles often include ${services.map((service) => service?.name).filter(Boolean).slice(0, 4).join(", ")}. One person may cover several compatible workflows, but avoid combining unrelated responsibilities into an unmanageable role.` },
     { q: `What tools should the Virtual Assistant know?`, a: `Your actual stack matters more than a generic software list. Common tools in this workflow include ${page.tools.slice(0, 6).join(", ")}. Ask candidates to explain how they used the tools, what they owned, and how they checked their work.` },
     { q: `How should I write the job description?`, a: `List the recurring responsibilities, weekly hours, timezone overlap, tools, quality standards, reporting cadence, and which decisions the Virtual Assistant can make independently. Add compliance or access boundaries when the workflow handles sensitive information.` },
@@ -117,13 +118,13 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       {spokes.length ? <Band tone="soft">
-        <SectionHead kicker="Specializations" title={`More specialized support for ${page.label.toLowerCase()}`} lede={`If your need is narrower than general ${page.label.toLowerCase()} support, one of these dedicated industry guides is likely a closer fit.`}/>
-        <LinkTiles items={spokes.map((spoke) => ({ href: `/industries/${spoke.slug}`, label: industrySeoTitle(spoke), sub: industryMetaDescription(spoke) }))}/>
+        <SectionHead kicker="Specializations" title={`More specialized support for ${page.audience}`} lede={`If your need is narrower than general support for ${page.audience}, one of these dedicated industry guides is likely a closer fit.`}/>
+        <LinkTiles items={spokes.map((spoke) => ({ href: `/industries/${spoke.slug}`, label: spoke.h1, sub: industryMetaDescription(spoke) }))}/>
       </Band> : null}
 
       <Band tone={spokes.length ? "white" : "soft"}>
-        <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant role does your ${page.label.toLowerCase()} team need?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
-        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: service!.name, sub: service!.focus, icon: <Search size={16}/> }))}/>
+        <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
+        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire ${service!.name}`, sub: `Role focus: ${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
@@ -206,7 +207,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "white" : "soft"}>
-        <SectionHead center kicker="Hiring process" title={`How to hire a Virtual Assistant for ${page.label.toLowerCase()}`} lede="Use the workflow to drive the interview and candidate comparison."/>
+        <SectionHead center kicker="Hiring process" title={`How to hire a Virtual Assistant for ${page.audience}`} lede="Use the workflow to drive the interview and candidate comparison."/>
         <Steps items={[
           { title: "Document the role", copy: "Tasks, tools, hours, budget, coverage, quality standards, and decision boundaries." },
           { title: "Review relevant talent", copy: "Compare industry familiarity, role skills, communication, tools, and schedule." },
@@ -217,11 +218,11 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
-        <FaqBlock kicker="Frequently asked questions" title={`Virtual Assistant services for ${page.label.toLowerCase()}`} lede="Questions to resolve before you shortlist and interview." faqs={faqs}/>
+        <FaqBlock kicker="Frequently asked questions" title={`Virtual Assistant services for ${page.audience}`} lede="Questions to resolve before you shortlist and interview." faqs={faqs}/>
       </Band>
 
       <CtaBand
-        title={`Build Virtual Assistant support around your ${page.label.toLowerCase()} workflows.`}
+        title={`Build Virtual Assistant support around the workflows that matter to ${page.audience}.`}
         body="Tell us the workflows, tools, hours and access rules. Our recruiters use the brief to find approved Virtual Assistants whose experience fits how your team actually works."
         primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
         secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}

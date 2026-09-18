@@ -29,7 +29,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Virtual Assistants for Healthcare & Dental Teams",
     "primaryKeyword": "virtual assistant for healthcare",
     "metaTitle": "Healthcare & Dental Virtual Assistants | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for healthcare and dental practices, including scheduling. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Virtual Assistant services for healthcare and dental practices. Delegate scheduling, reminders, referrals, billing admin, front-desk support and records.",
     "intro": "Build a remote support role around the workflows that matter to healthcare and dental practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "healthcare and dental practices",
     "workflows": [
@@ -65,7 +65,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Virtual Assistants for Home & Local Service Businesses",
     "primaryKeyword": "virtual assistant for home service business",
     "metaTitle": "Home & Local Services Virtual Assistants | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for home and local service companies, including inbound lead handling. Compare skills, tools, availability, and role.",
+    "metaDescription": "Virtual Assistant services for home service businesses. Delegate lead response, booking, dispatch support, estimate follow-up, CRM updates and reminders.",
     "intro": "Build a remote support role around the workflows that matter to home and local service companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "home and local service companies",
     "workflows": [
@@ -104,7 +104,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Virtual Assistants for Professional Services & Growth Teams",
     "primaryKeyword": "virtual assistant for professional services",
     "metaTitle": "Professional Services Virtual Assistants | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for professional services. Compare relevant experience, tools, communication, availability, and role fit before you.",
+    "metaDescription": "Virtual Assistant support for professional-services teams. Delegate client onboarding, CRM upkeep, research, reporting, marketing operations and coordination.",
     "intro": "Build a remote support role around the workflows that matter to professional-services and growth teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "professional-services and growth teams",
     "workflows": [
@@ -143,7 +143,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Your Small Business",
     "primaryKeyword": "virtual assistant for small business",
     "metaTitle": "Virtual Assistant for Your Small Business | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for small business owners, including inbox and calendar support. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Virtual Assistant support for small businesses. Delegate inboxes, customer follow-up, CRM updates, invoicing admin, social scheduling and reporting.",
     "intro": "Build a remote support role around the workflows that matter to small business owners. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "small business owners",
     "workflows": [
@@ -182,7 +182,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Doctors & Medical Practices",
     "primaryKeyword": "virtual assistant for doctors",
     "metaTitle": "Doctors & Medical Practices Virtual Assistants | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for doctors & medical practices. Compare relevant experience, tools, communication, availability, and role fit.",
+    "metaDescription": "Virtual Assistant services for medical practices. Delegate scheduling, reminders, referrals, records admin, billing support, calls and intake follow-up.",
     "intro": "Build a remote support role around the workflows that matter to medical practices, physicians, and clinics. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "medical practices, physicians, and clinics",
     "workflows": [
@@ -221,7 +221,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Lawyers & Law Firms",
     "primaryKeyword": "virtual assistant for lawyers",
     "metaTitle": "Virtual Assistant for Lawyers & Law Firms | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for law firms, attorneys, and solo practitioners, including client intake. Compare skills, tools, availability, and.",
+    "metaDescription": "Virtual Assistant services for law firms and lawyers. Delegate client intake, matter admin, scheduling, billing support, case updates and follow-up.",
     "intro": "Build a remote support role around the workflows that matter to law firms, attorneys, and solo practitioners. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "law firms, attorneys, and solo practitioners",
     "workflows": [
@@ -260,7 +260,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Real Estate Agents",
     "primaryKeyword": "virtual assistant for real estate agents",
     "metaTitle": "Virtual Assistant for Real Estate Agents | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for real estate agents & realtors. Compare relevant experience, tools, communication, availability, and role fit.",
+    "metaDescription": "Virtual Assistant services for real estate agents. Delegate lead follow-up, CRM updates, listing admin, appointments, transactions and marketing support.",
     "intro": "Build a remote support role around the workflows that matter to real estate agents, Realtors, and brokerages. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "real estate agents, Realtors, and brokerages",
     "workflows": [
@@ -299,7 +299,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Financial Advisors",
     "primaryKeyword": "virtual assistant for financial advisors",
     "metaTitle": "Virtual Assistant for Financial Advisors | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for financial advisors. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Virtual Assistant services for financial advisors. Delegate scheduling, CRM upkeep, client follow-up, document collection, meeting prep and reporting support.",
     "intro": "Build a remote support role around the workflows that matter to financial advisors, RIAs, and wealth-management firms. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "financial advisors, RIAs, and wealth-management firms",
     "workflows": [
@@ -338,7 +338,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Startup",
     "primaryKeyword": "virtual assistant for startups",
     "metaTitle": "Virtual Assistant for a Startup | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for startups. Compare relevant experience, tools, communication, availability, and role fit before you hire. Get.",
+    "metaDescription": "Virtual Assistant support for startups and founders. Delegate founder admin, customer follow-up, research, recruiting admin, CRM work and project coordination.",
     "intro": "Build a remote support role around the workflows that matter to startups and founder-led companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "startups and founder-led companies",
     "workflows": [
@@ -377,7 +377,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Construction Company",
     "primaryKeyword": "virtual assistant for construction company",
     "metaTitle": "Virtual Assistant for a Construction Company | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for construction companies. Compare relevant experience, tools, communication, availability, and role fit before you.",
+    "metaDescription": "Virtual Assistant support for construction companies. Delegate estimate follow-up, project documents, vendor coordination, schedule updates and job reporting.",
     "intro": "Build a remote support role around the workflows that matter to general contractors and construction companies. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "general contractors and construction companies",
     "workflows": [
@@ -416,7 +416,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for an Insurance Agency",
     "primaryKeyword": "virtual assistant for insurance agency",
     "metaTitle": "Virtual Assistant for an Insurance Agency | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for insurance agencies, agents, and brokerages, including lead intake. Compare skills, tools, availability, and role.",
+    "metaDescription": "Virtual Assistant support for insurance agencies. Delegate lead intake, renewal reminders, CRM updates, quote follow-up and routine client administration.",
     "intro": "Build a remote support role around the workflows that matter to insurance agencies, agents, and brokerages. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "insurance agencies, agents, and brokerages",
     "workflows": [
@@ -455,7 +455,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Property Management",
     "primaryKeyword": "virtual assistant for property management",
     "metaTitle": "Virtual Assistant for Property Management | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for property management. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Virtual Assistant services for property managers. Delegate tenant communication, maintenance coordination, leasing follow-up, vendor scheduling and reporting.",
     "intro": "Build a remote support role around the workflows that matter to property managers and real estate operators. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "property managers and real estate operators",
     "workflows": [
@@ -494,7 +494,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Accountants & CPAs",
     "primaryKeyword": "virtual assistant for accountants",
     "metaTitle": "Virtual Assistant for Accountants & CPAs | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for accountants & cpas. Compare relevant experience, tools, communication, availability, and role fit before you hire.",
+    "metaDescription": "Virtual Assistant support for accountants and CPA firms. Delegate document follow-up, file organization, bookkeeping admin, billing and workflow tracking.",
     "intro": "Build a remote support role around the workflows that matter to accounting firms, CPAs, and finance practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "accounting firms, CPAs, and finance practices",
     "workflows": [
@@ -533,7 +533,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Coaches & Consultants",
     "primaryKeyword": "virtual assistant for coaches",
     "metaTitle": "Virtual Assistant for Coaches & Consultants | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for coaches & consultants. Compare relevant experience, tools, communication, availability, and role fit before you.",
+    "metaDescription": "Virtual Assistant support for coaches and consultants. Delegate scheduling, client onboarding, CRM updates, program admin, email and content coordination.",
     "intro": "Build a remote support role around the workflows that matter to coaches, consultants, and expert-led businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "coaches, consultants, and expert-led businesses",
     "workflows": [
@@ -572,7 +572,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for a Dental Office",
     "primaryKeyword": "virtual assistant for dental office",
     "metaTitle": "Virtual Assistant for a Dental Office | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for dental offices and dental groups, including appointment scheduling. Compare skills, tools, availability, and.",
+    "metaDescription": "Virtual Assistant support for dental practices. Delegate scheduling, recalls, patient reminders, insurance admin, billing follow-up and front-desk work.",
     "intro": "Build a remote support role around the workflows that matter to dental offices and dental groups. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "dental offices and dental groups",
     "workflows": [
@@ -611,7 +611,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Photographers & Creatives",
     "primaryKeyword": "virtual assistant for photographers",
     "metaTitle": "Photographers & Creatives Virtual Assistants | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for photographers & creatives. Compare relevant experience, tools, communication, availability, and role fit before.",
+    "metaDescription": "Virtual Assistant support for photographers and studios. Delegate inquiry follow-up, onboarding, calendars, gallery admin, invoicing and social scheduling.",
     "intro": "Build a remote support role around the workflows that matter to photographers, studios, and creative businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "photographers, studios, and creative businesses",
     "workflows": [
@@ -650,7 +650,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Entrepreneurs",
     "primaryKeyword": "virtual assistant for entrepreneurs",
     "metaTitle": "Virtual Assistant for Entrepreneurs | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for entrepreneurs. Compare relevant experience, tools, communication, availability, and role fit before you hire..",
+    "metaDescription": "Virtual Assistant support for entrepreneurs. Delegate inboxes, calendars, research, CRM updates, travel planning, project coordination and reporting.",
     "intro": "Build a remote support role around the workflows that matter to entrepreneurs and founder-led businesses. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "entrepreneurs and founder-led businesses",
     "workflows": [
@@ -689,7 +689,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Real Estate Investors",
     "primaryKeyword": "virtual assistant for real estate investors",
     "metaTitle": "Virtual Assistant for Real Estate Investors | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for real estate investors. Compare relevant experience, tools, communication, availability, and role fit before you.",
+    "metaDescription": "Virtual Assistant support for real estate investors. Delegate lead research, seller follow-up, CRM updates, property research and appointment setting.",
     "intro": "Build a remote support role around the workflows that matter to real estate investors and acquisition teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "real estate investors and acquisition teams",
     "workflows": [
@@ -728,7 +728,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for an Ecommerce Store",
     "primaryKeyword": "virtual assistant for ecommerce store",
     "metaTitle": "Virtual Assistant for an Ecommerce Store | Philippines",
-    "metaDescription": "Hire vetted Filipino virtual assistants for ecommerce stores and DTC brands, including product updates. Compare skills, tools, availability, and role fit.",
+    "metaDescription": "Virtual Assistant support for ecommerce stores. Delegate product updates, order support, customer service, inventory coordination, returns and store QA.",
     "intro": "Build a remote support role around the workflows that matter to ecommerce stores and DTC brands. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "ecommerce stores and DTC brands",
     "workflows": [
@@ -767,7 +767,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Therapists",
     "primaryKeyword": "virtual assistant for therapists",
     "metaTitle": "Virtual Assistant for Therapists | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for therapists & mental health practices. Compare relevant experience, tools, communication, availability, and role.",
+    "metaDescription": "Virtual Assistant support for therapy and mental-health practices. Delegate scheduling, intake follow-up, reminders, waitlists, billing admin and records.",
     "intro": "Build a remote support role around the workflows that matter to therapists, counselors, and mental-health practices. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "therapists, counselors, and mental-health practices",
     "workflows": [
@@ -806,7 +806,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Hire a Virtual Assistant for Banking & Financial Services",
     "primaryKeyword": "virtual assistant for banking",
     "metaTitle": "Banking & Financial Services Virtual Assistant | Philippines",
-    "metaDescription": "Hire vetted Filipino Virtual Assistants for banking & financial services. Compare relevant experience, tools, communication, availability, and role fit.",
+    "metaDescription": "Virtual Assistant support for banking and financial-services teams. Delegate document follow-up, CRM maintenance, scheduling, reporting and workflow tracking.",
     "intro": "Build a remote support role around the workflows that matter to banking and financial-service teams. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your internal team or licensed professionals.",
     "audience": "banking and financial-service teams",
     "workflows": [
@@ -846,7 +846,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Your Outsourced Estimating & Tender Desk",
     "primaryKeyword": "outsourced construction estimating philippines",
     "metaTitle": "Construction Estimating & Tender Desk | Philippines",
-    "metaDescription": "Build an outsourced estimating and tender desk with vetted Filipino estimators. Plans to completed tender packages, ready for your estimator to review.",
+    "metaDescription": "Outsource construction estimating support for take-offs, RFQs, pricing sheets, tender packs and revision tracking while final bid decisions stay in-house.",
     "intro": "We turn plans into completed tender packages ready for your estimator or builder to review -- not just \"a Filipino estimator,\" an outsourced estimating function built around your take-off, pricing, and tender workflow. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your licensed estimator or the business owner.",
     "audience": "general contractors, electrical, mechanical, and civil subcontractors",
     "workflows": [
@@ -886,7 +886,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Clear Your Firm's Month-End & Compliance Production Backlog",
     "primaryKeyword": "outsourced month end production accounting firm",
     "metaTitle": "Month-End Production for Accounting Firms | Philippines",
-    "metaDescription": "Build an outsourced month-end production team with vetted Filipino accountants and bookkeepers. Reconciliations, workpapers, and management accounts, on.",
+    "metaDescription": "Outsource month-end production for accounting firms, including reconciliations, workpapers, AP/AR, payroll prep and client document follow-up.",
     "intro": "We clear your firm's month-end and compliance production backlog -- not \"offshore accountants,\" a production function built around your firm's checklist and deadlines. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your registered accountant.",
     "audience": "accounting firms, bookkeeping practices, and outsourced CFO teams",
     "workflows": [
@@ -925,7 +925,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Run Your Invoice-to-Claim Back Office",
     "primaryKeyword": "outsourced ndis billing claims processing",
     "metaTitle": "NDIS Billing & Claims Operations | Philippines",
-    "metaDescription": "Build an outsourced NDIS billing and claims desk with vetted Filipino specialists. Invoice-to-claim processing, reconciliation, and participant admin.",
+    "metaDescription": "NDIS administration support for claims, remittance reconciliation, participant onboarding, service agreements, rejected claims and reporting.",
     "intro": "We run the invoice-to-claim back office for NDIS providers -- not \"an NDIS virtual assistant,\" a claims operations function sized to your participant volume. Use this guide to decide what to delegate, which platforms and schedule matter, and which approvals should stay with your organization.",
     "audience": "NDIS registered providers, plan managers, and support coordination businesses",
     "workflows": [
@@ -965,7 +965,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep More Mortgage Files Moving From Application to Settlement",
     "primaryKeyword": "mortgage broker loan processing outsourcing",
     "metaTitle": "Mortgage Broker Loan Processing Support",
-    "metaDescription": "Build an outsourced mortgage processing desk for file preparation, ApplyOnline entry, lender conditions, approvals and settlement tracking.",
+    "metaDescription": "Mortgage loan-processing support for document collection, ApplyOnline entry, lender conditions, approvals and settlement tracking.",
     "intro": "Your brokers should be structuring deals and advising clients, not rebuilding checklists and chasing every outstanding document. An outsourced processing desk handles the production workflow around each application while your broker retains the lending advice and approval decisions.",
     "audience": "mortgage brokers, finance brokers and loan processing teams",
     "workflows": [
@@ -1005,7 +1005,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Clear Your SMSF Production Backlog Before Review Season",
     "primaryKeyword": "smsf production outsourcing",
     "metaTitle": "SMSF Production Outsourcing Support",
-    "metaDescription": "Outsource SMSF coding, reconciliations, workpapers, document follow-up and audit-pack preparation while your accountant retains final review.",
+    "metaDescription": "SMSF production support for transaction coding, reconciliations, workpapers, document follow-up and audit-pack preparation.",
     "intro": "The bottleneck in SMSF work is often the production queue before an accountant can review the fund. A dedicated production workflow gets transactions coded, investments reconciled, documents organised, and audit support assembled before professional review.",
     "audience": "smsf accountants, public practice firms and superannuation administration teams",
     "workflows": [
@@ -1045,7 +1045,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep Every Strata Portfolio Ready for the Next Meeting",
     "primaryKeyword": "strata management administration outsourcing",
     "metaTitle": "Strata Management Administration Support",
-    "metaDescription": "Run levy notices, AGM packs, minutes, owner records and arrears follow-up through a dedicated strata administration workflow.",
+    "metaDescription": "Strata administration support for meeting packs, owner records, notices, minutes, levy workflows, arrears follow-up and action registers.",
     "intro": "Strata managers need portfolio information, meeting documents, correspondence, and action lists ready before deadlines arrive. An outsourced administration desk keeps those production tasks moving so managers can focus on committees, disputes, decisions, and portfolio oversight.",
     "audience": "strata managers, owners corporation managers and body corporate management firms",
     "workflows": [
@@ -1085,7 +1085,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Move Tenant Maintenance Requests From Inbox to Completion",
     "primaryKeyword": "property management maintenance outsourcing",
     "metaTitle": "Property Management Maintenance Coordination",
-    "metaDescription": "Build a maintenance coordination desk for tenant requests, contractor quotes, work orders, follow-ups and PropertyMe or Console updates.",
+    "metaDescription": "Maintenance coordination support for tenant requests, contractor quotes, work orders, scheduling, follow-up and property-system updates.",
     "intro": "Property managers should manage owner decisions and tenancy issues, not manually chase every contractor appointment. A maintenance coordination desk moves routine requests from intake through completion while escalating emergencies, approvals, and exceptions to the local manager.",
     "audience": "property managers, real estate agencies and residential portfolio teams",
     "workflows": [
@@ -1125,7 +1125,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep Referrals, Billing and Recalls Moving Between Appointments",
     "primaryKeyword": "allied health administration outsourcing",
     "metaTitle": "Allied Health Referral & Billing Support",
-    "metaDescription": "Run referral intake, patient administration, billing, recalls and appointment workflows through a dedicated allied health support desk.",
+    "metaDescription": "Allied-health administration support for referrals, scheduling, billing records, recalls, patient follow-up and practice-system updates.",
     "intro": "A growing caseload creates administrative work before and after every appointment. A dedicated support desk moves referrals, patient records, billing tasks, and recalls through the practice workflow while clinicians keep control of clinical decisions and patient care.",
     "audience": "physiotherapists, occupational therapists, speech pathologists, psychologists and allied health clinics",
     "workflows": [
@@ -1166,7 +1166,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Turn Every Service Call Into a Scheduled, Invoiced Job",
     "primaryKeyword": "trades administration outsourcing",
     "metaTitle": "Trades Service Administration Support",
-    "metaDescription": "Run job intake, scheduling, technician follow-up and invoicing through ServiceM8, simPRO, AroFlo or Tradify.",
+    "metaDescription": "Trades administration support for job intake, scheduling, technician follow-up, quotes, invoices and ServiceM8, simPRO or AroFlo updates.",
     "intro": "The office workload grows every time another technician goes into the field. A dedicated service administration desk turns calls into jobs, keeps schedules and paperwork current, and pushes completed work toward invoicing while the trade business controls technical decisions.",
     "audience": "electricians, hvac contractors, plumbers, solar installers and field service businesses",
     "workflows": [
@@ -1206,8 +1206,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "BIM & Revit",
     "h1": "Expand Your BIM Production Capacity Without Moving Design Authority",
     "primaryKeyword": "bim revit outsourcing",
-    "metaTitle": "BIM & Revit Production Outsourcing",
-    "metaDescription": "Extend BIM production capacity with Revit modeling, documentation, redline processing, family work and coordination support.",
+    "metaTitle": "BIM & Revit Production Support | Philippines",
+    "metaDescription": "BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing-package preparation.",
     "intro": "Design teams often lose senior hours to model housekeeping, sheet production, markups, and repetitive documentation. An outsourced BIM production layer handles that defined production work while architects and engineers retain responsibility for design intent and technical approval.",
     "audience": "architecture practices, structural engineers, mep consultants and bim teams",
     "workflows": [
@@ -1247,7 +1247,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep Recruiter Pipelines Full Before Consultants Start Calling",
     "primaryKeyword": "recruitment candidate sourcing outsourcing",
     "metaTitle": "Recruitment Candidate Sourcing Support",
-    "metaDescription": "Build candidate pipelines with LinkedIn sourcing, talent mapping, CRM cleanup, screening administration and interview scheduling.",
+    "metaDescription": "Candidate-sourcing support for LinkedIn research, longlists, CRM cleanup, approved outreach, screening admin and interview scheduling.",
     "intro": "Recruiters create the most value when they are qualifying candidates, advising clients, and closing placements. A sourcing desk handles repeatable search, database, outreach, and scheduling work so each consultant starts with a structured candidate pipeline.",
     "audience": "recruitment agencies, executive search firms and talent acquisition teams",
     "workflows": [
@@ -1288,7 +1288,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Put Every Renewal File in Front of the Broker Ready for Review",
     "primaryKeyword": "insurance broker renewal outsourcing",
     "metaTitle": "Insurance Broker Renewal Desk Support",
-    "metaDescription": "Run renewal preparation, client data updates, insurer follow-up, certificate drafting and quote comparison through a dedicated support desk.",
+    "metaDescription": "Insurance renewal support for client data updates, insurer follow-up, quote comparison schedules, certificates and renewal administration.",
     "intro": "Renewal season becomes a capacity problem when brokers have to collect data, update systems, chase markets, and rebuild comparison material themselves. A renewal desk handles the administrative production around each policy so the broker can focus on coverage decisions and client advice.",
     "audience": "general insurance brokers, commercial brokerages and insurance broking teams",
     "workflows": [

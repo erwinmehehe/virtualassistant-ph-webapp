@@ -2,7 +2,6 @@ import type { IndustryPage } from "@/lib/industries";
 
 export type IndustrySeoEnhancement = {
   seoLabel?: string;
-  metaDescription?: string;
   heroIntro?: string;
   workflowDetails?: Record<string, string>;
   toolDetails?: Record<string, string>;
@@ -13,7 +12,6 @@ export type IndustrySeoEnhancement = {
 export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   "law-firms": {
     seoLabel: "Law Firms & Lawyers",
-    metaDescription: "Virtual Assistant services for law firms and lawyers. Delegate client intake, matter admin, scheduling, billing support, case updates and follow-up.",
     heroIntro: "Law firms lose valuable attorney and paralegal time to work that does not require legal judgment. A Virtual Assistant can keep intake, matter administration, calendars, documents, billing support and routine client follow-up moving while legal work stays with qualified professionals.",
     workflowDetails: {
       "client intake": "Respond to new enquiries, collect basic contact and matter information, send approved intake forms, follow up on missing details and keep the intake record current. Conflict decisions and legal evaluation stay with authorized law-firm staff.",
@@ -43,7 +41,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "real-estate-agents": {
     seoLabel: "Real Estate Agents & Realtors",
-    metaDescription: "Virtual Assistant services for real estate agents and Realtors. Delegate lead follow-up, CRM updates, listing admin, appointments, transactions and marketing support.",
     heroIntro: "Real estate teams move quickly, but follow-up, listing administration and CRM work often fall behind when agents are in appointments or on the road. A Virtual Assistant can own the repeatable coordination work while licensed agents keep negotiations, advice and client decisions.",
     workflowDetails: {
       "lead follow-up": "Respond to new enquiries using approved scripts, capture qualification details, schedule the next step and keep follow-up dates visible so warm prospects do not disappear between calls and showings.",
@@ -73,7 +70,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "medical-practices": {
     seoLabel: "Doctors & Medical Practices",
-    metaDescription: "Virtual Assistant services for doctors and medical practices. Delegate scheduling, reminders, referrals, records admin, billing support, calls and intake follow-up.",
     heroIntro: "Medical practices need reliable administrative follow-through without blurring clinical responsibility. A Virtual Assistant can support scheduling, reminders, referrals, records administration, billing workflows and routine patient communication while clinical decisions remain with qualified staff.",
     workflowDetails: {
       "appointment scheduling": "Book and reschedule appointments using the practice’s approved rules, record the correct visit type and provider, confirm required information and escalate exceptions that need clinical or front-desk judgment.",
@@ -95,7 +91,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "financial-advisors": {
     seoLabel: "Financial Advisors & RIAs",
-    metaDescription: "Virtual Assistant services for financial advisors and RIAs. Delegate scheduling, CRM upkeep, client follow-up, document collection, meeting prep and reporting support.",
     heroIntro: "Advisory firms need clean client data, consistent preparation and reliable follow-through without delegating regulated advice. A Virtual Assistant can own recurring administrative workflows around meetings, CRM records, document collection and client coordination while recommendations and regulated decisions stay with licensed professionals.",
     workflowDetails: {
       "meeting scheduling": "Coordinate review meetings, confirmations and rescheduling, capture the correct meeting purpose and make sure the advisor has the relevant client context before the appointment.",
@@ -123,7 +118,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "property-management-companies": {
     seoLabel: "Property Management Companies",
-    metaDescription: "Virtual Assistant services for property management companies. Delegate tenant communication, maintenance coordination, leasing follow-up, vendors, documents and reporting.",
     heroIntro: "Property managers juggle tenant communication, maintenance, leasing enquiries and vendor coordination at the same time. A Virtual Assistant can keep those queues organized, documented and moving while property-level decisions and regulated responsibilities stay with the manager.",
     workflowDetails: {
       "tenant communication": "Handle approved routine messages, record the interaction, route requests to the correct property or work order and escalate emergencies, disputes or policy exceptions immediately.",
@@ -152,7 +146,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "healthcare-dental": {
     seoLabel: "Healthcare & Dental Practices",
-    metaDescription: "Virtual Assistant services for healthcare and dental practices. Delegate scheduling, reminders, referrals, billing admin, front-desk communication and records coordination.",
     heroIntro: "Healthcare and dental teams need consistent administrative support without moving clinical responsibility outside the practice. A Virtual Assistant can keep scheduling, reminders, referrals, records and front-desk workflows moving within clearly documented privacy and escalation rules.",
     workflowDetails: {
       "scheduling": "Book, reschedule and confirm appointments using the practice’s visit types, provider rules and escalation process so calendars stay accurate and exceptions reach the right staff member.",
@@ -172,7 +165,6 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "home-local-services": {
     seoLabel: "Home & Local Service Businesses",
-    metaDescription: "Virtual Assistant services for home and local service businesses. Delegate lead response, booking, dispatch support, estimate follow-up, CRM updates and reminders.",
     heroIntro: "Home-service companies lose revenue when calls are missed, estimates sit untouched or schedule changes are not communicated quickly. A Virtual Assistant can keep the service board, lead queue and customer follow-up organized while field and pricing decisions stay with the business.",
     workflowDetails: {
       "inbound lead handling": "Respond to new enquiries using approved service-area and qualification rules, capture the job details and move valid opportunities to booking or the correct internal owner.",
@@ -198,51 +190,146 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
       "Week 4: review speed-to-lead, booking accuracy, missed calls, open estimates and escalation quality."
     ],
     metrics: ["Speed to lead", "Calls answered or returned", "Bookings created", "Scheduling corrections", "Open estimates without follow-up", "No-show or failed-visit rate", "CRM records without next action", "Customer follow-ups completed"]
+  },
+  "professional-services-growth": {
+    heroIntro: "Professional-services teams lose billable and growth time when client onboarding, CRM upkeep, research and coordination sit between meetings. A Virtual Assistant can own those recurring workflows so consultants and growth leads stay focused on delivery, relationships and decisions."
+  },
+  "small-business": {
+    heroIntro: "Small-business owners often become the default owner of every inbox, follow-up, spreadsheet and reminder. A Virtual Assistant can take over the repeatable admin layer while the owner keeps pricing, customer exceptions and business decisions."
+  },
+  "startups": {
+    heroIntro: "Early-stage teams need execution without adding another layer of management. A Virtual Assistant can own founder admin, research, CRM upkeep, recruiting coordination and recurring customer follow-up while product, hiring and commercial decisions stay with the core team."
+  },
+  "construction-companies": {
+    heroIntro: "Construction teams lose office time when estimate follow-up, project documents, vendor coordination and customer updates are spread across inboxes and job systems. A Virtual Assistant can keep those administrative queues moving while field, pricing and technical decisions stay with the contractor."
+  },
+  "insurance-agencies": {
+    heroIntro: "Insurance agencies run on accurate records, timely renewal activity and disciplined follow-up. A Virtual Assistant can manage the administrative queues around leads, appointments, documents and renewals while licensed advice, binding authority and coverage decisions remain with authorized staff."
+  },
+  "accountants-cpas": {
+    heroIntro: "Accounting firms lose production time when client documents, calendars, files and routine billing administration are incomplete or late. A Virtual Assistant can keep those workflows organized so accountants spend more time on review, advisory work and regulated decisions."
+  },
+  "coaches": {
+    heroIntro: "Coaches and consultants need a dependable client-operations layer behind delivery. A Virtual Assistant can own scheduling, onboarding, reminders, CRM updates and program administration so the expert can focus on sessions, strategy and client outcomes."
+  },
+  "dental-practices": {
+    heroIntro: "Dental practices need reliable front-office follow-through without moving clinical responsibility outside the practice. A Virtual Assistant can support scheduling, recalls, reminders, insurance administration and billing follow-up within clear privacy and escalation rules."
+  },
+  "photographers-creatives": {
+    heroIntro: "Creative businesses often lose selling and production time to enquiries, scheduling, onboarding and post-project administration. A Virtual Assistant can keep the client journey organized from first enquiry through delivery while creative direction and final client commitments stay with the studio."
+  },
+  "entrepreneurs": {
+    heroIntro: "Founder-led businesses accumulate dozens of small recurring tasks that interrupt higher-value work. A Virtual Assistant can own the operating rhythm around inboxes, calendars, research, CRM updates and coordination while the founder keeps priorities and key decisions."
+  },
+  "real-estate-investors": {
+    heroIntro: "Real estate investors need consistent lead follow-up and clean pipeline data long before an acquisition decision is made. A Virtual Assistant can own list research, seller follow-up, CRM updates and appointment setting while offers, negotiation and investment decisions stay with the investor."
+  },
+  "ecommerce-stores": {
+    heroIntro: "Ecommerce teams need accurate catalog, order and customer workflows every day. A Virtual Assistant can own product updates, support queues, returns administration and store QA while pricing, supplier commitments and policy exceptions stay with the business."
+  },
+  "therapists": {
+    heroIntro: "Therapy and mental-health practices need calm, reliable administrative support without blurring clinical boundaries. A Virtual Assistant can manage scheduling, intake follow-up, reminders, waitlists and routine billing administration while clinical and crisis decisions stay with qualified professionals."
+  },
+  "banking-financial-services": {
+    heroIntro: "Financial-services teams need disciplined administration, strong access controls and a clear audit trail. A Virtual Assistant can support document follow-up, CRM maintenance, scheduling and reporting while advice, approvals and regulated activity stay with authorized professionals."
+  },
+  "construction-estimating-tender-desk": {
+    heroIntro: "Estimating teams lose capacity when take-offs, supplier RFQs, pricing sheets and tender documents are assembled manually across multiple systems. An outsourced tender desk can prepare the package and track revisions while your estimator or business owner keeps final pricing and submission authority."
+  },
+  "accounting-firms-month-end": {
+    heroIntro: "Accounting firms feel margin pressure when month-end production and client document chasing consume senior review capacity. A dedicated production desk can prepare reconciliations, workpapers and supporting schedules while registered professionals retain review, advisory and regulated responsibilities."
+  },
+  "ndis-providers": {
+    heroIntro: "NDIS providers need accurate claims administration and participant records without losing visibility across rejected claims, remittances and service agreements. A dedicated support desk can run the administrative workflow while provider approvals and participant-care decisions remain internal."
+  },
+  "mortgage-broker-loan-processing": {
+    heroIntro: "Mortgage brokers lose client-facing time when every application needs document chasing, data entry and lender-condition follow-up. A processing desk can keep files moving from application through settlement while brokers retain advice, credit discussions and approval decisions."
+  },
+  "smsf-production": {
+    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organize source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
+  },
+  "strata-management-administration": {
+    heroIntro: "Strata portfolios create recurring administrative deadlines around meetings, notices, records, levies and follow-up. A dedicated support role can prepare packs, update registers and run approved correspondence while the strata manager retains decisions, approvals and statutory responsibility."
+  },
+  "property-management-maintenance-coordination": {
+    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorization and property-level decisions."
+  },
+  "allied-health-referral-billing": {
+    heroIntro: "Allied-health clinics need referral, scheduling and billing administration to move reliably between appointments. A support desk can keep patient records, follow-up and billing workflows current while clinical interpretation and practitioner decisions remain with qualified staff."
+  },
+  "trades-service-administration": {
+    heroIntro: "Field-service businesses lose margin when calls are not booked, technicians lack job context or completed work sits uninvoiced. A service-administration role can keep jobs moving from enquiry to closeout while technical diagnosis, field safety and pricing authority stay with the business."
+  },
+  "bim-revit-production": {
+    heroIntro: "Architecture and engineering teams often need more production capacity without moving design authority. A BIM support role can process approved markups, model updates, sheets and coordination outputs while professional judgment and final issue remain with qualified project staff."
+  },
+  "recruitment-candidate-sourcing": {
+    heroIntro: "Recruiters lose selling and assessment time when consultants have to build every search, clean every CRM record and chase every scheduling task themselves. A sourcing desk can keep qualified pipelines moving while candidate assessment, client advice and hiring decisions stay with recruiters."
+  },
+  "insurance-broker-renewal-desk": {
+    heroIntro: "Insurance brokers need renewal files complete before advice and placement decisions begin. A renewal desk can chase approved information, update broking systems and prepare factual comparison schedules while licensed recommendations and binding decisions remain with the broker."
   }
 };
 
 export function industrySeoTitle(industry: IndustryPage) {
-  const label = INDUSTRY_SEO_CONTENT[industry.slug]?.seoLabel || industry.label;
-  return `Virtual Assistant Services for ${label}`;
+  return industry.metaTitle;
 }
 
 export function industryMetaDescription(industry: IndustryPage) {
-  const custom = INDUSTRY_SEO_CONTENT[industry.slug]?.metaDescription;
-  if (custom) return custom;
-  const tasks = industry.workflows.slice(0, 3).join(", ");
-  return `Virtual Assistant services for ${industry.audience}. Delegate ${tasks} with vetted talent matched to your tools, hours and workflow.`;
+  return industry.metaDescription;
 }
 
 export function industryHeroIntro(industry: IndustryPage) {
   return INDUSTRY_SEO_CONTENT[industry.slug]?.heroIntro || industry.intro;
 }
 
+function sentenceCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function derivedWorkflowDescription(industry: IndustryPage, workflow: string) {
+  const w = workflow.toLowerCase();
+  if (/schedule|calendar|appointment|rostering/.test(w)) return `Own ${workflow} using the team's approved availability, job or appointment rules. Confirm changes, keep the shared system current and escalate conflicts or exceptions that require an internal decision.`;
+  if (/crm|record|data entry|database/.test(w)) return `Keep ${workflow} accurate enough that ${industry.audience} can rely on the system without rebuilding context from inboxes. Update required fields, notes, status and next actions, then flag missing or contradictory information.`;
+  if (/lead|prospect|inquiry|enquiry|follow-up|outreach/.test(w)) return `Run ${workflow} from an approved queue or cadence. Capture the response, record the next step and route qualified, sensitive or unusual cases to the person responsible for the commercial decision.`;
+  if (/document|file|workpaper|pack|agreement|supporting/.test(w)) return `Prepare and maintain ${workflow} using the team's naming, version and review rules. Track what is missing, keep the current version easy to find and send anything requiring professional judgment for review.`;
+  if (/billing|invoice|payment|reconciliation|accounts|payroll|journal|financial/.test(w)) return `Support ${workflow} by preparing records, matching source information and maintaining an exception list. Keep approvals, payment authority, accounting judgments and regulated decisions with authorized staff.`;
+  if (/report|tracking|register|status/.test(w)) return `Maintain ${workflow} as a management view, not a retrospective cleanup exercise. Keep statuses current, identify overdue items and make blockers visible so managers can act on exceptions quickly.`;
+  if (/research|take-off|quantity|property research|candidate|sourcing/.test(w)) return `Complete ${workflow} against a written brief and record the source or evidence behind the result. Separate factual research from recommendations or decisions that belong to the client team.`;
+  if (/customer|client|patient|tenant|participant|owner/.test(w)) return `Handle ${workflow} using approved scripts, service standards and escalation rules. Document each interaction and move complaints, clinical issues, regulated questions or policy exceptions to the appropriate internal owner.`;
+  if (/coordination|vendor|contractor|technician|subcontractor|settlement/.test(w)) return `Coordinate ${workflow} across the people and systems involved, confirm dates and outstanding items, and keep the next owner visible. Do not make commitments outside the authority defined by ${industry.audience}.`;
+  if (/marketing|content|social|email campaign/.test(w)) return `Run the administrative side of ${workflow}: prepare approved assets, schedule activity, update trackers and report completion. Final positioning, claims, budget and publishing decisions stay with the responsible marketer or owner.`;
+  return `Own ${workflow} as a documented recurring process for ${industry.audience}. Keep the source information, status, completion evidence and exceptions visible so the work can be reviewed without chasing private messages.`;
+}
+
 export function industryWorkflowDescription(industry: IndustryPage, workflow: string) {
-  return INDUSTRY_SEO_CONTENT[industry.slug]?.workflowDetails?.[workflow]
-    || `Give ${workflow} a clear owner. Document the source information, expected output, turnaround time and escalation rule, then keep the result visible in the system your team already uses.`;
+  return INDUSTRY_SEO_CONTENT[industry.slug]?.workflowDetails?.[workflow] || derivedWorkflowDescription(industry, workflow);
 }
 
 export function industryToolDescription(industry: IndustryPage, tool: string) {
-  return INDUSTRY_SEO_CONTENT[industry.slug]?.toolDetails?.[tool]
-    || `Use ${tool} only where it is part of the real workflow. Test the candidate on the tasks they will perform rather than treating software names as proof of experience.`;
+  const custom = INDUSTRY_SEO_CONTENT[industry.slug]?.toolDetails?.[tool];
+  if (custom) return custom;
+  const index = Math.max(0, industry.tools.indexOf(tool));
+  const primary = industry.workflows[index % industry.workflows.length];
+  const secondary = industry.workflows[(index + 1) % industry.workflows.length];
+  return `Use ${tool} for the parts of the workflow it actually supports, especially ${primary} and ${secondary}. In the interview, ask the candidate to show what they changed, how they checked the result and what they would escalate.`;
 }
 
 export function industryFirst30Days(industry: IndustryPage) {
   return INDUSTRY_SEO_CONTENT[industry.slug]?.first30Days || [
-    `Week 1: document the first workflows, tools, access rules and escalation points for ${industry.audience}.`,
-    "Week 2: let the Virtual Assistant run a narrow set of recurring tasks under close review.",
-    "Week 3: increase ownership only where accuracy, communication and follow-through are consistent.",
-    "Week 4: review turnaround time, backlog, quality and exceptions before expanding the role."
+    `Week 1: map ${industry.workflows[0]}, ${industry.workflows[1]} and the access needed in ${industry.tools.slice(0, 2).join(" and ")}.`,
+    `Week 2: let the Virtual Assistant own ${industry.workflows[0]} and ${industry.workflows[1]} under close review, with every exception documented.`,
+    `Week 3: add ${industry.workflows[2]} and ${industry.workflows[3] || industry.workflows[0]} only after the first workflows are accurate and predictable.`,
+    `Week 4: review turnaround, rework, backlog and escalation quality for ${industry.audience} before expanding the role.`
   ] as const;
 }
 
 export function industryMetrics(industry: IndustryPage) {
+  const selected = industry.workflows.slice(0, 5).map((workflow) => `${sentenceCase(workflow)} completed on time`);
   return INDUSTRY_SEO_CONTENT[industry.slug]?.metrics || [
-    "Response time",
-    "Tasks completed on time",
-    "Items waiting on follow-up",
-    "Records requiring correction",
-    "Exceptions escalated correctly",
-    "Backlog at the end of the week"
+    ...selected,
+    "Items returned for correction",
+    "Exceptions escalated to the right owner",
+    "Open work without a documented next action"
   ];
 }

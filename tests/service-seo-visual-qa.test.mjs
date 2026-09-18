@@ -55,3 +55,12 @@ test("service template preserves core SEO signals", () => {
   assert.match(page, /<HiringHero/);
   assert.equal((hero.match(/<h1\b/g) || []).length, 1);
 });
+
+
+test("specialist service pages never backfill weak same-category talent", () => {
+  const page = source("src/app/service/[slug]/page.tsx");
+  assert.match(page, /\.filter\(\(va: any\) => va\._serviceRelevance >= 4\)/);
+  assert.doesNotMatch(page, /index < 3/);
+  assert.doesNotMatch(page, /Meet approved \$\{s\.directoryCategory\} Virtual Assistants/);
+  assert.match(page, /title=\{copy\.talentTitle\}/);
+});

@@ -27,10 +27,13 @@ test("client-facing operational copies use BCC rather than visible CC", () => {
 
   assert.match(email, /bcc: staffClientFollowupBccRecipients/);
   assert.match(email, /bcc: discoveryBookingBccRecipients/g);
+  assert.match(email, /"jrvsaccad@gmail\.com"/);
+  assert.match(email, /"bryanbatarina@gmail\.com"/);
+  assert.match(email, /"erwinvalles20@gmail\.com"/);
   assert.match(email, /bcc: applicationBccRecipients/);
-  assert.doesNotMatch(email, /cc: staffClientFollowupBccRecipients/);
-  assert.doesNotMatch(email, /cc: discoveryBookingBccRecipients/);
-  assert.doesNotMatch(email, /cc: applicationBccRecipients/);
+  assert.doesNotMatch(email, /(^|\n)\s*cc:\s*staffClientFollowupBccRecipients/m);
+  assert.doesNotMatch(email, /(^|\n)\s*cc:\s*discoveryBookingBccRecipients/m);
+  assert.doesNotMatch(email, /(^|\n)\s*cc:\s*applicationBccRecipients/m);
 });
 
 test("password reset and password-change security mail remain private", () => {

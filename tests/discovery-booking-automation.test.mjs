@@ -25,15 +25,16 @@ test("discovery reminders have a frequent Supabase scheduler independent of the 
   assert.match(route, /minutesUntil >= 23 \* 60 && minutesUntil <= 25 \* 60/);
 });
 
-test("rescheduling only retires the previous Zoom meeting after the replacement is saved", async () => {
+test("rescheduling updates the existing Google Calendar event when one exists", async () => {
   const action = await read("src/app/actions/booking.ts");
 
-  assert.match(action, /discovery_meeting_url: zoom\?\.joinUrl \|\| previousMeetingUrl \|\| null/);
-  assert.match(action, /discovery_zoom_meeting_id: zoom\?\.meetingId \|\| previousMeetingId \|\| null/);
-  assert.match(action, /best-effort cleanup of the unsaved replacement meeting/);
+  assert.match(action, /previousEventId/);
+  assert.match(action, /updateGoogleMeetDiscoveryMeeting/);
+  assert.match(action, /discovery_meeting_url: meeting\?\.joinUrl \|\| previousMeetingUrl \|\| null/);
+  assert.match(action, /discovery_calendar_event_id: meeting\?\.eventId \|\| previousEventId \|\| null/);
+  assert.match(action, /discovery_meeting_provider: meeting \|\| previousEventId \? "google_meet" : null/);
 
-  const createIndex = action.indexOf("createZoomDiscoveryMeeting({");
+  const updateIndex = action.indexOf("updateGoogleMeetDiscoveryMeeting({");
   const saveIndex = action.indexOf('admin.from("lead_intake").update(update)');
-  const retireIndex = action.indexOf("cancelZoomDiscoveryMeeting(previousMeetingId)");
-  assert.ok(createIndex >= 0 && saveIndex > createIndex && retireIndex > saveIndex);
+  assert.ok(updateIndex >= 0 && saveIndex > updateIndex);
 });

@@ -41,6 +41,7 @@ type LeadRow = {
   next_follow_up_at:string|null;
   discovery_scheduled_at:string|null;
   discovery_completed_at:string|null;
+  first_response_due_at:string|null;
   discovery_cancelled_at:string|null;
   estimated_value_usd:number|string|null;
 };
@@ -64,7 +65,7 @@ type ShortlistRow = {
   released_at:string|null;
   client_decision:string|null;
   client_decision_at:string|null;
-  jobs:{title:string|null;company_name:string|null}|null;
+  jobs:{title:string|null;company_name:string|null;status:string|null}|null;
 };
 
 type WorkroomRow = {
@@ -159,7 +160,7 @@ export default async function AdminTodayPage(){
     {data:financeSettings,error:settingsError},
   ]=await Promise.all([
     admin.from("lead_intake")
-      .select("id,name,email,company,service,hours,budget,message,crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,estimated_value_usd")
+      .select("id,name,email,company,service,hours,budget,message,crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,first_response_due_at,estimated_value_usd")
       .eq("lead_type","client_hiring")
       .order("created_at",{ascending:false})
       .limit(250),
@@ -169,13 +170,14 @@ export default async function AdminTodayPage(){
       .order("updated_at",{ascending:false})
       .limit(100),
     admin.from("job_shortlist_candidates")
-      .select("id,job_id,released_at,client_decision,client_decision_at,jobs(title,company_name)")
+      .select("id,job_id,released_at,client_decision,client_decision_at,jobs!inner(title,company_name,status)")
       .eq("shortlist_status","released")
+      .in("jobs.status",["pending","published"])
       .order("released_at",{ascending:true})
       .limit(250),
     admin.from("workrooms")
       .select("id,job_id,status,placement_stage,health_status,health_score,at_risk_reason,renewal_date,renewal_status,jobs(title,company_name),client:profiles!workrooms_client_id_fkey(full_name)")
-      .neq("placement_stage","ended")
+      .or("placement_stage.is.null,placement_stage.neq.ended")
       .order("created_at",{ascending:false})
       .limit(250),
     admin.from("payments")
@@ -198,12 +200,14 @@ export default async function AdminTodayPage(){
   if(firstError)throw firstError;
 
   const leads=((leadData||[]) as LeadRow[]).filter((lead)=>ACTIVE_LEAD_STAGES.has(String(lead.crm_stage||"new")));
-  const proposals=(proposalData||[]) as ProposalRow[];
+  const rawProposals=(proposalData||[]) as ProposalRow[];
   const shortlist=(shortlistData||[]) as unknown as ShortlistRow[];
   const workrooms=(workroomData||[]) as unknown as WorkroomRow[];
   const payments=(paymentData||[]) as PaymentRow[];
   const tasks=(taskData||[]) as TaskRow[];
   const leadById=new Map(leads.map((lead)=>[lead.id,lead]));
+  const proposals=rawProposals.filter((proposal)=>leadById.has(proposal.lead_id));
+  const workroomByJob=new Map(workrooms.filter((room)=>room.job_id).map((room)=>[room.job_id,room]));
   const overdueDays=Number(financeSettings?.finance_invoice_overdue_days??7);
   const overdueCutoff=now-overdueDays*DAY;
 
@@ -258,21 +262,27 @@ export default async function AdminTodayPage(){
     if(!task.due_at)return true;
     return new Date(task.due_at).getTime()<=now+DAY;
   });
+  const taskJobIds=[...new Set(urgentTasks.filter((task)=>task.subject_type==="job"&&task.subject_id).map((task)=>String(task.subject_id)))];
+  const {data:taskJobData,error:taskJobError}=taskJobIds.length
+    ?await admin.from("jobs").select("id,status").in("id",taskJobIds)
+    :{data:[],error:null};
+  if(taskJobError)throw taskJobError;
+  const taskJobStatus=new Map((taskJobData||[]).map((job:any)=>[job.id,String(job.status||"")]));
 
   const actions:OwnerAction[]=[];
 
   for(const {lead} of scoredLeads){
     const stage=String(lead.crm_stage||"new");
-    const age=now-new Date(lead.created_at).getTime();
+    const responseDue=lead.first_response_due_at?new Date(lead.first_response_due_at).getTime():new Date(lead.created_at).getTime()+30*60_000;
     const href=lead.email
-      ? `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(lead.email)}`
-      : `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(lead.id)}`;
-    if(stage==="new"&&!lead.first_contact_at&&age>30*60_000){
+      ? `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.email)}`
+      : `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.id)}`;
+    if(stage==="new"&&!lead.first_contact_at&&responseDue<now){
       actions.push({
         id:`lead-first-${lead.id}`,
         title:`First response overdue · ${lead.company||lead.name||"New client lead"}`,
         subtitle:`${lead.service||"Hiring request"} · waiting ${relativeAge(lead.created_at,now)}`,
-        href,label:"Lead",tone:"rose",icon:<MessageSquare size={17}/>,rank:1,due:new Date(lead.created_at).getTime(),
+        href,label:"Lead",tone:"rose",icon:<MessageSquare size={17}/>,rank:1,due:responseDue,
       });
       continue;
     }
@@ -288,15 +298,15 @@ export default async function AdminTodayPage(){
 
   for(const lead of callsToday){
     const when=new Date(lead.discovery_scheduled_at||0).getTime();
-    if(when<now-2*60*60_000)continue;
+    const missed=when<now;
     const href=lead.email
-      ? `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`
-      : `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.id)}`;
+      ? `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.email)}`
+      : `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.id)}`;
     actions.push({
       id:`call-${lead.id}`,
-      title:`Discovery call · ${lead.company||lead.name||"Client"}`,
-      subtitle:`${manilaTime(lead.discovery_scheduled_at)} · ${lead.service||"Hiring brief"}`,
-      href,label:"Call",tone:"violet",icon:<CalendarClock size={17}/>,rank:1,due:when,
+      title:`${missed?"Missed discovery call":"Discovery call"} · ${lead.company||lead.name||"Client"}`,
+      subtitle:missed?`${relativeAge(lead.discovery_scheduled_at,now)} overdue · ${lead.service||"Hiring brief"}`:`${manilaTime(lead.discovery_scheduled_at)} · ${lead.service||"Hiring brief"}`,
+      href,label:"Call",tone:missed?"rose":"violet",icon:<CalendarClock size={17}/>,rank:1,due:when,
     });
   }
 
@@ -316,7 +326,7 @@ export default async function AdminTodayPage(){
       id:`proposal-${proposal.id}`,
       title:`Proposal needs follow-up · ${leadLabel}`,
       subtitle:`${proposal.role_title||"Hiring proposal"} · ${why}`,
-      href:`/workspace/recruiter/leads?q=${encodeURIComponent(proposal.lead_id)}`,
+      href:`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(proposal.lead_id)}`,
       label:"Proposal",tone:"indigo",icon:<FileText size={17}/>,rank:proposal.changes_requested_at?1:3,
       due:new Date(proposal.changes_requested_at||proposal.viewed_at||proposal.sent_at||proposal.created_at).getTime(),
     });
@@ -329,7 +339,7 @@ export default async function AdminTodayPage(){
       id:`hiring-room-${room.jobId}`,
       title:`Hiring Room waiting · ${room.company}`,
       subtitle:`${room.title} · ${room.count} candidate${room.count===1?"":"s"} waiting ${relativeAge(room.releasedAt,now)} for client response`,
-      href:`/workspace/recruiter/roles/${room.jobId}`,
+      href:`/workspace/admin/jobs/${room.jobId}`,
       label:"Hiring Room",tone:"amber",icon:<UsersRound size={17}/>,rank:3,due:new Date(room.releasedAt).getTime(),
     });
   }
@@ -378,11 +388,23 @@ export default async function AdminTodayPage(){
   }
 
   for(const task of urgentTasks){
+    let href="/workspace/admin/today#owner-actions";
+    if(task.subject_type==="job"&&task.subject_id){
+      const room=workroomByJob.get(task.subject_id);
+      const jobStatus=taskJobStatus.get(task.subject_id)||"";
+      if(!room&&["closed","draft"].includes(jobStatus))continue;
+      if(hiringRoomByJob.has(task.subject_id)&&/shortlist|client response/i.test(`${task.title} ${task.description||""}`))continue;
+      href=room?`/workspace/client-success/${room.id}`:`/workspace/admin/jobs/${task.subject_id}`;
+    }else if(task.subject_type==="lead"&&task.subject_id){
+      href=`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(task.subject_id)}`;
+    }else if(task.subject_type==="va"&&task.subject_id){
+      href=`/workspace/admin/vetting/${task.subject_id}`;
+    }
     actions.push({
       id:`task-${task.id}`,
       title:task.title,
       subtitle:task.description||`${task.priority} priority owner task`,
-      href:task.href||"/workspace/recruiter/tasks",
+      href,
       label:"Task",tone:task.priority==="urgent"?"rose":"amber",icon:<ListTodo size={17}/>,rank:task.priority==="urgent"?1:2,
       due:task.due_at?new Date(task.due_at).getTime():now,
     });
@@ -400,7 +422,7 @@ export default async function AdminTodayPage(){
       subtitle={<>One page for what needs your attention across sales, hiring, client delivery and money. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
       actions={<>
         <Link className="dash-btn dash-btn-light" href="/workspace/admin">Admin overview</Link>
-        <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/today">Recruiter My Day <ArrowRight size={14}/></Link>
+        <Link className="dash-btn dash-btn-dark" href="/workspace/admin/leads?view=hiring">Hiring leads <ArrowRight size={14}/></Link>
       </>}
     />
 
@@ -418,7 +440,7 @@ export default async function AdminTodayPage(){
         value={callsToday.length}
         icon={<CalendarClock size={20}/>}
         tone="violet"
-        href="/workspace/recruiter/leads?view=discovery"
+        href="/workspace/admin/leads?view=hiring"
         sub="Scheduled client calls in Manila today"
       />
       <StatCard
@@ -440,6 +462,7 @@ export default async function AdminTodayPage(){
       />
     </div>
 
+    <div id="owner-actions">
     <Panel
       title="What needs you now"
       subtitle="Ordered by urgency. Resolve the first item, then move down the list."
@@ -462,15 +485,16 @@ export default async function AdminTodayPage(){
       />}
       {actions.length>visibleActions.length?<p className="small muted" style={{margin:"14px 0 0"}}>Showing the 14 highest-priority items. Clear these first and the queue will refresh.</p>:null}
     </Panel>
+    </div>
 
     <div className="dash-grid">
       <div className="dash-col">
         <Panel title="Revenue & hiring pulse" subtitle="Signals worth checking without opening the CRM">
           <SignalList items={[
-            {label:"Hot leads",count:hotLeads.length,href:"/workspace/recruiter/leads",icon:<BriefcaseBusiness size={16}/>,hint:"Current lead score is Hot"},
-            {label:"Proposals out",count:proposals.length,href:"/workspace/recruiter/leads",icon:<FileText size={16}/>,hint:"Sent, viewed or changes requested"},
-            {label:"Hiring Rooms waiting",count:waitingHiringRooms,href:"/workspace/recruiter/roles",icon:<UsersRound size={16}/>,hint:"Client response outstanding 24h+"},
-            {label:"High-priority tasks",count:urgentTasks.length,href:"/workspace/recruiter/tasks",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"},
+            {label:"Hot leads",count:hotLeads.length,href:"/workspace/admin/leads?view=hiring",icon:<BriefcaseBusiness size={16}/>,hint:"Current lead score is Hot"},
+            {label:"Proposals out",count:proposals.length,href:"/workspace/admin/leads?view=hiring",icon:<FileText size={16}/>,hint:"Sent, viewed or changes requested"},
+            {label:"Hiring Rooms waiting",count:waitingHiringRooms,href:"/workspace/admin/jobs?view=all",icon:<UsersRound size={16}/>,hint:"Client response outstanding 24h+"},
+            {label:"High-priority tasks",count:urgentTasks.length,href:"/workspace/admin/today#owner-actions",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"},
           ]}/>
         </Panel>
       </div>

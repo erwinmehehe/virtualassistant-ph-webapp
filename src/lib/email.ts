@@ -564,7 +564,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
         <tr><td style="padding:16px 18px;background:#fffaeb;border:1px solid #fedf89;border-radius:14px;">
           <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b54708;margin-bottom:7px;">Google Meet link pending</div>
-          <div style="font-size:15px;line-height:1.65;color:#7a2e0e;">Your call is confirmed. We will email your Zoom link separately before the meeting. You do not need to book again.</div>
+          <div style="font-size:15px;line-height:1.65;color:#7a2e0e;">Your call is confirmed. We will email your Google Meet link separately before the meeting. You do not need to book again.</div>
         </td></tr>
       </table>`;
 
@@ -639,9 +639,9 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
     from: config.from,
     to: [primary],
     bcc: hidden,
-    subject: `Action required: discovery call has no Zoom link — ${args.company || args.clientName || args.clientEmail}`,
+    subject: `Action required: discovery call has no Google Meet link — ${args.company || args.clientName || args.clientEmail}`,
     html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
-  }, "discovery_zoom_setup_failed", { archive: false, teamCc: false });
+  }, "discovery_google_meet_setup_failed", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -656,7 +656,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     subject: `Reminder: your discovery call is ${timing}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join Google Meet</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
   }, `discovery_reminder_${args.window}`);
   return { sent: true as const };
 }

@@ -104,7 +104,41 @@ AUTH_SMTP_PASSWORD=
 
 Treat `SUPABASE_ACCESS_TOKEN` as a high-privilege operations secret. Do not expose it as a `NEXT_PUBLIC_*` variable and do not keep it in production runtime settings after the one-time operation if you do not need it there.
 
-## 5. Run the readiness check
+## 5. Configure automatic Google Calendar + Google Meet
+
+Public discovery bookings create the real Google Calendar event before the booking is saved. Google Calendar then creates the Meet conference and sends the client the official calendar invitation.
+
+Enable the **Google Calendar API** in the Google Cloud project that owns your OAuth client, then create or use an OAuth 2.0 client for the Google account/calendar that should own discovery calls.
+
+The production runtime needs:
+
+```text
+GOOGLE_CALENDAR_CLIENT_ID=
+GOOGLE_CALENDAR_CLIENT_SECRET=
+GOOGLE_CALENDAR_REFRESH_TOKEN=
+GOOGLE_CALENDAR_ID=primary
+```
+
+`GOOGLE_CALENDAR_ID` is optional. Leave it as `primary` to book on the authenticated account's primary calendar, or set it to a shared team calendar ID if the team should manage bookings from a shared calendar.
+
+The refresh token must be issued with offline access and permission to manage Calendar events. The application creates, reads, updates, and cancels Calendar events and requests Google Meet conference data. A suitable OAuth scope is:
+
+```text
+https://www.googleapis.com/auth/calendar.events
+```
+
+One practical one-time setup path is Google OAuth 2.0 Playground using your own OAuth client credentials:
+
+1. Add `https://developers.google.com/oauthplayground` as an authorized redirect URI on the OAuth client.
+2. In OAuth Playground settings, enable **Use your own OAuth credentials** and enter that client ID and secret.
+3. Authorize the Calendar events scope above with the Google account that owns the booking calendar.
+4. Exchange the authorization code and copy the returned refresh token.
+5. Add all three required values to the production environment in Vercel.
+6. Redeploy production and open **Admin → System setup**. Google Calendar + Meet must show **Configured** before relying on automatic booking.
+
+Do not expose the client secret or refresh token as `NEXT_PUBLIC_*` variables.
+
+## 6. Run the readiness check
 
 Before production launch:
 
@@ -118,18 +152,23 @@ It checks:
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
 - `NEXT_PUBLIC_APP_URL`
+- `GOOGLE_CALENDAR_CLIENT_ID`
+- `GOOGLE_CALENDAR_CLIENT_SECRET`
+- `GOOGLE_CALENDAR_REFRESH_TOKEN`
 
 Supabase Auth SMTP remains a manual/project-level verification because the app should not infer or expose SMTP credentials at runtime.
 
-## 6. Acceptance test
+## 7. Acceptance test
 
 1. Log in as Admin and open `/workspace/admin/system`.
 2. Confirm lead-ingestion secret, app email, and production URL show **Configured**.
-3. Send the Admin email test and confirm delivery.
-4. Promote a test account to Recruiter from Admin → Users.
-5. Log in as Recruiter and verify the vetting queue/scorecard flow.
-6. Submit a VA through vetting and verify the Admin finalist approval flow.
-7. Sign up a new test user and confirm the Supabase Auth confirmation email arrives through your custom SMTP sender.
-8. Trigger a password reset and verify that email too.
-9. Submit a public role brief and verify the lead exists even if email delivery is temporarily unavailable.
-10. Test `/api/leads` once with no secret, once with a bad secret, and once with the correct server-to-server secret.
+3. Confirm Google Calendar + Meet shows **Configured**.
+4. Send the Admin email test and confirm delivery.
+5. Book one test discovery call and verify the event appears on the configured Google Calendar with a Google Meet link and the client receives the official Calendar invitation.
+6. Promote a test account to Recruiter from Admin → Users.
+7. Log in as Recruiter and verify the vetting queue/scorecard flow.
+8. Submit a VA through vetting and verify the Admin finalist approval flow.
+9. Sign up a new test user and confirm the Supabase Auth confirmation email arrives through your custom SMTP sender.
+10. Trigger a password reset and verify that email too.
+11. Submit a public role brief and verify the lead exists even if email delivery is temporarily unavailable.
+12. Test `/api/leads` once with no secret, once with a bad secret, and once with the correct server-to-server secret.

@@ -617,6 +617,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   manilaLabel: string;
   clientTimeZone: string;
   meetingUrl?: string | null;
+  calendarEventId?: string | null;
   manageUrl: string;
 }) {
   const config = resendConfig();
@@ -634,7 +635,8 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   });
   const calendarUrl = `https://calendar.google.com/calendar/render?${calendarParams.toString()}`;
   const firstName = args.clientName.trim().split(/\s+/)[0] || "there";
-  const invite = createCalendarInvite({
+  const googleCalendarCreated = Boolean(args.calendarEventId);
+  const invite = googleCalendarCreated ? null : createCalendarInvite({
     uid: args.leadId,
     startsAt: args.scheduledAt,
     durationMinutes: 30,
@@ -677,9 +679,9 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     ${meetingBlock}
 
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;"><tr>
-      <td style="padding-right:10px;">
-        <a href="${escapeHtml(calendarUrl)}" style="display:inline-block;padding:11px 16px;border-radius:10px;background:#101828;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Add to Google Calendar</a>
-      </td>
+      ${googleCalendarCreated
+        ? `<td style="padding-right:10px;"><span style="display:inline-block;padding:11px 16px;border-radius:10px;background:#ecfdf3;color:#027a48;font-size:14px;font-weight:700;">Calendar invitation sent</span></td>`
+        : `<td style="padding-right:10px;"><a href="${escapeHtml(calendarUrl)}" style="display:inline-block;padding:11px 16px;border-radius:10px;background:#101828;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Add to Google Calendar</a></td>`}
       <td>
         <a href="${escapeHtml(args.manageUrl)}" style="display:inline-block;padding:10px 15px;border-radius:10px;border:1px solid #d0d5dd;color:#344054;text-decoration:none;font-size:14px;font-weight:700;">Reschedule or cancel</a>
       </td>
@@ -704,7 +706,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: replyTo ? [replyTo] : undefined,
-    attachments: [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }],
+    attachments: invite ? [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }] : undefined,
     subject: `Discovery call confirmed — ${args.clientLabel}`,
     html: renderHiringEmail({
       firstName,

@@ -34,7 +34,12 @@ async function zoomAccessToken() {
   const accountId = process.env.ZOOM_ACCOUNT_ID?.trim();
   const clientId = process.env.ZOOM_CLIENT_ID?.trim();
   const clientSecret = process.env.ZOOM_CLIENT_SECRET?.trim();
-  if (!accountId || !clientId || !clientSecret) return null;
+  const missing = [
+    !accountId ? "ZOOM_ACCOUNT_ID" : null,
+    !clientId ? "ZOOM_CLIENT_ID" : null,
+    !clientSecret ? "ZOOM_CLIENT_SECRET" : null,
+  ].filter(Boolean);
+  if (missing.length) throw new Error(`Zoom integration is not configured. Missing ${missing.join(", ")}.`);
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
   const tokenResponse = await fetch(`https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${encodeURIComponent(accountId)}`, {
     method: "POST", headers: { Authorization: `Basic ${auth}` }, cache: "no-store"
@@ -48,7 +53,6 @@ async function zoomAccessToken() {
 export async function createZoomDiscoveryMeeting(args: { topic: string; startsAt: string; durationMinutes: number }) {
   const accessToken = await zoomAccessToken();
   const host = process.env.ZOOM_HOST_EMAIL?.trim() || "me";
-  if (!accessToken) return { configured: false as const, joinUrl: null, meetingId: null };
   const response = await fetch(`https://api.zoom.us/v2/users/${encodeURIComponent(host)}/meetings`, {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },

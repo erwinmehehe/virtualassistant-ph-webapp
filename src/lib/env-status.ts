@@ -27,6 +27,10 @@ export type RuntimeSetupStatus = {
     configured: null;
     detail: string;
   };
+  googleCalendar: {
+    configured: boolean;
+    detail: string;
+  };
   deployment: {
     configured: boolean;
     environment: string;
@@ -42,6 +46,12 @@ export function getRuntimeSetupStatus(): RuntimeSetupStatus {
   const hasSender = senderLooksConfigured(process.env.EMAIL_FROM);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "";
   const productionUrlLooksReady = /^https:\/\//i.test(appUrl) && !/localhost|127\.0\.0\.1/i.test(appUrl);
+  const googleCalendarRequired = {
+    GOOGLE_CALENDAR_CLIENT_ID: process.env.GOOGLE_CALENDAR_CLIENT_ID?.trim() || "",
+    GOOGLE_CALENDAR_CLIENT_SECRET: process.env.GOOGLE_CALENDAR_CLIENT_SECRET?.trim() || "",
+    GOOGLE_CALENDAR_REFRESH_TOKEN: process.env.GOOGLE_CALENDAR_REFRESH_TOKEN?.trim() || ""
+  };
+  const missingGoogleCalendar = Object.entries(googleCalendarRequired).filter(([, value]) => !value).map(([name]) => name);
   const deploymentEnvironment = process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV || "unknown";
   const deploymentCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
   const deploymentHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || process.env.VERCEL_URL?.trim() || null;
@@ -69,6 +79,12 @@ export function getRuntimeSetupStatus(): RuntimeSetupStatus {
     authEmail: {
       configured: null,
       detail: "Supabase Auth SMTP is configured outside this app. Verify custom SMTP in Supabase Authentication > Email > SMTP Settings."
+    },
+    googleCalendar: {
+      configured: missingGoogleCalendar.length === 0,
+      detail: missingGoogleCalendar.length === 0
+        ? `Google Calendar OAuth is configured for automatic event creation and Google Meet links${process.env.GOOGLE_CALENDAR_ID?.trim() ? ` on calendar ${process.env.GOOGLE_CALENDAR_ID.trim()}` : " on the authenticated primary calendar"}.`
+        : `Automatic Google Calendar booking is missing: ${missingGoogleCalendar.join(", ")}.`
     },
     deployment: {
       configured: deploymentIdentified,

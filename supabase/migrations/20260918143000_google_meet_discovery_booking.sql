@@ -16,3 +16,22 @@ comment on column public.lead_intake.discovery_calendar_event_id is
 
 comment on column public.lead_intake.discovery_meeting_provider is
   'Meeting provider for the discovery call, for example google_meet.';
+
+
+alter table public.candidate_interviews
+  add column if not exists calendar_event_id text,
+  add column if not exists meeting_provider text;
+
+update public.candidate_interviews
+set meeting_provider = case
+  when meeting_url like '%zoom.%' then 'zoom'
+  when meeting_url like '%meet.google.com%' then 'google_meet'
+  else meeting_provider
+end
+where meeting_url is not null
+  and meeting_provider is null;
+
+comment on column public.candidate_interviews.calendar_event_id is
+  'Google Calendar event ID backing the candidate interview.';
+comment on column public.candidate_interviews.meeting_provider is
+  'Meeting provider for the candidate interview, for example google_meet.';

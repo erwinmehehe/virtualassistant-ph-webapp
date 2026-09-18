@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock3, DollarSign, TrendingUp, UsersRound } from "lucide-react";
 import { getSalesAnalytics, type SalesRangeDays } from "@/lib/sales-analytics";
-import { BarChart } from "@/components/db-charts";
+import { RevenueBarChart, RevenueFunnelChart, RevenueTrendChart } from "@/components/revenue-charts";
 
 function usd(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
@@ -63,9 +63,27 @@ export async function SalesAnalyticsDashboard({
       {metrics.map(([label, value, copy, Icon]) => <div className="card sales-kpi-card" key={label}><Icon size={18}/><span>{label}</span><strong>{value}</strong><small>{copy}</small></div>)}
     </div>
 
+    <div className="grid-2 sales-analysis-grid">
+      <section className="card">
+        <div className="dashboard-section-head"><div><h2>Lead and win trend</h2><p>New hiring enquiries and won opportunities across the selected reporting window.</p></div></div>
+        <RevenueTrendChart
+          data={data.timeline.map((row) => ({ label: row.label, primary: row.leads, secondary: row.wins }))}
+          primaryLabel="Leads"
+          secondaryLabel="Wins"
+          ariaLabel={`Lead and win trend for the last ${days} days`}
+        />
+      </section>
+      <section className="card">
+        <div className="dashboard-section-head"><div><h2>Lead source volume</h2><p>Where hiring opportunities are entering the sales pipeline, with wins layered on top.</p></div></div>
+        {data.sources.length
+          ? <RevenueBarChart data={data.sources.slice(0, 8).map((row) => ({ label: row.source, value: row.leads, secondary: row.wins }))} ariaLabel="Lead sources by volume and wins"/>
+          : <div className="empty">No lead-source data in this reporting window.</div>}
+      </section>
+    </div>
+
     <section className="card sales-funnel-card">
       <div className="dashboard-section-head"><div><h2>Homepage-to-client funnel</h2><p>Track the complete journey from a homepage visit to a won client. Percentages use homepage visits as the baseline.</p></div><span className="badge">{days} day window</span></div>
-      <BarChart data={data.funnel.map((stage, i) => ({ label: stage.label, value: stage.count, highlight: i === data.funnel.length - 1 }))} height={110}/>
+      <RevenueFunnelChart stages={data.funnel.map((stage) => ({ label: stage.label, value: stage.count }))} ariaLabel="Homepage to won-client conversion funnel"/>
       <div className="sales-funnel-list" style={{marginTop:18}}>
         {data.funnel.map((stage) => <div className="sales-funnel-row" key={stage.key}>
           <div><strong>{stage.label}</strong><span>{stage.count}</span></div>

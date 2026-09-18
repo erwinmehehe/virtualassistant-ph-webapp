@@ -175,7 +175,7 @@ export default async function AdminTodayPage(){
       .limit(250),
     admin.from("workrooms")
       .select("id,job_id,status,placement_stage,health_status,health_score,at_risk_reason,renewal_date,renewal_status,jobs(title,company_name),client:profiles!workrooms_client_id_fkey(full_name)")
-      .neq("placement_stage","ended")
+      .or("placement_stage.is.null,placement_stage.neq.ended")
       .order("created_at",{ascending:false})
       .limit(250),
     admin.from("payments")

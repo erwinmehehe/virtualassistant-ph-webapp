@@ -91,8 +91,8 @@ function complianceNote(slug: string, group: string) {
 }
 
 function experienceCopy(s: ServiceSeoPage) {
-  const role = s.name.toLowerCase();
-  const focus = roleName(s.name).toLowerCase();
+  const role = s.name;
+  const focus = roleName(s.name);
   const defaults = {
     hero: s.intro,
     panelTitle: `Give ${focus} work a clear owner.`,
@@ -103,7 +103,7 @@ function experienceCopy(s: ServiceSeoPage) {
     toolsTitle: "Hire for workflow fluency, not a software checklist.",
     fitTitle: `Where ${role} support can create leverage`,
     fitIntro: "The same title can cover very different work. Define the business context, systems, hours, response expectations, and escalation rules before you compare candidates.",
-    finalTitle: `Build a ${role} role around the work you need done.`,
+    finalTitle: `Build ${articleFor(s.name)} ${role} role around the work you need done.`,
     finalBody: "Tell us the responsibilities, tools, hours, schedule, and level of independence you need. Your role brief is private and you can start without creating an account."
   };
 

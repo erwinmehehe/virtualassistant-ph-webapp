@@ -122,7 +122,12 @@ export async function loginAction(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
   if (error) {
-    const params = new URLSearchParams({ error: error.message });
+    const errorCode = String((error as { code?: string }).code || "");
+    const needsConfirmation = errorCode === "email_not_confirmed" || /email.*not.*confirm/i.test(error.message);
+    const params = new URLSearchParams({
+      error: needsConfirmation ? "Confirm your email before logging in." : error.message
+    });
+    if (needsConfirmation) params.set("confirm", "1");
     if (parsed.data.next) params.set("next", parsed.data.next);
     if (parsed.data.lead) params.set("lead", parsed.data.lead);
     redirect(`/auth/login?${params.toString()}`);
@@ -243,6 +248,7 @@ export async function joinAction(formData: FormData) {
       message: accountWasCreated ? "Check your email to confirm your account" : "An account may already exist for this email. Log in to continue.",
       next: postSignupDestination
     });
+    if (accountWasCreated) loginParams.set("confirm", "1");
     if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
     redirect(`/auth/login?${loginParams.toString()}`);
   }

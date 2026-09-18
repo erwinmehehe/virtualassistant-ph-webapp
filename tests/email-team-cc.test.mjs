@@ -45,3 +45,14 @@ test("password reset and password-change security mail remain private", () => {
   assert.match(email, /const isPasswordChangeNotice =/);
   assert.match(email, /teamCc: args\.teamCc !== false && !isPasswordChangeNotice/);
 });
+
+
+test("malformed email addresses are rejected before Resend and profile reminders skip them", () => {
+  const email = source("src/lib/email.ts");
+
+  assert.match(email, /local\.includes\("\.\."\)/);
+  assert.match(email, /domain\.includes\("\.\."\)/);
+  assert.match(email, /const recipient = normalizeEmailAddress\(args\.to\);/);
+  assert.match(email, /reason: !recipient \? "invalid_recipient" : "email_not_configured"/);
+  assert.match(email, /to: \[recipient\]/);
+});

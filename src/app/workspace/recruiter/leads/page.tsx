@@ -26,6 +26,7 @@ type RecruiterLeadRow = {
   company: string | null;
   service: string | null;
   hours: string | null;
+  budget?: string | null;
   start_time: string | null;
   message: string | null;
   source_page: string | null;
@@ -100,7 +101,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
   let scoringQuery = admin
     .from("lead_intake")
-    .select("crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd")
+    .select("crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,budget,hours,message")
     .eq("lead_type", "client_hiring")
     .in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","nurture"])
     .limit(5000);
@@ -291,7 +292,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <div className="crm-lead-meta">
                 <span><Clock3 size={14}/> Received {ageLabel(lead.created_at)}</span>
                 <span><UserRound size={14}/> {lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : "Unassigned"}</span>
-                <span><DollarSign size={14}/> {lead.estimated_value_usd ? usd(Number(lead.estimated_value_usd)) : "Value not set"}</span>
+                {leadScore.estimatedMonthlyBudget ? <span><DollarSign size={14}/> {usd(leadScore.estimatedMonthlyBudget)}/mo client budget</span> : <span><DollarSign size={14}/> Client budget not quantified</span>}
+                {lead.estimated_value_usd ? <span><DollarSign size={14}/> {usd(Number(lead.estimated_value_usd))} agency est.</span> : null}
               </div>
             </div>
 
@@ -331,7 +333,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <form action={updateLeadCrmAction} className="crm-update-card">
                 <input type="hidden" name="lead_id" value={lead.id}/>
                 <input type="hidden" name="return_to" value={returnTo}/>
-                <div className="crm-form-head"><span className="crm-form-kicker">Pipeline control</span><strong>Next step</strong><span className="small muted">Stage, owner, follow-up date, and value should always be current.</span></div>
+                <div className="crm-form-head"><span className="crm-form-kicker">Pipeline control</span><strong>Next step</strong><span className="small muted">Stage, owner, follow-up date, and agency value should always be current. Client budget is estimated separately from the hiring brief.</span></div>
                 <div className="grid-2">
                   <div className="field"><label>Stage</label><select name="crm_stage" defaultValue={stage}>{LEAD_CRM_STAGES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
                   <div className="field"><label>Owner</label><select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{((owners || []) as LeadOwner[]).map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></div>

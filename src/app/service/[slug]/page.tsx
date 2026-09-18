@@ -640,7 +640,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
             </div>
             {relatedIndustries.length ? <div>
               <SectionHead kicker="Industry guides" title="See how this role fits specific business workflows." lede="Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type."/>
-              <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: `${industry.label} Virtual Assistant guide`, sub: `See how ${s.name} work fits ${industry.audience} workflows.`, icon: <UsersRound size={16}/> }))}/>
+              <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: `Virtual Assistant guide for ${industry.label}`, sub: `See how ${s.name} work fits the workflows used by ${industry.audience}.`, icon: <UsersRound size={16}/> }))}/>
             </div> : null}
           </div>
         </Band>

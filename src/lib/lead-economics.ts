@@ -12,6 +12,12 @@ function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+export function extractLeadBudget(message?: string | null) {
+  const text = String(message || "");
+  const match = text.match(/(?:Virtual Assistant budget|Hourly VA budget):\s*([^\n\r]+)/i);
+  return match?.[1]?.trim().replace(/[.]$/, "") || null;
+}
+
 export function parseHourlyBudget(value?: string | null) {
   const text = String(value || "").trim();
   if (!text || /not sure/i.test(text)) {
@@ -42,8 +48,8 @@ export function estimateHoursPerWeek(value?: string | null) {
   return Math.round(values[0]);
 }
 
-export function estimateLeadBudget(budget?: string | null, hours?: string | null): LeadBudgetEstimate {
-  const hourly = parseHourlyBudget(budget);
+export function estimateLeadBudget(budget?: string | null, hours?: string | null, message?: string | null): LeadBudgetEstimate {
+  const hourly = parseHourlyBudget(budget || extractLeadBudget(message));
   const hoursPerWeek = estimateHoursPerWeek(hours);
   const monthlyBudget = hourly.midpoint != null && hoursPerWeek != null
     ? roundMoney(hourly.midpoint * hoursPerWeek * WEEKS_PER_MONTH)

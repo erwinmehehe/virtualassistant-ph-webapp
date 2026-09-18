@@ -98,6 +98,13 @@ function resendConfig() {
   return { client: new Resend(apiKey), from };
 }
 
+function configuredReplyTo() {
+  return normalizeEmailList([
+    process.env.CLIENT_REPLY_TO_EMAIL,
+    process.env.LEAD_NOTIFICATION_EMAIL
+  ])[0] || undefined;
+}
+
 async function logEmailEvent(eventType: string, recipient: string | string[] | undefined, status: "sent" | "failed", providerId?: string | null, errorMessage?: string | null) {
   try {
     const safeRecipient = Array.isArray(recipient) ? recipient.join(",") : recipient || null;
@@ -239,6 +246,7 @@ export async function sendLeadAcknowledgementEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
+    replyTo: configuredReplyTo(),
     subject: `Got your ${service} request`,
     text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nYou do not need to create an account to keep things moving. If you would rather talk it through, choose a time that works for you: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
@@ -277,7 +285,7 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
     to: [recipient],
     subject: "Applying to work as a Virtual Assistant",
     text: `Hi ${firstName},\n\nThanks for your interest in working with VirtualAssistant.com.ph.\n\nThe form you sent is used by businesses to request a Virtual Assistant, so we have not added your message to our client hiring requests.\n\nTo be considered for client roles, create your free Virtual Assistant profile and complete the screening steps: ${joinUrl}\nBrowse open roles: ${jobsUrl}\n\nThere is no fee to join or apply.\n\nBest,\nVirtualAssistant.com.ph Talent Team`,
-    html: renderHiringEmail({
+    html: renderTalentEmail({
       firstName,
       bodyHtml,
       senderName: "VirtualAssistant.com.ph Talent Team",
@@ -317,12 +325,20 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
+  const profileUrl = `${args.appUrl}/workspace/va/profile`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You started creating a Virtual Assistant profile but haven’t finished the first step yet. A complete profile unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">It only takes a few minutes. If you have questions about the process, reply to this email.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: "Finish your VirtualAssistant.com.ph profile",
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You started creating a Virtual Assistant profile on VirtualAssistant.com.ph but haven't finished the first step yet -- a complete profile is what unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p>It only takes a few minutes.</p><p><a href="${args.appUrl}/workspace/va/profile">Finish your profile</a></p><p>If you have questions about the process, just reply to this email.</p>`
-  }, "profile_stage_nudge");
+    text: `Hi ${firstName},\n\nFinish your Virtual Assistant profile to unlock your category skills test: ${profileUrl}\n\nThere is no fee to complete your profile or apply.`,
+    html: renderTalentEmail({
+      firstName,
+      bodyHtml,
+      ctaHref: profileUrl,
+      ctaLabel: "Finish my profile"
+    })
+  }, "profile_stage_nudge", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -339,11 +355,20 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
   const hiringCallUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>. Our recruiting team has your request and can use it to screen relevant candidates.</p><p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">If you want to talk through the role, schedule, budget, or must-have experience, choose a discovery-call time below.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">You do not need to create a client account to continue the conversation. If you already have one, your Client Portal remains available for private candidate details and hiring workflow.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    subject: `Following up on your Virtual Assistant request -- ${args.jobTitle}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong> on VirtualAssistant.com.ph. Our recruiting team has your request and can use it to screen relevant candidates.</p><p>If you want to talk through the role, schedule, budget, or must-have experience, you can book a client discovery call below.</p><p><a href="${hiringCallUrl}">Choose a discovery-call time</a></p><p>You do not need to create a client account to continue the conversation. If you already have one, your Client Portal is available for private candidate details and hiring workflow when needed.</p>`
+    replyTo: configuredReplyTo(),
+    subject: `Following up on your Virtual Assistant request — ${args.jobTitle}`,
+    text: `Hi ${firstName},\n\nYou asked about hiring for ${args.jobTitle}. Our recruiting team has your request and can use it to screen relevant candidates.\n\nChoose a discovery-call time: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      ctaHref: hiringCallUrl,
+      ctaLabel: "Choose a call time"
+    })
   }, "lead_claim_nudge");
   return { sent: true as const };
 }
@@ -370,6 +395,21 @@ function renderMessageParagraphs(value: string) {
     .join("");
 }
 
+function renderBrandedEmail(args: {
+  firstName: string;
+  bodyHtml: string;
+  senderName: string;
+  teamLabel: string;
+  footerText: string;
+  ctaHref?: string | null;
+  ctaLabel?: string;
+}) {
+  const cta = args.ctaHref
+    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
+    : "";
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${args.bodyHtml}${cta}<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p></td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
+}
+
 function renderHiringEmail(args: {
   firstName: string;
   bodyHtml: string;
@@ -377,10 +417,26 @@ function renderHiringEmail(args: {
   ctaHref?: string | null;
   ctaLabel?: string;
 }) {
-  const cta = args.ctaHref
-    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
-    : "";
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">Hiring team</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${args.bodyHtml}${cta}<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p></td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.</p></td></tr></table></body></html>`;
+  return renderBrandedEmail({
+    ...args,
+    teamLabel: "Hiring team",
+    footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support."
+  });
+}
+
+function renderTalentEmail(args: {
+  firstName: string;
+  bodyHtml: string;
+  senderName?: string;
+  ctaHref?: string | null;
+  ctaLabel?: string;
+}) {
+  return renderBrandedEmail({
+    ...args,
+    senderName: args.senderName || "VirtualAssistant.com.ph Talent Team",
+    teamLabel: "Talent team",
+    footerText: "You are receiving this because you have a Virtual Assistant account, application, or profile with VirtualAssistant.com.ph."
+  });
 }
 
 function normalizeClientFollowup(subjectValue: string, messageValue: string) {
@@ -412,12 +468,20 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
   const label = args.status.replaceAll("_", " ");
+  const applicationsUrl = `${args.appUrl}/workspace/va/applications`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your application for <strong>${escapeHtml(args.jobTitle)}</strong> is now <strong>${escapeHtml(label)}</strong>.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: `Application update: ${args.jobTitle}`,
-    html: `<p>Your application for <strong>${escapeHtml(args.jobTitle)}</strong> is now <strong>${escapeHtml(label)}</strong>.</p><p><a href="${args.appUrl}/workspace/va/applications">View your applications</a></p>`
-  }, "application_status", { archive: false });
+    text: `Your application for ${args.jobTitle} is now ${label}.\n\nView your applications: ${applicationsUrl}`,
+    html: renderTalentEmail({
+      firstName: "there",
+      bodyHtml,
+      ctaHref: applicationsUrl,
+      ctaLabel: "View my applications"
+    })
+  }, "application_status", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -434,19 +498,22 @@ export async function sendStaffClientFollowupEmail(args: {
   const sender = args.senderName?.trim() || "VirtualAssistant.com.ph Hiring Team";
   const normalized = normalizeClientFollowup(args.subject, args.message);
   const bookingUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
+  const targetUrl = args.href?.trim() || bookingUrl;
+  const targetLabel = args.href?.trim() ? "Open hiring workspace" : "Choose a call time";
   const bodyHtml = renderMessageParagraphs(normalized.message);
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    replyTo: configuredReplyTo(),
     subject: normalized.subject,
-    text: `Hi ${normalized.firstName},\n\n${normalized.message}\n\nChoose a discovery-call time: ${bookingUrl}\n\nBest,\n${sender}\nVirtualAssistant.com.ph`,
+    text: `Hi ${normalized.firstName},\n\n${normalized.message}\n\n${targetLabel}: ${targetUrl}\n\nBest,\n${sender}\nVirtualAssistant.com.ph`,
     html: renderHiringEmail({
       firstName: normalized.firstName,
       bodyHtml,
       senderName: sender,
-      ctaHref: bookingUrl,
-      ctaLabel: "Choose a call time"
+      ctaHref: targetUrl,
+      ctaLabel: targetLabel
     })
   }, "client_followup");
   return { sent: true as const };
@@ -475,12 +542,20 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
   const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "Virtual Assistant category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
   const missing = args.missing.slice(0, 6).map((item) => labels[item] || item);
   const list = missing.length ? `<ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
+  const profileUrl = `${args.appUrl}/workspace/va/profile`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p style="margin:0 0 10px;color:#344054;font-size:16px;line-height:1.7;">Please finish these items:</p>${list}` : ""}<p style="margin:18px 0 0;color:#475467;font-size:15px;line-height:1.7;">There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: `Complete your Virtual Assistant profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`
-  }, "profile_completion_reminder");
+    text: `Hi ${firstName},\n\nYour VirtualAssistant.com.ph profile is ${Math.max(0, Math.min(100, args.score))}% complete.\n\nComplete your profile: ${profileUrl}\n\nThere is no fee to complete a profile, apply, or be considered for placement.`,
+    html: renderTalentEmail({
+      firstName,
+      bodyHtml,
+      ctaHref: profileUrl,
+      ctaLabel: "Complete my profile"
+    })
+  }, "profile_completion_reminder", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -496,12 +571,21 @@ export async function sendDiscoveryBookingEmail(args: {
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const meeting = args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join discovery call</a></p>` : "";
+  const senderName = args.recruiterName || "VirtualAssistant.com.ph Hiring Team";
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your discovery call is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
+    replyTo: configuredReplyTo(),
     subject: `Discovery call booked — ${args.scheduledLabel}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your discovery call with VirtualAssistant.com.ph is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p>We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>${meeting}<p>Regards,<br>${escapeHtml(args.recruiterName || "VirtualAssistant.com.ph hiring team")}</p>`
+    text: `Hi ${firstName},\n\nYour discovery call is booked for ${args.scheduledLabel} for about ${args.durationMinutes} minutes.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nBest,\n${senderName}`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName,
+      ctaHref: args.meetingUrl || undefined,
+      ctaLabel: args.meetingUrl ? "Join Google Meet" : undefined
+    })
   }, "discovery_booking");
   return { sent: true as const };
 }
@@ -548,10 +632,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     service: args.service,
     meetingUrl: args.meetingUrl
   });
-  const replyTo = normalizeEmailList([
-    process.env.CLIENT_REPLY_TO_EMAIL,
-    process.env.LEAD_NOTIFICATION_EMAIL
-  ])[0];
+  const replyTo = configuredReplyTo();
 
   const meetingBlock = args.meetingUrl
     ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
@@ -651,12 +732,21 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
   const timing = args.window === "24h" ? "tomorrow" : "in about one hour";
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;"><a href="${escapeHtml(args.manageUrl)}" style="color:#4f46e5;">Reschedule or cancel</a> if your availability changed.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    replyTo: configuredReplyTo(),
     subject: `Reminder: your discovery call is ${timing}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join Google Meet</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
+    text: `Hi ${firstName},\n\nYour VirtualAssistant.com.ph discovery call is ${timing}, at ${args.scheduledLabel}.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nReschedule or cancel: ${args.manageUrl}`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      ctaHref: args.meetingUrl || args.manageUrl,
+      ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking"
+    }),
   }, `discovery_reminder_${args.window}`);
   return { sent: true as const };
 }
@@ -673,12 +763,23 @@ export async function sendLeadProposalEmail(args: {
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const expiry = args.expiresLabel ? `<p class="small">This proposal is valid until ${escapeHtml(args.expiresLabel)}.</p>` : "";
+  const senderName = args.recruiterName || "VirtualAssistant.com.ph Hiring Team";
+  const expiryText = args.expiresLabel ? ` This proposal is valid until ${args.expiresLabel}.` : "";
+  const expiry = args.expiresLabel ? `<p style="margin:18px 0 0;color:#667085;font-size:14px;line-height:1.6;">This proposal is valid until ${escapeHtml(args.expiresLabel)}.</p>` : "";
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Based on our conversation, your proposal for <strong>${escapeHtml(args.roleTitle)}</strong> is ready.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Review the role, expected Virtual Assistant compensation, service fee, and next steps on one page.</p>${expiry}`;
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
+    replyTo: configuredReplyTo(),
     subject: `Your Virtual Assistant proposal — ${args.roleTitle}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Based on our conversation, your VirtualAssistant.com.ph proposal for <strong>${escapeHtml(args.roleTitle)}</strong> is ready.</p><p>You can review the role, expected Virtual Assistant compensation, service fee, and next steps on one page.</p><p><a href="${escapeHtml(args.proposalUrl)}">Review and accept proposal</a></p>${expiry}<p>Regards,<br>${escapeHtml(args.recruiterName || "VirtualAssistant.com.ph hiring team")}</p>`
+    text: `Hi ${firstName},\n\nYour Virtual Assistant proposal for ${args.roleTitle} is ready. Review it here: ${args.proposalUrl}.${expiryText}\n\nBest,\n${senderName}`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName,
+      ctaHref: args.proposalUrl,
+      ctaLabel: "Review proposal"
+    })
   }, "client_proposal");
   return { sent: true as const };
 }

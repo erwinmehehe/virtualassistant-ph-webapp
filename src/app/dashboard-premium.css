@@ -242,7 +242,7 @@
 }
 .dashboard-shell .app-topbar-inner { gap: 18px; }
 .dashboard-shell .app-topbar-title { min-width: 0; }
-.dashboard-shell .app-topbar-title span {
+.dashboard-shell .app-topbar-workspace-home {
   display: block;
   margin-bottom: 2px;
   color: #94a3b8;
@@ -250,7 +250,9 @@
   font-weight: 850;
   letter-spacing: .13em;
   text-transform: uppercase;
+  text-decoration: none;
 }
+.dashboard-shell .app-topbar-workspace-home:hover { color: #64748b; }
 .dashboard-shell .app-topbar h1 {
   overflow: hidden;
   color: #0f172a;
@@ -642,7 +644,7 @@
     height: 64px;
     padding: 0 14px;
   }
-  .dashboard-shell .app-topbar-title span { display: none; }
+  .dashboard-shell .app-topbar-workspace-home { display: none; }
   .dashboard-shell .app-topbar h1 { font-size: 15px; }
   .dashboard-shell .app-topbar .btn { min-height: 34px; padding: 7px 10px; font-size: 11px; }
   .dashboard-shell .app-topbar .btn span { display: none; }

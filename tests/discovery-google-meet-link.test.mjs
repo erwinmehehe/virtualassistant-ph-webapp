@@ -77,8 +77,9 @@ test("successful Google Calendar booking is created before persistence and avoid
     read("src/lib/booking-operations.ts"),
   ]);
 
-  const createIndex = action.indexOf("meeting = await createGoogleMeetDiscoveryMeeting({");
-  const insertIndex = action.indexOf('admin.from("lead_intake").insert({');
+  const bookingAction = action.slice(action.indexOf("export async function submitDiscoveryBookingAction"));
+  const createIndex = bookingAction.indexOf("meeting = await createGoogleMeetDiscoveryMeeting({");
+  const insertIndex = bookingAction.indexOf('admin.from("lead_intake").insert({');
   assert.ok(createIndex >= 0 && insertIndex > createIndex, "Google Calendar event must be created before the lead booking is persisted");
 
   assert.match(action, /attendeeEmails: \[parsed\.data\.email\]/);

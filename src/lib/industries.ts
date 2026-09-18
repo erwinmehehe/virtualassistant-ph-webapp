@@ -1206,7 +1206,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "BIM & Revit",
     "h1": "Expand Your BIM Production Capacity Without Moving Design Authority",
     "primaryKeyword": "bim revit outsourcing",
-    "metaTitle": "BIM & Revit Production Outsourcing",
+    "metaTitle": "BIM & Revit Production Support | Philippines",
     "metaDescription": "BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing-package preparation.",
     "intro": "Design teams often lose senior hours to model housekeeping, sheet production, markups, and repetitive documentation. An outsourced BIM production layer handles that defined production work while architects and engineers retain responsibility for design intent and technical approval.",
     "audience": "architecture practices, structural engineers, mep consultants and bim teams",

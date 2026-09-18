@@ -47,6 +47,12 @@ jobs:
         env:
           VISUAL_BASE_URL: http://127.0.0.1:3000
         run: node scripts/public-booking-visual.mjs
+      - name: Run one-time live Google Calendar booking smoke test
+        if: github.head_ref == 'test/live-google-calendar-booking'
+        env:
+          LIVE_BASE_URL: https://virtualassistant.com.ph
+          BOOKING_SMOKE_EMAIL: erwinmehehe@users.noreply.github.com
+        run: node scripts/live-google-calendar-booking-smoke.mjs
       - name: Upload booking screenshots
         if: always()
         uses: actions/upload-artifact@v6

@@ -267,7 +267,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <div className="crm-lead-subtitle">
                   <span>{lead.company || "Individual client"}</span>
                   <span>{lead.service || "Virtual Assistant support"}</span>
-                  {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
+                  {lead.email ? <span>{lead.email}</span> : null}
                 </div>
               </div>
               <div className="crm-lead-meta">

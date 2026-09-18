@@ -4,6 +4,7 @@ import fs from "node:fs";
 
 const recruiterTalentAction = fs.readFileSync("src/app/actions/recruiter-talent.ts", "utf8");
 const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
+const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientJob = fs.readFileSync("src/app/workspace/client/jobs/[id]/page.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
 const clientCandidate = fs.readFileSync("src/app/workspace/client/candidates/[id]/page.tsx", "utf8");
@@ -15,8 +16,9 @@ test("recruiters can explicitly send reviewed VAs through the existing release f
   assert.match(recruiterTalentAction, /saveJobShortlistAction/);
   assert.match(recruiterTalentAction, /forwarded\.set\("mode", "release"\)/);
   assert.match(recruiterTalentAction, /ids\.length > 50/);
-  assert.match(matching, /Send selected for client review/);
-  assert.match(matching, /Save internal shortlist/);
+  assert.match(matchingTable, /name="mode" value="release"/);
+  assert.match(matchingTable, /Send \{selectedCount \|\| 0\} to client/);
+  assert.match(matchingTable, /name="mode" value="save"/);
 });
 
 test("client shortlist surfaces require active candidate access before loading identities", () => {

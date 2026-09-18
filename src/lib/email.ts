@@ -556,14 +556,14 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   const meetingBlock = args.meetingUrl
     ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
         <tr><td style="padding:18px 20px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;">
-          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4f46e5;margin-bottom:8px;">Zoom meeting</div>
+          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4f46e5;margin-bottom:8px;">Google Meet</div>
           <div style="font-size:15px;line-height:1.6;color:#344054;margin-bottom:14px;">Your meeting link is ready.</div>
-          <a href="${escapeHtml(args.meetingUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;">Join Zoom call</a>
+          <a href="${escapeHtml(args.meetingUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;">Join Google Meet</a>
         </td></tr>
       </table>`
     : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
         <tr><td style="padding:16px 18px;background:#fffaeb;border:1px solid #fedf89;border-radius:14px;">
-          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b54708;margin-bottom:7px;">Zoom link pending</div>
+          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b54708;margin-bottom:7px;">Google Meet link pending</div>
           <div style="font-size:15px;line-height:1.65;color:#7a2e0e;">Your call is confirmed. We will email your Zoom link separately before the meeting. You do not need to book again.</div>
         </td></tr>
       </table>`;
@@ -640,7 +640,7 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
     to: [primary],
     bcc: hidden,
     subject: `Action required: discovery call has no Zoom link — ${args.company || args.clientName || args.clientEmail}`,
-    html: `<h2>Automatic Zoom setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Zoom link</strong> after the Zoom integration is available.</p>`
+    html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
   }, "discovery_zoom_setup_failed", { archive: false, teamCc: false });
   return { sent: true as const };
 }

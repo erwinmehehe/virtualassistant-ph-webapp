@@ -515,7 +515,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
         topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
         startsAt: scheduled.toISOString(),
         durationMinutes: duration,
-        attendeeEmail: lead.email,
+        attendeeEmails: [lead.email],
       });
       generatedMeetingUrl = meet.joinUrl;
       generatedEventId = meet.eventId;
@@ -601,7 +601,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
       topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
       startsAt: lead.discovery_scheduled_at,
       durationMinutes: lead.discovery_duration_minutes || 30,
-      attendeeEmail: lead.email,
+      attendeeEmails: [lead.email],
     });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");

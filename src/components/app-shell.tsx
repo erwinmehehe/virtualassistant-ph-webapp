@@ -13,6 +13,13 @@ const roleLabels: Record<Role, string> = {
   admin: "Admin",
 };
 
+const workspaceHome: Record<Role, string> = {
+  client: "/workspace/client",
+  va: "/workspace/va",
+  recruiter: "/workspace/recruiter",
+  admin: "/workspace/admin/today",
+};
+
 async function WorkspaceNavWithBadges({ role, userId }: { role: Role; userId: string }) {
   const badges = await getWorkspaceBadges(role, userId);
   return <AppNavLinks role={role} badges={badges}/>;
@@ -36,10 +43,15 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
           </Link>
         </div>
 
-        <div className="app-workspace-card" aria-label={`${roleLabel} workspace`}>
+        <Link
+          className="app-workspace-card"
+          href={workspaceHome[role]}
+          aria-label={`Go to ${roleLabel} workspace home`}
+          title={`Go to ${roleLabel} workspace home`}
+        >
           <span className="app-workspace-icon"><CircleUserRound size={18}/></span>
           <span><small>Current workspace</small><strong>{roleLabel}</strong></span>
-        </div>
+        </Link>
 
         {nav}
 

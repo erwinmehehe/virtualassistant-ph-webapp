@@ -78,6 +78,14 @@
   border-radius: 16px;
   background: linear-gradient(145deg, #f8fafc, #eef2ff 58%, #f0fdf4 135%);
   box-shadow: 0 7px 20px rgba(15, 23, 42, .035);
+  color: inherit;
+  text-decoration: none;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.dashboard-shell a.app-workspace-card:hover {
+  transform: translateY(-1px);
+  border-color: #c7d2fe;
+  box-shadow: 0 12px 28px rgba(79, 70, 229, .10);
 }
 .dashboard-shell .app-workspace-icon {
   display: grid;

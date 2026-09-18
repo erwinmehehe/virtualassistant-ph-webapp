@@ -17,6 +17,10 @@ function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }
 
+function cleanClientRecommendation(value: FormDataEntryValue | null) {
+  return String(value || "").trim().slice(0, 500) || null;
+}
+
 async function notifyAdmins(title: string, body: string, href: string) {
   const admin = createAdminClient();
   const { data: admins } = await admin.from("profiles").select("id").eq("role", "admin");
@@ -112,14 +116,17 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (!["save", "release", "invite"].includes(mode)) return fail("Invalid shortlist action.");
 
   const admin = createAdminClient();
-  const [{ data: job }, { data: vetting }] = await Promise.all([
+  const [{ data: job }, { data: vetting }, { data: commercial }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).single(),
-    admin.from("va_vetting").select("va_id,stage").in("va_id", selected).in("stage", ["approved", "bench"])
+    admin.from("va_vetting").select("va_id,stage").in("va_id", selected).in("stage", ["approved", "bench"]),
+    admin.from("job_commercials").select("commercial_status").eq("job_id", jobId).maybeSingle()
   ]);
   if (!job) return fail("Job not found.");
   const approvedIds = new Set((vetting || []).map((row: any) => row.va_id));
   if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer approved for matching.");
   if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet. Use Save + invite client to review instead.");
+  if (mode === "release" && job.status !== "published") return fail("Publish the role before sending candidates to the client.");
+  if (mode === "release" && commercial?.commercial_status !== "accepted") return fail("Client-approved service terms are required before sending candidates.");
 
   let inviteLead: { id: string; name?: string | null; email: string } | null = null;
   if (mode === "invite") {
@@ -164,6 +171,7 @@ export async function saveJobShortlistAction(formData: FormData) {
       match_score: assessment.score,
       match_confidence: assessment.confidence,
       shortlist_status: status,
+      client_recommendation: cleanClientRecommendation(formData.get(`recommendation_${vaId}`)),
       created_by: user.id,
       released_at: status === "released" ? now : null
     };

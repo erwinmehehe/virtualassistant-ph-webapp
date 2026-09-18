@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { matchAssessment } from "@/lib/matching";
 import { runRecruiterCopilot, type CopilotTask } from "@/lib/ai-recruiter";
-import { createZoomDiscoveryMeeting, cancelZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { sendTransactionalEventEmail } from "@/lib/email";
 import { VETTING_SCORECARD_PASS } from "@/lib/constants";
 
@@ -238,33 +238,58 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
   if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
-  if (row.zoom_meeting_id) { try { await cancelZoomDiscoveryMeeting(row.zoom_meeting_id); } catch {} }
+
   const jobTitle = Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title;
-  const zoom = await createZoomDiscoveryMeeting({ topic: `Candidate interview: ${jobTitle || "Virtual Assistant role"}`, startsAt: scheduledAt.toISOString(), durationMinutes: duration });
+  const [{ data: vaAuth }, { data: clientAuth }] = await Promise.all([
+    admin.auth.admin.getUserById(row.va_id),
+    admin.auth.admin.getUserById(user.id)
+  ]);
+  const attendeeEmails = [vaAuth.user?.email, clientAuth.user?.email].filter((value): value is string => Boolean(value));
+  const previousEventId = String(row.calendar_event_id || "").trim() || null;
+  const meet = previousEventId
+    ? await updateGoogleMeetDiscoveryMeeting({
+        eventId: previousEventId,
+        startsAt: scheduledAt.toISOString(),
+        durationMinutes: duration,
+        attendeeEmails,
+      })
+    : await createGoogleMeetDiscoveryMeeting({
+        topic: `Candidate interview: ${jobTitle || "Virtual Assistant role"}`,
+        startsAt: scheduledAt.toISOString(),
+        durationMinutes: duration,
+        attendeeEmails,
+      });
+
   const now = new Date().toISOString();
   const { error } = await admin.from("candidate_interviews").update({
     status: "scheduled",
     scheduled_at: scheduledAt.toISOString(),
     timezone,
     duration_minutes: duration,
-    meeting_url: zoom.joinUrl,
-    zoom_meeting_id: zoom.meetingId,
+    meeting_url: meet.joinUrl,
+    calendar_event_id: meet.eventId,
+    meeting_provider: "google_meet",
+    zoom_meeting_id: null,
     rescheduled_at: row.scheduled_at ? now : null,
     reminder_24h_sent_at: null,
     reminder_1h_sent_at: null,
     updated_at: now
   }).eq("id", interviewId).eq("client_id", user.id);
-  if (error) throw error;
+  if (error) {
+    if (!previousEventId) {
+      try { await cancelGoogleMeetDiscoveryMeeting(meet.eventId); } catch { /* best-effort cleanup */ }
+    }
+    throw error;
+  }
   if (row.application_id) await admin.from("applications").update({ status: "interview", updated_at: now }).eq("id", row.application_id);
 
-  const [{ data: vaAuth }, { data: clientAuth }] = await Promise.all([admin.auth.admin.getUserById(row.va_id), admin.auth.admin.getUserById(user.id)]);
   const when = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "UTC" }).format(scheduledAt);
   await admin.from("notifications").insert([
-    { user_id: row.va_id, title: `Interview scheduled: ${jobTitle || "client role"}`, body: `${when} UTC. Open Interviews for the meeting link and details.`, href: "/workspace/va/interviews", type: "interview", priority: "high" },
+    { user_id: row.va_id, title: `Interview scheduled: ${jobTitle || "client role"}`, body: `${when} UTC. Open Interviews for the Google Meet link and details.`, href: "/workspace/va/interviews", type: "interview", priority: "high" },
     { user_id: user.id, title: "Candidate interview scheduled", body: `${jobTitle || "Role"}: ${when} UTC.`, href: "/workspace/client/interviews", type: "interview", priority: "normal" }
   ]);
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. ${zoom.joinUrl ? "The Zoom link is available in your workspace." : "Meeting details will be available in your workspace."}`;
+  const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. The Google Meet link is available in your workspace and on the calendar invitation.`;
   try { await Promise.all([
     sendTransactionalEventEmail({ to: vaAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/va/interviews`, hrefLabel: "Open interview" }),
     sendTransactionalEventEmail({ to: clientAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/client/interviews`, hrefLabel: "Open interview" })
@@ -284,7 +309,7 @@ export async function cancelCandidateInterviewAction(formData: FormData) {
   if (!row) throw new Error("Interview not found.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview not found.");
   if (profile.role === "va" && row.va_id !== user.id) throw new Error("Interview not found.");
-  if (row.zoom_meeting_id) { try { await cancelZoomDiscoveryMeeting(row.zoom_meeting_id); } catch {} }
+  if (row.calendar_event_id) { try { await cancelGoogleMeetDiscoveryMeeting(row.calendar_event_id); } catch {} }
   await admin.from("candidate_interviews").update({ status: "cancelled", cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", interviewId);
   const notify = profile.role === "va" ? row.client_id : row.va_id;
   await admin.from("notifications").insert({ user_id: notify, title: "Candidate interview cancelled", body: "The scheduled candidate interview was cancelled. Recruiter follow-up may be needed to choose another time.", href: profile.role === "va" ? "/workspace/client/interviews" : "/workspace/va/interviews", type: "interview", priority: "high" });

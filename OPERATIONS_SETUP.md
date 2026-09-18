@@ -133,7 +133,7 @@ One practical one-time setup path is Google OAuth 2.0 Playground using your own 
 2. In OAuth Playground settings, enable **Use your own OAuth credentials** and enter that client ID and secret.
 3. Authorize the Calendar events scope above with the Google account that owns the booking calendar.
 4. Exchange the authorization code and copy the returned refresh token.
-5. Add all three required values to the production environment in Vercel.
+5. Add all four values to the **Production** environment in Vercel. Environment-variable changes only take effect on a new deployment.
 6. Redeploy production and open **Admin → System setup**. Google Calendar + Meet must show **Configured** before relying on automatic booking.
 
 Do not expose the client secret or refresh token as `NEXT_PUBLIC_*` variables.

@@ -198,12 +198,115 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
       "Week 4: review speed-to-lead, booking accuracy, missed calls, open estimates and escalation quality."
     ],
     metrics: ["Speed to lead", "Calls answered or returned", "Bookings created", "Scheduling corrections", "Open estimates without follow-up", "No-show or failed-visit rate", "CRM records without next action", "Customer follow-ups completed"]
+  },
+  "professional-services-growth": {
+    metaDescription: "Virtual Assistant support for professional-services teams. Delegate client onboarding, CRM upkeep, research, reporting, marketing operations and coordination.",
+    heroIntro: "Professional-services teams lose billable and growth time when client onboarding, CRM upkeep, research and coordination sit between meetings. A Virtual Assistant can own those recurring workflows so consultants and growth leads stay focused on delivery, relationships and decisions."
+  },
+  "small-business": {
+    metaDescription: "Virtual Assistant support for small businesses. Delegate inboxes, customer follow-up, CRM updates, invoicing admin, social scheduling and reporting.",
+    heroIntro: "Small-business owners often become the default owner of every inbox, follow-up, spreadsheet and reminder. A Virtual Assistant can take over the repeatable admin layer while the owner keeps pricing, customer exceptions and business decisions."
+  },
+  "startups": {
+    metaDescription: "Virtual Assistant support for startups and founders. Delegate founder admin, customer follow-up, research, recruiting admin, CRM work and project coordination.",
+    heroIntro: "Early-stage teams need execution without adding another layer of management. A Virtual Assistant can own founder admin, research, CRM upkeep, recruiting coordination and recurring customer follow-up while product, hiring and commercial decisions stay with the core team."
+  },
+  "construction-companies": {
+    metaDescription: "Virtual Assistant support for construction companies. Delegate estimate follow-up, project documents, vendor coordination, schedule updates and job reporting.",
+    heroIntro: "Construction teams lose office time when estimate follow-up, project documents, vendor coordination and customer updates are spread across inboxes and job systems. A Virtual Assistant can keep those administrative queues moving while field, pricing and technical decisions stay with the contractor."
+  },
+  "insurance-agencies": {
+    metaDescription: "Virtual Assistant support for insurance agencies. Delegate lead intake, renewal reminders, CRM updates, quote follow-up and routine client administration.",
+    heroIntro: "Insurance agencies run on accurate records, timely renewal activity and disciplined follow-up. A Virtual Assistant can manage the administrative queues around leads, appointments, documents and renewals while licensed advice, binding authority and coverage decisions remain with authorized staff."
+  },
+  "accountants-cpas": {
+    metaDescription: "Virtual Assistant support for accountants and CPA firms. Delegate client document follow-up, file organization, bookkeeping admin, billing and workflow tracking.",
+    heroIntro: "Accounting firms lose production time when client documents, calendars, files and routine billing administration are incomplete or late. A Virtual Assistant can keep those workflows organized so accountants spend more time on review, advisory work and regulated decisions."
+  },
+  "coaches": {
+    metaDescription: "Virtual Assistant support for coaches and consultants. Delegate scheduling, client onboarding, CRM updates, program admin, email and content coordination.",
+    heroIntro: "Coaches and consultants need a dependable client-operations layer behind delivery. A Virtual Assistant can own scheduling, onboarding, reminders, CRM updates and program administration so the expert can focus on sessions, strategy and client outcomes."
+  },
+  "dental-practices": {
+    metaDescription: "Virtual Assistant support for dental practices. Delegate scheduling, recalls, patient reminders, insurance admin, billing follow-up and front-desk work.",
+    heroIntro: "Dental practices need reliable front-office follow-through without moving clinical responsibility outside the practice. A Virtual Assistant can support scheduling, recalls, reminders, insurance administration and billing follow-up within clear privacy and escalation rules."
+  },
+  "photographers-creatives": {
+    metaDescription: "Virtual Assistant support for photographers and creative studios. Delegate inquiry follow-up, onboarding, calendars, gallery admin, invoicing and social scheduling.",
+    heroIntro: "Creative businesses often lose selling and production time to enquiries, scheduling, onboarding and post-project administration. A Virtual Assistant can keep the client journey organized from first enquiry through delivery while creative direction and final client commitments stay with the studio."
+  },
+  "entrepreneurs": {
+    metaDescription: "Virtual Assistant support for entrepreneurs. Delegate inboxes, calendars, research, CRM updates, travel planning, project coordination and reporting.",
+    heroIntro: "Founder-led businesses accumulate dozens of small recurring tasks that interrupt higher-value work. A Virtual Assistant can own the operating rhythm around inboxes, calendars, research, CRM updates and coordination while the founder keeps priorities and key decisions."
+  },
+  "real-estate-investors": {
+    metaDescription: "Virtual Assistant support for real estate investors. Delegate lead research, seller follow-up, CRM updates, property research and appointment setting.",
+    heroIntro: "Real estate investors need consistent lead follow-up and clean pipeline data long before an acquisition decision is made. A Virtual Assistant can own list research, seller follow-up, CRM updates and appointment setting while offers, negotiation and investment decisions stay with the investor."
+  },
+  "ecommerce-stores": {
+    metaDescription: "Virtual Assistant support for ecommerce stores. Delegate product updates, order support, customer service, inventory coordination, returns and store QA.",
+    heroIntro: "Ecommerce teams need accurate catalog, order and customer workflows every day. A Virtual Assistant can own product updates, support queues, returns administration and store QA while pricing, supplier commitments and policy exceptions stay with the business."
+  },
+  "therapists": {
+    metaDescription: "Virtual Assistant support for therapy and mental-health practices. Delegate scheduling, intake follow-up, reminders, waitlists, billing admin and records.",
+    heroIntro: "Therapy and mental-health practices need calm, reliable administrative support without blurring clinical boundaries. A Virtual Assistant can manage scheduling, intake follow-up, reminders, waitlists and routine billing administration while clinical and crisis decisions stay with qualified professionals."
+  },
+  "banking-financial-services": {
+    metaDescription: "Virtual Assistant support for banking and financial-services teams. Delegate document follow-up, CRM maintenance, scheduling, reporting and workflow tracking.",
+    heroIntro: "Financial-services teams need disciplined administration, strong access controls and a clear audit trail. A Virtual Assistant can support document follow-up, CRM maintenance, scheduling and reporting while advice, approvals and regulated activity stay with authorized professionals."
+  },
+  "construction-estimating-tender-desk": {
+    metaDescription: "Outsource construction estimating support for take-offs, RFQs, pricing sheets, tender packs and revision tracking while final bid decisions stay in-house.",
+    heroIntro: "Estimating teams lose capacity when take-offs, supplier RFQs, pricing sheets and tender documents are assembled manually across multiple systems. An outsourced tender desk can prepare the package and track revisions while your estimator or business owner keeps final pricing and submission authority."
+  },
+  "accounting-firms-month-end": {
+    metaDescription: "Outsource month-end production for accounting firms, including reconciliations, workpapers, AP/AR, payroll prep and client document follow-up.",
+    heroIntro: "Accounting firms feel margin pressure when month-end production and client document chasing consume senior review capacity. A dedicated production desk can prepare reconciliations, workpapers and supporting schedules while registered professionals retain review, advisory and regulated responsibilities."
+  },
+  "ndis-providers": {
+    metaDescription: "NDIS administration support for claims, remittance reconciliation, participant onboarding, service agreements, rejected claims and reporting.",
+    heroIntro: "NDIS providers need accurate claims administration and participant records without losing visibility across rejected claims, remittances and service agreements. A dedicated support desk can run the administrative workflow while provider approvals and participant-care decisions remain internal."
+  },
+  "mortgage-broker-loan-processing": {
+    metaDescription: "Mortgage loan-processing support for document collection, ApplyOnline entry, lender conditions, approvals and settlement tracking.",
+    heroIntro: "Mortgage brokers lose client-facing time when every application needs document chasing, data entry and lender-condition follow-up. A processing desk can keep files moving from application through settlement while brokers retain advice, credit discussions and approval decisions."
+  },
+  "smsf-production": {
+    metaDescription: "SMSF production support for transaction coding, reconciliations, workpapers, document follow-up and audit-pack preparation.",
+    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organize source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
+  },
+  "strata-management-administration": {
+    metaDescription: "Strata administration support for meeting packs, owner records, notices, minutes, levy workflows, arrears follow-up and action registers.",
+    heroIntro: "Strata portfolios create recurring administrative deadlines around meetings, notices, records, levies and follow-up. A dedicated support role can prepare packs, update registers and run approved correspondence while the strata manager retains decisions, approvals and statutory responsibility."
+  },
+  "property-management-maintenance-coordination": {
+    metaDescription: "Maintenance coordination support for tenant requests, contractor quotes, work orders, scheduling, follow-up and property-system updates.",
+    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorization and property-level decisions."
+  },
+  "allied-health-referral-billing": {
+    metaDescription: "Allied-health administration support for referrals, scheduling, billing records, recalls, patient follow-up and practice-system updates.",
+    heroIntro: "Allied-health clinics need referral, scheduling and billing administration to move reliably between appointments. A support desk can keep patient records, follow-up and billing workflows current while clinical interpretation and practitioner decisions remain with qualified staff."
+  },
+  "trades-service-administration": {
+    metaDescription: "Trades administration support for job intake, scheduling, technician follow-up, quotes, invoices and ServiceM8, simPRO or AroFlo updates.",
+    heroIntro: "Field-service businesses lose margin when calls are not booked, technicians lack job context or completed work sits uninvoiced. A service-administration role can keep jobs moving from enquiry to closeout while technical diagnosis, field safety and pricing authority stay with the business."
+  },
+  "bim-revit-production": {
+    metaDescription: "BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing-package preparation.",
+    heroIntro: "Architecture and engineering teams often need more production capacity without moving design authority. A BIM support role can process approved markups, model updates, sheets and coordination outputs while professional judgment and final issue remain with qualified project staff."
+  },
+  "recruitment-candidate-sourcing": {
+    metaDescription: "Candidate-sourcing support for LinkedIn research, longlists, CRM cleanup, approved outreach, screening admin and interview scheduling.",
+    heroIntro: "Recruiters lose selling and assessment time when consultants have to build every search, clean every CRM record and chase every scheduling task themselves. A sourcing desk can keep qualified pipelines moving while candidate assessment, client advice and hiring decisions stay with recruiters."
+  },
+  "insurance-broker-renewal-desk": {
+    metaDescription: "Insurance renewal support for client data updates, insurer follow-up, quote comparison schedules, certificates and renewal administration.",
+    heroIntro: "Insurance brokers need renewal files complete before advice and placement decisions begin. A renewal desk can chase approved information, update broking systems and prepare factual comparison schedules while licensed recommendations and binding decisions remain with the broker."
   }
 };
 
 export function industrySeoTitle(industry: IndustryPage) {
-  const label = INDUSTRY_SEO_CONTENT[industry.slug]?.seoLabel || industry.label;
-  return `Virtual Assistant Services for ${label}`;
+  return industry.metaTitle;
 }
 
 export function industryMetaDescription(industry: IndustryPage) {
@@ -217,32 +320,53 @@ export function industryHeroIntro(industry: IndustryPage) {
   return INDUSTRY_SEO_CONTENT[industry.slug]?.heroIntro || industry.intro;
 }
 
+function sentenceCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function derivedWorkflowDescription(industry: IndustryPage, workflow: string) {
+  const w = workflow.toLowerCase();
+  if (/schedule|calendar|appointment|rostering/.test(w)) return `Own ${workflow} using the team's approved availability, job or appointment rules. Confirm changes, keep the shared system current and escalate conflicts or exceptions that require an internal decision.`;
+  if (/crm|record|data entry|database/.test(w)) return `Keep ${workflow} accurate enough that ${industry.audience} can rely on the system without rebuilding context from inboxes. Update required fields, notes, status and next actions, then flag missing or contradictory information.`;
+  if (/lead|prospect|inquiry|enquiry|follow-up|outreach/.test(w)) return `Run ${workflow} from an approved queue or cadence. Capture the response, record the next step and route qualified, sensitive or unusual cases to the person responsible for the commercial decision.`;
+  if (/document|file|workpaper|pack|agreement|supporting/.test(w)) return `Prepare and maintain ${workflow} using the team's naming, version and review rules. Track what is missing, keep the current version easy to find and send anything requiring professional judgment for review.`;
+  if (/billing|invoice|payment|reconciliation|accounts|payroll|journal|financial/.test(w)) return `Support ${workflow} by preparing records, matching source information and maintaining an exception list. Keep approvals, payment authority, accounting judgments and regulated decisions with authorized staff.`;
+  if (/report|tracking|register|status/.test(w)) return `Maintain ${workflow} as a management view, not a retrospective cleanup exercise. Keep statuses current, identify overdue items and make blockers visible so managers can act on exceptions quickly.`;
+  if (/research|take-off|quantity|property research|candidate|sourcing/.test(w)) return `Complete ${workflow} against a written brief and record the source or evidence behind the result. Separate factual research from recommendations or decisions that belong to the client team.`;
+  if (/customer|client|patient|tenant|participant|owner/.test(w)) return `Handle ${workflow} using approved scripts, service standards and escalation rules. Document each interaction and move complaints, clinical issues, regulated questions or policy exceptions to the appropriate internal owner.`;
+  if (/coordination|vendor|contractor|technician|subcontractor|settlement/.test(w)) return `Coordinate ${workflow} across the people and systems involved, confirm dates and outstanding items, and keep the next owner visible. Do not make commitments outside the authority defined by ${industry.audience}.`;
+  if (/marketing|content|social|email campaign/.test(w)) return `Run the administrative side of ${workflow}: prepare approved assets, schedule activity, update trackers and report completion. Final positioning, claims, budget and publishing decisions stay with the responsible marketer or owner.`;
+  return `Own ${workflow} as a documented recurring process for ${industry.audience}. Keep the source information, status, completion evidence and exceptions visible so the work can be reviewed without chasing private messages.`;
+}
+
 export function industryWorkflowDescription(industry: IndustryPage, workflow: string) {
-  return INDUSTRY_SEO_CONTENT[industry.slug]?.workflowDetails?.[workflow]
-    || `Give ${workflow} a clear owner. Document the source information, expected output, turnaround time and escalation rule, then keep the result visible in the system your team already uses.`;
+  return INDUSTRY_SEO_CONTENT[industry.slug]?.workflowDetails?.[workflow] || derivedWorkflowDescription(industry, workflow);
 }
 
 export function industryToolDescription(industry: IndustryPage, tool: string) {
-  return INDUSTRY_SEO_CONTENT[industry.slug]?.toolDetails?.[tool]
-    || `Use ${tool} only where it is part of the real workflow. Test the candidate on the tasks they will perform rather than treating software names as proof of experience.`;
+  const custom = INDUSTRY_SEO_CONTENT[industry.slug]?.toolDetails?.[tool];
+  if (custom) return custom;
+  const index = Math.max(0, industry.tools.indexOf(tool));
+  const primary = industry.workflows[index % industry.workflows.length];
+  const secondary = industry.workflows[(index + 1) % industry.workflows.length];
+  return `Use ${tool} for the parts of the workflow it actually supports, especially ${primary} and ${secondary}. In the interview, ask the candidate to show what they changed, how they checked the result and what they would escalate.`;
 }
 
 export function industryFirst30Days(industry: IndustryPage) {
   return INDUSTRY_SEO_CONTENT[industry.slug]?.first30Days || [
-    `Week 1: document the first workflows, tools, access rules and escalation points for ${industry.audience}.`,
-    "Week 2: let the Virtual Assistant run a narrow set of recurring tasks under close review.",
-    "Week 3: increase ownership only where accuracy, communication and follow-through are consistent.",
-    "Week 4: review turnaround time, backlog, quality and exceptions before expanding the role."
+    `Week 1: map ${industry.workflows[0]}, ${industry.workflows[1]} and the access needed in ${industry.tools.slice(0, 2).join(" and ")}.`,
+    `Week 2: let the Virtual Assistant own ${industry.workflows[0]} and ${industry.workflows[1]} under close review, with every exception documented.`,
+    `Week 3: add ${industry.workflows[2]} and ${industry.workflows[3] || industry.workflows[0]} only after the first workflows are accurate and predictable.`,
+    `Week 4: review turnaround, rework, backlog and escalation quality for ${industry.audience} before expanding the role.`
   ] as const;
 }
 
 export function industryMetrics(industry: IndustryPage) {
+  const selected = industry.workflows.slice(0, 5).map((workflow) => `${sentenceCase(workflow)} completed on time`);
   return INDUSTRY_SEO_CONTENT[industry.slug]?.metrics || [
-    "Response time",
-    "Tasks completed on time",
-    "Items waiting on follow-up",
-    "Records requiring correction",
-    "Exceptions escalated correctly",
-    "Backlog at the end of the week"
+    ...selected,
+    "Items returned for correction",
+    "Exceptions escalated to the right owner",
+    "Open work without a documented next action"
   ];
 }

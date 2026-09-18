@@ -35,7 +35,7 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const now = new Date().toISOString();
   const previousMeetingId = lead.discovery_zoom_meeting_id;
   const previousMeetingUrl = lead.discovery_meeting_url;
-  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> = { configured: false, joinUrl: null, meetingId: null };
+  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> | null = null;
   try {
     zoom = await createZoomDiscoveryMeeting({
       topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
@@ -55,19 +55,19 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
     discovery_reminder_1h_sent_at: null,
     crm_stage: "discovery_booked",
     stage_updated_at: now,
-    discovery_meeting_url: zoom.joinUrl || previousMeetingUrl || null,
-    discovery_zoom_meeting_id: zoom.meetingId || previousMeetingId || null,
+    discovery_meeting_url: zoom?.joinUrl || previousMeetingUrl || null,
+    discovery_zoom_meeting_id: zoom?.meetingId || previousMeetingId || null,
   };
 
   const { error } = await admin.from("lead_intake").update(update).eq("id", lead.id);
   if (error) {
-    if (zoom.meetingId && zoom.meetingId !== previousMeetingId) {
+    if (zoom?.meetingId && zoom.meetingId !== previousMeetingId) {
       try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup of the unsaved replacement meeting */ }
     }
     redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
   }
 
-  if (zoom.meetingId && previousMeetingId && zoom.meetingId !== previousMeetingId) {
+  if (zoom?.meetingId && previousMeetingId && zoom.meetingId !== previousMeetingId) {
     try { await cancelZoomDiscoveryMeeting(previousMeetingId); } catch { /* the successful CRM reschedule must not be rolled back if Zoom cleanup fails */ }
   }
 

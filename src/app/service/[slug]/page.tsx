@@ -454,16 +454,16 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
           />
           {talent.length ? <>
             <div className="hs-talent-grid">
-              {talent.slice(0, 3).map((va: any) => <article className="hs-talent-card hs-talent-card-restored" key={va.user_id}>
-                <div className="service-talent-card-top hs-talent-identity-row">
+              {talent.slice(0, 3).map((va: any) => <article className="hs-talent-card" key={va.user_id}>
+                <div className="hs-talent-top">
                   <PublicAvatar name={va.full_name} src={va.avatar_url} size="lg"/>
-                  <div className="service-talent-identity">
-                    <h3>{va.full_name}</h3>
-                    <p>{va.headline || va.primary_category || "Virtual Assistant"}</p>
-                    <div className="verified-line"><BadgeCheck size={15} aria-hidden="true"/> Approved for client discovery</div>
-                    {va.years_experience != null ? <span className="hs-badge hs-badge-blue hs-talent-exp"><BriefcaseBusiness size={13} aria-hidden="true"/> {va.years_experience}+ yrs</span> : null}
+                  <div className="hs-talent-badges">
+                    <span className="hs-badge hs-badge-green"><BadgeCheck size={13} aria-hidden="true"/> Approved</span>
+                    {va.years_experience != null ? <span className="hs-badge hs-badge-blue"><BriefcaseBusiness size={13} aria-hidden="true"/> {va.years_experience}+ yrs</span> : null}
                   </div>
                 </div>
+                <h3>{va.full_name}</h3>
+                <p className="hs-talent-role">{va.headline || va.primary_category || "Virtual Assistant"}</p>
                 <div className="hs-tags">{uniqueStrings(va.skills).slice(0, 4).map((x, index) => <span key={`${String(x)}-${index}`}>{x}</span>)}</div>
                 <div className="hs-facts">
                   <span><Clock3 size={14} aria-hidden="true"/> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Availability confirmed on request"}</span>

@@ -103,7 +103,7 @@ export async function createGoogleMeetDiscoveryMeeting(args: {
   topic: string;
   startsAt: string;
   durationMinutes: number;
-  attendeeEmail: string;
+  attendeeEmails: string[];
 }) {
   const accessToken = await googleCalendarAccessToken();
   const start = new Date(args.startsAt);
@@ -118,7 +118,7 @@ export async function createGoogleMeetDiscoveryMeeting(args: {
         description: "VirtualAssistant.com.ph client discovery call",
         start: { dateTime: start.toISOString(), timeZone: "UTC" },
         end: { dateTime: end.toISOString(), timeZone: "UTC" },
-        attendees: [{ email: args.attendeeEmail }],
+        attendees: args.attendeeEmails.filter(Boolean).map((email) => ({ email })),
         conferenceData: {
           createRequest: {
             requestId: randomBytes(16).toString("hex"),
@@ -144,7 +144,7 @@ export async function updateGoogleMeetDiscoveryMeeting(args: {
   eventId: string;
   startsAt: string;
   durationMinutes: number;
-  attendeeEmail: string;
+  attendeeEmails: string[];
 }) {
   const accessToken = await googleCalendarAccessToken();
   const start = new Date(args.startsAt);
@@ -157,7 +157,7 @@ export async function updateGoogleMeetDiscoveryMeeting(args: {
       body: JSON.stringify({
         start: { dateTime: start.toISOString(), timeZone: "UTC" },
         end: { dateTime: end.toISOString(), timeZone: "UTC" },
-        attendees: [{ email: args.attendeeEmail }],
+        attendees: args.attendeeEmails.filter(Boolean).map((email) => ({ email })),
       }),
       cache: "no-store",
     }

@@ -47,8 +47,7 @@ AS $function$
     from lead_intake
   )
   select jsonb_build_object('metrics',jsonb_build_object('needs_first_contact',m.needs_first_contact,'followups_due',m.followups_due,'discovery_booked',m.discovery_booked,'qualified',m.qualified,'won_this_month',m.won_this_month,'open_pipeline_value',m.open_pipeline_value),'total',(select count(*)::int from filtered),'page',(select page_number from params),'page_size',(select page_size from params),'leads',coalesce((select jsonb_agg(e.row_data order by e.sort_index) from enriched e),'[]'::jsonb)) from metrics m;
-$function$
-
+$function$;
 
 revoke execute on function public.recruiter_leads_page(text,text,uuid,integer,integer) from public, anon, authenticated;
 grant execute on function public.recruiter_leads_page(text,text,uuid,integer,integer) to service_role;

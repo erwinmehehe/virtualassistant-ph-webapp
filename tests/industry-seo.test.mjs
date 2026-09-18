@@ -36,17 +36,16 @@ test("every industry page has reviewed SEO enhancement coverage", () => {
 
 test("live industry titles and descriptions stay within SERP-friendly limits", () => {
   const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
+  const content = source("src/lib/industry-seo-content.ts");
+  assert.match(content, /export function industryMetaDescription\(industry: IndustryPage\) \{\s*return industry\.metaDescription;\s*\}/);
+
+  const descriptions = [];
   for (const industry of industries) {
     assert.ok(industry.metaTitle.length <= 60, `${industry.slug} live title is ${industry.metaTitle.length} characters`);
     assert.ok(industry.metaTitle.length >= 35, `${industry.slug} live title is too short`);
-  }
-
-  const content = source("src/lib/industry-seo-content.ts");
-  const descriptions = [...content.matchAll(/metaDescription:\s*"([^"]+)"/g)].map((match) => match[1]);
-  assert.equal(descriptions.length, industries.length, "each industry must have a reviewed live meta description");
-  for (const description of descriptions) {
-    assert.ok(description.length >= 90, `industry live description is too short: ${description}`);
-    assert.ok(description.length <= 160, `industry live description is ${description.length} characters: ${description}`);
+    assert.ok(industry.metaDescription.length >= 90, `${industry.slug} live description is too short`);
+    assert.ok(industry.metaDescription.length <= 160, `${industry.slug} live description is ${industry.metaDescription.length} characters`);
+    descriptions.push(industry.metaDescription);
   }
   assert.equal(new Set(descriptions).size, descriptions.length, "industry live descriptions must be unique");
 });

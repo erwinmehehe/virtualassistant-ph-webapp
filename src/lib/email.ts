@@ -53,8 +53,9 @@ function normalizeEmailList(value: unknown): string[] {
 const DEFAULT_TEAM_BCC = "jrvsaccad@gmail.com";
 const teamBccRecipients = normalizeEmailList([DEFAULT_TEAM_BCC, process.env.TEAM_CC_EMAIL, process.env.TEAM_BCC_EMAIL]);
 const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_EMAIL, process.env.APPLICATION_BCC_EMAIL]);
+const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail.com";
 const discoveryBookingBccRecipients = normalizeEmailList([
-  "jrvsaccad@gmail.com",
+  JERVIS_BOOKING_EMAIL,
   "bryanbatarina@gmail.com",
   "erwinvalles20@gmail.com",
   process.env.DISCOVERY_BOOKING_CC_EMAIL,
@@ -716,6 +717,46 @@ export async function sendPublicDiscoveryBookingEmail(args: {
       senderName: "VirtualAssistant.com.ph Hiring Team"
     }),
   }, "public_discovery_booking");
+  return { sent: true as const };
+}
+
+export async function sendInternalDiscoveryBookingNotificationEmail(args: {
+  clientName: string;
+  clientEmail: string;
+  company: string;
+  clientLabel: string;
+  manilaLabel: string;
+  meetingUrl?: string | null;
+  manageUrl: string;
+}) {
+  const config = resendConfig();
+  if (!config) return { sent: false as const, reason: "email_not_configured" };
+
+  const meetingLine = args.meetingUrl ? `Google Meet: ${args.meetingUrl}` : "Google Meet: pending";
+  await trackedSend(config, {
+    from: config.from,
+    to: [JERVIS_BOOKING_EMAIL],
+    replyTo: args.clientEmail,
+    subject: `New discovery call booked: ${args.company}`,
+    text: [
+      "A new client discovery call was booked.",
+      "",
+      `Client: ${args.clientName}`,
+      `Email: ${args.clientEmail}`,
+      `Company: ${args.company}`,
+      `Client time: ${args.clientLabel}`,
+      `Philippines time: ${args.manilaLabel}`,
+      meetingLine,
+      `Manage booking: ${args.manageUrl}`,
+    ].join("\n"),
+    html: `<h2>New discovery call booked</h2>
+      <p><strong>Client:</strong> ${escapeHtml(args.clientName)} (${escapeHtml(args.clientEmail)})</p>
+      <p><strong>Company:</strong> ${escapeHtml(args.company)}</p>
+      <p><strong>Client time:</strong> ${escapeHtml(args.clientLabel)}</p>
+      <p><strong>Philippines time:</strong> ${escapeHtml(args.manilaLabel)}</p>
+      <p><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}</p>
+      <p><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>`
+  }, "discovery_booking_internal_jervis", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 

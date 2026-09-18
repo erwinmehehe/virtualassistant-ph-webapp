@@ -34,12 +34,14 @@ async function zoomAccessToken() {
   const accountId = process.env.ZOOM_ACCOUNT_ID?.trim();
   const clientId = process.env.ZOOM_CLIENT_ID?.trim();
   const clientSecret = process.env.ZOOM_CLIENT_SECRET?.trim();
-  const missing = [
-    !accountId ? "ZOOM_ACCOUNT_ID" : null,
-    !clientId ? "ZOOM_CLIENT_ID" : null,
-    !clientSecret ? "ZOOM_CLIENT_SECRET" : null,
-  ].filter(Boolean);
-  if (missing.length) throw new Error(`Zoom integration is not configured. Missing ${missing.join(", ")}.`);
+  if (!accountId || !clientId || !clientSecret) {
+    const missing = [
+      !accountId ? "ZOOM_ACCOUNT_ID" : null,
+      !clientId ? "ZOOM_CLIENT_ID" : null,
+      !clientSecret ? "ZOOM_CLIENT_SECRET" : null,
+    ].filter(Boolean);
+    throw new Error(`Zoom integration is not configured. Missing ${missing.join(", ")}.`);
+  }
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
   const tokenResponse = await fetch(`https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${encodeURIComponent(accountId)}`, {
     method: "POST", headers: { Authorization: `Basic ${auth}` }, cache: "no-store"

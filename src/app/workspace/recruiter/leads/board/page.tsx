@@ -22,6 +22,9 @@ type LeadRow = {
   discovery_scheduled_at: string | null;
   discovery_completed_at: string | null;
   estimated_value_usd: number | string | null;
+  budget: string | null;
+  hours: string | null;
+  message: string | null;
 };
 
 const BOARD_STAGES: PipelineStage[] = ["new","contacted","discovery_booked","qualified","terms_sent","nurture","won"];
@@ -34,7 +37,7 @@ export default async function RecruiterLeadBoardPage({ searchParams }: { searchP
 
   let query = admin
     .from("lead_intake")
-    .select("id,name,email,company,service,crm_stage,owner_id,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd")
+    .select("id,name,email,company,service,crm_stage,owner_id,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,budget,hours,message")
     .eq("lead_type", "client_hiring")
     .in("crm_stage", BOARD_STAGES)
     .order("created_at", { ascending: false })
@@ -60,7 +63,8 @@ export default async function RecruiterLeadBoardPage({ searchParams }: { searchP
       reasons: scored.reasons,
       daysSinceTouch: scored.daysSinceTouch,
       daysOverdue: scored.daysOverdue,
-      estimatedValue: Number(lead.estimated_value_usd || 0)
+      estimatedMonthlyBudget: scored.estimatedMonthlyBudget,
+      estimatedAgencyValue: Number(lead.estimated_value_usd || 0)
     };
   });
 

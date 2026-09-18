@@ -12,7 +12,7 @@ import { sendDiscoveryMeetingSetupFailureEmail, sendLeadAcknowledgementEmail, se
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
-import { bookingManageUrl, createBookingManageToken, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelZoomDiscoveryMeeting, createBookingManageToken, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -775,6 +775,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   }).select("id").single();
 
   if (error || !lead?.id) {
+    if (zoom?.meetingId) {
+      try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup of unsaved Zoom meeting */ }
+    }
     const message = error?.code === "23505"
       ? "Someone just booked that time. Please choose another available slot."
       : "We could not confirm the booking. Please try again.";

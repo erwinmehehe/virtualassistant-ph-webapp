@@ -372,13 +372,13 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const interviewQuestions = [
     { q: `Walk me through how you would handle ${s.tasks[0]} from intake to completion.`, a: "A concrete process, the information they need first, quality checks, documentation, and when they would ask for clarification." },
     { q: `How do you keep ${s.tasks[1]} accurate and up to date?`, a: "A repeatable checking method, source-of-truth discipline, clear ownership, and a way to surface exceptions instead of hiding them." },
-    { q: `Which ${roleName(s.name).toLowerCase()} tools have you used most often?`, a: "Practical depth in tools relevant to your stack, with examples of what they completed and how they checked the result." },
+    { q: `Which ${roleName(s.name)} tools have you used most often?`, a: "Practical depth in tools relevant to your stack, with examples of what they completed and how they checked the result." },
     { q: "What would you escalate instead of deciding on your own?", a: "Good judgment about permissions, client or customer risk, financial impact, compliance, unusual exceptions, and decisions outside the agreed scope." },
     { q: `Show me an example of work closest to ${s.focus}.`, a: "Evidence that resembles your workflow, plus a clear explanation of the candidate's contribution, quality checks, and result." }
   ];
 
   const faqs = [
-    { q: `What does ${article} ${s.name.toLowerCase()} do?`, a: `${s.name} work can include ${s.tasks.slice(0, 5).join(", ")}. The right scope depends on your process, tools, decision boundaries, and the candidate's experience.` },
+    { q: `What does ${article} ${s.name} do?`, a: `${s.name} work can include ${s.tasks.slice(0, 5).join(", ")}. The right scope depends on your process, tools, decision boundaries, and the candidate's experience.` },
     { q: `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
     { q: `What tools should ${article} ${s.name} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
     { q: `How much does ${article} ${s.name} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
@@ -448,7 +448,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <Band tone="soft" id="talent">
           <SectionHead
             kicker="Approved talent"
-            title={talent.filter((va: any) => va._serviceRelevance >= 4).length >= 3 ? copy.talentTitle : `Meet approved ${s.directoryCategory} Virtual Assistants`}
+            title={copy.talentTitle}
             lede={copy.talentIntro}
             action={<Link className="hs-btn hs-btn-ghost" href={talentHref}>See all relevant talent <ArrowRight size={16}/></Link>}
           />

@@ -28,12 +28,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       openGraph: { type: "article", title: archived.title, description: archived.excerpt.slice(0, 160), publishedTime: archivePublishedIso(archived) }
     };
   }
+  const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
   return {
     title: { absolute: post.metaTitle },
     description: post.description,
     keywords: [post.title.toLowerCase(), post.clusterLabel.toLowerCase(), `${post.clusterLabel.toLowerCase()} philippines`, "virtual assistant philippines"],
     alternates: { canonical: canonicalPath(blogHref(post)) },
-    openGraph: { type: "article", title: post.title, description: post.description, publishedTime: post.publishedAt, modifiedTime: post.updatedAt }
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.description,
+      publishedTime: post.publishedAt,
+      ...(hasMeaningfulUpdate ? { modifiedTime: post.updatedAt } : {})
+    }
   };
 }
 
@@ -58,7 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         description: post.description,
         keywords: articleKeywords,
         datePublished: post.publishedAt,
-        dateModified: post.updatedAt,
+        ...(post.updatedAt !== post.publishedAt ? { dateModified: post.updatedAt } : {}),
         mainEntityOfPage: url,
         articleSection: post.clusterLabel,
         author: {

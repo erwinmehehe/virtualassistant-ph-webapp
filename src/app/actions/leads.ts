@@ -243,6 +243,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       phone: parsed.data.phone?.trim() || null,
       service: service.name,
       hours: parsed.data.hours,
+      budget: parsed.data.budget || null,
       message: briefMessage,
       source_page: sourcePage,
       page_url: pageUrl,
@@ -258,7 +259,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       title: service.name,
       service: service.directoryCategory,
       hours: parsed.data.hours,
-      message: briefMessage
+      message: briefMessage,
+      budget: parsed.data.budget
     });
 
     await recordLeadAnalytics(admin, {
@@ -385,6 +387,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       phone: parsed.data.phone?.trim() || null,
       service: serviceLabel,
       hours: parsed.data.hours,
+      budget: parsed.data.budget || null,
       message: combinedMessage,
       source_page: "industry_match_request",
       page_url: pageUrl,
@@ -400,7 +403,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       title: primaryService?.name || `${industry.label} Virtual Assistant`,
       service: category,
       hours: parsed.data.hours,
-      message: combinedMessage
+      message: combinedMessage,
+      budget: parsed.data.budget
     });
 
     await recordLeadAnalytics(admin, {
@@ -538,6 +542,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     service: category,
     company: parsed.data.company?.trim() || null,
     hours: parsed.data.hours,
+    budget: parsed.data.budget,
     start_time: parsed.data.start_time?.trim() || null,
     timezone: parsed.data.timezone,
     message,
@@ -749,6 +754,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     company: parsed.data.company,
     service: parsed.data.service,
     hours: parsed.data.hours,
+    budget: parsed.data.budget,
     start_time: parsed.data.start_time,
     timezone: parsed.data.timezone,
     message: clientDetails,

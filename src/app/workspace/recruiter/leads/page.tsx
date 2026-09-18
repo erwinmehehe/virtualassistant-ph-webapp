@@ -151,7 +151,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const needsFirstContact = Number(metrics.needs_first_contact || 0);
   const followUpsDue = Number(metrics.followups_due || 0);
   const discoveryBooked = Number(metrics.discovery_booked || 0);
-  const qualifiedCount = Number(metrics.qualified || 0);
   const wonThisMonth = Number(metrics.won_this_month || 0);
   const openPipelineValue = Number(metrics.open_pipeline_value || 0);
   const pipelineScores = (scoringLeads || []).map((lead) => scoreLead(lead, now));

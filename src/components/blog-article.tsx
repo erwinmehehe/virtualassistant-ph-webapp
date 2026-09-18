@@ -66,7 +66,9 @@ export function BlogArticle({ post }: { post: BlogPost }) {
     ...post.sections.map((section) => ({ id: idFor(section.heading), label: section.heading })),
     { id: "frequently-asked-questions", label: "Frequently asked questions" }
   ];
-  const updated = new Date(`${post.updatedAt}T00:00:00Z`);
+  const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
+  const articleDate = new Date(`${hasMeaningfulUpdate ? post.updatedAt : post.publishedAt}T00:00:00Z`);
+  const articleDateLabel = hasMeaningfulUpdate ? "Updated" : "Published";
   const showPlanningTools = ["hiring", "pricing", "managing"].includes(post.topic);
   const authorHref = post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team";
   const authorInitials = post.author === "Christ Hemsworthy" ? "CH" : "VA";
@@ -89,7 +91,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               <div className="blog-editorial-author-copy">
                 <div><Link href={authorHref}>{post.author}</Link>{post.reviewedBy ? <span className="blog-reviewed-inline"><BadgeCheck size={15} aria-hidden="true"/> Reviewed by {post.reviewedBy}</span> : null}</div>
                 <div className="blog-byline" aria-label="Article details">
-                  <span><CalendarDays size={14} aria-hidden="true"/>Updated {updated.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
+                  <span><CalendarDays size={14} aria-hidden="true"/>{articleDateLabel} {articleDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
                   <span><BookOpen size={14} aria-hidden="true"/>{readTime(post)} min read</span>
                 </div>
               </div>

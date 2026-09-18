@@ -34,28 +34,27 @@ function normalizeEmailList(value: unknown): string[] {
   return out;
 }
 
-const DEFAULT_TEAM_CC = "jrvsaccad@gmail.com";
-const teamCcRecipients = normalizeEmailList([DEFAULT_TEAM_CC, process.env.TEAM_CC_EMAIL]);
-const applicationCcRecipients = normalizeEmailList(process.env.APPLICATION_CC_EMAIL);
-const discoveryBookingCcRecipients = normalizeEmailList([
+const DEFAULT_TEAM_BCC = "jrvsaccad@gmail.com";
+const teamBccRecipients = normalizeEmailList([DEFAULT_TEAM_BCC, process.env.TEAM_CC_EMAIL, process.env.TEAM_BCC_EMAIL]);
+const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_EMAIL, process.env.APPLICATION_BCC_EMAIL]);
+const discoveryBookingBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "bryanbatarina@gmail.com",
+  "erwinvalles20@gmail.com",
   process.env.DISCOVERY_BOOKING_CC_EMAIL,
+  process.env.DISCOVERY_BOOKING_BCC_EMAIL,
 ]);
-const staffClientFollowupCcRecipients = normalizeEmailList([
+const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "bryanbatarina@gmail.com",
   "erwinvalles20@gmail.com",
   process.env.CLIENT_FOLLOWUP_CC_EMAIL,
+  process.env.CLIENT_FOLLOWUP_BCC_EMAIL,
 ]);
 
-// Added to every outgoing email so the team keeps a full record of what the
-// platform sends. Addressed directly on the To line at the owner's request, so
-// the address appears on transactional mail to Virtual Assistants and clients too, and the
-// message lands in the inbox rather than being filtered as a copy.
-// EMAIL_ARCHIVE_TO, then the older EMAIL_ARCHIVE_CC / EMAIL_ARCHIVE_BCC names,
-// are still read so an already-configured value keeps working.
-// Comma-separated for more than one watcher.
+// Added to outgoing mail as a hidden archive copy so internal recipients never
+// appear to clients or Virtual Assistants. Existing env var names remain
+// supported for backwards compatibility, but archive delivery is always BCC.
 const DEFAULT_ARCHIVE_TO = "bryanbatarina@gmail.com";
 const archiveRecipients = normalizeEmailList(
   process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
@@ -104,18 +103,20 @@ async function trackedSend(
   eventType: string,
   options?: { archive?: boolean; teamCc?: boolean }
 ) {
-  // Bryan remains on the existing archive path. Jervis is copied separately
-  // on application mail, including private operational mail, unless a caller
-  // explicitly marks a security-sensitive password message with teamCc:false.
-  const archiveTo = options?.archive === false ? undefined : archiveExtraFor(payload);
-  const to = normalizeEmailList([payload.to, archiveTo]);
-  const requestedCc = normalizeEmailList([
-    payload.cc,
-    options?.teamCc === false ? [] : teamCcRecipients
+  // Internal archive/team copies are always hidden from external recipients.
+  // Security-sensitive messages can still opt out with archive:false/teamCc:false.
+  const archiveBcc = options?.archive === false ? undefined : archiveExtraFor(payload);
+  const to = normalizeEmailList(payload.to);
+  const requestedCc = normalizeEmailList(payload.cc);
+  const requestedBcc = normalizeEmailList([
+    payload.bcc,
+    archiveBcc,
+    options?.teamCc === false ? [] : teamBccRecipients
   ]);
   const toSet = new Set(to.map((email) => email.toLowerCase()));
   const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
-  const bcc = normalizeEmailList(payload.bcc);
+  const ccSet = new Set(cc.map((email) => email.toLowerCase()));
+  const bcc = requestedBcc.filter((email) => !toSet.has(email.toLowerCase()) && !ccSet.has(email.toLowerCase()));
   const replyTo = normalizeEmailList(payload.replyTo);
   payload = {
     ...payload,
@@ -147,7 +148,7 @@ export async function sendApplicationEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    cc: applicationCcRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
+    bcc: applicationBccRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
     subject: `New application: ${args.jobTitle}`,
     html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
   }, "new_application");
@@ -421,7 +422,7 @@ export async function sendStaffClientFollowupEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    cc: staffClientFollowupCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    bcc: staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     subject: normalized.subject,
     text: `Hi ${normalized.firstName},\n\n${normalized.message}\n\nChoose a discovery-call time: ${bookingUrl}\n\nBest,\n${sender}\nVirtualAssistant.com.ph`,
     html: renderHiringEmail({
@@ -537,7 +538,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    cc: discoveryBookingCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: recipient,
     attachments: [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }],
     subject: `Client discovery call booked: ${args.company} — ${args.clientLabel}`,
@@ -555,7 +556,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    cc: discoveryBookingCcRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     subject: `Reminder: your discovery call is ${timing}`,
     html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
   }, `discovery_reminder_${args.window}`);

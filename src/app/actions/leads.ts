@@ -8,7 +8,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendDiscoveryMeetingSetupFailureEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
+import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
@@ -817,6 +817,20 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     });
   } catch {
     // The database booking remains the source of truth if delivery is unavailable.
+  }
+
+  try {
+    await sendInternalDiscoveryBookingNotificationEmail({
+      clientName: parsed.data.name,
+      clientEmail: parsed.data.email,
+      company: parsed.data.company,
+      clientLabel,
+      manilaLabel,
+      meetingUrl: meeting?.joinUrl || null,
+      manageUrl: bookingManageUrl(manage.token),
+    });
+  } catch {
+    // Never lose a confirmed client booking because an internal alert failed.
   }
 
   if (meetingError) {

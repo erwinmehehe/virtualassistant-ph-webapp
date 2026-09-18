@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { bookingManageUrl, cancelZoomDiscoveryMeeting, createZoomDiscoveryMeeting, hashBookingManageToken } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { sendTransactionalEventEmail } from "@/lib/email";
 
@@ -14,12 +14,12 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   if (token.length < 32) redirect("/book-client-call/manage?error=invalid");
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at,discovery_calendar_event_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
   const now = new Date().toISOString();
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
-  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* the CRM cancellation remains valid if Zoom is temporarily unavailable */ }
+  try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* the CRM cancellation remains valid if Google Calendar is temporarily unavailable */ }
   await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. You can contact our hiring team whenever you are ready to book again.", href: bookingManageUrl(token), hrefLabel: "View booking" });
   redirect(managePath(token, "cancelled=1"));
 }
@@ -29,21 +29,29 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const scheduledAt = String(formData.get("scheduled_at") || "").trim();
   if (token.length < 32 || !isAllowedDiscoverySlot(scheduledAt)) redirect(managePath(token, "error=slot"));
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_meeting_url,discovery_zoom_meeting_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
 
   const now = new Date().toISOString();
-  const previousMeetingId = lead.discovery_zoom_meeting_id;
+  const previousEventId = lead.discovery_calendar_event_id;
   const previousMeetingUrl = lead.discovery_meeting_url;
-  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> | null = null;
+  let meeting: Awaited<ReturnType<typeof createGoogleMeetDiscoveryMeeting>> | null = null;
   try {
-    zoom = await createZoomDiscoveryMeeting({
-      topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
-      startsAt: scheduledAt,
-      durationMinutes: lead.discovery_duration_minutes || 30,
-    });
+    meeting = previousEventId
+      ? await updateGoogleMeetDiscoveryMeeting({
+          eventId: previousEventId,
+          startsAt: scheduledAt,
+          durationMinutes: lead.discovery_duration_minutes || 30,
+          attendeeEmail: lead.email,
+        })
+      : await createGoogleMeetDiscoveryMeeting({
+          topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
+          startsAt: scheduledAt,
+          durationMinutes: lead.discovery_duration_minutes || 30,
+          attendeeEmail: lead.email,
+        });
   } catch {
-    // Keep the existing meeting if Zoom is temporarily unavailable.
+    // Keep the existing meeting if Google Calendar is temporarily unavailable.
   }
 
   const update: Record<string, unknown> = {
@@ -55,20 +63,17 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
     discovery_reminder_1h_sent_at: null,
     crm_stage: "discovery_booked",
     stage_updated_at: now,
-    discovery_meeting_url: zoom?.joinUrl || previousMeetingUrl || null,
-    discovery_zoom_meeting_id: zoom?.meetingId || previousMeetingId || null,
+    discovery_meeting_url: meeting?.joinUrl || previousMeetingUrl || null,
+    discovery_calendar_event_id: meeting?.eventId || previousEventId || null,
+    discovery_meeting_provider: meeting || previousEventId ? "google_meet" : null,
   };
 
   const { error } = await admin.from("lead_intake").update(update).eq("id", lead.id);
   if (error) {
-    if (zoom?.meetingId && zoom.meetingId !== previousMeetingId) {
-      try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup of the unsaved replacement meeting */ }
+    if (meeting?.eventId && !previousEventId) {
+      try { await cancelGoogleMeetDiscoveryMeeting(meeting.eventId); } catch { /* best-effort cleanup of the unsaved new event */ }
     }
     redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
-  }
-
-  if (zoom?.meetingId && previousMeetingId && zoom.meetingId !== previousMeetingId) {
-    try { await cancelZoomDiscoveryMeeting(previousMeetingId); } catch { /* the successful CRM reschedule must not be rolled back if Zoom cleanup fails */ }
   }
 
   const label = formatDiscoverySlot(scheduledAt, lead.timezone || "Asia/Manila");

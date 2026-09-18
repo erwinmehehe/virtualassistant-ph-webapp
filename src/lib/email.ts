@@ -403,11 +403,15 @@ function renderBrandedEmail(args: {
   footerText: string;
   ctaHref?: string | null;
   ctaLabel?: string;
+  appendSignature?: boolean;
 }) {
   const cta = args.ctaHref
     ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
     : "";
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${args.bodyHtml}${cta}<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p></td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
+  const signature = args.appendSignature === false
+    ? ""
+    : `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p>`;
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${args.bodyHtml}${cta}${signature}</td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
 }
 
 function renderHiringEmail(args: {
@@ -416,6 +420,7 @@ function renderHiringEmail(args: {
   senderName: string;
   ctaHref?: string | null;
   ctaLabel?: string;
+  appendSignature?: boolean;
 }) {
   return renderBrandedEmail({
     ...args,
@@ -439,7 +444,7 @@ function renderTalentEmail(args: {
   });
 }
 
-function normalizeClientFollowup(subjectValue: string, messageValue: string) {
+function normalizeClientFollowup(subjectValue: string, messageValue: string, options?: { preserveSignoff?: boolean }) {
   let message = messageValue.trim().slice(0, 5000);
   let firstName = "there";
   const greeting = message.match(/^(?:hi|hello|hey)\s+([^,\n]+),?\s*(?:\r?\n)+/i);
@@ -453,10 +458,11 @@ function normalizeClientFollowup(subjectValue: string, messageValue: string) {
     .replace(/and would like to confirm a few details so we can recommend the right vetted VA\. Are you available for a short discovery call\?/i, "and I’m ready to narrow down the right candidates. Before I do that, I’d like to confirm a couple of details about the day-to-day work, schedule, and must-have experience. If a quick call is easiest, choose a time that works for you and we’ll go through it together.")
     .replace(/Following up on your VirtualAssistant\.com\.ph request\. I wanted to keep things moving and confirm the best next step for your VA search\./i, "Just following up on your VA request. I’m ready to keep this moving whenever you are. If anything has changed, reply here and I’ll adjust the search with you.");
 
-  // Templates ship with their own sign-off (e.g. "Best,\nVirtualAssistant.com.ph Hiring Team").
-  // renderHiringEmail() always appends its own "Best,\n<sender>" line, so strip any trailing
-  // sign-off here rather than let the two stack into a duplicate.
-  message = message.replace(/\n{2,}(?:Best|Regards|Thanks|Thank you|Cheers|Sincerely|Warm regards|Kind regards)[,]?\s*\n[^\n]*\s*$/i, "").trim();
+  // Automated templates append their own signature. Manual recruiter follow-ups preserve
+  // the sender's typed closing instead, so the renderer does not add a second signature.
+  if (!options?.preserveSignoff) {
+    message = message.replace(/\n{2,}(?:Best|Best regards|Regards|Thanks|Thank you|Cheers|Sincerely|Warm regards|Kind regards)[,]?\s*\n[^\n]*\s*$/i, "").trim();
+  }
 
   const rawSubject = subjectValue.trim().slice(0, 180) || "VirtualAssistant.com.ph follow-up";
   const legacyMatch = rawSubject.match(/^Your VirtualAssistant\.com\.ph enquiry\s*-\s*(.+)$/i);
@@ -496,10 +502,7 @@ export async function sendStaffClientFollowupEmail(args: {
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const sender = args.senderName?.trim() || "VirtualAssistant.com.ph Hiring Team";
-  const normalized = normalizeClientFollowup(args.subject, args.message);
-  const bookingUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
-  const targetUrl = args.href?.trim() || bookingUrl;
-  const targetLabel = args.href?.trim() ? "Open hiring workspace" : "Choose a call time";
+  const normalized = normalizeClientFollowup(args.subject, args.message, { preserveSignoff: true });
   const bodyHtml = renderMessageParagraphs(normalized.message);
   await trackedSend(config, {
     from: config.from,
@@ -507,13 +510,12 @@ export async function sendStaffClientFollowupEmail(args: {
     bcc: staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: configuredReplyTo(),
     subject: normalized.subject,
-    text: `Hi ${normalized.firstName},\n\n${normalized.message}\n\n${targetLabel}: ${targetUrl}\n\nBest,\n${sender}\nVirtualAssistant.com.ph`,
+    text: `Hi ${normalized.firstName},\n\n${normalized.message}`,
     html: renderHiringEmail({
       firstName: normalized.firstName,
       bodyHtml,
       senderName: sender,
-      ctaHref: targetUrl,
-      ctaLabel: targetLabel
+      appendSignature: false
     })
   }, "client_followup");
   return { sent: true as const };

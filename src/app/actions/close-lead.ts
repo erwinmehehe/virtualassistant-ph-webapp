@@ -94,9 +94,9 @@ export async function closeLeadAction(formData: FormData) {
   const linkedRoleCloseFailed = Boolean(linkedRoleResult.error);
 
   after(async () => {
-    if (lead.discovery_scheduled_at && lead.discovery_zoom_meeting_id) {
+    if (lead.discovery_scheduled_at && lead.discovery_calendar_event_id) {
       try {
-        await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id);
+        await cancelGoogleMeetDiscoveryMeeting(lead.discovery_zoom_meeting_id);
       } catch {
         // CRM state is already closed even if Google Calendar is temporarily unavailable.
       }

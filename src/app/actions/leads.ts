@@ -12,7 +12,7 @@ import { sendDiscoveryMeetingSetupFailureEmail, sendLeadAcknowledgementEmail, se
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
-import { bookingManageUrl, cancelZoomDiscoveryMeeting, createBookingManageToken, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -727,16 +727,17 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
 
   const admin = createAdminClient();
   const manage = createBookingManageToken();
-  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>> | null = null;
-  let zoomError: string | null = null;
+  let meeting: Awaited<ReturnType<typeof createGoogleMeetDiscoveryMeeting>> | null = null;
+  let meetingError: string | null = null;
   try {
-    zoom = await createZoomDiscoveryMeeting({
+    meeting = await createGoogleMeetDiscoveryMeeting({
       topic: `VirtualAssistant.com.ph discovery call with ${parsed.data.company}`,
       startsAt: parsed.data.scheduled_at,
       durationMinutes: DISCOVERY_DURATION_MINUTES,
+      attendeeEmails: [parsed.data.email],
     });
   } catch (error) {
-    zoomError = error instanceof Error ? error.message : "Unknown Zoom setup error.";
+    meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";
   }
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const clientDetails = [
@@ -764,19 +765,20 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     crm_stage: "discovery_booked",
     discovery_scheduled_at: parsed.data.scheduled_at,
     discovery_duration_minutes: DISCOVERY_DURATION_MINUTES,
-    discovery_meeting_url: zoom?.joinUrl || null,
-    discovery_zoom_meeting_id: zoom?.meetingId || null,
+    discovery_meeting_url: meeting?.joinUrl || null,
+    discovery_calendar_event_id: meeting?.eventId || null,
+    discovery_meeting_provider: meeting ? "google_meet" : null,
     discovery_manage_token_hash: manage.hash,
     discovery_manage_token: manage.token,
     discovery_notes: [
       "Booked by a prospective client through the public qualification calendar.",
-      zoomError ? `Automatic Zoom setup failed: ${zoomError}` : null,
+      meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
     ].filter(Boolean).join("\n"),
   }).select("id").single();
 
   if (error || !lead?.id) {
-    if (zoom?.meetingId) {
-      try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup of unsaved Zoom meeting */ }
+    if (meeting?.eventId) {
+      try { await cancelGoogleMeetDiscoveryMeeting(meeting.eventId); } catch { /* best-effort cleanup of unsaved calendar event */ }
     }
     const message = error?.code === "23505"
       ? "Someone just booked that time. Please choose another available slot."
@@ -809,21 +811,21 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientLabel,
       manilaLabel,
       clientTimeZone: parsed.data.timezone,
-      meetingUrl: zoom?.joinUrl || null,
+      meetingUrl: meeting?.joinUrl || null,
       manageUrl: bookingManageUrl(manage.token),
     });
   } catch {
     // The database booking remains the source of truth if delivery is unavailable.
   }
 
-  if (zoomError) {
+  if (meetingError) {
     try {
       await sendDiscoveryMeetingSetupFailureEmail({
         clientName: parsed.data.name,
         clientEmail: parsed.data.email,
         company: parsed.data.company,
         scheduledLabel: clientLabel,
-        error: zoomError,
+        error: meetingError,
       });
     } catch {
       // Do not lose the booking because an internal alert failed.

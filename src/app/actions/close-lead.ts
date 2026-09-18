@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { cancelZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { cancelGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 const CLOSE_REASONS = new Set([
@@ -54,7 +54,7 @@ export async function closeLeadAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: lead } = await admin
     .from("lead_intake")
-    .select("id,crm_stage,owner_id,job_id,lost_at,discovery_scheduled_at,discovery_zoom_meeting_id")
+    .select("id,crm_stage,owner_id,job_id,lost_at,discovery_scheduled_at,discovery_calendar_event_id")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
@@ -94,11 +94,11 @@ export async function closeLeadAction(formData: FormData) {
   const linkedRoleCloseFailed = Boolean(linkedRoleResult.error);
 
   after(async () => {
-    if (lead.discovery_scheduled_at && lead.discovery_zoom_meeting_id) {
+    if (lead.discovery_scheduled_at && lead.discovery_calendar_event_id) {
       try {
-        await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id);
+        await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id);
       } catch {
-        // CRM state is already closed even if Zoom is temporarily unavailable.
+        // CRM state is already closed even if Google Calendar is temporarily unavailable.
       }
     }
 

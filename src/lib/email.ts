@@ -536,30 +536,90 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     action: "TEMPLATE",
     text: `VirtualAssistant.com.ph discovery call with ${args.company}`,
     dates: `${calendarStamp(startsAt)}/${calendarStamp(endsAt)}`,
-    details: `Client discovery call for ${args.service}.${args.meetingUrl ? ` Join: ${args.meetingUrl}` : ""} Lead ID: ${args.leadId}`,
+    details: `Client discovery call for ${args.service}.${args.meetingUrl ? ` Join: ${args.meetingUrl}` : ""}`,
   });
   const calendarUrl = `https://calendar.google.com/calendar/render?${calendarParams.toString()}`;
   const firstName = args.clientName.trim().split(/\s+/)[0] || "there";
-  const rows = [
-    ["Client", args.clientName],
-    ["Company", args.company],
-    ["Email", args.to],
-    ["Client timezone", args.clientTimeZone],
-    ["Lead ID", args.leadId],
-  ].filter(([, value]) => value);
-  const invite = createCalendarInvite({ uid: args.leadId, startsAt: args.scheduledAt, durationMinutes: 30, company: args.company, service: args.service, meetingUrl: args.meetingUrl });
-  const meeting = args.meetingUrl
-    ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>`
-    : `<p>Your meeting link is being prepared and will be sent before the call.</p>`;
+  const invite = createCalendarInvite({
+    uid: args.leadId,
+    startsAt: args.scheduledAt,
+    durationMinutes: 30,
+    company: args.company,
+    service: args.service,
+    meetingUrl: args.meetingUrl
+  });
+  const replyTo = normalizeEmailList([
+    process.env.CLIENT_REPLY_TO_EMAIL,
+    process.env.LEAD_NOTIFICATION_EMAIL
+  ])[0];
+
+  const meetingBlock = args.meetingUrl
+    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+        <tr><td style="padding:18px 20px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4f46e5;margin-bottom:8px;">Google Meet</div>
+          <div style="font-size:15px;line-height:1.6;color:#344054;margin-bottom:14px;">Your meeting link is ready.</div>
+          <a href="${escapeHtml(args.meetingUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;">Join Google Meet</a>
+        </td></tr>
+      </table>`
+    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+        <tr><td style="padding:16px 18px;background:#fffaeb;border:1px solid #fedf89;border-radius:14px;">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b54708;margin-bottom:7px;">Google Meet link pending</div>
+          <div style="font-size:15px;line-height:1.65;color:#7a2e0e;">Your call is confirmed. We will email your Google Meet link separately before the meeting. You do not need to book again.</div>
+        </td></tr>
+      </table>`;
+
+  const bodyHtml = `
+    <p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your 30-minute discovery call with the VirtualAssistant.com.ph hiring team is confirmed.</p>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;border:1px solid #eaecf0;border-radius:14px;overflow:hidden;">
+      <tr><td style="padding:18px 20px;background:#f9fafb;border-bottom:1px solid #eaecf0;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:7px;">Your call time</div>
+        <div style="font-size:18px;font-weight:800;line-height:1.45;color:#101828;">${escapeHtml(args.clientLabel)}</div>
+        <div style="font-size:14px;line-height:1.6;color:#667085;margin-top:5px;">30 minutes · ${escapeHtml(args.clientTimeZone)}</div>
+      </td></tr>
+      <tr><td style="padding:16px 20px;">
+        <div style="font-size:13px;color:#667085;margin-bottom:4px;">Our Philippines team</div>
+        <div style="font-size:15px;font-weight:700;color:#344054;">${escapeHtml(args.manilaLabel)}</div>
+      </td></tr>
+    </table>
+
+    ${meetingBlock}
+
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;"><tr>
+      <td style="padding-right:10px;">
+        <a href="${escapeHtml(calendarUrl)}" style="display:inline-block;padding:11px 16px;border-radius:10px;background:#101828;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Add to Google Calendar</a>
+      </td>
+      <td>
+        <a href="${escapeHtml(args.manageUrl)}" style="display:inline-block;padding:10px 15px;border-radius:10px;border:1px solid #d0d5dd;color:#344054;text-decoration:none;font-size:14px;font-weight:700;">Reschedule or cancel</a>
+      </td>
+    </tr></table>
+
+    <div style="margin:0 0 24px;padding:18px 20px;background:#f9fafb;border-radius:14px;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:12px;">What we have on your brief</div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;line-height:1.6;">
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;width:120px;">Company</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.company)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Role</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.service)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Hours</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.hours)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">VA budget</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.budget)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Preferred start</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.startTime)}</td></tr>
+      </table>
+    </div>
+
+    <p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We already have your hiring brief, so there is nothing else you need to submit before the call. If anything changes, use the reschedule link above or reply to this email.</p>
+  `;
 
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
-    replyTo: recipient,
+    replyTo: replyTo ? [replyTo] : undefined,
     attachments: [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }],
-    subject: `Client discovery call booked: ${args.company} — ${args.clientLabel}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your 30-minute client discovery call is confirmed for <strong>${escapeHtml(args.clientLabel)}</strong>.</p><p>For our Philippine team, that is <strong>${escapeHtml(args.manilaLabel)}</strong>.</p>${meeting}<p><a href="${escapeHtml(calendarUrl)}">Add to Google Calendar</a> or open the attached calendar invitation.</p><p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel this booking</a></p><hr><h3>Booking details</h3>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}`,
+    subject: `Discovery call confirmed — ${args.clientLabel}`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Hiring Team"
+    }),
   }, "public_discovery_booking");
   return { sent: true as const };
 }
@@ -579,9 +639,9 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
     from: config.from,
     to: [primary],
     bcc: hidden,
-    subject: `Action required: discovery call has no Zoom link — ${args.company || args.clientName || args.clientEmail}`,
-    html: `<h2>Automatic Zoom setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Zoom link</strong> after the Zoom integration is available.</p>`
-  }, "discovery_zoom_setup_failed", { archive: false, teamCc: false });
+    subject: `Action required: discovery call has no Google Meet link — ${args.company || args.clientName || args.clientEmail}`,
+    html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
+  }, "discovery_google_meet_setup_failed", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -596,7 +656,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     subject: `Reminder: your discovery call is ${timing}`,
-    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
+    html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p>${args.meetingUrl ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join Google Meet</a></p>` : ""}<p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel</a></p>`,
   }, `discovery_reminder_${args.window}`);
   return { sent: true as const };
 }

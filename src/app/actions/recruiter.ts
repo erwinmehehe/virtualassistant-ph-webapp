@@ -6,7 +6,7 @@ import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
 import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
-import { cancelZoomDiscoveryMeeting, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -502,24 +502,25 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,company,owner_id,crm_stage,discovery_zoom_meeting_id")
+    .select("id,name,email,company,owner_id,crm_stage,discovery_calendar_event_id")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
 
   let generatedMeetingUrl = meetingUrl || null;
-  let generatedMeetingId: string | null = null;
+  let generatedEventId: string | null = null;
   if (!generatedMeetingUrl) {
     try {
-      const zoom = await createZoomDiscoveryMeeting({
+      const meet = await createGoogleMeetDiscoveryMeeting({
         topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
         startsAt: scheduled.toISOString(),
         durationMinutes: duration,
+        attendeeEmails: [lead.email],
       });
-      generatedMeetingUrl = zoom.joinUrl;
-      generatedMeetingId = zoom.meetingId;
+      generatedMeetingUrl = meet.joinUrl;
+      generatedEventId = meet.eventId;
     } catch (error) {
-      return fail(error instanceof Error ? error.message : "Could not create the Zoom meeting.");
+      return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");
     }
   }
 
@@ -529,7 +530,8 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     discovery_scheduled_at: scheduled.toISOString(),
     discovery_duration_minutes: duration,
     discovery_meeting_url: generatedMeetingUrl,
-    discovery_zoom_meeting_id: generatedMeetingId || null,
+    discovery_calendar_event_id: generatedEventId || null,
+    discovery_meeting_provider: generatedEventId ? "google_meet" : "manual",
     discovery_completed_at: null,
     crm_stage: "discovery_booked",
     status: "new",
@@ -538,13 +540,13 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     stage_updated_at: now
   }).eq("id", leadId);
   if (error) {
-    if (generatedMeetingId) {
-      try { await cancelZoomDiscoveryMeeting(generatedMeetingId); } catch { /* best-effort cleanup */ }
+    if (generatedEventId) {
+      try { await cancelGoogleMeetDiscoveryMeeting(generatedEventId); } catch { /* best-effort cleanup */ }
     }
     return fail(error.message || "Could not schedule the discovery call.");
   }
-  if (generatedMeetingId && lead.discovery_zoom_meeting_id && generatedMeetingId !== lead.discovery_zoom_meeting_id) {
-    try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* saved replacement stays valid */ }
+  if (lead.discovery_calendar_event_id && generatedEventId !== lead.discovery_calendar_event_id) {
+    try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* saved replacement stays valid */ }
   }
 
   const scheduledLabel = new Intl.DateTimeFormat("en-PH", {
@@ -578,7 +580,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
 }
 
-export async function createDiscoveryZoomLinkAction(formData: FormData) {
+export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
@@ -587,47 +589,49 @@ export async function createDiscoveryZoomLinkAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,company,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_zoom_meeting_id,discovery_notes")
+    .select("id,name,email,company,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_notes")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead?.discovery_scheduled_at) return fail("This booking has no active discovery time.");
-  if (lead.discovery_meeting_url) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}zoom_link_created=1`);
+  if (lead.discovery_meeting_url) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}meet_link_created=1`);
 
-  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>>;
+  let meet: Awaited<ReturnType<typeof createGoogleMeetDiscoveryMeeting>>;
   try {
-    zoom = await createZoomDiscoveryMeeting({
+    meet = await createGoogleMeetDiscoveryMeeting({
       topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
       startsAt: lead.discovery_scheduled_at,
       durationMinutes: lead.discovery_duration_minutes || 30,
+      attendeeEmails: [lead.email],
     });
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not create the Zoom meeting.");
+    return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");
   }
 
   const cleanedNotes = String(lead.discovery_notes || "")
     .split("\n")
-    .filter((line) => !line.startsWith("Automatic Zoom setup failed:"))
+    .filter((line) => !line.startsWith("Automatic Google Meet setup failed:") && !line.startsWith("Automatic Zoom setup failed:"))
     .join("\n")
     .trim();
 
   const { error } = await admin.from("lead_intake").update({
-    discovery_meeting_url: zoom.joinUrl,
-    discovery_zoom_meeting_id: zoom.meetingId,
+    discovery_meeting_url: meet.joinUrl,
+    discovery_calendar_event_id: meet.eventId,
+    discovery_meeting_provider: "google_meet",
     discovery_notes: cleanedNotes || null,
   }).eq("id", leadId);
   if (error) {
-    try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup */ }
-    return fail(error.message || "Could not save the Zoom meeting.");
+    try { await cancelGoogleMeetDiscoveryMeeting(meet.eventId); } catch { /* best-effort cleanup */ }
+    return fail(error.message || "Could not save the Google Meet.");
   }
 
   try {
     await sendTransactionalEventEmail({
       to: lead.email,
-      subject: "Your discovery call Zoom link",
-      heading: "Your Zoom link is ready",
+      subject: "Your discovery call Google Meet link",
+      heading: "Your Google Meet link is ready",
       body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
-      href: zoom.joinUrl,
-      hrefLabel: "Join Zoom call",
+      href: meet.joinUrl,
+      hrefLabel: "Join Google Meet",
     });
   } catch {
     // CRM remains the source of truth even if the notification is temporarily unavailable.
@@ -636,15 +640,15 @@ export async function createDiscoveryZoomLinkAction(formData: FormData) {
   await writeRecruiterActivity({
     subjectType: "lead",
     subjectId: leadId,
-    action: "discovery_zoom_link_created",
-    description: "Automatic Zoom link created and sent to client",
+    action: "discovery_google_meet_link_created",
+    description: "Google Meet link created and sent to client",
     actorId: user.id,
-    metadata: { meeting_url: zoom.joinUrl, meeting_id: zoom.meetingId }
+    metadata: { meeting_url: meet.joinUrl, calendar_event_id: meet.eventId }
   });
 
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}zoom_link_created=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}meet_link_created=1`);
 }
 
 export async function cancelRecruiterDiscoveryAction(formData: FormData) {
@@ -655,7 +659,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
   if (!leadId) return fail("Booking not found.");
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,crm_stage,job_id,discovery_scheduled_at,discovery_zoom_meeting_id")
+    .select("id,name,email,crm_stage,job_id,discovery_scheduled_at,discovery_calendar_event_id")
     .eq("id", leadId).maybeSingle();
   if (!lead?.discovery_scheduled_at) return fail("This booking is no longer active.");
   const now = new Date().toISOString();
@@ -670,7 +674,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
     stage_updated_at: now
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not cancel the discovery booking.");
-  try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* cancellation remains recorded if Zoom is unavailable */ }
+  try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
   try {
     await sendTransactionalEventEmail({
       to: lead.email,

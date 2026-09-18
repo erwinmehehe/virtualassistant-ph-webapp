@@ -292,7 +292,7 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
       ctaHref: joinUrl,
       ctaLabel: "Create my VA profile"
     })
-  }, "va_applicant_redirect", { archive: false });
+  }, "va_applicant_redirect", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 
@@ -523,13 +523,23 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const link = args.href ? `<p><a href="${escapeHtml(args.href)}">${escapeHtml(args.hrefLabel || "Open VirtualAssistant.com.ph")}</a></p>` : "";
   const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
+  const bodyHtml = `<p style="margin:0;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [recipient],
+    replyTo: isPasswordChangeNotice ? undefined : configuredReplyTo(),
     subject: args.subject,
-    html: `<h2>${escapeHtml(args.heading)}</h2><p>${escapeHtml(args.body)}</p>${link}`
+    text: `${args.heading}\n\n${args.body}${args.href ? `\n\n${args.hrefLabel || "Open VirtualAssistant.com.ph"}: ${args.href}` : ""}`,
+    html: renderBrandedEmail({
+      firstName: "there",
+      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:22px;line-height:1.3;">${escapeHtml(args.heading)}</h2>${bodyHtml}`,
+      senderName: "VirtualAssistant.com.ph Team",
+      teamLabel: "Account update",
+      footerText: "You are receiving this because of activity on your VirtualAssistant.com.ph account or workspace.",
+      ctaHref: args.href,
+      ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
+    })
   }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false && !isPasswordChangeNotice });
   return { sent: true as const };
 }

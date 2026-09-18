@@ -24,7 +24,7 @@ export default async function AdminSystemPage({ searchParams }: { searchParams: 
     <div className="page-head">
       <div>
         <h1>System setup</h1>
-        <p>Production readiness for internal access, lead ingestion, and transactional email.</p>
+        <p>Production readiness for internal access, lead ingestion, transactional email, and automatic Google Calendar booking.</p>
       </div>
     </div>
 
@@ -77,6 +77,17 @@ export default async function AdminSystemPage({ searchParams }: { searchParams: 
           <StatusBadge configured={status.authEmail.configured} manual />
         </div>
         <p className="small muted">This controls signup confirmation, password reset, and other Auth messages. The application cannot safely infer this project-level setting from runtime environment variables.</p>
+      </div>
+
+      <div className="card stack">
+        <div className="row-between wrap">
+          <div>
+            <h3 style={{ margin: 0 }}>Google Calendar + Meet</h3>
+            <p className="small muted" style={{ marginBottom: 0 }}>{status.googleCalendar.detail}</p>
+          </div>
+          <StatusBadge configured={status.googleCalendar.configured} />
+        </div>
+        <p className="small muted">Required for public discovery calls to create the real Calendar event and Google Meet link automatically. <code>GOOGLE_CALENDAR_ID</code> is optional and defaults to the authenticated primary calendar.</p>
       </div>
 
       <div className="card stack">

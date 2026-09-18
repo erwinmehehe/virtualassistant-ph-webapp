@@ -124,7 +124,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
 
       <Band tone={spokes.length ? "white" : "soft"}>
         <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
-        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire a ${service!.name}`, sub: `${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
+        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire ${service!.name}`, sub: `Role focus: ${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>

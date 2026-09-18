@@ -96,7 +96,7 @@ export async function closeLeadAction(formData: FormData) {
   after(async () => {
     if (lead.discovery_scheduled_at && lead.discovery_calendar_event_id) {
       try {
-        await cancelGoogleMeetDiscoveryMeeting(lead.discovery_zoom_meeting_id);
+        await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id);
       } catch {
         // CRM state is already closed even if Google Calendar is temporarily unavailable.
       }

@@ -24,7 +24,7 @@ test("recruiters can attach client-facing recommendations and matcher uses curre
   assert.doesNotMatch(matchingTable, />Ask VA</);
   assert.doesNotMatch(matchingTable, />Mark confirmed</);
   assert.doesNotMatch(matchingTable, /Needs confirmation/);
-  assert.match(matching, /current profile availability/);
+  assert.match(matchingTable, /current profile/);
   assert.match(matching, /otherClientReviews/);
   assert.match(matching, /potentialCommittedHours/);
 });

@@ -73,7 +73,7 @@ test("floating call prompt is restricted to high-intent behavior", async () => {
   assert.match(cta, /isHighIntentPath/);
 });
 
-test("client booking prevents slot conflicts, records CRM state, and copies both owners", async () => {
+test("client booking prevents slot conflicts, records CRM state, and privately notifies all three internal contacts", async () => {
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
@@ -86,7 +86,8 @@ test("client booking prevents slot conflicts, records CRM state, and copies both
   assert.match(migration, /discovery_scheduled_at/);
   assert.match(email, /jrvsaccad@gmail\.com/);
   assert.match(email, /bryanbatarina@gmail\.com/);
-  assert.match(email, /Jervis or Bryan/);
+  assert.match(email, /erwinvalles20@gmail\.com/);
+  assert.doesNotMatch(email, /Jervis or Bryan will add the meeting link/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);
   assert.match(email, /Booking details/);
   assert.doesNotMatch(email, /Booking questionnaire/);

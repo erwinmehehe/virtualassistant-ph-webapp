@@ -6,7 +6,7 @@ import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
 import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
-import { cancelZoomDiscoveryMeeting } from "@/lib/booking-operations";
+import { cancelZoomDiscoveryMeeting, createZoomDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -502,17 +502,34 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,owner_id,crm_stage")
+    .select("id,name,email,company,owner_id,crm_stage,discovery_zoom_meeting_id")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
+
+  let generatedMeetingUrl = meetingUrl || null;
+  let generatedMeetingId: string | null = null;
+  if (!generatedMeetingUrl) {
+    try {
+      const zoom = await createZoomDiscoveryMeeting({
+        topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
+        startsAt: scheduled.toISOString(),
+        durationMinutes: duration,
+      });
+      generatedMeetingUrl = zoom.joinUrl;
+      generatedMeetingId = zoom.meetingId;
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : "Could not create the Zoom meeting.");
+    }
+  }
 
   const now = new Date().toISOString();
   const followUp = new Date(scheduled.getTime() + duration * 60000 + 60 * 60000).toISOString();
   const { error } = await admin.from("lead_intake").update({
     discovery_scheduled_at: scheduled.toISOString(),
     discovery_duration_minutes: duration,
-    discovery_meeting_url: meetingUrl || null,
+    discovery_meeting_url: generatedMeetingUrl,
+    discovery_zoom_meeting_id: generatedMeetingId || null,
     discovery_completed_at: null,
     crm_stage: "discovery_booked",
     status: "new",
@@ -520,7 +537,15 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     next_follow_up_at: followUp,
     stage_updated_at: now
   }).eq("id", leadId);
-  if (error) return fail(error.message || "Could not schedule the discovery call.");
+  if (error) {
+    if (generatedMeetingId) {
+      try { await cancelZoomDiscoveryMeeting(generatedMeetingId); } catch { /* best-effort cleanup */ }
+    }
+    return fail(error.message || "Could not schedule the discovery call.");
+  }
+  if (generatedMeetingId && lead.discovery_zoom_meeting_id && generatedMeetingId !== lead.discovery_zoom_meeting_id) {
+    try { await cancelZoomDiscoveryMeeting(lead.discovery_zoom_meeting_id); } catch { /* saved replacement stays valid */ }
+  }
 
   const scheduledLabel = new Intl.DateTimeFormat("en-PH", {
     dateStyle: "medium",
@@ -533,7 +558,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     clientName: lead.name,
     scheduledLabel,
     durationMinutes: duration,
-    meetingUrl: meetingUrl || null,
+    meetingUrl: generatedMeetingUrl,
     recruiterName: profile.full_name
   });
 
@@ -543,7 +568,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     action: "discovery_booked",
     description: `Discovery booked for ${scheduledLabel}`,
     actorId: user.id,
-    metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: meetingUrl || null, email_sent: emailResult.sent }
+    metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: generatedMeetingUrl, email_sent: emailResult.sent }
   });
 
   revalidatePath("/workspace/recruiter");
@@ -551,6 +576,75 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   revalidatePath("/workspace/admin/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
   redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
+}
+
+export async function createDiscoveryZoomLinkAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
+  if (!leadId) return fail("Booking not found.");
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin.from("lead_intake")
+    .select("id,name,email,company,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_zoom_meeting_id,discovery_notes")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (!lead?.discovery_scheduled_at) return fail("This booking has no active discovery time.");
+  if (lead.discovery_meeting_url) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}zoom_link_created=1`);
+
+  let zoom: Awaited<ReturnType<typeof createZoomDiscoveryMeeting>>;
+  try {
+    zoom = await createZoomDiscoveryMeeting({
+      topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
+      startsAt: lead.discovery_scheduled_at,
+      durationMinutes: lead.discovery_duration_minutes || 30,
+    });
+  } catch (error) {
+    return fail(error instanceof Error ? error.message : "Could not create the Zoom meeting.");
+  }
+
+  const cleanedNotes = String(lead.discovery_notes || "")
+    .split("\n")
+    .filter((line) => !line.startsWith("Automatic Zoom setup failed:"))
+    .join("\n")
+    .trim();
+
+  const { error } = await admin.from("lead_intake").update({
+    discovery_meeting_url: zoom.joinUrl,
+    discovery_zoom_meeting_id: zoom.meetingId,
+    discovery_notes: cleanedNotes || null,
+  }).eq("id", leadId);
+  if (error) {
+    try { await cancelZoomDiscoveryMeeting(zoom.meetingId); } catch { /* best-effort cleanup */ }
+    return fail(error.message || "Could not save the Zoom meeting.");
+  }
+
+  try {
+    await sendTransactionalEventEmail({
+      to: lead.email,
+      subject: "Your discovery call Zoom link",
+      heading: "Your Zoom link is ready",
+      body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
+      href: zoom.joinUrl,
+      hrefLabel: "Join Zoom call",
+    });
+  } catch {
+    // CRM remains the source of truth even if the notification is temporarily unavailable.
+  }
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "discovery_zoom_link_created",
+    description: "Automatic Zoom link created and sent to client",
+    actorId: user.id,
+    metadata: { meeting_url: zoom.joinUrl, meeting_id: zoom.meetingId }
+  });
+
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}zoom_link_created=1`);
 }
 
 export async function cancelRecruiterDiscoveryAction(formData: FormData) {

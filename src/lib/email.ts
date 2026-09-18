@@ -533,7 +533,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   const invite = createCalendarInvite({ uid: args.leadId, startsAt: args.scheduledAt, durationMinutes: 30, company: args.company, service: args.service, meetingUrl: args.meetingUrl });
   const meeting = args.meetingUrl
     ? `<p><a href="${escapeHtml(args.meetingUrl)}">Join the Zoom call</a></p>`
-    : `<p>Jervis or Bryan will add the meeting link before the call.</p>`;
+    : `<p>Your meeting link is being prepared and will be sent before the call.</p>`;
 
   await trackedSend(config, {
     from: config.from,
@@ -544,6 +544,27 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     subject: `Client discovery call booked: ${args.company} — ${args.clientLabel}`,
     html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your 30-minute client discovery call is confirmed for <strong>${escapeHtml(args.clientLabel)}</strong>.</p><p>For our Philippine team, that is <strong>${escapeHtml(args.manilaLabel)}</strong>.</p>${meeting}<p><a href="${escapeHtml(calendarUrl)}">Add to Google Calendar</a> or open the attached calendar invitation.</p><p><a href="${escapeHtml(args.manageUrl)}">Reschedule or cancel this booking</a></p><hr><h3>Booking details</h3>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}`,
   }, "public_discovery_booking");
+  return { sent: true as const };
+}
+
+export async function sendDiscoveryMeetingSetupFailureEmail(args: {
+  clientName?: string | null;
+  clientEmail: string;
+  company?: string | null;
+  scheduledLabel: string;
+  error: string;
+}) {
+  const config = resendConfig();
+  if (!config) return { sent: false as const, reason: "email_not_configured" };
+  const primary = "erwinvalles20@gmail.com";
+  const hidden = ["jrvsaccad@gmail.com", "bryanbatarina@gmail.com"];
+  await trackedSend(config, {
+    from: config.from,
+    to: [primary],
+    bcc: hidden,
+    subject: `Action required: discovery call has no Zoom link — ${args.company || args.clientName || args.clientEmail}`,
+    html: `<h2>Automatic Zoom setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Zoom link</strong> after the Zoom integration is available.</p>`
+  }, "discovery_zoom_setup_failed", { archive: false, teamCc: false });
   return { sent: true as const };
 }
 

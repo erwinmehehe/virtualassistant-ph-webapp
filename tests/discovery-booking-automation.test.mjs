@@ -28,8 +28,8 @@ test("discovery reminders have a frequent Supabase scheduler independent of the 
 test("rescheduling only retires the previous Zoom meeting after the replacement is saved", async () => {
   const action = await read("src/app/actions/booking.ts");
 
-  assert.match(action, /discovery_meeting_url: zoom\.joinUrl \|\| previousMeetingUrl \|\| null/);
-  assert.match(action, /discovery_zoom_meeting_id: zoom\.meetingId \|\| previousMeetingId \|\| null/);
+  assert.match(action, /discovery_meeting_url: zoom\?\.joinUrl \|\| previousMeetingUrl \|\| null/);
+  assert.match(action, /discovery_zoom_meeting_id: zoom\?\.meetingId \|\| previousMeetingId \|\| null/);
   assert.match(action, /best-effort cleanup of the unsaved replacement meeting/);
 
   const createIndex = action.indexOf("createZoomDiscoveryMeeting({");

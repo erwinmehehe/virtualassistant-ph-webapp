@@ -3,7 +3,7 @@ import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileChec
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
-import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, updateLeadCrmAction } from "@/app/actions/recruiter";
+import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryZoomLinkAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, updateLeadCrmAction } from "@/app/actions/recruiter";
 import { createAndSendProposalAction } from "@/app/actions/proposals";
 import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { proposalStatusLabel } from "@/lib/proposals";
@@ -195,6 +195,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
       {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
+      {params.zoom_link_created ? <div className="success-banner">Zoom meeting created and sent to the client.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
       {params.proposal_sent ? <div className="success-banner">Proposal sent. The CRM will follow up automatically in two days if it is still open.</div> : null}
@@ -316,6 +317,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <div><CalendarClock size={16}/><span><strong>{lead.discovery_completed_at ? "Discovery completed" : "Discovery call"}</strong><small>{dateTimeLabel(lead.discovery_scheduled_at)} · {lead.discovery_duration_minutes || 30} min</small></span></div>
                   <div className="row wrap">
                     {lead.discovery_meeting_url && !lead.discovery_completed_at ? <a className="btn btn-sm" href={lead.discovery_meeting_url} target="_blank" rel="noreferrer">Join call <ExternalLink size={13}/></a> : null}
+                    {!lead.discovery_meeting_url && discoveryScheduled ? <form action={createDiscoveryZoomLinkAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-sm btn-primary" type="submit">Create Zoom link</button></form> : null}
                     {discoveryScheduled ? <form action={cancelRecruiterDiscoveryAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-sm" type="submit">Cancel discovery</button></form> : null}
                     {view === "discovery" && isOpenLeadStage(stage) ? <CloseLeadForm leadId={lead.id} returnTo={returnTo} hasLinkedRole={Boolean(lead.job_id)}/> : null}
                     {lead.discovery_outcome ? <span className="small muted">Outcome: {String(lead.discovery_outcome).replaceAll("_", " ")}</span> : lead.discovery_notes ? <span className="small muted">{lead.discovery_notes}</span> : null}

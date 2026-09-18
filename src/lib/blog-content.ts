@@ -1961,7 +1961,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "bookkeeping-interview-questions",
     "title": "Bookkeeping Virtual Assistant Interview Questions",
-    "metaTitle": "Bookkeeping Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Bookkeeping VA Interview Questions | Hiring Guide",
     "description": "Use practical bookkeeping Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how a bookkeeping Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -3343,7 +3343,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "customer-service-interview-questions",
     "title": "Customer Service Virtual Assistant Interview Questions",
-    "metaTitle": "Customer Service Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Customer Service VA Interview Questions | Hiring Guide",
     "description": "Use practical customer service Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before.",
     "excerpt": "Interview questions that reveal how a customer service Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -4742,7 +4742,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "ecommerce-interview-questions",
     "title": "Ecommerce Virtual Assistant Interview Questions",
-    "metaTitle": "Ecommerce Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Ecommerce VA Interview Questions | Hiring Guide",
     "description": "Use practical ecommerce Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -5279,7 +5279,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "executive-virtual-assistant-interview-questions",
     "title": "Executive Virtual Assistant Interview Questions",
-    "metaTitle": "Executive Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Executive VA Interview Questions | Hiring Guide",
     "description": "Use practical executive Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how an executive Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -11525,7 +11525,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "hire-ecommerce-virtual-assistant-philippines",
     "legacyPath": "/hire-ecommerce-virtual-assistant-philippines/",
     "title": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-    "metaTitle": "Hire Ecommerce Virtual Assistant Philippines | Guide",
+    "metaTitle": "Ecommerce VA Hiring Guide | Philippines",
     "description": "See how to hire an ecommerce Virtual Assistant in the Philippines for listings, orders, customer support, inventory administration, store updates, and.",
     "excerpt": "A clear ecommerce hiring guide that now aligns pricing with the $5/hour marketplace floor.",
     "topic": "ecommerce",
@@ -13321,7 +13321,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "insurance-virtual-assistant-interview-questions",
     "title": "Insurance Virtual Assistant Interview Questions",
-    "metaTitle": "Insurance Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Insurance VA Interview Questions | Hiring Guide",
     "description": "Use practical insurance Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how an insurance Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -14076,7 +14076,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "law-firm-virtual-assistant-interview-questions",
     "title": "Law Firm Virtual Assistant Interview Questions",
-    "metaTitle": "Law Firm Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Law Firm VA Interview Questions | Hiring Guide",
     "description": "Use practical law firm Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how a law firm Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -14793,7 +14793,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "lead-generation-interview-questions",
     "title": "Lead Generation Virtual Assistant Interview Questions",
-    "metaTitle": "Lead Generation Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Lead Generation VA Interview Questions | Hiring Guide",
     "description": "Use practical lead generation Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you.",
     "excerpt": "Interview questions that reveal how a lead generation Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",
@@ -19205,7 +19205,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "real-estate-interview-questions",
     "title": "Real Estate Virtual Assistant Interview Questions",
-    "metaTitle": "Real Estate Virtual Assistant Interview Guide Guide",
+    "metaTitle": "Real Estate VA Interview Questions | Hiring Guide",
     "description": "Use practical real estate Virtual Assistant interview questions to test workflow thinking, tools, communication, quality checks, and judgment before you hire.",
     "excerpt": "Interview questions that reveal how a real estate Virtual Assistant actually works, not just how well they can describe themselves.",
     "topic": "hiring",

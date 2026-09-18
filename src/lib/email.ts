@@ -5,15 +5,31 @@ import { createCalendarInvite } from "@/lib/booking-operations";
 
 const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
+function isValidEmailAddress(value: string) {
+  if (!SIMPLE_EMAIL_RE.test(value)) return false;
+  const at = value.lastIndexOf("@");
+  if (at <= 0 || at === value.length - 1) return false;
+  const local = value.slice(0, at);
+  const domain = value.slice(at + 1);
+  if (local.startsWith(".") || local.endsWith(".") || local.includes("..")) return false;
+  if (domain.startsWith(".") || domain.endsWith(".") || domain.includes("..")) return false;
+  return domain.split(".").every((label) => (
+    Boolean(label)
+    && /^[A-Za-z0-9-]+$/.test(label)
+    && !label.startsWith("-")
+    && !label.endsWith("-")
+  ));
+}
+
 function normalizeEmailAddress(value: unknown) {
   const raw = String(value ?? "").trim();
   if (!raw) return null;
   const named = raw.match(/^([^<>]+)<([^<>]+)>$/);
   if (named) {
     const email = named[2].trim();
-    return SIMPLE_EMAIL_RE.test(email) ? `${named[1].trim()} <${email}>` : null;
+    return isValidEmailAddress(email) ? `${named[1].trim()} <${email}>` : null;
   }
-  return SIMPLE_EMAIL_RE.test(raw) ? raw : null;
+  return isValidEmailAddress(raw) ? raw : null;
 }
 
 function normalizeEmailList(value: unknown): string[] {
@@ -453,14 +469,15 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
 
 export async function sendProfileCompletionReminderEmail(args: { to: string; fullName?: string | null; score: number; missing: string[]; appUrl: string }) {
   const config = resendConfig();
-  if (!config) return { sent: false as const, reason: "email_not_configured" };
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
   const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "Virtual Assistant category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
   const missing = args.missing.slice(0, 6).map((item) => labels[item] || item);
   const list = missing.length ? `<ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
   await trackedSend(config, {
     from: config.from,
-    to: [args.to],
+    to: [recipient],
     subject: `Complete your Virtual Assistant profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
     html: `<p>Hi ${escapeHtml(firstName)},</p><p>Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p>Please finish these items:</p>${list}` : ""}<p><a href="${escapeHtml(args.appUrl)}/workspace/va/profile">Complete my profile</a></p><p>There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`
   }, "profile_completion_reminder");

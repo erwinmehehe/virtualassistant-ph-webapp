@@ -204,6 +204,7 @@ export default async function AdminTodayPage(){
   const payments=(paymentData||[]) as PaymentRow[];
   const tasks=(taskData||[]) as TaskRow[];
   const leadById=new Map(leads.map((lead)=>[lead.id,lead]));
+  const workroomByJob=new Map(workrooms.filter((room)=>room.job_id).map((room)=>[room.job_id,room]));
   const overdueDays=Number(financeSettings?.finance_invoice_overdue_days??7);
   const overdueCutoff=now-overdueDays*DAY;
 
@@ -265,8 +266,8 @@ export default async function AdminTodayPage(){
     const stage=String(lead.crm_stage||"new");
     const age=now-new Date(lead.created_at).getTime();
     const href=lead.email
-      ? `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(lead.email)}`
-      : `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(lead.id)}`;
+      ? `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.email)}`
+      : `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.id)}`;
     if(stage==="new"&&!lead.first_contact_at&&age>30*60_000){
       actions.push({
         id:`lead-first-${lead.id}`,
@@ -290,8 +291,8 @@ export default async function AdminTodayPage(){
     const when=new Date(lead.discovery_scheduled_at||0).getTime();
     if(when<now-2*60*60_000)continue;
     const href=lead.email
-      ? `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`
-      : `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.id)}`;
+      ? `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.email)}`
+      : `/workspace/admin/leads?view=hiring&q=${encodeURIComponent(lead.id)}`;
     actions.push({
       id:`call-${lead.id}`,
       title:`Discovery call · ${lead.company||lead.name||"Client"}`,
@@ -316,7 +317,7 @@ export default async function AdminTodayPage(){
       id:`proposal-${proposal.id}`,
       title:`Proposal needs follow-up · ${leadLabel}`,
       subtitle:`${proposal.role_title||"Hiring proposal"} · ${why}`,
-      href:`/workspace/recruiter/leads?q=${encodeURIComponent(proposal.lead_id)}`,
+      href:`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(proposal.lead_id)}`,
       label:"Proposal",tone:"indigo",icon:<FileText size={17}/>,rank:proposal.changes_requested_at?1:3,
       due:new Date(proposal.changes_requested_at||proposal.viewed_at||proposal.sent_at||proposal.created_at).getTime(),
     });
@@ -329,7 +330,7 @@ export default async function AdminTodayPage(){
       id:`hiring-room-${room.jobId}`,
       title:`Hiring Room waiting · ${room.company}`,
       subtitle:`${room.title} · ${room.count} candidate${room.count===1?"":"s"} waiting ${relativeAge(room.releasedAt,now)} for client response`,
-      href:`/workspace/recruiter/roles/${room.jobId}`,
+      href:`/workspace/admin/jobs/${room.jobId}`,
       label:"Hiring Room",tone:"amber",icon:<UsersRound size={17}/>,rank:3,due:new Date(room.releasedAt).getTime(),
     });
   }
@@ -378,11 +379,20 @@ export default async function AdminTodayPage(){
   }
 
   for(const task of urgentTasks){
+    let href="/workspace/admin/today#owner-actions";
+    if(task.subject_type==="job"&&task.subject_id){
+      const room=workroomByJob.get(task.subject_id);
+      href=room?`/workspace/client-success/${room.id}`:`/workspace/admin/jobs/${task.subject_id}`;
+    }else if(task.subject_type==="lead"&&task.subject_id){
+      href=`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(task.subject_id)}`;
+    }else if(task.subject_type==="va"&&task.subject_id){
+      href=`/workspace/admin/vetting/${task.subject_id}`;
+    }
     actions.push({
       id:`task-${task.id}`,
       title:task.title,
       subtitle:task.description||`${task.priority} priority owner task`,
-      href:task.href||"/workspace/recruiter/tasks",
+      href,
       label:"Task",tone:task.priority==="urgent"?"rose":"amber",icon:<ListTodo size={17}/>,rank:task.priority==="urgent"?1:2,
       due:task.due_at?new Date(task.due_at).getTime():now,
     });
@@ -400,7 +410,7 @@ export default async function AdminTodayPage(){
       subtitle={<>One page for what needs your attention across sales, hiring, client delivery and money. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
       actions={<>
         <Link className="dash-btn dash-btn-light" href="/workspace/admin">Admin overview</Link>
-        <Link className="dash-btn dash-btn-dark" href="/workspace/recruiter/today">Recruiter My Day <ArrowRight size={14}/></Link>
+        <Link className="dash-btn dash-btn-dark" href="/workspace/admin/leads?view=hiring">Hiring leads <ArrowRight size={14}/></Link>
       </>}
     />
 
@@ -418,7 +428,7 @@ export default async function AdminTodayPage(){
         value={callsToday.length}
         icon={<CalendarClock size={20}/>}
         tone="violet"
-        href="/workspace/recruiter/leads?view=discovery"
+        href="/workspace/admin/leads?view=hiring"
         sub="Scheduled client calls in Manila today"
       />
       <StatCard
@@ -440,6 +450,7 @@ export default async function AdminTodayPage(){
       />
     </div>
 
+    <div id="owner-actions">
     <Panel
       title="What needs you now"
       subtitle="Ordered by urgency. Resolve the first item, then move down the list."
@@ -462,15 +473,16 @@ export default async function AdminTodayPage(){
       />}
       {actions.length>visibleActions.length?<p className="small muted" style={{margin:"14px 0 0"}}>Showing the 14 highest-priority items. Clear these first and the queue will refresh.</p>:null}
     </Panel>
+    </div>
 
     <div className="dash-grid">
       <div className="dash-col">
         <Panel title="Revenue & hiring pulse" subtitle="Signals worth checking without opening the CRM">
           <SignalList items={[
-            {label:"Hot leads",count:hotLeads.length,href:"/workspace/recruiter/leads",icon:<BriefcaseBusiness size={16}/>,hint:"Current lead score is Hot"},
-            {label:"Proposals out",count:proposals.length,href:"/workspace/recruiter/leads",icon:<FileText size={16}/>,hint:"Sent, viewed or changes requested"},
-            {label:"Hiring Rooms waiting",count:waitingHiringRooms,href:"/workspace/recruiter/roles",icon:<UsersRound size={16}/>,hint:"Client response outstanding 24h+"},
-            {label:"High-priority tasks",count:urgentTasks.length,href:"/workspace/recruiter/tasks",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"},
+            {label:"Hot leads",count:hotLeads.length,href:"/workspace/admin/leads?view=hiring",icon:<BriefcaseBusiness size={16}/>,hint:"Current lead score is Hot"},
+            {label:"Proposals out",count:proposals.length,href:"/workspace/admin/leads?view=hiring",icon:<FileText size={16}/>,hint:"Sent, viewed or changes requested"},
+            {label:"Hiring Rooms waiting",count:waitingHiringRooms,href:"/workspace/admin/jobs?view=all",icon:<UsersRound size={16}/>,hint:"Client response outstanding 24h+"},
+            {label:"High-priority tasks",count:urgentTasks.length,href:"/workspace/admin/today#owner-actions",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"},
           ]}/>
         </Panel>
       </div>

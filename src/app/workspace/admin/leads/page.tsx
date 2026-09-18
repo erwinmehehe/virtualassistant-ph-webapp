@@ -8,6 +8,7 @@ import { dateShort } from "@/lib/format";
 
 const TYPE_LABEL:Record<string,string>={va_support:"VA support",client_support:"Client support",privacy:"Privacy / data",general:"General enquiry",client_hiring:"Client hiring"};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CLOSED_HIRING_STAGES=new Set(["won","lost"]);
 
 export default async function AdminLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
@@ -28,7 +29,8 @@ export default async function AdminLeadsPage({searchParams}:{searchParams:Promis
   const {data:leads,error}=await query.order("created_at",{ascending:false}).limit(100);
   if(error)throw error;
   const rows=leads||[];
-  const open=rows.filter((lead:any)=>!["archived","lost","won"].includes(String(lead.status||lead.crm_stage||""))).length;
+  const hiringOpen=(lead:any)=>!CLOSED_HIRING_STAGES.has(String(lead.crm_stage||"new"));
+  const open=rows.filter((lead:any)=>showHiring?hiringOpen(lead):lead.status!=="archived").length;
   const returnTo=(leadId:string)=>`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(leadId)}`;
 
   return <>
@@ -50,7 +52,7 @@ export default async function AdminLeadsPage({searchParams}:{searchParams:Promis
     <div className="stack">{rows.length?rows.map((lead:any)=><article className="card" key={lead.id}>
       <div className="row-between wrap"><div><div className="row wrap"><span className={`badge ${lead.lead_type==="client_hiring"?"badge-success":lead.lead_type==="privacy"?"badge-warning":""}`}>{TYPE_LABEL[lead.lead_type]||lead.lead_type}</span><span className="badge">{String(lead.crm_stage||lead.status||"new").replaceAll("_"," ")}</span><span className="small muted">{dateShort(lead.created_at)}</span></div><h3 style={{margin:"8px 0 3px"}}>{lead.service||"General enquiry"}</h3><div className="small muted">{lead.company||lead.name||lead.email}</div></div>
       <div className="row wrap">
-        {showHiring?<><form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="cleanup_action" value="send_followup"/><input type="hidden" name="return_to" value={returnTo(lead.id)}/><button className="btn btn-primary btn-sm" type="submit">Send tracked follow-up</button></form><form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value={returnTo(lead.id)}/><button className="btn btn-sm" type="submit">Follow up in 3 days</button></form>{lead.job_id?<Link className="btn btn-sm" href={`/workspace/admin/jobs/${lead.job_id}`}>Open role</Link>:null}</>:<a className="btn btn-sm" href={`mailto:${lead.email}`}><Mail size={14}/> Email</a>}
+        {showHiring?(hiringOpen(lead)?<><form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="cleanup_action" value="send_followup"/><input type="hidden" name="return_to" value={returnTo(lead.id)}/><button className="btn btn-primary btn-sm" type="submit">Send tracked follow-up</button></form><form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value={returnTo(lead.id)}/><button className="btn btn-sm" type="submit">Follow up in 3 days</button></form>{lead.job_id?<Link className="btn btn-sm" href={`/workspace/admin/jobs/${lead.job_id}`}>Open role</Link>:null}</>:<span className="small muted">Closed lead · no follow-up action</span>):<a className="btn btn-sm" href={`mailto:${lead.email}`}><Mail size={14}/> Email</a>}
       </div></div>
       <p style={{whiteSpace:"pre-wrap"}}>{lead.message||"No message provided."}</p>
       <div className="small muted"><strong>Contact:</strong> {lead.name||""}{lead.name?" · ":""}{lead.email}{lead.phone?` · ${lead.phone}`:""}{lead.source_page?` · source: ${lead.source_page}`:""}</div>

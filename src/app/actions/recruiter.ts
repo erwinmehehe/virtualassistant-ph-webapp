@@ -545,7 +545,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     }
     return fail(error.message || "Could not schedule the discovery call.");
   }
-  if (generatedEventId && lead.discovery_calendar_event_id && generatedEventId !== lead.discovery_calendar_event_id) {
+  if (lead.discovery_calendar_event_id && generatedEventId !== lead.discovery_calendar_event_id) {
     try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* saved replacement stays valid */ }
   }
 
@@ -648,7 +648,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}zoom_link_created=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}meet_link_created=1`);
 }
 
 export async function cancelRecruiterDiscoveryAction(formData: FormData) {

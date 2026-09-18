@@ -46,3 +46,19 @@ test("recruiter overview and owner today are discoverable from navigation",async
   assert.match(nav,/\["Overview", "\/workspace\/recruiter", LayoutDashboard\]/);
   assert.match(nav,/\["Today", "\/workspace\/admin\/today", ListTodo\]/);
 });
+
+
+test("owner command center filters stale closed-role signals",async()=>{
+  const page=await read("src/app/workspace/admin/today/page.tsx");
+  assert.match(page,/jobs!inner\(title,company_name,status\)/);
+  assert.match(page,/\.in\("jobs\.status",\["pending","published"\]\)/);
+  assert.match(page,/\["closed","draft"\]\.includes\(jobStatus\)/);
+  assert.match(page,/shortlist\|client response/);
+});
+
+test("closed hiring leads never show follow-up actions",async()=>{
+  const page=await read("src/app/workspace/admin/leads/page.tsx");
+  assert.match(page,/CLOSED_HIRING_STAGES/);
+  assert.match(page,/hiringOpen\(lead\)\?/);
+  assert.match(page,/Closed lead · no follow-up action/);
+});

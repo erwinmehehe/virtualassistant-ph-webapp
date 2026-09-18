@@ -812,6 +812,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       manilaLabel,
       clientTimeZone: parsed.data.timezone,
       meetingUrl: meeting?.joinUrl || null,
+      calendarEventId: meeting?.eventId || null,
       manageUrl: bookingManageUrl(manage.token),
     });
   } catch {

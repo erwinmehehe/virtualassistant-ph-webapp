@@ -630,3 +630,44 @@
     transition: none !important;
   }
 }
+
+
+@media (max-width: 680px) {
+  .dashboard-shell .app-sidebar {
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .dashboard-shell .app-nav-mobile > a,
+  .dashboard-shell .app-nav-mobile > details > summary {
+    overflow: hidden;
+  }
+
+  .dashboard-shell .app-nav-mobile > a > span:not(.nav-badge),
+  .dashboard-shell .app-nav-mobile > details > summary > span:not(.nav-badge) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-shell .dash-panel-head .small,
+  .dashboard-shell .dashboard-section-head .small {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-shell .app-topbar-public span {
+    display: none;
+  }
+
+  .dashboard-shell .app-topbar-public {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .dashboard-shell .app-content {
+    padding-inline: 12px;
+  }
+}

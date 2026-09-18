@@ -26,13 +26,18 @@ test("client emails route replies to the configured team mailbox", async () => {
   assert.ok(replyUses.length >= 6, `expected client reply routing across major templates, got ${replyUses.length}`);
 });
 
-test("recruiter follow-up respects the exact client workspace link", async () => {
+test("manual recruiter follow-up preserves the written closing without extra CTA or signature", async () => {
   const email = await read("src/lib/email.ts");
+  const start = email.indexOf("export async function sendStaffClientFollowupEmail");
+  const end = email.indexOf("export async function sendTransactionalEventEmail", start);
+  const followup = email.slice(start, end);
 
-  assert.match(email, /const targetUrl = args\.href\?\.trim\(\) \|\| bookingUrl/);
-  assert.match(email, /const targetLabel = args\.href\?\.trim\(\) \? "Open hiring workspace" : "Choose a call time"/);
-  assert.match(email, /ctaHref: targetUrl/);
-  assert.doesNotMatch(email, /ctaHref: bookingUrl,\n\s*ctaLabel: "Choose a call time"/);
+  assert.match(followup, /normalizeClientFollowup\(args\.subject, args\.message, \{ preserveSignoff: true \}\)/);
+  assert.match(followup, /appendSignature: false/);
+  assert.doesNotMatch(followup, /Open hiring workspace/);
+  assert.doesNotMatch(followup, /Choose a call time/);
+  assert.doesNotMatch(followup, /ctaHref:/);
+  assert.match(followup, /text: `Hi \$\{normalized\.firstName\},\\n\\n\$\{normalized\.message\}`/);
 });
 
 test("VA lifecycle emails stay private from default team/archive copies", async () => {

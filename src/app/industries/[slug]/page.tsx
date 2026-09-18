@@ -222,7 +222,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <CtaBand
-        title={`Build Virtual Assistant support around ${page.audience} workflows.`}
+        title={`Build Virtual Assistant support around the workflows that matter to ${page.audience}.`}
         body="Tell us the workflows, tools, hours and access rules. Our recruiters use the brief to find approved Virtual Assistants whose experience fits how your team actually works."
         primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
         secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}

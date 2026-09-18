@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, Clock3, ShieldCheck, TrendingUp, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RevenueFunnelChart } from "@/components/revenue-charts";
 
 type FunnelData = {
   days: number;
@@ -109,7 +110,13 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="card dashboard-section-card" style={{ marginBottom: 18 }}>
       <div className="dashboard-section-head"><div><h2>Sales handoff</h2><p>Hiring leads created in the selected period. “Active job order” means the linked role reached published recruiting, not merely that an automatic draft exists.</p></div><TrendingUp size={20}/></div>
-      <div className="grid-4">
+      <RevenueFunnelChart stages={[
+        { label: "Hiring leads", value: sales.leads },
+        { label: "Discovery completed", value: sales.discovery_completed },
+        { label: "Qualified", value: sales.qualified },
+        { label: "Active job orders", value: sales.active_job_orders }
+      ]} ariaLabel="Sales handoff funnel"/>
+      <div className="grid-4" style={{ marginTop: 16 }}>
         <StageCard label="Hiring leads" value={sales.leads} baseline={sales.leads} note="Client-hiring enquiries"/>
         <StageCard label="Discovery completed" value={sales.discovery_completed} baseline={sales.leads} note="Completed discovery call"/>
         <StageCard label="Qualified" value={sales.qualified} baseline={sales.leads} note="Qualified / terms / downstream evidence"/>
@@ -119,7 +126,14 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="card dashboard-section-card" style={{ marginBottom: 18 }}>
       <div className="dashboard-section-head"><div><h2>Recruiting delivery</h2><p>Roles published in the selected period, followed through recruiter shortlist, interview, offer, and placement.</p></div><BriefcaseBusiness size={20}/></div>
-      <div style={recruitingGrid}>
+      <RevenueFunnelChart stages={[
+        { label: "Job orders", value: recruiting.job_orders },
+        { label: "Shortlisted", value: recruiting.shortlisted },
+        { label: "Interviewed", value: recruiting.interviewed },
+        { label: "Offered", value: recruiting.offered },
+        { label: "Placed", value: recruiting.placed }
+      ]} ariaLabel="Recruiting delivery funnel"/>
+      <div style={{ ...recruitingGrid, marginTop: 16 }}>
         <StageCard label="Job orders" value={recruiting.job_orders} baseline={recruiting.job_orders} note="Published roles"/>
         <StageCard label="Shortlisted" value={recruiting.shortlisted} baseline={recruiting.job_orders} note="Client-ready shortlist released"/>
         <StageCard label="Interviewed" value={recruiting.interviewed} baseline={recruiting.job_orders} note="Interview workflow started"/>

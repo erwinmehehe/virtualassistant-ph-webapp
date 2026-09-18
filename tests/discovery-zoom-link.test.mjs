@@ -43,3 +43,25 @@ test("existing linkless bookings expose a retry action that emails the client",a
   assert.match(page,/createDiscoveryZoomLinkAction/);
   assert.match(page,/Zoom meeting created and sent to the client/);
 });
+
+
+test("client discovery confirmation uses branded booking UI and a team reply-to", async () => {
+  const email = await read("src/lib/email.ts");
+
+  assert.match(email, /Discovery call confirmed/);
+  assert.match(email, /Your call time/);
+  assert.match(email, /Zoom link pending/);
+  assert.match(email, /You do not need to book again/);
+  assert.match(email, /What we have on your brief/);
+  assert.match(email, /Add to Google Calendar/);
+  assert.match(email, /Reschedule or cancel/);
+  assert.match(email, /process\.env\.CLIENT_REPLY_TO_EMAIL/);
+  assert.match(email, /process\.env\.LEAD_NOTIFICATION_EMAIL/);
+  assert.doesNotMatch(email, /replyTo:\s*recipient/);
+
+  const start = email.indexOf("export async function sendPublicDiscoveryBookingEmail");
+  const end = email.indexOf("export async function sendDiscoveryMeetingSetupFailureEmail");
+  const booking = email.slice(start, end);
+  assert.doesNotMatch(booking, /\["Lead ID", args\.leadId\]/);
+  assert.match(booking, /renderHiringEmail\(/);
+});

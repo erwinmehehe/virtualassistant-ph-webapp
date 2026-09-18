@@ -58,7 +58,11 @@ const metaSeen = new Map();
 const paragraphSeen = new Map();
 const faqAnswerSeen = new Map();
 const longSentenceUse = new Map();
-const policySentenceAllowlist = new Set(['$5 per hour is the minimum allowed for ongoing hourly roles on VirtualAssistant.com.ph.']);
+const policySentenceAllowlist = new Set();
+const malformedDescriptionEnding = /(?:\band the|\band|\bthe|includes the)\.$/i;
+const stalePricingPolicy = /platform floor|marketplace floor|minimum allowed for ongoing hourly roles|minimum hourly rate on VirtualAssistant\.com\.ph|does not accept ongoing hourly roles below \$5|requires ongoing hourly roles to pay at least \$5|sets a \$5\/hour minimum|ongoing hourly jobs must be posted at \$5|exactly \$5 is accepted|treat \$5\/hour as the floor|\$5\/hour is the platform minimum/i;
+const genericDecisionBoundary = /spending, refunds above a threshold, account ownership changes, legal commitments, public statements/i;
+const highStakeTopics = new Set(['healthcare', 'legal', 'finance-bookkeeping', 'philippines']);
 const sentenceSegmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
 let minWords = Infinity, maxWords = 0, totalWords = 0, minFaqs = Infinity, minLinks = Infinity;
 
@@ -71,13 +75,25 @@ for (const post of posts) {
   if ((post.faqs || []).length < 6) failures.push(`${post.slug}: fewer than 6 FAQs`);
   if ((post.internalLinks || []).length < 5) failures.push(`${post.slug}: fewer than 5 internal links`);
   if ((post.metaTitle || '').length > 60) warnings.push(`${post.slug}: meta title is ${post.metaTitle.length} characters`);
-  if ((post.description || '').length > 170) warnings.push(`${post.slug}: meta description is ${post.description.length} characters`);
+  if ((post.description || '').length < 120) failures.push(`${post.slug}: meta description is only ${post.description.length} characters`);
+  if ((post.description || '').length > 160) failures.push(`${post.slug}: meta description is ${post.description.length} characters`);
+  if (malformedDescriptionEnding.test((post.description || '').trim())) failures.push(`${post.slug}: meta description ends with a broken phrase`);
   for (const [label, value, map] of [['title', post.title, titleSeen], ['metaTitle', post.metaTitle, metaSeen]]) {
     if (map.has(value)) failures.push(`${post.slug}: duplicate ${label} with ${map.get(value)}`); else map.set(value, post.slug);
   }
-  const searchable = JSON.stringify(post).toLowerCase();
+  const rawPost = JSON.stringify(post);
+  const searchable = rawPost.toLowerCase();
   for (const phrase of banned) if (searchable.includes(phrase)) failures.push(`${post.slug}: banned robotic phrase "${phrase}"`);
   if (searchable.includes('\u2014') || searchable.includes('\u2013')) failures.push(`${post.slug}: em dash or en dash found`);
+  if (stalePricingPolicy.test(rawPost)) failures.push(`${post.slug}: stale $5 platform-floor pricing language found`);
+  if (genericDecisionBoundary.test(rawPost)) failures.push(`${post.slug}: generic decision-boundary boilerplate found`);
+  if (highStakeTopics.has(post.topic)) {
+    if ((post.sources || []).length < 2) failures.push(`${post.slug}: high-stakes topic needs at least 2 primary/authoritative sources`);
+    if (!post.reviewNote) failures.push(`${post.slug}: high-stakes topic needs an editorial scope/review note`);
+    for (const source of post.sources || []) {
+      if (!/^https:\/\//.test(source.href || '')) failures.push(`${post.slug}: source must use an absolute HTTPS URL`);
+    }
+  }
 
   for (const section of post.sections || []) for (const paragraph of section.paragraphs || []) {
     if (words(paragraph) < 25) continue;

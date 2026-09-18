@@ -1,3 +1,5 @@
+import { estimateLeadBudget } from "@/lib/lead-economics";
+
 export type LeadTemperature = "hot" | "warm" | "cold";
 
 export type LeadScoringInput = {
@@ -10,6 +12,9 @@ export type LeadScoringInput = {
   discovery_scheduled_at?: string | null;
   discovery_completed_at?: string | null;
   estimated_value_usd?: number | string | null;
+  budget?: string | null;
+  hours?: string | null;
+  message?: string | null;
 };
 
 export type LeadScore = {
@@ -18,6 +23,7 @@ export type LeadScore = {
   reasons: string[];
   daysSinceTouch: number;
   daysOverdue: number;
+  estimatedMonthlyBudget: number | null;
 };
 
 const STAGE_POINTS: Record<string, number> = {
@@ -43,9 +49,10 @@ function clamp(value: number) {
 }
 
 export function scoreLead(lead: LeadScoringInput, nowMs = Date.now()): LeadScore {
+  const budget = estimateLeadBudget(lead.budget, lead.hours, lead.message);
   const stage = String(lead.crm_stage || "new");
-  if (stage === "won") return { score: 100, temperature: "hot", reasons: ["Won"], daysSinceTouch: 0, daysOverdue: 0 };
-  if (stage === "lost") return { score: 0, temperature: "cold", reasons: ["Closed lost"], daysSinceTouch: 0, daysOverdue: 0 };
+  if (stage === "won") return { score: 100, temperature: "hot", reasons: ["Won"], daysSinceTouch: 0, daysOverdue: 0, estimatedMonthlyBudget: budget.monthlyBudget };
+  if (stage === "lost") return { score: 0, temperature: "cold", reasons: ["Closed lost"], daysSinceTouch: 0, daysOverdue: 0, estimatedMonthlyBudget: budget.monthlyBudget };
 
   let score = STAGE_POINTS[stage] ?? 18;
   const reasons: string[] = [];
@@ -75,15 +82,30 @@ export function scoreLead(lead: LeadScoringInput, nowMs = Date.now()): LeadScore
     reasons.push("Stale 7+ days");
   }
 
-  const value = Number(lead.estimated_value_usd || 0);
-  if (Number.isFinite(value) && value >= 3000) {
-    score += 10;
-    reasons.push("High value");
-  } else if (Number.isFinite(value) && value >= 1000) {
-    score += 6;
-    reasons.push("Meaningful value");
-  } else if (Number.isFinite(value) && value > 0) {
-    score += 3;
+  if (budget.monthlyBudget != null) {
+    if (budget.monthlyBudget >= 2000) {
+      score += 10;
+      reasons.push("Strong budget + hours");
+    } else if (budget.monthlyBudget >= 1000) {
+      score += 7;
+      reasons.push("Healthy budget + hours");
+    } else if (budget.monthlyBudget >= 500) {
+      score += 4;
+      reasons.push("Budget + hours confirmed");
+    } else {
+      score += 2;
+    }
+  } else {
+    const agencyValue = Number(lead.estimated_value_usd || 0);
+    if (Number.isFinite(agencyValue) && agencyValue >= 3000) {
+      score += 6;
+      reasons.push("High agency value");
+    } else if (Number.isFinite(agencyValue) && agencyValue >= 1000) {
+      score += 4;
+      reasons.push("Meaningful agency value");
+    } else if (Number.isFinite(agencyValue) && agencyValue > 0) {
+      score += 2;
+    }
   }
 
   if (lead.discovery_completed_at) {
@@ -118,7 +140,14 @@ export function scoreLead(lead: LeadScoringInput, nowMs = Date.now()): LeadScore
 
   const finalScore = clamp(score);
   const temperature: LeadTemperature = finalScore >= 70 ? "hot" : finalScore >= 40 ? "warm" : "cold";
-  return { score: finalScore, temperature, reasons: reasons.slice(0, 3), daysSinceTouch, daysOverdue };
+  return {
+    score: finalScore,
+    temperature,
+    reasons: reasons.slice(0, 3),
+    daysSinceTouch,
+    daysOverdue,
+    estimatedMonthlyBudget: budget.monthlyBudget
+  };
 }
 
 export function leadTemperatureLabel(value: LeadTemperature) {

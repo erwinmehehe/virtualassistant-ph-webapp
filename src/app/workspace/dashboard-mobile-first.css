@@ -1,0 +1,689 @@
+/* Mobile-first authenticated workspace system.
+   These rules are loaded after the legacy dashboard styles so every role gets
+   the same touch targets, stacking, overflow safety, and responsive hierarchy. */
+
+.dashboard-shell {
+  --dash-mobile-gutter: 14px;
+  --dash-touch: 44px;
+}
+
+.dashboard-shell,
+.dashboard-shell .app-main,
+.dashboard-shell .app-content,
+.dashboard-shell .dash-page,
+.dashboard-shell .role-overview {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-shell .app-content {
+  padding: 18px var(--dash-mobile-gutter) calc(106px + env(safe-area-inset-bottom));
+}
+
+.dashboard-shell .app-topbar {
+  height: 60px;
+  padding: 0 var(--dash-mobile-gutter);
+}
+
+.dashboard-shell .app-topbar-inner {
+  min-width: 0;
+}
+
+.dashboard-shell .app-topbar-title,
+.dashboard-shell .app-topbar-page-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-shell .app-topbar-page-title {
+  font-size: 15px;
+}
+
+.dashboard-shell .app-topbar-public {
+  min-width: var(--dash-touch);
+  min-height: var(--dash-touch);
+  padding-inline: 11px;
+}
+
+.dashboard-shell .dash-page,
+.dashboard-shell .role-overview {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboard-shell .dash-header,
+.dashboard-shell .page-head {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.dashboard-shell .dash-header h1,
+.dashboard-shell .page-head h1 {
+  font-size: 25px;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-shell .dash-header p,
+.dashboard-shell .page-head p {
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.dashboard-shell .dash-header-actions,
+.dashboard-shell .dash-header > a,
+.dashboard-shell .page-head > .btn,
+.dashboard-shell .page-head > a.btn {
+  width: 100%;
+}
+
+.dashboard-shell .dash-header-actions .btn,
+.dashboard-shell .dash-header > a.btn,
+.dashboard-shell .page-head > .btn,
+.dashboard-shell .page-head > a.btn {
+  width: 100%;
+  min-height: var(--dash-touch);
+  justify-content: center;
+}
+
+.dashboard-shell .dash-stats,
+.dashboard-shell .grid-2,
+.dashboard-shell .grid-3,
+.dashboard-shell .grid-4,
+.dashboard-shell .va-status-grid,
+.dashboard-shell .client-hiring-grid,
+.dashboard-shell .recruiter-control-grid,
+.dashboard-shell .talent-health-strip,
+.dashboard-shell .analytics-stat-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.dashboard-shell .dash-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.dashboard-shell .dash-col {
+  gap: 14px;
+}
+
+.dashboard-shell .dash-panel,
+.dashboard-shell .card,
+.dashboard-shell .dashboard-section-card {
+  min-width: 0;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.dashboard-shell .dash-panel-head,
+.dashboard-shell .dashboard-section-head {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.dashboard-shell .dash-panel-head > a,
+.dashboard-shell .dash-panel-head > .btn,
+.dashboard-shell .dashboard-section-head > a,
+.dashboard-shell .dashboard-section-head > .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.dashboard-shell .dash-stat {
+  min-height: 0;
+  padding: 15px;
+  border-radius: 14px;
+}
+
+.dashboard-shell .dash-stat-value {
+  font-size: 24px;
+}
+
+.dashboard-shell .dash-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.dashboard-shell .dashboard-next-action,
+.dashboard-shell .client-concierge-strip,
+.dashboard-shell .client-primary-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.dashboard-shell .dashboard-next-action > .btn,
+.dashboard-shell .client-concierge-strip > .btn,
+.dashboard-shell .client-primary-action > .btn {
+  width: 100%;
+  min-height: var(--dash-touch);
+  justify-content: center;
+}
+
+.dashboard-shell .workflow-progress {
+  padding: 0;
+}
+
+.dashboard-shell .workflow-steps {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(130px, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+  padding: 14px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-shell .workflow-step {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.dashboard-shell .workflow-current {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+}
+
+.dashboard-shell .workflow-current > .btn {
+  width: 100%;
+  min-height: var(--dash-touch);
+  justify-content: center;
+}
+
+.dashboard-shell .pipeline-summary {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(94px, 1fr);
+  overflow-x: auto;
+  gap: 7px;
+  padding: 5px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-shell .pipeline-step {
+  min-width: 94px;
+}
+
+.dashboard-shell .attention-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-shell .attention-card,
+.dashboard-shell .role-dashboard-row,
+.dashboard-shell .today-work-item,
+.dashboard-shell .dash-action,
+.dashboard-shell .dash-list-row {
+  min-width: 0;
+}
+
+.dashboard-shell .dash-action,
+.dashboard-shell .dash-list-row,
+.dashboard-shell .role-dashboard-row {
+  align-items: flex-start;
+}
+
+.dashboard-shell .dash-action-go {
+  display: none;
+}
+
+.dashboard-shell .dash-queue-item {
+  align-items: stretch;
+}
+
+.dashboard-shell .dash-queue-main,
+.dashboard-shell .dash-queue-actions {
+  width: 100%;
+}
+
+.dashboard-shell .dash-queue-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboard-shell .dash-queue-actions form,
+.dashboard-shell .dash-queue-actions .dash-btn {
+  width: 100%;
+}
+
+.dashboard-shell .dash-queue-actions .dash-icon-btn {
+  min-width: var(--dash-touch);
+  min-height: var(--dash-touch);
+}
+
+.dashboard-shell .field input,
+.dashboard-shell .field select,
+.dashboard-shell .field textarea,
+.dashboard-shell input,
+.dashboard-shell select,
+.dashboard-shell textarea {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 16px;
+}
+
+.dashboard-shell textarea {
+  resize: vertical;
+}
+
+.dashboard-shell .btn,
+.dashboard-shell button,
+.dashboard-shell summary,
+.dashboard-shell .app-nav-mobile a {
+  touch-action: manipulation;
+}
+
+.dashboard-shell .btn {
+  min-height: 40px;
+}
+
+.dashboard-shell .btn-primary {
+  min-height: var(--dash-touch);
+}
+
+.dashboard-shell .row.wrap {
+  row-gap: 8px;
+}
+
+.dashboard-shell .table-wrap,
+.dashboard-shell .responsive-table,
+.dashboard-shell .cost-compare-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-shell .table-wrap table,
+.dashboard-shell .responsive-table table {
+  min-width: 680px;
+}
+
+.dashboard-shell .profile-layout,
+.dashboard-shell .messages-layout {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-shell .profile-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-shell .mobile-more-panel {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  width: auto;
+  max-width: none;
+  max-height: min(66dvh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 16px;
+}
+
+.dashboard-shell .app-nav-mobile > a,
+.dashboard-shell .app-nav-mobile > details > summary {
+  min-height: 50px;
+}
+
+.dashboard-shell .app-nav-mobile .nav-badge {
+  pointer-events: none;
+}
+
+.dashboard-shell .client-success-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 4px;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-shell .client-success-tabs .btn {
+  flex: 0 0 auto;
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dashboard-shell .cs-priority-panel {
+  border-color: #fedf89;
+  background: linear-gradient(180deg, #fff, #fffcf5);
+}
+
+.dashboard-shell .cs-priority-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dashboard-shell .cs-placement-list {
+  display: grid;
+  gap: 9px;
+}
+
+.dashboard-shell .cs-placement-list > .card {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dashboard-shell .cs-placement-list > .card:hover {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.dashboard-shell .cs-placement-row {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #e4e7ec;
+  border-radius: 13px;
+  background: #fff;
+  color: inherit;
+}
+
+.dashboard-shell .cs-placement-row:hover {
+  border-color: #c7d2fe;
+  background: #fbfbff;
+}
+
+.dashboard-shell .cs-placement-row.at-risk {
+  border-color: #fecdd3;
+  border-left: 3px solid #e11d48;
+  background: #fffafa;
+}
+
+.dashboard-shell .cs-placement-row.watch {
+  border-color: #fde68a;
+  border-left: 3px solid #d97706;
+}
+
+.dashboard-shell .cs-placement-row.healthy {
+  background: #fcfcfd;
+}
+
+.dashboard-shell .cs-placement-main,
+.dashboard-shell .cs-placement-owner,
+.dashboard-shell .cs-placement-meta {
+  min-width: 0;
+}
+
+.dashboard-shell .cs-placement-tags,
+.dashboard-shell .cs-placement-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dashboard-shell .cs-placement-row h3 {
+  margin: 7px 0 3px;
+  font-size: 15px;
+}
+
+.dashboard-shell .cs-placement-row p {
+  margin: 0;
+}
+
+.dashboard-shell .cs-placement-owner {
+  display: grid;
+  gap: 2px;
+  color: #475467;
+  font-size: 12px;
+}
+
+.dashboard-shell .cs-placement-owner strong {
+  color: #101828;
+}
+
+.dashboard-shell .cs-placement-risk {
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (min-width: 681px) {
+  .dashboard-shell .app-content {
+    padding: 24px 24px 64px;
+  }
+
+  .dashboard-shell .app-topbar {
+    height: 70px;
+    padding-inline: 24px;
+  }
+
+  .dashboard-shell .app-topbar-page-title {
+    font-size: 17px;
+  }
+
+  .dashboard-shell .dash-page,
+  .dashboard-shell .role-overview {
+    gap: 18px;
+  }
+
+  .dashboard-shell .dash-header,
+  .dashboard-shell .page-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .dashboard-shell .dash-header-actions,
+  .dashboard-shell .dash-header > a,
+  .dashboard-shell .page-head > .btn,
+  .dashboard-shell .page-head > a.btn {
+    width: auto;
+  }
+
+  .dashboard-shell .dash-header-actions .btn,
+  .dashboard-shell .dash-header > a.btn,
+  .dashboard-shell .page-head > .btn,
+  .dashboard-shell .page-head > a.btn {
+    width: auto;
+  }
+
+  .dashboard-shell .dash-stats,
+  .dashboard-shell .grid-3,
+  .dashboard-shell .grid-4,
+  .dashboard-shell .va-status-grid,
+  .dashboard-shell .talent-health-strip,
+  .dashboard-shell .analytics-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .grid-2,
+  .dashboard-shell .client-hiring-grid,
+  .dashboard-shell .recruiter-control-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .dash-panel,
+  .dashboard-shell .card,
+  .dashboard-shell .dashboard-section-card {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .dashboard-shell .dash-panel-head,
+  .dashboard-shell .dashboard-section-head {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .dashboard-shell .dash-panel-head > a,
+  .dashboard-shell .dash-panel-head > .btn,
+  .dashboard-shell .dashboard-section-head > a,
+  .dashboard-shell .dashboard-section-head > .btn {
+    width: auto;
+  }
+
+  .dashboard-shell .dashboard-next-action {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .dashboard-shell .dashboard-next-action > .btn,
+  .dashboard-shell .client-concierge-strip > .btn,
+  .dashboard-shell .client-primary-action > .btn {
+    width: auto;
+  }
+
+  .dashboard-shell .client-concierge-strip,
+  .dashboard-shell .client-primary-action {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .dashboard-shell .workflow-current {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .dashboard-shell .workflow-current > .btn {
+    width: auto;
+  }
+
+  .dashboard-shell .attention-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .dash-queue-actions {
+    width: auto;
+    display: flex;
+  }
+
+  .dashboard-shell .cs-placement-row {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, auto);
+    align-items: start;
+    padding: 15px;
+  }
+
+  .dashboard-shell .cs-placement-meta,
+  .dashboard-shell .cs-placement-risk {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-shell .cs-placement-owner {
+    text-align: right;
+    justify-items: end;
+  }
+}
+
+@media (min-width: 1081px) {
+  .dashboard-shell .app-content {
+    padding: 30px 32px 64px;
+  }
+
+  .dashboard-shell .app-topbar {
+    height: 78px;
+    padding-inline: 30px;
+  }
+
+  .dashboard-shell .dash-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .dashboard-shell .dash-stats,
+  .dashboard-shell .grid-4,
+  .dashboard-shell .analytics-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .grid-3,
+  .dashboard-shell .talent-health-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .va-status-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .attention-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-shell *,
+  .dashboard-shell *::before,
+  .dashboard-shell *::after {
+    scroll-behavior: auto !important;
+  }
+
+  .dashboard-shell .dash-stat,
+  .dashboard-shell .card,
+  .dashboard-shell .btn,
+  .dashboard-shell a {
+    transition: none !important;
+  }
+}
+
+
+@media (max-width: 680px) {
+  .dashboard-shell .app-sidebar {
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .dashboard-shell .app-nav-mobile > a,
+  .dashboard-shell .app-nav-mobile > details > summary {
+    overflow: hidden;
+  }
+
+  .dashboard-shell .app-nav-mobile > a > span:not(.nav-badge),
+  .dashboard-shell .app-nav-mobile > details > summary > span:not(.nav-badge) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-shell .dash-panel-head .small,
+  .dashboard-shell .dashboard-section-head .small {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-shell .app-topbar-public span {
+    display: none;
+  }
+
+  .dashboard-shell .app-topbar-public {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .dashboard-shell .app-content {
+    padding-inline: 12px;
+  }
+}

@@ -40,6 +40,7 @@ const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_
 const discoveryBookingBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "bryanbatarina@gmail.com",
+  "erwinvalles20@gmail.com",
   process.env.DISCOVERY_BOOKING_CC_EMAIL,
   process.env.DISCOVERY_BOOKING_BCC_EMAIL,
 ]);

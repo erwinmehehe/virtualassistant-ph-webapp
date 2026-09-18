@@ -52,7 +52,7 @@ function Steps({ done }: { done: boolean }) {
   );
 }
 
-function Success({ message, talentHref, portalHref }: { message?: string; talentHref?: string; portalHref?: string }) {
+function Success({ message, talentHref, portalHref, clientAccountHref }: { message?: string; talentHref?: string; portalHref?: string; clientAccountHref?: string }) {
   return (
     <div className="hb-card hb-success" aria-live="polite">
       <Steps done />
@@ -60,6 +60,7 @@ function Success({ message, talentHref, portalHref }: { message?: string; talent
       <h2>Brief received. Now pick a call time.</h2>
       <p>{message || "Our recruiting team is reviewing your brief. A 20-minute discovery call lets us confirm the role, schedule, and budget before we shortlist candidates."}</p>
       <a className="hb-submit" href={BOOKING_URL} data-track="booking_click">Book your discovery call <ArrowRight size={16} /></a>
+      {clientAccountHref ? <Link className="hb-submit pva-btn-secondary" href={clientAccountHref} data-track="client_account_create">Create a client account <ArrowRight size={16} /></Link> : null}
       <div className="hb-links">
         {portalHref ? <Link href={portalHref}>Open role in Client Portal</Link> : null}
         {talentHref ? <Link href={talentHref}>Browse Virtual Assistants first</Link> : null}
@@ -156,13 +157,16 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 }
 
 function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
-  const [url, setUrl] = useState<{ sent: boolean; error?: string }>({ sent: false });
+  const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setUrl({ sent: params.get("sent") === "1", error: params.get("error") || undefined });
+    setUrl({ sent: params.get("sent") === "1", error: params.get("error") || undefined, lead: params.get("lead") || undefined });
   }, []);
 
-  if (url.sent) return <Success talentHref="/find-talent" />;
+  if (url.sent) {
+    const clientAccountHref = sourcePath === "/" && url.lead ? `/auth/join/client?lead=${encodeURIComponent(url.lead)}` : undefined;
+    return <Success talentHref="/find-talent" clientAccountHref={clientAccountHref} />;
+  }
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;

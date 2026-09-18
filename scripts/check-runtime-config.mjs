@@ -7,6 +7,9 @@ const leadSecret = process.env.LEAD_INGEST_SECRET?.trim() || "";
 const resendKey = process.env.RESEND_API_KEY?.trim() || "";
 const emailFrom = process.env.EMAIL_FROM?.trim() || "";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "";
+const googleCalendarClientId = process.env.GOOGLE_CALENDAR_CLIENT_ID?.trim() || "";
+const googleCalendarClientSecret = process.env.GOOGLE_CALENDAR_CLIENT_SECRET?.trim() || "";
+const googleCalendarRefreshToken = process.env.GOOGLE_CALENDAR_REFRESH_TOKEN?.trim() || "";
 
 const checks = [
   {
@@ -28,6 +31,21 @@ const checks = [
     name: "NEXT_PUBLIC_APP_URL",
     ok: /^https:\/\//i.test(appUrl) && !/localhost|127\.0\.0\.1/i.test(appUrl),
     detail: /^https:\/\//i.test(appUrl) && !/localhost|127\.0\.0\.1/i.test(appUrl) ? appUrl : "not set to a production HTTPS origin"
+  },
+  {
+    name: "GOOGLE_CALENDAR_CLIENT_ID",
+    ok: googleCalendarClientId.length > 0,
+    detail: googleCalendarClientId.length > 0 ? "configured" : "missing"
+  },
+  {
+    name: "GOOGLE_CALENDAR_CLIENT_SECRET",
+    ok: googleCalendarClientSecret.length > 0,
+    detail: googleCalendarClientSecret.length > 0 ? "configured" : "missing"
+  },
+  {
+    name: "GOOGLE_CALENDAR_REFRESH_TOKEN",
+    ok: googleCalendarRefreshToken.length > 0,
+    detail: googleCalendarRefreshToken.length > 0 ? "configured" : "missing"
   }
 ];
 

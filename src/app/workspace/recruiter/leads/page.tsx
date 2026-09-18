@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Mail, Search, UserRound } from "lucide-react";
+import { CalendarClock, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
@@ -10,6 +10,7 @@ import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
+import { scoreLead } from "@/lib/lead-scoring";
 import styles from "./leads.module.css";
 
 const PAGE_SIZE = 25;
@@ -35,6 +36,7 @@ type RecruiterLeadRow = {
   first_contact_at: string | null;
   last_contact_at: string | null;
   next_follow_up_at: string | null;
+  stage_updated_at: string | null;
   lost_reason: string | null;
   attachment_name: string | null;
   attachment_path: string | null;
@@ -96,7 +98,15 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const parsedPage = Number.parseInt(String(params.page || "1"), 10);
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
-  const [{ data: pagePayload, error: pageError }, { data: owners }, { data: settings }] = await Promise.all([
+  let scoringQuery = admin
+    .from("lead_intake")
+    .select("crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd")
+    .eq("lead_type", "client_hiring")
+    .in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","nurture"])
+    .limit(5000);
+  if (ownerFilter) scoringQuery = scoringQuery.eq("owner_id", ownerFilter);
+
+  const [{ data: pagePayload, error: pageError }, { data: owners }, { data: settings }, { data: scoringLeads }] = await Promise.all([
     admin.rpc("recruiter_leads_page", {
       p_view: view,
       p_query: q || null,
@@ -114,7 +124,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       .from("admin_settings")
       .select("default_placement_fee,default_managed_markup_percent")
       .eq("id", 1)
-      .maybeSingle()
+      .maybeSingle(),
+    scoringQuery
   ]);
   if (pageError) throw pageError;
 
@@ -143,6 +154,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const qualifiedCount = Number(metrics.qualified || 0);
   const wonThisMonth = Number(metrics.won_this_month || 0);
   const openPipelineValue = Number(metrics.open_pipeline_value || 0);
+  const pipelineScores = (scoringLeads || []).map((lead) => scoreLead(lead, now));
+  const hotLeads = pipelineScores.filter((lead) => lead.temperature === "hot").length;
+  const warmLeads = pipelineScores.filter((lead) => lead.temperature === "warm").length;
 
   const viewTabs = [
     ["open", "Open pipeline"],
@@ -194,14 +208,17 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           <h1>Client leads</h1>
           <p>Reply fast, book the discovery call, send the proposal, and keep every opportunity moving toward a decision.</p>
         </div>
-        <div className="crm-sla-target"><Clock3 size={15}/><span>First-response target</span><strong>30 min</strong></div>
+        <div className="row wrap">
+          <Link className="btn btn-sm" href="/workspace/recruiter/leads/board"><LayoutDashboard size={15}/> Pipeline board</Link>
+          <div className="crm-sla-target"><Clock3 size={15}/><span>First-response target</span><strong>30 min</strong></div>
+        </div>
       </div>
 
       <div className="crm-metrics">
         <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><Clock3 size={18}/><span>Needs first contact</span><strong>{needsFirstContact}</strong><small>Reply before they keep shopping</small></Link>
         <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><CalendarClock size={18}/><span>Follow-ups due</span><strong>{followUpsDue}</strong><small>Overdue or due now</small></Link>
         <Link href="/workspace/recruiter/leads?view=discovery" className="card crm-metric-card"><UserRound size={18}/><span>Discovery booked</span><strong>{discoveryBooked}</strong><small>Calls ready to qualify</small></Link>
-        <Link href="/workspace/recruiter/leads?view=qualified" className="card crm-metric-card"><CheckCircle2 size={18}/><span>Qualified</span><strong>{qualifiedCount}</strong><small>Move these toward a proposal</small></Link>
+        <Link href="/workspace/recruiter/leads/board" className="card crm-metric-card"><Flame size={18}/><span>Hot leads</span><strong>{hotLeads}</strong><small>{warmLeads} more warm opportunities</small></Link>
         <Link href="/workspace/recruiter/leads?view=won" className="card crm-metric-card"><DollarSign size={18}/><span>Won this month</span><strong>{wonThisMonth}</strong><small>Closed client opportunities</small></Link>
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
@@ -231,6 +248,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       <div className="stack crm-lead-list">
         {visible.length ? visible.map((lead) => {
           const stage = lead.crm_stage || "new";
+          const leadScore = scoreLead(lead, now);
           const latest = latestByLead.get(lead.id);
           const proposal = latestProposalByLead.get(lead.id);
           const contactCount = countByLead.get(lead.id) || 0;
@@ -257,6 +275,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <div className="crm-lead-identity">
                 <div className="row wrap crm-lead-tags">
                   <span className={`badge ${stage === "won" ? "badge-success" : stage === "new" || followOverdue ? "badge-warning" : ""}`}>{leadStageLabel(stage)}</span>
+                  {isOpenLeadStage(stage) ? <span className={`lead-temperature ${leadScore.temperature}`}>{leadScore.temperature === "hot" ? "Hot" : leadScore.temperature === "warm" ? "Warm" : "Cold"} · {leadScore.score}</span> : null}
                   {slaMissed ? <span className="badge badge-warning">30-min SLA missed</span> : null}
                   {followOverdue ? <span className="badge badge-warning">Follow-up overdue</span> : null}
                   {discoveryScheduled ? <span className="badge">Discovery {dateTimeLabel(lead.discovery_scheduled_at)}</span> : null}

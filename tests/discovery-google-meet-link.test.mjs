@@ -68,3 +68,24 @@ test("client discovery confirmation uses branded booking UI and a team reply-to"
   assert.doesNotMatch(booking, /\["Lead ID", args\.leadId\]/);
   assert.match(booking, /renderHiringEmail\(/);
 });
+
+
+test("successful Google Calendar booking is created before persistence and avoids duplicate ICS confirmation", async () => {
+  const [action, email, ops] = await Promise.all([
+    read("src/app/actions/leads.ts"),
+    read("src/lib/email.ts"),
+    read("src/lib/booking-operations.ts"),
+  ]);
+
+  const createIndex = action.indexOf("meeting = await createGoogleMeetDiscoveryMeeting({");
+  const insertIndex = action.indexOf('admin.from("lead_intake").insert({');
+  assert.ok(createIndex >= 0 && insertIndex > createIndex, "Google Calendar event must be created before the lead booking is persisted");
+
+  assert.match(action, /attendeeEmails: \[parsed\.data\.email\]/);
+  assert.match(action, /calendarEventId: meeting\?\.eventId \|\| null/);
+  assert.match(ops, /sendUpdates=all/);
+  assert.match(ops, /attendees: args\.attendeeEmails\.filter\(Boolean\)/);
+  assert.match(email, /const googleCalendarCreated = Boolean\(args\.calendarEventId\)/);
+  assert.match(email, /attachments: invite \? \[/);
+  assert.match(email, /Calendar invitation sent/);
+});

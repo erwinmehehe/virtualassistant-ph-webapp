@@ -32,7 +32,35 @@ function sourceLabel(lead: any) {
 }
 
 function isQualifiedStage(stage?: string | null) {
-  return ["qualified", "shortlist_sent", "won"].includes(String(stage || ""));
+  return ["qualified", "terms_sent", "shortlist_sent", "won"].includes(String(stage || ""));
+}
+
+function buildLeadTimeline(leads: any[], days: SalesRangeDays, sinceIso: string) {
+  const bucketDays = days === 30 ? 5 : days === 90 ? 10 : 30;
+  const bucketMs = bucketDays * 86400000;
+  const start = new Date(sinceIso).getTime();
+  const bucketCount = Math.ceil(days / bucketDays);
+  const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: days === 365 ? undefined : "numeric", timeZone: "UTC" });
+  const timeline = Array.from({ length: bucketCount }, (_, index) => ({
+    label: formatter.format(new Date(start + index * bucketMs)),
+    leads: 0,
+    wins: 0
+  }));
+
+  for (const lead of leads) {
+    const created = new Date(lead.created_at).getTime();
+    if (Number.isFinite(created) && created >= start) {
+      const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((created - start) / bucketMs)));
+      timeline[index].leads += 1;
+    }
+    const wonAt = lead.won_at ? new Date(lead.won_at).getTime() : 0;
+    if (wonAt && wonAt >= start) {
+      const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((wonAt - start) / bucketMs)));
+      timeline[index].wins += 1;
+    }
+  }
+
+  return timeline;
 }
 
 export async function getSalesAnalytics(args: {
@@ -208,6 +236,7 @@ export async function getSalesAnalytics(args: {
     .map(([reason, count]) => ({ reason, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
+  const timeline = buildLeadTimeline(leadRows, args.days, since);
 
   const legacyQualifiedWithoutTimeline = leadRows.filter((lead: any) =>
     isQualifiedStage(lead.crm_stage) &&
@@ -257,6 +286,7 @@ export async function getSalesAnalytics(args: {
       proposalViewRate: pct(viewedLeadIds.size, sentLeadIds.size)
     },
     funnel,
+    timeline,
     sources,
     owners: ownersSummary,
     lossReasons,

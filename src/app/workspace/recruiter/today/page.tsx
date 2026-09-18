@@ -16,6 +16,14 @@ function manilaTime(value?: string | null) {
   return new Intl.DateTimeFormat("en-PH", { dateStyle:"medium", timeStyle:"short", timeZone:"Asia/Manila" }).format(new Date(value));
 }
 
+function overdueAge(value?: string | null) {
+  if (!value) return null;
+  const diff = Date.now() - new Date(value).getTime();
+  if (!Number.isFinite(diff) || diff <= 0) return null;
+  const hours = Math.max(1, Math.floor(diff / 3600000));
+  return hours < 24 ? `${hours}h` : `${Math.floor(hours / 24)}d`;
+}
+
 function meetingActionLabel(value: unknown) {
   const raw = String(value || "").trim();
   try {
@@ -103,12 +111,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           {cleanupQueue.map((item:any)=>{
             const labels=Array.isArray(item.cleanup_labels)?item.cleanup_labels:[];
             const attempts=Number(item.contact_count||0);
+            const overdue=overdueAge(item.due_at);
+            const overdueCopy=overdue ? (String(item.primary_reason||"").startsWith("Stale") || item.primary_reason === "No next step" ? `${overdue} stale` : `${overdue} overdue`) : null;
             return <article className="dash-action" key={`cleanup-${item.id}`}>
               <span className="dash-action-count"><Clock3 size={16}/></span>
               <span className="dash-action-copy">
                 <span className="dash-action-title"><strong>{item.company||item.name||item.email||"Client lead"}</strong><span className="badge badge-warning">{item.primary_reason||"Needs cleanup"}</span></span>
                 <small>{[item.name,item.service,item.email].filter(Boolean).join(" · ")}</small>
-                <div className="row wrap" style={{marginTop:6}}>{labels.map((label:string)=><span className={`badge ${["Missed first response","Follow-up overdue","Ready to close"].includes(label)?"badge-warning":""}`} key={label}>{label}</span>)}</div>
+                <div className="row wrap" style={{marginTop:6}}>{labels.map((label:string)=><span className={`badge ${["Missed first response","Follow-up overdue","Ready to close"].includes(label)?"badge-warning":""}`} key={label}>{label}</span>)}{overdueCopy ? <span className="badge badge-warning days-overdue">{overdueCopy}</span> : null}</div>
                 <small className="muted">Last activity {manilaTime(item.last_touch_at)} · {attempts} recorded contact attempt{attempts===1?"":"s"}</small>
                 {item.next_follow_up_at ? <small className="muted">Current follow-up: {manilaTime(item.next_follow_up_at)}</small> : null}
                 <div className="row wrap" style={{marginTop:8}}>

@@ -20,7 +20,7 @@ test("client shortlist feedback is authorized and keeps release state separate f
 
 test("recruiters can attach client-facing recommendations and matcher uses current VA profile availability", () => {
   assert.match(matchingTable, /Why this VA is a strong fit for this client/);
-  assert.match(matchingTable, /From the VA's current profile/);
+  assert.match(matchingTable, /From the VA&apos;s current profile/);
   assert.doesNotMatch(matchingTable, />Ask VA</);
   assert.doesNotMatch(matchingTable, />Mark confirmed</);
   assert.doesNotMatch(matchingTable, /Needs confirmation/);

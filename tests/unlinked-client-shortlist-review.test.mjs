@@ -9,8 +9,8 @@ const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
 const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/matching/[id]/page.tsx", "utf8");
 
 test("unlinked lead roles offer an invite path instead of a dead client-release button", () => {
-  assert.match(matchingUi, /Save \+ invite client to review/);
-  assert.match(matchingUi, /name="mode" value="invite"/);
+  assert.match(matchingTable, /name="mode" value="invite"/);
+  assert.match(matchingTable, /invite client/);
   assert.match(matchingUi, /Client account not linked yet/);
   assert.doesNotMatch(matchingUi, /disabled=\{!job\.client_id\}/);
 });

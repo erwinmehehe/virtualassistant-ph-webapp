@@ -11,6 +11,7 @@ const schema = z.object({
   service: z.string().optional().nullable(),
   company: z.string().optional().nullable(),
   hours: z.string().optional().nullable(),
+  budget: z.string().optional().nullable(),
   start_time: z.string().optional().nullable(),
   timezone: z.string().optional().nullable(),
   message: z.string().optional().nullable(),

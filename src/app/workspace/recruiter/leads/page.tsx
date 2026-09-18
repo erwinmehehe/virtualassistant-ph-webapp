@@ -10,6 +10,7 @@ import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
+import styles from "./leads.module.css";
 
 const PAGE_SIZE = 25;
 
@@ -154,6 +155,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     ["lost", "Lost"],
     ["all", "All"]
   ] as const;
+  const currentViewLabel = viewTabs.find(([value]) => value === view)?.[1] || "Open pipeline";
 
   const buildHref = (targetPage?: number) => {
     const next = new URLSearchParams();
@@ -174,7 +176,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const defaultManagedMarkup = Number(settings?.default_managed_markup_percent || 0);
 
   return (
-    <>
+    <div className={styles.crmPage}>
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
       {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
@@ -192,7 +194,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           <h1>Client leads</h1>
           <p>Reply fast, book the discovery call, send the proposal, and keep every opportunity moving toward a decision.</p>
         </div>
-        <div className="small muted">First-response target: <strong>30 minutes</strong></div>
+        <div className="crm-sla-target"><Clock3 size={15}/><span>First-response target</span><strong>30 min</strong></div>
       </div>
 
       <div className="crm-metrics">
@@ -204,25 +206,25 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
 
-      <div className="role-filter-tabs crm-tabs" aria-label="Filter leads">
+      <nav className="role-filter-tabs crm-tabs" aria-label="Lead pipeline views">
         {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
-      </div>
+      </nav>
 
-      {view === "recent" ? <p className="small muted">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
+      {view === "recent" ? <p className="small muted crm-view-note">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
 
       <form method="get" className="recruiter-filter-panel crm-filter-panel">
         <input type="hidden" name="view" value={view}/>
-        <div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} placeholder="Search name, company, email, need"/></div>
-        <select name="owner" defaultValue={ownerFilter}>
+        <div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} aria-label="Search leads" placeholder="Search name, company, email, or hiring need"/></div>
+        <label className="crm-filter-owner"><span>Owner</span><select name="owner" defaultValue={ownerFilter}>
           <option value="">All owners</option>
           {((owners || []) as LeadOwner[]).map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}
-        </select>
-        <button className="btn btn-primary" type="submit">Filter</button>
-        <Link className="btn" href={`/workspace/recruiter/leads?view=${view}`}>Reset</Link>
+        </select></label>
+        <button className="btn btn-primary" type="submit">Apply filters</button>
+        <Link className="btn" href={`/workspace/recruiter/leads?view=${view}`}>Clear</Link>
       </form>
 
       <div className="row-between wrap crm-results-head">
-        <span className="small muted"><strong>{total}</strong> lead{total === 1 ? "" : "s"} in this view · page {Math.min(currentPage,totalPages)} of {totalPages}</span>
+        <div className="crm-results-title"><strong>{currentViewLabel}</strong><span>{total} lead{total === 1 ? "" : "s"} · page {Math.min(currentPage,totalPages)} of {totalPages}</span></div>
         {view === "attention" ? <span className="small muted">Sorted by missed SLA, overdue follow-up, then newest lead.</span> : null}
       </div>
 
@@ -244,11 +246,16 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             : `Hi ${firstName},\n\nThanks for reaching out to VirtualAssistant.com.ph. I reviewed your request${lead.service ? ` for ${lead.service}` : ""} and would like to confirm a few details so we can recommend the right vetted VA. Are you available for a short discovery call?`;
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
           const suggestedHours = inferHours(lead.hours) || 40;
+          const attentionMessage = slaMissed
+            ? "First response overdue. Reply to this client now."
+            : followOverdue
+              ? "Follow-up overdue. Move this lead forward or close it."
+              : null;
 
           return <article className={`card crm-lead-card ${slaMissed || followOverdue ? "needs-attention" : ""}`} key={lead.id}>
             <div className="crm-lead-head">
-              <div>
-                <div className="row wrap">
+              <div className="crm-lead-identity">
+                <div className="row wrap crm-lead-tags">
                   <span className={`badge ${stage === "won" ? "badge-success" : stage === "new" || followOverdue ? "badge-warning" : ""}`}>{leadStageLabel(stage)}</span>
                   {slaMissed ? <span className="badge badge-warning">30-min SLA missed</span> : null}
                   {followOverdue ? <span className="badge badge-warning">Follow-up overdue</span> : null}
@@ -257,7 +264,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   {lead.job_id ? <span className="badge badge-success">Role linked</span> : null}
                 </div>
                 <h2>{lead.name || lead.email}</h2>
-                <div className="small muted">{lead.company || lead.email} · {lead.service || "Virtual Assistant support"}</div>
+                <div className="crm-lead-subtitle">
+                  <span>{lead.company || "Individual client"}</span>
+                  <span>{lead.service || "Virtual Assistant support"}</span>
+                  {lead.email ? <span>{lead.email}</span> : null}
+                </div>
               </div>
               <div className="crm-lead-meta">
                 <span><Clock3 size={14}/> Received {ageLabel(lead.created_at)}</span>
@@ -265,6 +276,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <span><DollarSign size={14}/> {lead.estimated_value_usd ? usd(Number(lead.estimated_value_usd)) : "Value not set"}</span>
               </div>
             </div>
+
+            {attentionMessage ? <div className="crm-attention-strip"><Clock3 size={15}/><strong>{attentionMessage}</strong></div> : null}
 
             <div className="crm-lead-body">
               <section className="crm-client-context">
@@ -300,7 +313,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <form action={updateLeadCrmAction} className="crm-update-card">
                 <input type="hidden" name="lead_id" value={lead.id}/>
                 <input type="hidden" name="return_to" value={returnTo}/>
-                <div className="crm-form-head"><strong>Next sales move</strong><span className="small muted">Keep this current so nobody has to remember it.</span></div>
+                <div className="crm-form-head"><span className="crm-form-kicker">Pipeline control</span><strong>Next step</strong><span className="small muted">Stage, owner, follow-up date, and value should always be current.</span></div>
                 <div className="grid-2">
                   <div className="field"><label>Stage</label><select name="crm_stage" defaultValue={stage}>{LEAD_CRM_STAGES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
                   <div className="field"><label>Owner</label><select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{((owners || []) as LeadOwner[]).map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></div>
@@ -403,6 +416,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <span className="small muted">Page {Math.min(currentPage,totalPages)} of {totalPages}</span>
         {currentPage < totalPages ? <Link className="btn btn-sm" href={buildHref(currentPage + 1)}>Next</Link> : <span/>}
       </div> : null}
-    </>
+    </div>
   );
 }

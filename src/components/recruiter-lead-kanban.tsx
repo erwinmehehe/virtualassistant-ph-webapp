@@ -19,7 +19,8 @@ export type PipelineLead = {
   reasons: string[];
   daysSinceTouch: number;
   daysOverdue: number;
-  estimatedValue: number;
+  estimatedMonthlyBudget: number | null;
+  estimatedAgencyValue: number;
 };
 
 const STAGES: { value: PipelineStage; label: string }[] = [
@@ -107,7 +108,8 @@ export function RecruiterLeadKanban({ initialLeads }: { initialLeads: PipelineLe
               <div className="pipeline-card-meta">
                 <span>{lead.daysSinceTouch === 0 ? "Touched today" : `${lead.daysSinceTouch}d since touch`}</span>
                 {lead.daysOverdue ? <span className="overdue">{lead.daysOverdue}d overdue</span> : null}
-                {lead.estimatedValue ? <span>{usd(lead.estimatedValue)}</span> : null}
+                {lead.estimatedMonthlyBudget ? <span>{usd(lead.estimatedMonthlyBudget)}/mo client budget</span> : null}
+                {lead.estimatedAgencyValue ? <span>{usd(lead.estimatedAgencyValue)} agency est.</span> : null}
               </div>
               {lead.reasons.length ? <div className="pipeline-card-meta">{lead.reasons.map((reason) => <span className="badge" key={reason}>{reason}</span>)}</div> : null}
               <div className="pipeline-card-actions">

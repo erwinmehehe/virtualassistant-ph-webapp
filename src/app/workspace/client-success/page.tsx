@@ -81,7 +81,7 @@ export default async function ClientSuccessTodayPage(){
   return <div className="dash-page role-overview client-success-overview">
     <DashHeader
       kicker="Client Success Today"
-      title="Placement health today"
+      title="Who needs attention today?"
       subtitle="Healthy placements stay quiet. Launches, missed check-ins, ownership gaps, and at-risk accounts rise to the top."
     />
 

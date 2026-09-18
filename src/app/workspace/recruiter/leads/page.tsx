@@ -101,7 +101,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
   let scoringQuery = admin
     .from("lead_intake")
-    .select("crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,budget,hours,message")
+    .select("id,crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,budget,hours,message")
     .eq("lead_type", "client_hiring")
     .in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","nurture"])
     .limit(5000);
@@ -154,7 +154,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const discoveryBooked = Number(metrics.discovery_booked || 0);
   const wonThisMonth = Number(metrics.won_this_month || 0);
   const openPipelineValue = Number(metrics.open_pipeline_value || 0);
-  const pipelineScores = (scoringLeads || []).map((lead) => scoreLead(lead, now));
+  const scoreByLeadId = new Map((scoringLeads || []).map((lead) => [lead.id, scoreLead(lead, now)]));
+  const pipelineScores = [...scoreByLeadId.values()];
   const hotLeads = pipelineScores.filter((lead) => lead.temperature === "hot").length;
   const warmLeads = pipelineScores.filter((lead) => lead.temperature === "warm").length;
 
@@ -248,7 +249,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       <div className="stack crm-lead-list">
         {visible.length ? visible.map((lead) => {
           const stage = lead.crm_stage || "new";
-          const leadScore = scoreLead(lead, now);
+          const leadScore = scoreByLeadId.get(lead.id) || scoreLead(lead, now);
           const latest = latestByLead.get(lead.id);
           const proposal = latestProposalByLead.get(lead.id);
           const contactCount = countByLead.get(lead.id) || 0;

@@ -6,15 +6,31 @@ function source(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
-test("application mail CCs Jervis by default without coupling CC to archive behavior", () => {
+test("internal team and archive copies are hidden with BCC", () => {
   const email = source("src/lib/email.ts");
 
-  assert.match(email, /const DEFAULT_TEAM_CC = "jrvsaccad@gmail\.com"/);
-  assert.doesNotMatch(email, /jrvsaccad@gmail\.coom/);
-  assert.match(email, /options\?: \{ archive\?: boolean; teamCc\?: boolean \}/);
-  assert.match(email, /options\?\.teamCc === false \? \[\] : teamCcRecipients/);
-  assert.match(email, /const cc = requestedCc\.filter/);
-  assert.match(email, /const archiveTo = options\?\.archive === false/);
+  assert.match(email, /const DEFAULT_TEAM_BCC = "jrvsaccad@gmail\.com"/);
+  assert.match(email, /const teamBccRecipients =/);
+  assert.match(email, /const archiveBcc = options\?\.archive === false/);
+  assert.match(email, /const to = normalizeEmailList\(payload\.to\)/);
+  assert.match(email, /const requestedBcc = normalizeEmailList/);
+  assert.match(email, /archiveBcc/);
+  assert.match(email, /teamBccRecipients/);
+  assert.match(email, /bcc: bcc\.length \? bcc : undefined/);
+
+  // Regression: archive recipients must never be merged into the visible To line.
+  assert.doesNotMatch(email, /normalizeEmailList\(\[payload\.to, archive/);
+});
+
+test("client-facing operational copies use BCC rather than visible CC", () => {
+  const email = source("src/lib/email.ts");
+
+  assert.match(email, /bcc: staffClientFollowupBccRecipients/);
+  assert.match(email, /bcc: discoveryBookingBccRecipients/g);
+  assert.match(email, /bcc: applicationBccRecipients/);
+  assert.doesNotMatch(email, /cc: staffClientFollowupBccRecipients/);
+  assert.doesNotMatch(email, /cc: discoveryBookingBccRecipients/);
+  assert.doesNotMatch(email, /cc: applicationBccRecipients/);
 });
 
 test("password reset and password-change security mail remain private", () => {

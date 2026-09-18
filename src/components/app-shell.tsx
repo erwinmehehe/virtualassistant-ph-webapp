@@ -37,7 +37,7 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
     <div className="app-shell dashboard-shell">
       <aside className="app-sidebar">
         <div className="app-sidebar-brand">
-          <Link className="app-brand" href="/" aria-label="VirtualAssistant.com.ph home">
+          <Link className="app-brand" href={workspaceHome[role]} aria-label={`Go to ${roleLabel} workspace home`}>
             <span className="app-brand-mark"><Sparkles size={19}/></span>
             <span className="app-brand-copy"><strong>VirtualAssistant</strong><small>.com.ph</small></span>
           </Link>
@@ -70,7 +70,7 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
       <main className="app-main" id="main-content">
         <div className="app-topbar">
           <div className="app-topbar-inner">
-            <div className="app-topbar-title"><span>{roleLabel} workspace</span><strong className="app-topbar-page-title">{title}</strong></div>
+            <div className="app-topbar-title"><Link className="app-topbar-workspace-home" href={workspaceHome[role]}>{roleLabel} workspace</Link><strong className="app-topbar-page-title">{title}</strong></div>
             <Link className="btn btn-sm app-topbar-public" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/><span>Public site</span></Link>
           </div>
         </div>

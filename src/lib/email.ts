@@ -261,6 +261,8 @@ export async function sendLeadAcknowledgementEmail(args: {
   to: string;
   name?: string | null;
   service?: string | null;
+  /** Lets the account link claim this request once the client signs up. */
+  leadId?: string | null;
 }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -268,11 +270,13 @@ export async function sendLeadAcknowledgementEmail(args: {
 
   const firstName = args.name?.trim().split(/\s+/)[0] || "there";
   const service = args.service?.trim() || "Virtual Assistant role";
-  const hiringCallUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const hiringCallUrl = `${appUrl}/book-client-call`;
+  const joinUrl = `${appUrl}/auth/join/client${args.leadId ? `?lead=${encodeURIComponent(args.leadId)}` : ""}`;
   const bodyHtml = [
     `Thanks for reaching out about hiring a <strong>${escapeHtml(service)}</strong>. We have your request and our recruiting team is reviewing it now.`,
-    "We will use the details you sent to narrow the role before we recommend anyone. You do not need to create an account to keep things moving.",
-    "If you would rather talk it through, choose a time that works for you and we can cover the role, schedule, budget, and must-have experience together."
+    "Create your client account to follow this request, review the candidates we shortlist, and message your recruiter in one place.",
+    `Prefer to talk it through first? <a href="${hiringCallUrl}">Book a 20-minute call</a> and we can cover the role, schedule, budget, and must-have experience together.`
   ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
 
   await trackedSend(config, {
@@ -280,13 +284,13 @@ export async function sendLeadAcknowledgementEmail(args: {
     to: [recipient],
     replyTo: configuredReplyTo(),
     subject: `Got your ${service} request`,
-    text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nYou do not need to create an account to keep things moving. If you would rather talk it through, choose a time that works for you: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
+    text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nCreate your client account to follow this request and review your shortlist: ${joinUrl}\n\nPrefer to talk it through first? Book a 20-minute call: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
       firstName,
       bodyHtml,
       senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: hiringCallUrl,
-      ctaLabel: "Choose a call time"
+      ctaHref: joinUrl,
+      ctaLabel: "Create my account"
     })
   }, "lead_acknowledgement");
   return { sent: true as const };

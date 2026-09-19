@@ -5,6 +5,7 @@ import { sendVaMatchEmail } from "@/lib/match-email";
 
 const HIRING_LEAD_SOURCES = [
   "service_match_request",
+  "industry_match_request",
   "blog_match_request",
   "public_role_brief",
   "content_role_brief",

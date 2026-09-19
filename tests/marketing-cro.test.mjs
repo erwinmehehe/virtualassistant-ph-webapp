@@ -96,3 +96,27 @@ test("shared hiring form stays compact on service and industry pages", () => {
   assert.match(finalServiceCss, /faq-item/);
   assert.match(finalServiceCss, /@media \(max-width: 760px\)/);
 });
+
+test("brief success screen offers matches, an account, and a call", () => {
+  const form = source("src/components/hiring-brief-form.tsx");
+  const route = source("src/app/api/talent/top-matches/route.ts");
+  const leads = source("src/app/actions/leads.ts");
+  const claims = source("src/lib/lead-claims.ts");
+
+  // Three options after the brief: see the fit, claim the request, or talk.
+  assert.match(form, /<TopMatches category=\{category\} \/>/);
+  assert.match(form, /\/auth\/join\/client\?\$\{joinParams\.toString\(\)\}/);
+  assert.match(form, /Create my account/);
+  assert.match(form, /hb-secondary[\s\S]*Book a 20-minute call instead/);
+  assert.doesNotMatch(form, /Continue to booking/);
+  assert.doesNotMatch(form, /No account needed/);
+
+  // The preview reads the consented public view, never the recruiter table.
+  assert.match(route, /from\("public_va_directory"\)/);
+  assert.doesNotMatch(route, /recruiter_va_directory/);
+  assert.doesNotMatch(route, /createAdminClient/);
+
+  // Signing up has to be able to claim the request it came from.
+  assert.match(leads, /\?sent=1&lead=\$\{encodeURIComponent\(lead\.id\)\}&cat=/);
+  assert.match(claims, /"industry_match_request"/);
+});

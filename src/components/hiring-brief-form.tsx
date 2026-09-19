@@ -2,23 +2,26 @@
 
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarCheck, Check, LockKeyhole } from "lucide-react";
+import { ArrowRight, CalendarCheck, Check, LockKeyhole, Users } from "lucide-react";
 import { type ServiceMatchState } from "@/app/actions/leads";
 import {
   submitIndustryMatchWithAiAction,
   submitRoleBriefWithAiAction,
   submitServiceMatchWithAiAction
 } from "@/app/actions/ai-leads";
+import { type TopMatch } from "@/lib/talent-preview";
 import { AttributionFields } from "@/components/attribution-fields";
+import { PublicAvatar } from "@/components/public-avatar";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 
 /**
  * The one hiring form used across the site's hiring pages (service, software,
- * industry, pricing). Step 1 is a short brief; step 2 is booking the discovery
- * call. Each variant still posts to its original server action so CRM source
- * tags, duplicate protection, and analytics stay unchanged.
+ * industry, pricing). Step 1 is a short brief; step 2 is the client account,
+ * with a discovery call offered as the alternative. Each variant still posts to
+ * its original server action so CRM source tags, duplicate protection, and
+ * analytics stay unchanged.
  */
 
 const BOOKING_URL = "/book-client-call";
@@ -47,24 +50,66 @@ function Steps({ done }: { done: boolean }) {
   return (
     <ol className="hb-steps" aria-label="Two steps">
       <li className={done ? "is-done" : "is-active"}><span>{done ? <Check size={12} strokeWidth={3} /> : 1}</span>Brief</li>
-      <li className={done ? "is-active" : ""}><span>2</span>Book a call</li>
+      <li className={done ? "is-active" : ""}><span>2</span>Your account</li>
     </ol>
   );
 }
 
-function Success({ message, talentHref, portalHref, clientAccountHref }: { message?: string; talentHref?: string; portalHref?: string; clientAccountHref?: string }) {
+/** Three approved profiles that fit the specialty, shown the moment a brief lands. */
+function TopMatches({ category }: { category?: string }) {
+  const [matches, setMatches] = useState<TopMatch[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const query = category ? `?category=${encodeURIComponent(category)}` : "";
+    fetch(`/api/talent/top-matches${query}`)
+      .then((response) => (response.ok ? response.json() : { matches: [] }))
+      .then((data: { matches?: TopMatch[] }) => { if (active) setMatches(Array.isArray(data.matches) ? data.matches : []); })
+      .catch(() => { if (active) setMatches([]); });
+    return () => { active = false; };
+  }, [category]);
+
+  if (!matches?.length) return null;
+
+  return (
+    <div className="hb-matches">
+      <p className="hb-matches-head"><Users size={14} />Top {matches.length} {category ? `${category.toLowerCase()} ` : ""}matches available now</p>
+      <ul>
+        {matches.map((match) => (
+          <li key={match.id}>
+            <PublicAvatar name={match.name} src={match.avatarUrl} size="sm" />
+            <div>
+              <strong>{match.name}</strong>
+              <span>{match.headline}</span>
+              <em>{match.yearsExperience} yrs experience{match.weeklyHours ? ` · ${match.weeklyHours} hrs/week` : ""}</em>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <Link className="hb-matches-all" href={category ? `/find-talent?category=${encodeURIComponent(category)}` : "/find-talent"}>
+        See more matching VAs <ArrowRight size={14} />
+      </Link>
+    </div>
+  );
+}
+
+function Success({ message, category, leadId, jobId, clientLinked }: { message?: string; category?: string; leadId?: string; jobId?: string; clientLinked?: boolean }) {
+  const next = jobId ? `/workspace/client/jobs/${jobId}` : "/workspace/client";
+  const joinParams = new URLSearchParams(leadId ? { lead: leadId, next } : { next });
+  const accountHref = clientLinked ? `${next}?created_from_match=1` : `/auth/join/client?${joinParams.toString()}`;
+
   return (
     <div className="hb-card hb-success" aria-live="polite">
       <Steps done />
-      <div className="hb-success-icon"><CalendarCheck size={22} /></div>
-      <h2>Brief received. Now pick a call time.</h2>
-      <p>{message || "Our recruiting team is reviewing your brief. A 20-minute discovery call lets us confirm the role, schedule, and budget before we shortlist candidates."}</p>
-      <a className="hb-submit" href={BOOKING_URL} data-track="booking_click">Book your discovery call <ArrowRight size={16} /></a>
-      {clientAccountHref ? <Link className="hb-submit pva-btn-secondary" href={clientAccountHref} data-track="client_account_create">Create a client account <ArrowRight size={16} /></Link> : null}
-      <div className="hb-links">
-        {portalHref ? <Link href={portalHref}>Open role in Client Portal</Link> : null}
-        {talentHref ? <Link href={talentHref}>Browse Virtual Assistants first</Link> : null}
-      </div>
+      <div className="hb-success-icon"><Check size={22} strokeWidth={3} /></div>
+      <h2>Brief received.</h2>
+      <p>{message || "Our recruiting team is reviewing your brief and will confirm availability before presenting anyone to you."}</p>
+      <TopMatches category={category} />
+      <a className="hb-submit" href={accountHref} data-track={clientLinked ? "portal_click" : "join_client_click"}>
+        {clientLinked ? "Open your Client Portal" : "Create my account"} <ArrowRight size={16} />
+      </a>
+      <p className="hb-success-hint">Your account keeps this request, your shortlist, and candidate profiles in one place, so matching moves faster.</p>
+      <a className="hb-secondary" href={BOOKING_URL} data-track="booking_click"><CalendarCheck size={15} />Book a 20-minute call instead</a>
     </div>
   );
 }
@@ -122,7 +167,7 @@ function Head({ title, sub }: { title: string; sub: string }) {
 }
 
 function Foot() {
-  return <p className="hb-foot"><LockKeyhole size={13} />Private request · No account needed · About 30 seconds</p>;
+  return <p className="hb-foot"><LockKeyhole size={13} />Private request · No obligation · About 30 seconds</p>;
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
@@ -132,8 +177,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
 
   if (state.status === "success") {
-    const portalHref = state.clientLinked && state.jobId ? `/workspace/client/jobs/${encodeURIComponent(state.jobId)}?created_from_match=1` : undefined;
-    return <Success message={state.message} talentHref={props.talentHref} portalHref={portalHref} />;
+    return <Success message={state.message} category={props.variant === "service" ? props.category : undefined} leadId={state.leadId} jobId={state.jobId} clientLinked={state.clientLinked} />;
   }
 
   const base = (props.variant === "service" ? props.roleLabel : props.industryLabel).replace(/\s+(virtual assistants?|VAs?)$/i, "").trim();
@@ -143,7 +187,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={`Hire ${label}`} sub="Share a quick brief, then book a discovery call with our recruiting team." />
+      <Head title={`Hire ${label}`} sub="Share a quick brief and we will show you matching Virtual Assistants right away." />
       <form action={formAction} className="hb-form">
         <input type="hidden" name="slug" value={props.slug} />
         {props.variant === "service" ? <input type="hidden" name="category" value={props.category} /> : null}
@@ -152,7 +196,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
-          {pending ? "Sending..." : <>Continue to booking <ArrowRight size={16} /></>}
+          {pending ? "Sending..." : <>See my matches <ArrowRight size={16} /></>}
         </button>
         <Foot />
       </form>
@@ -161,22 +205,24 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 }
 
 function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
-  const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string }>({ sent: false });
+  const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setUrl({ sent: params.get("sent") === "1", error: params.get("error") || undefined, lead: params.get("lead") || undefined });
+    setUrl({
+      sent: params.get("sent") === "1",
+      error: params.get("error") || undefined,
+      lead: params.get("lead") || undefined,
+      category: params.get("cat") || undefined
+    });
   }, []);
 
-  if (url.sent) {
-    const clientAccountHref = sourcePath === "/" && url.lead ? `/auth/join/client?lead=${encodeURIComponent(url.lead)}` : undefined;
-    return <Success talentHref="/find-talent" clientAccountHref={clientAccountHref} />;
-  }
+  if (url.sent) return <Success category={url.category} leadId={url.lead} />;
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={title} sub="Share a quick brief, then book a discovery call with our recruiting team." />
+      <Head title={title} sub="Share a quick brief and we will show you matching Virtual Assistants right away." />
       <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
@@ -192,7 +238,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">Continue to booking <ArrowRight size={16} /></button>
+        <button className="hb-submit" type="submit" data-track="role_brief_submit">See my matches <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>

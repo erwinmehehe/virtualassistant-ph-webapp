@@ -84,9 +84,10 @@ const staffClientFollowupBccRecipients = normalizeEmailList([
 // appear to clients or Virtual Assistants. Existing env var names remain
 // supported for backwards compatibility, but archive delivery is always BCC.
 const DEFAULT_ARCHIVE_TO = "erwinvalles20@gmail.com";
-const archiveRecipients = normalizeEmailList(
+const configuredArchiveRecipients = normalizeEmailList(
   process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
 ).filter((email) => !isBlockedEmailRecipient(email));
+const archiveRecipients = configuredArchiveRecipients.length ? configuredArchiveRecipients : [DEFAULT_ARCHIVE_TO];
 
 // Anyone already addressed must not be repeated.
 function archiveExtraFor(payload: any) {

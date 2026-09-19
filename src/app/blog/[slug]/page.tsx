@@ -7,6 +7,7 @@ import { BLOG_POSTS, blogHref, blogPostBySlug } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
 import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso } from "@/lib/archive";
 import { ArchiveArticle } from "@/components/archive-article";
+import { organizationRef } from "@/lib/organization";
 
 export function generateStaticParams() {
   return [
@@ -73,7 +74,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           url: `${base}${post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}`
         },
         ...(post.reviewedBy ? { reviewedBy: { "@type": "Organization", name: post.reviewedBy, url: `${base}/authors/editorial-team` } } : {}),
-        publisher: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }
+        publisher: organizationRef(base)
       },
       {
         "@type": "FAQPage",

@@ -9,6 +9,7 @@ import { softwarePages, getSoftwarePage } from "@/lib/software-pages";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { industryBySlug } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
+import { organizationRef } from "@/lib/organization";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -79,7 +80,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   ];
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: page.h1, url: pageUrl, description: page.metaDescription, provider: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }, areaServed: "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: page.h1, url: pageUrl, description: page.metaDescription, provider: organizationRef(base), areaServed: "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },

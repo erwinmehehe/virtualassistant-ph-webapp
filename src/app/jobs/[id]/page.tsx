@@ -12,6 +12,7 @@ import { money, dateShort } from "@/lib/format";
 import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import { organizationRef } from "@/lib/organization";
 
 async function getPublishedJob(key: string) {
   try {
@@ -99,7 +100,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
     hiringOrganization: companyName
       ? { "@type": "Organization", name: companyName, ...(companyWebsite ? { sameAs: companyWebsite } : {}) }
-      : { "@type": "Organization", name: "VirtualAssistant.com.ph", sameAs: base },
+      : organizationRef(base),
     baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
   };
 

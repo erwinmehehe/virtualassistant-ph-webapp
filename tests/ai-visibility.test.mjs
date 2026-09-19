@@ -34,3 +34,25 @@ test("IndexNow submits only changed URLs and stays off until it is configured", 
   assert.match(cron, /\.gte\("published_at", since\)/);
   assert.match(cron, /runIndexNowSubmission\(admin\)/);
 });
+
+test("one Organization entity, referenced by every page that names us", () => {
+  const org = source("src/lib/organization.ts");
+  const home = source("src/app/page.tsx");
+
+  assert.match(org, /linkedin\.com\/company\/virtualassistantphilippines/);
+  assert.match(home, /sameAs: ORGANIZATION_SAME_AS/);
+  assert.match(home, /"@id": organizationId\(base\)/);
+
+  // No page may declare a second, unlinked Organization for us.
+  for (const path of [
+    "src/app/service/[slug]/page.tsx",
+    "src/app/industries/[slug]/page.tsx",
+    "src/app/software/[slug]/page.tsx",
+    "src/app/blog/[slug]/page.tsx",
+    "src/app/jobs/[id]/page.tsx"
+  ]) {
+    const page = source(path);
+    assert.match(page, /organizationRef\(base\)/, `${path} should reference the canonical organization`);
+    assert.doesNotMatch(page, /"@type": "Organization", name: "VirtualAssistant\.com\.ph"/, `${path} still declares its own organization`);
+  }
+});

@@ -19,6 +19,7 @@ import {
 import { servicePageBySlug } from "@/lib/service-pages";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
+import { organizationRef } from "@/lib/organization";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -78,7 +79,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   ];
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoTitle, url: pageUrl, description: seoDescription, provider: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }, areaServed: "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoTitle, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },

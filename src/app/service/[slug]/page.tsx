@@ -32,6 +32,7 @@ import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
+import { organizationRef } from "@/lib/organization";
 
 export const revalidate = 3600;
 
@@ -395,7 +396,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       serviceType: s.name,
       url: pageUrl,
       description: serviceMetaDescription(s),
-      provider: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base },
+      provider: organizationRef(base),
       areaServed: "Worldwide"
     },
     {

@@ -31,6 +31,7 @@ import "./cro-hiring-tools.css";
 import "./homepage-seo-evidence.css";
 import "./homepage-growth.css";
 import "./homepage-sections.css";
+import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
@@ -152,10 +153,11 @@ export default async function HomePage({
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "@id": `${base}/#organization`,
-      name: "VirtualAssistant.com.ph",
+      "@id": organizationId(base),
+      name: ORGANIZATION_NAME,
       url: base,
       logo: `${base}/icon.svg`,
+      sameAs: ORGANIZATION_SAME_AS,
       description:
         "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
       areaServed: [

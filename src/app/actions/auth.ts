@@ -30,6 +30,7 @@ const oauthSchema = z.object({
 });
 
 const joinSchema = loginSchema.extend({
+  password: z.string().min(12),
   full_name: z.string().min(2).max(100),
   role: z.enum(["client", "va"]),
   talent: z.string().max(160).optional(),
@@ -271,7 +272,7 @@ export async function requestPasswordResetAction(formData: FormData) {
 
 export async function updatePasswordAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
-  if (password.length < 8) redirect("/auth/update-password?error=Password%20must%20be%20at%20least%208%20characters");
+  if (password.length < 12) redirect("/auth/update-password?error=Password%20must%20be%20at%20least%2012%20characters");
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect(`/auth/update-password?error=${encodeURIComponent(error.message)}`);

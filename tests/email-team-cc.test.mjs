@@ -28,7 +28,8 @@ test("client-facing operational copies use BCC rather than visible CC", () => {
   assert.match(email, /bcc: staffClientFollowupBccRecipients/);
   assert.match(email, /bcc: discoveryBookingBccRecipients/g);
   assert.match(email, /"jrvsaccad@gmail\.com"/);
-  assert.match(email, /"bryanbatarina@gmail\.com"/);
+  assert.doesNotMatch(email, /discoveryBookingBccRecipients[\s\S]{0,500}"bryanbatarina@gmail\.com"/);
+  assert.doesNotMatch(email, /staffClientFollowupBccRecipients[\s\S]{0,500}"bryanbatarina@gmail\.com"/);
   assert.match(email, /"erwinvalles20@gmail\.com"/);
   assert.match(email, /bcc: applicationBccRecipients/);
   assert.doesNotMatch(email, /(^|\n)\s*cc:\s*staffClientFollowupBccRecipients/m);
@@ -57,13 +58,18 @@ test("malformed email addresses are rejected before Resend and profile reminders
   assert.match(email, /to: \[recipient\]/);
 });
 
-test("external emails never expose Erwin, Jervis, or Bryan in visible headers", () => {
+test("external emails hide Erwin and Jervis, while Bryan is blocked from all delivery", () => {
   const email = source("src/lib/email.ts");
 
   assert.match(email, /const PRIVATE_INTERNAL_EMAILS = normalizeEmailList\(\[/);
   assert.match(email, /"erwinvalles20@gmail\.com"/);
   assert.match(email, /"jrvsaccad@gmail\.com"/);
+  assert.match(email, /const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList\(\[/);
   assert.match(email, /"bryanbatarina@gmail\.com"/);
+  assert.match(email, /const isBlockedEmailRecipient/);
+  assert.match(email, /normalizeEmailList\(payload\.to\)\.filter\(\(email\) => !isBlockedEmailRecipient\(email\)\)/);
+  assert.match(email, /normalizeEmailList\(payload\.cc\)\.filter\(\(email\) => !isBlockedEmailRecipient\(email\)\)/);
+  assert.match(email, /requestedBcc[\s\S]*filter\(\(email\) => !isBlockedEmailRecipient\(email\)\)/);
   assert.match(email, /const hasExternalRecipient = rawTo\.some\(\(email\) => !isPrivateInternalEmail\(email\)\)/);
   assert.match(email, /const hiddenInternalFromTo = hasExternalRecipient \? rawTo\.filter\(isPrivateInternalEmail\) : \[\]/);
   assert.match(email, /const to = hasExternalRecipient \? rawTo\.filter\(\(email\) => !isPrivateInternalEmail\(email\)\) : rawTo/);
@@ -72,5 +78,12 @@ test("external emails never expose Erwin, Jervis, or Bryan in visible headers", 
   assert.match(email, /hiddenInternalFromTo/);
   assert.match(email, /hiddenInternalFromCc/);
   assert.match(email, /const replyTo = hasExternalRecipient[\s\S]*rawReplyTo\.filter\(\(email\) => !isPrivateInternalEmail\(email\)\)/);
+});
+
+test("Bryan is also blocked from direct VA match emails", () => {
+  const matchEmail = source("src/lib/match-email.ts");
+  assert.match(matchEmail, /BLOCKED_EMAIL_RECIPIENTS = new Set\(\["bryanbatarina@gmail\.com"\]\)/);
+  assert.match(matchEmail, /const blocked = BLOCKED_EMAIL_RECIPIENTS\.has\(to\.toLowerCase\(\)\)/);
+  assert.match(matchEmail, /reason: blocked \? "blocked_recipient"/);
 });
 

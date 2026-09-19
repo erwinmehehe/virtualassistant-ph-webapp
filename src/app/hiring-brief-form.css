@@ -95,6 +95,16 @@
 .hb-matches span { overflow: hidden; color: #475467; font-size: 12.5px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .hb-matches em { color: #667085; font-size: 11.5px; font-style: normal; font-weight: 600; }
 .hb-matches-note { margin-top: 9px; color: #667085; font-size: 11.5px; line-height: 1.45; }
+/* "Not quite right?": one tap turns a bounce into a preference. */
+.hb-feedback { display: grid; gap: 7px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e4e7ec; }
+.hb-feedback > span { color: #344054; font-size: 12px; font-weight: 700; }
+.hb-feedback-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hb-feedback-chips button { padding: 5px 10px; border: 1px solid #d0d5dd; border-radius: 999px; background: #fff; color: #475467; font: inherit; font-size: 11.5px; font-weight: 650; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
+.hb-feedback-chips button:hover { border-color: #c7d2fe; background: #f5f6ff; color: #3538cd; }
+.hb-feedback-chips button:focus-visible { outline: 2px solid #444ce7; outline-offset: 2px; }
+.hb-feedback-chips button:disabled { opacity: .6; cursor: progress; }
+.hb-feedback-error { color: #b42318; font-size: 11.5px; }
+.hb-feedback-done { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e4e7ec; color: #067647; font-size: 12px; font-weight: 700; }
 .hb-card .hb-matches-all { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; color: #3538cd; font-size: 12.5px; font-weight: 700; text-decoration: none; }
 .hb-card .hb-matches-all:hover { text-decoration: underline; }
 .hb-card .hb-success-hint { margin-top: 8px; font-size: 12.5px; text-align: center; }

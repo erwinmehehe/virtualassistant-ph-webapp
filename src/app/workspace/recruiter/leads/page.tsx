@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { matchFeedbackLabel } from "@/lib/match-feedback";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
 import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryGoogleMeetLinkAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, updateLeadCrmAction } from "@/app/actions/recruiter";
 import { createAndSendProposalAction } from "@/app/actions/proposals";
@@ -29,6 +30,8 @@ type RecruiterLeadRow = {
   budget?: string | null;
   start_time: string | null;
   message: string | null;
+  match_feedback?: string[] | null;
+  match_feedback_at?: string | null;
   source_page: string | null;
   crm_stage: string | null;
   owner_id: string | null;
@@ -305,6 +308,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <section className="crm-client-context">
                 <h3>What they need</h3>
                 <p>{lead.message || "No additional message provided."}</p>
+                {lead.match_feedback?.length ? (
+                  <div className="crm-match-feedback">
+                    <strong>Said the sample profiles missed on</strong>
+                    <div>{lead.match_feedback.map((reason) => <span key={reason}>{matchFeedbackLabel(reason)}</span>)}</div>
+                  </div>
+                ) : null}
                 {lead.attachment_path ? <a className="btn btn-sm" href={`/api/recruiter/lead-attachment/${lead.id}`} target="_blank" rel="noreferrer"><FileCheck2 size={13}/> Open client document{lead.attachment_name ? `: ${lead.attachment_name}` : ""}</a> : null}
                 <div className="small muted">Source: {lead.source_page || "Website enquiry"} · Received {dateShort(lead.created_at)}</div>
                 <div className="crm-contact-summary">

@@ -134,6 +134,10 @@
 .crm-lead-meta svg { color:#667085; }
 .crm-lead-body { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr); gap:18px; padding:18px 20px; }
 .crm-client-context h3 { margin:0 0 8px; font-size:15px; }
+.crm-match-feedback { display:grid; gap:6px; margin:0 0 10px; padding:9px 11px; border:1px solid #fee4e2; border-radius:10px; background:#fffbfa; }
+.crm-match-feedback strong { color:#b42318; font-size:12px; font-weight:700; }
+.crm-match-feedback div { display:flex; flex-wrap:wrap; gap:6px; }
+.crm-match-feedback span { padding:3px 9px; border:1px solid #fecdca; border-radius:999px; background:#fff; color:#912018; font-size:12px; font-weight:650; }
 .crm-client-context > p { margin:0 0 10px; color:#344054; line-height:1.6; }
 .crm-contact-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:14px 0; }
 .crm-contact-summary > div { padding:10px; border:1px solid var(--line); border-radius:10px; background:#fafbfc; }

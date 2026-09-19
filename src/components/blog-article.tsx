@@ -15,6 +15,8 @@ import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import { INDUSTRIES } from "@/lib/industries";
+import { marketplaceEvidenceForPost } from "@/lib/editorial-evidence";
 
 function idFor(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -54,6 +56,8 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
 
 export function BlogArticle({ post }: { post: BlogPost }) {
   const related = relatedBlogPosts(post, 4);
+  const marketplaceEvidence = marketplaceEvidenceForPost(post);
+  const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
   const topic = BLOG_TOPICS[post.topic];
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
   const serviceHref = service ? `/service/${service.slug}` : "/services";
@@ -129,6 +133,23 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <ul>{post.keyTakeaways.map((item, index) => <li key={`${String(item)}-${index}`}><CheckCircle2 size={18} aria-hidden="true"/><span>{item}</span></li>)}</ul>
           </section>
 
+          {post.fieldNotes?.length ? <aside className="blog-field-notes" aria-label="Recruiter field notes">
+            <div className="kicker">Recruiter field notes</div>
+            <h2>What we would check before shortlisting</h2>
+            <ul>{post.fieldNotes.map((item, index) => <li key={`${String(item)}-${index}`}><BadgeCheck size={17} aria-hidden="true"/><span>{item}</span></li>)}</ul>
+          </aside> : null}
+
+          <aside className="blog-marketplace-evidence" aria-label="VirtualAssistant.com.ph marketplace snapshot">
+            <div className="blog-marketplace-evidence-head">
+              <div><div className="kicker">Marketplace snapshot</div><h2>What our current platform records show</h2></div>
+              <span>As of {new Date(`${marketplaceEvidence.asOf}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
+            </div>
+            <div className="blog-marketplace-evidence-grid">
+              {marketplaceEvidence.items.map((item) => <div key={`${item.value}-${item.label}`}><strong>{item.value}</strong><span>{item.label}</span></div>)}
+            </div>
+            <p>{marketplaceEvidence.note}</p>
+          </aside>
+
           {post.sections.map((section, index) => <section className="blog-section" id={idFor(section.heading)} key={`${section.heading}-${index}`}>
             <h2>{section.heading}</h2>
             {(section.paragraphs || []).map((paragraph, paragraphIndex) => <p key={`${section.heading}-p-${paragraphIndex}`}>{paragraph}</p>)}
@@ -165,6 +186,16 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               </Link>)}
             </div>
           </section>
+
+          {relatedIndustries.length ? <section className="blog-industry-guides" aria-labelledby="blog-industry-guides-heading">
+            <div className="kicker">Relevant industry guides</div>
+            <h2 id="blog-industry-guides-heading">See how this role changes by business type</h2>
+            <div className="blog-industry-guide-grid">
+              {relatedIndustries.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug} data-track="blog_industry_link">
+                <span><strong>{industry.label}</strong><small>{industry.audience}</small></span><ArrowRight size={15} aria-hidden="true"/>
+              </Link>)}
+            </div>
+          </section> : null}
 
           {post.sources?.length ? <section className="blog-sources" aria-labelledby="sources-heading">
             <h2 id="sources-heading">Sources and further reading</h2>

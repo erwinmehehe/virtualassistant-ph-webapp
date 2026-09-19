@@ -127,7 +127,12 @@ export async function closeLeadAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/leads/board");
+  revalidatePath("/workspace/recruiter/queue");
+  revalidatePath("/workspace/recruiter/agenda");
+  revalidatePath("/workspace/recruiter/stalled");
   revalidatePath("/workspace/admin/leads");
+  revalidatePath("/workspace/admin/today");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
 
   const destination = activeReturnPath(returnTo, profile.role);

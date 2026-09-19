@@ -17,6 +17,7 @@ export default async function AdminLeadsPage({searchParams}:{searchParams:Promis
   const showHiring=params.view==="hiring";
   const q=String(params.q||"").trim();
 
+  const showClosed=params.closed==="1";
   let query=admin.from("lead_intake").select("*");
   query=showHiring?query.eq("lead_type","client_hiring"):query.neq("lead_type","client_hiring");
   if(q){
@@ -26,17 +27,21 @@ export default async function AdminLeadsPage({searchParams}:{searchParams:Promis
       if(safe) query=query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%,service.ilike.%${safe}%`);
     }
   }
-  const {data:leads,error}=await query.order("created_at",{ascending:false}).limit(100);
+  // Closed leads are filtered out here rather than in the query: a lead with no
+  // crm_stage yet is still open, and no single PostgREST filter covers both
+  // "not won or lost" and "stage not set". Over-fetching keeps the page full.
+  const {data:leads,error}=await query.order("created_at",{ascending:false}).limit(showClosed?100:400);
   if(error)throw error;
-  const rows=leads||[];
   const hiringOpen=(lead:any)=>!CLOSED_HIRING_STAGES.has(String(lead.crm_stage||"new"));
-  const open=rows.filter((lead:any)=>showHiring?hiringOpen(lead):lead.status!=="archived").length;
+  const isOpen=(lead:any)=>showHiring?hiringOpen(lead):lead.status!=="archived";
+  const rows=(showClosed?(leads||[]):(leads||[]).filter(isOpen)).slice(0,100);
+  const open=rows.filter(isOpen).length;
   const returnTo=(leadId:string)=>`/workspace/admin/leads?view=hiring&q=${encodeURIComponent(leadId)}`;
 
   return <>
     {params.cleanup_saved?<div className="success-banner">Lead follow-up updated and tracked.</div>:null}
     {params.cleanup_error?<div className="alert" role="alert">{params.cleanup_error}</div>:null}
-    <div className="page-head"><div><div className="kicker">Agency inbox routing</div><h1>{showHiring?"Client hiring oversight":"Support & other enquiries"}</h1><p>{showHiring?"Owner-safe hiring oversight. Recruiters can run the normal CRM, while Admin can review an exact lead and send a tracked follow-up without entering recruiter-only routes.":"VA support, client-account support, privacy requests, and general contact messages stay out of recruiter My Day."}</p></div><div className="row wrap"><Link className={`btn ${!showHiring?"btn-primary":""}`} href="/workspace/admin/leads">Support inbox</Link><Link className={`btn ${showHiring?"btn-primary":""}`} href="/workspace/admin/leads?view=hiring">Hiring oversight</Link></div></div>
+    <div className="page-head"><div><div className="kicker">Agency inbox routing</div><h1>{showHiring?"Client hiring oversight":"Support & other enquiries"}</h1><p>{showHiring?"Owner-safe hiring oversight. Recruiters can run the normal CRM, while Admin can review an exact lead and send a tracked follow-up without entering recruiter-only routes.":"VA support, client-account support, privacy requests, and general contact messages stay out of recruiter My Day."}</p></div><div className="row wrap"><Link className={`btn ${!showHiring?"btn-primary":""}`} href={showClosed?"/workspace/admin/leads?closed=1":"/workspace/admin/leads"}>Support inbox</Link><Link className={`btn ${showHiring?"btn-primary":""}`} href={showClosed?"/workspace/admin/leads?view=hiring&closed=1":"/workspace/admin/leads?view=hiring"}>Hiring oversight</Link><Link className={`btn ${showClosed?"btn-primary":""}`} href={`/workspace/admin/leads?${showHiring?"view=hiring&":""}${showClosed?"":"closed=1"}`}>{showClosed?"Hide closed":"Show closed"}</Link></div></div>
 
     <div className="grid-2" style={{marginBottom:18}}><div className="card"><span className="small muted">Items shown</span><strong style={{display:"block",fontSize:28,marginTop:4}}>{rows.length}</strong></div><div className="card"><span className="small muted">Open</span><strong style={{display:"block",fontSize:28,marginTop:4}}>{open}</strong></div></div>
 

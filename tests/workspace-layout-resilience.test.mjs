@@ -32,6 +32,7 @@ test("workspace fixes do not override shell or score-card responsive behavior", 
   const compactBlock = css.match(/@media \(max-width: 760px\) \{([\s\S]*?)\n\}/)?.[1] || "";
   assert.doesNotMatch(compactBlock, /\.dashboard-shell\s*\{/);
   assert.doesNotMatch(compactBlock, /\.app-main\s*\{/);
-  assert.doesNotMatch(compactBlock, /\.score-grid/);
+  assert.doesNotMatch(compactBlock, /(?:^|\n)\s*\.dashboard-shell \.score-grid\s*\{/m);
+  assert.match(compactBlock, /\.recruiter-candidate-page \.score-grid/);
   assert.match(compactBlock, /\.profile-sidebar/);
 });

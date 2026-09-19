@@ -37,7 +37,8 @@ export function serviceMetaDescription(page: ServiceSeoPage) {
   const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
   const suffixes = [
     ". Compare experience, tools, availability, and role fit.",
-    ". Compare role experience, tools, availability, and fit."
+    ". Compare role experience, tools, availability, and fit.",
+    ". Compare skills, tools, schedule, and role fit."
   ];
 
   for (const suffix of suffixes) {

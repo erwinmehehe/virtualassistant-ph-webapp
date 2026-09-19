@@ -67,20 +67,25 @@
   text-decoration: none;
   cursor: pointer;
 }
-.hb-card .hb-submit:hover { filter: brightness(1.07); }
+.hb-card .hb-submit { box-shadow: 0 10px 22px -12px rgba(68, 76, 231, .8); transition: filter .15s ease, transform .15s ease, box-shadow .15s ease; }
+.hb-card .hb-submit:hover { filter: brightness(1.07); transform: translateY(-1px); box-shadow: 0 14px 26px -12px rgba(68, 76, 231, .85); }
+.hb-card .hb-submit:active { transform: none; }
+.hb-card .hb-submit:focus-visible, .hb-card .hb-secondary:focus-visible { outline: 2px solid #444ce7; outline-offset: 2px; }
 .hb-card .hb-submit:disabled { opacity: .7; cursor: progress; }
 .hb-card .hb-foot { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #667085; }
 .hb-optional { margin-left: 4px; color: #98a2b3; font-weight: 500; }
 .hb-error { padding: 10px 12px; border-radius: 10px; background: #fef3f2; color: #b42318; font-size: 13px; }
 .hb-success-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-top: 16px; border-radius: 12px; background: #eef0ff; color: #444ce7; }
 .hb-success h2, .hb-cta h2 { margin-top: 12px; }
-.hb-success .hb-submit, .hb-cta .hb-submit { margin-top: 18px; }
+.hb-success .hb-submit, .hb-cta .hb-submit { margin-top: 20px; }
+.hb-success .hb-submit { min-height: 50px; font-size: 15.5px; }
 .hb-cta .hb-success-icon { margin-top: 0; }
 .hb-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: 12px; }
 
 /* Success screen: top 3 matches, then account (primary) or a call (secondary). */
 .hb-matches { margin-top: 18px; padding: 14px; border: 1px solid #eaecf0; border-radius: 14px; background: #fbfbff; }
 .hb-matches-head { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; color: #344054; font-size: 12.5px; font-weight: 700; }
+.hb-matches-head svg { flex: none; }
 .hb-matches-head svg { color: #444ce7; }
 .hb-matches ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .hb-matches li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid #eaecf0; border-radius: 12px; background: #fff; }
@@ -207,4 +212,8 @@
 .contact-route-copy strong { font-size: 15px; font-weight: 750; line-height: 1.3; }
 .contact-route-copy small { color: #475467; font-size: 13.5px; line-height: 1.5; }
 .contact-route-copy em { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; color: #3538cd; font-size: 13.5px; font-style: normal; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  .hb-card .hb-submit { transition: none; }
+  .hb-card .hb-submit:hover { transform: none; }
+}
 @media (prefers-reduced-motion: reduce) { .contact-route:hover { transform: none; } }

@@ -89,8 +89,8 @@ function TopMatches({ category }: { category?: string }) {
       <p className="hb-matches-head">
         <Users size={14} />
         {total > matches.length
-          ? `${matches.length} of the ${total} ${scope}VAs in our approved pool`
-          : `${matches.length} ${scope}VAs in our approved pool`}
+          ? `${matches.length} of ${total} approved ${scope}VAs`
+          : `${matches.length} approved ${scope}VAs`}
       </p>
       <ul>
         {matches.map((match) => (

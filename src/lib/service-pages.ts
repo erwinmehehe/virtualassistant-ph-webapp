@@ -18,7 +18,7 @@ export type ServiceSeoPage = {
 };
 
 export function serviceMetaTitle(page: ServiceSeoPage) {
-  const base = `${page.name} Philippines`;
+  const base = page.metaTitle;
   const expanded = `${base} | Hire Vetted VAs`;
   return base.length < 40 && expanded.length <= 60 ? expanded : base;
 }

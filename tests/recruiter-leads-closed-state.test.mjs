@@ -24,3 +24,10 @@ test("linked role navigation is phrased as navigation, not role status", () => {
 test("closing a lead can close every non-closed linked role state", () => {
   assert.match(closeLead, /\.in\("status", \["draft", "pending", "published"\]\)/);
 });
+
+test("shared recruiter CRM does not block closing another recruiter's lead", () => {
+  assert.doesNotMatch(closeLead, /This lead belongs to another recruiter/);
+  assert.doesNotMatch(closeLead, /lead\.owner_id !== user\.id/);
+  assert.match(closeLead, /Any recruiter or admin who can/);
+});
+

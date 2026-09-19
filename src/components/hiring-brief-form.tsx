@@ -206,7 +206,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={`Hire ${label}`} sub="Share a quick brief and we will show you matching Virtual Assistants right away." />
+      <Head title={`Hire ${label}`} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
       <form action={formAction} className="hb-form">
         <input type="hidden" name="slug" value={props.slug} />
         {props.variant === "service" ? <input type="hidden" name="category" value={props.category} /> : null}
@@ -215,7 +215,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
-          {pending ? "Matching..." : <>Get my free VA match <ArrowRight size={16} /></>}
+          {pending ? "Matching..." : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
         </button>
         <Foot />
       </form>
@@ -223,7 +223,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   );
 }
 
-function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
+function GeneralVariant({ sourcePath, title = "Get your free virtual assistant match", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
   const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -241,7 +241,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
   const categories: readonly string[] = VA_CATEGORIES;
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={title} sub="Share a quick brief and we will show you matching Virtual Assistants right away." />
+      <Head title={title} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
       <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
         <input type="hidden" name="timezone" value="To confirm on discovery call" />
@@ -257,7 +257,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">Get my free VA match <ArrowRight size={16} /></button>
+        <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>

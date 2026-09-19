@@ -28,33 +28,39 @@ function normalizeMetaTask(task: string) {
 }
 
 export function serviceMetaDescription(page: ServiceSeoPage) {
-  const compactRole = page.name
-    .replace(/\s+Virtual Assistant\b/i, "")
+  const shortRole = page.name
+    .replace(/\s+Virtual Assistant for\s+/i, " VA for ")
+    .replace(/\s+Virtual Assistant\b/i, " VA")
     .replace(/^Virtual\s+/i, "")
     .trim();
-  const prefix = `Hire a vetted ${compactRole} VA in the Philippines for `;
-  const suffix = ". Compare experience, tools, availability, and role fit.";
+  const prefix = `Hire a vetted ${shortRole} in the Philippines for `;
   const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
+  const suffixes = [
+    ". Compare experience, tools, availability, and role fit.",
+    ". Compare role experience, tools, availability, and fit."
+  ];
 
-  for (let count = tasks.length; count >= 1; count -= 1) {
-    const selected = tasks.slice(0, count);
-    const taskText = selected.length === 1
-      ? selected[0]
-      : selected.length === 2
-        ? `${selected[0]} and ${selected[1]}`
-        : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
-    const candidate = `${prefix}${taskText}${suffix}`;
-    if (candidate.length <= 160) {
-      if (candidate.length >= 145) return candidate;
-      const expanded = `${candidate.slice(0, -1)} before you interview.`;
-      return expanded.length <= 160 ? expanded : candidate;
+  for (const suffix of suffixes) {
+    for (let count = tasks.length; count >= 1; count -= 1) {
+      const selected = tasks.slice(0, count);
+      const taskText = selected.length === 1
+        ? selected[0]
+        : selected.length === 2
+          ? `${selected[0]} and ${selected[1]}`
+          : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
+      const candidate = `${prefix}${taskText}${suffix}`;
+      if (candidate.length <= 160) {
+        if (candidate.length >= 145) return candidate;
+        const expanded = `${candidate.slice(0, -1)} before you interview.`;
+        return expanded.length <= 160 ? expanded : candidate;
+      }
     }
   }
 
-  const fallback = `Hire a vetted ${compactRole} VA in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
+  const fallback = `Hire a vetted ${shortRole} in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
   if (fallback.length <= 160) return fallback;
 
-  return `Hire a vetted ${compactRole} VA in the Philippines. Compare experience, tools, availability, and role fit.`;
+  return `Hire a vetted ${shortRole} in the Philippines. Compare experience, tools, availability, and role fit.`;
 }
 
 export const SERVICE_PAGES: ServiceSeoPage[] = [

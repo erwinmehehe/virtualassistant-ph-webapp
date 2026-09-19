@@ -73,7 +73,7 @@ export function JoinAccountForm({
       {next ? <input type="hidden" name="next" value={next}/> : null}
       <div className="field"><label htmlFor={`${role}-full-name`}>Full name</label><input id={`${role}-full-name`} name="full_name" required minLength={2} autoComplete="name"/></div>
       <div className="field"><label htmlFor={`${role}-email`}>{client ? "Work email" : "Email"}</label><input id={`${role}-email`} type="email" name="email" required autoComplete="email"/></div>
-      <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={8} required autoComplete="new-password"/><span className="small muted">At least 8 characters.</span></div>
+      <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={12} required autoComplete="new-password"/><span className="small muted">At least 12 characters.</span></div>
       <TurnstileWidget/>
       <button className="btn btn-primary btn-lg" type="submit">{client ? "Create client account" : "Create VA account"}</button>
       {!client ? <span className="small muted">Next: a short VA quick setup. You can finish the longer profile in stages.</span> : null}

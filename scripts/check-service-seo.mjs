@@ -59,7 +59,11 @@ function generatedDescription(page) {
 
   const fallback = `Hire a vetted ${shortRole} in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
   if (fallback.length <= 160) return fallback;
-  return `Hire a vetted ${shortRole} in the Philippines. Compare experience, tools, availability, and role fit.`;
+
+  const concise = `Hire a vetted ${shortRole} in the Philippines. Compare experience, tools, availability, and role fit.`;
+  if (concise.length >= 140) return concise;
+  const expanded = `${concise.slice(0, -1)} before you interview.`;
+  return expanded.length <= 160 ? expanded : concise;
 }
 
 const slopTerms = [

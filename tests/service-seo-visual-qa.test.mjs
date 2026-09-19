@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 function source(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -54,6 +54,32 @@ test("service template preserves core SEO signals", () => {
   assert.match(page, /alternates: \{ canonical \}/);
   assert.match(page, /<HiringHero/);
   assert.equal((hero.match(/<h1\b/g) || []).length, 1);
+});
+
+test("SEO service stays on the shared service template", () => {
+  const dedicatedSeoPage = new URL("../src/app/service/seo/page.tsx", import.meta.url);
+  assert.equal(existsSync(dedicatedSeoPage), false, "SEO must not have a dedicated page that can drift from the shared template");
+
+  const serviceData = source("src/lib/service-pages.ts");
+  assert.match(serviceData, /"slug": "seo"/);
+  assert.match(serviceData, /"metaTitle": "SEO Virtual Assistant Philippines"/);
+});
+
+test("SEO service canonicalization and industry links stay intact", () => {
+  const middleware = source("middleware.ts");
+  const industries = source("src/lib/industries.ts");
+
+  assert.match(middleware, /hasServiceTrailingSlash/);
+  assert.match(middleware, /pathname\.startsWith\("\/service\/"\)/);
+  assert.match(middleware, /pathname\.replace\(\/\\\/\+\$\/, ""\)/);
+
+  for (const slug of ["home-local-services", "professional-services-growth", "startups", "ecommerce-stores"]) {
+    const start = industries.indexOf(`"slug": "${slug}"`);
+    assert.ok(start >= 0, `missing industry ${slug}`);
+    const end = industries.indexOf("\n  {", start + 1);
+    const block = industries.slice(start, end >= 0 ? end : industries.length);
+    assert.match(block, /"serviceSlugs": \[[\s\S]*?"seo"/, `${slug} should link back to SEO`);
+  }
 });
 
 

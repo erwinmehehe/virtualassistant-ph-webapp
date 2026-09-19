@@ -79,6 +79,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "vendor coordination"
     ],
     "serviceSlugs": [
+      "seo",
       "phone-receptionist",
       "appointment-setter-virtual-assistant",
       "construction-virtual-assistant",
@@ -118,6 +119,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "project coordination"
     ],
     "serviceSlugs": [
+      "seo",
       "executive-virtual-assistant",
       "lead-generation",
       "digital-marketing-virtual-assistant",
@@ -352,6 +354,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "reporting"
     ],
     "serviceSlugs": [
+      "seo",
       "executive-virtual-assistant",
       "general-virtual-assistant",
       "project-coordination",
@@ -742,6 +745,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "reporting"
     ],
     "serviceSlugs": [
+      "seo",
       "ecommerce",
       "shopify-virtual-assistant",
       "fulfilment",

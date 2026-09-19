@@ -5,11 +5,22 @@ type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 export async function middleware(request: NextRequest) {
   const host = request.headers.get("host")?.toLowerCase();
-  if (host === "www.virtualassistant.com.ph") {
+  const hasLegacyHost = host === "www.virtualassistant.com.ph";
+  const hasServiceTrailingSlash =
+    request.nextUrl.pathname.startsWith("/service/") &&
+    request.nextUrl.pathname.length > "/service/".length &&
+    request.nextUrl.pathname.endsWith("/");
+
+  if (hasLegacyHost || hasServiceTrailingSlash) {
     const canonicalUrl = request.nextUrl.clone();
-    canonicalUrl.protocol = "https:";
-    canonicalUrl.hostname = "virtualassistant.com.ph";
-    canonicalUrl.port = "";
+    if (hasLegacyHost) {
+      canonicalUrl.protocol = "https:";
+      canonicalUrl.hostname = "virtualassistant.com.ph";
+      canonicalUrl.port = "";
+    }
+    if (hasServiceTrailingSlash) {
+      canonicalUrl.pathname = canonicalUrl.pathname.replace(/\/+$/, "");
+    }
     return NextResponse.redirect(canonicalUrl, 308);
   }
 

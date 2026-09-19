@@ -38,15 +38,17 @@ export async function GET(request: Request) {
       .limit(200);
     rows = (data as DirectoryRow[] | null) || [];
   } catch {
-    return NextResponse.json({ category, matches: [] as TopMatch[] });
+    return NextResponse.json({ category, exact: false, total: 0, matches: [] as TopMatch[] });
   }
 
   const eligible = rows.filter((row) => row.slug && row.full_name);
   const inCategory = category
     ? eligible.filter((row) => [row.primary_category, ...(row.categories || [])].filter(Boolean).includes(category))
     : eligible;
-  // A near-empty specialty should still show people rather than an empty state.
-  const pool = inCategory.length >= 3 ? inCategory : [...inCategory, ...eligible.filter((row) => !inCategory.includes(row))];
+  // A near-empty specialty should still show people rather than an empty state,
+  // but the client is then told the pool is the whole directory, not the specialty.
+  const exact = inCategory.length >= 3;
+  const pool = exact ? inCategory : [...inCategory, ...eligible.filter((row) => !inCategory.includes(row))];
 
   const matches: TopMatch[] = pool
     .sort((a, b) => Number(b.years_experience || 0) - Number(a.years_experience || 0))
@@ -61,5 +63,7 @@ export async function GET(request: Request) {
       skills: uniqueStrings(row.skills).slice(0, 3)
     }));
 
-  return NextResponse.json({ category, matches });
+  // Size of the pool these three came from, so three faces do not read as "that is all".
+  const total = exact ? inCategory.length : eligible.length;
+  return NextResponse.json({ category, exact, total, matches });
 }

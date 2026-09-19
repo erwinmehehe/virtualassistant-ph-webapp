@@ -112,6 +112,12 @@ test("brief success screen offers matches, an account, and a call", () => {
   assert.doesNotMatch(form, /Continue to booking/);
   assert.doesNotMatch(form, /No account needed/);
 
+  // Three faces are framed as a sample of a pool, not as the shortlist itself.
+  assert.match(form, /VAs in our approved pool/);
+  assert.match(form, /Your recruiter builds your shortlist/);
+  assert.match(form, /pool\?\.exact && category/);
+  assert.match(route, /const total = exact \? inCategory\.length : eligible\.length;/);
+
   // The preview reads the consented public view, never the recruiter table.
   assert.match(route, /from\("public_va_directory"\)/);
   assert.doesNotMatch(route, /recruiter_va_directory/);

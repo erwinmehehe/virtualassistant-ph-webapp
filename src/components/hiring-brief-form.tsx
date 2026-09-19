@@ -55,25 +55,43 @@ function Steps({ done }: { done: boolean }) {
   );
 }
 
-/** Three approved profiles that fit the specialty, shown the moment a brief lands. */
+type TopMatchesResponse = { matches?: TopMatch[]; total?: number; exact?: boolean };
+
+/**
+ * A sample of the approved pool, shown the moment a brief lands. These are
+ * deliberately framed as examples with a pool size next to them: the recruiter
+ * still builds the real shortlist, so three faces the client does not warm to
+ * cannot read as "that is all you have".
+ */
 function TopMatches({ category }: { category?: string }) {
-  const [matches, setMatches] = useState<TopMatch[] | null>(null);
+  const [pool, setPool] = useState<TopMatchesResponse | null>(null);
 
   useEffect(() => {
     let active = true;
     const query = category ? `?category=${encodeURIComponent(category)}` : "";
     fetch(`/api/talent/top-matches${query}`)
-      .then((response) => (response.ok ? response.json() : { matches: [] }))
-      .then((data: { matches?: TopMatch[] }) => { if (active) setMatches(Array.isArray(data.matches) ? data.matches : []); })
-      .catch(() => { if (active) setMatches([]); });
+      .then((response) => (response.ok ? response.json() : {}))
+      .then((data: TopMatchesResponse) => { if (active) setPool(data); })
+      .catch(() => { if (active) setPool({}); });
     return () => { active = false; };
   }, [category]);
 
+  const matches = pool?.matches;
   if (!matches?.length) return null;
+
+  // Only name the specialty when all three really came from it.
+  const scope = pool?.exact && category ? `${category.toLowerCase()} ` : "";
+  const total = Number(pool?.total || 0);
+  const browseHref = pool?.exact && category ? `/find-talent?category=${encodeURIComponent(category)}` : "/find-talent";
 
   return (
     <div className="hb-matches">
-      <p className="hb-matches-head"><Users size={14} />Top {matches.length} {category ? `${category.toLowerCase()} ` : ""}matches available now</p>
+      <p className="hb-matches-head">
+        <Users size={14} />
+        {total > matches.length
+          ? `${matches.length} of the ${total} ${scope}VAs in our approved pool`
+          : `${matches.length} ${scope}VAs in our approved pool`}
+      </p>
       <ul>
         {matches.map((match) => (
           <li key={match.id}>
@@ -86,8 +104,9 @@ function TopMatches({ category }: { category?: string }) {
           </li>
         ))}
       </ul>
-      <Link className="hb-matches-all" href={category ? `/find-talent?category=${encodeURIComponent(category)}` : "/find-talent"}>
-        See more matching VAs <ArrowRight size={14} />
+      <p className="hb-matches-note">Examples only. Your recruiter builds your shortlist from the brief you just sent.</p>
+      <Link className="hb-matches-all" href={browseHref}>
+        {total > matches.length ? `Browse all ${total} approved profiles` : "Browse approved profiles"} <ArrowRight size={14} />
       </Link>
     </div>
   );

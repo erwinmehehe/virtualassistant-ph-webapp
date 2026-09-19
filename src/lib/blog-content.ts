@@ -4948,7 +4948,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines",
+        "href": "/service/ecommerce",
         "description": "For Ecommerce Virtual Assistant, the useful pricing question is not the lowest possible hourly number. Start with the responsibilities, expected output, schedule, required systems, communication standard, and level of judgment the person will exercise. Then compare candidates who can actually meet that brief and adjust the budget when the role requires deeper experience or greater ownership."
       },
       {
@@ -5340,7 +5340,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines",
+        "href": "/service/ecommerce",
         "description": "For Ecommerce Virtual Assistant, the useful pricing question is not the lowest possible hourly number. Start with the responsibilities, expected output, schedule, required systems, communication standard, and level of judgment the person will exercise. Then compare candidates who can actually meet that brief and adjust the budget when the role requires deeper experience or greater ownership."
       },
       {
@@ -29248,7 +29248,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines",
+        "href": "/service/ecommerce",
         "description": "Ecommerce Virtual Assistant pricing should be based on the actual workload, weekly hours, experience level, time-zone overlap, software requirements, communication demands, and how independently the assistant will work. A role that owns sensitive, specialist, or client-facing work should be budgeted differently from a tightly supervised task list, so use the scope and responsibility rather than anchoring on one hourly figure."
       },
       {

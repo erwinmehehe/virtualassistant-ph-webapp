@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Calculator, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Calculator } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
+import { CompactPageHeader } from "@/components/compact-page-header";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
@@ -33,14 +32,11 @@ export default function BlogPage() {
     })
     .slice(0, 12);
   return <><SiteHeader/><main id="main-content">
-    <MarketingHero
-      className="blog-index-hero"
+    <CompactPageHeader
       eyebrow="Virtual Assistant hiring resources"
-      title={<h1>Build a better remote team, one clear workflow at a time.</h1>}
-      intro={<p>Practical hiring, pricing, delegation, and role-specific guides for businesses working with Filipino virtual assistants. Every article is connected to the service page, tool, or next action it supports.</p>}
-      actions={<><Link className="btn btn-primary btn-lg" href="/hire" data-track="blog_cta_match">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/tools/virtual-assistant-cost-calculator" data-track="blog_tool_click"><Calculator size={16}/>VA cost calculator</Link></>}
-      trust={<><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>Recruiter-reviewed matching</span><span><CheckCircle2 size={15}/>No account required</span></>}
-      form={<DiscoveryCallCard />}
+      title={<h1>Practical guides for hiring and managing Filipino VAs.</h1>}
+      description={<p>Browse role-specific advice on hiring, pricing, delegation, tools, onboarding, and management without wading through a lead form first.</p>}
+      actions={<><Link className="btn btn-primary" href="/hire">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn" href="/tools/virtual-assistant-cost-calculator"><Calculator size={16}/>VA cost calculator</Link></>}
     />
 
     <section className="section section-white"><div className="container"><div className="section-head"><div className="kicker">Browse by topic</div><h2>Start with the decision you are trying to make.</h2></div><div className="blog-topic-grid">{Object.entries(BLOG_TOPICS).map(([slug, topic]) => {

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Briefcase, ChevronRight, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, Briefcase, ChevronRight, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
+import { CompactPageHeader } from "@/components/compact-page-header";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { createClient } from "@/lib/supabase/server";
@@ -44,14 +43,11 @@ export default async function ServicesPage() {
   return <>
     <SiteHeader />
     <main id="main-content" className="premium-services-directory">
-      <MarketingHero
-        className="premium-services-hero"
-        eyebrow={<span><Briefcase size={14} /> {SERVICE_PAGES.length} role hiring guides</span>}
-        title={<h1 className="premium-services-title">Find the Virtual Assistant role that matches <span>the work you need done.</span></h1>}
-        intro={<p className="premium-services-lede">Start with the workload, not a generic job title. Browse role-specific guides for responsibilities, tools, interview questions, hiring criteria, and the skills worth verifying.</p>}
-        actions={<><Link className="btn btn-primary btn-lg premium-service-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16} /></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
-        trust={<><span><ShieldCheck size={15}/>Private hiring request</span><span><Search size={15}/>Role-specific matching</span><span>No account required</span></>}
-        form={<DiscoveryCallCard />}
+      <CompactPageHeader
+        eyebrow={<span><Briefcase size={14}/> {SERVICE_PAGES.length} role hiring guides</span>}
+        title={<h1>Find the Virtual Assistant role that matches the work you need done.</h1>}
+        description={<p>Browse responsibilities, tools, interview guidance, and approved talent by workload instead of guessing at a generic job title.</p>}
+        actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
       />
 
       <section className="premium-services-nav-wrap">

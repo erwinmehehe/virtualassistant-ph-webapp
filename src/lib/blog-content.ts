@@ -24013,7 +24013,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-legal-virtual-assistant-do",
     "title": "What Does a Legal Virtual Assistant Do?",
     "metaTitle": "What Does a Legal Virtual Assistant Do? | Guide",
-    "description": "See what a legal virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a legal virtual assistant can handle, which tasks to delegate, what stays with licensed counsel, and how to define the role before hiring.",
     "excerpt": "A clear breakdown of the recurring legal work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "legal",
     "clusterLabel": "Legal Virtual Assistant",
@@ -26406,7 +26406,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-an-amazon-virtual-assistant-do",
     "title": "What Does an Amazon Virtual Assistant Do?",
     "metaTitle": "What Does an Amazon Virtual Assistant Do? | Guide",
-    "description": "See what an Amazon virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what an Amazon virtual assistant can own, which Seller Central tasks to delegate, what needs approval, and how to define the role before hiring.",
     "excerpt": "A clear breakdown of the recurring amazon work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "ecommerce",
     "clusterLabel": "Amazon Virtual Assistant",
@@ -26420,7 +26420,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "What an Amazon Virtual Assistant can own",
         "paragraphs": [
           "When defining the role, start with a real piece of work instead of the title. Ask the candidate to describe one listing, order, inventory, or account issue they personally handled in Seller Central. They should be able to explain what they saw, which data they checked, what they changed, what they documented, and whether someone else had to approve the action. That is much stronger evidence than saying they have 'Amazon experience.'",
-          "A Amazon Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as Seller Central listings, order monitoring, inventory records, customer issues, and marketplace reporting. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions."
+          "An Amazon Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as Seller Central listings, order monitoring, inventory records, customer issues, and marketplace reporting. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions."
         ]
       },
       {
@@ -27020,7 +27020,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "What an Executive Virtual Assistant can own",
         "paragraphs": [
           "When defining the role, start with a real piece of work instead of the title. A strong executive candidate should be able to explain how they would protect focus time, resolve a double booking, prepare a meeting packet, and decide which email needs the executive versus a drafted reply. Knowing Google Calendar, Outlook, Slack, or Notion is useful, but the real job is handling incomplete information without making commitments the executive did not authorize.",
-          "A Executive Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as calendar, inbox, meeting preparation, follow-up, and executive coordination. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring executive judgment, sensitive commitments, compensation, and decisions only the leader can make."
+          "An Executive Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as calendar, inbox, meeting preparation, follow-up, and executive coordination. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring executive judgment, sensitive commitments, compensation, and decisions only the leader can make."
         ]
       },
       {

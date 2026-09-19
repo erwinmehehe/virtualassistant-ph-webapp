@@ -83,3 +83,66 @@ test("SEO editorial cluster has distinct intent-led architecture", () => {
     assert.doesNotMatch(serialized, /approval\.For SEO Virtual Assistant/);
   }
 });
+
+
+test("structured blog metadata stays inside SERP target ranges", () => {
+  const posts = parseBlogPosts();
+  for (const post of posts) {
+    assert.ok(post.metaTitle.length >= 40 && post.metaTitle.length <= 60, `${post.slug}: meta title length ${post.metaTitle.length}`);
+    assert.ok(post.description.length >= 140 && post.description.length <= 160, `${post.slug}: meta description length ${post.description.length}`);
+  }
+});
+
+test("structured blog corpus has no exact duplicate long paragraphs", () => {
+  const posts = parseBlogPosts();
+  const owners = new Map();
+
+  for (const post of posts) {
+    for (const section of post.sections || []) {
+      for (const paragraph of section.paragraphs || []) {
+        const normalized = paragraph.trim();
+        if (normalized.length < 100) continue;
+        const slugs = owners.get(normalized) || new Set();
+        slugs.add(post.slug);
+        owners.set(normalized, slugs);
+      }
+    }
+  }
+
+  const duplicates = [...owners.entries()]
+    .filter(([, slugs]) => slugs.size > 1)
+    .map(([paragraph, slugs]) => ({ paragraph: paragraph.slice(0, 120), slugs: [...slugs] }));
+
+  assert.deepEqual(duplicates, []);
+});
+
+test("priority blog clusters do not reuse the old generic editorial skeleton", () => {
+  const posts = parseBlogPosts();
+  const priorityServices = new Set([
+    "seo",
+    "bookkeeping",
+    "executive-virtual-assistant",
+    "real-estate",
+    "medical-virtual-assistant",
+    "amazon-virtual-assistant",
+    "lead-generation"
+  ]);
+  const banned = new Set([
+    "Build a scorecard you can use on every candidate",
+    "Source against the work, not the broadest possible title",
+    "Screen for evidence before scheduling a long interview",
+    "Why rates vary even when the job title is the same",
+    "Build the monthly budget from hours and ownership",
+    "Ask questions about real work, not personality labels",
+    "Use the second half of the interview for judgment and handoffs",
+    "Daily work to consider",
+    "Weekly and recurring work",
+    "What a normal week can look like"
+  ]);
+
+  for (const post of posts.filter((item) => priorityServices.has(item.serviceSlug))) {
+    for (const section of post.sections || []) {
+      assert.equal(banned.has(section.heading), false, `${post.slug}: generic priority-cluster heading survived: ${section.heading}`);
+    }
+  }
+});

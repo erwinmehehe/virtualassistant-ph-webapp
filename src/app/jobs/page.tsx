@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BriefcaseBusiness, Search, ShieldCheck } from "lucide-react";
+import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CompactPageHeader } from "@/components/compact-page-header";
 import { JobCard } from "@/components/job-card";
 import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
@@ -69,7 +70,13 @@ export default async function PublicJobsPage({ searchParams }: { searchParams: P
   const floor=settings.minHourlyRate;
 
   return <><SiteHeader/><main id="main-content" className="public-jobs-page">
-    <section className="jobs-hero"><div className="container"><div className="jobs-hero-grid"><div><span className="jobs-eyeline"><ShieldCheck size={15}/> Reviewed client opportunities</span><h1>Virtual assistant jobs in the Philippines</h1><p>Remote virtual assistant jobs with published pay, clear scope, and a reviewed client brief behind every listing. Build one Virtual Assistant profile, complete vetting, and apply to any role with the same approved profile.</p></div><div className="jobs-hero-side"><BriefcaseBusiness size={25}/><strong>{total} open role{total===1?"":"s"}</strong><span>New roles appear after client review and commercial approval.</span></div></div></div></section>
+    <CompactPageHeader
+      eyebrow="Reviewed client opportunities"
+      title={<h1>Virtual assistant jobs in the Philippines</h1>}
+      description={<p>Search remote roles with published pay and clear scope. Create one vetted profile and use it across approved opportunities.</p>}
+      meta={<span><strong>{total}</strong> open role{total===1?"":"s"}</span>}
+      actions={<Link className="btn" href="/auth/join/va">Create a VA profile</Link>}
+    />
 
     <section className="section jobs-directory"><div className="container">
       <form className="jobs-filterbar" method="get"><div className="jobs-search"><Search size={17}/><input name="q" defaultValue={params.q} placeholder="Search title or description" aria-label="Search jobs"/></div><select name="category" defaultValue={category} aria-label="Specialty"><option value="">All specialties</option>{VA_CATEGORIES.map((x,index)=><option key={`${String(x)}-${index}`}>{x}</option>)}</select><select name="hours" defaultValue={hours} aria-label="Hours"><option value="">Any hours</option><option value="full">35+ hrs/week</option><option value="part">Under 35 hrs/week</option></select><select name="min_rate" defaultValue={params.min_rate || ""} aria-label="Minimum rate"><option value="">Any rate</option><option value={floor}>${floor}+/hr</option>{floor<8?<option value="8">$8+/hr</option>:null}{floor<10?<option value="10">$10+/hr</option>:null}<option value="12">$12+/hr</option></select><select name="sort" defaultValue={sort} aria-label="Sort"><option value="newest">Newest</option><option value="rate">Highest rate</option><option value="hours">Most hours</option></select><button className="btn btn-primary" type="submit">Search</button><Link className="directory-reset" href="/jobs">Reset</Link></form>

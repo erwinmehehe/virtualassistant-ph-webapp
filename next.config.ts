@@ -91,7 +91,7 @@ const nextConfig: NextConfig = {
       // Legacy article slugs from the crawl. Keep their authority instead of returning 404.
       { source: "/blog/average-hourly-rate-for-virtual-assistants-in-the-philippines-in-depth-2026-guide", destination: "/average-hourly-rate-virtual-assistants-philippines", permanent: true },
       { source: "/blog/how-much-virtual-assistant-philippines", destination: "/average-hourly-rate-virtual-assistants-philippines", permanent: true },
-      { source: "/blog/hire-ecommerce-virtual-assistant-philippines", destination: "/service/ecommerce-virtual-assistant", permanent: true },
+      { source: "/blog/hire-ecommerce-virtual-assistant-philippines", destination: "/service/ecommerce", permanent: true },
       { source: "/blog/benefits-of-hiring-filipino-virtual-assistants", destination: "/", permanent: true },
       { source: "/sign-in", destination: "/auth/login", permanent: true },
       { source: "/sign-in/", destination: "/auth/login", permanent: true },

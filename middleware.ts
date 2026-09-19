@@ -4,6 +4,15 @@ import { NextResponse, type NextRequest } from "next/server";
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get("host")?.toLowerCase();
+  if (host === "www.virtualassistant.com.ph") {
+    const canonicalUrl = request.nextUrl.clone();
+    canonicalUrl.protocol = "https:";
+    canonicalUrl.hostname = "virtualassistant.com.ph";
+    canonicalUrl.port = "";
+    return NextResponse.redirect(canonicalUrl, 308);
+  }
+
   let response = NextResponse.next({ request });
 
   // Public visitors and crawlers do not need an auth refresh. Supabase SSR

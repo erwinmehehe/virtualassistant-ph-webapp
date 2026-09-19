@@ -17,7 +17,8 @@ test("unconfirmed login explicitly enables confirmation recovery",async()=>{
   assert.match(auth,/email_not_confirmed/);
   assert.match(auth,/Confirm your email before logging in\./);
   assert.match(auth,/params\.set\("confirm", "1"\)/);
-  assert.match(auth,/if \(accountWasCreated\) loginParams\.set\("confirm", "1"\)/);
+  assert.match(auth,/message: "Check your email to confirm your account"/);
+  assert.match(auth,/confirm: "1"/);
 });
 
 test("resend confirmation preserves intended destination instead of forcing VA onboarding",async()=>{

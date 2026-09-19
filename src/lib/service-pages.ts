@@ -17,6 +17,37 @@ export type ServiceSeoPage = {
   relatedSlugs: string[];
 };
 
+export function serviceMetaTitle(page: ServiceSeoPage) {
+  const base = `${page.name} Philippines`;
+  const expanded = `${base} | Hire Vetted VAs`;
+  return base.length < 40 && expanded.length <= 60 ? expanded : base;
+}
+
+function normalizeMetaTask(task: string) {
+  return task.replace(/\s+/g, " ").trim().replace(/[.]$/, "");
+}
+
+export function serviceMetaDescription(page: ServiceSeoPage) {
+  const prefix = `Hire a vetted ${page.name} in the Philippines for `;
+  const suffix = ". Compare experience, tools, availability, and role fit.";
+  const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
+
+  for (let count = tasks.length; count >= 1; count -= 1) {
+    const selected = tasks.slice(0, count);
+    const taskText = selected.length === 1
+      ? selected[0]
+      : selected.length === 2
+        ? `${selected[0]} and ${selected[1]}`
+        : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
+    const candidate = `${prefix}${taskText}${suffix}`;
+    if (candidate.length <= 160) {
+      return candidate.length >= 145 ? candidate : `${candidate.slice(0, -1)} before you interview.`;
+    }
+  }
+
+  return `Hire a vetted ${page.name} in the Philippines. Compare proven role experience, tools, availability, communication, and workflow fit before you interview.`;
+}
+
 export const SERVICE_PAGES: ServiceSeoPage[] = [
   {
     "slug": "seo",
@@ -75,7 +106,6 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Scope, complexity, and decision ownership"
     ],
     "relatedSlugs": [
-      "seo",
       "digital-marketing-virtual-assistant",
       "content-writing",
       "wordpress"

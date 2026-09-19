@@ -21,7 +21,7 @@ const seenTitles = new Set();
 const seenDescriptions = new Set();
 
 function generatedTitle(page) {
-  const base = `${page.name} Philippines`;
+  const base = page.metaTitle;
   const expanded = `${base} | Hire Vetted VAs`;
   return base.length < 40 && expanded.length <= 60 ? expanded : base;
 }

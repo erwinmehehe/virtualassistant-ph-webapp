@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+const BLOCKED_EMAIL_RECIPIENTS = new Set(["bryanbatarina@gmail.com"]);
 
 function configuredSender() {
   const value = process.env.EMAIL_FROM?.trim() || "";
@@ -16,7 +17,7 @@ function configuredReplyTo() {
     process.env.LEAD_NOTIFICATION_EMAIL
   ];
   for (const value of candidates) {
-    const email = String(value || "").split(/[;,\n\r]+/).map((item) => item.trim()).find((item) => SIMPLE_EMAIL_RE.test(item));
+    const email = String(value || "").split(/[;,\n\r]+/).map((item) => item.trim()).find((item) => SIMPLE_EMAIL_RE.test(item) && !BLOCKED_EMAIL_RECIPIENTS.has(item.toLowerCase()));
     if (email) return email;
   }
   return undefined;
@@ -48,8 +49,12 @@ export async function sendVaMatchEmail(args: {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = configuredSender();
   const to = String(args.to || "").trim();
-  if (!apiKey || !from || !SIMPLE_EMAIL_RE.test(to)) {
-    return { sent: false as const, reason: !SIMPLE_EMAIL_RE.test(to) ? "missing_recipient" : "email_not_configured" };
+  const blocked = BLOCKED_EMAIL_RECIPIENTS.has(to.toLowerCase());
+  if (!apiKey || !from || !SIMPLE_EMAIL_RE.test(to) || blocked) {
+    return {
+      sent: false as const,
+      reason: blocked ? "blocked_recipient" : !SIMPLE_EMAIL_RE.test(to) ? "missing_recipient" : "email_not_configured"
+    };
   }
 
   const appUrl = (args.appUrl || process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");

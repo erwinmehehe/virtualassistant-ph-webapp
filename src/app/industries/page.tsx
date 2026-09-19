@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, Search, ShieldCheck, UsersRound } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
+import { CompactPageHeader } from "@/components/compact-page-header";
 import { Band, CtaBand, SectionHead } from "@/components/hiring-page-sections";
 import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
 import { industryMetaDescription, industrySeoTitle } from "@/lib/industry-seo-content";
@@ -57,14 +56,11 @@ export default function IndustriesPage() {
   const specializationCount = INDUSTRIES.length - standalone.length;
 
   return <><SiteHeader/><main id="main-content">
-    <MarketingHero
-      className="industries-hero mh-tight"
+    <CompactPageHeader
       eyebrow="Virtual Assistant services by industry"
-      title={<h1>Virtual Assistant services built around how your business actually works.</h1>}
-      intro={<p>Start with the workflow, not a generic job description. Compare talent against the systems, handoffs, schedule, customer expectations and decision boundaries that matter in your industry.</p>}
-      actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/find-talent">Browse Virtual Assistants</Link></>}
-      trust={<><span><ShieldCheck size={16}/>Approved talent</span><span><UsersRound size={16}/>Role-specific matching</span><span><Search size={16}/>Industry workflow guides</span></>}
-      form={<DiscoveryCallCard />}
+      title={<h1>Find VA support by business workflow.</h1>}
+      description={<p>Choose the business context closest to yours, then compare the roles, systems, handoffs, schedules, and approval boundaries that matter.</p>}
+      actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
     />
 
     <section className="ip-stats" aria-label="Industry directory summary">

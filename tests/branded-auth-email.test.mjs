@@ -35,7 +35,7 @@ test("password recovery uses branded Resend and keeps a Supabase fallback", asyn
 test("app-domain auth confirm route verifies one-time Supabase token hashes", async () => {
   const route = await read("src/app/auth/confirm/route.ts");
 
-  assert.match(route, /ALLOWED_TYPES = new Set<EmailOtpType>\(\["signup", "recovery"\]\)/);
+  assert.match(route, /ALLOWED_TYPES = new Set<EmailOtpType>\(\["signup", "recovery", "magiclink"\]\)/);
   assert.match(route, /supabase\.auth\.verifyOtp\(\{ token_hash: tokenHash, type \}\)/);
   assert.match(route, /type === "recovery"/);
   assert.match(route, /getOrBootstrapProfile\(user\)/);
@@ -53,3 +53,16 @@ test("custom auth email shell does not send team or archive copies", async () =>
   assert.doesNotMatch(authEmailSection, /bcc:/);
   assert.doesNotMatch(authEmailSection, /replyTo:/);
 });
+
+test("confirmation resend uses branded magic link only for an existing unconfirmed user", async () => {
+  const action = await read("src/app/actions/resend-confirmation.ts");
+
+  assert.match(action, /admin\.auth\.admin\.listUsers\(\{ page, perPage \}\)/);
+  assert.match(action, /return user\.email_confirmed_at \? null : user/);
+  assert.match(action, /type: "magiclink"/);
+  assert.match(action, /sendAccountConfirmationEmail\(\{ to: email, actionUrl \}\)/);
+  assert.match(action, /type: "magiclink"/);
+  assert.match(action, /if \(!brandedSent && unconfirmedUser\)/);
+  assert.doesNotMatch(action, /shouldCreateUser/);
+});
+

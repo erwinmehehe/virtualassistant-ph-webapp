@@ -17,6 +17,56 @@ export type ServiceSeoPage = {
   relatedSlugs: string[];
 };
 
+export function serviceMetaTitle(page: ServiceSeoPage) {
+  const base = page.metaTitle;
+  const expanded = `${base} | Hire Vetted VAs`;
+  return base.length < 40 && expanded.length <= 60 ? expanded : base;
+}
+
+function normalizeMetaTask(task: string) {
+  return task.replace(/\s+/g, " ").trim().replace(/[.]$/, "");
+}
+
+export function serviceMetaDescription(page: ServiceSeoPage) {
+  const shortRole = page.name
+    .replace(/\s+Virtual Assistant for\s+/i, " VA for ")
+    .replace(/\s+Virtual Assistant\b/i, " VA")
+    .replace(/^Virtual\s+/i, "")
+    .trim();
+  const prefix = `Hire a vetted ${shortRole} in the Philippines for `;
+  const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
+  const suffixes = [
+    ". Compare experience, tools, availability, and role fit.",
+    ". Compare role experience, tools, availability, and fit.",
+    ". Compare skills, tools, schedule, and role fit."
+  ];
+
+  for (const suffix of suffixes) {
+    for (let count = tasks.length; count >= 1; count -= 1) {
+      const selected = tasks.slice(0, count);
+      const taskText = selected.length === 1
+        ? selected[0]
+        : selected.length === 2
+          ? `${selected[0]} and ${selected[1]}`
+          : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
+      const candidate = `${prefix}${taskText}${suffix}`;
+      if (candidate.length <= 160) {
+        if (candidate.length >= 145) return candidate;
+        const expanded = `${candidate.slice(0, -1)} before you interview.`;
+        return expanded.length <= 160 ? expanded : candidate;
+      }
+    }
+  }
+
+  const fallback = `Hire a vetted ${shortRole} in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
+  if (fallback.length <= 160) return fallback;
+
+  const concise = `Hire a vetted ${shortRole} in the Philippines. Compare experience, tools, availability, and role fit.`;
+  if (concise.length >= 140) return concise;
+  const expanded = `${concise.slice(0, -1)} before you interview.`;
+  return expanded.length <= 160 ? expanded : concise;
+}
+
 export const SERVICE_PAGES: ServiceSeoPage[] = [
   {
     "slug": "seo",
@@ -75,7 +125,6 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Scope, complexity, and decision ownership"
     ],
     "relatedSlugs": [
-      "seo",
       "digital-marketing-virtual-assistant",
       "content-writing",
       "wordpress"

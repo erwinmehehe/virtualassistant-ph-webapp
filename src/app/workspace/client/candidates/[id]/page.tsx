@@ -8,6 +8,7 @@ import { uniqueStrings } from "@/lib/collections";
 import { recordProductEvent } from "@/lib/product-events";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { CandidateAccessGate } from "@/components/candidate-access-gate";
+import { maskVaName } from "@/lib/va-identity";
 
 export default async function CandidateReviewPage({params}:{params:Promise<{id:string}>}){
   const {id}=await params;const {user}=await requireRole("client");const admin=createAdminClient();
@@ -29,14 +30,11 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
   await recordProductEvent("candidate_viewed",{userId:user.id,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,recruiter_released:true}});
   try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","va").eq("subject_id",summary.va_id).eq("action","client_viewed").gte("created_at",cutoff).contains("metadata",{application_id:id});if(!count)await admin.from("recruiter_activity").insert({subject_type:"va",subject_id:summary.va_id,action:"client_viewed",description:`Client viewed recruiter-released candidate for ${job?.title||"role"}`,actor_id:user.id,metadata:{application_id:id,job_id:summary.job_id}});}catch{}
 
-  const [{data:vetting},{data:va}]=await Promise.all([
-    admin.from("va_vetting").select("video_url").eq("va_id",summary.va_id).maybeSingle(),
-    admin.from("va_profiles").select("portfolio_url").eq("user_id",summary.va_id).maybeSingle()
-  ]);
+  const {data:vetting}=await admin.from("va_vetting").select("video_url").eq("va_id",summary.va_id).maybeSingle();
   const profile:any=summary.profile_snapshot||{};const score=Number(shortlist.match_score??summary.match_score??0);
 
   return <>
-    <div className="page-head"><div><Link className="text-link small" href={`/workspace/client/candidates?role=${summary.job_id}`}>← Back to recruiter shortlist</Link><h1 style={{marginTop:8}}>{profile.full_name||"Vetted Virtual Assistant"}</h1><p>{profile.headline||profile.primary_category||"Virtual Assistant"} · for {job?.title}</p></div><span className="badge badge-success"><ShieldCheck size={14}/> Recruiter released</span></div>
+    <div className="page-head"><div><Link className="text-link small" href={`/workspace/client/candidates?role=${summary.job_id}`}>← Back to recruiter shortlist</Link><h1 style={{marginTop:8}}>{profile.full_name?maskVaName(profile.full_name):"Vetted Virtual Assistant"}</h1><p>{profile.headline||profile.primary_category||"Virtual Assistant"} · for {job?.title}</p></div><span className="badge badge-success"><ShieldCheck size={14}/> Recruiter released</span></div>
 
     <div className="profile-layout">
       <article className="card candidate-review-card">
@@ -51,7 +49,7 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
 
       <aside className="profile-sidebar stack">
         <div className="card profile-facts"><h3>Working fit</h3><div><span>Primary specialty</span><strong>{profile.primary_category||"Not set"}</strong></div><div><span>Experience</span><strong>{profile.years_experience!=null?`${profile.years_experience}+ years`:"Not set"}</strong></div><div><span>Availability</span><strong>{profile.weekly_hours?`${profile.weekly_hours} hrs/week`:"Not set"}</strong></div><div><span>Preferred rate</span><strong>{profile.hourly_rate?`USD ${profile.hourly_rate}/hr`:"Not set"}</strong></div><div><span>Schedule</span><strong>{profile.schedule||"Flexible"}</strong></div><div><span>Live overlap</span><strong>{profile.overlap_hours!=null?`${profile.overlap_hours} hrs/day`:"Flexible"}</strong></div></div>
-        <div className="card stack"><strong>Next step</strong><p className="small muted">Use the recruiter shortlist to mark interest, request an interview, or pass. Final terms are prepared by your recruiter after the interview process.</p><Link className="btn btn-primary" href={`/workspace/client/candidates?role=${summary.job_id}#recruiter-shortlist`}>{shortlist.client_decision==="interview"?"Interview requested":"Back to shortlist decisions"}</Link>{shortlist.client_decision==="interview"?<Link className="btn" href="/workspace/client/interviews">Open interviews</Link>:null}{profile.resume_path?<a className="btn" href={`/api/resume/${summary.id}`} target="_blank">Open private resume</a>:null}{va?.portfolio_url?<a className="btn" href={va.portfolio_url} target="_blank" rel="noreferrer">Portfolio</a>:null}</div>
+        <div className="card stack"><strong>Next step</strong><p className="small muted">Use the recruiter shortlist to mark interest, request an interview, or pass. Final terms are prepared by your recruiter after the interview process.</p><Link className="btn btn-primary" href={`/workspace/client/candidates?role=${summary.job_id}#recruiter-shortlist`}>{shortlist.client_decision==="interview"?"Interview requested":"Back to shortlist decisions"}</Link>{shortlist.client_decision==="interview"?<Link className="btn" href="/workspace/client/interviews">Open interviews</Link>:null}</div>
         <div className="info-banner"><strong>Recruiter-managed contact</strong><p style={{margin:"6px 0 0"}}>Candidate contact details stay private during screening. Interviews and final terms are coordinated through the managed hiring workflow.</p></div>
       </aside>
     </div>

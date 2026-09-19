@@ -119,6 +119,12 @@ export async function createGoogleMeetDiscoveryMeeting(args: {
         start: { dateTime: start.toISOString(), timeZone: "UTC" },
         end: { dateTime: end.toISOString(), timeZone: "UTC" },
         attendees: args.attendeeEmails.filter(Boolean).map((email) => ({ email })),
+        // A candidate interview puts the client and the VA on one event, and
+        // Google shows guests each other by default. That handed the client
+        // the VA's personal email address before any placement existed.
+        guestsCanSeeOtherGuests: false,
+        guestsCanInviteOthers: false,
+        guestsCanModify: false,
         conferenceData: {
           createRequest: {
             requestId: randomBytes(16).toString("hex"),
@@ -158,6 +164,12 @@ export async function updateGoogleMeetDiscoveryMeeting(args: {
         start: { dateTime: start.toISOString(), timeZone: "UTC" },
         end: { dateTime: end.toISOString(), timeZone: "UTC" },
         attendees: args.attendeeEmails.filter(Boolean).map((email) => ({ email })),
+        // A candidate interview puts the client and the VA on one event, and
+        // Google shows guests each other by default. That handed the client
+        // the VA's personal email address before any placement existed.
+        guestsCanSeeOtherGuests: false,
+        guestsCanInviteOthers: false,
+        guestsCanModify: false,
       }),
       cache: "no-store",
     }

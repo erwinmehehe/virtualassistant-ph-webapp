@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import type { CandidateInterviewRow, JobSummaryRow } from "@/lib/workspace-rows";
 import { cancelCandidateInterviewAction, submitCandidateInterviewFeedbackAction } from "@/app/actions/recruiter-operations-system";
+import { maskVaName } from "@/lib/va-identity";
 
 function localLabel(value?:string|null,zone?:string|null){if(!value)return"Not scheduled";try{return new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short",timeZone:zone||undefined}).format(new Date(value));}catch{return new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short"}).format(new Date(value));}}
 
@@ -18,7 +19,7 @@ export default async function ClientInterviewsPage({searchParams}:{searchParams:
     jobIds.length?admin.from("jobs").select("id,title,company_name,timezone").in("id",jobIds):Promise.resolve({data:[]}),
     vaIds.length?admin.from("profiles").select("id,full_name").in("id",vaIds):Promise.resolve({data:[]})
   ]);
-  const jobMap=new Map(((jobs||[]) as JobSummaryRow[]).map((row)=>[row.id,row]));const nameMap=new Map(((profiles||[]) as {id:string;full_name:string|null}[]).map((row)=>[row.id,row.full_name||"VA candidate"]));
+  const jobMap=new Map(((jobs||[]) as JobSummaryRow[]).map((row)=>[row.id,row]));const nameMap=new Map(((profiles||[]) as {id:string;full_name:string|null}[]).map((row)=>[row.id,row.full_name?maskVaName(row.full_name):"VA candidate"]));
   const active=rows.filter((row)=>row.status!=="cancelled");
   return <>
     {query.requested?<div className="success-banner">Interview requested. Choose a time below to schedule it. The VA will use the Interviews workspace for this process.</div>:null}{query.scheduled?<div className="success-banner">Interview scheduled. The VA and client received confirmation.</div>:null}{query.cancelled?<div className="success-banner">Interview cancelled.</div>:null}{query.feedback_saved?<div className="success-banner">Interview feedback saved and the recruiting team was notified.</div>:null}

@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { clientMatchLabel } from "@/lib/matching";
 import { clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { maskVaName } from "@/lib/va-identity";
 
 type ClientJobRow = { id: string; title: string | null; status: string; created_at: string };
 type ReleasedCandidateRow = { id: string; job_id: string; va_id: string; match_score: number | null; released_at: string | null; client_recommendation: string | null; client_decision: string | null; client_decision_note: string | null; client_decision_at: string | null };
@@ -51,7 +52,7 @@ export default async function ClientCandidatesPage({searchParams}:{searchParams:
     <section className="card dashboard-section-card" id="recruiter-shortlist">
       <div className="dashboard-section-head"><div><h2>Recruiter shortlist{selectedJob?` for ${selectedJob.title}`:""}</h2><p>We have already screened these VAs. Your decisions and notes go directly back to the recruiting team.</p></div></div>
       {selectedReleased.length?(selectedPublished&&selectedAccessUnlocked?<div className="grid-3 browse-va-grid">{selectedReleased.map((row)=>{const profile=profileMap.get(row.va_id);const va=vaMap.get(row.va_id);const decision=String(row.client_decision||"");const decisionLabel=decision==="interested"?"Interested":decision==="interview"?"Interview requested":decision==="hold"?"On hold":decision==="pass"?"Passed":"";return <article className="card browse-va-card" key={row.va_id}>
-        <div className="row-between wrap"><div><strong>{profile?.full_name||"Matched Virtual Assistant"}</strong><div className="small muted">{va?.headline||va?.primary_category||"Virtual Assistant"}</div></div><span className="badge">{clientMatchLabel(Number(row.match_score||0))}</span></div>
+        <div className="row-between wrap"><div><strong>{profile?.full_name?maskVaName(profile.full_name):"Matched Virtual Assistant"}</strong><div className="small muted">{va?.headline||va?.primary_category||"Virtual Assistant"}</div></div><span className="badge">{clientMatchLabel(Number(row.match_score||0))}</span></div>
         <div className="small muted browse-va-facts">{va?.years_experience!=null?`${va.years_experience}+ yrs experience · `:""}{va?.weekly_hours?`${va.weekly_hours} hrs/week`:"Flexible hours"}{va?.hourly_rate?` · $${Number(va.hourly_rate).toFixed(2)}/hr`:""}</div>
         <div className="pill-list">{[...(va?.skills||[]),...(va?.tools||[])].slice(0,4).map((item,index)=><span className="badge" key={`${item}-${index}`}>{item}</span>)}</div>
         {row.client_recommendation?<div className="info-banner"><strong>Why we recommend this VA</strong><p style={{margin:"6px 0 0"}}>{row.client_recommendation}</p></div>:<div className="info-banner"><strong>Recruiter reviewed</strong><p style={{margin:"6px 0 0"}}>This VA passed our internal screening for this role. Ask your recruiter if you want more context before deciding.</p></div>}

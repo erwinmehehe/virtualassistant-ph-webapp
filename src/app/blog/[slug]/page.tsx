@@ -32,7 +32,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: { absolute: post.metaTitle },
     description: post.description,
-    keywords: [post.title.toLowerCase(), post.clusterLabel.toLowerCase(), `${post.clusterLabel.toLowerCase()} philippines`, "virtual assistant philippines"],
     alternates: { canonical: canonicalPath(blogHref(post)) },
     openGraph: {
       type: "article",

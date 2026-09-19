@@ -1096,3 +1096,165 @@
     transition: none;
   }
 }
+
+
+.blog-editorial-page .blog-field-notes,
+.blog-editorial-page .blog-marketplace-evidence,
+.blog-editorial-page .blog-industry-guides {
+  margin: 0 0 54px;
+}
+
+.blog-editorial-page .blog-field-notes {
+  padding: 26px 28px;
+  border: 1px solid #e2e7ef;
+  border-radius: 18px;
+  background: #fbfcfe;
+}
+
+.blog-editorial-page .blog-field-notes h2,
+.blog-editorial-page .blog-marketplace-evidence h2,
+.blog-editorial-page .blog-industry-guides h2 {
+  margin: 5px 0 16px;
+  color: #1c2230;
+  font-size: 25px;
+  letter-spacing: -.026em;
+  line-height: 1.2;
+}
+
+.blog-editorial-page .blog-field-notes ul {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blog-editorial-page .blog-field-notes li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  color: #465064;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.blog-editorial-page .blog-field-notes li svg {
+  margin-top: 3px;
+  color: #4f46e5;
+}
+
+.blog-editorial-page .blog-marketplace-evidence {
+  padding: 28px;
+  border: 1px solid #dfe4ec;
+  border-radius: 20px;
+  background: #f7f8fb;
+}
+
+.blog-marketplace-evidence-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.blog-marketplace-evidence-head > span {
+  padding-top: 3px;
+  color: #7b8494;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.blog-marketplace-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.blog-marketplace-evidence-grid > div {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e2e6ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.blog-marketplace-evidence-grid strong {
+  display: block;
+  color: #1d2432;
+  font-size: 22px;
+  letter-spacing: -.025em;
+}
+
+.blog-marketplace-evidence-grid span {
+  display: block;
+  margin-top: 5px;
+  color: #697386;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.blog-marketplace-evidence > p {
+  margin: 16px 0 0;
+  color: #7a8393;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.blog-industry-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.blog-industry-guide-grid a {
+  display: flex;
+  min-width: 0;
+  padding: 17px 18px;
+  border: 1px solid #e4e8ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #293142;
+  text-decoration: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.blog-industry-guide-grid a span {
+  min-width: 0;
+}
+
+.blog-industry-guide-grid strong,
+.blog-industry-guide-grid small {
+  display: block;
+}
+
+.blog-industry-guide-grid strong {
+  font-size: 14px;
+}
+
+.blog-industry-guide-grid small {
+  margin-top: 4px;
+  color: #798295;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .blog-marketplace-evidence-head {
+    display: block;
+  }
+
+  .blog-marketplace-evidence-head > span {
+    display: block;
+    margin-top: 6px;
+    white-space: normal;
+  }
+
+  .blog-marketplace-evidence-grid,
+  .blog-industry-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}

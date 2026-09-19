@@ -56,7 +56,7 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
 
 export function BlogArticle({ post }: { post: BlogPost }) {
   const related = relatedBlogPosts(post, 4);
-  const marketplaceEvidence = marketplaceEvidenceForPost(post);
+  const marketplaceEvidence = post.fieldNotes?.length ? marketplaceEvidenceForPost(post) : null;
   const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
   const topic = BLOG_TOPICS[post.topic];
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
@@ -139,7 +139,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <ul>{post.fieldNotes.map((item, index) => <li key={`${String(item)}-${index}`}><BadgeCheck size={17} aria-hidden="true"/><span>{item}</span></li>)}</ul>
           </aside> : null}
 
-          <aside className="blog-marketplace-evidence" aria-label="VirtualAssistant.com.ph marketplace snapshot">
+          {marketplaceEvidence ? <aside className="blog-marketplace-evidence" aria-label="VirtualAssistant.com.ph marketplace snapshot">
             <div className="blog-marketplace-evidence-head">
               <div><div className="kicker">Marketplace snapshot</div><h2>What our current platform records show</h2></div>
               <span>As of {new Date(`${marketplaceEvidence.asOf}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</span>
@@ -148,7 +148,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               {marketplaceEvidence.items.map((item) => <div key={`${item.value}-${item.label}`}><strong>{item.value}</strong><span>{item.label}</span></div>)}
             </div>
             <p>{marketplaceEvidence.note}</p>
-          </aside>
+          </aside> : null}
 
           {post.sections.map((section, index) => <section className="blog-section" id={idFor(section.heading)} key={`${section.heading}-${index}`}>
             <h2>{section.heading}</h2>

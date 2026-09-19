@@ -50,10 +50,15 @@ function normalizeEmailList(value: unknown): string[] {
   return out;
 }
 
+const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList([
+  "bryanbatarina@gmail.com",
+]);
+const blockedEmailSet = new Set(BLOCKED_EMAIL_RECIPIENTS.map((email) => email.toLowerCase()));
+const isBlockedEmailRecipient = (email: string) => blockedEmailSet.has(email.toLowerCase());
+
 const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
   "erwinvalles20@gmail.com",
   "jrvsaccad@gmail.com",
-  "bryanbatarina@gmail.com",
 ]);
 const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
 const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
@@ -64,26 +69,24 @@ const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_
 const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail.com";
 const discoveryBookingBccRecipients = normalizeEmailList([
   JERVIS_BOOKING_EMAIL,
-  "bryanbatarina@gmail.com",
   "erwinvalles20@gmail.com",
   process.env.DISCOVERY_BOOKING_CC_EMAIL,
   process.env.DISCOVERY_BOOKING_BCC_EMAIL,
-]);
+]).filter((email) => !isBlockedEmailRecipient(email));
 const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
-  "bryanbatarina@gmail.com",
   "erwinvalles20@gmail.com",
   process.env.CLIENT_FOLLOWUP_CC_EMAIL,
   process.env.CLIENT_FOLLOWUP_BCC_EMAIL,
-]);
+]).filter((email) => !isBlockedEmailRecipient(email));
 
 // Added to outgoing mail as a hidden archive copy so internal recipients never
 // appear to clients or Virtual Assistants. Existing env var names remain
 // supported for backwards compatibility, but archive delivery is always BCC.
-const DEFAULT_ARCHIVE_TO = "bryanbatarina@gmail.com";
+const DEFAULT_ARCHIVE_TO = "erwinvalles20@gmail.com";
 const archiveRecipients = normalizeEmailList(
   process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
-);
+).filter((email) => !isBlockedEmailRecipient(email));
 
 // Anyone already addressed must not be repeated.
 function archiveExtraFor(payload: any) {
@@ -138,16 +141,16 @@ async function trackedSend(
   // Internal archive/team copies are always hidden from external recipients.
   // Security-sensitive messages can still opt out with archive:false/teamCc:false.
   const archiveBcc = options?.archive === false ? undefined : archiveExtraFor(payload);
-  const rawTo = normalizeEmailList(payload.to);
+  const rawTo = normalizeEmailList(payload.to).filter((email) => !isBlockedEmailRecipient(email));
   const hasExternalRecipient = rawTo.some((email) => !isPrivateInternalEmail(email));
 
-  // Privacy rule: when any external recipient is present, Erwin, Jervis, and Bryan
-  // must never appear in visible To, CC, or Reply-To headers. Any accidentally
-  // addressed internal copy is moved to BCC instead.
+  // Privacy rule: when any external recipient is present, Erwin and Jervis
+  // must never appear in visible To, CC, or Reply-To headers. Bryan is a VA,
+  // so his address is suppressed from every outbound message entirely.
   const hiddenInternalFromTo = hasExternalRecipient ? rawTo.filter(isPrivateInternalEmail) : [];
   const to = hasExternalRecipient ? rawTo.filter((email) => !isPrivateInternalEmail(email)) : rawTo;
 
-  const rawCc = normalizeEmailList(payload.cc);
+  const rawCc = normalizeEmailList(payload.cc).filter((email) => !isBlockedEmailRecipient(email));
   const hiddenInternalFromCc = hasExternalRecipient ? rawCc.filter(isPrivateInternalEmail) : [];
   const requestedCc = hasExternalRecipient ? rawCc.filter((email) => !isPrivateInternalEmail(email)) : rawCc;
 
@@ -157,13 +160,13 @@ async function trackedSend(
     hiddenInternalFromCc,
     archiveBcc,
     options?.teamCc === false ? [] : teamBccRecipients
-  ]);
+  ]).filter((email) => !isBlockedEmailRecipient(email));
   const toSet = new Set(to.map((email) => email.toLowerCase()));
   const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
   const ccSet = new Set(cc.map((email) => email.toLowerCase()));
   const bcc = requestedBcc.filter((email) => !toSet.has(email.toLowerCase()) && !ccSet.has(email.toLowerCase()));
 
-  const rawReplyTo = normalizeEmailList(payload.replyTo);
+  const rawReplyTo = normalizeEmailList(payload.replyTo).filter((email) => !isBlockedEmailRecipient(email));
   const replyTo = hasExternalRecipient
     ? rawReplyTo.filter((email) => !isPrivateInternalEmail(email))
     : rawReplyTo;
@@ -225,7 +228,8 @@ export async function sendLeadNotificationEmail(args: {
   // LEAD_NOTIFICATION_EMAIL accepts a comma-separated list so more than one
   // person on the team can get lead notifications -- explicit and
   // configurable here, unlike the hardcoded forced-CC this replaced.
-  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
+  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
+    .filter((email) => !isBlockedEmailRecipient(email));
   if (!recipients.length) return { sent: false as const, reason: "no_recipient_configured" };
   const subjectLabel = args.service?.trim() || "Virtual Assistant enquiry";
   const rows = [
@@ -331,7 +335,8 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
  */
 export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobTitle: string; clientName?: string | null; appUrl: string }) {
   const config = resendConfig();
-  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL);
+  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
+    .filter((email) => !isBlockedEmailRecipient(email));
   if (!config || !recipients.length) return { sent: false as const, reason: !recipients.length ? "no_recipient_configured" : "email_not_configured" };
   await trackedSend(config, {
     from: config.from,
@@ -796,7 +801,7 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const primary = "erwinvalles20@gmail.com";
-  const hidden = ["jrvsaccad@gmail.com", "bryanbatarina@gmail.com"];
+  const hidden = ["jrvsaccad@gmail.com"];
   await trackedSend(config, {
     from: config.from,
     to: [primary],

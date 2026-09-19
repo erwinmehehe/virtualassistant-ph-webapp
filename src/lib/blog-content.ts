@@ -128,42 +128,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Amazon support."
       },
       {
         "label": "Amazon Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/amazon-virtual-assistant-tasks/",
+        "href": "/blog/amazon-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered amazon work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does an Amazon Virtual Assistant Do?",
-        "href": "/blog/what-does-an-amazon-virtual-assistant-do/",
+        "href": "/blog/what-does-an-amazon-virtual-assistant-do",
         "description": "A practical breakdown of the recurring amazon work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an Amazon Virtual Assistant",
-        "href": "/blog/how-to-hire-a-amazon-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-amazon-virtual-assistant",
         "description": "Build a clearer amazon role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Amazon Virtual Assistant Interview Questions",
-        "href": "/blog/amazon-virtual-assistant-interview-questions/",
+        "href": "/blog/amazon-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an Amazon Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Order & Fulfilment Virtual Assistant",
-        "href": "/service/fulfilment/",
+        "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
     ]
@@ -323,42 +323,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Amazon support."
       },
       {
         "label": "How to Hire an Amazon Virtual Assistant",
-        "href": "/blog/how-to-hire-a-amazon-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-amazon-virtual-assistant",
         "description": "Build a clearer amazon role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does an Amazon Virtual Assistant Do?",
-        "href": "/blog/what-does-an-amazon-virtual-assistant-do/",
+        "href": "/blog/what-does-an-amazon-virtual-assistant-do",
         "description": "A practical breakdown of the recurring amazon work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Amazon Virtual Assistant Cost in the Philippines",
-        "href": "/blog/amazon-virtual-assistant-cost-philippines/",
+        "href": "/blog/amazon-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for Amazon Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Amazon Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/amazon-virtual-assistant-tasks/",
+        "href": "/blog/amazon-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered amazon work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Order & Fulfilment Virtual Assistant",
-        "href": "/service/fulfilment/",
+        "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
     ]
@@ -500,42 +500,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Amazon support."
       },
       {
         "label": "Amazon Virtual Assistant Cost in the Philippines",
-        "href": "/blog/amazon-virtual-assistant-cost-philippines/",
+        "href": "/blog/amazon-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for Amazon Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Amazon Virtual Assistant Do?",
-        "href": "/blog/what-does-an-amazon-virtual-assistant-do/",
+        "href": "/blog/what-does-an-amazon-virtual-assistant-do",
         "description": "A practical breakdown of the recurring amazon work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an Amazon Virtual Assistant",
-        "href": "/blog/how-to-hire-a-amazon-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-amazon-virtual-assistant",
         "description": "Build a clearer amazon role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Amazon Virtual Assistant Interview Questions",
-        "href": "/blog/amazon-virtual-assistant-interview-questions/",
+        "href": "/blog/amazon-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an Amazon Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Order & Fulfilment Virtual Assistant",
-        "href": "/service/fulfilment/",
+        "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
     ]
@@ -665,42 +665,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for appointment setter support."
       },
       {
         "label": "What Does an Appointment Setter Virtual Assistant Do?",
-        "href": "/blog/what-does-an-appointment-setter-virtual-assistant-do/",
+        "href": "/blog/what-does-an-appointment-setter-virtual-assistant-do",
         "description": "A practical breakdown of the recurring appointment setter work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an Appointment Setter Virtual Assistant",
-        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant",
         "description": "Build a clearer appointment setter role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how appointment setter virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how appointment setter virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes cold calling responsibilities."
       }
     ]
@@ -828,22 +828,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Financial Advisor Virtual Assistant Cost in the Philippines",
-        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines/",
+        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for financial advisor Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Virtual Assistant Salary in the Philippines: 2026 Guide",
-        "href": "/blog/virtual-assistant-salary-philippines/",
+        "href": "/blog/virtual-assistant-salary-philippines",
         "description": "A clearer way to interpret Philippine Virtual Assistant salary data without mixing local employee pay, freelance rates, and specialist pricing into one number."
       },
       {
@@ -853,7 +853,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -1006,42 +1006,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Job Description Template",
-        "href": "/blog/law-firm-virtual-assistant-job-description/",
+        "href": "/blog/law-firm-virtual-assistant-job-description",
         "description": "Use this law firm virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "Confidentiality and Remote Legal Assistants: A Law Firm Checklist",
-        "href": "/blog/confidentiality-and-remote-legal-assistants/",
+        "href": "/blog/confidentiality-and-remote-legal-assistants",
         "description": "Build confidentiality into the workflow before a remote legal assistant receives matter or client access."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ],
@@ -1209,42 +1209,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Train a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-train-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-train-a-law-firm-virtual-assistant",
         "description": "Use this onboarding plan to bring a new law firm virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Confidentiality and Remote Legal Assistants: A Law Firm Checklist",
-        "href": "/blog/confidentiality-and-remote-legal-assistants/",
+        "href": "/blog/confidentiality-and-remote-legal-assistants",
         "description": "Build confidentiality into the workflow before a remote legal assistant receives matter or client access."
       },
       {
         "label": "Law Firm Virtual Assistant Job Description Template",
-        "href": "/blog/law-firm-virtual-assistant-job-description/",
+        "href": "/blog/law-firm-virtual-assistant-job-description",
         "description": "Use this law firm virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ],
@@ -1412,42 +1412,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Legal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/legal-virtual-assistant-cost-philippines/",
+        "href": "/blog/legal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for legal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Legal Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/legal-virtual-assistant-tasks/",
+        "href": "/blog/legal-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered legal work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Legal Virtual Assistant vs Paralegal: Which Do You Need?",
-        "href": "/blog/legal-virtual-assistant-vs-paralegal/",
+        "href": "/blog/legal-virtual-assistant-vs-paralegal",
         "description": "For legal virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ],
@@ -1615,42 +1615,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "How to Hire a Medical Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-virtual-assistant",
         "description": "Build a clearer medical role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "How to Train a Medical Virtual Assistant",
-        "href": "/blog/how-to-train-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-train-a-medical-virtual-assistant",
         "description": "Use this onboarding plan to bring a new medical virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Medical Receptionist vs Medical Virtual Assistant",
-        "href": "/blog/medical-receptionist-vs-medical-va/",
+        "href": "/blog/medical-receptionist-vs-medical-va",
         "description": "Choose based on whether the role is primarily real-time front-desk coverage, broader remote administration, or a blend of both."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -1674,113 +1674,79 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "best-tools-for-seo",
     "title": "Best Tools for an SEO Virtual Assistant",
     "metaTitle": "Best Tools for an SEO Virtual Assistant | Practical Stack",
-    "description": "Build a practical tool stack for an SEO Virtual Assistant. See what each tool is for, what access to give, and how to avoid unnecessary software sprawl.",
+    "description": "Build an SEO VA tool stack around Search Console, analytics, research, crawling, CMS work, and one source of truth without paying for unnecessary software.",
     "excerpt": "The right SEO stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access.",
     "topic": "seo-marketing",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "Choose SEO tools around the workflow",
+        "heading": "Choose tools by the SEO job they need to perform",
         "paragraphs": [
-          "In an SEO handoff involving SEO reporting, the best stack is the smallest set of systems that gives the Virtual Assistant a source of truth, a place to communicate, and a reliable way to record completed work. Buying more software will not fix an unclear process.",
-          "For this SEO Virtual Assistant role, common tools include Ahrefs, Semrush, Google Search Console, GA4, Screaming Frog, and WordPress. The right choice depends on what your team already uses and which system should own each type of information."
-        ]
-      },
-      {
-        "heading": "Do not hire by software logos alone",
-        "paragraphs": [
-          "A candidate can truthfully say they have used a tool and still have very different depth from what you need. Ask what they created, updated, reported, or resolved in the system. If Google Sheets is important, use a scenario from your real workflow and ask the candidate to explain the steps."
-        ]
-      },
-      {
-        "heading": "Give every system one clear purpose",
-        "paragraphs": [
-          "When on-page optimization is part of the SEO scope, confusion starts when the same status is stored in email, chat, a spreadsheet, and a project board. Decide which system is authoritative. Chat can be for quick questions, but the final status should live where the team expects to find it later."
+          "The best SEO VA stack is not the one with the most subscriptions. It is the smallest set of tools that lets the person find the right evidence, complete the assigned work, record what changed, and leave a clear handoff.",
+          "Start with your existing stack. Replacing familiar systems during onboarding usually creates more risk than value unless the current workflow is genuinely broken."
         ],
-        "table": {
-          "headers": [
-            "Need",
-            "Practical rule"
-          ],
-          "rows": [
-            [
-              "Source of truth",
-              "Choose one system for the official record."
-            ],
-            [
-              "Communication",
-              "Use one primary channel for questions and updates."
-            ],
-            [
-              "Tasks",
-              "Assign work where deadlines and owners are visible."
-            ],
-            [
-              "Files",
-              "Keep final files in an approved shared location."
-            ],
-            [
-              "Passwords",
-              "Use a password manager or delegated access, not shared plaintext credentials."
-            ]
-          ]
-        }
+        "bullets": []
       },
       {
-        "heading": "Start with minimum access",
+        "heading": "Search Console and GA4: first-party performance signals",
         "paragraphs": [
-          "In an SEO handoff involving internal linking, grant only the permissions needed for the first responsibilities. Add access when the role expands. This is easier to audit and reduces the risk of leaving broad permissions behind after a process changes.",
-          "Write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner."
-        ]
-      },
-      {
-        "heading": "Document the workflow beside the tool",
-        "paragraphs": [
-          "For SEO work, start with real examples from keyword research, internal linking, and technical audit support. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Ahrefs or GA4, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "When Google Search Console monitoring is part of the SEO scope, a short process note should explain what starts the task, which fields matter, what “done” means, and where exceptions go. This survives a software redesign better than a long click-by-click manual."
-        ]
-      },
-      {
-        "heading": "A simple onboarding sequence for new tools",
-        "numbered": [
-          "Show the business purpose before the buttons.",
-          "Demonstrate one completed example.",
-          "Let the Virtual Assistant repeat the workflow in a safe or test context where possible.",
-          "Review the record and the handoff, not only the clicks.",
-          "Add permissions or advanced features after the basic workflow is reliable."
+          "Google Search Console is central for query and page performance, indexing visibility, and many routine monitoring workflows. GA4 can add behavioral and conversion context when the team has agreed on the events and reports that matter.",
+          "An assistant should know which questions each platform can answer and should avoid turning dashboards into a weekly screenshot exercise. Reporting should connect observations to pages, work completed, anomalies, or decisions."
         ],
-        "paragraphs": []
+        "bullets": []
       },
       {
-        "heading": "When to add another tool",
+        "heading": "Ahrefs or Semrush: research and competitive evidence",
         "paragraphs": [
-          "In an SEO handoff involving technical audit support, add software when a specific problem has a measurable cost, such as missing ownership, poor visibility, manual duplication, or a security requirement. If the current process is failing because nobody has defined the owner, another app usually makes the confusion harder to see rather than easier to solve."
-        ]
+          "Most teams do not need both platforms for every assistant. Either can support keyword expansion, competitor research, backlink review, and content-gap work depending on your subscription and process.",
+          "During hiring, ask candidates to explain a real research workflow: what they were trying to decide, which filters or evidence they used, what they exported or documented, and how the result changed the next action."
+        ],
+        "bullets": []
       },
       {
-        "heading": "What a good SEO stack feels like after a month",
+        "heading": "Screaming Frog: crawl data and implementation QA",
         "paragraphs": [
-          "For SEO teams working on competitor research, the Virtual Assistant should know where new work appears, where the official record lives, how to ask for a decision, and where to leave a useful status update. Managers should be able to inspect the workflow without asking for a separate report on every item. That is a better sign of tool fit than the number of apps connected to the stack."
-        ]
+          "Screaming Frog is useful for structured checks across larger sets of URLs, including titles, status codes, canonicals, directives, links, and other technical fields. It is especially valuable when an assistant supports QA before or after approved changes.",
+          "The crawl itself is not the deliverable. The assistant should know how to filter the data, separate expected patterns from possible issues, and escalate changes that need technical judgment."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Pressure-test the SEO tool setup",
+        "heading": "CMS, spreadsheets, and project tools: where execution becomes visible",
         "paragraphs": [
-          "Take SEO reporting from a recent week and trace it from the moment the request arrived to the final record or handoff. For on-page optimization inside Google Search Console, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. When tool access is tied to internal linking, that example will expose missing instructions faster than another generic checklist.",
-          "If SEO reporting becomes predictable, add on-page optimization only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. For technical audit support inside Looker Studio, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+          "WordPress or another CMS may be needed for approved on-page work. Google Sheets or Airtable can hold research and QA records. Asana, ClickUp, Notion, or your existing project system can hold status and ownership.",
+          "Choose one source of truth for each kind of information. If the same status lives in chat, email, a spreadsheet, and a project board, the problem is the workflow, not the lack of another SEO tool."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Test one more workflow before expanding the SEO scope",
+        "heading": "Give the minimum access needed for the first month",
         "paragraphs": [
-          "Take keyword research from a recent week and trace it from the moment the request arrived to the final record or handoff. To judge software experience for SEO reporting, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. When Semrush supports keyword research, that example will expose missing instructions faster than another generic checklist.",
-          "If keyword research becomes predictable, add internal linking only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. To judge software experience for content briefs, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+          "Use named accounts, delegated access, and a password manager where appropriate. Avoid sharing plaintext credentials. Start with the permissions required for the first responsibilities and expand access only when the role expands.",
+          "Sitewide redirects, canonicals, robots directives, noindex changes, template edits, and other high-risk actions should have an approval path even when the assistant can technically make the change."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Test tool depth with one realistic SEO scenario",
+        "paragraphs": [
+          "Instead of asking whether someone “knows Ahrefs,” give a realistic task such as building a keyword set for an approved topic or reviewing a competitor content gap. Ask the candidate to explain the steps, evidence, output, and quality checks.",
+          "The same method works for Search Console, a crawl, or CMS QA. Practical reasoning reveals more than a list of software logos."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Add software only when it solves a named operating problem",
+        "paragraphs": [
+          "Another subscription makes sense when it removes a measurable bottleneck, improves evidence, strengthens security, or replaces unreliable manual work. If tasks are late because ownership is unclear, more software usually just spreads the same confusion across another interface.",
+          "After a month, a good stack should make it obvious where new work appears, where the official record lives, what the assistant may change, and where exceptions go."
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -1818,37 +1784,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "What Does an SEO Virtual Assistant Do?",
-        "href": "/blog/what-does-an-seo-virtual-assistant-do/",
+        "href": "/blog/what-does-an-seo-virtual-assistant-do",
         "description": "A practical breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an SEO Virtual Assistant",
-        "href": "/blog/how-to-hire-a-seo/",
+        "href": "/blog/how-to-hire-a-seo",
         "description": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "SEO Virtual Assistant Interview Questions",
-        "href": "/blog/seo-interview-questions/",
+        "href": "/blog/seo-interview-questions",
         "description": "Interview questions that reveal how an SEO Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -1978,42 +1944,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "See the service scope, approved talent, and free match request for bookkeeping support."
       },
       {
         "label": "Bookkeeping Virtual Assistant Interview Questions",
-        "href": "/blog/bookkeeping-interview-questions/",
+        "href": "/blog/bookkeeping-interview-questions",
         "description": "Interview questions that reveal how a bookkeeping Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "What Does a Bookkeeping Virtual Assistant Do?",
-        "href": "/blog/what-does-a-bookkeeping-do/",
+        "href": "/blog/what-does-a-bookkeeping-do",
         "description": "A practical breakdown of the recurring bookkeeping work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Bookkeeping Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/bookkeeping-tasks/",
+        "href": "/blog/bookkeeping-tasks",
         "description": "Use this task list to turn scattered bookkeeping work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Bookkeeping Virtual Assistant",
-        "href": "/blog/how-to-hire-a-bookkeeping/",
+        "href": "/blog/how-to-hire-a-bookkeeping",
         "description": "Build a clearer bookkeeping role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how bookkeeping virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -2173,42 +2139,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "See the service scope, approved talent, and free match request for bookkeeping support."
       },
       {
         "label": "What Does a Bookkeeping Virtual Assistant Do?",
-        "href": "/blog/what-does-a-bookkeeping-do/",
+        "href": "/blog/what-does-a-bookkeeping-do",
         "description": "A practical breakdown of the recurring bookkeeping work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Bookkeeping Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/bookkeeping-tasks/",
+        "href": "/blog/bookkeeping-tasks",
         "description": "Use this task list to turn scattered bookkeeping work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Bookkeeping Virtual Assistant Cost in the Philippines",
-        "href": "/blog/bookkeeping-cost-philippines/",
+        "href": "/blog/bookkeeping-cost-philippines",
         "description": "A budgeting guide for bookkeeping Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Bookkeeping Virtual Assistant",
-        "href": "/blog/how-to-hire-a-bookkeeping/",
+        "href": "/blog/how-to-hire-a-bookkeeping",
         "description": "Build a clearer bookkeeping role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how bookkeeping virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -2350,42 +2316,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "See the service scope, approved talent, and free match request for bookkeeping support."
       },
       {
         "label": "How to Hire a Bookkeeping Virtual Assistant",
-        "href": "/blog/how-to-hire-a-bookkeeping/",
+        "href": "/blog/how-to-hire-a-bookkeeping",
         "description": "Build a clearer bookkeeping role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Bookkeeping Virtual Assistant Do?",
-        "href": "/blog/what-does-a-bookkeeping-do/",
+        "href": "/blog/what-does-a-bookkeeping-do",
         "description": "A practical breakdown of the recurring bookkeeping work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Bookkeeping Virtual Assistant Interview Questions",
-        "href": "/blog/bookkeeping-interview-questions/",
+        "href": "/blog/bookkeeping-interview-questions",
         "description": "Interview questions that reveal how a bookkeeping Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Bookkeeping Virtual Assistant Cost in the Philippines",
-        "href": "/blog/bookkeeping-cost-philippines/",
+        "href": "/blog/bookkeeping-cost-philippines",
         "description": "A budgeting guide for bookkeeping Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how bookkeeping virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -2526,42 +2492,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for cold calling support."
       },
       {
         "label": "How to Hire a Cold Calling Virtual Assistant",
-        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant",
         "description": "Build a clearer cold calling role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Cold Calling Virtual Assistant Do?",
-        "href": "/blog/what-does-a-cold-calling-virtual-assistant-do/",
+        "href": "/blog/what-does-a-cold-calling-virtual-assistant-do",
         "description": "A practical breakdown of the recurring cold calling work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Real Estate Investors hiring guide",
-        "href": "/industries/real-estate-investors/",
+        "href": "/industries/real-estate-investors",
         "description": "See how cold calling virtual assistant support fits real estate investors and acquisition teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -2721,42 +2687,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Job Description Template",
-        "href": "/blog/law-firm-virtual-assistant-job-description/",
+        "href": "/blog/law-firm-virtual-assistant-job-description",
         "description": "Use this law firm virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "Best Legal Practice Management Tools for Virtual Assistants",
-        "href": "/blog/best-legal-practice-management-tools-for-vas/",
+        "href": "/blog/best-legal-practice-management-tools-for-vas",
         "description": "Choose legal software around the firm's workflow and access model, not around a generic list of popular tools."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -2886,42 +2852,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for construction support."
       },
       {
         "label": "What Does a Construction Virtual Assistant Do?",
-        "href": "/blog/what-does-a-construction-virtual-assistant-do/",
+        "href": "/blog/what-does-a-construction-virtual-assistant-do",
         "description": "A practical breakdown of the recurring construction work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Construction Virtual Assistant",
-        "href": "/blog/how-to-hire-a-construction-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-construction-virtual-assistant",
         "description": "Build a clearer construction role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how construction virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Construction Companies hiring guide",
-        "href": "/industries/construction-companies/",
+        "href": "/industries/construction-companies",
         "description": "See how construction virtual assistant support fits general contractors and construction companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Project Coordination Virtual Assistant",
-        "href": "/service/project-coordination/",
+        "href": "/service/project-coordination",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes project coordination responsibilities."
       },
       {
         "label": "Operations & Process Virtual Assistant",
-        "href": "/service/operations/",
+        "href": "/service/operations",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes operations & process responsibilities."
       }
     ]
@@ -3051,37 +3017,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Content Marketing Virtual Assistant",
-        "href": "/service/content-marketing-virtual-assistant/",
+        "href": "/service/content-marketing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for content marketing support."
       },
       {
         "label": "What Does a Content Marketing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-content-marketing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-content-marketing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring content marketing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Content Marketing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-content-marketing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-content-marketing-virtual-assistant",
         "description": "Build a clearer content marketing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Content Writing Virtual Assistant",
-        "href": "/service/content-writing/",
+        "href": "/service/content-writing",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes content writing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes SEO responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -3211,37 +3177,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Credit Repair Virtual Assistant",
-        "href": "/service/credit-repair-virtual-assistant/",
+        "href": "/service/credit-repair-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for credit repair support."
       },
       {
         "label": "How to Hire a Credit Repair Virtual Assistant",
-        "href": "/blog/how-to-hire-a-credit-repair-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-credit-repair-virtual-assistant",
         "description": "Build a clearer credit repair role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Credit Repair Virtual Assistant Do?",
-        "href": "/blog/what-does-a-credit-repair-virtual-assistant-do/",
+        "href": "/blog/what-does-a-credit-repair-virtual-assistant-do",
         "description": "A practical breakdown of the recurring credit repair work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes CRM responsibilities."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -3371,42 +3337,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Customer Service Virtual Assistant",
-        "href": "/service/customer-service/",
+        "href": "/service/customer-service",
         "description": "See the service scope, approved talent, and free match request for customer service support."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Customer Service Virtual Assistant Do?",
-        "href": "/blog/what-does-a-customer-service-do/",
+        "href": "/blog/what-does-a-customer-service-do",
         "description": "A practical breakdown of the recurring customer service work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Customer Service Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/customer-service-tasks/",
+        "href": "/blog/customer-service-tasks",
         "description": "Use this task list to turn scattered customer service work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Customer Service Virtual Assistant Interview Questions",
-        "href": "/blog/customer-service-interview-questions/",
+        "href": "/blog/customer-service-interview-questions",
         "description": "Interview questions that reveal how a customer service Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Small Business hiring guide",
-        "href": "/industries/small-business/",
+        "href": "/industries/small-business",
         "description": "See how customer service virtual assistant support fits small business owners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -3566,42 +3532,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Customer Service Virtual Assistant",
-        "href": "/service/customer-service/",
+        "href": "/service/customer-service",
         "description": "See the service scope, approved talent, and free match request for customer service support."
       },
       {
         "label": "Customer Service Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/customer-service-tasks/",
+        "href": "/blog/customer-service-tasks",
         "description": "Use this task list to turn scattered customer service work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does a Customer Service Virtual Assistant Do?",
-        "href": "/blog/what-does-a-customer-service-do/",
+        "href": "/blog/what-does-a-customer-service-do",
         "description": "A practical breakdown of the recurring customer service work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Customer Service Virtual Assistant Cost in the Philippines",
-        "href": "/blog/customer-service-cost-philippines/",
+        "href": "/blog/customer-service-cost-philippines",
         "description": "A budgeting guide for customer service Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Small Business hiring guide",
-        "href": "/industries/small-business/",
+        "href": "/industries/small-business",
         "description": "See how customer service virtual assistant support fits small business owners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -3743,42 +3709,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Customer Service Virtual Assistant",
-        "href": "/service/customer-service/",
+        "href": "/service/customer-service",
         "description": "See the service scope, approved talent, and free match request for customer service support."
       },
       {
         "label": "What Does a Customer Service Virtual Assistant Do?",
-        "href": "/blog/what-does-a-customer-service-do/",
+        "href": "/blog/what-does-a-customer-service-do",
         "description": "A practical breakdown of the recurring customer service work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Customer Service Virtual Assistant Cost in the Philippines",
-        "href": "/blog/customer-service-cost-philippines/",
+        "href": "/blog/customer-service-cost-philippines",
         "description": "A budgeting guide for customer service Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Customer Service Virtual Assistant Interview Questions",
-        "href": "/blog/customer-service-interview-questions/",
+        "href": "/blog/customer-service-interview-questions",
         "description": "Interview questions that reveal how a customer service Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Small Business hiring guide",
-        "href": "/industries/small-business/",
+        "href": "/industries/small-business",
         "description": "See how customer service virtual assistant support fits small business owners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -3908,42 +3874,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Billing Virtual Assistant",
-        "href": "/service/dental-billing-virtual-assistant/",
+        "href": "/service/dental-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental billing support."
       },
       {
         "label": "What Does a Dental Billing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-billing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-billing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental billing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Dental Billing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-billing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-billing-virtual-assistant",
         "description": "Build a clearer dental billing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental billing virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes dental responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes medical billing responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -4073,42 +4039,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental support."
       },
       {
         "label": "Dental Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/dental-virtual-assistant-tasks/",
+        "href": "/blog/dental-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered dental work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Dental Virtual Assistant Interview Questions",
-        "href": "/blog/dental-virtual-assistant-interview-questions/",
+        "href": "/blog/dental-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a dental Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire a Dental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-virtual-assistant",
         "description": "Build a clearer dental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Dental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how dental virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -4268,42 +4234,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental support."
       },
       {
         "label": "Dental Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/dental-virtual-assistant-tasks/",
+        "href": "/blog/dental-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered dental work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Dental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Dental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-virtual-assistant",
         "description": "Build a clearer dental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Dental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how dental virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -4445,42 +4411,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental support."
       },
       {
         "label": "Dental Virtual Assistant Interview Questions",
-        "href": "/blog/dental-virtual-assistant-interview-questions/",
+        "href": "/blog/dental-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a dental Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Dental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Dental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-virtual-assistant",
         "description": "Build a clearer dental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Dental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how dental virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -4625,37 +4591,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an eBay Virtual Assistant",
-        "href": "/service/ebay-virtual-assistant/",
+        "href": "/service/ebay-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for eBay support."
       },
       {
         "label": "What Does an eBay Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ebay-virtual-assistant-do/",
+        "href": "/blog/what-does-an-ebay-virtual-assistant-do",
         "description": "A practical breakdown of the recurring ebay work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an eBay Virtual Assistant",
-        "href": "/blog/how-to-hire-a-ebay-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-ebay-virtual-assistant",
         "description": "Build a clearer ebay role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes Amazon responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -4785,42 +4751,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines/",
+        "href": "/hire-ecommerce-virtual-assistant-philippines",
         "description": "For Ecommerce Virtual Assistant, the useful pricing question is not the lowest possible hourly number. Start with the responsibilities, expected output, schedule, required systems, communication standard, and level of judgment the person will exercise. Then compare candidates who can actually meet that brief and adjust the budget when the role requires deeper experience or greater ownership."
       },
       {
         "label": "Ecommerce Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/ecommerce-tasks/",
+        "href": "/blog/ecommerce-tasks",
         "description": "Use this task list to turn scattered ecommerce work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does an Ecommerce Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ecommerce-do/",
+        "href": "/blog/what-does-an-ecommerce-do",
         "description": "A practical breakdown of the recurring ecommerce work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Ecommerce Virtual Assistant Interview Questions",
-        "href": "/blog/ecommerce-interview-questions/",
+        "href": "/blog/ecommerce-interview-questions",
         "description": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -4980,42 +4946,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "What Does an Ecommerce Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ecommerce-do/",
+        "href": "/blog/what-does-an-ecommerce-do",
         "description": "A practical breakdown of the recurring ecommerce work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Ecommerce Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/ecommerce-tasks/",
+        "href": "/blog/ecommerce-tasks",
         "description": "Use this task list to turn scattered ecommerce work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant",
-        "href": "/blog/how-to-hire-a-ecommerce/",
+        "href": "/blog/how-to-hire-a-ecommerce",
         "description": "Build a clearer ecommerce role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Ecommerce Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ecommerce-cost-philippines/",
+        "href": "/blog/ecommerce-cost-philippines",
         "description": "A budgeting guide for ecommerce Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -5157,42 +5123,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "What Does an Ecommerce Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ecommerce-do/",
+        "href": "/blog/what-does-an-ecommerce-do",
         "description": "A practical breakdown of the recurring ecommerce work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Ecommerce Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ecommerce-cost-philippines/",
+        "href": "/blog/ecommerce-cost-philippines",
         "description": "A budgeting guide for ecommerce Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines/",
+        "href": "/hire-ecommerce-virtual-assistant-philippines",
         "description": "For Ecommerce Virtual Assistant, the useful pricing question is not the lowest possible hourly number. Start with the responsibilities, expected output, schedule, required systems, communication standard, and level of judgment the person will exercise. Then compare candidates who can actually meet that brief and adjust the budget when the role requires deeper experience or greater ownership."
       },
       {
         "label": "Ecommerce Virtual Assistant Interview Questions",
-        "href": "/blog/ecommerce-interview-questions/",
+        "href": "/blog/ecommerce-interview-questions",
         "description": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -5322,42 +5288,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Executive Virtual Assistant",
-        "href": "/service/executive-virtual-assistant/",
+        "href": "/service/executive-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for executive support."
       },
       {
         "label": "How to Hire an Executive Virtual Assistant",
-        "href": "/blog/how-to-hire-a-executive-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-executive-virtual-assistant",
         "description": "Build a clearer executive role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does an Executive Virtual Assistant Do?",
-        "href": "/blog/what-does-an-executive-virtual-assistant-do/",
+        "href": "/blog/what-does-an-executive-virtual-assistant-do",
         "description": "A practical breakdown of the recurring executive work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Executive Virtual Assistant Interview Questions",
-        "href": "/blog/executive-virtual-assistant-interview-questions/",
+        "href": "/blog/executive-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an executive Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Executive Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/executive-virtual-assistant-tasks/",
+        "href": "/blog/executive-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered executive work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how executive virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Startups hiring guide",
-        "href": "/industries/startups/",
+        "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -5517,42 +5483,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Executive Virtual Assistant",
-        "href": "/service/executive-virtual-assistant/",
+        "href": "/service/executive-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for executive support."
       },
       {
         "label": "What Does an Executive Virtual Assistant Do?",
-        "href": "/blog/what-does-an-executive-virtual-assistant-do/",
+        "href": "/blog/what-does-an-executive-virtual-assistant-do",
         "description": "A practical breakdown of the recurring executive work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an Executive Virtual Assistant",
-        "href": "/blog/how-to-hire-a-executive-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-executive-virtual-assistant",
         "description": "Build a clearer executive role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Executive Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/executive-virtual-assistant-tasks/",
+        "href": "/blog/executive-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered executive work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how executive virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Startups hiring guide",
-        "href": "/industries/startups/",
+        "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -5694,42 +5660,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Executive Virtual Assistant",
-        "href": "/service/executive-virtual-assistant/",
+        "href": "/service/executive-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for executive support."
       },
       {
         "label": "How to Hire an Executive Virtual Assistant",
-        "href": "/blog/how-to-hire-a-executive-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-executive-virtual-assistant",
         "description": "Build a clearer executive role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Executive Virtual Assistant Do?",
-        "href": "/blog/what-does-an-executive-virtual-assistant-do/",
+        "href": "/blog/what-does-an-executive-virtual-assistant-do",
         "description": "A practical breakdown of the recurring executive work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Executive Virtual Assistant Interview Questions",
-        "href": "/blog/executive-virtual-assistant-interview-questions/",
+        "href": "/blog/executive-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an executive Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how executive virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Startups hiring guide",
-        "href": "/industries/startups/",
+        "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -5859,42 +5825,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Financial Advisor Virtual Assistant",
-        "href": "/service/financial-advisor-virtual-assistant/",
+        "href": "/service/financial-advisor-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for financial advisor support."
       },
       {
         "label": "How to Hire a Financial Advisor Virtual Assistant",
-        "href": "/blog/how-to-hire-a-financial-advisor-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-financial-advisor-virtual-assistant",
         "description": "Build a clearer financial advisor role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Financial Advisor Virtual Assistant Do?",
-        "href": "/blog/what-does-a-financial-advisor-virtual-assistant-do/",
+        "href": "/blog/what-does-a-financial-advisor-virtual-assistant-do",
         "description": "A practical breakdown of the recurring financial advisor work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how financial advisor virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Banking & Financial Services hiring guide",
-        "href": "/industries/banking-financial-services/",
+        "href": "/industries/banking-financial-services",
         "description": "See how financial advisor virtual assistant support fits banking and financial-service teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes CRM responsibilities."
       }
     ]
@@ -6024,37 +5990,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Google Ads Virtual Assistant",
-        "href": "/service/google-ads-virtual-assistant/",
+        "href": "/service/google-ads-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Google Ads support."
       },
       {
         "label": "What Does a Google Ads Virtual Assistant Do?",
-        "href": "/blog/what-does-a-google-ads-virtual-assistant-do/",
+        "href": "/blog/what-does-a-google-ads-virtual-assistant-do",
         "description": "A practical breakdown of the recurring google ads work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Google Ads Virtual Assistant",
-        "href": "/blog/how-to-hire-a-google-ads-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-google-ads-virtual-assistant",
         "description": "Build a clearer google ads role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes SEO responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -6228,42 +6194,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "Medical Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/medical-virtual-assistant-tasks/",
+        "href": "/blog/medical-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered medical work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -6391,22 +6357,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "HVAC Virtual Assistant Cost in the Philippines",
-        "href": "/blog/hvac-virtual-assistant-cost-philippines/",
+        "href": "/blog/hvac-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for HVAC Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Content Marketing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/content-marketing-virtual-assistant-cost-philippines/",
+        "href": "/blog/content-marketing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for content marketing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Construction Virtual Assistant Cost in the Philippines",
-        "href": "/blog/construction-virtual-assistant-cost-philippines/",
+        "href": "/blog/construction-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for construction Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
@@ -6416,7 +6382,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -6540,42 +6506,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "See the service scope, approved talent, and free match request for bookkeeping support."
       },
       {
         "label": "Bookkeeping Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/bookkeeping-tasks/",
+        "href": "/blog/bookkeeping-tasks",
         "description": "Use this task list to turn scattered bookkeeping work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does a Bookkeeping Virtual Assistant Do?",
-        "href": "/blog/what-does-a-bookkeeping-do/",
+        "href": "/blog/what-does-a-bookkeeping-do",
         "description": "A practical breakdown of the recurring bookkeeping work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Bookkeeping Virtual Assistant Interview Questions",
-        "href": "/blog/bookkeeping-interview-questions/",
+        "href": "/blog/bookkeeping-interview-questions",
         "description": "Interview questions that reveal how a bookkeeping Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Bookkeeping Virtual Assistant Cost in the Philippines",
-        "href": "/blog/bookkeeping-cost-philippines/",
+        "href": "/blog/bookkeeping-cost-philippines",
         "description": "A budgeting guide for bookkeeping Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how bookkeeping virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -6699,42 +6665,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for cold calling support."
       },
       {
         "label": "Cold Calling Virtual Assistant Cost in the Philippines",
-        "href": "/blog/cold-calling-virtual-assistant-cost-philippines/",
+        "href": "/blog/cold-calling-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for cold calling Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Cold Calling Virtual Assistant Do?",
-        "href": "/blog/what-does-a-cold-calling-virtual-assistant-do/",
+        "href": "/blog/what-does-a-cold-calling-virtual-assistant-do",
         "description": "A practical breakdown of the recurring cold calling work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Real Estate Investors hiring guide",
-        "href": "/industries/real-estate-investors/",
+        "href": "/industries/real-estate-investors",
         "description": "See how cold calling virtual assistant support fits real estate investors and acquisition teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -6858,42 +6824,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for construction support."
       },
       {
         "label": "What Does a Construction Virtual Assistant Do?",
-        "href": "/blog/what-does-a-construction-virtual-assistant-do/",
+        "href": "/blog/what-does-a-construction-virtual-assistant-do",
         "description": "A practical breakdown of the recurring construction work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Construction Virtual Assistant Cost in the Philippines",
-        "href": "/blog/construction-virtual-assistant-cost-philippines/",
+        "href": "/blog/construction-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for construction Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how construction virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Construction Companies hiring guide",
-        "href": "/industries/construction-companies/",
+        "href": "/industries/construction-companies",
         "description": "See how construction virtual assistant support fits general contractors and construction companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Project Coordination Virtual Assistant",
-        "href": "/service/project-coordination/",
+        "href": "/service/project-coordination",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes project coordination responsibilities."
       },
       {
         "label": "Operations & Process Virtual Assistant",
-        "href": "/service/operations/",
+        "href": "/service/operations",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes operations & process responsibilities."
       }
     ]
@@ -7017,37 +6983,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Content Marketing Virtual Assistant",
-        "href": "/service/content-marketing-virtual-assistant/",
+        "href": "/service/content-marketing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for content marketing support."
       },
       {
         "label": "What Does a Content Marketing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-content-marketing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-content-marketing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring content marketing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Content Marketing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/content-marketing-virtual-assistant-cost-philippines/",
+        "href": "/blog/content-marketing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for content marketing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Content Writing Virtual Assistant",
-        "href": "/service/content-writing/",
+        "href": "/service/content-writing",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes content writing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes SEO responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -7171,37 +7137,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Credit Repair Virtual Assistant",
-        "href": "/service/credit-repair-virtual-assistant/",
+        "href": "/service/credit-repair-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for credit repair support."
       },
       {
         "label": "What Does a Credit Repair Virtual Assistant Do?",
-        "href": "/blog/what-does-a-credit-repair-virtual-assistant-do/",
+        "href": "/blog/what-does-a-credit-repair-virtual-assistant-do",
         "description": "A practical breakdown of the recurring credit repair work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Credit Repair Virtual Assistant Cost in the Philippines",
-        "href": "/blog/credit-repair-virtual-assistant-cost-philippines/",
+        "href": "/blog/credit-repair-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for credit repair Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes CRM responsibilities."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -7325,42 +7291,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Customer Service Virtual Assistant",
-        "href": "/service/customer-service/",
+        "href": "/service/customer-service",
         "description": "See the service scope, approved talent, and free match request for customer service support."
       },
       {
         "label": "Customer Service Virtual Assistant Cost in the Philippines",
-        "href": "/blog/customer-service-cost-philippines/",
+        "href": "/blog/customer-service-cost-philippines",
         "description": "A budgeting guide for customer service Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Customer Service Virtual Assistant Do?",
-        "href": "/blog/what-does-a-customer-service-do/",
+        "href": "/blog/what-does-a-customer-service-do",
         "description": "A practical breakdown of the recurring customer service work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Customer Service Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/customer-service-tasks/",
+        "href": "/blog/customer-service-tasks",
         "description": "Use this task list to turn scattered customer service work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Customer Service Virtual Assistant Interview Questions",
-        "href": "/blog/customer-service-interview-questions/",
+        "href": "/blog/customer-service-interview-questions",
         "description": "Interview questions that reveal how a customer service Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Small Business hiring guide",
-        "href": "/industries/small-business/",
+        "href": "/industries/small-business",
         "description": "See how customer service virtual assistant support fits small business owners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -7484,42 +7450,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Billing Virtual Assistant",
-        "href": "/service/dental-billing-virtual-assistant/",
+        "href": "/service/dental-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental billing support."
       },
       {
         "label": "Dental Billing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-billing-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-billing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental billing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Dental Billing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-billing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-billing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental billing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental billing virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes dental responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes medical billing responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -7643,42 +7609,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental support."
       },
       {
         "label": "What Does a Dental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-dental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-dental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring dental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Dental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Dental Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/dental-virtual-assistant-tasks/",
+        "href": "/blog/dental-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered dental work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Dental Virtual Assistant Interview Questions",
-        "href": "/blog/dental-virtual-assistant-interview-questions/",
+        "href": "/blog/dental-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a dental Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how dental virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -7802,42 +7768,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Financial Advisor Virtual Assistant",
-        "href": "/service/financial-advisor-virtual-assistant/",
+        "href": "/service/financial-advisor-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for financial advisor support."
       },
       {
         "label": "What Does a Financial Advisor Virtual Assistant Do?",
-        "href": "/blog/what-does-a-financial-advisor-virtual-assistant-do/",
+        "href": "/blog/what-does-a-financial-advisor-virtual-assistant-do",
         "description": "A practical breakdown of the recurring financial advisor work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Financial Advisor Virtual Assistant Cost in the Philippines",
-        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines/",
+        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for financial advisor Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how financial advisor virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Banking & Financial Services hiring guide",
-        "href": "/industries/banking-financial-services/",
+        "href": "/industries/banking-financial-services",
         "description": "See how financial advisor virtual assistant support fits banking and financial-service teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes CRM responsibilities."
       }
     ]
@@ -7961,37 +7927,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Google Ads Virtual Assistant",
-        "href": "/service/google-ads-virtual-assistant/",
+        "href": "/service/google-ads-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Google Ads support."
       },
       {
         "label": "What Does a Google Ads Virtual Assistant Do?",
-        "href": "/blog/what-does-a-google-ads-virtual-assistant-do/",
+        "href": "/blog/what-does-a-google-ads-virtual-assistant-do",
         "description": "A practical breakdown of the recurring google ads work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Google Ads Virtual Assistant Cost in the Philippines",
-        "href": "/blog/google-ads-virtual-assistant-cost-philippines/",
+        "href": "/blog/google-ads-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for google ads Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes SEO responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -8115,42 +8081,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "What Does a Law Firm Virtual Assistant Do?",
-        "href": "/blog/what-does-a-law-firm-virtual-assistant-do/",
+        "href": "/blog/what-does-a-law-firm-virtual-assistant-do",
         "description": "A practical breakdown of the recurring law firm work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Law Firm Virtual Assistant Interview Questions",
-        "href": "/blog/law-firm-virtual-assistant-interview-questions/",
+        "href": "/blog/law-firm-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a law firm Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -8274,42 +8240,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "See the service scope, approved talent, and free match request for lead generation support."
       },
       {
         "label": "What Does a Lead Generation Virtual Assistant Do?",
-        "href": "/blog/what-does-a-lead-generation-do/",
+        "href": "/blog/what-does-a-lead-generation-do",
         "description": "A practical breakdown of the recurring lead generation work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Lead Generation Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/lead-generation-tasks/",
+        "href": "/blog/lead-generation-tasks",
         "description": "Use this task list to turn scattered lead generation work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Lead Generation Virtual Assistant Interview Questions",
-        "href": "/blog/lead-generation-interview-questions/",
+        "href": "/blog/lead-generation-interview-questions",
         "description": "Interview questions that reveal how a lead generation Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Lead Generation Virtual Assistant Cost in the Philippines",
-        "href": "/blog/lead-generation-cost-philippines/",
+        "href": "/blog/lead-generation-cost-philippines",
         "description": "A budgeting guide for lead generation Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how lead generation virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -8433,42 +8399,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Legal Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/legal-virtual-assistant-tasks/",
+        "href": "/blog/legal-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered legal work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Legal Virtual Assistant vs Paralegal: Which Do You Need?",
-        "href": "/blog/legal-virtual-assistant-vs-paralegal/",
+        "href": "/blog/legal-virtual-assistant-vs-paralegal",
         "description": "For legal virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "Legal Virtual Assistant Interview Questions",
-        "href": "/blog/legal-virtual-assistant-interview-questions/",
+        "href": "/blog/legal-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a legal Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ]
@@ -8592,42 +8558,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical billing support."
       },
       {
         "label": "Medical Billing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-billing-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-billing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical billing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Medical Billing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-medical-billing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-medical-billing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring medical billing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical billing virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical billing virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical scribe responsibilities."
       }
     ]
@@ -8751,42 +8717,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical scribe support."
       },
       {
         "label": "Medical Scribe Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-scribe-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-scribe-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical scribe Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Medical Scribe Virtual Assistant Do?",
-        "href": "/blog/what-does-a-medical-scribe-virtual-assistant-do/",
+        "href": "/blog/what-does-a-medical-scribe-virtual-assistant-do",
         "description": "A practical breakdown of the recurring medical scribe work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical scribe virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes transcription responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -8910,42 +8876,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Receptionist vs Medical Virtual Assistant",
-        "href": "/blog/medical-receptionist-vs-medical-va/",
+        "href": "/blog/medical-receptionist-vs-medical-va",
         "description": "Choose based on whether the role is primarily real-time front-desk coverage, broader remote administration, or a blend of both."
       },
       {
         "label": "Best Tools for a Medical Virtual Assistant",
-        "href": "/blog/best-tools-for-medical-virtual-assistant/",
+        "href": "/blog/best-tools-for-medical-virtual-assistant",
         "description": "The right medical stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "How to Train a Medical Virtual Assistant",
-        "href": "/blog/how-to-train-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-train-a-medical-virtual-assistant",
         "description": "Use this onboarding plan to bring a new medical virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -9069,42 +9035,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mental Health Virtual Assistant",
-        "href": "/service/mental-health-virtual-assistant/",
+        "href": "/service/mental-health-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mental health support."
       },
       {
         "label": "What Does a Mental Health Virtual Assistant Do?",
-        "href": "/blog/what-does-a-mental-health-virtual-assistant-do/",
+        "href": "/blog/what-does-a-mental-health-virtual-assistant-do",
         "description": "A practical breakdown of the recurring mental health work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Mental Health Virtual Assistant Cost in the Philippines",
-        "href": "/blog/mental-health-virtual-assistant-cost-philippines/",
+        "href": "/blog/mental-health-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for mental health Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Therapists & Mental Health Practices hiring guide",
-        "href": "/industries/therapists/",
+        "href": "/industries/therapists",
         "description": "See how mental health virtual assistant support fits therapists, counselors, and mental-health practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical billing responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -9228,37 +9194,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mortgage Virtual Assistant",
-        "href": "/service/mortgage-virtual-assistant/",
+        "href": "/service/mortgage-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mortgage support."
       },
       {
         "label": "Mortgage Virtual Assistant Cost in the Philippines",
-        "href": "/blog/mortgage-virtual-assistant-cost-philippines/",
+        "href": "/blog/mortgage-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for mortgage Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Mortgage Virtual Assistant Do?",
-        "href": "/blog/what-does-a-mortgage-virtual-assistant-do/",
+        "href": "/blog/what-does-a-mortgage-virtual-assistant-do",
         "description": "A practical breakdown of the recurring mortgage work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes CRM responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -9382,42 +9348,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Paralegal Virtual Assistant",
-        "href": "/service/paralegal-virtual-assistant/",
+        "href": "/service/paralegal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for paralegal support."
       },
       {
         "label": "Paralegal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/paralegal-virtual-assistant-cost-philippines/",
+        "href": "/blog/paralegal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for paralegal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Paralegal Virtual Assistant Do?",
-        "href": "/blog/what-does-a-paralegal-virtual-assistant-do/",
+        "href": "/blog/what-does-a-paralegal-virtual-assistant-do",
         "description": "A practical breakdown of the recurring paralegal work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how paralegal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes law firm responsibilities."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes legal responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -9541,37 +9507,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Payroll Virtual Assistant",
-        "href": "/service/payroll-virtual-assistant/",
+        "href": "/service/payroll-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for payroll support."
       },
       {
         "label": "What Does a Payroll Virtual Assistant Do?",
-        "href": "/blog/what-does-a-payroll-virtual-assistant-do/",
+        "href": "/blog/what-does-a-payroll-virtual-assistant-do",
         "description": "A practical breakdown of the recurring payroll work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Payroll Virtual Assistant Cost in the Philippines",
-        "href": "/blog/payroll-virtual-assistant-cost-philippines/",
+        "href": "/blog/payroll-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for payroll Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes accounting responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -9695,37 +9661,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Podcast Virtual Assistant",
-        "href": "/service/podcast-virtual-assistant/",
+        "href": "/service/podcast-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for podcast support."
       },
       {
         "label": "What Does a Podcast Virtual Assistant Do?",
-        "href": "/blog/what-does-a-podcast-virtual-assistant-do/",
+        "href": "/blog/what-does-a-podcast-virtual-assistant-do",
         "description": "A practical breakdown of the recurring podcast work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Podcast Virtual Assistant Cost in the Philippines",
-        "href": "/blog/podcast-virtual-assistant-cost-philippines/",
+        "href": "/blog/podcast-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for podcast Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Video Editing Virtual Assistant",
-        "href": "/service/video-editing/",
+        "href": "/service/video-editing",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes video editing responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes transcription responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -9849,42 +9815,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a QuickBooks Virtual Assistant",
-        "href": "/service/quickbooks-virtual-assistant/",
+        "href": "/service/quickbooks-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for QuickBooks support."
       },
       {
         "label": "QuickBooks Virtual Assistant Cost in the Philippines",
-        "href": "/blog/quickbooks-virtual-assistant-cost-philippines/",
+        "href": "/blog/quickbooks-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for quickbooks Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a QuickBooks Virtual Assistant Do?",
-        "href": "/blog/what-does-a-quickbooks-virtual-assistant-do/",
+        "href": "/blog/what-does-a-quickbooks-virtual-assistant-do",
         "description": "A practical breakdown of the recurring quickbooks work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how quickbooks virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes accounting responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -10008,42 +9974,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Real Estate Virtual Assistant",
-        "href": "/service/real-estate/",
+        "href": "/service/real-estate",
         "description": "See the service scope, approved talent, and free match request for real estate support."
       },
       {
         "label": "Real Estate Virtual Assistant Cost in the Philippines",
-        "href": "/blog/real-estate-cost-philippines/",
+        "href": "/blog/real-estate-cost-philippines",
         "description": "A budgeting guide for real estate Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Real Estate Virtual Assistant Do?",
-        "href": "/blog/what-does-a-real-estate-virtual-assistant-do/",
+        "href": "/blog/what-does-a-real-estate-virtual-assistant-do",
         "description": "A practical guide to real estate Virtual Assistant tasks, CRM follow-up, listings, coordination, boundaries, and hiring signals."
       },
       {
         "label": "Real Estate Virtual Assistant Interview Questions",
-        "href": "/blog/real-estate-interview-questions/",
+        "href": "/blog/real-estate-interview-questions",
         "description": "Interview questions that reveal how a real estate Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Real Estate Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/real-estate-tasks/",
+        "href": "/blog/real-estate-tasks",
         "description": "Use this task list to turn scattered real estate work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how real estate virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -10167,37 +10133,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Roofing Virtual Assistant",
-        "href": "/service/roofing-virtual-assistant/",
+        "href": "/service/roofing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for roofing support."
       },
       {
         "label": "Roofing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/roofing-virtual-assistant-cost-philippines/",
+        "href": "/blog/roofing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for roofing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does a Roofing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-roofing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-roofing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring roofing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes construction responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -10321,37 +10287,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Sales Virtual Assistant",
-        "href": "/service/sales-virtual-assistant/",
+        "href": "/service/sales-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for sales support."
       },
       {
         "label": "What Does a Sales Virtual Assistant Do?",
-        "href": "/blog/what-does-a-sales-virtual-assistant-do/",
+        "href": "/blog/what-does-a-sales-virtual-assistant-do",
         "description": "A practical breakdown of the recurring sales work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Sales Virtual Assistant Cost in the Philippines",
-        "href": "/blog/sales-virtual-assistant-cost-philippines/",
+        "href": "/blog/sales-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for sales Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -10475,42 +10441,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Shopify support."
       },
       {
         "label": "Shopify Virtual Assistant Interview Questions",
-        "href": "/blog/shopify-virtual-assistant-interview-questions/",
+        "href": "/blog/shopify-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a shopify Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Shopify Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/shopify-virtual-assistant-tasks/",
+        "href": "/blog/shopify-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered shopify work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does a Shopify Virtual Assistant Do?",
-        "href": "/blog/what-does-a-shopify-virtual-assistant-do/",
+        "href": "/blog/what-does-a-shopify-virtual-assistant-do",
         "description": "A practical breakdown of the recurring shopify work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Shopify Virtual Assistant Cost in the Philippines",
-        "href": "/blog/shopify-virtual-assistant-cost-philippines/",
+        "href": "/blog/shopify-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for shopify Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how shopify virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your shopify virtual assistant workload also includes ecommerce responsibilities."
       }
     ]
@@ -10634,42 +10600,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Short-Term Rental Virtual Assistant",
-        "href": "/service/short-term-rental-virtual-assistant/",
+        "href": "/service/short-term-rental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for short-term rental support."
       },
       {
         "label": "What Does a Short-Term Rental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring short-term rental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Short-Term Rental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/short-term-rental-virtual-assistant-cost-philippines/",
+        "href": "/blog/short-term-rental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for short-term rental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how short-term rental virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Airbnb Virtual Assistant",
-        "href": "/service/airbnb-virtual-assistant/",
+        "href": "/service/airbnb-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes Airbnb responsibilities."
       },
       {
         "label": "Property Management Virtual Assistant",
-        "href": "/service/property-management-virtual-assistant/",
+        "href": "/service/property-management-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes property management responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -10799,22 +10765,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "How to Hire a Sales Virtual Assistant",
-        "href": "/blog/how-to-hire-a-sales-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-sales-virtual-assistant",
         "description": "Build a clearer sales role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "How to Hire a Cold Calling Virtual Assistant",
-        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant",
         "description": "Build a clearer cold calling role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Short-Term Rental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring short-term rental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
@@ -10824,12 +10790,12 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -10953,37 +10919,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Web Developer Virtual Assistant",
-        "href": "/service/web-developer-virtual-assistant/",
+        "href": "/service/web-developer-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for web developer support."
       },
       {
         "label": "What Does a Web Developer Virtual Assistant Do?",
-        "href": "/blog/what-does-a-web-developer-virtual-assistant-do/",
+        "href": "/blog/what-does-a-web-developer-virtual-assistant-do",
         "description": "A practical breakdown of the recurring web developer work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Web Developer Virtual Assistant Cost in the Philippines",
-        "href": "/blog/web-developer-virtual-assistant-cost-philippines/",
+        "href": "/blog/web-developer-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for web developer Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "WordPress Virtual Assistant",
-        "href": "/service/wordpress/",
+        "href": "/service/wordpress",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes WordPress responsibilities."
       },
       {
         "label": "IT Virtual Assistant",
-        "href": "/service/it-virtual-assistant/",
+        "href": "/service/it-virtual-assistant",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes IT responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -11107,42 +11073,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Amazon support."
       },
       {
         "label": "What Does an Amazon Virtual Assistant Do?",
-        "href": "/blog/what-does-an-amazon-virtual-assistant-do/",
+        "href": "/blog/what-does-an-amazon-virtual-assistant-do",
         "description": "A practical breakdown of the recurring amazon work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Amazon Virtual Assistant Interview Questions",
-        "href": "/blog/amazon-virtual-assistant-interview-questions/",
+        "href": "/blog/amazon-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an Amazon Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Amazon Virtual Assistant Cost in the Philippines",
-        "href": "/blog/amazon-virtual-assistant-cost-philippines/",
+        "href": "/blog/amazon-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for Amazon Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Amazon Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/amazon-virtual-assistant-tasks/",
+        "href": "/blog/amazon-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered amazon work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Order & Fulfilment Virtual Assistant",
-        "href": "/service/fulfilment/",
+        "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
     ]
@@ -11266,42 +11232,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for appointment setter support."
       },
       {
         "label": "Appointment Setter Virtual Assistant Cost in the Philippines",
-        "href": "/blog/appointment-setter-virtual-assistant-cost-philippines/",
+        "href": "/blog/appointment-setter-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for appointment setter Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Appointment Setter Virtual Assistant Do?",
-        "href": "/blog/what-does-an-appointment-setter-virtual-assistant-do/",
+        "href": "/blog/what-does-an-appointment-setter-virtual-assistant-do",
         "description": "A practical breakdown of the recurring appointment setter work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how appointment setter virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how appointment setter virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes cold calling responsibilities."
       }
     ]
@@ -11425,37 +11391,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an eBay Virtual Assistant",
-        "href": "/service/ebay-virtual-assistant/",
+        "href": "/service/ebay-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for eBay support."
       },
       {
         "label": "eBay Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ebay-virtual-assistant-cost-philippines/",
+        "href": "/blog/ebay-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for eBay Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an eBay Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ebay-virtual-assistant-do/",
+        "href": "/blog/what-does-an-ebay-virtual-assistant-do",
         "description": "A practical breakdown of the recurring ebay work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes Amazon responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -11579,42 +11545,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "Ecommerce Virtual Assistant Interview Questions",
-        "href": "/blog/ecommerce-interview-questions/",
+        "href": "/blog/ecommerce-interview-questions",
         "description": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "What Does an Ecommerce Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ecommerce-do/",
+        "href": "/blog/what-does-an-ecommerce-do",
         "description": "A practical breakdown of the recurring ecommerce work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Ecommerce Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/ecommerce-tasks/",
+        "href": "/blog/ecommerce-tasks",
         "description": "Use this task list to turn scattered ecommerce work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Ecommerce Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ecommerce-cost-philippines/",
+        "href": "/blog/ecommerce-cost-philippines",
         "description": "A budgeting guide for ecommerce Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -11739,42 +11705,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "Ecommerce Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ecommerce-cost-philippines/",
+        "href": "/blog/ecommerce-cost-philippines",
         "description": "A budgeting guide for ecommerce Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Ecommerce Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/ecommerce-tasks/",
+        "href": "/blog/ecommerce-tasks",
         "description": "Use this task list to turn scattered ecommerce work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does an Ecommerce Virtual Assistant Do?",
-        "href": "/blog/what-does-an-ecommerce-do/",
+        "href": "/blog/what-does-an-ecommerce-do",
         "description": "A practical breakdown of the recurring ecommerce work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Ecommerce Virtual Assistant Interview Questions",
-        "href": "/blog/ecommerce-interview-questions/",
+        "href": "/blog/ecommerce-interview-questions",
         "description": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -11898,42 +11864,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Executive Virtual Assistant",
-        "href": "/service/executive-virtual-assistant/",
+        "href": "/service/executive-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for executive support."
       },
       {
         "label": "Executive Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/executive-virtual-assistant-tasks/",
+        "href": "/blog/executive-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered executive work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Executive Virtual Assistant Do?",
-        "href": "/blog/what-does-an-executive-virtual-assistant-do/",
+        "href": "/blog/what-does-an-executive-virtual-assistant-do",
         "description": "A practical breakdown of the recurring executive work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Executive Virtual Assistant Interview Questions",
-        "href": "/blog/executive-virtual-assistant-interview-questions/",
+        "href": "/blog/executive-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an executive Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how executive virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Startups hiring guide",
-        "href": "/industries/startups/",
+        "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -12057,42 +12023,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an HVAC Virtual Assistant",
-        "href": "/service/hvac-virtual-assistant/",
+        "href": "/service/hvac-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for HVAC support."
       },
       {
         "label": "HVAC Virtual Assistant Cost in the Philippines",
-        "href": "/blog/hvac-virtual-assistant-cost-philippines/",
+        "href": "/blog/hvac-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for HVAC Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an HVAC Virtual Assistant Do?",
-        "href": "/blog/what-does-an-hvac-virtual-assistant-do/",
+        "href": "/blog/what-does-an-hvac-virtual-assistant-do",
         "description": "A practical breakdown of the recurring HVAC work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how hvac virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Receptionist Virtual Assistant",
-        "href": "/service/phone-receptionist/",
+        "href": "/service/phone-receptionist",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes receptionist responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -12216,42 +12182,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Insurance Virtual Assistant",
-        "href": "/service/insurance-virtual-assistant/",
+        "href": "/service/insurance-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for insurance support."
       },
       {
         "label": "Insurance Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/insurance-virtual-assistant-tasks/",
+        "href": "/blog/insurance-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered insurance work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Insurance Virtual Assistant Interview Questions",
-        "href": "/blog/insurance-virtual-assistant-interview-questions/",
+        "href": "/blog/insurance-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an insurance Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Insurance Virtual Assistant Cost in the Philippines",
-        "href": "/blog/insurance-virtual-assistant-cost-philippines/",
+        "href": "/blog/insurance-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for insurance Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Insurance Virtual Assistant Do?",
-        "href": "/blog/what-does-an-insurance-virtual-assistant-do/",
+        "href": "/blog/what-does-an-insurance-virtual-assistant-do",
         "description": "A practical breakdown of the recurring insurance work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Insurance Agencies hiring guide",
-        "href": "/industries/insurance-agencies/",
+        "href": "/industries/insurance-agencies",
         "description": "See how insurance virtual assistant support fits insurance agencies, agents, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your insurance virtual assistant workload also includes admin & inbox responsibilities."
       }
     ]
@@ -12259,85 +12225,85 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "how-to-hire-a-seo",
     "title": "SEO Virtual Assistant Hiring Guide: Tasks, Skills & Screening",
-    "metaTitle": "SEO Virtual Assistant Hiring Guide",
-    "description": "A step-by-step guide to hiring an SEO virtual assistant in the Philippines, from role design and screening to interviews, onboarding, and access controls.",
+    "metaTitle": "How to Hire an SEO Virtual Assistant | Philippines",
+    "description": "Hire an SEO virtual assistant with a role scorecard, evidence-based screening, realistic SEO scenarios, clear access rules, and a focused 30-day handoff.",
     "excerpt": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself.",
     "topic": "hiring",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "Define the SEO role before you start sourcing",
+        "heading": "Define the SEO bottleneck before you write the job post",
         "paragraphs": [
-          "When hiring someone to own Google Search Console monitoring, most hiring mistakes happen before the first interview, when the scope is still vague. Before handing off technical audit support, write down the three to five outcomes you want the person to own, the weekly hours, required live overlap, core systems, and the decisions that need approval. A vague request attracts a vague applicant pool.",
-          "For this SEO Virtual Assistant role, a first scope could center on keyword research, on-page optimization, internal linking, content briefs, and Google Search Console monitoring. If the SEO scope around keyword research sounds like several different jobs, split the work and decide which part matters most in the first 30 days."
-        ]
+          "Start with the work that is currently delayed, inconsistent, or consuming senior SEO time. If the real bottleneck is keyword research, content briefs, on-page updates, internal links, Search Console monitoring, or reporting, write that down before choosing a title.",
+          "A focused SEO VA role is easier to source than a wish list that combines strategist, technical SEO, writer, developer, designer, and outreach specialist. Decide which three to five recurring outcomes matter in the first month and which decisions stay with the SEO lead."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Build a scorecard you can use on every candidate",
+        "heading": "Use an SEO scorecard based on evidence",
         "paragraphs": [
-          "For an SEO role that starts with on-page optimization, a scorecard prevents the interview from turning into a personality contest. For internal linking, give the most weight to evidence that predicts the actual job: similar workflows, clear communication, reliability, tool depth, schedule fit, and judgment around exceptions.",
-          "When the first 30-day priority is content briefs, keep the scorecard short enough that interviewers will actually use it. When hiring someone to own Google Search Console monitoring, five or six criteria with clear definitions are better than 20 attributes nobody can distinguish."
+          "Score every candidate against the same small set of job-related criteria. That keeps a polished interview from outweighing actual SEO ability. Weight the criteria based on your first-month scope instead of treating every skill as equally important."
         ],
         "bullets": [
-          "Search intent analysis: decide what evidence would earn a strong score before the interview.",
-          "On-page SEO: decide what evidence would earn a strong score before the interview.",
-          "Technical SEO basics: decide what evidence would earn a strong score before the interview.",
-          "Content optimization: decide what evidence would earn a strong score before the interview.",
-          "Reporting: decide what evidence would earn a strong score before the interview.",
-          "Attention to detail: decide what evidence would earn a strong score before the interview."
+          "Workflow evidence: examples of comparable keyword research, on-page work, briefs, internal linking, monitoring, or reporting.",
+          "SEO judgment: ability to explain search intent, basic technical risks, quality checks, and when to escalate.",
+          "Tool depth: what the candidate actually did in Search Console, Ahrefs, Semrush, Screaming Frog, GA4, a CMS, or your equivalent stack.",
+          "Communication: clear notes, useful status updates, and the ability to explain a blocker with context.",
+          "Schedule fit: realistic hours and overlap for the queue you need covered."
         ]
       },
       {
-        "heading": "Source against the work, not the broadest possible title",
+        "heading": "Source for the workflow, not the broadest title",
         "paragraphs": [
-          "SEO agencies often have Google Search Console monitoring, competitor research, and keyword research competing for attention with higher-value work. A sensible SEO Virtual Assistant role could own those recurring queues, document completion in the agreed system, and flag exceptions before they become overdue. Once that handoff is stable, the scope can expand into technical audit support and SEO reporting. When hiring someone to own keyword research, the goal is not to move every task offshore at once. Give the SEO Virtual Assistant one coherent slice of work they can learn, repeat, and improve before adding the next queue.",
-          "When reviewing SEO profiles, look for the same nouns and workflows that appear in your scope. When the first 30-day priority is content briefs, someone does not need your exact job title in their history, but they should be able to explain comparable work and what they personally owned."
-        ]
-      },
-      {
-        "heading": "Screen for evidence before scheduling a long interview",
-        "paragraphs": [
-          "For SEO work, start with real examples from technical audit support, SEO reporting, and internal linking. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses WordPress or Ahrefs, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "When discussing SEO reporting, ask one or two short written questions that require the candidate to describe a past workflow or explain how they would handle an exception. Avoid unpaid assignments that produce real commercial work. If you use a skills exercise, keep it narrow, job-related, and respectful of the SEO candidate's time."
-        ]
-      },
-      {
-        "heading": "Interview SEO candidates with scenarios",
-        "paragraphs": [
-          "General questions such as “Are you detail oriented?” rarely help. Use situations from your queue. When discussing technical audit support, ask what the candidate would do first, what information they would need, where they would record the outcome, and when they would escalate.",
-          "Listen for a sequence, not a buzzword. When the first 30-day priority is SEO reporting, strong answers usually show that the candidate checks the source of truth, clarifies missing information, follows the documented rule, records what happened, and flags exceptions with context."
-        ]
-      },
-      {
-        "heading": "Confirm schedule, access, and communication before the offer",
-        "paragraphs": [
-          "When hiring someone to own keyword research, a good skill match can still fail if the operating conditions are unclear. Before assigning on-page optimization, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In an SEO handoff involving internal linking, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
-        ]
-      },
-      {
-        "heading": "Make the first 30 days a controlled handoff",
-        "paragraphs": [
-          "For Google Search Console monitoring, start with two or three recurring workflows and a predictable review rhythm. In week one, review most outputs. In week two, reduce checks where accuracy is consistent. When the first 30-day priority is SEO reporting, by weeks three and four, the Virtual Assistant should be able to run the stable queue and bring you only the exceptions that need a decision."
+          "A candidate does not need the exact phrase “SEO Virtual Assistant” in every past role. Look for evidence of the same work. Someone who supported an agency, content team, local SEO program, ecommerce catalog, or SaaS content operation may be a strong fit if they can show relevant outputs and explain their contribution.",
+          "Ask applicants to identify which responsibilities they personally owned. This helps separate hands-on experience from work they only observed on a larger team."
         ],
-        "numbered": [
-          "Week 1: examples, access, and supervised repetition.",
-          "Week 2: independent execution with daily exception review.",
-          "Week 3: wider ownership and fewer routine approvals.",
-          "Week 4: review the scorecard, backlog, rework, and next responsibilities."
-        ]
+        "bullets": []
       },
       {
-        "heading": "Do a final role and budget sanity check",
+        "heading": "Screen with real SEO artifacts and a short scenario",
         "paragraphs": [
-          "SEO Virtual Assistant pricing should be based on the actual workload, weekly hours, experience level, time-zone overlap, software requirements, communication demands, and how independently the assistant will work. A role that owns sensitive, specialist, or client-facing work should be budgeted differently from a tightly supervised task list, so use the scope and responsibility rather than anchoring on one hourly figure.",
-          "Before publishing, remove requirements that are merely “nice to have.” When hiring someone to own Google Search Console monitoring, a focused role with a fair budget will usually produce a stronger shortlist than a long wish list that asks one person to cover several specialties."
-        ]
+          "Before a long interview, ask for anonymized examples or a short explanation of a comparable workflow. You can also give a small hypothetical scenario, such as reviewing a keyword set, spotting obvious on-page issues, or explaining how they would investigate a Search Console change.",
+          "Do not use applicants to produce unpaid commercial work. The goal is to observe reasoning, organization, and quality checks, not to obtain a free audit."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Interview for judgment, not memorized definitions",
+        "paragraphs": [
+          "Use scenarios from your actual environment. Ask what the candidate would do if the CMS page and brief disagree, a target page is already ranking for a different intent, a crawl shows a sudden indexability change, or a manager asks for a sitewide update without an approval trail.",
+          "Strong answers usually show a sequence: verify the source, check the rule, document the evidence, make the allowed change, and escalate anything outside the person's authority."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Confirm access and publishing boundaries before the offer",
+        "paragraphs": [
+          "List the systems the person needs in week one and the permissions required in each. A research-and-reporting role may not need website administrator access. A content-operations role may need CMS access but still require approval for redirects, canonicals, robots directives, or template edits.",
+          "Also confirm working hours, communication channels, expected response windows, and how urgent SEO issues should be escalated."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Use the first 30 days to prove one SEO workflow",
+        "paragraphs": [
+          "Week one should focus on examples, access, definitions of done, and supervised execution. In week two, let the assistant own a small recurring queue. In weeks three and four, reduce review where accuracy is proven and turn repeated feedback into a checklist.",
+          "At the end of the month, you should be able to see whether the role reduced backlog and management chasing without increasing errors."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Run a final scope sanity check",
+        "paragraphs": [
+          "Before publishing the role, remove requirements that are not needed in the first 30 days. If you need senior strategy, complex technical diagnosis, development, editorial leadership, and outreach ownership, that is probably more than one VA role.",
+          "A narrower role with clear outcomes usually produces a better shortlist and gives you a fairer basis for comparing candidates."
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -12375,42 +12341,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "What Does an SEO Virtual Assistant Do?",
-        "href": "/blog/what-does-an-seo-virtual-assistant-do/",
+        "href": "/blog/what-does-an-seo-virtual-assistant-do",
         "description": "A practical breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring."
       },
       {
         "label": "Best Tools for an SEO Virtual Assistant",
-        "href": "/blog/best-tools-for-seo/",
+        "href": "/blog/best-tools-for-seo",
         "description": "The right SEO stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "SEO Virtual Assistant Interview Questions",
-        "href": "/blog/seo-interview-questions/",
+        "href": "/blog/seo-interview-questions",
         "description": "Interview questions that reveal how an SEO Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -12544,42 +12510,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "Managing Virtual Assistants guides",
-        "href": "/blog/topic/managing/",
+        "href": "/blog/topic/managing",
         "description": "Browse more practical articles in the managing vas topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -12713,42 +12679,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Legal Virtual Assistant Job Description Template",
-        "href": "/blog/legal-virtual-assistant-job-description/",
+        "href": "/blog/legal-virtual-assistant-job-description",
         "description": "Use this legal virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "What Does a Legal Virtual Assistant Do?",
-        "href": "/blog/what-does-a-legal-virtual-assistant-do/",
+        "href": "/blog/what-does-a-legal-virtual-assistant-do",
         "description": "A practical breakdown of the recurring legal work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Legal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/legal-virtual-assistant-cost-philippines/",
+        "href": "/blog/legal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for legal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Managing Virtual Assistants guides",
-        "href": "/blog/topic/managing/",
+        "href": "/blog/topic/managing",
         "description": "Browse more practical articles in the managing vas topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ]
@@ -12882,42 +12848,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Best Tools for a Medical Virtual Assistant",
-        "href": "/blog/best-tools-for-medical-virtual-assistant/",
+        "href": "/blog/best-tools-for-medical-virtual-assistant",
         "description": "The right medical stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "How to Hire a Medical Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-virtual-assistant",
         "description": "Build a clearer medical role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Medical Receptionist vs Medical Virtual Assistant",
-        "href": "/blog/medical-receptionist-vs-medical-va/",
+        "href": "/blog/medical-receptionist-vs-medical-va",
         "description": "Choose based on whether the role is primarily real-time front-desk coverage, broader remote administration, or a blend of both."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "Managing Virtual Assistants guides",
-        "href": "/blog/topic/managing/",
+        "href": "/blog/topic/managing",
         "description": "Browse more practical articles in the managing vas topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -12933,20 +12899,21 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "seo",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "Train the SEO Virtual Assistant on outcomes before shortcuts",
+        "heading": "Train on SEO outcomes before tool shortcuts",
         "paragraphs": [
           "In an SEO handoff involving Google Search Console monitoring, a new hire needs to understand why the workflow exists before they can make sensible decisions inside it. Explain the customer, team, or business consequence of the work, then teach the steps. That context helps the Virtual Assistant spot an exception instead of blindly following a checklist."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Week 1: establish the source of truth and boundaries",
+        "heading": "Week 1: sources of truth, examples, and risk boundaries",
         "paragraphs": [
           "For SEO work, start with real examples from Google Search Console monitoring, competitor research, and on-page optimization. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Screaming Frog or Google Sheets, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "When competitor research is part of the SEO scope, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
+          "When competitor research is part of the SEO scope, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval. For an SEO Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
         ],
         "bullets": [
           "Confirm working hours and communication channels.",
@@ -12957,38 +12924,43 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Week 2: move from observation to ownership",
+        "heading": "Week 2: own one repeatable SEO queue",
         "paragraphs": [
           "When competitor research is part of the SEO scope, choose a stable queue and let the Virtual Assistant run it with a short daily review. The manager should stop redoing the work and instead point out the specific standard that was missed. If a mistake exposes a gap in the process, update the playbook."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Week 3: test judgment on normal exceptions",
+        "heading": "Week 3: handle normal exceptions with evidence",
         "paragraphs": [
           "In an SEO handoff involving SEO reporting, by the third week, the Virtual Assistant should see some imperfect cases. Give them a rule for what they may decide, then ask them to document the reasoning. This is where “proactive” becomes a real operating behavior rather than a vague expectation."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Week 4: review the role, not just the person",
+        "heading": "Week 4: review accuracy, backlog, and manager effort",
         "paragraphs": [
           "For SEO teams working on keyword research, look at rework, turnaround, backlog, communication, and manager time. If performance is weak, separate skill gaps from process gaps. A capable Virtual Assistant cannot succeed if inputs arrive late, priorities change without notice, or the team has never agreed on the correct outcome."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Use examples as your best training material",
+        "heading": "Use real pages and reports as training material",
         "paragraphs": [
           "SEO agencies often have Google Search Console monitoring, competitor research, and keyword research competing for attention with higher-value work. A sensible SEO Virtual Assistant role could own those recurring queues, document completion in the agreed system, and flag exceptions before they become overdue. Once that handoff is stable, the scope can expand into technical audit support and SEO reporting. While training the Virtual Assistant on keyword research, the goal is not to move every task offshore at once. Give the SEO Virtual Assistant one coherent slice of work they can learn, repeat, and improve before adding the next queue.",
           "In an SEO handoff involving internal linking, keep a small library of good outputs and common edge cases. A new team member can learn faster from a real before-and-after example than from a long abstract policy."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Give feedback that can change behavior",
+        "heading": "Turn SEO feedback into reusable QA rules",
         "paragraphs": [
           "In an SEO handoff involving internal linking, feedback should name the observed result, the expected standard, and the next action. “Be more careful” is difficult to use. “Before closing this item, verify these two fields and add the source link to the note” gives the Virtual Assistant something concrete to do differently."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Signs the Virtual Assistant is ready for more ownership",
+        "heading": "Signals the assistant is ready for more SEO ownership",
         "bullets": [
           "The core queue stays current without repeated reminders.",
           "Questions arrive with context and a proposed next step.",
@@ -13002,18 +12974,20 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Use a real SEO workflow as the training test",
+        "heading": "Use one end-to-end SEO workflow as the final test",
         "paragraphs": [
           "Take Google Search Console monitoring from a recent week and trace it from the moment the request arrived to the final record or handoff. When Screaming Frog is introduced for content briefs, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. While training the Virtual Assistant on Google Search Console monitoring, that example will expose missing instructions faster than another generic checklist.",
           "If Google Search Console monitoring becomes predictable, add competitor research only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. When Ahrefs is introduced for SEO reporting, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Test one more workflow before expanding the SEO scope",
+        "heading": "Expand only after the first queue is stable",
         "paragraphs": [
           "Take technical audit support from a recent week and trace it from the moment the request arrived to the final record or handoff. When onboarding covers on-page optimization, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. Before the Virtual Assistant handles internal linking alone, that example will expose missing instructions faster than another generic checklist.",
           "If technical audit support becomes predictable, add SEO reporting only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. When onboarding covers technical audit support, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -13051,37 +13025,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "SEO Virtual Assistant Job Description Template",
-        "href": "/blog/seo-job-description/",
+        "href": "/blog/seo-job-description",
         "description": "Use this seo virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
-        "href": "/blog/seo-vs-seo-specialist/",
+        "href": "/blog/seo-vs-seo-specialist",
         "description": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "SEO Virtual Assistant Cost in the Philippines",
-        "href": "/blog/seo-cost-philippines/",
+        "href": "/blog/seo-cost-philippines",
         "description": "A budgeting guide for SEO Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Managing Virtual Assistants guides",
-        "href": "/blog/topic/managing/",
+        "href": "/blog/topic/managing",
         "description": "Browse more practical articles in the managing vas topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -13211,42 +13185,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an HVAC Virtual Assistant",
-        "href": "/service/hvac-virtual-assistant/",
+        "href": "/service/hvac-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for HVAC support."
       },
       {
         "label": "What Does an HVAC Virtual Assistant Do?",
-        "href": "/blog/what-does-an-hvac-virtual-assistant-do/",
+        "href": "/blog/what-does-an-hvac-virtual-assistant-do",
         "description": "A practical breakdown of the recurring HVAC work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an HVAC Virtual Assistant",
-        "href": "/blog/how-to-hire-a-hvac-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-hvac-virtual-assistant",
         "description": "Build a clearer HVAC role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how hvac virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Receptionist Virtual Assistant",
-        "href": "/service/phone-receptionist/",
+        "href": "/service/phone-receptionist",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes receptionist responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -13376,42 +13350,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Insurance Virtual Assistant",
-        "href": "/service/insurance-virtual-assistant/",
+        "href": "/service/insurance-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for insurance support."
       },
       {
         "label": "Insurance Virtual Assistant Interview Questions",
-        "href": "/blog/insurance-virtual-assistant-interview-questions/",
+        "href": "/blog/insurance-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an insurance Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "What Does an Insurance Virtual Assistant Do?",
-        "href": "/blog/what-does-an-insurance-virtual-assistant-do/",
+        "href": "/blog/what-does-an-insurance-virtual-assistant-do",
         "description": "A practical breakdown of the recurring insurance work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an Insurance Virtual Assistant",
-        "href": "/blog/how-to-hire-a-insurance-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-insurance-virtual-assistant",
         "description": "Build a clearer insurance role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Insurance Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/insurance-virtual-assistant-tasks/",
+        "href": "/blog/insurance-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered insurance work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Insurance Agencies hiring guide",
-        "href": "/industries/insurance-agencies/",
+        "href": "/industries/insurance-agencies",
         "description": "See how insurance virtual assistant support fits insurance agencies, agents, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your insurance virtual assistant workload also includes admin & inbox responsibilities."
       }
     ]
@@ -13571,42 +13545,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Insurance Virtual Assistant",
-        "href": "/service/insurance-virtual-assistant/",
+        "href": "/service/insurance-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for insurance support."
       },
       {
         "label": "Insurance Virtual Assistant Cost in the Philippines",
-        "href": "/blog/insurance-virtual-assistant-cost-philippines/",
+        "href": "/blog/insurance-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for insurance Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Insurance Virtual Assistant Do?",
-        "href": "/blog/what-does-an-insurance-virtual-assistant-do/",
+        "href": "/blog/what-does-an-insurance-virtual-assistant-do",
         "description": "A practical breakdown of the recurring insurance work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire an Insurance Virtual Assistant",
-        "href": "/blog/how-to-hire-a-insurance-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-insurance-virtual-assistant",
         "description": "Build a clearer insurance role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Insurance Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/insurance-virtual-assistant-tasks/",
+        "href": "/blog/insurance-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered insurance work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Insurance Agencies hiring guide",
-        "href": "/industries/insurance-agencies/",
+        "href": "/industries/insurance-agencies",
         "description": "See how insurance virtual assistant support fits insurance agencies, agents, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your insurance virtual assistant workload also includes admin & inbox responsibilities."
       }
     ]
@@ -13748,42 +13722,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Insurance Virtual Assistant",
-        "href": "/service/insurance-virtual-assistant/",
+        "href": "/service/insurance-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for insurance support."
       },
       {
         "label": "How to Hire an Insurance Virtual Assistant",
-        "href": "/blog/how-to-hire-a-insurance-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-insurance-virtual-assistant",
         "description": "Build a clearer insurance role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Insurance Virtual Assistant Interview Questions",
-        "href": "/blog/insurance-virtual-assistant-interview-questions/",
+        "href": "/blog/insurance-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an insurance Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Insurance Virtual Assistant Cost in the Philippines",
-        "href": "/blog/insurance-virtual-assistant-cost-philippines/",
+        "href": "/blog/insurance-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for insurance Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Does an Insurance Virtual Assistant Do?",
-        "href": "/blog/what-does-an-insurance-virtual-assistant-do/",
+        "href": "/blog/what-does-an-insurance-virtual-assistant-do",
         "description": "A practical breakdown of the recurring insurance work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Insurance Agencies hiring guide",
-        "href": "/industries/insurance-agencies/",
+        "href": "/industries/insurance-agencies",
         "description": "See how insurance virtual assistant support fits insurance agencies, agents, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your insurance virtual assistant workload also includes admin & inbox responsibilities."
       }
     ]
@@ -13966,42 +13940,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Train a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-train-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-train-a-law-firm-virtual-assistant",
         "description": "Use this onboarding plan to bring a new law firm virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -14131,42 +14105,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "How to Train a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-train-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-train-a-law-firm-virtual-assistant",
         "description": "Use this onboarding plan to bring a new law firm virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -14326,42 +14300,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "What Does a Law Firm Virtual Assistant Do?",
-        "href": "/blog/what-does-a-law-firm-virtual-assistant-do/",
+        "href": "/blog/what-does-a-law-firm-virtual-assistant-do",
         "description": "A practical breakdown of the recurring law firm work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-hire-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-law-firm-virtual-assistant",
         "description": "Build a clearer law firm role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -14506,42 +14480,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Confidentiality and Remote Legal Assistants: A Law Firm Checklist",
-        "href": "/blog/confidentiality-and-remote-legal-assistants/",
+        "href": "/blog/confidentiality-and-remote-legal-assistants",
         "description": "Build confidentiality into the workflow before a remote legal assistant receives matter or client access."
       },
       {
         "label": "Best Legal Practice Management Tools for Virtual Assistants",
-        "href": "/blog/best-legal-practice-management-tools-for-vas/",
+        "href": "/blog/best-legal-practice-management-tools-for-vas",
         "description": "Choose legal software around the firm's workflow and access model, not around a generic list of popular tools."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Law Firm Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/law-firm-virtual-assistant-tasks/",
+        "href": "/blog/law-firm-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered law firm work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ]
@@ -14683,42 +14657,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "How to Train a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-train-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-train-a-law-firm-virtual-assistant",
         "description": "Use this onboarding plan to bring a new law firm virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "Best Tools for a Law Firm Virtual Assistant",
-        "href": "/blog/best-tools-for-law-firm-virtual-assistant/",
+        "href": "/blog/best-tools-for-law-firm-virtual-assistant",
         "description": "The right law firm stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ],
@@ -14863,42 +14837,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "See the service scope, approved talent, and free match request for lead generation support."
       },
       {
         "label": "What Does a Lead Generation Virtual Assistant Do?",
-        "href": "/blog/what-does-a-lead-generation-do/",
+        "href": "/blog/what-does-a-lead-generation-do",
         "description": "A practical breakdown of the recurring lead generation work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Lead Generation Virtual Assistant",
-        "href": "/blog/how-to-hire-a-lead-generation/",
+        "href": "/blog/how-to-hire-a-lead-generation",
         "description": "Build a clearer lead generation role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Lead Generation Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/lead-generation-tasks/",
+        "href": "/blog/lead-generation-tasks",
         "description": "Use this task list to turn scattered lead generation work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Lead Generation Virtual Assistant Interview Questions",
-        "href": "/blog/lead-generation-interview-questions/",
+        "href": "/blog/lead-generation-interview-questions",
         "description": "Interview questions that reveal how a lead generation Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how lead generation virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -15058,42 +15032,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "See the service scope, approved talent, and free match request for lead generation support."
       },
       {
         "label": "Lead Generation Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/lead-generation-tasks/",
+        "href": "/blog/lead-generation-tasks",
         "description": "Use this task list to turn scattered lead generation work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Lead Generation Virtual Assistant",
-        "href": "/blog/how-to-hire-a-lead-generation/",
+        "href": "/blog/how-to-hire-a-lead-generation",
         "description": "Build a clearer lead generation role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Lead Generation Virtual Assistant Do?",
-        "href": "/blog/what-does-a-lead-generation-do/",
+        "href": "/blog/what-does-a-lead-generation-do",
         "description": "A practical breakdown of the recurring lead generation work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Lead Generation Virtual Assistant Cost in the Philippines",
-        "href": "/blog/lead-generation-cost-philippines/",
+        "href": "/blog/lead-generation-cost-philippines",
         "description": "A budgeting guide for lead generation Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how lead generation virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -15235,42 +15209,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "See the service scope, approved talent, and free match request for lead generation support."
       },
       {
         "label": "Lead Generation Virtual Assistant Interview Questions",
-        "href": "/blog/lead-generation-interview-questions/",
+        "href": "/blog/lead-generation-interview-questions",
         "description": "Interview questions that reveal how a lead generation Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire a Lead Generation Virtual Assistant",
-        "href": "/blog/how-to-hire-a-lead-generation/",
+        "href": "/blog/how-to-hire-a-lead-generation",
         "description": "Build a clearer lead generation role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Lead Generation Virtual Assistant Do?",
-        "href": "/blog/what-does-a-lead-generation-do/",
+        "href": "/blog/what-does-a-lead-generation-do",
         "description": "A practical breakdown of the recurring lead generation work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Lead Generation Virtual Assistant Cost in the Philippines",
-        "href": "/blog/lead-generation-cost-philippines/",
+        "href": "/blog/lead-generation-cost-philippines",
         "description": "A budgeting guide for lead generation Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how lead generation virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -15400,42 +15374,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "What Does a Legal Virtual Assistant Do?",
-        "href": "/blog/what-does-a-legal-virtual-assistant-do/",
+        "href": "/blog/what-does-a-legal-virtual-assistant-do",
         "description": "A practical breakdown of the recurring legal work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Legal Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/legal-virtual-assistant-tasks/",
+        "href": "/blog/legal-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered legal work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ]
@@ -15595,42 +15569,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Legal Virtual Assistant vs Paralegal: Which Do You Need?",
-        "href": "/blog/legal-virtual-assistant-vs-paralegal/",
+        "href": "/blog/legal-virtual-assistant-vs-paralegal",
         "description": "For legal virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "Legal Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/legal-virtual-assistant-tasks/",
+        "href": "/blog/legal-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered legal work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ]
@@ -15775,42 +15749,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "How to Train a Legal Virtual Assistant",
-        "href": "/blog/how-to-train-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-train-a-legal-virtual-assistant",
         "description": "Use this onboarding plan to bring a new legal virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "What Does a Legal Virtual Assistant Do?",
-        "href": "/blog/what-does-a-legal-virtual-assistant-do/",
+        "href": "/blog/what-does-a-legal-virtual-assistant-do",
         "description": "A practical breakdown of the recurring legal work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Legal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/legal-virtual-assistant-cost-philippines/",
+        "href": "/blog/legal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for legal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ]
@@ -15952,42 +15926,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Legal Virtual Assistant vs Paralegal: Which Do You Need?",
-        "href": "/blog/legal-virtual-assistant-vs-paralegal/",
+        "href": "/blog/legal-virtual-assistant-vs-paralegal",
         "description": "For legal virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "Legal Virtual Assistant Interview Questions",
-        "href": "/blog/legal-virtual-assistant-interview-questions/",
+        "href": "/blog/legal-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a legal Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ],
@@ -16175,42 +16149,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Legal Virtual Assistant Interview Questions",
-        "href": "/blog/legal-virtual-assistant-interview-questions/",
+        "href": "/blog/legal-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a legal Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Legal Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/legal-virtual-assistant-tasks/",
+        "href": "/blog/legal-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered legal work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ],
@@ -16398,42 +16372,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -16578,42 +16552,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical billing support."
       },
       {
         "label": "How to Hire a Medical Billing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-billing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-billing-virtual-assistant",
         "description": "Build a clearer medical billing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Medical Billing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-medical-billing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-medical-billing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring medical billing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical billing virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical billing virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical scribe responsibilities."
       }
     ]
@@ -16786,42 +16760,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "How to Hire a Medical Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-virtual-assistant",
         "description": "Build a clearer medical role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Best Tools for a Medical Virtual Assistant",
-        "href": "/blog/best-tools-for-medical-virtual-assistant/",
+        "href": "/blog/best-tools-for-medical-virtual-assistant",
         "description": "The right medical stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -16966,42 +16940,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical scribe support."
       },
       {
         "label": "What Does a Medical Scribe Virtual Assistant Do?",
-        "href": "/blog/what-does-a-medical-scribe-virtual-assistant-do/",
+        "href": "/blog/what-does-a-medical-scribe-virtual-assistant-do",
         "description": "A practical breakdown of the recurring medical scribe work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Medical Scribe Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-scribe-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-scribe-virtual-assistant",
         "description": "Build a clearer medical scribe role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical scribe virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes transcription responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -17131,42 +17105,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -17326,42 +17300,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/medical-virtual-assistant-tasks/",
+        "href": "/blog/medical-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered medical work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -17506,42 +17480,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Medical Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/medical-virtual-assistant-tasks/",
+        "href": "/blog/medical-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered medical work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -17683,42 +17657,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "What Is a Medical Virtual Assistant? Duties, Scope, and Hiring Guide",
-        "href": "/blog/what-is-a-virtual-medical-assistant/",
+        "href": "/blog/what-is-a-virtual-medical-assistant",
         "description": "A practical guide to non-clinical medical Virtual Assistant duties, patient administration, privacy-aware access, and safe delegation boundaries."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -17863,42 +17837,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mental Health Virtual Assistant",
-        "href": "/service/mental-health-virtual-assistant/",
+        "href": "/service/mental-health-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mental health support."
       },
       {
         "label": "What Does a Mental Health Virtual Assistant Do?",
-        "href": "/blog/what-does-a-mental-health-virtual-assistant-do/",
+        "href": "/blog/what-does-a-mental-health-virtual-assistant-do",
         "description": "A practical breakdown of the recurring mental health work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Mental Health Virtual Assistant",
-        "href": "/blog/how-to-hire-a-mental-health-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-mental-health-virtual-assistant",
         "description": "Build a clearer mental health role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Therapists & Mental Health Practices hiring guide",
-        "href": "/industries/therapists/",
+        "href": "/industries/therapists",
         "description": "See how mental health virtual assistant support fits therapists, counselors, and mental-health practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical billing responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -18028,37 +18002,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mortgage Virtual Assistant",
-        "href": "/service/mortgage-virtual-assistant/",
+        "href": "/service/mortgage-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mortgage support."
       },
       {
         "label": "How to Hire a Mortgage Virtual Assistant",
-        "href": "/blog/how-to-hire-a-mortgage-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-mortgage-virtual-assistant",
         "description": "Build a clearer mortgage role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Mortgage Virtual Assistant Do?",
-        "href": "/blog/what-does-a-mortgage-virtual-assistant-do/",
+        "href": "/blog/what-does-a-mortgage-virtual-assistant-do",
         "description": "A practical breakdown of the recurring mortgage work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes CRM responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -18200,22 +18174,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "How to Hire an Appointment Setter Virtual Assistant",
-        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant",
         "description": "Build a clearer appointment setter role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Legal Virtual Assistant Interview Questions",
-        "href": "/blog/legal-virtual-assistant-interview-questions/",
+        "href": "/blog/legal-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a legal Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire an HVAC Virtual Assistant",
-        "href": "/blog/how-to-hire-a-hvac-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-hvac-virtual-assistant",
         "description": "Build a clearer HVAC role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
@@ -18225,7 +18199,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -18356,17 +18330,17 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Philippines Hiring guides",
-        "href": "/blog/topic/philippines/",
+        "href": "/blog/topic/philippines",
         "description": "Browse more practical articles in the philippines hiring topic hub."
       },
       {
         "label": "Philippines vs India Virtual Assistants: How to Compare Talent",
-        "href": "/blog/philippines-vs-india-virtual-assistants/",
+        "href": "/blog/philippines-vs-india-virtual-assistants",
         "description": "Country can shape labor-market context, but it is not a substitute for screening the individual candidate and role fit."
       },
       {
         "label": "SSS, PhilHealth, and Pag-IBIG for Filipino Virtual Assistants: What Clients Should Check",
-        "href": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va/",
+        "href": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
         "description": "The answer depends on the real working relationship and business setup. Use official guidance and qualified advice instead of relying on a contract label alone."
       },
       {
@@ -18376,12 +18350,12 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ],
@@ -18522,42 +18496,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Paralegal Virtual Assistant",
-        "href": "/service/paralegal-virtual-assistant/",
+        "href": "/service/paralegal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for paralegal support."
       },
       {
         "label": "What Does a Paralegal Virtual Assistant Do?",
-        "href": "/blog/what-does-a-paralegal-virtual-assistant-do/",
+        "href": "/blog/what-does-a-paralegal-virtual-assistant-do",
         "description": "A practical breakdown of the recurring paralegal work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Paralegal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-paralegal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-paralegal-virtual-assistant",
         "description": "Build a clearer paralegal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how paralegal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes law firm responsibilities."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes legal responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -18687,37 +18661,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Payroll Virtual Assistant",
-        "href": "/service/payroll-virtual-assistant/",
+        "href": "/service/payroll-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for payroll support."
       },
       {
         "label": "What Does a Payroll Virtual Assistant Do?",
-        "href": "/blog/what-does-a-payroll-virtual-assistant-do/",
+        "href": "/blog/what-does-a-payroll-virtual-assistant-do",
         "description": "A practical breakdown of the recurring payroll work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Payroll Virtual Assistant",
-        "href": "/blog/how-to-hire-a-payroll-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-payroll-virtual-assistant",
         "description": "Build a clearer payroll role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes accounting responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -18886,17 +18860,17 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Philippines Hiring guides",
-        "href": "/blog/topic/philippines/",
+        "href": "/blog/topic/philippines",
         "description": "Browse more practical articles in the philippines hiring topic hub."
       },
       {
         "label": "Outsourcing to a Philippines Virtual Assistant: Complete Guide",
-        "href": "/outsourcing-philippines-virtual-assistant/",
+        "href": "/outsourcing-philippines-virtual-assistant",
         "description": "Use outsourcing to create reliable ownership for recurring work, not to move an unclear process to another person."
       },
       {
         "label": "SSS, PhilHealth, and Pag-IBIG for Filipino Virtual Assistants: What Clients Should Check",
-        "href": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va/",
+        "href": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
         "description": "The answer depends on the real working relationship and business setup. Use official guidance and qualified advice instead of relying on a contract label alone."
       },
       {
@@ -18906,7 +18880,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ],
@@ -19047,37 +19021,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Podcast Virtual Assistant",
-        "href": "/service/podcast-virtual-assistant/",
+        "href": "/service/podcast-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for podcast support."
       },
       {
         "label": "How to Hire a Podcast Virtual Assistant",
-        "href": "/blog/how-to-hire-a-podcast-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-podcast-virtual-assistant",
         "description": "Build a clearer podcast role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Podcast Virtual Assistant Do?",
-        "href": "/blog/what-does-a-podcast-virtual-assistant-do/",
+        "href": "/blog/what-does-a-podcast-virtual-assistant-do",
         "description": "A practical breakdown of the recurring podcast work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Video Editing Virtual Assistant",
-        "href": "/service/video-editing/",
+        "href": "/service/video-editing",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes video editing responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes transcription responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -19207,42 +19181,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a QuickBooks Virtual Assistant",
-        "href": "/service/quickbooks-virtual-assistant/",
+        "href": "/service/quickbooks-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for QuickBooks support."
       },
       {
         "label": "What Does a QuickBooks Virtual Assistant Do?",
-        "href": "/blog/what-does-a-quickbooks-virtual-assistant-do/",
+        "href": "/blog/what-does-a-quickbooks-virtual-assistant-do",
         "description": "A practical breakdown of the recurring quickbooks work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a QuickBooks Virtual Assistant",
-        "href": "/blog/how-to-hire-a-quickbooks-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-quickbooks-virtual-assistant",
         "description": "Build a clearer quickbooks role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how quickbooks virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes accounting responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -19372,42 +19346,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Real Estate Virtual Assistant",
-        "href": "/service/real-estate/",
+        "href": "/service/real-estate",
         "description": "See the service scope, approved talent, and free match request for real estate support."
       },
       {
         "label": "How to Hire a Real Estate Virtual Assistant",
-        "href": "/blog/how-to-hire-a-real-estate/",
+        "href": "/blog/how-to-hire-a-real-estate",
         "description": "Build a clearer real estate role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Real Estate Virtual Assistant Do?",
-        "href": "/blog/what-does-a-real-estate-virtual-assistant-do/",
+        "href": "/blog/what-does-a-real-estate-virtual-assistant-do",
         "description": "A practical guide to real estate Virtual Assistant tasks, CRM follow-up, listings, coordination, boundaries, and hiring signals."
       },
       {
         "label": "Real Estate Virtual Assistant Interview Questions",
-        "href": "/blog/real-estate-interview-questions/",
+        "href": "/blog/real-estate-interview-questions",
         "description": "Interview questions that reveal how a real estate Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Real Estate Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/real-estate-tasks/",
+        "href": "/blog/real-estate-tasks",
         "description": "Use this task list to turn scattered real estate work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how real estate virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -19567,42 +19541,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Real Estate Virtual Assistant",
-        "href": "/service/real-estate/",
+        "href": "/service/real-estate",
         "description": "See the service scope, approved talent, and free match request for real estate support."
       },
       {
         "label": "What Does a Real Estate Virtual Assistant Do?",
-        "href": "/blog/what-does-a-real-estate-virtual-assistant-do/",
+        "href": "/blog/what-does-a-real-estate-virtual-assistant-do",
         "description": "A practical guide to real estate Virtual Assistant tasks, CRM follow-up, listings, coordination, boundaries, and hiring signals."
       },
       {
         "label": "Real Estate Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/real-estate-tasks/",
+        "href": "/blog/real-estate-tasks",
         "description": "Use this task list to turn scattered real estate work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Real Estate Virtual Assistant",
-        "href": "/blog/how-to-hire-a-real-estate/",
+        "href": "/blog/how-to-hire-a-real-estate",
         "description": "Build a clearer real estate role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Real Estate Virtual Assistant Cost in the Philippines",
-        "href": "/blog/real-estate-cost-philippines/",
+        "href": "/blog/real-estate-cost-philippines",
         "description": "A budgeting guide for real estate Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how real estate virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -19744,42 +19718,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Real Estate Virtual Assistant",
-        "href": "/service/real-estate/",
+        "href": "/service/real-estate",
         "description": "See the service scope, approved talent, and free match request for real estate support."
       },
       {
         "label": "Real Estate Virtual Assistant Interview Questions",
-        "href": "/blog/real-estate-interview-questions/",
+        "href": "/blog/real-estate-interview-questions",
         "description": "Interview questions that reveal how a real estate Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "What Does a Real Estate Virtual Assistant Do?",
-        "href": "/blog/what-does-a-real-estate-virtual-assistant-do/",
+        "href": "/blog/what-does-a-real-estate-virtual-assistant-do",
         "description": "A practical guide to real estate Virtual Assistant tasks, CRM follow-up, listings, coordination, boundaries, and hiring signals."
       },
       {
         "label": "How to Hire a Real Estate Virtual Assistant",
-        "href": "/blog/how-to-hire-a-real-estate/",
+        "href": "/blog/how-to-hire-a-real-estate",
         "description": "Build a clearer real estate role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Real Estate Virtual Assistant Cost in the Philippines",
-        "href": "/blog/real-estate-cost-philippines/",
+        "href": "/blog/real-estate-cost-philippines",
         "description": "A budgeting guide for real estate Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Real Estate guides",
-        "href": "/blog/topic/real-estate/",
+        "href": "/blog/topic/real-estate",
         "description": "Browse more practical articles in the real estate topic hub."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how real estate virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -19909,37 +19883,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Roofing Virtual Assistant",
-        "href": "/service/roofing-virtual-assistant/",
+        "href": "/service/roofing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for roofing support."
       },
       {
         "label": "How to Hire a Roofing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-roofing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-roofing-virtual-assistant",
         "description": "Build a clearer roofing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does a Roofing Virtual Assistant Do?",
-        "href": "/blog/what-does-a-roofing-virtual-assistant-do/",
+        "href": "/blog/what-does-a-roofing-virtual-assistant-do",
         "description": "A practical breakdown of the recurring roofing work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes construction responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -20069,37 +20043,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Sales Virtual Assistant",
-        "href": "/service/sales-virtual-assistant/",
+        "href": "/service/sales-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for sales support."
       },
       {
         "label": "What Does a Sales Virtual Assistant Do?",
-        "href": "/blog/what-does-a-sales-virtual-assistant-do/",
+        "href": "/blog/what-does-a-sales-virtual-assistant-do",
         "description": "A practical breakdown of the recurring sales work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Sales Virtual Assistant",
-        "href": "/blog/how-to-hire-a-sales-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-sales-virtual-assistant",
         "description": "Build a clearer sales role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -20108,90 +20082,82 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "seo-cost-philippines",
     "title": "SEO Virtual Assistant Cost in the Philippines",
     "metaTitle": "SEO Virtual Assistant Cost Philippines | 2026 Guide",
-    "description": "Plan a realistic SEO Virtual Assistant budget in the Philippines. See the factors that change rates, monthly cost examples, and the VirtualAssistant.com.ph.",
+    "description": "Plan an SEO Virtual Assistant budget in the Philippines by workload, experience, tool depth, schedule, and decision ownership instead of anchoring on one hourly rate.",
     "excerpt": "A budgeting guide for SEO Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate.",
     "topic": "pricing",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "What you are really paying for in an SEO role",
+        "heading": "Budget for the SEO work, not the job title",
         "paragraphs": [
-          "When competitor research needs reliable weekly ownership, a useful budget is not a bid for the cheapest available hour. For SEO reporting, it is the price of getting a defined set of recurring work completed to an agreed standard. Two SEO Virtual Assistant candidates can quote different rates and both be reasonable if one needs close supervision while the other can run the queue, document exceptions, and communicate directly with customers or internal stakeholders.",
-          "Ecommerce brands often have competitor research, keyword research, and internal linking competing for attention with higher-value work. A sensible SEO Virtual Assistant role could own those recurring queues, document completion in the agreed system, and flag exceptions before they become overdue. Once that handoff is stable, the scope can expand into SEO reporting and on-page optimization. When budgeting for Google Search Console monitoring, the goal is not to move every task offshore at once. Give the SEO Virtual Assistant one coherent slice of work they can learn, repeat, and improve before adding the next queue."
-        ]
+          "There is no single useful rate for every SEO Virtual Assistant because the title can describe very different jobs. A person following a prepared on-page checklist is not the same role as someone expected to research search intent, prepare briefs, run crawls, explain anomalies, communicate with clients, and manage exceptions independently.",
+          "Start the budget with the recurring workload and the level of judgment the person must bring on day one."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Why rates vary even when the job title is the same",
+        "heading": "Three SEO scopes that require different levels of experience",
         "paragraphs": [
-          "When competitor research needs reliable weekly ownership, the biggest cost drivers are Relevant experience and independence, Full-time or part-time schedule, Required live overlap and response times, Tool or platform specialization, and Scope, complexity, and decision ownership. If SEO reporting is one of the main deliverables, add responsibility only when you are prepared to pay for the judgment and reliability that responsibility requires. An SEO role built around keyword research that simply follows a prepared checklist is different from one expected to diagnose problems, write customer-facing responses, prioritize competing requests, or improve the process."
+          "Execution support is the narrowest scope: defined research, CMS updates, internal linking, reporting inputs, and checklist-based QA. A hybrid SEO operations role adds more independent research, briefs, prioritization inside an approved backlog, and stronger communication. Technical-support work may involve crawls, issue triage, implementation QA, and more complex evidence gathering under an SEO lead.",
+          "The more the role moves from following rules to interpreting evidence and managing exceptions, the more experience you should expect to pay for."
         ],
+        "bullets": []
+      },
+      {
+        "heading": "Estimate monthly hours from the actual SEO queue",
+        "paragraphs": [
+          "If you do not know the workload, track it for two weeks. Record how much time the team spends on keyword research, briefs, on-page updates, internal links, reporting, monitoring, CMS work, and follow-up. Separate recurring execution from strategy meetings and one-off projects.",
+          "Then decide which portion can be owned by the assistant. A small, coherent queue is easier to budget and hire for than a role built from every SEO task anyone can think of."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "The cost drivers that matter most",
         "bullets": [
-          "Relevant seo virtual assistant experience and independence: define what the person must already know and which decisions still stay with your team.",
-          "Schedule: state the weekly hours, working pattern, and whether this seo virtual assistant role is full-time or part-time.",
-          "Live overlap and response time: document when this seo virtual assistant hire must be available in real time and what can wait.",
-          "Tool depth: name the platforms this seo virtual assistant hire will actually use and the level of practical fluency the work requires.",
-          "Scope and decision ownership: separate repeatable seo virtual assistant execution from approvals, exceptions, and specialist judgment."
-        ]
-      },
-      {
-        "heading": "Set the budget from scope, experience, and responsibility",
-        "paragraphs": [
-          "Build the SEO Virtual Assistant budget from the work itself. Compare the number of recurring hours, required experience, live coverage, tool depth, quality expectations, access level, and the cost of errors. A more independent role with specialist knowledge or direct client communication usually warrants a higher budget than basic execution under close review.",
-          "If your budget only works at the floor, narrow the scope. For technical audit support, give the Virtual Assistant fewer responsibilities, reduce live coverage, or keep specialist decisions with your internal team. When competitor research needs reliable weekly ownership, a smaller well-defined role is easier to fill than a senior job compressed into an entry-level budget."
-        ]
-      },
-      {
-        "heading": "Build the monthly budget from hours and ownership",
-        "paragraphs": [
-          "Start with the hours the work actually consumes. Track the queue for two weeks if you are unsure. Then separate recurring execution from irregular projects. When internal linking needs reliable weekly ownership, a 10-hour weekly role and a 40-hour weekly role should not be compared by monthly price alone because the amount of availability you are reserving is completely different."
+          "Relevant SEO experience and how independently the person must work.",
+          "Weekly hours and whether the schedule is predictable or fragmented.",
+          "Required live overlap, client communication, and response expectations.",
+          "Depth in Search Console, analytics, crawling, research, CMS, and reporting tools.",
+          "Risk and decision ownership, especially around publishing or technical changes."
         ],
-        "numbered": [
-          "Estimate recurring weekly hours from real work, not a guess.",
-          "Choose the tasks the Virtual Assistant will own at launch.",
-          "For SEO Virtual Assistant, the useful pricing question is not the lowest possible hourly number. Start with the responsibilities, expected output, schedule, required systems, communication standard, and level of judgment the person will exercise. Then compare candidates who can actually meet that brief and adjust the budget when the role requires deeper experience or greater ownership.",
-          "Add any platform, software, or service fees to the operating budget.",
-          "Review the scope and rate after the first month if the job has materially changed."
+        "paragraphs": [
+          "Tool names alone should not raise the budget. What matters is the depth of work the person is expected to perform with those tools and the consequences of mistakes."
         ]
       },
       {
-        "heading": "Where cheap hiring becomes expensive",
+        "heading": "Where a cheap SEO hire becomes expensive",
         "paragraphs": [
-          "The hidden cost is usually management time. If a low-rate SEO hire responsible for Google Search Console monitoring needs every message rewritten, misses handoffs, or cannot work inside the systems you use, the manager pays the difference in interruptions and rework. For SEO work that includes technical audit support, that does not mean a higher quote automatically means a better hire. For competitor research, it means rate should be evaluated beside evidence, communication, work samples, and the clarity of the role.",
-          "For SEO work involving content briefs, start with real examples from keyword research, internal linking, and technical audit support. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Ahrefs or GA4, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process."
-        ]
-      },
-      {
-        "heading": "How to discuss budget with candidates",
-        "paragraphs": [
-          "When internal linking needs reliable weekly ownership, state the expected hours, whether those hours are fixed or flexible, required live overlap, the main responsibilities, and the decisions the person can make. When discussing content briefs, ask what part of the scope feels routine to them and what part would require training. When budgeting for Google Search Console monitoring, that conversation is much more informative than asking for a “best rate.”",
-          "If you expect the SEO role to grow, say so without promising an automatic increase in hours or compensation. When competitor research needs reliable weekly ownership, agree on a review point and revisit the rate when the responsibility changes materially."
-        ]
-      },
-      {
-        "heading": "When a higher budget for SEO support is justified",
-        "paragraphs": [
-          "If SEO reporting is one of the main deliverables, paying more can make sense when the role requires independent prioritization, specialist software, sensitive data, complex written communication, customer or client contact, time-sensitive live coverage, or a track record in your industry. When keyword research is part of the scope, the budget should follow the consequence of mistakes and the amount of judgment you are asking the person to exercise."
+          "A low headline rate can be poor value if a senior team member has to rewrite every brief, redo research, correct CMS errors, chase status updates, or review work that was never documented. Rework and management time are part of the real cost.",
+          "If the budget is tight, narrow the scope instead of compressing a senior SEO role into an entry-level budget. Keep strategy and complex technical decisions with your internal lead and delegate the stable execution layer."
         ],
-        "bullets": [
-          "Look for evidence of search intent analysis, not just a claim on a profile.",
-          "Look for evidence of on-page SEO, not just a claim on a profile.",
-          "Look for evidence of technical SEO basics, not just a claim on a profile.",
-          "Look for evidence of content optimization, not just a claim on a profile.",
-          "Look for evidence of reporting, not just a claim on a profile.",
-          "Look for evidence of attention to detail, not just a claim on a profile."
-        ]
+        "bullets": []
       },
       {
-        "heading": "A practical budget check before you publish",
+        "heading": "Discuss budget after the scope is clear",
         "paragraphs": [
-          "For SEO work that includes on-page optimization, read the job post once as if you were the candidate. If the SEO role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for Google Search Console monitoring, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When competitor research and on-page optimization are both part of the SEO scope, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
-        ]
+          "Give candidates the responsibilities, hours, overlap requirements, tools, and level of independence before asking whether the budget is realistic. That produces a more useful conversation than starting with one number and trying to force every candidate into it.",
+          "When comparing options, use the same scope. Otherwise you may be comparing one person who expects to follow a checklist with another who expects to own the workflow."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "When paying more for SEO support can make sense",
+        "paragraphs": [
+          "A higher budget can be justified when the person brings proven experience in a difficult environment, needs little supervision, can communicate directly with stakeholders, handles more complex tools, or owns QA and exception management. The business case should be reduced management burden and more reliable execution, not simply a more impressive title."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Use a workload scenario before committing",
+        "paragraphs": [
+          "Model the role with your expected weekly hours and scope, then compare that with the cost of keeping the same work on a strategist's plate. The site's VA cost calculator can help with the arithmetic, but the hiring decision should still be based on the work, required experience, and expected ownership."
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -20229,42 +20195,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "SEO Virtual Assistant Job Description Template",
-        "href": "/blog/seo-job-description/",
+        "href": "/blog/seo-job-description",
         "description": "Use this seo virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "How to Train an SEO Virtual Assistant",
-        "href": "/blog/how-to-train-a-seo/",
+        "href": "/blog/how-to-train-a-seo",
         "description": "Use this onboarding plan to bring a new seo virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
-        "href": "/blog/seo-vs-seo-specialist/",
+        "href": "/blog/seo-vs-seo-specialist",
         "description": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -20280,18 +20246,19 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "seo",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "What a good SEO interview should reveal",
+        "heading": "What an SEO interview needs to prove",
         "paragraphs": [
           "When testing a candidate on keyword research, the interview should answer three questions: can the person do the work, can they communicate well enough for the role, and can they make sensible decisions inside the boundaries you set? For an interview scenario built around on-page optimization, a polished introduction is useful, but it is not enough evidence for a recurring operational role.",
           "When GA4 is used for internal linking, a remote hire is easier to manage when the role is defined around outputs. To assess judgment around content briefs, decide what the person owns, what they can decide without approval, what requires escalation, and how progress will be visible before you start interviewing."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Ask questions about real work, not personality labels",
+        "heading": "Start with a real keyword or on-page workflow",
         "paragraphs": [
           "When testing a candidate on Google Search Console monitoring, questions are stronger when the candidate has to describe a sequence. For an interview scenario built around technical audit support, “Tell me about a time you managed a busy queue” is more useful than “Are you organized?” When Google Sheets is used for competitor research, follow up with what they checked, what they documented, what went wrong, and who they informed."
         ],
@@ -20304,7 +20271,7 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Use the second half of the interview for judgment and handoffs",
+        "heading": "Test judgment on technical and publishing boundaries",
         "paragraphs": [
           "To assess judgment around SEO reporting, once you understand the candidate's experience, move into situations that resemble your environment. The goal is not to trick them. For on-page optimization, it is to see how they handle incomplete information, competing priorities, and exceptions."
         ],
@@ -20317,7 +20284,7 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "What a strong answer sounds like",
+        "heading": "What strong SEO answers sound like",
         "paragraphs": [
           "When GA4 is used for internal linking, strong candidates usually give concrete details without pretending every project went perfectly. To assess judgment around content briefs, they can name the system they used, the steps they owned, the person they handed work to, and the way they checked completion. When testing a candidate on Google Search Console monitoring, they also know when an issue should be escalated rather than improvised."
         ],
@@ -20331,21 +20298,23 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Red flags worth exploring, not automatically rejecting",
+        "heading": "Red flags that need a follow-up question",
         "paragraphs": [
           "For an interview scenario built around technical audit support, a vague answer can mean the candidate has not done the work, but it can also mean the question is too broad. Ask one follow-up before deciding. To assess judgment around SEO reporting, the bigger concern is a pattern of claiming ownership without being able to describe steps, controls, or outcomes.",
           "When testing a candidate on keyword research, also pay attention when a candidate is willing to accept responsibility that clearly falls outside the role's authority. Good judgment includes knowing where the boundary is."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Add a short work sample when the role needs it",
+        "heading": "Use a small SEO work sample without extracting free work",
         "paragraphs": [
           "For SEO work involving technical audit support, start with real examples from keyword research, internal linking, and technical audit support. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Ahrefs or GA4, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
           "For an interview scenario built around technical audit support, a work sample should resemble the job without asking the candidate to produce unpaid commercial output. When Google Sheets is used for competitor research, use a fictional scenario, a redacted example, or a small skills test. To assess judgment around SEO reporting, tell candidates what you are evaluating and keep the time commitment proportionate."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Score candidates before discussing them as a group",
+        "heading": "Score evidence before discussing candidates",
         "paragraphs": [
           "Have each interviewer record their score before the debrief. Otherwise the first strong opinion can influence everyone else. When GA4 is used for internal linking, compare evidence against the same criteria, then note which gaps can be trained and which gaps are fundamental to the role."
         ],
@@ -20380,13 +20349,15 @@ export const BLOG_POSTS: BlogPost[] = [
               "Do examples show follow-through and documentation?"
             ]
           ]
-        }
+        },
+        "bullets": []
       },
       {
-        "heading": "Close the interview with operating details",
+        "heading": "Finish with schedule, tools, access, and escalation rules",
         "paragraphs": [
           "Before you end an SEO interview, confirm weekly hours, time-zone overlap, start timing, rate expectations, and any equipment or connectivity requirements. When testing a candidate on Google Search Console monitoring, tell the candidate what the next step is and when they should expect an update. For an interview scenario built around technical audit support, clear candidate communication is part of the quality of your hiring process."
-        ]
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -20424,37 +20395,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire an SEO Virtual Assistant",
-        "href": "/blog/how-to-hire-a-seo/",
+        "href": "/blog/how-to-hire-a-seo",
         "description": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does an SEO Virtual Assistant Do?",
-        "href": "/blog/what-does-an-seo-virtual-assistant-do/",
+        "href": "/blog/what-does-an-seo-virtual-assistant-do",
         "description": "A practical breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring."
       },
       {
         "label": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
-        "href": "/blog/seo-vs-seo-specialist/",
+        "href": "/blog/seo-vs-seo-specialist",
         "description": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -20470,24 +20441,26 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "seo",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "An SEO job description should read like a real job",
+        "heading": "Write the SEO job around outcomes, not buzzwords",
         "paragraphs": [
           "When content briefs is part of the SEO scope, candidates should be able to picture the week. Lead with the outcome, then explain the recurring work, hours, tools, communication expectations, and boundaries. Avoid opening with a long company story or a list of personality adjectives.",
           "For SEO hiring, the responsibilities should reflect keyword research, on-page optimization, internal linking, content briefs, Google Search Console monitoring, and technical audit support. If a requirement does not change who you would interview, remove it."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Start with the outcome, not “we need a rockstar”",
+        "heading": "Open with the problem the hire will own",
         "paragraphs": [
           "In an SEO handoff involving Google Search Console monitoring, write one or two sentences explaining why the role exists and what will be better when it is filled. A useful outcome sounds like “keep the intake queue current and every follow-up dated,” not “support our dynamic team.” Concrete language helps capable candidates self-select."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "List responsibilities in groups",
+        "heading": "Group SEO responsibilities by workflow",
         "paragraphs": [
           "For SEO teams working on technical audit support, group related work so the candidate sees the shape of the job. Keep the launch scope separate from future responsibilities. That prevents a candidate from assuming they must be expert in every adjacent task on day one."
         ],
@@ -20503,7 +20476,7 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Separate required experience from trainable preferences",
+        "heading": "Separate required SEO evidence from trainable preferences",
         "paragraphs": [
           "When competitor research is part of the SEO scope, required criteria should be things you genuinely cannot train in a reasonable onboarding period, such as a needed language level, a specific regulated workflow, or substantial experience in a complex system. Tool familiarity, industry exposure, and nice-to-have software should be labeled honestly."
         ],
@@ -20517,19 +20490,21 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Be explicit about hours, rate, and live overlap",
+        "heading": "State hours, overlap, and compensation expectations clearly",
         "paragraphs": [
           "In an SEO handoff involving SEO reporting, state whether the role is part time or full time, the expected weekly hours, the time zone, and how much live overlap is required. If the schedule is flexible, say that. Set the budget from the scope, expected weekly hours, schedule, required experience, and level of ownership. Specialized roles may need a higher budget."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Include the tools that matter at launch",
+        "heading": "List only the tools the role will use at launch",
         "paragraphs": [
           "List only systems the person will actually use in the first month. For this SEO Virtual Assistant role, that might include Ahrefs, Semrush, Google Search Console, GA4, Screaming Frog, and WordPress. Ask for evidence of real use during screening instead of rejecting good candidates because they have used an equivalent tool."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Sample job-post structure",
+        "heading": "A practical SEO VA job-post structure",
         "paragraphs": [
           "When on-page optimization is part of the SEO scope, use this as a structure, then rewrite it in your own voice so candidates get a realistic picture of the team."
         ],
@@ -20540,28 +20515,32 @@ export const BLOG_POSTS: BlogPost[] = [
           "Schedule: state weekly hours, time zone, and required live overlap.",
           "Requirements: choose four or five evidence-based criteria from the real work.",
           "SEO Virtual Assistant pricing should be based on the actual workload, weekly hours, experience level, time-zone overlap, software requirements, communication demands, and how independently the assistant will work. A role that owns sensitive, specialist, or client-facing work should be budgeted differently from a tightly supervised task list, so use the scope and responsibility rather than anchoring on one hourly figure."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "What to remove before you publish",
+        "heading": "Remove requirements that belong to a strategist or developer",
         "paragraphs": [
           "In an SEO handoff involving internal linking, delete clichés, inflated seniority, contradictory schedule requirements, and tools that are not actually required. Then read the post for hidden assumptions. If you expect phone work, say how much. If the person will handle sensitive data, say what type and how access is controlled. If the role includes weekend coverage, state it before the interview.",
           "For SEO teams working on content briefs, a shorter, accurate description attracts better-fit applicants than a generic page of requirements copied from other listings."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Read the SEO job post from the candidate's side",
+        "heading": "Read the job post from an experienced SEO candidate's side",
         "paragraphs": [
           "Take content briefs from a recent week and trace it from the moment the request arrived to the final record or handoff. When candidates read competitor research in the scope, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. To make ownership of SEO reporting clear, that example will expose missing instructions faster than another generic checklist.",
           "If content briefs becomes predictable, add technical audit support only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. When candidates read internal linking in the scope, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Test one more workflow before expanding the SEO scope",
+        "heading": "Check that the responsibilities form one coherent role",
         "paragraphs": [
           "Take Google Search Console monitoring from a recent week and trace it from the moment the request arrived to the final record or handoff. When the job brief assigns Google Search Console monitoring, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. For an SEO posting centered on technical audit support, that example will expose missing instructions faster than another generic checklist.",
           "If Google Search Console monitoring becomes predictable, add competitor research only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. When the job brief assigns keyword research, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -20599,42 +20578,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "How to Train an SEO Virtual Assistant",
-        "href": "/blog/how-to-train-a-seo/",
+        "href": "/blog/how-to-train-a-seo",
         "description": "Use this onboarding plan to bring a new seo virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "SEO Virtual Assistant Cost in the Philippines",
-        "href": "/blog/seo-cost-philippines/",
+        "href": "/blog/seo-cost-philippines",
         "description": "A budgeting guide for SEO Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
-        "href": "/blog/seo-vs-seo-specialist/",
+        "href": "/blog/seo-vs-seo-specialist",
         "description": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]
@@ -20643,102 +20622,86 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "seo-tasks",
     "title": "SEO Virtual Assistant Tasks: What to Delegate",
     "metaTitle": "SEO Virtual Assistant Tasks: What to Delegate",
-    "description": "A clear SEO virtual assistant task list, with delegation priorities, quality checks, escalation rules, and a simple way to build the role.",
+    "description": "Use this SEO virtual assistant task list to delegate research, on-page work, internal linking, monitoring, reporting, and QA without handing off strategy by accident.",
     "excerpt": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries.",
     "topic": "seo-marketing",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "A useful SEO task list starts with frequency",
+        "heading": "Build one coherent SEO queue before adding more tasks",
         "paragraphs": [
-          "When on-page optimization enters the weekly queue, long task lists look impressive and are often terrible job descriptions. If the first handoff is internal linking, sort the work by what happens daily, weekly, monthly, and only when an exception occurs. When content briefs and technical audit support share the same handoff, that reveals whether you have enough coherent work for one person and which tasks need real-time coverage.",
-          "SaaS companies often have on-page optimization, content briefs, and technical audit support competing for attention with higher-value work. A sensible SEO Virtual Assistant role could own those recurring queues, document completion in the agreed system, and flag exceptions before they become overdue. Once that handoff is stable, the scope can expand into internal linking and Google Search Console monitoring. When SEO reporting and on-page optimization share the same handoff, the goal is not to move every task offshore at once. Give the SEO Virtual Assistant one coherent slice of work they can learn, repeat, and improve before adding the next queue."
-        ]
+          "A useful SEO task list is not the longest list you can create. It is a set of related responsibilities that share inputs, tools, quality standards, and a reporting rhythm. Start with one workflow, such as content production support or ongoing on-page maintenance, then add adjacent tasks after the first queue is stable.",
+          "That approach is easier to train, easier to measure, and less likely to turn the assistant into a general marketing catch-all."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Daily work to consider",
+        "heading": "Daily and near-daily monitoring tasks",
         "paragraphs": [
-          "When on-page optimization enters the weekly queue, daily responsibilities should be the work that loses value when it waits. If the first handoff is internal linking, choose items where the Virtual Assistant can see the queue, act within a defined rule, and close the loop without needing a manager for every step."
+          "Daily work should be limited to signals that actually benefit from frequent review. A large site or active publishing operation may need regular indexing checks, content-production follow-up, or priority-page monitoring. A smaller site may not need daily SEO checks at all."
         ],
         "bullets": [
-          "Keyword research: decide the response window, source of truth, and what counts as completed.",
-          "On-page optimization: decide the response window, source of truth, and what counts as completed.",
-          "Internal linking: decide the response window, source of truth, and what counts as completed.",
-          "Content briefs: decide the response window, source of truth, and what counts as completed."
+          "Check agreed Search Console alerts or priority-page changes.",
+          "Update content, optimization, or internal-link queues as work moves.",
+          "Flag publishing, indexing, or CMS problems that block scheduled work.",
+          "Record exceptions that need an SEO lead, writer, developer, or client decision."
         ]
       },
       {
-        "heading": "Weekly and recurring work",
+        "heading": "Weekly SEO production tasks",
         "paragraphs": [
-          "When content briefs and technical audit support share the same handoff, weekly work is ideal for building ownership because it creates a natural rhythm. For Google Search Console monitoring, batch tasks where possible so the Virtual Assistant can work from a checklist, prepare a short update, and reserve live interruptions for genuinely time-sensitive items."
+          "Weekly responsibilities are usually where an SEO VA creates the most leverage because they are repetitive enough to standardize but important enough to create a backlog when nobody owns them."
         ],
         "bullets": [
-          "Content briefs: add a recurring deadline and a short quality check.",
-          "Google Search Console monitoring: add a recurring deadline and a short quality check.",
-          "Technical audit support: add a recurring deadline and a short quality check.",
-          "Competitor research: add a recurring deadline and a short quality check.",
-          "SEO reporting: add a recurring deadline and a short quality check."
+          "Keyword and SERP research for approved topics.",
+          "Content briefs with intent, competing page types, subtopics, and internal-link targets.",
+          "On-page QA for titles, headings, copy updates, media fields, and approved schema inputs.",
+          "Internal-link research and implementation under defined relevance and anchor rules.",
+          "Competitor and content-gap updates tied to a real editorial or landing-page decision.",
+          "Reporting that summarizes work completed, meaningful movement, blockers, and next actions."
         ]
       },
       {
-        "heading": "Tasks to keep out of the first handoff",
+        "heading": "Monthly and periodic SEO support",
         "paragraphs": [
-          "When Google Search Console monitoring is part of the SEO scope, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
-          "Also hold back tasks that are poorly defined. If your team still disagrees about the process for keyword research, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
-        ]
-      },
-      {
-        "heading": "Turn every task into a small operating agreement",
-        "paragraphs": [
-          "For each SEO item, write five things: the trigger, the input, the expected output, the deadline, and the exception rule. That is enough structure for most recurring work. For Google Search Console monitoring, add screenshots or a short screen recording only where the steps are genuinely hard to describe."
+          "Less frequent tasks can include crawl preparation, refresh inventories, broken-link checks, orphan-page reviews, dashboard QA, content-decay checks, and compiling evidence for a technical review. The assistant can gather and organize the data while the SEO owner decides what should change.",
+          "For sites with many templates or locations, periodic QA is especially useful because small mistakes can spread across hundreds of URLs."
         ],
-        "numbered": [
-          "Trigger: what tells the Virtual Assistant the work has started?",
-          "Input: where does the information come from?",
-          "Output: what should exist when the task is done?",
-          "Deadline: how quickly should it be completed?",
-          "Exception: when should the Virtual Assistant stop and ask for help?"
-        ]
+        "bullets": []
       },
       {
-        "heading": "A better way to hand over the first week",
+        "heading": "Tasks that should require approval",
         "paragraphs": [
-          "For SEO work, start with real examples from content briefs, technical audit support, and keyword research. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses GA4 or Looker Studio, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "For keyword research, do the first example together, let the Virtual Assistant do the second while you observe, then review the third from the finished output. This keeps training tied to actual work. It also shows where your documentation is missing context."
-        ]
-      },
-      {
-        "heading": "How to measure task ownership without micromanaging",
-        "paragraphs": [
-          "Measure the result that matters to the workflow. For Google Search Console monitoring, that could be response time, error rate, records updated, appointments confirmed, tickets closed correctly, pages published, reconciliations completed, or follow-up completed by the agreed date. When technical audit support enters the weekly queue, avoid measuring keyboard activity when the real goal is reliable output."
+          "Do not confuse repeatable execution with unrestricted authority. Redirect maps, canonical changes, robots rules, noindex directives, sitemap removals, large deletions, template-level changes, migrations, and sitewide publishing decisions can have a large impact. An assistant can prepare the evidence and implementation plan, but the accountable SEO or developer should approve the change."
         ],
-        "bullets": [
-          "Completion against the agreed cadence",
-          "Accuracy and rework",
-          "Turnaround time",
-          "Quality of notes and documentation",
-          "Number and quality of escalations",
-          "Backlog size over time"
-        ]
+        "bullets": []
       },
       {
-        "heading": "When the SEO role is ready to expand",
+        "heading": "Define “done” for every delegated SEO task",
         "paragraphs": [
-          "If the first handoff is competitor research, add responsibility when the existing queue is stable and the Virtual Assistant has shown good judgment with exceptions. Expand one workflow at a time. If you add internal linking plus several unrelated responsibilities at once, you will not know which training gap caused a problem.",
-          "When on-page optimization enters the weekly queue, the aim is not to make the task list as long as possible. For internal linking, it is to build a role where one person can own a meaningful set of related outcomes."
-        ]
+          "Every task should specify the input, output, source of truth, deadline, QA check, and escalation rule. For internal linking, for example, “done” could mean a set number of genuinely relevant opportunities reviewed against page intent, implemented in the CMS, checked on the live page, and recorded in the tracking sheet. It should never mean inserting links just to satisfy a count.",
+          "This definition is more valuable than a long SOP full of screenshots because it survives tool and interface changes."
+        ],
+        "bullets": []
       },
       {
-        "heading": "Check whether the SEO task list forms a coherent role",
+        "heading": "Measure ownership without micromanaging",
         "paragraphs": [
-          "Take on-page optimization from a recent week and trace it from the moment the request arrived to the final record or handoff. For Google Search Console monitoring, note who supplied the input, where the status lived, which decision caused delay, and how the manager knew the work was complete. When technical audit support enters the weekly queue, that example will expose missing instructions faster than another generic checklist.",
-          "If on-page optimization becomes predictable, add content briefs only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the SEO role. For keyword research, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
-        ]
+          "Track outcomes that show whether the workflow is healthy: turnaround time, error or rework rate, backlog age, percentage of items with evidence, and how often an exception is escalated late. Avoid treating rankings or traffic as the assistant's individual KPI when strategy, development, content quality, competition, and algorithms are outside their control."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "Expand the role only when the first queue is stable",
+        "paragraphs": [
+          "Once the assistant can run the first workflow accurately, add the next adjacent responsibility. Research can expand into briefs, briefs into on-page QA, or reporting into a broader monitoring queue. If the current work still creates repeated questions or hidden errors, fix the process before increasing scope."
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -20776,37 +20739,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
-        "href": "/blog/seo-vs-seo-specialist/",
+        "href": "/blog/seo-vs-seo-specialist",
         "description": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome."
       },
       {
         "label": "SEO Virtual Assistant Interview Questions",
-        "href": "/blog/seo-interview-questions/",
+        "href": "/blog/seo-interview-questions",
         "description": "Interview questions that reveal how an SEO Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire an SEO Virtual Assistant",
-        "href": "/blog/how-to-hire-a-seo/",
+        "href": "/blog/how-to-hire-a-seo",
         "description": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does an SEO Virtual Assistant Do?",
-        "href": "/blog/what-does-an-seo-virtual-assistant-do/",
+        "href": "/blog/what-does-an-seo-virtual-assistant-do",
         "description": "A practical breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -20815,32 +20778,34 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "seo-vs-seo-specialist",
     "title": "SEO Virtual Assistant vs SEO Specialist: Which Do You Need?",
     "metaTitle": "SEO Virtual Assistant vs SEO Specialist | Which Fits?",
-    "description": "Compare an SEO virtual assistant with seo specialist and choose the right option based on strategy, execution, cost structure, and management needs.",
+    "description": "Compare an SEO virtual assistant with SEO specialist and choose the right option based on strategy, execution, cost structure, and management needs.",
     "excerpt": "For seo virtual assistant work, the right hiring model depends on whether you need recurring execution, senior strategy, specialist judgment, or a managed outcome.",
     "topic": "seo-marketing",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "comparison",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "Start with the operating problem, not the label",
+        "heading": "Start with the SEO problem you need solved",
         "paragraphs": [
           "When the options are compared for keyword research, a comparison is useful only if the two options are being judged against the same work. Before handing off on-page optimization, write down the weekly responsibilities, level of judgment, live coverage, systems, and ownership you need. When internal linking is used as the comparison test, then compare which model or role is better suited to that reality.",
-          "For seo virtual assistant vs seo specialist, the answer may change as the business grows. When the options are compared for Google Search Console monitoring, what fits a founder with ten hours of recurring admin work may not fit a team that needs multi-shift coverage or specialist oversight."
-        ]
+          "For seo virtual assistant vs SEO specialist, the answer may change as the business grows. When the options are compared for Google Search Console monitoring, what fits a founder with ten hours of recurring admin work may not fit a team that needs multi-shift coverage or specialist oversight."
+        ],
+        "bullets": []
       },
       {
-        "heading": "The difference is ownership level",
+        "heading": "The main difference is decision ownership",
         "paragraphs": [
           "An SEO Virtual Assistant is usually strongest when your business already knows the direction and needs consistent execution, documentation, follow-up, and recurring operational support. SEO Specialist may be the better fit when the work requires deeper strategy, licensed judgment, a broader team, or a fully managed outcome.",
           "For SEO work involving SEO reporting, a useful test is whether two reasonable people would produce the same result from the written instructions. If the written process for keyword research still leaves room for two reasonable answers, add an example, a decision rule, or an approval step. That small amount of detail keeps the SEO Virtual Assistant from having to guess when volume rises."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Choose a Virtual Assistant when",
+        "heading": "Choose an SEO Virtual Assistant for repeatable execution",
         "bullets": [
           "The work recurs every week",
           "You want someone embedded in your tools and processes",
@@ -20852,7 +20817,7 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Choose SEO Specialist when",
+        "heading": "Choose an SEO specialist for strategy or complex diagnosis",
         "bullets": [
           "You need senior strategy before execution",
           "The work is highly specialized or regulated",
@@ -20864,14 +20829,15 @@ export const BLOG_POSTS: BlogPost[] = [
         ]
       },
       {
-        "heading": "Many teams use both",
+        "heading": "A strategist and SEO VA can work as one operating model",
         "paragraphs": [
           "In an SEO handoff involving Google Search Console monitoring, a common operating model is to keep strategy or regulated decisions with the appropriate expert and use a Virtual Assistant to make sure recurring execution actually happens. The important part is making the handoff explicit.",
           "A good role becomes easier to hire once the weekly workflow is visible. Give this part of the SEO workflow a named owner, a real deadline, and a visible record of completion. If the instruction for Google Search Console monitoring only makes sense because a manager is standing beside the person, the handoff still needs work."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Decision table",
+        "heading": "Decision table: scope, judgment, risk, and management",
         "table": {
           "headers": [
             "Need",
@@ -20908,26 +20874,30 @@ export const BLOG_POSTS: BlogPost[] = [
         },
         "paragraphs": [
           "For a team that needs technical audit support, treat the process as an operating question rather than a slogan. Decide what information arrives first, which system should be updated, how the SEO Virtual Assistant knows the item is complete, and what happens when the normal rule does not fit. For SEO work involving SEO reporting, the result is a role that can be managed by outcomes instead of a stream of one-off instructions."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Write the handoff before you hire",
+        "heading": "Write the handoff between strategy and execution",
         "paragraphs": [
           "If you use both, define which recommendations come from SEO Specialist, which recurring actions move to the SEO Virtual Assistant, which decisions require approval, and where completed work is documented. That prevents duplicated work and makes accountability visible.",
           "When internal linking is used as the comparison test, a useful test is whether two reasonable people would produce the same result from the written instructions. If the written process for content briefs still leaves room for two reasonable answers, add an example, a decision rule, or an approval step. That small amount of detail keeps the SEO Virtual Assistant from having to guess when volume rises."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Compare the handoff and management burden",
+        "heading": "Compare total management burden, not just rates",
         "paragraphs": [
           "When discussing technical audit support, ask who writes the process, who trains the person, who reviews quality, who covers absences, and who handles an exception. When competitor research is used as the comparison test, a lower headline price can become expensive if your internal manager has to rebuild the operating model around it. For SEO work involving SEO reporting, a more supported option can also be unnecessary if the work is simple and your team already manages remote staff well."
-        ]
+        ],
+        "bullets": []
       },
       {
-        "heading": "Use a 30-day decision instead of a permanent theory",
+        "heading": "Use the first 30 days to validate the model",
         "paragraphs": [
           "If both options could work, choose the model that best fits the first set of outcomes and review after a month. For a team that needs on-page optimization, measure accuracy, response time, backlog, manager involvement, and the quality of handoffs. When internal linking is used as the comparison test, that gives you evidence from your own workflow rather than relying on broad claims about one hiring model being universally better."
-        ]
+        ],
+        "bullets": []
       },
       {
         "heading": "Questions to answer before choosing",
@@ -20979,37 +20949,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "SEO Virtual Assistant Interview Questions",
-        "href": "/blog/seo-interview-questions/",
+        "href": "/blog/seo-interview-questions",
         "description": "Interview questions that reveal how an SEO Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire an SEO Virtual Assistant",
-        "href": "/blog/how-to-hire-a-seo/",
+        "href": "/blog/how-to-hire-a-seo",
         "description": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "What Does an SEO Virtual Assistant Do?",
-        "href": "/blog/what-does-an-seo-virtual-assistant-do/",
+        "href": "/blog/what-does-an-seo-virtual-assistant-do",
         "description": "A practical breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -21139,42 +21109,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Shopify support."
       },
       {
         "label": "What Does a Shopify Virtual Assistant Do?",
-        "href": "/blog/what-does-a-shopify-virtual-assistant-do/",
+        "href": "/blog/what-does-a-shopify-virtual-assistant-do",
         "description": "A practical breakdown of the recurring shopify work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Shopify Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/shopify-virtual-assistant-tasks/",
+        "href": "/blog/shopify-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered shopify work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Shopify Virtual Assistant",
-        "href": "/blog/how-to-hire-a-shopify-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-shopify-virtual-assistant",
         "description": "Build a clearer shopify role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Shopify Virtual Assistant Interview Questions",
-        "href": "/blog/shopify-virtual-assistant-interview-questions/",
+        "href": "/blog/shopify-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a shopify Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how shopify virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your shopify virtual assistant workload also includes ecommerce responsibilities."
       }
     ]
@@ -21334,42 +21304,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Shopify support."
       },
       {
         "label": "How to Hire a Shopify Virtual Assistant",
-        "href": "/blog/how-to-hire-a-shopify-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-shopify-virtual-assistant",
         "description": "Build a clearer shopify role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Shopify Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/shopify-virtual-assistant-tasks/",
+        "href": "/blog/shopify-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered shopify work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "What Does a Shopify Virtual Assistant Do?",
-        "href": "/blog/what-does-a-shopify-virtual-assistant-do/",
+        "href": "/blog/what-does-a-shopify-virtual-assistant-do",
         "description": "A practical breakdown of the recurring shopify work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Shopify Virtual Assistant Cost in the Philippines",
-        "href": "/blog/shopify-virtual-assistant-cost-philippines/",
+        "href": "/blog/shopify-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for shopify Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how shopify virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your shopify virtual assistant workload also includes ecommerce responsibilities."
       }
     ]
@@ -21511,42 +21481,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Shopify support."
       },
       {
         "label": "What Does a Shopify Virtual Assistant Do?",
-        "href": "/blog/what-does-a-shopify-virtual-assistant-do/",
+        "href": "/blog/what-does-a-shopify-virtual-assistant-do",
         "description": "A practical breakdown of the recurring shopify work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "Shopify Virtual Assistant Cost in the Philippines",
-        "href": "/blog/shopify-virtual-assistant-cost-philippines/",
+        "href": "/blog/shopify-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for shopify Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Shopify Virtual Assistant",
-        "href": "/blog/how-to-hire-a-shopify-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-shopify-virtual-assistant",
         "description": "Build a clearer shopify role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Shopify Virtual Assistant Interview Questions",
-        "href": "/blog/shopify-virtual-assistant-interview-questions/",
+        "href": "/blog/shopify-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a shopify Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how shopify virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your shopify virtual assistant workload also includes ecommerce responsibilities."
       }
     ]
@@ -21676,42 +21646,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Short-Term Rental Virtual Assistant",
-        "href": "/service/short-term-rental-virtual-assistant/",
+        "href": "/service/short-term-rental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for short-term rental support."
       },
       {
         "label": "What Does a Short-Term Rental Virtual Assistant Do?",
-        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do/",
+        "href": "/blog/what-does-a-short-term-rental-virtual-assistant-do",
         "description": "A practical breakdown of the recurring short-term rental work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Short-Term Rental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-short-term-rental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-short-term-rental-virtual-assistant",
         "description": "Build a clearer short-term rental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how short-term rental virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Airbnb Virtual Assistant",
-        "href": "/service/airbnb-virtual-assistant/",
+        "href": "/service/airbnb-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes Airbnb responsibilities."
       },
       {
         "label": "Property Management Virtual Assistant",
-        "href": "/service/property-management-virtual-assistant/",
+        "href": "/service/property-management-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes property management responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -21852,17 +21822,17 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Philippines Hiring guides",
-        "href": "/blog/topic/philippines/",
+        "href": "/blog/topic/philippines",
         "description": "Browse more practical articles in the philippines hiring topic hub."
       },
       {
         "label": "Outsourcing to a Philippines Virtual Assistant: Complete Guide",
-        "href": "/outsourcing-philippines-virtual-assistant/",
+        "href": "/outsourcing-philippines-virtual-assistant",
         "description": "Use outsourcing to create reliable ownership for recurring work, not to move an unclear process to another person."
       },
       {
         "label": "Philippines vs India Virtual Assistants: How to Compare Talent",
-        "href": "/blog/philippines-vs-india-virtual-assistants/",
+        "href": "/blog/philippines-vs-india-virtual-assistants",
         "description": "Country can shape labor-market context, but it is not a substitute for screening the individual candidate and role fit."
       },
       {
@@ -21872,7 +21842,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22024,22 +21994,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "How to Hire a Construction Virtual Assistant",
-        "href": "/blog/how-to-hire-a-construction-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-construction-virtual-assistant",
         "description": "Build a clearer construction role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Virtual Assistant vs BPO: Which Support Model Fits?",
-        "href": "/blog/virtual-assistant-vs-bpo/",
+        "href": "/blog/virtual-assistant-vs-bpo",
         "description": "A Virtual Assistant can fit a defined individual role. A BPO can fit larger, standardized workflows that need team-level scale and management infrastructure."
       },
       {
         "label": "Law Firm Virtual Assistant Job Description Template",
-        "href": "/blog/law-firm-virtual-assistant-job-description/",
+        "href": "/blog/law-firm-virtual-assistant-job-description",
         "description": "Use this hiring models job description template to attract candidates who understand the actual work, not only the title."
       },
       {
@@ -22049,7 +22019,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22221,22 +22191,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Legal Virtual Assistant Job Description Template",
-        "href": "/blog/legal-virtual-assistant-job-description/",
+        "href": "/blog/legal-virtual-assistant-job-description",
         "description": "Use this hiring models job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "Virtual Assistant vs Local Employee: Cost, Control, and Fit",
-        "href": "/blog/virtual-assistant-vs-employee/",
+        "href": "/blog/virtual-assistant-vs-employee",
         "description": "Choose based on the work, level of control, location needs, and employment obligations, not only on the hourly cost."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
@@ -22246,7 +22216,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22373,22 +22343,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Average Hourly Rate for Virtual Assistants in the Philippines: 2026 Guide",
-        "href": "/average-hourly-rate-virtual-assistants-philippines/",
+        "href": "/average-hourly-rate-virtual-assistants-philippines",
         "description": "Use hourly-rate benchmarks as context, then budget for the responsibility and evidence of skill your role actually needs."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
@@ -22398,7 +22368,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22543,22 +22513,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "How to Hire a Construction Virtual Assistant",
-        "href": "/blog/how-to-hire-a-construction-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-construction-virtual-assistant",
         "description": "Build a clearer construction role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Upwork vs a Virtual Assistant Agency: How to Choose",
-        "href": "/blog/upwork-vs-virtual-assistant-agency/",
+        "href": "/blog/upwork-vs-virtual-assistant-agency",
         "description": "Use an open marketplace when you want broad choice and can manage selection. Consider an agency when you want more screening and placement support."
       },
       {
         "label": "What Does a Web Developer Virtual Assistant Do?",
-        "href": "/blog/what-does-a-web-developer-virtual-assistant-do/",
+        "href": "/blog/what-does-a-web-developer-virtual-assistant-do",
         "description": "A practical breakdown of the recurring web developer work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
@@ -22568,7 +22538,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22717,22 +22687,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Virtual Assistant Agency vs Freelancer: Which Hiring Model Fits?",
-        "href": "/blog/virtual-assistant-agency-vs-freelancer/",
+        "href": "/blog/virtual-assistant-agency-vs-freelancer",
         "description": "Neither model is automatically better. Choose based on how much screening, management, continuity, and support you want to own yourself."
       },
       {
         "label": "Legal Virtual Assistant Job Description Template",
-        "href": "/blog/legal-virtual-assistant-job-description/",
+        "href": "/blog/legal-virtual-assistant-job-description",
         "description": "Use this hiring models job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
@@ -22742,7 +22712,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
     ]
@@ -22872,37 +22842,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Web Developer Virtual Assistant",
-        "href": "/service/web-developer-virtual-assistant/",
+        "href": "/service/web-developer-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for web developer support."
       },
       {
         "label": "What Does a Web Developer Virtual Assistant Do?",
-        "href": "/blog/what-does-a-web-developer-virtual-assistant-do/",
+        "href": "/blog/what-does-a-web-developer-virtual-assistant-do",
         "description": "A practical breakdown of the recurring web developer work you can delegate, the boundaries to set, and the signals to look for when hiring."
       },
       {
         "label": "How to Hire a Web Developer Virtual Assistant",
-        "href": "/blog/how-to-hire-a-web-developer-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-web-developer-virtual-assistant",
         "description": "Build a clearer web developer role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Pricing guides",
-        "href": "/blog/topic/pricing/",
+        "href": "/blog/topic/pricing",
         "description": "Browse more practical articles in the pricing topic hub."
       },
       {
         "label": "WordPress Virtual Assistant",
-        "href": "/service/wordpress/",
+        "href": "/service/wordpress",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes WordPress responsibilities."
       },
       {
         "label": "IT Virtual Assistant",
-        "href": "/service/it-virtual-assistant/",
+        "href": "/service/it-virtual-assistant",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes IT responsibilities."
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and rate before you publish the role."
       }
     ]
@@ -23027,42 +22997,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "See the service scope, approved talent, and free match request for bookkeeping support."
       },
       {
         "label": "Bookkeeping Virtual Assistant Interview Questions",
-        "href": "/blog/bookkeeping-interview-questions/",
+        "href": "/blog/bookkeeping-interview-questions",
         "description": "Interview questions that reveal how a bookkeeping Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Bookkeeping Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/bookkeeping-tasks/",
+        "href": "/blog/bookkeeping-tasks",
         "description": "Use this task list to turn scattered bookkeeping work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "How to Hire a Bookkeeping Virtual Assistant",
-        "href": "/blog/how-to-hire-a-bookkeeping/",
+        "href": "/blog/how-to-hire-a-bookkeeping",
         "description": "Build a clearer bookkeeping role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Bookkeeping Virtual Assistant Cost in the Philippines",
-        "href": "/blog/bookkeeping-cost-philippines/",
+        "href": "/blog/bookkeeping-cost-philippines",
         "description": "A budgeting guide for bookkeeping Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how bookkeeping virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -23198,37 +23168,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for cold calling support."
       },
       {
         "label": "Cold Calling Virtual Assistant Cost in the Philippines",
-        "href": "/blog/cold-calling-virtual-assistant-cost-philippines/",
+        "href": "/blog/cold-calling-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for cold calling Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Cold Calling Virtual Assistant",
-        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-cold-calling-virtual-assistant",
         "description": "Build a clearer cold calling role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Real Estate Investors hiring guide",
-        "href": "/industries/real-estate-investors/",
+        "href": "/industries/real-estate-investors",
         "description": "See how cold calling virtual assistant support fits real estate investors and acquisition teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes appointment setter responsibilities."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your cold calling virtual assistant workload also includes lead generation responsibilities."
       }
     ]
@@ -23353,42 +23323,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for construction support."
       },
       {
         "label": "Construction Virtual Assistant Cost in the Philippines",
-        "href": "/blog/construction-virtual-assistant-cost-philippines/",
+        "href": "/blog/construction-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for construction Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Construction Virtual Assistant",
-        "href": "/blog/how-to-hire-a-construction-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-construction-virtual-assistant",
         "description": "Build a clearer construction role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how construction virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Construction Companies hiring guide",
-        "href": "/industries/construction-companies/",
+        "href": "/industries/construction-companies",
         "description": "See how construction virtual assistant support fits general contractors and construction companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Project Coordination Virtual Assistant",
-        "href": "/service/project-coordination/",
+        "href": "/service/project-coordination",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes project coordination responsibilities."
       },
       {
         "label": "Operations & Process Virtual Assistant",
-        "href": "/service/operations/",
+        "href": "/service/operations",
         "description": "Compare this adjacent service when your construction virtual assistant workload also includes operations & process responsibilities."
       }
     ]
@@ -23513,32 +23483,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Content Marketing Virtual Assistant",
-        "href": "/service/content-marketing-virtual-assistant/",
+        "href": "/service/content-marketing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for content marketing support."
       },
       {
         "label": "How to Hire a Content Marketing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-content-marketing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-content-marketing-virtual-assistant",
         "description": "Build a clearer content marketing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Content Marketing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/content-marketing-virtual-assistant-cost-philippines/",
+        "href": "/blog/content-marketing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for content marketing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Content Writing Virtual Assistant",
-        "href": "/service/content-writing/",
+        "href": "/service/content-writing",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes content writing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your content marketing virtual assistant workload also includes SEO responsibilities."
       }
     ]
@@ -23663,32 +23633,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Credit Repair Virtual Assistant",
-        "href": "/service/credit-repair-virtual-assistant/",
+        "href": "/service/credit-repair-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for credit repair support."
       },
       {
         "label": "How to Hire a Credit Repair Virtual Assistant",
-        "href": "/blog/how-to-hire-a-credit-repair-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-credit-repair-virtual-assistant",
         "description": "Build a clearer credit repair role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Credit Repair Virtual Assistant Cost in the Philippines",
-        "href": "/blog/credit-repair-virtual-assistant-cost-philippines/",
+        "href": "/blog/credit-repair-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for credit repair Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes CRM responsibilities."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your credit repair virtual assistant workload also includes admin & inbox responsibilities."
       }
     ],
@@ -23824,42 +23794,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Customer Service Virtual Assistant",
-        "href": "/service/customer-service/",
+        "href": "/service/customer-service",
         "description": "See the service scope, approved talent, and free match request for customer service support."
       },
       {
         "label": "Customer Service Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/customer-service-tasks/",
+        "href": "/blog/customer-service-tasks",
         "description": "Use this task list to turn scattered customer service work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Customer Service Virtual Assistant Cost in the Philippines",
-        "href": "/blog/customer-service-cost-philippines/",
+        "href": "/blog/customer-service-cost-philippines",
         "description": "A budgeting guide for customer service Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Customer Service Virtual Assistant",
-        "href": "/blog/how-to-hire-a-customer-service/",
+        "href": "/blog/how-to-hire-a-customer-service",
         "description": "Build a clearer customer service role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Customer Service Virtual Assistant Interview Questions",
-        "href": "/blog/customer-service-interview-questions/",
+        "href": "/blog/customer-service-interview-questions",
         "description": "Interview questions that reveal how a customer service Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Small Business hiring guide",
-        "href": "/industries/small-business/",
+        "href": "/industries/small-business",
         "description": "See how customer service virtual assistant support fits small business owners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -23984,37 +23954,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Billing Virtual Assistant",
-        "href": "/service/dental-billing-virtual-assistant/",
+        "href": "/service/dental-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental billing support."
       },
       {
         "label": "Dental Billing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-billing-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-billing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental billing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Dental Billing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-billing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-billing-virtual-assistant",
         "description": "Build a clearer dental billing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental billing virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes dental responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your dental billing virtual assistant workload also includes medical billing responsibilities."
       }
     ],
@@ -24154,42 +24124,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Dental Virtual Assistant",
-        "href": "/service/dental-virtual-assistant/",
+        "href": "/service/dental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for dental support."
       },
       {
         "label": "How to Hire a Dental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-dental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-dental-virtual-assistant",
         "description": "Build a clearer dental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Dental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/dental-virtual-assistant-cost-philippines/",
+        "href": "/blog/dental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for dental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Dental Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/dental-virtual-assistant-tasks/",
+        "href": "/blog/dental-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered dental work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Dental Virtual Assistant Interview Questions",
-        "href": "/blog/dental-virtual-assistant-interview-questions/",
+        "href": "/blog/dental-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a dental Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how dental virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Dental Practices hiring guide",
-        "href": "/industries/dental-practices/",
+        "href": "/industries/dental-practices",
         "description": "See how dental virtual assistant support fits dental offices and dental groups and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -24329,42 +24299,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Financial Advisor Virtual Assistant",
-        "href": "/service/financial-advisor-virtual-assistant/",
+        "href": "/service/financial-advisor-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for financial advisor support."
       },
       {
         "label": "How to Hire a Financial Advisor Virtual Assistant",
-        "href": "/blog/how-to-hire-a-financial-advisor-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-financial-advisor-virtual-assistant",
         "description": "Build a clearer financial advisor role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Financial Advisor Virtual Assistant Cost in the Philippines",
-        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines/",
+        "href": "/blog/financial-advisor-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for financial advisor Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Financial Advisors hiring guide",
-        "href": "/industries/financial-advisors/",
+        "href": "/industries/financial-advisors",
         "description": "See how financial advisor virtual assistant support fits financial advisors, RIAs, and wealth-management firms and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Banking & Financial Services hiring guide",
-        "href": "/industries/banking-financial-services/",
+        "href": "/industries/banking-financial-services",
         "description": "See how financial advisor virtual assistant support fits banking and financial-service teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your financial advisor virtual assistant workload also includes CRM responsibilities."
       }
     ],
@@ -24500,32 +24470,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Google Ads Virtual Assistant",
-        "href": "/service/google-ads-virtual-assistant/",
+        "href": "/service/google-ads-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Google Ads support."
       },
       {
         "label": "Google Ads Virtual Assistant Cost in the Philippines",
-        "href": "/blog/google-ads-virtual-assistant-cost-philippines/",
+        "href": "/blog/google-ads-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for google ads Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Google Ads Virtual Assistant",
-        "href": "/blog/how-to-hire-a-google-ads-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-google-ads-virtual-assistant",
         "description": "Build a clearer google ads role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes digital marketing responsibilities."
       },
       {
         "label": "SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "Compare this adjacent service when your google ads virtual assistant workload also includes SEO responsibilities."
       }
     ]
@@ -24650,42 +24620,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for law firm support."
       },
       {
         "label": "Law Firm Virtual Assistant Interview Questions",
-        "href": "/blog/law-firm-virtual-assistant-interview-questions/",
+        "href": "/blog/law-firm-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a law firm Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire a Law Firm Virtual Assistant",
-        "href": "/blog/how-to-hire-a-law-firm-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-law-firm-virtual-assistant",
         "description": "Build a clearer law firm role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Law Firm Client Intake Checklist for a Virtual Assistant",
-        "href": "/blog/law-firm-client-intake-checklist/",
+        "href": "/blog/law-firm-client-intake-checklist",
         "description": "A practical intake workflow for contact details, matter information, documents, scheduling, conflict steps, and attorney handoff."
       },
       {
         "label": "Law Firm Virtual Assistant Cost in the Philippines",
-        "href": "/blog/law-firm-virtual-assistant-cost-philippines/",
+        "href": "/blog/law-firm-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for law firm Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how law firm virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your law firm virtual assistant workload also includes legal responsibilities."
       }
     ],
@@ -24825,42 +24795,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "See the service scope, approved talent, and free match request for lead generation support."
       },
       {
         "label": "How to Hire a Lead Generation Virtual Assistant",
-        "href": "/blog/how-to-hire-a-lead-generation/",
+        "href": "/blog/how-to-hire-a-lead-generation",
         "description": "Build a clearer lead generation role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Lead Generation Virtual Assistant Cost in the Philippines",
-        "href": "/blog/lead-generation-cost-philippines/",
+        "href": "/blog/lead-generation-cost-philippines",
         "description": "A budgeting guide for lead generation Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Lead Generation Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/lead-generation-tasks/",
+        "href": "/blog/lead-generation-tasks",
         "description": "Use this task list to turn scattered lead generation work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Lead Generation Virtual Assistant Interview Questions",
-        "href": "/blog/lead-generation-interview-questions/",
+        "href": "/blog/lead-generation-interview-questions",
         "description": "Interview questions that reveal how a lead generation Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how lead generation virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -24985,42 +24955,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for legal support."
       },
       {
         "label": "Legal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/legal-virtual-assistant-cost-philippines/",
+        "href": "/blog/legal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for legal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Best Tools for a Legal Virtual Assistant",
-        "href": "/blog/best-tools-for-legal-virtual-assistant/",
+        "href": "/blog/best-tools-for-legal-virtual-assistant",
         "description": "The right legal stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "How to Train a Legal Virtual Assistant",
-        "href": "/blog/how-to-train-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-train-a-legal-virtual-assistant",
         "description": "Use this onboarding plan to bring a new legal virtual assistant hire up to speed without overloading the first week."
       },
       {
         "label": "How to Hire a Legal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-legal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-legal-virtual-assistant",
         "description": "Build a clearer legal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how legal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
     ],
@@ -25160,42 +25130,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical billing support."
       },
       {
         "label": "How to Hire a Medical Billing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-billing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-billing-virtual-assistant",
         "description": "Build a clearer medical billing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Medical Billing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-billing-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-billing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical billing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical billing virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical billing virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "Compare this adjacent service when your medical billing virtual assistant workload also includes medical scribe responsibilities."
       }
     ],
@@ -25335,37 +25305,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Scribe Virtual Assistant",
-        "href": "/service/medical-scribe-virtual-assistant/",
+        "href": "/service/medical-scribe-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical scribe support."
       },
       {
         "label": "Medical Scribe Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-scribe-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-scribe-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical scribe Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Medical Scribe Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-scribe-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-scribe-virtual-assistant",
         "description": "Build a clearer medical scribe role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical scribe virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your medical scribe virtual assistant workload also includes transcription responsibilities."
       }
     ],
@@ -25505,37 +25475,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mental Health Virtual Assistant",
-        "href": "/service/mental-health-virtual-assistant/",
+        "href": "/service/mental-health-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mental health support."
       },
       {
         "label": "Mental Health Virtual Assistant Cost in the Philippines",
-        "href": "/blog/mental-health-virtual-assistant-cost-philippines/",
+        "href": "/blog/mental-health-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for mental health Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Mental Health Virtual Assistant",
-        "href": "/blog/how-to-hire-a-mental-health-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-mental-health-virtual-assistant",
         "description": "Build a clearer mental health role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Therapists & Mental Health Practices hiring guide",
-        "href": "/industries/therapists/",
+        "href": "/industries/therapists",
         "description": "See how mental health virtual assistant support fits therapists, counselors, and mental-health practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical responsibilities."
       },
       {
         "label": "Medical Billing Virtual Assistant",
-        "href": "/service/medical-billing-virtual-assistant/",
+        "href": "/service/medical-billing-virtual-assistant",
         "description": "Compare this adjacent service when your mental health virtual assistant workload also includes medical billing responsibilities."
       }
     ],
@@ -25675,32 +25645,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Mortgage Virtual Assistant",
-        "href": "/service/mortgage-virtual-assistant/",
+        "href": "/service/mortgage-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for mortgage support."
       },
       {
         "label": "Mortgage Virtual Assistant Cost in the Philippines",
-        "href": "/blog/mortgage-virtual-assistant-cost-philippines/",
+        "href": "/blog/mortgage-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for mortgage Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Mortgage Virtual Assistant",
-        "href": "/blog/how-to-hire-a-mortgage-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-mortgage-virtual-assistant",
         "description": "Build a clearer mortgage role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes admin & inbox responsibilities."
       },
       {
         "label": "CRM Virtual Assistant",
-        "href": "/service/crm/",
+        "href": "/service/crm",
         "description": "Compare this adjacent service when your mortgage virtual assistant workload also includes CRM responsibilities."
       }
     ],
@@ -25836,37 +25806,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Paralegal Virtual Assistant",
-        "href": "/service/paralegal-virtual-assistant/",
+        "href": "/service/paralegal-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for paralegal support."
       },
       {
         "label": "Paralegal Virtual Assistant Cost in the Philippines",
-        "href": "/blog/paralegal-virtual-assistant-cost-philippines/",
+        "href": "/blog/paralegal-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for paralegal Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Paralegal Virtual Assistant",
-        "href": "/blog/how-to-hire-a-paralegal-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-paralegal-virtual-assistant",
         "description": "Build a clearer paralegal role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Legal guides",
-        "href": "/blog/topic/legal/",
+        "href": "/blog/topic/legal",
         "description": "Browse more practical articles in the legal topic hub."
       },
       {
         "label": "Law Firms hiring guide",
-        "href": "/industries/law-firms/",
+        "href": "/industries/law-firms",
         "description": "See how paralegal virtual assistant support fits law firms, attorneys, and solo practitioners and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Law Firm Virtual Assistant",
-        "href": "/service/law-firm-virtual-assistant/",
+        "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes law firm responsibilities."
       },
       {
         "label": "Legal Virtual Assistant",
-        "href": "/service/legal-virtual-assistant/",
+        "href": "/service/legal-virtual-assistant",
         "description": "Compare this adjacent service when your paralegal virtual assistant workload also includes legal responsibilities."
       }
     ],
@@ -26006,32 +25976,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Payroll Virtual Assistant",
-        "href": "/service/payroll-virtual-assistant/",
+        "href": "/service/payroll-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for payroll support."
       },
       {
         "label": "Payroll Virtual Assistant Cost in the Philippines",
-        "href": "/blog/payroll-virtual-assistant-cost-philippines/",
+        "href": "/blog/payroll-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for payroll Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Payroll Virtual Assistant",
-        "href": "/blog/how-to-hire-a-payroll-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-payroll-virtual-assistant",
         "description": "Build a clearer payroll role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your payroll virtual assistant workload also includes accounting responsibilities."
       }
     ],
@@ -26167,32 +26137,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Podcast Virtual Assistant",
-        "href": "/service/podcast-virtual-assistant/",
+        "href": "/service/podcast-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for podcast support."
       },
       {
         "label": "How to Hire a Podcast Virtual Assistant",
-        "href": "/blog/how-to-hire-a-podcast-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-podcast-virtual-assistant",
         "description": "Build a clearer podcast role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Podcast Virtual Assistant Cost in the Philippines",
-        "href": "/blog/podcast-virtual-assistant-cost-philippines/",
+        "href": "/blog/podcast-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for podcast Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Video Editing Virtual Assistant",
-        "href": "/service/video-editing/",
+        "href": "/service/video-editing",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes video editing responsibilities."
       },
       {
         "label": "Transcription Virtual Assistant",
-        "href": "/service/transcription/",
+        "href": "/service/transcription",
         "description": "Compare this adjacent service when your podcast virtual assistant workload also includes transcription responsibilities."
       }
     ]
@@ -26317,37 +26287,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a QuickBooks Virtual Assistant",
-        "href": "/service/quickbooks-virtual-assistant/",
+        "href": "/service/quickbooks-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for QuickBooks support."
       },
       {
         "label": "QuickBooks Virtual Assistant Cost in the Philippines",
-        "href": "/blog/quickbooks-virtual-assistant-cost-philippines/",
+        "href": "/blog/quickbooks-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for quickbooks Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a QuickBooks Virtual Assistant",
-        "href": "/blog/how-to-hire-a-quickbooks-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-quickbooks-virtual-assistant",
         "description": "Build a clearer quickbooks role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Finance & Bookkeeping guides",
-        "href": "/blog/topic/finance-bookkeeping/",
+        "href": "/blog/topic/finance-bookkeeping",
         "description": "Browse more practical articles in the finance & bookkeeping topic hub."
       },
       {
         "label": "Accountants & CPAs hiring guide",
-        "href": "/industries/accountants-cpas/",
+        "href": "/industries/accountants-cpas",
         "description": "See how quickbooks virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Bookkeeping Virtual Assistant",
-        "href": "/service/bookkeeping/",
+        "href": "/service/bookkeeping",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes bookkeeping responsibilities."
       },
       {
         "label": "Accounting Virtual Assistant",
-        "href": "/service/accounting-virtual-assistant/",
+        "href": "/service/accounting-virtual-assistant",
         "description": "Compare this adjacent service when your quickbooks virtual assistant workload also includes accounting responsibilities."
       }
     ],
@@ -26483,42 +26453,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Real Estate Virtual Assistant",
-        "href": "/service/real-estate/",
+        "href": "/service/real-estate",
         "description": "See the service scope, approved talent, and free match request for real estate support."
       },
       {
         "label": "Real Estate Virtual Assistant Interview Questions",
-        "href": "/blog/real-estate-interview-questions/",
+        "href": "/blog/real-estate-interview-questions",
         "description": "Interview questions that reveal how a real estate Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire a Real Estate Virtual Assistant",
-        "href": "/blog/how-to-hire-a-real-estate/",
+        "href": "/blog/how-to-hire-a-real-estate",
         "description": "Build a clearer real estate role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Real Estate Virtual Assistant Cost in the Philippines",
-        "href": "/blog/real-estate-cost-philippines/",
+        "href": "/blog/real-estate-cost-philippines",
         "description": "A budgeting guide for real estate Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Real Estate Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/real-estate-tasks/",
+        "href": "/blog/real-estate-tasks",
         "description": "Use this task list to turn scattered real estate work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Real Estate guides",
-        "href": "/blog/topic/real-estate/",
+        "href": "/blog/topic/real-estate",
         "description": "Browse more practical articles in the real estate topic hub."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how real estate virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -26643,32 +26613,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Roofing Virtual Assistant",
-        "href": "/service/roofing-virtual-assistant/",
+        "href": "/service/roofing-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for roofing support."
       },
       {
         "label": "How to Hire a Roofing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-roofing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-roofing-virtual-assistant",
         "description": "Build a clearer roofing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Roofing Virtual Assistant Cost in the Philippines",
-        "href": "/blog/roofing-virtual-assistant-cost-philippines/",
+        "href": "/blog/roofing-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for roofing Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Construction Virtual Assistant",
-        "href": "/service/construction-virtual-assistant/",
+        "href": "/service/construction-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes construction responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your roofing virtual assistant workload also includes appointment setter responsibilities."
       }
     ]
@@ -26793,32 +26763,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Sales Virtual Assistant",
-        "href": "/service/sales-virtual-assistant/",
+        "href": "/service/sales-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for sales support."
       },
       {
         "label": "How to Hire a Sales Virtual Assistant",
-        "href": "/blog/how-to-hire-a-sales-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-sales-virtual-assistant",
         "description": "Build a clearer sales role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Sales Virtual Assistant Cost in the Philippines",
-        "href": "/blog/sales-virtual-assistant-cost-philippines/",
+        "href": "/blog/sales-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for sales Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your sales virtual assistant workload also includes appointment setter responsibilities."
       }
     ]
@@ -26943,42 +26913,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Shopify support."
       },
       {
         "label": "Shopify Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/shopify-virtual-assistant-tasks/",
+        "href": "/blog/shopify-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered shopify work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Shopify Virtual Assistant Cost in the Philippines",
-        "href": "/blog/shopify-virtual-assistant-cost-philippines/",
+        "href": "/blog/shopify-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for shopify Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Shopify Virtual Assistant",
-        "href": "/blog/how-to-hire-a-shopify-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-shopify-virtual-assistant",
         "description": "Build a clearer shopify role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Shopify Virtual Assistant Interview Questions",
-        "href": "/blog/shopify-virtual-assistant-interview-questions/",
+        "href": "/blog/shopify-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how a shopify Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how shopify virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your shopify virtual assistant workload also includes ecommerce responsibilities."
       }
     ]
@@ -27103,37 +27073,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Short-Term Rental Virtual Assistant",
-        "href": "/service/short-term-rental-virtual-assistant/",
+        "href": "/service/short-term-rental-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for short-term rental support."
       },
       {
         "label": "How to Hire a Short-Term Rental Virtual Assistant",
-        "href": "/blog/how-to-hire-a-short-term-rental-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-short-term-rental-virtual-assistant",
         "description": "Build a clearer short-term rental role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Short-Term Rental Virtual Assistant Cost in the Philippines",
-        "href": "/blog/short-term-rental-virtual-assistant-cost-philippines/",
+        "href": "/blog/short-term-rental-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for short-term rental Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Property Management hiring guide",
-        "href": "/industries/property-management-companies/",
+        "href": "/industries/property-management-companies",
         "description": "See how short-term rental virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Airbnb Virtual Assistant",
-        "href": "/service/airbnb-virtual-assistant/",
+        "href": "/service/airbnb-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes Airbnb responsibilities."
       },
       {
         "label": "Property Management Virtual Assistant",
-        "href": "/service/property-management-virtual-assistant/",
+        "href": "/service/property-management-virtual-assistant",
         "description": "Compare this adjacent service when your short-term rental virtual assistant workload also includes property management responsibilities."
       }
     ]
@@ -27258,32 +27228,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Web Developer Virtual Assistant",
-        "href": "/service/web-developer-virtual-assistant/",
+        "href": "/service/web-developer-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for web developer support."
       },
       {
         "label": "Web Developer Virtual Assistant Cost in the Philippines",
-        "href": "/blog/web-developer-virtual-assistant-cost-philippines/",
+        "href": "/blog/web-developer-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for web developer Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire a Web Developer Virtual Assistant",
-        "href": "/blog/how-to-hire-a-web-developer-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-web-developer-virtual-assistant",
         "description": "Build a clearer web developer role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "WordPress Virtual Assistant",
-        "href": "/service/wordpress/",
+        "href": "/service/wordpress",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes WordPress responsibilities."
       },
       {
         "label": "IT Virtual Assistant",
-        "href": "/service/it-virtual-assistant/",
+        "href": "/service/it-virtual-assistant",
         "description": "Compare this adjacent service when your web developer virtual assistant workload also includes IT responsibilities."
       }
     ]
@@ -27408,42 +27378,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for Amazon support."
       },
       {
         "label": "How to Hire an Amazon Virtual Assistant",
-        "href": "/blog/how-to-hire-a-amazon-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-amazon-virtual-assistant",
         "description": "Build a clearer amazon role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Amazon Virtual Assistant Interview Questions",
-        "href": "/blog/amazon-virtual-assistant-interview-questions/",
+        "href": "/blog/amazon-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an Amazon Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Amazon Virtual Assistant Cost in the Philippines",
-        "href": "/blog/amazon-virtual-assistant-cost-philippines/",
+        "href": "/blog/amazon-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for Amazon Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Amazon Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/amazon-virtual-assistant-tasks/",
+        "href": "/blog/amazon-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered amazon work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Order & Fulfilment Virtual Assistant",
-        "href": "/service/fulfilment/",
+        "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
     ]
@@ -27568,42 +27538,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for appointment setter support."
       },
       {
         "label": "Appointment Setter Virtual Assistant Cost in the Philippines",
-        "href": "/blog/appointment-setter-virtual-assistant-cost-philippines/",
+        "href": "/blog/appointment-setter-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for appointment setter Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an Appointment Setter Virtual Assistant",
-        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-appointment-setter-virtual-assistant",
         "description": "Build a clearer appointment setter role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how appointment setter virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Real Estate Agents & Realtors hiring guide",
-        "href": "/industries/real-estate-agents/",
+        "href": "/industries/real-estate-agents",
         "description": "See how appointment setter virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Lead Generation Virtual Assistant",
-        "href": "/service/lead-generation/",
+        "href": "/service/lead-generation",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes lead generation responsibilities."
       },
       {
         "label": "Cold Calling Virtual Assistant",
-        "href": "/service/cold-calling-virtual-assistant/",
+        "href": "/service/cold-calling-virtual-assistant",
         "description": "Compare this adjacent service when your appointment setter virtual assistant workload also includes cold calling responsibilities."
       }
     ]
@@ -27728,32 +27698,32 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an eBay Virtual Assistant",
-        "href": "/service/ebay-virtual-assistant/",
+        "href": "/service/ebay-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for eBay support."
       },
       {
         "label": "eBay Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ebay-virtual-assistant-cost-philippines/",
+        "href": "/blog/ebay-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for eBay Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an eBay Virtual Assistant",
-        "href": "/blog/how-to-hire-a-ebay-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-ebay-virtual-assistant",
         "description": "Build a clearer ebay role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes ecommerce responsibilities."
       },
       {
         "label": "Amazon Virtual Assistant",
-        "href": "/service/amazon-virtual-assistant/",
+        "href": "/service/amazon-virtual-assistant",
         "description": "Compare this adjacent service when your ebay virtual assistant workload also includes Amazon responsibilities."
       }
     ]
@@ -27878,42 +27848,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Ecommerce Virtual Assistant",
-        "href": "/service/ecommerce/",
+        "href": "/service/ecommerce",
         "description": "See the service scope, approved talent, and free match request for ecommerce support."
       },
       {
         "label": "Ecommerce Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/ecommerce-tasks/",
+        "href": "/blog/ecommerce-tasks",
         "description": "Use this task list to turn scattered ecommerce work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Ecommerce Virtual Assistant Cost in the Philippines",
-        "href": "/blog/ecommerce-cost-philippines/",
+        "href": "/blog/ecommerce-cost-philippines",
         "description": "A budgeting guide for ecommerce Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an Ecommerce Virtual Assistant in the Philippines",
-        "href": "/hire-ecommerce-virtual-assistant-philippines/",
+        "href": "/hire-ecommerce-virtual-assistant-philippines",
         "description": "Ecommerce Virtual Assistant pricing should be based on the actual workload, weekly hours, experience level, time-zone overlap, software requirements, communication demands, and how independently the assistant will work. A role that owns sensitive, specialist, or client-facing work should be budgeted differently from a tightly supervised task list, so use the scope and responsibility rather than anchoring on one hourly figure."
       },
       {
         "label": "Ecommerce Virtual Assistant Interview Questions",
-        "href": "/blog/ecommerce-interview-questions/",
+        "href": "/blog/ecommerce-interview-questions",
         "description": "Interview questions that reveal how an ecommerce Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Ecommerce guides",
-        "href": "/blog/topic/ecommerce/",
+        "href": "/blog/topic/ecommerce",
         "description": "Browse more practical articles in the ecommerce topic hub."
       },
       {
         "label": "Ecommerce Stores hiring guide",
-        "href": "/industries/ecommerce-stores/",
+        "href": "/industries/ecommerce-stores",
         "description": "See how ecommerce virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Shopify Virtual Assistant",
-        "href": "/service/shopify-virtual-assistant/",
+        "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
     ]
@@ -28038,42 +28008,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Executive Virtual Assistant",
-        "href": "/service/executive-virtual-assistant/",
+        "href": "/service/executive-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for executive support."
       },
       {
         "label": "Executive Virtual Assistant Interview Questions",
-        "href": "/blog/executive-virtual-assistant-interview-questions/",
+        "href": "/blog/executive-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an executive Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "Executive Virtual Assistant Cost in the Philippines",
-        "href": "/blog/executive-virtual-assistant-cost-philippines/",
+        "href": "/blog/executive-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for executive Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an Executive Virtual Assistant",
-        "href": "/blog/how-to-hire-a-executive-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-executive-virtual-assistant",
         "description": "Build a clearer executive role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Executive Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/executive-virtual-assistant-tasks/",
+        "href": "/blog/executive-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered executive work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Professional Services hiring guide",
-        "href": "/industries/professional-services-growth/",
+        "href": "/industries/professional-services-growth",
         "description": "See how executive virtual assistant support fits professional-services and growth teams and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Startups hiring guide",
-        "href": "/industries/startups/",
+        "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ]
@@ -28198,37 +28168,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an HVAC Virtual Assistant",
-        "href": "/service/hvac-virtual-assistant/",
+        "href": "/service/hvac-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for HVAC support."
       },
       {
         "label": "HVAC Virtual Assistant Cost in the Philippines",
-        "href": "/blog/hvac-virtual-assistant-cost-philippines/",
+        "href": "/blog/hvac-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for HVAC Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "How to Hire an HVAC Virtual Assistant",
-        "href": "/blog/how-to-hire-a-hvac-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-hvac-virtual-assistant",
         "description": "Build a clearer HVAC role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Home & Local Services hiring guide",
-        "href": "/industries/home-local-services/",
+        "href": "/industries/home-local-services",
         "description": "See how hvac virtual assistant support fits home and local service companies and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Receptionist Virtual Assistant",
-        "href": "/service/phone-receptionist/",
+        "href": "/service/phone-receptionist",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes receptionist responsibilities."
       },
       {
         "label": "Appointment Setter Virtual Assistant",
-        "href": "/service/appointment-setter-virtual-assistant/",
+        "href": "/service/appointment-setter-virtual-assistant",
         "description": "Compare this adjacent service when your hvac virtual assistant workload also includes appointment setter responsibilities."
       }
     ]
@@ -28353,42 +28323,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an Insurance Virtual Assistant",
-        "href": "/service/insurance-virtual-assistant/",
+        "href": "/service/insurance-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for insurance support."
       },
       {
         "label": "Insurance Virtual Assistant Cost in the Philippines",
-        "href": "/blog/insurance-virtual-assistant-cost-philippines/",
+        "href": "/blog/insurance-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for insurance Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Insurance Virtual Assistant Interview Questions",
-        "href": "/blog/insurance-virtual-assistant-interview-questions/",
+        "href": "/blog/insurance-virtual-assistant-interview-questions",
         "description": "Interview questions that reveal how an insurance Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "How to Hire an Insurance Virtual Assistant",
-        "href": "/blog/how-to-hire-a-insurance-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-insurance-virtual-assistant",
         "description": "Build a clearer insurance role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Insurance Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/insurance-virtual-assistant-tasks/",
+        "href": "/blog/insurance-virtual-assistant-tasks",
         "description": "Use this task list to turn scattered insurance work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "Insurance Agencies hiring guide",
-        "href": "/industries/insurance-agencies/",
+        "href": "/industries/insurance-agencies",
         "description": "See how insurance virtual assistant support fits insurance agencies, agents, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Admin & Inbox Virtual Assistant",
-        "href": "/service/admin-inbox/",
+        "href": "/service/admin-inbox",
         "description": "Compare this adjacent service when your insurance virtual assistant workload also includes admin & inbox responsibilities."
       }
     ]
@@ -28397,85 +28367,88 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-an-seo-virtual-assistant-do",
     "title": "What Does an SEO Virtual Assistant Do?",
     "metaTitle": "What Does an SEO Virtual Assistant Do? | Guide",
-    "description": "See what an SEO virtual assistant can handle, which SEO tasks to delegate, what should stay with a strategist, and how to define the role before hiring.",
+    "description": "See what an SEO virtual assistant can own, what should stay with an SEO lead, which tools matter, and what good performance looks like after 30 days.",
     "excerpt": "A clear breakdown of SEO Virtual Assistant responsibilities, delegation boundaries, tools, quality checks, and the signals to look for when hiring.",
     "topic": "seo-marketing",
     "clusterLabel": "SEO Virtual Assistant",
     "serviceSlug": "seo",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-19",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
-        "heading": "The short answer: what the SEO Virtual Assistant owns",
+        "heading": "The role in one sentence: repeatable SEO execution with clear boundaries",
         "paragraphs": [
-          "An SEO Virtual Assistant is most useful when they own a repeatable part of the workflow rather than waiting for random tasks. In practice, that can mean keyword research, on-page optimization, internal linking, content briefs, and Google Search Console monitoring. For teams delegating competitor research, the exact mix depends on the business, but the role should have a recognizable queue, a definition of done, and a clear route for exceptions.",
-          "Marketing work is easy to over-delegate because a checklist can look like a strategy. Give the SEO Virtual Assistant clear execution ownership, then keep positioning, budget, brand risk, and major campaign decisions with the person accountable for results."
-        ]
+          "An SEO Virtual Assistant is best used as an execution owner for repeatable search work, not as a substitute for strategy. A well-designed role can own keyword research, on-page updates, internal linking, content-brief preparation, Search Console monitoring, reporting, and documented technical checks while the SEO lead keeps responsibility for priorities, risky site changes, and final decisions.",
+          "The difference between a useful SEO VA and a catch-all marketing assistant is the operating model. The person should know where work enters the queue, what evidence is required, what “done” means, and which exceptions must be escalated. That makes the role measurable and prevents important SEO decisions from disappearing into chat."
+        ],
+        "bullets": []
       },
       {
-        "heading": "What a normal week can look like",
+        "heading": "A practical weekly SEO operating rhythm",
         "paragraphs": [
-          "SEO agencies often have Google Search Console monitoring, competitor research, and keyword research competing for attention with higher-value work. A sensible SEO Virtual Assistant role could own those recurring queues, document completion in the agreed system, and flag exceptions before they become overdue. Once that handoff is stable, the scope can expand into technical audit support and SEO reporting. In an SEO workflow that includes Google Search Console monitoring, the goal is not to move every task offshore at once. Give the SEO Virtual Assistant one coherent slice of work they can learn, repeat, and improve before adding the next queue.",
-          "A strong week for SEO support does not necessarily mean the Virtual Assistant completed the largest number of tasks. It means the important SEO work moved without avoidable chasing, records stayed current, deadlines were visible, and unusual cases were raised early enough for someone to act."
-        ]
-      },
-      {
-        "heading": "Start by delegating work with a clear finish line",
-        "paragraphs": [
-          "For SEO work involving competitor research, start with real examples from Google Search Console monitoring, competitor research, and on-page optimization. In that SEO workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Screaming Frog or Google Sheets, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "The first SEO responsibilities should be easy to verify. In an SEO workflow that includes Google Search Console monitoring, a manager should be able to open the system and see whether the work happened. Once accuracy and communication are consistent, add SEO tasks that require more judgment or direct contact."
+          "A normal week might begin with Search Console checks and priority-page monitoring, move into keyword and competitor research for upcoming content, then include on-page updates, internal-link recommendations, and status reporting. The exact mix depends on your site, but the work should repeat often enough that the assistant can improve the process rather than relearn it every week.",
+          "For an agency, that may mean maintaining several client queues with clear due dates and evidence links. For an in-house team, it may mean one backlog tied to content, category, product, or location pages. In both cases, visibility matters more than raw task count."
         ],
         "bullets": [
-          "Keyword research: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "On-page optimization: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "Internal linking: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "Content briefs: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "Google Search Console monitoring: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "Technical audit support: define the input, completion standard, deadline, and escalation rule before handoff.",
-          "Competitor research: define the input, completion standard, deadline, and escalation rule before handoff."
+          "Monitoring: Search Console coverage, query/page changes, indexing signals, and agreed alert conditions.",
+          "Research: keyword expansion, SERP review, competitor gaps, content refresh opportunities, and supporting evidence.",
+          "Execution: titles, headings, internal links, content briefs, CMS updates, image fields, and other approved on-page changes.",
+          "Reporting: what changed, what was completed, what is blocked, and what needs a strategist or developer."
         ]
       },
       {
-        "heading": "What should stay with a manager or qualified specialist",
+        "heading": "Delegate outputs you can inspect, not vague SEO activity",
         "paragraphs": [
-          "In an SEO handoff involving SEO reporting, write down the decisions the SEO Virtual Assistant may make alone and the decisions that need approval.For SEO Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
-          "This boundary is not a criticism of the SEO Virtual Assistant. It protects the role from becoming a catch-all. For teams delegating internal linking, people do better work when they know which decisions are theirs and which ones should be handed back."
-        ]
+          "The safest first tasks have an observable finish line. Instead of assigning “do keyword research,” define the market, seed topic, source tools, required columns, grouping rules, and how the result will be used. Instead of “improve internal linking,” define which pages are eligible, the relevance standard, anchor-text rules, and where recommendations are recorded.",
+          "This makes quality review faster. A manager can inspect a keyword map, an internal-link sheet, an on-page checklist, or a Search Console report and tell whether the handoff was completed correctly without reconstructing the work from messages."
+        ],
+        "bullets": []
       },
       {
-        "heading": "How tools fit into the role",
+        "heading": "Keep strategy and high-risk technical changes with the SEO owner",
         "paragraphs": [
-          "When content briefs moves from the manager to the Virtual Assistant, tools matter because they shape handoffs, but they should not become the job description. If the role uses Ahrefs, Semrush, Google Search Console, GA4, and Screaming Frog, ask candidates what they actually did in those systems. When recurring SEO work includes technical audit support, a person who has used a tool for simple data entry may not have managed the workflow you need.",
-          "For teams delegating competitor research, during onboarding, give the Virtual Assistant the smallest access needed for the first workflows. Add permissions only when the scope expands. In an SEO workflow that includes keyword research, that makes troubleshooting and offboarding easier and reduces the chance that convenience turns into unnecessary access."
-        ]
+          "An SEO Virtual Assistant can collect evidence and prepare recommendations for redirects, canonicals, robots directives, noindex rules, template changes, migrations, or large-scale content cleanup. The final decision on changes that can affect crawling, indexing, revenue, or hundreds of URLs should normally stay with the SEO lead, developer, or person accountable for the site.",
+          "The same principle applies to content strategy. The assistant can prepare SERP evidence, briefs, refresh notes, and competitor research, but positioning, prioritization, and trade-offs between traffic, conversion, brand, and product goals need an accountable owner."
+        ],
+        "bullets": []
       },
       {
-        "heading": "How much independence should you expect?",
+        "heading": "Match tool access to the SEO workflow",
         "paragraphs": [
-          "Independence in an SEO role should grow with evidence. For teams delegating internal linking, at first, ask the Virtual Assistant to follow the documented process and flag exceptions. When content briefs moves from the manager to the Virtual Assistant, once they have shown consistent judgment, you can authorize more decisions within defined limits. For Google Search Console monitoring, “be proactive” is too vague. Define the routine decisions the SEO Virtual Assistant can make and the exceptions that need approval."
-        ]
+          "Tool knowledge is useful only when it maps to real work. Search Console and GA4 help with first-party performance signals; Ahrefs or Semrush can support research and competitive analysis; Screaming Frog can support crawls and QA; WordPress or another CMS may be needed for approved updates; and a spreadsheet or project tool should hold the operating record.",
+          "Give the smallest access required for the first workflows. If someone only needs Search Console reporting and content-brief work, they do not automatically need administrator access to the website. Expand permissions as ownership expands."
+        ],
+        "bullets": []
       },
       {
-        "heading": "What good performance looks like after 30 days",
+        "heading": "What good SEO VA performance actually looks like",
         "paragraphs": [
-          "When recurring SEO work includes technical audit support, by the end of the first month, you should be able to point to a small set of workflows that no longer depend on the manager remembering every step. For teams delegating competitor research, the Virtual Assistant should know the priorities, understand the reporting rhythm, and surface blockers without waiting for a crisis."
+          "Good performance is not “more keywords found” or “more pages edited.” It is reliable execution against agreed standards. Work should arrive on time, supporting evidence should be easy to verify, records should stay current, and exceptions should be surfaced before they become missed deadlines or production mistakes."
         ],
         "bullets": [
-          "Recurring tasks are completed by the agreed deadline.",
-          "SEO Virtual Assistant records and status notes should stay current enough that another teammate can understand what happened without reconstructing the work from chat.",
-          "Exceptions are escalated with context and a proposed next step.",
-          "Rework is declining as the playbook improves.",
-          "The manager spends less time chasing routine follow-through."
+          "Research is traceable to the source and grouped in a way the strategist or writer can use.",
+          "On-page changes match the approved brief and do not introduce accidental title, canonical, indexation, or formatting problems.",
+          "Internal-link recommendations are contextually relevant rather than inserted to hit a quota.",
+          "Reports explain meaningful changes and blockers instead of dumping screenshots or tool exports."
         ]
       },
       {
-        "heading": "When hiring an SEO Virtual Assistant makes sense",
+        "heading": "What should be true after the first 30 days",
         "paragraphs": [
-          "When SEO reporting moves from the manager to the Virtual Assistant, hire when the same work is coming back every week, there is enough volume to justify consistent ownership, and your team can describe a good result. If keyword research is still experimental or changes completely every day, first stabilize the process internally.",
-          "A Virtual Assistant is not a shortcut around management. For teams delegating internal linking, the role works because the business turns repeated work into clear ownership, gives the person the information they need, and reviews outcomes at a sensible cadence."
-        ]
+          "By the end of the first month, the assistant should own a small number of recurring SEO workflows without repeated prompting. The manager should be able to see the backlog, completed work, evidence, and blockers in one place. Rework should be falling because feedback has been turned into a checklist or SOP.",
+          "If the role still depends on constant ad-hoc instructions, the problem may be the process rather than the person. Tighten the definition of done and decision boundaries before adding more responsibilities."
+        ],
+        "bullets": []
+      },
+      {
+        "heading": "When an SEO Virtual Assistant is the right hire",
+        "paragraphs": [
+          "The role makes sense when you already know which SEO work repeats every week or month and the bottleneck is consistent execution. If the main problem is deciding what market to enter, recovering from a complex migration, diagnosing a severe technical issue, or setting a new search strategy, you may need a senior SEO specialist first.",
+          "Many teams use both: a strategist or SEO lead sets direction and handles high-risk decisions, while an SEO Virtual Assistant keeps research, production, QA, monitoring, and reporting moving."
+        ],
+        "bullets": []
       }
     ],
     "faqs": [
@@ -28513,37 +28486,37 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire an SEO Virtual Assistant",
-        "href": "/service/seo/",
+        "href": "/service/seo",
         "description": "See the service scope, approved talent, and free match request for SEO support."
       },
       {
         "label": "How to Hire an SEO Virtual Assistant",
-        "href": "/blog/how-to-hire-a-seo/",
+        "href": "/blog/how-to-hire-a-seo",
         "description": "Build a clearer SEO role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "Best Tools for an SEO Virtual Assistant",
-        "href": "/blog/best-tools-for-seo/",
+        "href": "/blog/best-tools-for-seo",
         "description": "The right SEO stack is the smallest set of tools that creates a clear source of truth, reliable handoffs, and controlled access."
       },
       {
         "label": "SEO Virtual Assistant Interview Questions",
-        "href": "/blog/seo-interview-questions/",
+        "href": "/blog/seo-interview-questions",
         "description": "Interview questions that reveal how an SEO Virtual Assistant actually works, not just how well they can describe themselves."
       },
       {
         "label": "SEO Virtual Assistant Tasks: What to Delegate",
-        "href": "/blog/seo-tasks/",
+        "href": "/blog/seo-tasks",
         "description": "Use this task list to turn scattered SEO work into a role with clear ownership and realistic boundaries."
       },
       {
         "label": "SEO & Marketing guides",
-        "href": "/blog/topic/seo-marketing/",
+        "href": "/blog/topic/seo-marketing",
         "description": "Browse more practical articles in the seo & marketing topic hub."
       },
       {
         "label": "Digital Marketing Virtual Assistant",
-        "href": "/service/digital-marketing-virtual-assistant/",
+        "href": "/service/digital-marketing-virtual-assistant",
         "description": "Compare this adjacent service when your seo virtual assistant workload also includes digital marketing responsibilities."
       }
     ]
@@ -28670,42 +28643,42 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hire a Medical Virtual Assistant",
-        "href": "/service/medical-virtual-assistant/",
+        "href": "/service/medical-virtual-assistant",
         "description": "See the service scope, approved talent, and free match request for medical support."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",
-        "href": "/blog/medical-virtual-assistant-cost-philippines/",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
         "description": "A budgeting guide for medical Virtual Assistant support, including the factors that matter more than chasing the lowest hourly rate."
       },
       {
         "label": "Medical Virtual Assistant Job Description Template",
-        "href": "/blog/medical-virtual-assistant-job-description/",
+        "href": "/blog/medical-virtual-assistant-job-description",
         "description": "Use this medical virtual assistant job description template to attract candidates who understand the actual work, not only the title."
       },
       {
         "label": "HIPAA and Remote Virtual Assistants: A Practical Access Checklist",
-        "href": "/blog/hipaa-and-remote-virtual-assistants/",
+        "href": "/blog/hipaa-and-remote-virtual-assistants",
         "description": "Use a privacy-first access design before a remote assistant sees protected health information."
       },
       {
         "label": "Medical Billing Virtual Assistant vs Medical Virtual Assistant: What Is the Difference?",
-        "href": "/blog/medical-billing-va-vs-medical-va/",
+        "href": "/blog/medical-billing-va-vs-medical-va",
         "description": "A medical Virtual Assistant and a medical billing Virtual Assistant can overlap, but the ownership, tools, and quality controls are different."
       },
       {
         "label": "Healthcare guides",
-        "href": "/blog/topic/healthcare/",
+        "href": "/blog/topic/healthcare",
         "description": "Browse more practical articles in the healthcare topic hub."
       },
       {
         "label": "Healthcare & Dental hiring guide",
-        "href": "/industries/healthcare-dental/",
+        "href": "/industries/healthcare-dental",
         "description": "See how medical virtual assistant support fits healthcare and dental practices and which adjacent Virtual Assistant services are commonly paired with it."
       },
       {
         "label": "Doctors & Medical Practices hiring guide",
-        "href": "/industries/medical-practices/",
+        "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
     ],
@@ -28850,22 +28823,22 @@ export const BLOG_POSTS: BlogPost[] = [
     "internalLinks": [
       {
         "label": "Hiring guides",
-        "href": "/blog/topic/hiring/",
+        "href": "/blog/topic/hiring",
         "description": "Browse more practical articles in the hiring topic hub."
       },
       {
         "label": "How to Hire a Payroll Virtual Assistant",
-        "href": "/blog/how-to-hire-a-payroll-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-payroll-virtual-assistant",
         "description": "Build a clearer payroll role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "How to Hire a Roofing Virtual Assistant",
-        "href": "/blog/how-to-hire-a-roofing-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-roofing-virtual-assistant",
         "description": "Build a clearer roofing role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
         "label": "How to Hire a Medical Virtual Assistant",
-        "href": "/blog/how-to-hire-a-medical-virtual-assistant/",
+        "href": "/blog/how-to-hire-a-medical-virtual-assistant",
         "description": "Build a clearer medical role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself."
       },
       {
@@ -28875,12 +28848,12 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         "label": "Virtual Assistant cost calculator",
-        "href": "/tools/virtual-assistant-cost-calculator/",
+        "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       },
       {
         "label": "Virtual Assistant job description generator",
-        "href": "/tools/virtual-assistant-job-description-generator/",
+        "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
     ]

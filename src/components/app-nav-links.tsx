@@ -13,7 +13,6 @@ import {
   ClipboardCheck,
   LayoutDashboard,
   ListTodo,
-  MessageSquare,
   Search,
   Settings,
   ShieldCheck,
@@ -38,7 +37,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Overview", "/workspace/client", LayoutDashboard],
         ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
         ["My Team", "/workspace/client/team", UsersRound],
-        ["Messages", "/workspace/client/messages", MessageSquare],
         ["Notifications", "/workspace/client/notifications", Bell],
         ["Payments", "/workspace/client/payments", CircleDollarSign],
       ],
@@ -53,7 +51,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Opportunities", "/workspace/va/jobs", Search],
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
-        ["Messages", "/workspace/va/messages", MessageSquare],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
       ],
@@ -114,8 +111,8 @@ const nav: Record<Role, readonly NavGroup[]> = {
 };
 
 const mobilePrimary: Record<Role, string[]> = {
-  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/messages"],
-  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/messages"],
+  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/support"],
+  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };

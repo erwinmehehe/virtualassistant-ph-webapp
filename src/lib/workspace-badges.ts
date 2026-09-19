@@ -49,7 +49,6 @@ export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeRes
     const base = `/workspace/${role}`;
     return {
       badges: {
-        [`${base}/messages`]: Number(raw.messages || 0),
         [`${base}/notifications`]: Number(raw.notifications || 0),
       },
       error: null,

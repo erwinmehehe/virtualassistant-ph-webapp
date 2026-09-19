@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, Bell, BriefcaseBusiness, Eye, FileText, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, Eye, FileText, ShieldCheck, Sparkles } from "lucide-react";
 import { missingForPublic } from "@/lib/public-visibility";
 import { requireRoleFast } from "@/lib/auth";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -30,7 +30,6 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   const pendingInvites=Number(summary?.pending_invites||0);
   const workroomCount=Number(summary?.workroom_count||0);
   const unreadNotifications=Number(summary?.unread_notifications||0);
-  const unreadMessages=Number(summary?.unread_messages||0);
   const recruiterRequests=Array.isArray(summary?.recruiter_requests)?summary!.recruiter_requests:[];
 
   const completion=getVaCompletion(va,avatarUrl);
@@ -57,9 +56,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Open the interview workspace for the schedule, Zoom link, and role details.",href:"/workspace/va/interviews",label:"Open interviews",icon:BriefcaseBusiness};
   }else if(pendingInvites){
     nextAction={title:`You have ${pendingInvites} recruiter-approved opportunit${pendingInvites===1?"y":"ies"}`,copy:"Review the role and confirm whether you want to be considered.",href:"/workspace/va/applications",label:"Review opportunities",icon:BriefcaseBusiness};
-  }else if(unreadMessages>0){
-    nextAction={title:`You have ${unreadMessages} unread message${unreadMessages===1?"":"s"}`,copy:"Reply promptly so recruiter, interview, onboarding, or active-work questions do not stall.",href:"/workspace/va/messages",label:"Open messages",icon:MessageSquare};
-  }else if(completion.score<100&&completion.next){
+    }else if(completion.score<100&&completion.next){
     nextAction={title:"Keep your vetted profile current",copy:`Complete ${completion.next.label} so recruiters have stronger evidence when matching you to client roles.`,href:completion.next.href,label:"Update profile",icon:FileText};
   }else{
     nextAction={title:"Your vetted profile is ready",copy:"Keep your skills, rate, hours, and availability current. You can express interest in recruiter-reviewed roles, but recruiters control client presentation.",href:"/workspace/va/jobs",label:"Browse roles",icon:Sparkles};

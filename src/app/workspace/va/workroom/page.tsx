@@ -28,31 +28,31 @@ export default async function VaWorkroomPage({searchParams}:{searchParams:Promis
   const admin=createAdminClient();
   const {data:roomData}=await supabase.from("workrooms").select("*,jobs(title,company_name,hours_per_week,min_hourly_rate,timezone,overlap_hours,onboarding_plan,engagement_length)").eq("va_id",user.id).order("created_at",{ascending:false});
   const rooms=(roomData||[]) as VaWorkroom[];
-  const ids=rooms.map((r)=>r.id);const applicationIds=rooms.map((r)=>r.application_id);
-  let tasks:WorkroomTaskRow[]=[];let checks:WorkroomChecklistRow[]=[];let time:TimeEntryRow[]=[];let conversations:{id:string;application_id:string|null}[]=[];let reviews:PlacementReview[]=[];let checkins:PlacementCheckinRow[]=[];let csms:AvatarProfileRow[]=[];
+  const ids=rooms.map((r)=>r.id);
+  let tasks:WorkroomTaskRow[]=[];let checks:WorkroomChecklistRow[]=[];let time:TimeEntryRow[]=[];let reviews:PlacementReview[]=[];let checkins:PlacementCheckinRow[]=[];let csms:AvatarProfileRow[]=[];
   if(ids.length){
     const csmIds=[...new Set(rooms.map((r)=>r.client_success_owner_id).filter(Boolean))];
     const results=await Promise.all([
       supabase.from("workroom_tasks").select("*").in("workroom_id",ids).order("created_at"),
       supabase.from("workroom_checklist").select("*").in("workroom_id",ids).order("sort_order"),
       supabase.from("time_entries").select("*").in("workroom_id",ids).order("work_date",{ascending:false}),
-      supabase.from("conversations").select("id,application_id").in("application_id",applicationIds),
+      
       supabase.from("reviews").select("*").in("workroom_id",ids),
       admin.from("placement_checkins").select("*").in("workroom_id",ids).order("due_at"),
       csmIds.length?admin.from("profiles").select("id,full_name").in("id",csmIds):Promise.resolve({data:[]})
     ]);
-    tasks=results[0].data||[];checks=results[1].data||[];time=results[2].data||[];conversations=results[3].data||[];reviews=results[4].data||[];checkins=results[5].data||[];csms=results[6].data||[];
+    tasks=results[0].data||[];checks=results[1].data||[];time=results[2].data||[];reviews=results[3].data||[];checkins=results[4].data||[];csms=results[5].data||[];
   }
   const {data:publicProfile}=await supabase.from("public_va_directory").select("user_id").eq("user_id",user.id).maybeSingle();
-  const vaProfileIsPublic=Boolean(publicProfile);const conversationMap=new Map(conversations.map((c)=>[c.application_id,c.id]));const csmMap=new Map(csms.map((c)=>[c.id,c.full_name]));
+  const vaProfileIsPublic=Boolean(publicProfile);const csmMap=new Map(csms.map((c)=>[c.id,c.full_name]));
   const requestedCheckin=String(params.checkin||"");
 
   return <>
     {params.pulse_saved?<div className="success-banner" role="status">Thanks. Your placement check-in was saved. Client Success will step in if anything needs attention.</div>:null}
-    <div className="page-head"><div><div className="kicker">My Placement</div><h1>Your placement workspace</h1><p>Everything for an active placement lives here: onboarding, tasks, time, conversations, support, and Client Success check-ins.</p></div></div>
+    <div className="page-head"><div><div className="kicker">My Placement</div><h1>Your placement workspace</h1><p>Everything for an active placement lives here: onboarding, tasks, time, support, and Client Success check-ins.</p></div></div>
     {rooms.length?<div className="stack">{rooms.map((r)=>{
-      const roomTasks=tasks.filter((t)=>t.workroom_id===r.id);const allChecks=checks.filter((c)=>c.workroom_id===r.id);const vaChecks=allChecks.filter((c)=>c.owner_role==="va");const clientChecks=allChecks.filter((c)=>c.owner_role==="client");const roomTime=time.filter((t)=>t.workroom_id===r.id);const total=roomTime.reduce((sum,t)=>sum+Number(t.hours||0),0);const approvedHours=roomTime.filter((t)=>t.status==="approved").reduce((sum,t)=>sum+Number(t.hours||0),0);const thread=conversationMap.get(r.application_id);const roomCheckins=checkins.filter((c)=>c.workroom_id===r.id);const requested=roomCheckins.find((c)=>c.id===requestedCheckin&&!c.va_signal);const next=requested||roomCheckins.find((c)=>!c.va_signal&&c.status!=="skipped");return <div className="card stack" key={r.id}>
-      <div className="row-between wrap"><div><div className="row wrap"><span className={`badge ${healthBadge(r.health_status||"")}`}><HeartPulse size={13}/>{healthLabel(r.health_status||"")}{r.health_score!=null?` · ${r.health_score}`:""}</span><span className="badge">{String(r.placement_stage||"active").replaceAll("_"," ")}</span></div><h2 style={{margin:"8px 0 3px"}}>{r.jobs?.title}</h2><span className="muted">{r.jobs?.company_name||"Client"}</span></div><Link className="btn btn-primary" href={thread?`/workspace/va/messages?thread=${thread}`:"/workspace/va/messages"}>Open this conversation</Link></div>
+      const roomTasks=tasks.filter((t)=>t.workroom_id===r.id);const allChecks=checks.filter((c)=>c.workroom_id===r.id);const vaChecks=allChecks.filter((c)=>c.owner_role==="va");const clientChecks=allChecks.filter((c)=>c.owner_role==="client");const roomTime=time.filter((t)=>t.workroom_id===r.id);const total=roomTime.reduce((sum,t)=>sum+Number(t.hours||0),0);const approvedHours=roomTime.filter((t)=>t.status==="approved").reduce((sum,t)=>sum+Number(t.hours||0),0);const roomCheckins=checkins.filter((c)=>c.workroom_id===r.id);const requested=roomCheckins.find((c)=>c.id===requestedCheckin&&!c.va_signal);const next=requested||roomCheckins.find((c)=>!c.va_signal&&c.status!=="skipped");return <div className="card stack" key={r.id}>
+      <div className="row-between wrap"><div><div className="row wrap"><span className={`badge ${healthBadge(r.health_status||"")}`}><HeartPulse size={13}/>{healthLabel(r.health_status||"")}{r.health_score!=null?` · ${r.health_score}`:""}</span><span className="badge">{String(r.placement_stage||"active").replaceAll("_"," ")}</span></div><h2 style={{margin:"8px 0 3px"}}>{r.jobs?.title}</h2><span className="muted">{r.jobs?.company_name||"Client"}</span></div><Link className="btn btn-primary" href="/workspace/va/support">Ask your recruiter</Link></div>
       <section className="card hire-terms-card"><h3 style={{marginTop:0}}>Confirmed placement terms</h3><div className="grid-4"><div><span className="small muted">Agreed rate</span><strong style={{display:"block"}}>{money(r.agreed_hourly_rate||r.jobs?.min_hourly_rate)}/hr</strong></div><div><span className="small muted">Start date</span><strong style={{display:"block"}}>{r.start_date||"Not recorded"}</strong></div><div><span className="small muted">Agreed schedule</span><strong style={{display:"block"}}>{r.agreed_schedule||"Not recorded"}</strong></div><div><span className="small muted">Client Success</span><strong style={{display:"block"}}>{csmMap.get(r.client_success_owner_id||"")||"Being assigned"}</strong></div></div></section>
 
       {next?<form action={submitPlacementPulseAction} className="card stack"><input type="hidden" name="checkin_id" value={next.id}/><div className="row-between wrap"><div><strong>{checkpointLabel(next.checkpoint)} placement check-in</strong><p className="small muted" style={{margin:"4px 0 0"}}>How is this placement going for you?</p></div><span className="small muted"><CalendarClock size={13}/> {dateLabel(next.due_at)}</span></div><div className="row wrap"><button className="btn btn-sm btn-primary" type="submit" name="signal" value="green">Great</button><button className="btn btn-sm" type="submit" name="signal" value="yellow">Need support</button><button className="btn btn-sm btn-danger" type="submit" name="signal" value="red">Serious concern</button></div><div className="field"><label>Optional note</label><textarea name="note" maxLength={2000} placeholder="Share context if there is something Client Success should know."/></div></form>:null}

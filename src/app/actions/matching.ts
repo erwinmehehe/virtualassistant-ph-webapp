@@ -87,7 +87,7 @@ export async function updateCandidateAccessAction(formData: FormData) {
 
   if (job.client_id) {
     const copy = active
-      ? "Candidate details are now unlocked. You can review released shortlist profiles, applicants, resumes, and conversations."
+      ? "Candidate details are now unlocked. You can review released shortlist profiles, applicants, and resumes."
       : status === "quoted"
         ? `Candidate access has been quoted at USD ${fee?.toFixed(2)}.`
         : status === "invoiced"
@@ -99,7 +99,6 @@ export async function updateCandidateAccessAction(formData: FormData) {
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath("/workspace/client/candidates");
-  revalidatePath("/workspace/client/messages");
 }
 
 export async function saveJobShortlistAction(formData: FormData) {

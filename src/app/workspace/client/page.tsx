@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, CalendarDays, MessageSquare, Plus, Sparkles, UserRoundCheck } from "lucide-react";
+import { ArrowRight, CalendarDays, LifeBuoy, Plus, Sparkles, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -24,7 +24,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const hiringOwner=dashboard?.hiring_owner||null;
   const jobRows=dashboard?.jobs||[];
   const jobCount=Number(dashboard?.job_count||0);
-  const unreadMessages=Number(dashboard?.unread_messages||0);
   if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent)redirect("/workspace/client/onboarding");
 
   const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null});
@@ -37,7 +36,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   if(pipeline.shortlisted) attention.push({title:"Recruiter shortlist waiting",copy:"Review only the vetted VAs your recruiter selected for you.",href:"/workspace/client/candidates",count:pipeline.shortlisted,icon:Sparkles});
   if(pipeline.interview) attention.push({title:"Interview action needed",copy:"Schedule, join, or record a Proceed / Hold / Pass decision.",href:"/workspace/client/interviews",count:pipeline.interview,icon:CalendarDays});
   if(pipeline.offered) attention.push({title:"Final offer in progress",copy:"Review the final placement terms once the VA has accepted or when confirmation is required.",href:"/workspace/client/offers",count:pipeline.offered,icon:Sparkles});
-  if(unreadMessages>0) attention.push({title:"Message from your hiring team",copy:"Reply to recruiter questions or active placement conversations.",href:"/workspace/client/messages",count:unreadMessages,icon:MessageSquare});
 
   const steps=[
     {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
@@ -62,7 +60,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     <div className="dash-header"><div><div className="dash-kicker">Managed VA hiring</div><h1>Your hiring progress</h1><p>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
-    <section className="client-concierge-strip"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/messages"><MessageSquare size={16}/> Message hiring team</Link></section>
+    <section className="client-concierge-strip"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/support"><LifeBuoy size={16}/> Contact your recruiter</Link></section>
 
     <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We recruit & vet","Review shortlist","Interview","Confirm & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on your recruiter":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
 
@@ -74,6 +72,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     <div className="grid-2 dashboard-after-onboarding"><section className="card"><div className="dashboard-section-head"><div><h2>Your roles</h2><p>See where each managed search stands without managing raw applicants.</p></div><Link className="btn btn-sm" href="/workspace/client/jobs">View all</Link></div>{jobRows.length?<div className="role-dashboard-list">{jobRows.map((job)=><Link href={`/workspace/client/jobs/${job.id}`} key={job.id} className="role-dashboard-row"><div className="role-dashboard-main"><div className="row wrap"><strong>{job.title}</strong><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":String(job.status).replaceAll("_"," ")}</span></div><div className="role-dashboard-pipeline"><span><b>{job.shortlisted}</b> shortlist</span><span><b>{job.interview}</b> interview</span><span><b>{job.offered}</b> offer</span><span><b>{job.hired}</b> hired</span></div></div><ArrowRight size={16}/></Link>)}</div>:<div className="empty"><p>You have not started a hiring request yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start hiring</Link></div>}</section>
 
-      <section className="card"><div className="dashboard-section-head"><div><h2>What your recruiting team handles</h2><p>This is a managed hiring service, not a talent marketplace.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Qualify and improve the role brief</li><li>Screen the vetted VA pool and verify fit</li><li>Present only recruiter-approved VAs</li><li>Coordinate interviews, offer, placement, and follow-up</li></ol><Link className="btn btn-primary" href="/workspace/client/messages" style={{width:"100%"}}>Message your hiring team</Link></section></div>
+      <section className="card"><div className="dashboard-section-head"><div><h2>What your recruiting team handles</h2><p>This is a managed hiring service, not a talent marketplace.</p></div><UserRoundCheck size={18}/></div><ol className="candidate-access-steps"><li>Qualify and improve the role brief</li><li>Screen the vetted VA pool and verify fit</li><li>Present only recruiter-approved VAs</li><li>Coordinate interviews, offer, placement, and follow-up</li></ol><Link className="btn btn-primary" href="/workspace/client/support" style={{width:"100%"}}>Contact your recruiter</Link></section></div>
   </div>;
 }

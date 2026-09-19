@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // In-app client/VA messaging was removed; coordination runs through the
+      // recruiter. Old notification links and bookmarks land on support.
+      { source: "/workspace/client/messages", destination: "/workspace/client/support", permanent: false },
+      { source: "/workspace/va/messages", destination: "/workspace/va/support", permanent: false },
       // Recovered from the previous WordPress site's 404 report.
       { source: "/blog-onboard-your-va", destination: "/blog", permanent: true },
       { source: "/blog-onboard-your-va/", destination: "/blog", permanent: true },

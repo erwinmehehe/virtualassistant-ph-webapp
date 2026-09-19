@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dateShort } from "@/lib/format";
-import { markAllNotificationsReadAction, markNotificationReadAction } from "@/app/actions/messages";
+import { markAllNotificationsReadAction, markNotificationReadAction } from "@/app/actions/notifications";
 import { openWorkspaceNotificationAction } from "@/app/actions/notification-open";
 
 export default async function VaNotificationsPage(){

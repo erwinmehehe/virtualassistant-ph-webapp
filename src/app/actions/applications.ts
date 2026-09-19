@@ -69,7 +69,6 @@ export async function applyToJobAction(formData: FormData) {
   if (error) throw error;
   await admin.from("application_status_history").insert({ application_id: application.id, from_status: null, to_status: "new", changed_by: user.id, note: "Application submitted" });
   await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId } });
-  const { data: conversation } = await admin.from("conversations").insert({ application_id: application.id, client_id: job.client_id, va_id: user.id }).select("id").single();
   await admin.from("notifications").insert({ user_id: job.client_id, title: `New application for ${job.title}`, body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.", href: `/workspace/client/jobs/${job.id}` });
   const { data: clientAuth } = await admin.auth.admin.getUserById(job.client_id);
   try {
@@ -80,7 +79,6 @@ export async function applyToJobAction(formData: FormData) {
   }
   revalidatePath("/workspace/va/applications");
   revalidatePath(`/jobs/${jobId}`);
-  if (conversation) revalidatePath(`/workspace/va/messages?thread=${conversation.id}`);
   redirect("/workspace/va/applications?applied=1");
 }
 
@@ -218,7 +216,6 @@ export async function respondToInviteAction(formData: FormData) {
         const { data: app } = await admin.from("applications").insert({ job_id: invite.job_id, va_id: user.id, status: "new", cover_note: "Accepted client invitation.", match_score: matchScore(job, va), profile_snapshot: snapshot(profile, va, vetting?.stage) }).select("id").single();
         if (app) {
           await admin.from("application_status_history").insert({ application_id: app.id, from_status: null, to_status: "new", changed_by: user.id, note: "Client invitation accepted" });
-          await admin.from("conversations").insert({ application_id: app.id, client_id: invite.client_id, va_id: user.id });
         }
       }
     }

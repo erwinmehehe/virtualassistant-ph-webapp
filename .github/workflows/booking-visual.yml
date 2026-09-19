@@ -30,6 +30,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Run live Google Calendar production smoke
+        if: github.head_ref == 'test/live-google-calendar-production-smoke-2'
+        run: node scripts/live-google-calendar-production-smoke-2.mjs
       - name: Start isolated booking preview
         env:
           BOOKING_VISUAL_FIXTURE: "1"

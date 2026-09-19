@@ -108,6 +108,7 @@ test("brief success screen offers matches, an account, and a call", () => {
   assert.match(form, /\/auth\/join\/client\?\$\{joinParams\.toString\(\)\}/);
   assert.match(form, /Create my account/);
   assert.match(form, /hb-secondary[\s\S]*Book a 20-minute call instead/);
+  assert.match(form, /Get my free VA match/);
   assert.doesNotMatch(form, /Continue to booking/);
   assert.doesNotMatch(form, /No account needed/);
 

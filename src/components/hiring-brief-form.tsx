@@ -196,7 +196,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
-          {pending ? "Sending..." : <>See my matches <ArrowRight size={16} /></>}
+          {pending ? "Matching..." : <>Get my free VA match <ArrowRight size={16} /></>}
         </button>
         <Foot />
       </form>
@@ -238,7 +238,7 @@ function GeneralVariant({ sourcePath, title = "Hire a Filipino VA", defaultCateg
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">See my matches <ArrowRight size={16} /></button>
+        <button className="hb-submit" type="submit" data-track="role_brief_submit">Get my free VA match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>

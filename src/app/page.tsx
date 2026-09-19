@@ -12,7 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
   FaqSection,
@@ -50,12 +50,21 @@ export const metadata: Metadata = {
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
     url: canonicalPath("/"),
+    images: [
+      {
+        url: canonicalUrl("/opengraph-image"),
+        width: 1200,
+        height: 630,
+        alt: "VirtualAssistant.com.ph - hire vetted Filipino virtual assistants",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Virtual Assistant Philippines | Hire Vetted Filipino VAs",
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
+    images: [canonicalUrl("/twitter-image")],
   },
 };
 

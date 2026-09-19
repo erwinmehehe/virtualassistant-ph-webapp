@@ -398,7 +398,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions outside the first handoff",
         "paragraphs": [
-          "When inventory tracking is part of the Amazon scope, write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval.For Amazon Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "When inventory tracking is part of the Amazon scope, write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval. For Amazon Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for listing updates, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ],
         "bullets": [],
@@ -633,7 +633,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When lead qualification support needs reliable weekly ownership, read the job post once as if you were the candidate. If the appointment setter role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For appointment setter work that includes appointment booking, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval.For Appointment Setter Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval. For Appointment Setter Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -809,7 +809,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "Read the job post once as if you were the candidate. If the role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. Better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -1995,7 +1995,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "When budgeting for transaction categorization, read the job post once as if you were the candidate. If the bookkeeping role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If invoice tracking is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the bookkeeping Virtual Assistant may make alone and the decisions that need approval.For Bookkeeping Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the bookkeeping Virtual Assistant may make alone and the decisions that need approval. For Bookkeeping Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -2529,7 +2529,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When appointment booking needs reliable weekly ownership, read the job post once as if you were the candidate. If the cold calling role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For cold calling work that includes lead qualification, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval.For Cold Calling Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval. For Cold Calling Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -2919,7 +2919,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When budgeting for customer communication, read the job post once as if you were the candidate. If the construction role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If job reporting is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval.For Construction Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval. For Construction Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -3097,7 +3097,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If writer coordination is one of the main deliverables, read the job post once as if you were the candidate. If the content marketing role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When distribution checklists needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval.For Content Marketing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval. For Content Marketing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -3443,7 +3443,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When budgeting for email support, read the job post once as if you were the candidate. If the customer service role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If order-status updates is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the customer service Virtual Assistant may make alone and the decisions that need approval.For Customer Service Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the customer service Virtual Assistant may make alone and the decisions that need approval. For Customer Service Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -3966,7 +3966,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If documentation is one of the main deliverables, read the job post once as if you were the candidate. If the dental billing role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When claim-status follow-up needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the dental billing Virtual Assistant may make alone and the decisions that need approval.For Dental Billing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the dental billing Virtual Assistant may make alone and the decisions that need approval. For Dental Billing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -4144,7 +4144,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For dental work that includes patient reminders, read the job post once as if you were the candidate. If the dental role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for inbox and phone support, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the dental Virtual Assistant may make alone and the decisions that need approval.For Dental Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the dental Virtual Assistant may make alone and the decisions that need approval. For Dental Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -4736,7 +4736,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When budgeting for buyer messages, read the job post once as if you were the candidate. If the eBay role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If sales reporting is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval.For eBay Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval. For eBay Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -5462,7 +5462,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "For executive work that includes stakeholder follow-up, read the job post once as if you were the candidate. If the executive role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for complex calendar management, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the executive Virtual Assistant may make alone and the decisions that need approval.For Executive Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the executive Virtual Assistant may make alone and the decisions that need approval. For Executive Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -5985,7 +5985,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For financial advisor work that includes client follow-up, read the job post once as if you were the candidate. If the financial advisor role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for review-meeting preparation, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the financial advisor Virtual Assistant may make alone and the decisions that need approval.For Financial Advisor Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the financial advisor Virtual Assistant may make alone and the decisions that need approval. For Financial Advisor Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -6163,7 +6163,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For Google Ads work that includes keyword list maintenance, read the job post once as if you were the candidate. If the Google Ads role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for ad copy uploads, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval.For Google Ads Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval. For Google Ads Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -6557,7 +6557,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "Before using a headline rate as a benchmark, read the job post once as if you were the candidate. If the role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. Better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For a realistic budget, write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For a realistic budget, write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -6698,7 +6698,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "For a bookkeeping role that starts with expense administration, a good skill match can still fail if the operating conditions are unclear. Before assigning month-end preparation, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When bookkeeping reports is part of the bookkeeping scope, write down the decisions the bookkeeping Virtual Assistant may make alone and the decisions that need approval.For Bookkeeping Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When bookkeeping reports is part of the bookkeeping scope, write down the decisions the bookkeeping Virtual Assistant may make alone and the decisions that need approval. For Bookkeeping Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -6871,7 +6871,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is call reporting, a good skill match can still fail if the operating conditions are unclear. Before assigning outbound calling, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When lead qualification is part of the cold calling scope, write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval.For Cold Calling Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When lead qualification is part of the cold calling scope, write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval. For Cold Calling Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -7044,7 +7044,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "For a construction role that starts with project document organization, a good skill match can still fail if the operating conditions are unclear. Before assigning vendor coordination, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When schedule updates is part of the construction scope, write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval.For Construction Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When schedule updates is part of the construction scope, write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval. For Construction Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -7217,7 +7217,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring brief preparation, a good skill match can still fail if the operating conditions are unclear. Before assigning writer coordination, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In a content marketing handoff involving content repurposing, write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval.For Content Marketing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "In a content marketing handoff involving content repurposing, write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval. For Content Marketing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -7553,7 +7553,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "For a customer service role that starts with FAQ responses, a good skill match can still fail if the operating conditions are unclear. Before assigning escalation handling, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "For customer service teams working on support reporting, write down the decisions the customer service Virtual Assistant may make alone and the decisions that need approval.For Customer Service Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "For customer service teams working on support reporting, write down the decisions the customer service Virtual Assistant may make alone and the decisions that need approval. For Customer Service Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -7726,7 +7726,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring claim-status follow-up, a good skill match can still fail if the operating conditions are unclear. Before assigning AR follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In a dental billing handoff involving payment posting support, write down the decisions the dental billing Virtual Assistant may make alone and the decisions that need approval.For Dental Billing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "In a dental billing handoff involving payment posting support, write down the decisions the dental billing Virtual Assistant may make alone and the decisions that need approval. For Dental Billing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -7899,7 +7899,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own appointment scheduling, a good skill match can still fail if the operating conditions are unclear. Before assigning patient reminders, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When insurance verification support is part of the dental scope, write down the decisions the dental Virtual Assistant may make alone and the decisions that need approval.For Dental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When insurance verification support is part of the dental scope, write down the decisions the dental Virtual Assistant may make alone and the decisions that need approval. For Dental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8072,7 +8072,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own meeting scheduling, a good skill match can still fail if the operating conditions are unclear. Before assigning client follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In a financial advisor handoff involving CRM maintenance, write down the decisions the financial advisor Virtual Assistant may make alone and the decisions that need approval.For Financial Advisor Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "In a financial advisor handoff involving CRM maintenance, write down the decisions the financial advisor Virtual Assistant may make alone and the decisions that need approval. For Financial Advisor Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8245,7 +8245,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own campaign build support, a good skill match can still fail if the operating conditions are unclear. Before assigning keyword list maintenance, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When search-term review is part of the Google Ads scope, write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval.For Google Ads Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When search-term review is part of the Google Ads scope, write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval. For Google Ads Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8413,7 +8413,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is research support, a good skill match can still fail if the operating conditions are unclear. Before assigning client intake, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval.For Law Firm Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval. For Law Firm Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8586,7 +8586,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "Before transferring follow-up tracking, a good skill match can still fail if the operating conditions are unclear. Before assigning lead reporting, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the lead generation Virtual Assistant may make alone and the decisions that need approval.For Lead Generation Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the lead generation Virtual Assistant may make alone and the decisions that need approval. For Lead Generation Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8759,7 +8759,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is matter-management updates, a good skill match can still fail if the operating conditions are unclear. Before assigning client intake administration, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval.For Legal Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval. For Legal Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -8932,7 +8932,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is insurance verification, a good skill match can still fail if the operating conditions are unclear. Before assigning patient balance communication support, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the medical billing Virtual Assistant may make alone and the decisions that need approval.For Medical Billing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the medical billing Virtual Assistant may make alone and the decisions that need approval. For Medical Billing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9105,7 +9105,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own medical terminology transcription, a good skill match can still fail if the operating conditions are unclear. Before assigning follow-up task documentation, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the medical scribe Virtual Assistant may make alone and the decisions that need approval.For Medical Scribe Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the medical scribe Virtual Assistant may make alone and the decisions that need approval. For Medical Scribe Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9278,7 +9278,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "For a medical role that starts with patient reminders, a good skill match can still fail if the operating conditions are unclear. Before assigning referral coordination, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval.For Medical Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval. For Medical Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9451,7 +9451,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own appointment scheduling, a good skill match can still fail if the operating conditions are unclear. Before assigning intake form follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the mental health Virtual Assistant may make alone and the decisions that need approval.For Mental Health Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the mental health Virtual Assistant may make alone and the decisions that need approval. For Mental Health Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9624,7 +9624,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring file organization, a good skill match can still fail if the operating conditions are unclear. Before assigning referral-partner follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the mortgage Virtual Assistant may make alone and the decisions that need approval.For Mortgage Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the mortgage Virtual Assistant may make alone and the decisions that need approval. For Mortgage Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9792,7 +9792,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "For a paralegal role that starts with document drafting support, a good skill match can still fail if the operating conditions are unclear. Before assigning case chronology preparation, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the paralegal Virtual Assistant may make alone and the decisions that need approval.For Paralegal Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the paralegal Virtual Assistant may make alone and the decisions that need approval. For Paralegal Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -9965,7 +9965,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is pay-period checklist support, a good skill match can still fail if the operating conditions are unclear. Before assigning deduction data administration, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the payroll Virtual Assistant may make alone and the decisions that need approval.For Payroll Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the payroll Virtual Assistant may make alone and the decisions that need approval. For Payroll Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10133,7 +10133,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring episode notes, a good skill match can still fail if the operating conditions are unclear. Before assigning audio and video handoff, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval.For Podcast Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval. For Podcast Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10301,7 +10301,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is month-end checklist support, a good skill match can still fail if the operating conditions are unclear. Before assigning transaction categorization, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the QuickBooks Virtual Assistant may make alone and the decisions that need approval.For QuickBooks Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the QuickBooks Virtual Assistant may make alone and the decisions that need approval. For QuickBooks Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10474,7 +10474,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "Before transferring listing administration, a good skill match can still fail if the operating conditions are unclear. Before assigning transaction coordination support, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval.For Real Estate Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval. For Real Estate Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10647,7 +10647,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own customer reminders, a good skill match can still fail if the operating conditions are unclear. Before assigning production calendar updates, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval.For Roofing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval. For Roofing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10815,7 +10815,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring outreach preparation, a good skill match can still fail if the operating conditions are unclear. Before assigning follow-up tasks, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval.For Sales Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval. For Sales Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -10983,7 +10983,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When hiring someone to own product uploads, a good skill match can still fail if the operating conditions are unclear. Before assigning collection updates, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval.For Shopify Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval. For Shopify Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -11156,7 +11156,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring calendar monitoring, a good skill match can still fail if the operating conditions are unclear. Before assigning cleaner scheduling, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval.For Short-Term Rental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval. For Short-Term Rental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -11328,7 +11328,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "A good skill match can still fail if the operating conditions are unclear. Confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When the role moves from plan to shortlist, write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Philippines Hiring, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When the role moves from plan to shortlist, write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Philippines Hiring, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -11505,7 +11505,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is bug reproduction, a good skill match can still fail if the operating conditions are unclear. Before assigning cross-browser QA, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval.For Web Developer Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval. For Web Developer Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -11673,7 +11673,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "When hiring someone to own listing updates, a good skill match can still fail if the operating conditions are unclear. Before assigning catalog cleanup, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When order monitoring is part of the Amazon scope, write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval.For Amazon Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When order monitoring is part of the Amazon scope, write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval. For Amazon Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -11846,7 +11846,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the first 30-day priority is meeting confirmation, a good skill match can still fail if the operating conditions are unclear. Before assigning lead follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In an appointment setter handoff involving appointment booking, write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval.For Appointment Setter Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "In an appointment setter handoff involving appointment booking, write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval. For Appointment Setter Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -12019,7 +12019,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "For an eBay role that starts with returns administration, a good skill match can still fail if the operating conditions are unclear. Before assigning inventory updates, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "When sales reporting is part of the eBay scope, write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval.For eBay Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "When sales reporting is part of the eBay scope, write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval. For eBay Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -12187,7 +12187,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set access and decision boundaries before the offer",
         "paragraphs": [
           "When hiring someone to own priority tracking, a good skill match can still fail if the operating conditions are unclear. Before assigning stakeholder follow-up, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "In an executive handoff involving document preparation, write down the decisions the executive Virtual Assistant may make alone and the decisions that need approval.For Executive Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "In an executive handoff involving document preparation, write down the decisions the executive Virtual Assistant may make alone and the decisions that need approval. For Executive Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -12360,7 +12360,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring customer communication, a good skill match can still fail if the operating conditions are unclear. Before assigning review requests, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval.For HVAC Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval. For HVAC Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -12533,7 +12533,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "Before transferring client communication, a good skill match can still fail if the operating conditions are unclear. Before assigning reporting, confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval.For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "Write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval. For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []
@@ -12828,7 +12828,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Week 1: establish the source of truth and boundaries",
         "paragraphs": [
           "For law firm work, start with real examples from document organization, case-management updates, and client intake. In that law firm workflow for research support, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Lawmatics or DocuSign, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "For law firm teams working on case-management updates, write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval.For Law Firm Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
+          "For law firm teams working on case-management updates, write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval. For Law Firm Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
         ],
         "bullets": [
           "Confirm working hours and communication channels.",
@@ -13015,7 +13015,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Week 1: establish the source of truth and boundaries",
         "paragraphs": [
           "For legal work, start with real examples from case-file updates, research support, and client intake administration. In that legal workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses Google Workspace or Calendly, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "When research support is part of the legal scope, write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval.For Legal Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
+          "When research support is part of the legal scope, write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval. For Legal Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
         ],
         "bullets": [
           "Confirm working hours and communication channels.",
@@ -13202,7 +13202,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Week 1: establish the source of truth and boundaries",
         "paragraphs": [
           "For medical work, start with real examples from inbox and phone support, billing administration, and referral coordination. In that medical workflow, show what a finished item looks like, which fields or records must be updated, and what counts as an exception. If the role uses secure messaging tools or Microsoft 365, demonstrate the exact workflow instead of assuming familiarity with the tool name means the candidate knows your process.",
-          "When billing administration is part of the medical scope, write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval.For Medical Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
+          "When billing administration is part of the medical scope, write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval. For Medical Virtual Assistant, keep performance decisions, compensation changes, access approvals, and contractual commitments with the manager."
         ],
         "bullets": [
           "Confirm working hours and communication channels.",
@@ -13642,7 +13642,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If estimate follow-up is one of the main deliverables, read the job post once as if you were the candidate. If the HVAC role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When customer communication needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "In an HVAC handoff involving inbound lead intake, write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval.For HVAC Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "In an HVAC handoff involving inbound lead intake, write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval. For HVAC Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -13820,7 +13820,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If CRM updates is one of the main deliverables, read the job post once as if you were the candidate. If the insurance role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When client communication needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For insurance teams working on lead intake, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval.For Insurance Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For insurance teams working on lead intake, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval. For Insurance Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -14162,7 +14162,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Tasks to keep out of the first handoff",
         "paragraphs": [
-          "When renewal reminders is part of the insurance scope, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval.For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "When renewal reminders is part of the insurance scope, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval. For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for client communication, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ],
         "bullets": [],
@@ -14629,7 +14629,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When client follow-up needs reliable weekly ownership, read the job post once as if you were the candidate. If the law firm role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For law firm work that includes matter setup, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "In a law firm handoff involving document organization, write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval.For Law Firm Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "In a law firm handoff involving document organization, write down the decisions the law firm Virtual Assistant may make alone and the decisions that need approval. For Law Firm Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -15418,7 +15418,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "If lead qualification support is one of the main deliverables, read the job post once as if you were the candidate. If the lead generation role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When follow-up tracking needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When prospect research is part of the lead generation scope, write down the decisions the lead generation Virtual Assistant may make alone and the decisions that need approval.For Lead Generation Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When prospect research is part of the lead generation scope, write down the decisions the lead generation Virtual Assistant may make alone and the decisions that need approval. For Lead Generation Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -15941,7 +15941,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When document organization needs reliable weekly ownership, read the job post once as if you were the candidate. If the legal role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For legal work that includes research support, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For legal teams working on matter-management updates, write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval.For Legal Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For legal teams working on matter-management updates, write down the decisions the legal Virtual Assistant may make alone and the decisions that need approval. For Legal Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -17173,7 +17173,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When denial-worklist administration needs reliable weekly ownership, read the job post once as if you were the candidate. If the medical billing role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For medical billing work that includes billing document organization, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For medical billing teams working on coding-query coordination, write down the decisions the medical billing Virtual Assistant may make alone and the decisions that need approval.For Medical Billing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For medical billing teams working on coding-query coordination, write down the decisions the medical billing Virtual Assistant may make alone and the decisions that need approval. For Medical Billing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -17591,7 +17591,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For medical scribe work that includes follow-up task documentation, read the job post once as if you were the candidate. If the medical scribe role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for encounter note preparation, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For medical scribe teams working on chart-prep support, write down the decisions the medical scribe Virtual Assistant may make alone and the decisions that need approval.For Medical Scribe Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For medical scribe teams working on chart-prep support, write down the decisions the medical scribe Virtual Assistant may make alone and the decisions that need approval. For Medical Scribe Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -17769,7 +17769,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "When budgeting for insurance verification support, read the job post once as if you were the candidate. If the medical role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If billing administration is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When patient reminders is part of the medical scope, write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval.For Medical Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When patient reminders is part of the medical scope, write down the decisions the medical Virtual Assistant may make alone and the decisions that need approval. For Medical Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -18504,7 +18504,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For mental health work that includes inbox and phone support, read the job post once as if you were the candidate. If the mental health role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for appointment scheduling, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When patient reminders is part of the mental health scope, write down the decisions the mental health Virtual Assistant may make alone and the decisions that need approval.For Mental Health Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When patient reminders is part of the mental health scope, write down the decisions the mental health Virtual Assistant may make alone and the decisions that need approval. For Mental Health Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -18682,7 +18682,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If CRM updates is one of the main deliverables, read the job post once as if you were the candidate. If the mortgage role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When file organization needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "In a mortgage handoff involving lead intake, write down the decisions the mortgage Virtual Assistant may make alone and the decisions that need approval.For Mortgage Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "In a mortgage handoff involving lead intake, write down the decisions the mortgage Virtual Assistant may make alone and the decisions that need approval. For Mortgage Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -19012,7 +19012,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "When the role moves from plan to shortlist, a good skill match can still fail if the operating conditions are unclear. Confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "Before turning the advice into a job post, write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Philippines Hiring, keep worker-classification, compensation, tax, benefits, privacy, and contractual questions with the appropriate internal owner or qualified professional."
+          "Before turning the advice into a job post, write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Philippines Hiring, keep worker-classification, compensation, tax, benefits, privacy, and contractual questions with the appropriate internal owner or qualified professional."
         ],
         "bullets": [],
         "numbered": []
@@ -19222,7 +19222,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When budgeting for legal research support, read the job post once as if you were the candidate. If the paralegal role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If discovery organization is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For paralegal teams working on client intake, write down the decisions the paralegal Virtual Assistant may make alone and the decisions that need approval.For Paralegal Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For paralegal teams working on client intake, write down the decisions the paralegal Virtual Assistant may make alone and the decisions that need approval. For Paralegal Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -19400,7 +19400,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When employee record updates needs reliable weekly ownership, read the job post once as if you were the candidate. If the payroll role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For payroll work that includes payroll report preparation, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "In a payroll handoff involving document organization, write down the decisions the payroll Virtual Assistant may make alone and the decisions that need approval.For Payroll Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "In a payroll handoff involving document organization, write down the decisions the payroll Virtual Assistant may make alone and the decisions that need approval. For Payroll Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -19791,7 +19791,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If sponsor administration is one of the main deliverables, read the job post once as if you were the candidate. If the podcast role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When episode notes needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For podcast teams working on show-note drafting, write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval.For Podcast Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For podcast teams working on show-note drafting, write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval. For Podcast Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -19964,7 +19964,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When report preparation needs reliable weekly ownership, read the job post once as if you were the candidate. If the QuickBooks role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For QuickBooks work that includes bank-feed review, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When invoice creation is part of the QuickBooks scope, write down the decisions the QuickBooks Virtual Assistant may make alone and the decisions that need approval.For QuickBooks Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When invoice creation is part of the QuickBooks scope, write down the decisions the QuickBooks Virtual Assistant may make alone and the decisions that need approval. For QuickBooks Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -20440,7 +20440,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep licensed representation, negotiation, legal interpretation, and broker or agent decisions outside the first handoff",
         "paragraphs": [
-          "When listing administration is part of the real estate scope, write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval.For Real Estate Virtual Assistant, keep offer terms, negotiation, pricing, disclosure decisions, and final client commitments with licensed or authorized staff.",
+          "When listing administration is part of the real estate scope, write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval. For Real Estate Virtual Assistant, keep offer terms, negotiation, pricing, disclosure decisions, and final client commitments with licensed or authorized staff.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for database cleanup, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ],
         "bullets": [],
@@ -20675,7 +20675,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For roofing work that includes production calendar updates, read the job post once as if you were the candidate. If the roofing role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for lead intake, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For roofing teams working on CRM updates, write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval.For Roofing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For roofing teams working on CRM updates, write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval. For Roofing Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -20848,7 +20848,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If follow-up tasks is one of the main deliverables, read the job post once as if you were the candidate. If the sales role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When pipeline reporting needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For sales teams working on prospect research, write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval.For Sales Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For sales teams working on prospect research, write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval. For Sales Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -21970,7 +21970,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For Shopify work that includes app administration, read the job post once as if you were the candidate. If the Shopify role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for product uploads, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When order support is part of the Shopify scope, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval.For Shopify Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When order support is part of the Shopify scope, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval. For Shopify Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -22312,7 +22312,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Tasks to keep out of the first handoff",
         "paragraphs": [
-          "When product uploads is part of the Shopify scope, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval.For Shopify Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "When product uploads is part of the Shopify scope, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval. For Shopify Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for inventory updates, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ],
         "bullets": [],
@@ -22547,7 +22547,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "If cleaner scheduling is one of the main deliverables, read the job post once as if you were the candidate. If the short-term rental role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When listing updates needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "When guest messaging is part of the short-term rental scope, write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval.For Short-Term Rental Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "When guest messaging is part of the short-term rental scope, write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval. For Short-Term Rental Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -23306,7 +23306,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "For pricing decisions, read the job post once as if you were the candidate. If the role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. Better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For pricing decisions, write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For pricing decisions, write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -23850,7 +23850,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When CMS maintenance needs reliable weekly ownership, read the job post once as if you were the candidate. If the web developer role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. For web developer work that includes HTML and CSS updates, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For web developer teams working on bug reproduction, write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval.For Web Developer Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "For web developer teams working on bug reproduction, write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval. For Web Developer Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -24149,7 +24149,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "In a cold calling handoff involving lead qualification, write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval.For Cold Calling Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
+          "In a cold calling handoff involving lead qualification, write down the decisions the cold calling Virtual Assistant may make alone and the decisions that need approval. For Cold Calling Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
           "This boundary is not a criticism of the cold calling Virtual Assistant. It protects the role from becoming a catch-all. In a cold calling workflow that includes follow-up scheduling, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -24318,7 +24318,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "In a construction handoff involving job reporting, write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval.For Construction Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "In a construction handoff involving job reporting, write down the decisions the construction Virtual Assistant may make alone and the decisions that need approval. For Construction Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the construction Virtual Assistant. It protects the role from becoming a catch-all. For teams delegating vendor coordination, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -24492,7 +24492,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When brief preparation is part of the content marketing scope, write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval.For Content Marketing Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
+          "When brief preparation is part of the content marketing scope, write down the decisions the content marketing Virtual Assistant may make alone and the decisions that need approval. For Content Marketing Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
           "This boundary is not a criticism of the content marketing Virtual Assistant. It protects the role from becoming a catch-all. When recurring content marketing work includes CMS publishing, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -25127,7 +25127,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-dental-virtual-assistant-do",
     "title": "What Does a Dental Virtual Assistant Do?",
     "metaTitle": "What Does a Dental Virtual Assistant Do? | Guide",
-    "description": "See what a dental virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a dental virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring dental work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "healthcare",
     "clusterLabel": "Dental Virtual Assistant",
@@ -25549,7 +25549,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "In a Google Ads handoff involving search-term review, write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval.For Google Ads Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
+          "In a Google Ads handoff involving search-term review, write down the decisions the Google Ads Virtual Assistant may make alone and the decisions that need approval. For Google Ads Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
           "This boundary is not a criticism of the Google Ads Virtual Assistant. It protects the role from becoming a catch-all. When recurring Google Ads work includes conversion-check QA, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -25665,7 +25665,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-law-firm-virtual-assistant-do",
     "title": "What Does a Law Firm Virtual Assistant Do?",
     "metaTitle": "What Does a Law Firm Virtual Assistant Do? | Guide",
-    "description": "See what a law firm virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a law firm virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring law firm work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "legal",
     "clusterLabel": "Law Firm Virtual Assistant",
@@ -26746,7 +26746,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-mortgage-virtual-assistant-do",
     "title": "What Does a Mortgage Virtual Assistant Do?",
     "metaTitle": "What Does a Mortgage Virtual Assistant Do? | Guide",
-    "description": "See what a mortgage virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a mortgage virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring mortgage work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "finance-bookkeeping",
     "clusterLabel": "Mortgage Virtual Assistant",
@@ -27105,7 +27105,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-payroll-virtual-assistant-do",
     "title": "What Does a Payroll Virtual Assistant Do?",
     "metaTitle": "What Does a Payroll Virtual Assistant Do? | Guide",
-    "description": "See what a payroll virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a payroll virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring payroll work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "finance-bookkeeping",
     "clusterLabel": "Payroll Virtual Assistant",
@@ -27280,7 +27280,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-podcast-virtual-assistant-do",
     "title": "What Does a Podcast Virtual Assistant Do?",
     "metaTitle": "What Does a Podcast Virtual Assistant Do? | Guide",
-    "description": "See what a podcast virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a podcast virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring podcast work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "hiring",
     "clusterLabel": "Podcast Virtual Assistant",
@@ -27328,7 +27328,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "In a podcast handoff involving publishing, write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval.For Podcast Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "In a podcast handoff involving publishing, write down the decisions the podcast Virtual Assistant may make alone and the decisions that need approval. For Podcast Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the podcast Virtual Assistant. It protects the role from becoming a catch-all. When recurring podcast work includes guest scheduling, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -27784,7 +27784,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-roofing-virtual-assistant-do",
     "title": "What Does a Roofing Virtual Assistant Do?",
     "metaTitle": "What Does a Roofing Virtual Assistant Do? | Guide",
-    "description": "See what a roofing virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a roofing virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring roofing work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "hiring",
     "clusterLabel": "Roofing Virtual Assistant",
@@ -27832,7 +27832,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When customer reminders is part of the roofing scope, write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval.For Roofing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "When customer reminders is part of the roofing scope, write down the decisions the roofing Virtual Assistant may make alone and the decisions that need approval. For Roofing Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the roofing Virtual Assistant. It protects the role from becoming a catch-all. When reporting moves from the manager to the Virtual Assistant, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -27948,7 +27948,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-sales-virtual-assistant-do",
     "title": "What Does a Sales Virtual Assistant Do?",
     "metaTitle": "What Does a Sales Virtual Assistant Do? | Guide",
-    "description": "See what a sales virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a sales virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring sales work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "seo-marketing",
     "clusterLabel": "Sales Virtual Assistant",
@@ -27996,7 +27996,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "For sales teams working on outreach preparation, write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval.For Sales Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
+          "For sales teams working on outreach preparation, write down the decisions the sales Virtual Assistant may make alone and the decisions that need approval. For Sales Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
           "This boundary is not a criticism of the sales Virtual Assistant. It protects the role from becoming a catch-all. When recurring sales work includes meeting scheduling, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -28112,7 +28112,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-a-shopify-virtual-assistant-do",
     "title": "What Does a Shopify Virtual Assistant Do?",
     "metaTitle": "What Does a Shopify Virtual Assistant Do? | Guide",
-    "description": "See what a shopify virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what a shopify virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring shopify work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "ecommerce",
     "clusterLabel": "Shopify Virtual Assistant",
@@ -28160,7 +28160,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "For Shopify teams working on product uploads, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval.For Shopify Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "For Shopify teams working on product uploads, write down the decisions the Shopify Virtual Assistant may make alone and the decisions that need approval. For Shopify Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
           "This boundary is not a criticism of the Shopify Virtual Assistant. It protects the role from becoming a catch-all. When discount setup moves from the manager to the Virtual Assistant, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -28334,7 +28334,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "For short-term rental teams working on listing updates, write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval.For Short-Term Rental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "For short-term rental teams working on listing updates, write down the decisions the short-term rental Virtual Assistant may make alone and the decisions that need approval. For Short-Term Rental Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the short-term rental Virtual Assistant. It protects the role from becoming a catch-all. When recurring short-term rental work includes reservation coordination, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -28503,7 +28503,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When bug reproduction is part of the web developer scope, write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval.For Web Developer Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "When bug reproduction is part of the web developer scope, write down the decisions the web developer Virtual Assistant may make alone and the decisions that need approval. For Web Developer Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the web developer Virtual Assistant. It protects the role from becoming a catch-all. For teams delegating CMS maintenance, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -28827,7 +28827,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When appointment booking is part of the appointment setter scope, write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval.For Appointment Setter Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
+          "When appointment booking is part of the appointment setter scope, write down the decisions the appointment setter Virtual Assistant may make alone and the decisions that need approval. For Appointment Setter Virtual Assistant, keep sitewide changes such as redirects, canonicals, robots rules, noindex directives, major template edits, campaign budgets, and final publishing decisions with the SEO or marketing owner.",
           "This boundary is not a criticism of the appointment setter Virtual Assistant. It protects the role from becoming a catch-all. In an appointment setter workflow that includes scripted outreach, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -28953,7 +28953,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-an-ebay-virtual-assistant-do",
     "title": "What Does an eBay Virtual Assistant Do?",
     "metaTitle": "What Does an eBay Virtual Assistant Do? | Guide",
-    "description": "See what an eBay virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what an eBay virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring ebay work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "ecommerce",
     "clusterLabel": "eBay Virtual Assistant",
@@ -29001,7 +29001,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When sales reporting and pricing research are both part of the eBay scope, write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval.For eBay Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "When sales reporting and pricing research are both part of the eBay scope, write down the decisions the eBay Virtual Assistant may make alone and the decisions that need approval. For eBay Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
           "This boundary is not a criticism of the eBay Virtual Assistant. It protects the role from becoming a catch-all. For teams delegating pricing research, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -29437,7 +29437,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "what-does-an-hvac-virtual-assistant-do",
     "title": "What Does an HVAC Virtual Assistant Do?",
     "metaTitle": "What Does an HVAC Virtual Assistant Do? | Guide",
-    "description": "See what an HVAC virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring.",
+    "description": "See what an HVAC virtual assistant can handle, which tasks to delegate, what to keep in-house, and how to define the role before hiring. See what to check.",
     "excerpt": "A clear breakdown of the recurring HVAC work you can delegate, the boundaries to set, and the signals to look for when hiring.",
     "topic": "hiring",
     "clusterLabel": "HVAC Virtual Assistant",
@@ -29485,7 +29485,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "For HVAC teams working on maintenance-plan reminders, write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval.For HVAC Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "For HVAC teams working on maintenance-plan reminders, write down the decisions the HVAC Virtual Assistant may make alone and the decisions that need approval. For HVAC Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the HVAC Virtual Assistant. It protects the role from becoming a catch-all. When review requests moves from the manager to the Virtual Assistant, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -29654,7 +29654,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When renewal reminders and appointment scheduling are both part of the insurance scope, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval.For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
+          "When renewal reminders and appointment scheduling are both part of the insurance scope, write down the decisions the insurance Virtual Assistant may make alone and the decisions that need approval. For Insurance Virtual Assistant, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client.",
           "This boundary is not a criticism of the insurance Virtual Assistant. It protects the role from becoming a catch-all. When recurring insurance work includes appointment scheduling, people do better work when they know which decisions are theirs and which ones should be handed back."
         ],
         "bullets": [],
@@ -30187,7 +30187,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Confirm schedule, access, and communication before the offer",
         "paragraphs": [
           "For the actual hiring decision, a good skill match can still fail if the operating conditions are unclear. Confirm the hours, time zone, expected response windows, communication channels, planned time off process, equipment requirements, and which accounts the role will need.",
-          "For hiring decisions, write down the decisions the Virtual Assistant may make alone and the decisions that need approval.For Philippines Hiring, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
+          "For hiring decisions, write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Philippines Hiring, keep final hiring decisions, compensation approval, worker classification, sensitive-access approval, and contractual commitments with the client."
         ],
         "bullets": [],
         "numbered": []

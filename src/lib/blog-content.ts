@@ -356,7 +356,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "amazon-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -534,6 +534,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
+    ],
+    "fieldNotes": [
+      "Amazon support should be organized around Seller Central queues, listing accuracy, order issues, inventory records, and documented marketplace exceptions rather than a generic ecommerce checklist.",
+      "When screening candidates, ask how they would detect a listing or account-health problem and what evidence they would capture before escalating it.",
+      "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and other revenue-sensitive decisions behind an approval step even when the hire has Amazon experience."
     ]
   },
   {
@@ -1530,7 +1535,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "medical-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -1739,7 +1744,12 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "https://www.hhs.gov/hipaa/for-professionals/privacy/guidance/business-associates/index.html"
       }
     ],
-    "reviewNote": "Operational guidance only. HIPAA and other privacy obligations depend on the organization, relationship, systems, contracts, and information involved. Confirm access controls and compliance requirements before a remote assistant handles protected health information."
+    "reviewNote": "Operational guidance only. HIPAA and other privacy obligations depend on the organization, relationship, systems, contracts, and information involved. Confirm access controls and compliance requirements before a remote assistant handles protected health information.",
+    "fieldNotes": [
+      "Do not recruit a medical VA by software logos. Ask what the candidate actually did in an EHR, practice-management system, phone system, billing portal, or secure messaging workflow.",
+      "The first tool-access plan should be narrower than the eventual role. Give the candidate only what the first approved workflow needs, then expand after accuracy and judgment are proven.",
+      "For interviews, test how the person handles missing information or conflicting records inside the workflow. Tool fluency matters less than knowing when not to improvise."
+    ]
   },
   {
     "slug": "best-tools-for-seo",
@@ -1909,7 +1919,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "bookkeeping",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -2074,6 +2084,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "When we screen bookkeeping candidates, we separate people who can follow a coding checklist from people who can explain reconciliations, missing-document follow-up, and month-end exceptions without guessing.",
+      "A candidate saying “QuickBooks” or “Xero” is not enough. We want to hear which reports, reconciliations, cleanup steps, and review handoffs they personally owned.",
+      "For a cost comparison, price the month-end pressure and review burden too. A lower rate can be poor value if your accountant still has to reconstruct the books before every close."
     ]
   },
   {
@@ -3357,7 +3372,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "customer-service",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -3522,6 +3537,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Customer-service budgets move with coverage requirements. Email-only queues, live chat, phones, weekends, and strict response windows create very different staffing needs.",
+      "In screening, compare the candidate’s ability to resolve and document a case, not just friendliness. Reopened tickets and missing notes are hidden costs that a low hourly rate does not show.",
+      "Price the escalation burden. A strong support hire should know which refunds, account changes, safety complaints, or policy exceptions need a manager instead of passing every decision upward."
     ]
   },
   {
@@ -4994,7 +5014,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "ecommerce",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -5189,6 +5209,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/service/shopify-virtual-assistant",
         "description": "Compare this adjacent service when your ecommerce virtual assistant workload also includes Shopify responsibilities."
       }
+    ],
+    "fieldNotes": [
+      "Use a real order exception in the interview: delayed fulfillment, incorrect address, stock mismatch, refund request, or listing issue. Ask which system the candidate checks first and why.",
+      "A Shopify or marketplace badge on a resume is not enough. We want candidates to describe the exact catalog, order, customer-support, or reporting work they owned.",
+      "Shortlist candidates who know their approval limits. Pricing changes, large refunds, supplier commitments, and revenue-sensitive account changes should not be guessed through."
     ]
   },
   {
@@ -5376,7 +5401,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "executive-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -5541,6 +5566,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Executive-assistant pricing changes quickly when the role moves from calendar maintenance into inbox judgment, meeting preparation, follow-up ownership, and handling sensitive context.",
+      "In screening, we care about how a candidate protects focus: what they would decline, reschedule, summarize, or escalate instead of simply how fast they can move calendar blocks.",
+      "Timezone overlap has real value in executive support. Price the hours when the executive actually needs decisions and follow-up, not an arbitrary full-shift requirement."
     ]
   },
   {
@@ -6473,7 +6503,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "clusterLabel": "Pricing",
     "intent": "commercial",
     "publishedAt": "2026-02-07",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "Christ Hemsworthy",
     "sections": [
       {
@@ -6626,6 +6656,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
       }
+    ],
+    "fieldNotes": [
+      "There is no useful single Philippines VA rate without scope. Compare the same hours, schedule overlap, tool depth, communication load, and decision ownership before treating one quote as cheaper.",
+      "Our recruiter screening separates entry-level execution from candidates expected to manage exceptions independently. Those are different roles even when both are called “virtual assistant.”",
+      "If the budget is tight, narrow the role before lowering the rate. A smaller queue with a clear finish line is easier to hire for than a senior wish list squeezed into an entry-level budget."
     ]
   },
   {
@@ -6639,7 +6674,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "bookkeeping",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -6799,6 +6834,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/accountants-cpas",
         "description": "See how bookkeeping virtual assistant support fits accounting firms, CPAs, and finance practices and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Ask candidates for a sanitized example of a reconciliation, cleanup, or close-support workflow and have them explain where the numbers came from and what they would escalate.",
+      "We screen for the boundary between bookkeeping execution and accounting judgment. A strong candidate is comfortable saying when a tax, classification, or final-review decision belongs with the accountant.",
+      "Confirm month-end availability before shortlisting. A candidate who is excellent during normal weeks can still be the wrong fit if your close happens during hours they cannot cover."
     ]
   },
   {
@@ -7494,7 +7534,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "customer-service",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -7654,6 +7694,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/ecommerce-stores",
         "description": "See how customer service virtual assistant support fits ecommerce stores and DTC brands and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Use one difficult-customer scenario in the interview and ask the candidate to draft both the customer response and the internal note. You need to see empathy and operational clarity together.",
+      "Ask shortlisted candidates what they actually did in Zendesk, Gorgias, Intercom, HubSpot, or another ticketing system. Tool familiarity should include routing, history, tags, macros, and handoffs where relevant.",
+      "Confirm channel and schedule fit before hiring. A candidate who is excellent on email may not be the right person for back-to-back voice coverage or an overnight live-chat queue."
     ]
   },
   {
@@ -8527,7 +8572,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "lead-generation",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -8687,6 +8732,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Give a candidate a small hypothetical ICP and ask how they would find and verify a short list of prospects. The interview signal is the research logic and source discipline, not a giant sample.",
+      "Shortlist people who can explain duplicate handling, contact verification, CRM fields, and what makes a prospect disqualified. Clean pipeline data saves sales teams more time than inflated volume.",
+      "If outreach is included, confirm the approved messaging, channels, handoff point, and exceptions before hiring. Research skill alone does not prove the candidate can represent your company well."
     ]
   },
   {
@@ -8700,7 +8750,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "legal-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -8860,6 +8910,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
+    ],
+    "fieldNotes": [
+      "Give candidates a client-intake or matter-update scenario and ask what information they would record, what they would avoid promising, and when they would escalate to a lawyer.",
+      "Shortlist for confidentiality habits and record discipline as heavily as communication. A legal support hire should be comfortable working inside strict naming, access, and approval rules.",
+      "In the interview, define the jurisdiction and supervision model. Prior legal-support experience is useful, but it does not turn a remote assistant into licensed counsel."
     ]
   },
   {
@@ -9219,7 +9274,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "medical-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -9379,6 +9434,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Use an interview scenario involving a scheduling conflict, referral problem, or incomplete patient record and ask the candidate what they would document before escalating.",
+      "EHR experience is only useful when the candidate can describe the workflow they completed, the information they were allowed to access, and how they checked the record before closing the task.",
+      "Shortlist for communication and privacy judgment together. A polished phone manner does not compensate for weak access discipline or unclear escalation behavior."
     ]
   },
   {
@@ -10415,7 +10475,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "real-estate",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -10575,6 +10635,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Give candidates a messy CRM or lead-follow-up scenario and ask them to explain what they would update first, what they would leave untouched, and what they would hand back to the agent.",
+      "Shortlist for response discipline and record quality, not just confidence on the phone. A fast follow-up process is only useful if notes, status, and ownership stay accurate.",
+      "In the interview, make licensing boundaries explicit. Prior real-estate experience should make a candidate more careful about what requires an agent or broker, not more willing to overstep."
     ]
   },
   {
@@ -11269,7 +11334,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "clusterLabel": "Philippines Hiring",
     "intent": "informational",
     "publishedAt": "2026-02-21",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "Christ Hemsworthy",
     "sections": [
       {
@@ -11433,6 +11498,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
       }
+    ],
+    "fieldNotes": [
+      "Start the shortlist with evidence: comparable workflows, tools actually used, schedule fit, communication quality, and examples of what the candidate personally owned.",
+      "A good interview should expose decision boundaries. Ask what the candidate would do independently, what they would document, and what they would bring back to you for approval.",
+      "Do not hire from a broad title alone. Define the first three recurring outcomes, then recruit for those outcomes and expand the role only after the handoff is working."
     ]
   },
   {
@@ -11614,7 +11684,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "amazon-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -11774,6 +11844,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/service/fulfilment",
         "description": "Compare this adjacent service when your amazon virtual assistant workload also includes order & fulfilment responsibilities."
       }
+    ],
+    "fieldNotes": [
+      "Ask candidates to walk through one Seller Central workflow they personally owned, including the starting signal, the fields they changed, the QA check, and the final handoff.",
+      "For shortlisting, distinguish catalog or order execution from marketplace strategy. Someone can be excellent at operational ownership without being the right person to set pricing or account policy.",
+      "Use an interview scenario involving an account-health, listing, or inventory exception. Strong candidates collect evidence and escalate with context instead of making a risky change to make the alert disappear."
     ]
   },
   {
@@ -12128,7 +12203,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "executive-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -12288,6 +12363,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/startups",
         "description": "See how executive virtual assistant support fits startups and founder-led companies and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Give shortlisted candidates a realistic calendar conflict and inbox-priority scenario. The useful signal is the reasoning behind the order of actions, not whether they guess your preferred answer.",
+      "Ask what information a candidate would need before replying on an executive’s behalf. Strong executive support includes knowing when not to send a message yet.",
+      "During the interview, confirm confidentiality habits, note-taking discipline, and how the candidate tracks promises made in meetings so follow-up does not disappear into chat."
     ]
   },
   {
@@ -15332,7 +15412,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "lead-generation",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -15497,6 +15577,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/real-estate-agents",
         "description": "See how lead generation virtual assistant support fits real estate agents, Realtors, and brokerages and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Lead-generation cost should be judged against usable records, not raw lead volume. A cheaper list is expensive if sales has to deduplicate, re-research, or discard most of it.",
+      "When screening candidates, we care about how they interpret the ICP, verify a contact, record the source, and keep CRM status clean before we care about how many rows they can produce per hour.",
+      "Budget separately for live outreach or appointment setting if the role needs it. Research-only lead generation and real-time prospect conversations are different jobs."
     ]
   },
   {
@@ -15855,7 +15940,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "legal-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -16020,6 +16105,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/service/law-firm-virtual-assistant",
         "description": "Compare this adjacent service when your legal virtual assistant workload also includes law firm responsibilities."
       }
+    ],
+    "fieldNotes": [
+      "Legal VA pricing should separate supervised administrative support from work that requires legal judgment. Intake, document organization, calendaring, billing admin, and matter updates are different from giving legal advice.",
+      "When screening candidates, we look for matter-management discipline: naming, dates, status, confidentiality, and a clean handoff to the attorney or paralegal when judgment is required.",
+      "Software depth matters when it reduces supervision. Ask what the candidate actually owned in Clio, MyCase, PracticePanther, Lawmatics, or your current system instead of paying more for a tool list."
     ]
   },
   {
@@ -17683,7 +17773,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "medical-virtual-assistant",
     "intent": "commercial",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -17848,6 +17938,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/medical-practices",
         "description": "See how medical virtual assistant support fits medical practices, physicians, and clinics and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "Medical VA budgets should distinguish routine scheduling, referrals, reminders, records administration, and billing support from clinical judgment, which stays with authorized healthcare staff.",
+      "When screening candidates, we look for privacy-aware workflows: minimum access, identity checks where required, clean notes, and a clear escalation path instead of casual handling of patient information.",
+      "Live coverage can be the biggest cost driver. If the hire must answer phones or work a clinic’s local hours, budget for that coverage explicitly rather than hiding it inside a generic VA rate."
     ]
   },
   {
@@ -20398,7 +20493,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "real-estate",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-09-19",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -20576,6 +20671,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "href": "/industries/property-management-companies",
         "description": "See how real estate virtual assistant support fits property managers and real estate operators and which adjacent Virtual Assistant services are commonly paired with it."
       }
+    ],
+    "fieldNotes": [
+      "The strongest real-estate VA task lists revolve around a source of truth: CRM, listing record, transaction checklist, or property-management system. If the task ends only in chat, it is hard to audit.",
+      "When screening candidates, ask how they record lead attempts, next actions, listing changes, and transaction deadlines so another agent can understand the history without asking them.",
+      "Keep licensed representation, negotiations, legal interpretations, and broker-only decisions outside the delegated task list even when the VA has worked in real estate before."
     ]
   },
   {

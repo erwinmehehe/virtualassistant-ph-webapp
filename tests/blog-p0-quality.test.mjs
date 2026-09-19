@@ -207,3 +207,62 @@ test("30 priority blogs carry recruiter-grade Philippine operating context", () 
     assert.ok((post.faqs || []).some((faq) => /schedule|time-zone|time zone|Philippines-based/i.test(faq.question + " " + faq.answer)), `${slug}: needs a practical schedule FAQ`);
   }
 });
+
+
+test("priority blogs do not reuse templated section architecture", () => {
+  const posts = parseBlogPosts();
+  const prioritySlugs = new Set([
+    "what-does-an-seo-virtual-assistant-do",
+    "how-to-hire-a-seo",
+    "seo-cost-philippines",
+    "what-does-a-bookkeeping-do",
+    "bookkeeping-interview-questions",
+    "bookkeeping-tasks",
+    "what-does-an-executive-virtual-assistant-do",
+    "executive-virtual-assistant-interview-questions",
+    "executive-virtual-assistant-tasks",
+    "what-is-a-virtual-medical-assistant",
+    "medical-virtual-assistant-interview-questions",
+    "medical-virtual-assistant-tasks",
+    "what-does-a-real-estate-virtual-assistant-do",
+    "real-estate-interview-questions",
+    "real-estate-cost-philippines",
+    "what-does-an-ecommerce-do",
+    "ecommerce-tasks",
+    "ecommerce-cost-philippines",
+    "what-does-an-amazon-virtual-assistant-do",
+    "amazon-virtual-assistant-interview-questions",
+    "amazon-virtual-assistant-cost-philippines",
+    "what-does-a-lead-generation-do",
+    "lead-generation-tasks",
+    "lead-generation-interview-questions",
+    "what-does-a-customer-service-do",
+    "customer-service-tasks",
+    "customer-service-interview-questions",
+    "what-does-a-legal-virtual-assistant-do",
+    "best-tools-for-legal-virtual-assistant",
+    "legal-virtual-assistant-interview-questions"
+  ]);
+
+  const headings = new Map();
+  for (const post of posts.filter((item) => prioritySlugs.has(item.slug))) {
+    const body = JSON.stringify(post);
+    assert.doesNotMatch(body, /Role scoping should/);
+    assert.doesNotMatch(body, /Role scoping lens:/);
+    assert.doesNotMatch(body, /For this role article,/);
+    assert.doesNotMatch(body, /Make the working-hours decision part of the role scope/);
+    assert.doesNotMatch(body, /Increase independence after accuracy is proven/);
+
+    for (const section of post.sections || []) {
+      const owners = headings.get(section.heading) || [];
+      owners.push(post.slug);
+      headings.set(section.heading, owners);
+    }
+  }
+
+  const reused = [...headings.entries()]
+    .filter(([, owners]) => new Set(owners).size > 1)
+    .map(([heading, owners]) => ({ heading, owners: [...new Set(owners)] }));
+
+  assert.deepEqual(reused, []);
+});

@@ -146,3 +146,64 @@ test("priority blog clusters do not reuse the old generic editorial skeleton", (
     }
   }
 });
+
+
+test("30 priority blogs carry recruiter-grade Philippine operating context", () => {
+  const posts = parseBlogPosts();
+  const prioritySlugs = [
+    "what-does-an-seo-virtual-assistant-do",
+    "how-to-hire-a-seo",
+    "seo-cost-philippines",
+    "what-does-a-bookkeeping-do",
+    "bookkeeping-interview-questions",
+    "bookkeeping-tasks",
+    "what-does-an-executive-virtual-assistant-do",
+    "executive-virtual-assistant-interview-questions",
+    "executive-virtual-assistant-tasks",
+    "what-is-a-virtual-medical-assistant",
+    "medical-virtual-assistant-interview-questions",
+    "medical-virtual-assistant-tasks",
+    "what-does-a-real-estate-virtual-assistant-do",
+    "real-estate-interview-questions",
+    "real-estate-cost-philippines",
+    "what-does-an-ecommerce-do",
+    "ecommerce-tasks",
+    "ecommerce-cost-philippines",
+    "what-does-an-amazon-virtual-assistant-do",
+    "amazon-virtual-assistant-interview-questions",
+    "amazon-virtual-assistant-cost-philippines",
+    "what-does-a-lead-generation-do",
+    "lead-generation-tasks",
+    "lead-generation-interview-questions",
+    "what-does-a-customer-service-do",
+    "customer-service-tasks",
+    "customer-service-interview-questions",
+    "what-does-a-legal-virtual-assistant-do",
+    "best-tools-for-legal-virtual-assistant",
+    "legal-virtual-assistant-interview-questions"
+  ];
+
+  assert.equal(prioritySlugs.length, 30);
+
+  for (const slug of prioritySlugs) {
+    const post = posts.find((item) => item.slug === slug);
+    assert.ok(post, `${slug}: priority article missing`);
+    assert.equal(post.updatedAt, "2026-09-19", `${slug}: editorial review date missing`);
+
+    const body = JSON.stringify(post);
+    assert.match(body, /Philippine Time/);
+    assert.match(body, /candidate|interview|shortlist|screen/i);
+    assert.match(body, /accuracy|backlog|response time|rework|rate|completion/i);
+    assert.match(body, /escalat|approval|accountable/i);
+
+    assert.doesNotMatch(body, /approval\.For/);
+    assert.doesNotMatch(body, /before hiring before/i);
+    assert.doesNotMatch(body, /\bA Amazon Virtual Assistant\b/);
+    assert.doesNotMatch(body, /\bA Executive Virtual Assistant\b/);
+    assert.doesNotMatch(body, /\bA SEO Virtual Assistant\b/);
+    assert.doesNotMatch(body, /with the accountable owner/);
+
+    assert.ok((post.keyTakeaways || []).length >= 4, `${slug}: needs practical takeaways`);
+    assert.ok((post.faqs || []).some((faq) => /schedule|time-zone|time zone|Philippines-based/i.test(faq.question + " " + faq.answer)), `${slug}: needs a practical schedule FAQ`);
+  }
+});

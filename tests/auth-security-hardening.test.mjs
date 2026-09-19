@@ -11,18 +11,18 @@ test("email/password auth requires at least 12 characters", async () => {
     read("src/app/auth/update-password/page.tsx"),
   ]);
 
-  assert.match(auth, /password: z\.string\(\)\.min\(12\)/);
+  assert.match(auth, /const loginSchema = z\.object\(\{[\s\S]*password: z\.string\(\)\.min\(8\)/);
+  assert.match(auth, /const joinSchema = loginSchema\.extend\(\{[\s\S]*password: z\.string\(\)\.min\(12\)/);
   assert.match(auth, /password\.length < 12/);
   assert.match(join, /minLength=\{12\}/);
   assert.match(join, /At least 12 characters\./);
   assert.match(updatePage, /minLength=\{12\}/);
 });
 
-test("Supabase auth ops config uses branded Resend auth mail and the same password minimum", async () => {
+test("Supabase auth ops config uses branded Resend auth mail without changing existing login password policy", async () => {
   const script = await read("scripts/configure-supabase-smtp.mjs");
 
   assert.match(script, /smtp_host: "smtp\.resend\.com"/);
-  assert.match(script, /password_min_length: 12/);
   assert.match(script, /mailer_otp_exp: 3600/);
   assert.match(script, /mailer_subjects_confirmation: "Confirm your VirtualAssistant\.com\.ph account"/);
   assert.match(script, /mailer_subjects_recovery: "Reset your VirtualAssistant\.com\.ph password"/);

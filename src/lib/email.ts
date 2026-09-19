@@ -50,6 +50,14 @@ function normalizeEmailList(value: unknown): string[] {
   return out;
 }
 
+const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
+  "erwinvalles20@gmail.com",
+  "jrvsaccad@gmail.com",
+  "bryanbatarina@gmail.com",
+]);
+const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
+const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
+
 const DEFAULT_TEAM_BCC = "jrvsaccad@gmail.com";
 const teamBccRecipients = normalizeEmailList([DEFAULT_TEAM_BCC, process.env.TEAM_CC_EMAIL, process.env.TEAM_BCC_EMAIL]);
 const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_EMAIL, process.env.APPLICATION_BCC_EMAIL]);
@@ -130,10 +138,23 @@ async function trackedSend(
   // Internal archive/team copies are always hidden from external recipients.
   // Security-sensitive messages can still opt out with archive:false/teamCc:false.
   const archiveBcc = options?.archive === false ? undefined : archiveExtraFor(payload);
-  const to = normalizeEmailList(payload.to);
-  const requestedCc = normalizeEmailList(payload.cc);
+  const rawTo = normalizeEmailList(payload.to);
+  const hasExternalRecipient = rawTo.some((email) => !isPrivateInternalEmail(email));
+
+  // Privacy rule: when any external recipient is present, Erwin, Jervis, and Bryan
+  // must never appear in visible To, CC, or Reply-To headers. Any accidentally
+  // addressed internal copy is moved to BCC instead.
+  const hiddenInternalFromTo = hasExternalRecipient ? rawTo.filter(isPrivateInternalEmail) : [];
+  const to = hasExternalRecipient ? rawTo.filter((email) => !isPrivateInternalEmail(email)) : rawTo;
+
+  const rawCc = normalizeEmailList(payload.cc);
+  const hiddenInternalFromCc = hasExternalRecipient ? rawCc.filter(isPrivateInternalEmail) : [];
+  const requestedCc = hasExternalRecipient ? rawCc.filter((email) => !isPrivateInternalEmail(email)) : rawCc;
+
   const requestedBcc = normalizeEmailList([
     payload.bcc,
+    hiddenInternalFromTo,
+    hiddenInternalFromCc,
     archiveBcc,
     options?.teamCc === false ? [] : teamBccRecipients
   ]);
@@ -141,7 +162,12 @@ async function trackedSend(
   const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
   const ccSet = new Set(cc.map((email) => email.toLowerCase()));
   const bcc = requestedBcc.filter((email) => !toSet.has(email.toLowerCase()) && !ccSet.has(email.toLowerCase()));
-  const replyTo = normalizeEmailList(payload.replyTo);
+
+  const rawReplyTo = normalizeEmailList(payload.replyTo);
+  const replyTo = hasExternalRecipient
+    ? rawReplyTo.filter((email) => !isPrivateInternalEmail(email))
+    : rawReplyTo;
+
   payload = {
     ...payload,
     to,

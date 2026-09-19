@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 
 const baseUrl = String(process.env.LIVE_BASE_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
 const email = String(process.env.BOOKING_SMOKE_EMAIL || "erwinmehehe@users.noreply.github.com");
-const company = `Google Calendar Smoke Test ${new Date().toISOString()}`;
+const company = `Google Calendar Production Token Smoke ${new Date().toISOString()}`;
 const outputDir = path.resolve("artifacts/booking-visual");
 await fs.mkdir(outputDir, { recursive: true });
 

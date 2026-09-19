@@ -32,6 +32,8 @@ jobs:
         run: npm ci
       - name: Release safety tests
         run: npm test
+      - name: Editorial content quality
+        run: npm run content:check
       - name: Type-check
         run: npm run typecheck
       - name: Security audit

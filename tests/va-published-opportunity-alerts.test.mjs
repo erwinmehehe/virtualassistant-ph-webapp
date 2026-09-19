@@ -5,6 +5,7 @@ import fs from "node:fs";
 const autoMatching = fs.readFileSync("src/lib/auto-matching.ts", "utf8");
 const jobsAction = fs.readFileSync("src/app/actions/jobs.ts", "utf8");
 const vaInterest = fs.readFileSync("src/app/actions/va-interest.ts", "utf8");
+const autoPublish = fs.readFileSync("src/lib/auto-publish.ts", "utf8");
 
 test("publishing a role runs the persisted-job matching hook", () => {
   assert.match(jobsAction, /autoReleaseTopMatches\(publishedJob\)/);
@@ -41,4 +42,20 @@ test("express interest still routes the VA to recruiter review before any client
   assert.match(vaInterest, /status:"new"/);
   assert.match(vaInterest, /VA expressed interest for recruiter review/);
   assert.match(vaInterest, /The recruiter decides who is ready to be presented to the client|Review the VA inside the recruiter matching workspace before deciding whether to present them to the client/);
+});
+
+
+test("reviewed zero-fee first placements publish without a redundant client acceptance click", () => {
+  assert.match(autoPublish, /placement_fee: effectiveFee/);
+  assert.match(autoPublish, /if \(effectiveFee === 0\)/);
+  assert.match(autoPublish, /commercial_status: "accepted"/);
+  assert.match(autoPublish, /status: "published", published_at: publishedAt/);
+  assert.match(autoPublish, /job_candidate_access/);
+  assert.match(autoPublish, /autoReleaseTopMatches\(publishedJob\)/);
+});
+
+test("paid and managed roles keep their commercial approval gate", () => {
+  assert.match(autoPublish, /job\.service_model !== "managed_service"/);
+  assert.match(autoPublish, /has been reviewed with a USD/);
+  assert.match(autoPublish, /Review and approve the terms to start recruiting/);
 });

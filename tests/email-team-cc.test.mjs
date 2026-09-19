@@ -12,7 +12,7 @@ test("internal team and archive copies are hidden with BCC", () => {
   assert.match(email, /const DEFAULT_TEAM_BCC = "jrvsaccad@gmail\.com"/);
   assert.match(email, /const teamBccRecipients =/);
   assert.match(email, /const archiveBcc = options\?\.archive === false/);
-  assert.match(email, /const to = normalizeEmailList\(payload\.to\)/);
+  assert.match(email, /const rawTo = normalizeEmailList\(payload\.to\)/);
   assert.match(email, /const requestedBcc = normalizeEmailList/);
   assert.match(email, /archiveBcc/);
   assert.match(email, /teamBccRecipients/);

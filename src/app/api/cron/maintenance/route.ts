@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
 import { bookingManageUrl } from "@/lib/booking-operations";
 import { formatDiscoverySlot } from "@/lib/discovery-booking";
+import { submitToIndexNow } from "@/lib/indexnow";
+import { BLOG_POSTS, blogHref } from "@/lib/blog";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -19,6 +21,31 @@ function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+
+/**
+ * Tell Bing (and through it, ChatGPT search) about pages that changed in the
+ * last day. Only genuinely changed URLs are submitted: the protocol treats
+ * resubmitting a static set as spam.
+ */
+async function runIndexNowSubmission(admin: ReturnType<typeof createAdminClient>) {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const since = daysAgo(1);
+
+  const changed = BLOG_POSTS
+    .filter((post) => (post.updatedAt || post.publishedAt) >= since)
+    .map((post) => `${base}${blogHref(post)}`);
+
+  const { data: jobs } = await admin
+    .from("jobs")
+    .select("id,slug,published_at")
+    .eq("status", "published")
+    .not("client_id", "is", null)
+    .gte("published_at", since)
+    .limit(200);
+  for (const job of jobs || []) changed.push(`${base}/jobs/${job.slug || job.id}`);
+
+  return submitToIndexNow(changed);
+}
 
 async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdminClient>) {
   const now = Date.now();
@@ -343,7 +370,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
   const quoteResult = await autoQuoteStraightforwardJobs();
-  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult] = await Promise.all([
+  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
     runProfileNudges(admin),
     runStaleVaCleanup(admin),
     runLeadClaimNudges(admin),
@@ -351,8 +378,9 @@ export async function GET(request: Request) {
     runWorkflowReminders(admin),
     runTalentHealthNudges(admin),
     runSalesCrmReminders(admin),
-    runDiscoveryBookingReminders(admin)
+    runDiscoveryBookingReminders(admin),
+    runIndexNowSubmission(admin)
   ]);
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
 }

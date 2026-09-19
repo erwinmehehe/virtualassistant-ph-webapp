@@ -25,7 +25,7 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
 import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
-import { SERVICE_PAGES, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
+import { SERVICE_PAGES, serviceMetaDescription, serviceMetaTitle, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
@@ -45,12 +45,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!page) return {};
   const canonical = canonicalPath(`/service/${page.slug}`);
   return {
-    title: { absolute: page.metaTitle },
-    description: page.metaDescription,
-    keywords: [page.primaryKeyword, page.name.toLowerCase(), `${page.name.toLowerCase()} philippines`, `filipino ${page.name.toLowerCase()}`],
+    title: { absolute: serviceMetaTitle(page) },
+    description: serviceMetaDescription(page),
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title: page.metaTitle, description: page.metaDescription },
-    twitter: { card: "summary_large_image", title: page.metaTitle, description: page.metaDescription }
+    openGraph: { type: "website", url: canonical, title: serviceMetaTitle(page), description: serviceMetaDescription(page) },
+    twitter: { card: "summary_large_image", title: serviceMetaTitle(page), description: serviceMetaDescription(page) }
   };
 }
 
@@ -149,7 +148,7 @@ function serviceEditorial(s: ServiceSeoPage) {
   const tools = s.tools;
   const skills = s.skills;
   const outcomes = s.outcomes;
-  const role = roleName(s.name).toLowerCase();
+  const role = roleName(s.name);
   const groupNotes: Record<string, { operating: string; quality: string; handoff: string }> = {
     "Marketing & Growth": {
       operating: "Give the Virtual Assistant a written brief, a source of truth for brand and campaign rules, and a clear review cadence. Marketing work gets messy when drafts, approvals, tracking links, and reporting live in different places.",
@@ -259,7 +258,7 @@ function serviceEditorial(s: ServiceSeoPage) {
     handoff: note.handoff,
     weekOne: `Start with ${tasks[0]}, ${tasks[1]}, and ${tasks[2]}. Give the Virtual Assistant examples of good completed work, access only to the systems needed for those tasks, and a short daily check-in while the process is still new.`,
     weekTwo: `Once the basics are consistent, add ${tasks[3] || tasks[0]} and ${tasks[4] || tasks[1]}. Ask the Virtual Assistant to document recurring questions and turn repeat answers into a checklist or SOP instead of relying on chat history.`,
-    monthOne: `By the end of the first month you should be judging this role by ${outcomes[0] ? outcomes[0].toLowerCase() : "the agreed outputs"} rather than by supervision: ${tasks[0]} running to schedule, exceptions recorded instead of hidden, and a short list of decisions still waiting on you.`,
+    monthOne: `By the end of the first month, review whether ${tasks.slice(0, 3).join(", ")} are running consistently, exceptions are recorded instead of hidden, and the remaining decisions that need your input are clearly documented.`,
     evidence: [
       `A real example of ${tasks[0]} and how accuracy was checked`,
       `A clear explanation of how they use ${tools[0]}${tools[1] ? ` and ${tools[1]}` : ""} in day-to-day work`,
@@ -279,11 +278,11 @@ function serviceEditorial(s: ServiceSeoPage) {
       `Open items: any ${tasks[0]} blocked past the agreed response window, with the blocker and next owner named`,
       `Documentation: ${tools[0]} records current enough that someone else could pick up ${tasks[0]} tomorrow`
     ],
-    notFit: `${toTitle(role)} support is the wrong answer when ${tasks[0]} has no repeatable process behind it yet, when the work is mostly one-off specialist judgment, or when you need someone to own regulated or financial decisions outside their authority. Settle the process first, then delegate the recurring layer around it.`
+    notFit: `${role} support is the wrong answer when there is no repeatable process for ${tasks[0]}, when the work is mostly one-off specialist judgment, or when you need someone to own regulated or financial decisions outside their authority. Settle the process first, then delegate the recurring layer around it.`
   };
 }
 
-function bestFitCopy(item: string, s: ServiceSeoPage) {
+function bestFitCopy(item: string, s: ServiceSeoPage, index: number) {
   if (s.slug === "law-firm-virtual-assistant") {
     const copy: Record<string, string> = {
       "solo attorneys": "Protect attorney time by delegating intake follow-up, scheduling, matter setup, file organization, and routine client communication.",
@@ -293,7 +292,9 @@ function bestFitCopy(item: string, s: ServiceSeoPage) {
     };
     if (copy[item]) return copy[item];
   }
-  return `A good fit when ${item} need reliable ownership for ${s.tasks.slice(0, 3).join(", ")} while keeping higher-risk decisions with the right manager or specialist.`;
+  const firstTask = s.tasks[index % s.tasks.length];
+  const secondTask = s.tasks[(index + 1) % s.tasks.length];
+  return `${toTitle(item)} can use this role to keep ${firstTask} and ${secondTask} moving consistently while higher-risk decisions stay with the appropriate manager or specialist.`;
 }
 
 const TALENT_MATCH_STOP_WORDS = new Set(["virtual","assistant","support","specialist","manager","management","service","services","philippines","the","and","for","with"]);
@@ -394,7 +395,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       name: `Hire ${article} ${s.name} in the Philippines`,
       serviceType: s.name,
       url: pageUrl,
-      description: s.metaDescription,
+      description: serviceMetaDescription(s),
       provider: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base },
       areaServed: "Worldwide"
     },
@@ -560,7 +561,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <Band>
           <SectionHead kicker="Best-fit teams" title={copy.fitTitle} lede={copy.fitIntro}/>
           <div className="sp-cards-4">
-            {uniqueStrings(s.bestFor).map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}><span className="sp-card-icon" aria-hidden="true"><UsersRound size={18}/></span><h3>{toTitle(item)}</h3><p>{bestFitCopy(item, s)}</p></article>)}
+            {uniqueStrings(s.bestFor).map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}><span className="sp-card-icon" aria-hidden="true"><UsersRound size={18}/></span><h3>{toTitle(item)}</h3><p>{bestFitCopy(item, s, index)}</p></article>)}
           </div>
           {regulated ? <div className="sp-notice"><ShieldCheck size={22} aria-hidden="true"/><div><strong>Scope and compliance: keep regulated judgment with the responsible professional.</strong><p>{regulated}</p></div></div> : null}
         </Band>

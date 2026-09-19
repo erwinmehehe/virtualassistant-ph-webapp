@@ -147,7 +147,6 @@ function serviceEditorial(s: ServiceSeoPage) {
   const tasks = s.tasks;
   const tools = s.tools;
   const skills = s.skills;
-  const outcomes = s.outcomes;
   const role = roleName(s.name);
   const groupNotes: Record<string, { operating: string; quality: string; handoff: string }> = {
     "Marketing & Growth": {

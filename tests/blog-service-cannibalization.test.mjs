@@ -26,10 +26,25 @@ test("structured blog titles stay distinct from service money-page titles", () =
   }
 });
 
-test("the ecommerce hiring guide is explicitly informational, not a duplicate money-page title", () => {
+test("overlapping ecommerce hiring guides consolidate into the ecommerce money page", () => {
   const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
-  const post = posts.find((item) => item.slug === "hire-ecommerce-virtual-assistant-philippines");
-  assert.ok(post, "ecommerce hiring guide missing");
-  assert.match(post.metaTitle, /Hiring Guide/);
-  assert.doesNotMatch(post.metaTitle, /^Hire Ecommerce Virtual Assistant Philippines/);
+  const config = source("next.config.ts");
+
+  assert.equal(posts.some((item) => item.slug === "hire-ecommerce-virtual-assistant-philippines"), false);
+  assert.equal(posts.some((item) => item.slug === "how-to-hire-a-ecommerce"), false);
+  assert.match(config, /source: "\/blog\/hire-ecommerce-virtual-assistant-philippines", destination: "\/service\/ecommerce", permanent: true/);
+  assert.match(config, /source: "\/blog\/how-to-hire-a-ecommerce", destination: "\/service\/ecommerce", permanent: true/);
+});
+
+
+test("legacy broad SEO guide consolidates into the SEO service money page", () => {
+  const config = source("next.config.ts");
+  assert.match(
+    config,
+    /source: "\/blog\/seo-virtual-assistant-philippines-guide", destination: "\/service\/seo", permanent: true/
+  );
+  assert.match(
+    config,
+    /source: "\/blog\/seo-virtual-assistant-philippines-guide\/", destination: "\/service\/seo", permanent: true/
+  );
 });

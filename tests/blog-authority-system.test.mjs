@@ -58,16 +58,17 @@ test("blog articles render dated first-party marketplace evidence and recruiter 
   assert.match(article, /marketplaceEvidenceForPost/);
   assert.match(article, /Recruiter field notes/);
   assert.match(article, /Marketplace snapshot/);
+  assert.match(article, /post\.fieldNotes\?\.length \? marketplaceEvidenceForPost/);
   assert.match(evidence, /asOf: "2026-09-20"/);
   assert.match(evidence, /approvedBenchProfiles: 101/);
   assert.match(evidence, /shortlistRows: 521/);
   assert.match(evidence, /shortlistJobs: 69/);
   assert.match(evidence, /medianYearsExperience: 3/);
-  assert.match(evidence, /experienceSample: 94/);
+  assert.match(evidence, /experienceSample: 85/);
   assert.match(evidence, /medianWeeklyHours: 40/);
-  assert.match(evidence, /weeklyHoursSample: 93/);
+  assert.match(evidence, /weeklyHoursSample: 83/);
   assert.match(evidence, /medianOverlapHours: 4/);
-  assert.match(evidence, /overlapSample: 81/);
+  assert.match(evidence, /overlapSample: 67/);
   assert.match(evidence, /self-reported|optional fields|not a market-wide survey/i);
 });
 

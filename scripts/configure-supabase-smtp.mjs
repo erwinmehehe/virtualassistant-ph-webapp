@@ -75,7 +75,6 @@ const response = await fetch(`https://api.supabase.com/v1/projects/${encodeURICo
     smtp_user: "resend",
     smtp_pass: smtpPassword,
     smtp_sender_name: senderName,
-    password_min_length: 12,
     mailer_otp_exp: 3600,
     mailer_subjects_confirmation: "Confirm your VirtualAssistant.com.ph account",
     mailer_subjects_recovery: "Reset your VirtualAssistant.com.ph password",
@@ -91,5 +90,5 @@ if (!response.ok) {
   process.exit(1);
 }
 
-console.log("Supabase Auth now uses Resend SMTP, branded confirmation/recovery templates, and a 12-character password minimum.");
+console.log("Supabase Auth now uses Resend SMTP with branded confirmation and recovery templates.");
 console.log("Send a signup confirmation and password-reset email to verify delivery before launch.");

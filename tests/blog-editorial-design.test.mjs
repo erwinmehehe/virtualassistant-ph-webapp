@@ -65,3 +65,14 @@ test("blog editorial styling includes responsive article, topic artwork and mobi
   assert.match(artworkCss, /@media \(max-width: 640px\)/);
   assert.match(artworkCss, /prefers-reduced-motion/);
 });
+
+
+test("blog next reads use a compact responsive card grid", () => {
+  const css = read("src/app/blog-editorial.css");
+
+  assert.match(css, /\.blog-editorial-page \.blog-internal-reading-grid \{[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.blog-editorial-page \.blog-internal-reading-grid a \{[\s\S]*border: 1px solid #e4e7ec/);
+  assert.match(css, /\.blog-editorial-page \.blog-internal-reading-grid a \{[\s\S]*border-radius: 16px/);
+  assert.match(css, /\.blog-editorial-page \.blog-internal-reading-grid small \{[\s\S]*-webkit-line-clamp: 3/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.blog-editorial-page \.blog-related-grid,[\s\S]*\.blog-editorial-page \.blog-internal-reading-grid \{[\s\S]*grid-template-columns: 1fr/);
+});

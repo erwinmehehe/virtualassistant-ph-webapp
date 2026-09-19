@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 
-const ALLOWED_TYPES = new Set<EmailOtpType>(["signup", "recovery"]);
+const ALLOWED_TYPES = new Set<EmailOtpType>(["signup", "recovery", "magiclink"]);
 
 function safeNext(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;

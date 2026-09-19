@@ -30,6 +30,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Resend Jervis activation through production
+        if: github.head_ref == 'test/resend-jervis-activation'
+        run: node scripts/resend-jervis-activation.mjs
       - name: Start isolated booking preview
         env:
           BOOKING_VISUAL_FIXTURE: "1"

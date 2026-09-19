@@ -12,6 +12,7 @@ import { siteOrigin } from "@/lib/seo-url";
 import { socialLoginEnabled } from "@/lib/social-login";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { sendAccountConfirmationEmail, sendPasswordRecoveryEmail } from "@/lib/email";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -54,6 +55,31 @@ function joinErrorPath(role: "client" | "va", message: string, extras?: { talent
   if (extras?.lead) params.set("lead", extras.lead);
   if (extras?.next) params.set("next", extras.next);
   return `/auth/join/${role}?${params.toString()}`;
+}
+
+function tokenFromGeneratedActionLink(actionLink: string | undefined | null) {
+  if (!actionLink) return null;
+  try {
+    return new URL(actionLink).searchParams.get("token");
+  } catch {
+    return null;
+  }
+}
+
+function appAuthConfirmUrl(args: {
+  origin: string;
+  tokenHash: string;
+  type: "signup" | "recovery";
+  next: string;
+  lead?: string;
+}) {
+  const params = new URLSearchParams({
+    token_hash: args.tokenHash,
+    type: args.type,
+    next: args.next,
+  });
+  if (args.lead) params.set("lead", args.lead);
+  return `${args.origin}/auth/confirm?${params.toString()}`;
 }
 
 export async function oauthAction(formData: FormData) {
@@ -185,75 +211,110 @@ export async function joinAction(formData: FormData) {
   }
 
   const destination = destinationFor(parsed.data.role, parsed.data.next, parsed.data.talent);
-  const supabase = await createClient();
-  const callbackParams = new URLSearchParams({ next: destination });
-  if (parsed.data.role === "client" && parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
   const origin = siteOrigin();
   if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
     redirect(joinErrorPath(parsed.data.role, "Account signup is temporarily unavailable. Please contact support.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
   }
-  const callback = `${origin}/auth/callback?${callbackParams.toString()}`;
-  const { data, error } = await supabase.auth.signUp({
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: "signup",
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: callback,
-      data: { role: parsed.data.role, full_name: parsed.data.full_name }
+      data: { role: parsed.data.role, full_name: parsed.data.full_name },
+      redirectTo: origin,
     }
   });
 
-  if (error) redirect(joinErrorPath(parsed.data.role, error.message, { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
-
-  let claimedJobId: string | null = null;
-  const accountWasCreated = Boolean(data.user && (data.user.identities?.length ?? 0) > 0);
-  if (data.user && accountWasCreated) {
-    const admin = createAdminClient();
-    const workspaceProfile = await getOrBootstrapProfile(data.user);
-    if (!workspaceProfile || workspaceProfile.role !== parsed.data.role) {
-      await admin.auth.admin.deleteUser(data.user.id);
-      redirect(joinErrorPath(parsed.data.role, "We could not finish setting up your workspace. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
-    }
-    if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
-      const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
-      const path = `${data.user.id}/registration-${Date.now()}.${extension}`;
-      const { error: uploadError } = await admin.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
-      if (uploadError) {
-        await admin.auth.admin.deleteUser(data.user.id);
-        redirect(joinErrorPath("va", "We could not save your profile photo. Please try again.", { next }));
-      }
-      const { data: publicUrl } = admin.storage.from("avatars").getPublicUrl(path);
-      const { error: avatarError } = await admin.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", data.user.id);
-      if (avatarError) {
-        await admin.storage.from("avatars").remove([path]);
-        await admin.auth.admin.deleteUser(data.user.id);
-        redirect(joinErrorPath("va", "We could not attach your profile photo. Please try again.", { next }));
-      }
-    }
-    try {
-      await recordProductEvent("account_created", {
-        userId: data.user.id,
-        path: `/auth/join/${parsed.data.role}`,
-        metadata: { role: parsed.data.role, requested_talent: Boolean(parsed.data.talent), claimed_lead: Boolean(parsed.data.lead) }
+  if (error || !data.user) {
+    const accountMayExist = /already|registered|exists/i.test(error?.message || "");
+    if (accountMayExist) {
+      const loginParams = new URLSearchParams({
+        message: "An account may already exist for this email. Log in to continue.",
+        next: destination
       });
-      if (parsed.data.role === "client" && data.session) {
-        claimedJobId = await claimClientHiringRequests({ userId: data.user.id, email: parsed.data.email, leadId: parsed.data.lead });
-      }
-    } catch {
-      // Analytics or lead-claiming failures must not block a valid signup.
+      if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
+      redirect(`/auth/login?${loginParams.toString()}`);
+    }
+    redirect(joinErrorPath(parsed.data.role, error?.message || "We could not create your account. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+  }
+
+  const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
+  if (!tokenHash) {
+    await admin.auth.admin.deleteUser(data.user.id);
+    redirect(joinErrorPath(parsed.data.role, "We could not create a secure confirmation link. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+  }
+
+  const confirmationUrl = appAuthConfirmUrl({
+    origin,
+    tokenHash,
+    type: "signup",
+    next: destination,
+    lead: parsed.data.role === "client" ? parsed.data.lead : undefined,
+  });
+
+  const workspaceProfile = await getOrBootstrapProfile(data.user);
+  if (!workspaceProfile || workspaceProfile.role !== parsed.data.role) {
+    await admin.auth.admin.deleteUser(data.user.id);
+    redirect(joinErrorPath(parsed.data.role, "We could not finish setting up your workspace. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+  }
+
+  if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
+    const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
+    const path = `${data.user.id}/registration-${Date.now()}.${extension}`;
+    const { error: uploadError } = await admin.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
+    if (uploadError) {
+      await admin.auth.admin.deleteUser(data.user.id);
+      redirect(joinErrorPath("va", "We could not save your profile photo. Please try again.", { next }));
+    }
+    const { data: publicUrl } = admin.storage.from("avatars").getPublicUrl(path);
+    const { error: avatarError } = await admin.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", data.user.id);
+    if (avatarError) {
+      await admin.storage.from("avatars").remove([path]);
+      await admin.auth.admin.deleteUser(data.user.id);
+      redirect(joinErrorPath("va", "We could not attach your profile photo. Please try again.", { next }));
     }
   }
 
-  const postSignupDestination = claimedJobId ? `/workspace/client/jobs/${claimedJobId}?claimed=1` : destination;
-  if (!data.session) {
-    const loginParams = new URLSearchParams({
-      message: accountWasCreated ? "Check your email to confirm your account" : "An account may already exist for this email. Log in to continue.",
-      next: postSignupDestination
+  try {
+    await recordProductEvent("account_created", {
+      userId: data.user.id,
+      path: `/auth/join/${parsed.data.role}`,
+      metadata: { role: parsed.data.role, requested_talent: Boolean(parsed.data.talent), claimed_lead: Boolean(parsed.data.lead) }
     });
-    if (accountWasCreated) loginParams.set("confirm", "1");
-    if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
-    redirect(`/auth/login?${loginParams.toString()}`);
+  } catch {
+    // Analytics failures must not block a valid signup.
   }
-  redirect(postSignupDestination);
+
+  let brandedConfirmationSent = false;
+  try {
+    const result = await sendAccountConfirmationEmail({ to: parsed.data.email, actionUrl: confirmationUrl });
+    brandedConfirmationSent = result.sent;
+  } catch {
+    brandedConfirmationSent = false;
+  }
+
+  if (!brandedConfirmationSent) {
+    try {
+      const fallbackSupabase = await createClient();
+      await fallbackSupabase.auth.resend({
+        type: "signup",
+        email: parsed.data.email,
+        options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(destination)}` }
+      });
+    } catch {
+      // The account remains valid and the login page exposes confirmation recovery.
+    }
+  }
+
+  const loginParams = new URLSearchParams({
+    message: "Check your email to confirm your account",
+    next: destination,
+    confirm: "1"
+  });
+  if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
+  redirect(`/auth/login?${loginParams.toString()}`);
 }
 
 export async function logoutAction() {
@@ -263,10 +324,45 @@ export async function logoutAction() {
 }
 
 export async function requestPasswordResetAction(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   await limitOrRedirect("password_reset", email, 4, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
-  const supabase = await createClient();
-  if (email) await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${siteOrigin()}/auth/callback?next=/auth/update-password` });
+
+  if (email) {
+    let brandedRecoverySent = false;
+    try {
+      const admin = createAdminClient();
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: "recovery",
+        email,
+        options: { redirectTo: siteOrigin() }
+      });
+      if (!error) {
+        const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
+        if (tokenHash) {
+          const recoveryUrl = appAuthConfirmUrl({
+            origin: siteOrigin(),
+            tokenHash,
+            type: "recovery",
+            next: "/auth/update-password",
+          });
+          const result = await sendPasswordRecoveryEmail({ to: email, actionUrl: recoveryUrl });
+          brandedRecoverySent = result.sent;
+        }
+      }
+    } catch {
+      brandedRecoverySent = false;
+    }
+
+    if (!brandedRecoverySent) {
+      try {
+        const fallbackSupabase = await createClient();
+        await fallbackSupabase.auth.resetPasswordForEmail(email, { redirectTo: `${siteOrigin()}/auth/callback?next=/auth/update-password` });
+      } catch {
+        // Keep the response non-enumerating even if both providers reject the request.
+      }
+    }
+  }
+
   redirect("/auth/login?message=If%20that%20email%20exists,%20a%20reset%20link%20has%20been%20sent");
 }
 

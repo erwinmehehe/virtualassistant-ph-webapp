@@ -28,7 +28,11 @@ function normalizeMetaTask(task: string) {
 }
 
 export function serviceMetaDescription(page: ServiceSeoPage) {
-  const prefix = `Hire a vetted ${page.name} in the Philippines for `;
+  const compactRole = page.name
+    .replace(/\s+Virtual Assistant\b/i, "")
+    .replace(/^Virtual\s+/i, "")
+    .trim();
+  const prefix = `Hire a vetted ${compactRole} VA in the Philippines for `;
   const suffix = ". Compare experience, tools, availability, and role fit.";
   const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
 
@@ -41,11 +45,16 @@ export function serviceMetaDescription(page: ServiceSeoPage) {
         : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
     const candidate = `${prefix}${taskText}${suffix}`;
     if (candidate.length <= 160) {
-      return candidate.length >= 145 ? candidate : `${candidate.slice(0, -1)} before you interview.`;
+      if (candidate.length >= 145) return candidate;
+      const expanded = `${candidate.slice(0, -1)} before you interview.`;
+      return expanded.length <= 160 ? expanded : candidate;
     }
   }
 
-  return `Hire a vetted ${page.name} in the Philippines. Compare proven role experience, tools, availability, communication, and workflow fit before you interview.`;
+  const fallback = `Hire a vetted ${compactRole} VA in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
+  if (fallback.length <= 160) return fallback;
+
+  return `Hire a vetted ${compactRole} VA in the Philippines. Compare experience, tools, availability, and role fit.`;
 }
 
 export const SERVICE_PAGES: ServiceSeoPage[] = [

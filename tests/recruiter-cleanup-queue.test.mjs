@@ -46,7 +46,7 @@ test("cleanup actions preserve history and support one-click resolution", () => 
   assert.match(action, /writeRecruiterActivity/);
   assert.match(closeAction, /writeRecruiterActivity/);
   assert.match(action, /This lead belongs to another recruiter/);
-  assert.match(closeAction, /This lead belongs to another recruiter/);
+  assert.doesNotMatch(closeAction, /This lead belongs to another recruiter/);
 });
 
 test("closed leads leave the active cleanup queue instead of being deleted", () => {

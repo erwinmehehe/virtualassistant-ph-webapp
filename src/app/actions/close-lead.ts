@@ -58,8 +58,10 @@ export async function closeLeadAction(formData: FormData) {
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
-  if (profile.role === "recruiter" && lead.owner_id && lead.owner_id !== user.id) return fail("This lead belongs to another recruiter.");
 
+  // The recruiter CRM is a shared team queue. Any recruiter or admin who can
+  // access the CRM may close a visible lead, even when another recruiter owns it.
+  // Ownership remains on the record for reporting and activity history.
   const now = new Date().toISOString();
   const leadUpdate = admin
     .from("lead_intake")

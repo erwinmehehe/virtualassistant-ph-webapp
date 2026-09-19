@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, Filter, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CompactPageHeader } from "@/components/compact-page-header";
 import { PublicAvatar } from "@/components/public-avatar";
 import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
@@ -78,7 +79,13 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
   const pageVas = vas.slice((page - 1) * TALENT_PAGE_SIZE, page * TALENT_PAGE_SIZE);
 
   return <><SiteHeader/><main id="main-content" className="talent-directory-page">
-    <section className="public-directory-hero"><div className="container"><div className="public-directory-hero-grid"><div><h1>Meet experienced Filipino virtual assistants.</h1><p>Review examples of recruiter-approved talent, then tell us what you need. We will confirm availability and present a focused shortlist for your role.</p></div><div className="row wrap"><Link className="btn btn-primary btn-lg" href="/hire">Get a vetted shortlist <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/how-vetting-works">How we screen</Link></div></div></div></section>
+    <CompactPageHeader
+      eyebrow="Recruiter-approved talent"
+      title={<h1>Meet experienced Filipino virtual assistants.</h1>}
+      description={<p>Filter by specialty, experience, availability, tools, and schedule. We confirm current fit before presenting a shortlist.</p>}
+      meta={<span><strong>{totalResults}</strong> approved profile{totalResults===1?"":"s"}</span>}
+      actions={<><Link className="btn btn-primary" href="/hire">Get a vetted shortlist <ArrowRight size={16}/></Link><Link className="btn" href="/how-vetting-works">How we screen</Link></>}
+    />
 
     <section className="section directory-section"><div className="container">
       <form className="directory-filterbar" method="get">

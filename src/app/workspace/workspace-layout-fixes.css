@@ -14,6 +14,95 @@
   max-width: 100%;
 }
 
+/* Recruiter candidate detail should read like a focused work surface instead of
+   stretching across the whole dashboard. */
+.dashboard-shell .recruiter-candidate-page {
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-shell .recruiter-candidate-head {
+  align-items: center;
+  padding: 22px 24px;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.05);
+}
+
+.dashboard-shell .candidate-identity {
+  margin-top: 12px;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-shell .candidate-identity h1 {
+  margin: 0;
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 1.08;
+}
+
+.dashboard-shell .candidate-identity p {
+  margin: 5px 0 0;
+}
+
+.dashboard-shell .recruiter-candidate-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+  gap: 22px;
+  align-items: start;
+}
+
+.dashboard-shell .recruiter-candidate-main,
+.dashboard-shell .recruiter-candidate-sidebar {
+  gap: 18px;
+}
+
+.dashboard-shell .recruiter-candidate-page .card {
+  border-color: #e4e7ec;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
+}
+
+.dashboard-shell .recruiter-candidate-page .score-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboard-shell .recruiter-candidate-page .score-grid > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.dashboard-shell .recruiter-candidate-sidebar {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+}
+
+.dashboard-shell .recruiter-candidate-sidebar .card,
+.dashboard-shell .recruiter-candidate-sidebar form.card {
+  padding: 18px;
+}
+
+.dashboard-shell .recruiter-candidate-page .recruiter-note-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.dashboard-shell .recruiter-candidate-page .recruiter-note-form textarea {
+  min-height: 92px;
+}
+
+.dashboard-shell .recruiter-candidate-page .internal-view-banner {
+  margin: 0;
+}
+
 /* Recruiter candidate and other two-column profile/detail screens. */
 .dashboard-shell .profile-layout {
   width: 100%;
@@ -62,6 +151,15 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
   }
+
+  .dashboard-shell .recruiter-candidate-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .recruiter-candidate-sidebar {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Only the candidate sidebar changes here. The shell and score-card breakpoints
@@ -69,5 +167,37 @@
 @media (max-width: 760px) {
   .dashboard-shell .profile-sidebar {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .recruiter-candidate-head {
+    padding: 18px;
+    align-items: stretch;
+  }
+
+  .dashboard-shell .candidate-identity {
+    align-items: flex-start;
+  }
+
+  .dashboard-shell .recruiter-candidate-page .score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-shell .recruiter-candidate-page .recruiter-note-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .recruiter-candidate-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-shell .recruiter-candidate-page .score-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-shell .candidate-identity {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
   }
 }

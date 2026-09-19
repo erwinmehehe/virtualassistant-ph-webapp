@@ -42,6 +42,118 @@
 
 
 
+
+/* Compact headers for directory, browse, content-hub, and utility pages. */
+.compact-page-header {
+  padding: 28px 0 24px;
+  border-bottom: 1px solid #e4e7ec;
+  background: linear-gradient(180deg, #fff 0%, #fbfcff 100%);
+}
+
+.compact-page-header-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.compact-page-header-copy {
+  min-width: 0;
+  max-width: 880px;
+}
+
+.compact-page-eyebrow {
+  margin-bottom: 7px;
+  color: #444ce7;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.compact-page-eyebrow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.compact-page-header h1 {
+  margin: 0;
+  max-width: 900px;
+  color: #101828;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -.04em;
+}
+
+.compact-page-description {
+  margin-top: 9px;
+  max-width: 780px;
+}
+
+.compact-page-description p {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.compact-page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.compact-page-meta strong {
+  color: #101828;
+}
+
+.compact-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.compact-page-actions .btn {
+  min-height: 42px;
+}
+
+@media (max-width: 760px) {
+  .compact-page-header {
+    padding: 22px 0 20px;
+  }
+
+  .compact-page-header-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .compact-page-header h1 {
+    font-size: clamp(27px, 8vw, 36px);
+  }
+
+  .compact-page-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .compact-page-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compact-page-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* Brand differentiation section rendered before the public footer. */
 .why-choose-va {
   position: relative;

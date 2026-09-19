@@ -32,18 +32,18 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(footerCta, /pathname === "\/"/);
 });
 
-test("high-value public heroes keep their H1 copy and a valid conversion path", () => {
+test("high-value public pages keep approved H1 copy and a valid conversion path", () => {
   const checks = [
-    ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /<DiscoveryCallCard/],
-    ["src/app/industries/page.tsx", "Virtual Assistant services built around how your business actually works.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /href="\/hire"/],
+    ["src/app/industries/page.tsx", "Find VA support by business workflow.", /href="\/hire"/],
     ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /<DiscoveryCallCard|<HiringBriefForm/],
-    ["src/app/blog/page.tsx", "Build a better remote team, one clear workflow at a time.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/blog/page.tsx", "Practical guides for hiring and managing Filipino VAs.", /href="\/hire"/],
     ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /<DiscoveryCallCard|<HiringBriefForm/],
     ["src/app/faq/page.tsx", "Questions before you hire or apply.", /<DiscoveryCallCard|href="\/book-client-call"/],
     ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", /<DiscoveryCallCard|href="\/book-client-call"/],
     ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", /<DiscoveryCallCard|href="\/book-client-call"/],
     ["src/app/managed-vs-direct-hire/page.tsx", "Managed Virtual Assistant vs. Direct Hire", /<DiscoveryCallCard|<HiringBriefForm|href="\/book-client-call"/],
-    ["src/app/tools/page.tsx", "Plan the role before you post it.", /<DiscoveryCallCard|href="\/book-client-call"/],
+    ["src/app/tools/page.tsx", "Plan the role before you post it.", /href="\/tools\/virtual-assistant-cost-calculator"/],
     ["src/app/contact/page.tsx", "What can we help with?", /submitContactAction/]
   ];
 

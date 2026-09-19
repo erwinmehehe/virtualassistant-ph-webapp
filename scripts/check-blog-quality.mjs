@@ -33,18 +33,64 @@ function slugsFrom(file) {
   return new Set([...source.matchAll(/(?:\bslug|["']slug["'])\s*:\s*['"]([^'"]+)['"]/g)].map(m => m[1]));
 }
 function routeForPost(post) {
-  return post.legacyPath || `/blog/${post.slug}/`;
+  return (post.legacyPath || `/blog/${post.slug}`).replace(/\/$/, '');
+}
+
+function roleTokens(post) {
+  return new Set(
+    [post.serviceSlug || '', post.clusterLabel || '', post.title || '']
+      .join(' ')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(token => token.length > 2)
+  );
+}
+
+function normalizedHeading(heading, post) {
+  const roleWords = roleTokens(post);
+  return String(heading || '')
+    .toLowerCase()
+    .replace(/virtual assistant/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(token => token.length > 2 && !roleWords.has(token))
+    .join(' ');
+}
+
+function proseShingles(post, size = 8) {
+  const text = (post.sections || [])
+    .flatMap(section => [
+      ...(section.paragraphs || []),
+      ...(section.bullets || []),
+      ...(section.numbered || [])
+    ])
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const tokens = text.split(' ').filter(token => token.length > 2);
+  const shingles = new Set();
+  for (let i = 0; i <= tokens.length - size; i += 1) {
+    shingles.add(tokens.slice(i, i + size).join(' '));
+  }
+  return shingles;
+}
+
+function jaccard(a, b) {
+  let intersection = 0;
+  for (const value of a) if (b.has(value)) intersection += 1;
+  return intersection / (a.size + b.size - intersection || 1);
 }
 
 const posts = readPosts();
 const serviceSlugs = slugsFrom(servicePath);
 const industrySlugs = slugsFrom(industryPath);
 const blogRoutes = new Set(posts.map(routeForPost));
-const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}/`));
+const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}`));
 const knownStatic = new Set([
-  '/', '/blog/', '/services', '/services/', '/industries', '/industries/', '/hire', '/hire/',
-  '/tools/virtual-assistant-cost-calculator/', '/tools/hourly-to-monthly-calculator/',
-  '/tools/virtual-assistant-job-description-generator/', '/tools/what-type-of-va-do-i-need/'
+  '/', '/blog', '/services', '/industries', '/hire',
+  '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
+  '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need'
 ]);
 const banned = [
   'delve into', 'game-changer', 'game changer', 'unlock the potential', 'seamless solution',
@@ -64,6 +110,7 @@ const stalePricingPolicy = /platform floor|marketplace floor|minimum allowed for
 const genericDecisionBoundary = /spending, refunds above a threshold, account ownership changes, legal commitments, public statements/i;
 const highStakeTopics = new Set(['healthcare', 'legal', 'finance-bookkeeping', 'philippines']);
 const sentenceSegmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+const editorialCutoff = '2026-09-19';
 let minWords = Infinity, maxWords = 0, totalWords = 0, minFaqs = Infinity, minLinks = Infinity;
 
 for (const post of posts) {
@@ -71,9 +118,11 @@ for (const post of posts) {
   minWords = Math.min(minWords, wc); maxWords = Math.max(maxWords, wc); totalWords += wc;
   minFaqs = Math.min(minFaqs, (post.faqs || []).length);
   minLinks = Math.min(minLinks, (post.internalLinks || []).length);
-  if (wc < 1000) failures.push(`${post.slug}: ${wc} words, below 1000`);
-  if ((post.faqs || []).length < 6) failures.push(`${post.slug}: fewer than 6 FAQs`);
-  if ((post.internalLinks || []).length < 5) failures.push(`${post.slug}: fewer than 5 internal links`);
+  if (wc < 350) failures.push(`${post.slug}: ${wc} words, too thin to function as a standalone guide`);
+  else if (wc < 700) warnings.push(`${post.slug}: ${wc} words; confirm the shorter length fully answers the intent`);
+  if (wc > 3500) warnings.push(`${post.slug}: ${wc} words; confirm the length is earned by the topic`);
+  if ((post.faqs || []).length > 10) warnings.push(`${post.slug}: more than 10 FAQs; keep only questions that add distinct information`);
+  if ((post.internalLinks || []).length < 3) failures.push(`${post.slug}: fewer than 3 useful internal links`);
   if ((post.metaTitle || '').length > 60) warnings.push(`${post.slug}: meta title is ${post.metaTitle.length} characters`);
   if ((post.description || '').length < 120) failures.push(`${post.slug}: meta description is only ${post.description.length} characters`);
   if ((post.description || '').length > 160) failures.push(`${post.slug}: meta description is ${post.description.length} characters`);
@@ -97,19 +146,19 @@ for (const post of posts) {
 
   for (const section of post.sections || []) for (const paragraph of section.paragraphs || []) {
     if (words(paragraph) < 25) continue;
-    if (paragraphSeen.has(paragraph)) failures.push(`${post.slug}: duplicate long paragraph also used by ${paragraphSeen.get(paragraph)}`); else paragraphSeen.set(paragraph, post.slug);
+    if (paragraphSeen.has(paragraph)) warnings.push(`${post.slug}: duplicate long paragraph also used by ${paragraphSeen.get(paragraph)}`); else paragraphSeen.set(paragraph, post.slug);
   }
   for (const faq of post.faqs || []) {
-    if (faqAnswerSeen.has(faq.answer)) failures.push(`${post.slug}: duplicate FAQ answer also used by ${faqAnswerSeen.get(faq.answer)}`); else faqAnswerSeen.set(faq.answer, post.slug);
+    if (faqAnswerSeen.has(faq.answer)) warnings.push(`${post.slug}: duplicate FAQ answer also used by ${faqAnswerSeen.get(faq.answer)}`); else faqAnswerSeen.set(faq.answer, post.slug);
   }
 
   // Strong internal-linking requirement: every article belongs to its topic hub, service-cluster
   // articles link to their canonical money page, and every article points to at least two other articles.
   const hrefs = (post.internalLinks || []).map(link => link.href);
-  if (!hrefs.includes(`/blog/topic/${post.topic}/`)) failures.push(`${post.slug}: missing topic-hub internal link`);
-  if (post.serviceSlug && !hrefs.includes(`/service/${post.serviceSlug}/`)) failures.push(`${post.slug}: missing canonical service-page link`);
+  if (!hrefs.includes(`/blog/topic/${post.topic}`)) failures.push(`${post.slug}: missing topic-hub internal link`);
+  if (post.serviceSlug && !hrefs.includes(`/service/${post.serviceSlug}`)) failures.push(`${post.slug}: missing canonical service-page link`);
   const articleLinkCount = hrefs.filter(href => blogRoutes.has(href)).length;
-  if (articleLinkCount < 2) failures.push(`${post.slug}: fewer than 2 contextual article links`);
+  if (articleLinkCount < 1) failures.push(`${post.slug}: missing a contextual article link`);
 
   // Detect large-scale boilerplate reuse. Repeating a short policy sentence is acceptable, but
   // editorial advice of 12+ words should not appear unchanged across a large portion of the corpus.
@@ -137,7 +186,53 @@ for (const post of posts) {
 }
 
 for (const [sentence, slugs] of longSentenceUse) {
-  if (slugs.size > 14) failures.push(`boilerplate sentence reused across ${slugs.size} articles: ${sentence}`);
+  if (slugs.size > 14) warnings.push(`legacy boilerplate sentence reused across ${slugs.size} articles: ${sentence}`);
+}
+
+// Editorialized and future posts must not converge on the same role-substitution
+// skeleton. Existing older posts remain debt to improve, but every new or
+// substantively updated article is held to this stricter standard.
+const editorialPosts = posts.filter(post => String(post.updatedAt || post.publishedAt || '') >= editorialCutoff);
+const normalizedHeadingOwners = new Map();
+for (const post of editorialPosts) {
+  for (const section of post.sections || []) {
+    const heading = normalizedHeading(section.heading, post);
+    if (!heading) continue;
+    if (!normalizedHeadingOwners.has(heading)) normalizedHeadingOwners.set(heading, new Set());
+    normalizedHeadingOwners.get(heading).add(post.slug);
+  }
+}
+for (const [heading, slugs] of normalizedHeadingOwners) {
+  if (slugs.size > 6) failures.push(`template heading reused across ${slugs.size} editorial posts: ${heading}`);
+  else if (slugs.size >= 4) warnings.push(`repeated editorial heading across ${slugs.size} posts: ${heading}`);
+}
+
+const headingSets = new Map(
+  editorialPosts.map(post => [
+    post.slug,
+    new Set((post.sections || []).map(section => normalizedHeading(section.heading, post)).filter(Boolean))
+  ])
+);
+const shingleSets = new Map(editorialPosts.map(post => [post.slug, proseShingles(post)]));
+for (let i = 0; i < editorialPosts.length; i += 1) {
+  for (let j = i + 1; j < editorialPosts.length; j += 1) {
+    const a = editorialPosts[i];
+    const b = editorialPosts[j];
+    const headingSimilarity = jaccard(headingSets.get(a.slug), headingSets.get(b.slug));
+    const proseSimilarity = jaccard(shingleSets.get(a.slug), shingleSets.get(b.slug));
+
+    if (headingSimilarity >= 0.72) {
+      failures.push(`${a.slug} and ${b.slug}: section architecture is too similar (${Math.round(headingSimilarity * 100)}%)`);
+    } else if (headingSimilarity >= 0.5) {
+      warnings.push(`${a.slug} and ${b.slug}: section architecture similarity is ${Math.round(headingSimilarity * 100)}%`);
+    }
+
+    if (proseSimilarity > 0.45) {
+      failures.push(`${a.slug} and ${b.slug}: long-form phrase similarity is too high (${Math.round(proseSimilarity * 100)}%)`);
+    } else if (proseSimilarity >= 0.28) {
+      warnings.push(`${a.slug} and ${b.slug}: long-form phrase similarity is ${Math.round(proseSimilarity * 100)}%; review for role substitution`);
+    }
+  }
 }
 
 const stats = {

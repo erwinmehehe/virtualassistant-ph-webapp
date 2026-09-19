@@ -2146,7 +2146,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
           "Delegation review: Open the latest reconciliation or close checklist. A reviewer should be able to see what cleared, what did not, which source document is missing, and who owns the next action without searching email or chat.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the bookkeeping review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],
@@ -3445,7 +3445,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Tasks to keep out of the first handoff",
         "paragraphs": [
-          "Keep refunds outside policy, legal threats, security issues, public escalations, and commitments that exceed approved customer-service authority with the person accountable for the decision. Give the VA enough authority to complete routine work, but do not turn access or convenience into an undefined decision right.",
+          "For the customer-service task handoff, keep refunds outside policy, legal threats, security issues, public escalations, and commitments that exceed approved customer-service authority with the person accountable for the decision. Give the VA enough authority to complete routine work, but do not turn access or convenience into an undefined decision right.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for support reporting, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ]
       },
@@ -3481,7 +3481,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check whether the customer service task list forms a coherent role",
         "paragraphs": [
           "Delegation review: Review a sample of closed and escalated tickets. You should be able to see the customer's issue, the policy applied, the action taken, and why an escalation was necessary.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the customer service review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],
@@ -4867,7 +4867,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check whether the ecommerce task list forms a coherent role",
         "paragraphs": [
           "Delegation review: Pick five recent order or listing exceptions and trace each one through the systems involved. You should see the source fact, the action taken, the customer or internal note, and any approval.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the ecommerce review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],
@@ -5310,7 +5310,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep executive judgment, sensitive commitments, compensation, and decisions only the leader can make outside the first handoff",
         "paragraphs": [
-          "Keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not explicitly delegated with the person accountable for the decision. Give the VA enough authority to complete routine work, but do not turn access or convenience into an undefined decision right.",
+          "For the executive task handoff, keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not explicitly delegated with the person accountable for the decision. Give the VA enough authority to complete routine work, but do not turn access or convenience into an undefined decision right.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for priority tracking, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ]
       },
@@ -5346,7 +5346,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
           "Delegation review: Review one busy day from the executive's calendar and inbox. You should be able to identify what the VA resolved, what was held for the executive, what changed, and why.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the executive support review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],
@@ -14478,7 +14478,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep commercial terms, qualification exceptions, sensitive outreach decisions, and commitments owned by sales outside the first handoff",
         "paragraphs": [
-          "Keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision. The VA can prepare the record, follow the approved process, and surface exceptions without taking over decisions outside the role.",
+          "For the lead-generation task handoff, keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision. The VA can prepare the record, follow the approved process, and surface exceptions without taking over decisions outside the role.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for follow-up tracking, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ]
       },
@@ -14514,7 +14514,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
           "Delegation review: Take a small sample of accepted and rejected leads. A reviewer should be able to see why each record matched or failed the ICP, where the key data came from, and what happened next.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the lead generation review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],
@@ -16866,7 +16866,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
           "Delegation review: Choose one patient-facing workflow, such as a referral or scheduling change, and trace it from first contact through the final note. The record should show who acted, what was communicated, and whether an authorized person needed to step in.",
-          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
+          "If the medical administration review exposes missing ownership, weak evidence, or repeated rework, fix that workflow before adding more delegated scope."
         ]
       }
     ],

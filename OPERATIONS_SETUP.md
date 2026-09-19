@@ -124,7 +124,7 @@ GOOGLE_CALENDAR_ID=primary
 The refresh token must be issued with offline access and permission to manage Calendar events. The application creates, reads, updates, and cancels Calendar events and requests Google Meet conference data. A suitable OAuth scope is:
 
 ```text
-https://www.googleapis.com/auth/calendar.events
+https://www.googleapis.com/auth/calendar.events.owned
 ```
 
 One practical one-time setup path is Google OAuth 2.0 Playground using your own OAuth client credentials:

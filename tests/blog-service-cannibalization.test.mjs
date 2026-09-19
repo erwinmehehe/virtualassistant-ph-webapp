@@ -33,3 +33,16 @@ test("the ecommerce hiring guide is explicitly informational, not a duplicate mo
   assert.match(post.metaTitle, /Hiring Guide/);
   assert.doesNotMatch(post.metaTitle, /^Hire Ecommerce Virtual Assistant Philippines/);
 });
+
+
+test("legacy broad SEO guide consolidates into the SEO service money page", () => {
+  const config = source("next.config.ts");
+  assert.match(
+    config,
+    /source: "\/blog\/seo-virtual-assistant-philippines-guide", destination: "\/service\/seo", permanent: true/
+  );
+  assert.match(
+    config,
+    /source: "\/blog\/seo-virtual-assistant-philippines-guide\/", destination: "\/service\/seo", permanent: true/
+  );
+});

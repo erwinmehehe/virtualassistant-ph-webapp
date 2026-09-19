@@ -89,7 +89,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         "@id": `${base}${blogHref(post)}#breadcrumb`,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: base },
-          { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog/` },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog` },
           { "@type": "ListItem", position: 3, name: post.title, item: `${base}${blogHref(post)}` }
         ]
       }

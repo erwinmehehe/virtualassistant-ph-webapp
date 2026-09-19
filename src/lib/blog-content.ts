@@ -20,7 +20,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Price Amazon operations around the workflow, not the title",
         "paragraphs": [
-          "Budget the role from the work you need owned, not from a generic VA rate. For a Amazon Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Budget planning should begin with the actual workflow. For an Amazon Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A useful Amazon operations budget starts with the queue: Seller Central listings, order monitoring, inventory records, customer issues, and marketplace reporting. The title alone does not tell you how much experience, live coverage, tool depth, or decision ownership the person needs. Price the scope you actually want transferred, then compare candidates against that same operating model."
         ]
       },
@@ -59,8 +59,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Protect account-sensitive actions with an approval lane",
         "paragraphs": [
-          "Protect account-sensitive actions with an approval lane. A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
-          "For budget planning, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Budget planning lens: A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
+          "For this budget article, review catalog accuracy, exception age, order follow-up, account-issue documentation, and rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -73,15 +73,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine coverage around the marketplace queue",
         "paragraphs": [
-          "Coverage requirements affect cost, so define them before comparing candidates. decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
-          "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Coverage requirements affect cost, so define them before comparing candidates. Decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
+          "For budget planning, keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "For Amazon work that includes catalog cleanup, read the job post once as if you were the candidate. If the Amazon role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When budgeting for inventory tracking, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval. For Amazon Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "During budget planning, keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role."
         ]
       }
     ],
@@ -177,7 +177,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong Amazon operations interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Amazon Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For an Amazon Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run Seller Central listings, order monitoring, inventory records, customer issues, and marketplace reporting without creating hidden rework for your team. Use evidence from Seller Central workflows, listing accuracy, order exceptions, inventory updates, and documented marketplace issues, then test how the person handles an exception such as a listing suppression, account-health issue, pricing change, or customer exception outside the approved rule."
         ]
       },
@@ -217,8 +217,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Protect account-sensitive actions with an approval lane",
         "paragraphs": [
-          "Protect account-sensitive actions with an approval lane. A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
+          "For this interview article, review catalog accuracy, exception age, order follow-up, account-issue documentation, and rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -231,8 +231,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine coverage around the marketplace queue",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
-          "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
+          "For candidate screening, keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -1235,7 +1235,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Choose legal tools around the workflow",
         "paragraphs": [
-          "Choose the stack after the workflow and access boundaries are clear; software should support the role, not become the role. For a Legal Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Tool selection should begin with the actual workflow. For a Legal Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "For legal teams working on billing administration, the best stack is the smallest set of systems that gives the Virtual Assistant a source of truth, a place to communicate, and a reliable way to record completed work. Buying more software will not fix an unclear process."
         ]
       },
@@ -1261,8 +1261,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Confidentiality rules need an operating workflow, not a paragraph in the contract",
         "paragraphs": [
-          "Confidentiality rules need an operating workflow, not a paragraph in the contract. A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
-          "For tool selection, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Tool selection lens: A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
+          "For this tool article, review matter-record accuracy, deadline follow-up, document-filing errors, and escalation quality. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -1279,8 +1279,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine intake coverage and attorney handoff times clearly",
         "paragraphs": [
-          "Access and working hours should be designed together. define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
-          "Keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Access and working hours should be designed together. Define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
+          "For tool selection, keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -1292,15 +1292,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Pressure-test the legal tool setup",
         "paragraphs": [
-          "Choose one recent matter and trace intake, documents, calendar entries, communications, and follow-up. Another authorized team member should be able to understand the administrative history without asking the VA to reconstruct it.",
-          "If billing administration becomes predictable, add email and phone triage only after the first queue is stable. If it still creates repeated questions or rework, fix the process before expanding the legal role. When tool access is tied to document organization, that keeps onboarding tied to evidence and gives the manager a clear reason for every new responsibility."
+          "Tool-workflow review: Choose one recent matter and trace intake, documents, calendar entries, communications, and follow-up. Another authorized team member should be able to understand the administrative history without asking the VA to reconstruct it.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this tool scope."
         ]
       },
       {
         "heading": "Test one more workflow before expanding the legal scope",
         "paragraphs": [
-          "Choose one recent matter and trace intake, documents, calendar entries, communications, and follow-up. Another authorized team member should be able to understand the administrative history without asking the VA to reconstruct it.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Legal Virtual Assistant scope."
+          "Tool-workflow review: Choose one recent matter and trace intake, documents, calendar entries, communications, and follow-up. Another authorized team member should be able to understand the administrative history without asking the VA to reconstruct it.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this tool scope."
         ]
       }
     ],
@@ -1928,7 +1928,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong bookkeeping interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Bookkeeping Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Bookkeeping Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run transaction coding, document follow-up, reconciliations, and month-end preparation without creating hidden rework for your team. Use evidence from reconciliations, categorization, missing-document follow-up, and clean bookkeeping records, then test how the person handles an exception such as a reconciliation difference, missing source document, or classification that does not match the chart of accounts."
         ]
       },
@@ -1968,8 +1968,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the month-end handoff, not every individual transaction",
         "paragraphs": [
-          "Manage the month-end handoff, not every individual transaction. A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
+          "For this interview article, review reconciliation accuracy, unresolved-item age, close readiness, and avoidable rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -1983,7 +1983,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set the Philippine work calendar around your close window",
         "paragraphs": [
           "Confirm the coverage model during the interview, not after the offer. if the business has a month-end or weekly close, write the required overlap in Philippine Time and the client's time zone. Decide how cut-off days, local holidays, client-country holidays, and urgent document requests will be handled. A Philippines-based bookkeeper does not need to mirror every client hour if the close checklist and escalation window are explicit.",
-          "Keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "For candidate screening, keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -2085,7 +2085,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Build the role around transaction coding, document follow-up, reconciliations, and month-end preparation",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Bookkeeping Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For a Bookkeeping Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The strongest bookkeeping task list is a connected workflow, not a dump of unrelated admin. Start with transaction coding, document follow-up, reconciliations, and month-end preparation, define the source of truth and completion standard, and keep tax positions, final accounting review, and decisions that require a qualified accountant outside the first handoff."
         ]
       },
@@ -2117,8 +2117,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the month-end handoff, not every individual transaction",
         "paragraphs": [
-          "Manage the month-end handoff, not every individual transaction. A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
+          "For this delegation article, review reconciliation accuracy, unresolved-item age, close readiness, and avoidable rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -2132,7 +2132,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set the Philippine work calendar around your close window",
         "paragraphs": [
           "Set the coverage model before live work is handed over. if the business has a month-end or weekly close, write the required overlap in Philippine Time and the client's time zone. Decide how cut-off days, local holidays, client-country holidays, and urgent document requests will be handled. A Philippines-based bookkeeper does not need to mirror every client hour if the close checklist and escalation window are explicit.",
-          "Keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "For task delegation, keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -2145,8 +2145,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
-          "Open the latest reconciliation or close checklist. A reviewer should be able to see what cleared, what did not, which source document is missing, and who owns the next action without searching email or chat.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Bookkeeping Virtual Assistant scope."
+          "Delegation review: Open the latest reconciliation or close checklist. A reviewer should be able to see what cleared, what did not, which source document is missing, and who owns the next action without searching email or chat.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -3263,7 +3263,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a good customer service interview should reveal",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Customer Service Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Customer Service Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "For an interview scenario built around FAQ responses, the interview should answer three questions: can the person do the work, can they communicate well enough for the role, and can they make sensible decisions inside the boundaries you set? When Google Workspace is used for escalation handling, a polished introduction is useful, but it is not enough evidence for a recurring operational role."
         ]
       },
@@ -3303,8 +3303,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Policy boundaries are what make delegated support safe",
         "paragraphs": [
-          "Policy boundaries are what make delegated support safe. A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
+          "For this interview article, review first-response time, resolution quality, reopen rate, escalation quality, and policy errors. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -3317,8 +3317,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Publish the Philippine support window and the handoff between shifts",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. state coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
-          "Keep refunds outside policy, legal threats, security issues, public escalations, and commitments that exceed approved customer-service authority with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. State coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
+          "For candidate screening, keep refunds outside policy, legal threats, security issues, public escalations, and commitments beyond approved support authority with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -3420,7 +3420,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "A useful customer service task list starts with frequency",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Customer Service Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For a Customer Service Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "For email support, long task lists look impressive and are often terrible job descriptions. When live chat enters the weekly queue, sort the work by what happens daily, weekly, monthly, and only when an exception occurs. If the first handoff is ticket triage, that reveals whether you have enough coherent work for one person and which tasks need real-time coverage."
         ]
       },
@@ -3452,8 +3452,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Policy boundaries are what make delegated support safe",
         "paragraphs": [
-          "Policy boundaries are what make delegated support safe. A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
+          "For this delegation article, review first-response time, resolution quality, reopen rate, escalation quality, and policy errors. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -3466,8 +3466,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Publish the Philippine support window and the handoff between shifts",
         "paragraphs": [
-          "Set the coverage model before live work is handed over. state coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
-          "Keep refunds outside policy, legal threats, security issues, public escalations, and commitments that exceed approved customer-service authority with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Set the coverage model before live work is handed over. State coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
+          "For task delegation, keep refunds outside policy, legal threats, security issues, public escalations, and commitments beyond approved support authority with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -3480,8 +3480,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check whether the customer service task list forms a coherent role",
         "paragraphs": [
-          "Review a sample of closed and escalated tickets. You should be able to see the customer's issue, the policy applied, the action taken, and why an escalation was necessary.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Customer Service Virtual Assistant scope."
+          "Delegation review: Review a sample of closed and escalated tickets. You should be able to see the customer's issue, the policy applied, the action taken, and why an escalation was necessary.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -4454,7 +4454,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What you are really paying for in an ecommerce role",
         "paragraphs": [
-          "Budget the role from the work you need owned, not from a generic VA rate. For a Ecommerce Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Budget planning should begin with the actual workflow. For an Ecommerce Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "For ecommerce work that includes order support, a useful budget is not a bid for the cheapest available hour. For inventory coordination, it is the price of getting a defined set of recurring work completed to an agreed standard. Two ecommerce Virtual Assistant candidates can quote different rates and both be reasonable if one needs close supervision while the other can run the queue, document exceptions, and communicate directly with customers or internal stakeholders."
         ]
       },
@@ -4493,8 +4493,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set refund, listing, and inventory authority before the first customer issue",
         "paragraphs": [
-          "Set refund, listing, and inventory authority before the first customer issue. A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
-          "For budget planning, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Budget planning lens: A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
+          "For this budget article, review order errors, stale exceptions, customer-response time, listing accuracy, and avoidable refunds. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -4507,15 +4507,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Plan Philippine coverage around store peaks, not a generic night shift",
         "paragraphs": [
-          "Coverage requirements affect cost, so define them before comparing candidates. use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
-          "Keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and changes with significant margin or policy impact with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Coverage requirements affect cost, so define them before comparing candidates. Use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
+          "For budget planning, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "When budgeting for store content updates, read the job post once as if you were the candidate. If the ecommerce role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. If sales reporting is one of the main deliverables, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the ecommerce Virtual Assistant may make alone and the decisions that need approval. For Ecommerce Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "During budget planning, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role."
         ]
       }
     ],
@@ -4806,7 +4806,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "A useful ecommerce task list starts with frequency",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Ecommerce Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For an Ecommerce Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "For store content updates, long task lists look impressive and are often terrible job descriptions. When promotion setup support enters the weekly queue, sort the work by what happens daily, weekly, monthly, and only when an exception occurs. If the first handoff is returns administration, that reveals whether you have enough coherent work for one person and which tasks need real-time coverage."
         ]
       },
@@ -4831,15 +4831,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Tasks to keep out of the first handoff",
         "paragraphs": [
-          "For ecommerce teams working on sales reporting, write down the decisions the ecommerce Virtual Assistant may make alone and the decisions that need approval. For Ecommerce Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "During task delegation, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role.",
           "Also hold back tasks that are poorly defined. If your team still disagrees about the process for customer service, adding a remote hire will not resolve the ambiguity. Document the decision first, then delegate the stable part."
         ]
       },
       {
         "heading": "Set refund, listing, and inventory authority before the first customer issue",
         "paragraphs": [
-          "Set refund, listing, and inventory authority before the first customer issue. A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
+          "For this delegation article, review order errors, stale exceptions, customer-response time, listing accuracy, and avoidable refunds. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -4852,8 +4852,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Plan Philippine coverage around store peaks, not a generic night shift",
         "paragraphs": [
-          "Set the coverage model before live work is handed over. use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
-          "Keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and changes with significant margin or policy impact with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Set the coverage model before live work is handed over. Use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
+          "For task delegation, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -4866,8 +4866,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check whether the ecommerce task list forms a coherent role",
         "paragraphs": [
-          "Pick five recent order or listing exceptions and trace each one through the systems involved. You should see the source fact, the action taken, the customer or internal note, and any approval.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Ecommerce Virtual Assistant scope."
+          "Delegation review: Pick five recent order or listing exceptions and trace each one through the systems involved. You should see the source fact, the action taken, the customer or internal note, and any approval.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -5128,7 +5128,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong executive support interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Executive Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For an Executive Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run calendar, inbox, meeting preparation, follow-up, and executive coordination without creating hidden rework for your team. Use evidence from calendar triage, inbox decisions, meeting briefs, action tracking, and confidential communication, then test how the person handles an exception such as a conflicting calendar priority, confidential request, or external commitment without clear authority."
         ]
       },
@@ -5168,8 +5168,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Give the executive assistant decision lanes instead of unlimited access",
         "paragraphs": [
-          "Give the executive assistant decision lanes instead of unlimited access. A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
+          "For this interview article, review calendar errors, follow-up completion, meeting readiness, and repeated re-triage. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -5182,8 +5182,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Agree the executive's Philippine overlap and after-hours rules explicitly",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
-          "Keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not explicitly delegated with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
+          "For candidate screening, keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not delegated with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -5285,7 +5285,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Build the role around calendar, inbox, meeting preparation, follow-up, and executive coordination",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Executive Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For an Executive Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The strongest executive support task list is a connected workflow, not a dump of unrelated admin. Start with calendar, inbox, meeting preparation, follow-up, and executive coordination, define the source of truth and completion standard, and keep executive judgment, sensitive commitments, compensation, and decisions only the leader can make outside the first handoff."
         ]
       },
@@ -5317,8 +5317,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Give the executive assistant decision lanes instead of unlimited access",
         "paragraphs": [
-          "Give the executive assistant decision lanes instead of unlimited access. A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
+          "For this delegation article, review calendar errors, follow-up completion, meeting readiness, and repeated re-triage. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -5331,8 +5331,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Agree the executive's Philippine overlap and after-hours rules explicitly",
         "paragraphs": [
-          "Set the coverage model before live work is handed over. define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
-          "Keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not explicitly delegated with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Set the coverage model before live work is handed over. Define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
+          "For task delegation, keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not delegated with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -5345,8 +5345,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
-          "Review one busy day from the executive's calendar and inbox. You should be able to identify what the VA resolved, what was held for the executive, what changed, and why.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Executive Virtual Assistant scope."
+          "Delegation review: Review one busy day from the executive's calendar and inbox. You should be able to identify what the VA resolved, what was held for the executive, what changed, and why.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -11645,7 +11645,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Define the SEO bottleneck before you write the job post",
         "paragraphs": [
-          "A useful shortlist starts with a narrow first-month scope and evidence that matches it. For a SEO Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Shortlisting should begin with the actual workflow. For an SEO Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "Start with the work that is currently delayed, inconsistent, or consuming senior SEO time. If the real bottleneck is keyword research, content briefs, on-page updates, internal links, Search Console monitoring, or reporting, write that down before choosing a title."
         ],
         "bullets": []
@@ -11680,8 +11680,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the SEO backlog through evidence, not constant chat",
         "paragraphs": [
-          "Manage the SEO backlog through evidence, not constant chat. A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
-          "For shortlisting, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Shortlisting lens: A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
+          "For this hiring article, review SEO backlog age, rework, evidence quality, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -11695,8 +11695,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the SEO schedule in Philippine time and client time before day one",
         "paragraphs": [
-          "Do not wait until offer stage to discover a schedule mismatch. state the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
-          "Keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Do not wait until offer stage to discover a schedule mismatch. State the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
+          "For shortlisting, keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -14296,7 +14296,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong lead generation interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Lead Generation Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Lead Generation Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run prospect research, list building, CRM enrichment, outreach preparation, and lead-status updates without creating hidden rework for your team. Use evidence from ICP research, source validation, list quality, CRM hygiene, outreach preparation, and clean handoffs to sales, then test how the person handles an exception such as a prospect that falls outside the ICP, conflicting source data, duplicate records, or an outreach exception."
         ]
       },
@@ -14336,8 +14336,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Measure usable pipeline inputs, not raw lead count",
         "paragraphs": [
-          "Measure usable pipeline inputs, not raw lead count. A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
+          "For this interview article, review accepted-lead rate, data accuracy, duplicate rate, missing fields, and stale follow-up. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -14350,8 +14350,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Define Philippine overlap around the sales handoff",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
-          "Keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
+          "For candidate screening, keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -14453,7 +14453,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Build the role around prospect research, list building, CRM enrichment, outreach preparation, and lead-status updates",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Lead Generation Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For a Lead Generation Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The strongest lead generation task list is a connected workflow, not a dump of unrelated admin. Start with prospect research, list building, CRM enrichment, outreach preparation, and lead-status updates, define the source of truth and completion standard, and keep commercial terms, qualification exceptions, sensitive outreach decisions, and commitments owned by sales outside the first handoff."
         ]
       },
@@ -14485,8 +14485,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Measure usable pipeline inputs, not raw lead count",
         "paragraphs": [
-          "Measure usable pipeline inputs, not raw lead count. A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
+          "For this delegation article, review accepted-lead rate, data accuracy, duplicate rate, missing fields, and stale follow-up. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -14499,8 +14499,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Define Philippine overlap around the sales handoff",
         "paragraphs": [
-          "Set the coverage model before live work is handed over. decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
-          "Keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Set the coverage model before live work is handed over. Decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
+          "For task delegation, keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -14513,8 +14513,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
-          "Take a small sample of accepted and rejected leads. A reviewer should be able to see why each record matched or failed the ICP, where the key data came from, and what happened next.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Lead Generation Virtual Assistant scope."
+          "Delegation review: Take a small sample of accepted and rejected leads. A reviewer should be able to see why each record matched or failed the ICP, where the key data came from, and what happened next.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -14775,7 +14775,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a good legal interview should reveal",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Legal Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Legal Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "To assess judgment around matter-management updates, the interview should answer three questions: can the person do the work, can they communicate well enough for the role, and can they make sensible decisions inside the boundaries you set? When testing a candidate on client intake administration, a polished introduction is useful, but it is not enough evidence for a recurring operational role."
         ]
       },
@@ -14815,8 +14815,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Confidentiality rules need an operating workflow, not a paragraph in the contract",
         "paragraphs": [
-          "Confidentiality rules need an operating workflow, not a paragraph in the contract. A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
+          "For this interview article, review matter-record accuracy, deadline follow-up, document-filing errors, and escalation quality. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -14829,8 +14829,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine intake coverage and attorney handoff times clearly",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
-          "Keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
+          "For candidate screening, keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -16468,7 +16468,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong medical administration interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Medical Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Medical Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run scheduling, reminders, referrals, records administration, intake, and billing support without creating hidden rework for your team. Use evidence from patient scheduling, referral coordination, records handling, privacy awareness, and escalation judgment, then test how the person handles an exception such as a privacy concern, urgent patient message, clinical question, or request outside approved administrative scope."
         ]
       },
@@ -16508,8 +16508,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "In medical admin, escalation discipline matters more than improvisation",
         "paragraphs": [
-          "In medical admin, escalation discipline matters more than improvisation. A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
+          "For this interview article, review scheduling accuracy, unresolved-message age, referral follow-up, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -16522,8 +16522,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the clinic coverage window in both time zones",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
-          "Keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
+          "For candidate screening, keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -16805,7 +16805,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Build the role around scheduling, reminders, referrals, records administration, intake, and billing support",
         "paragraphs": [
-          "Use the task list to build one coherent role, not to unload every leftover task onto a remote hire. For a Medical Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Task delegation should begin with the actual workflow. For a Medical Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The strongest medical administration task list is a connected workflow, not a dump of unrelated admin. Start with scheduling, reminders, referrals, records administration, intake, and billing support, define the source of truth and completion standard, and keep clinical judgment, diagnosis, medical advice, and decisions reserved to licensed or authorized staff outside the first handoff."
         ]
       },
@@ -16837,8 +16837,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "In medical admin, escalation discipline matters more than improvisation",
         "paragraphs": [
-          "In medical admin, escalation discipline matters more than improvisation. A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
-          "For task delegation, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Task delegation lens: A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
+          "For this delegation article, review scheduling accuracy, unresolved-message age, referral follow-up, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -16851,8 +16851,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the clinic coverage window in both time zones",
         "paragraphs": [
-          "Set the coverage model before live work is handed over. publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
-          "Keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Set the coverage model before live work is handed over. Publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
+          "For task delegation, keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -16865,8 +16865,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Check that the responsibilities still form one coherent role",
         "paragraphs": [
-          "Choose one patient-facing workflow, such as a referral or scheduling change, and trace it from first contact through the final note. The record should show who acted, what was communicated, and whether an authorized person needed to step in.",
-          "If the review exposes missing ownership or repeated rework, fix that workflow before expanding the Medical Virtual Assistant scope."
+          "Delegation review: Choose one patient-facing workflow, such as a referral or scheduling change, and trace it from first contact through the final note. The record should show who acted, what was communicated, and whether an authorized person needed to step in.",
+          "If that review exposes missing ownership, weak evidence, or repeated rework, fix the workflow before expanding this delegation scope."
         ]
       }
     ],
@@ -18486,7 +18486,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Price real estate support around the workflow, not the title",
         "paragraphs": [
-          "Budget the role from the work you need owned, not from a generic VA rate. For a Real Estate Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Budget planning should begin with the actual workflow. For a Real Estate Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A useful real estate support budget starts with the queue: lead follow-up, CRM updates, listing administration, appointments, and transaction support. The title alone does not tell you how much experience, live coverage, tool depth, or decision ownership the person needs. Price the scope you actually want transferred, then compare candidates against that same operating model."
         ]
       },
@@ -18525,8 +18525,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Use response rules and handoff stages instead of telling the VA to 'follow up'",
         "paragraphs": [
-          "Use response rules and handoff stages instead of telling the VA to 'follow up'. A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
-          "For budget planning, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Budget planning lens: A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
+          "For this budget article, review lead-response time, CRM completeness, next-action coverage, and stale records. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -18539,15 +18539,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Match Philippine coverage to the market hours that actually matter",
         "paragraphs": [
-          "Coverage requirements affect cost, so define them before comparing candidates. decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
-          "Keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Coverage requirements affect cost, so define them before comparing candidates. Decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
+          "For budget planning, keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
         "heading": "Run a workload check before you publish the role",
         "paragraphs": [
           "If transaction coordination support is one of the main deliverables, read the job post once as if you were the candidate. If the real estate role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. When database cleanup needs reliable weekly ownership, better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "For real estate teams working on CRM updates, write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval. For Real Estate Virtual Assistant, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "During budget planning, keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role."
         ]
       }
     ],
@@ -18643,7 +18643,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a strong real estate support interview needs to prove",
         "paragraphs": [
-          "The interview should answer one practical question: can this person run the real workflow without creating hidden rework? For a Real Estate Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Candidate screening should begin with the actual workflow. For a Real Estate Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "The interview should show whether the candidate can run lead follow-up, CRM updates, listing administration, appointments, and transaction support without creating hidden rework for your team. Use evidence from CRM discipline, lead follow-up, listing records, transaction checklists, and clear agent handoffs, then test how the person handles an exception such as a lead or transaction that requires licensed advice, negotiation, or an exception to the team's process."
         ]
       },
@@ -18683,8 +18683,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Use response rules and handoff stages instead of telling the VA to 'follow up'",
         "paragraphs": [
-          "Use response rules and handoff stages instead of telling the VA to 'follow up'. A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
-          "For candidate screening, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Candidate screening lens: A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
+          "For this interview article, review lead-response time, CRM completeness, next-action coverage, and stale records. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -18697,8 +18697,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Match Philippine coverage to the market hours that actually matter",
         "paragraphs": [
-          "Confirm the coverage model during the interview, not after the offer. decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
-          "Keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Confirm the coverage model during the interview, not after the offer. Decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
+          "For candidate screening, keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -19297,7 +19297,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Budget for the SEO work, not the job title",
         "paragraphs": [
-          "Budget the role from the work you need owned, not from a generic VA rate. For a SEO Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Budget planning should begin with the actual workflow. For an SEO Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "There is no single useful rate for every SEO Virtual Assistant because the title can describe very different jobs. A person following a prepared on-page checklist is not the same role as someone expected to research search intent, prepare briefs, run crawls, explain anomalies, communicate with clients, and manage exceptions independently."
         ],
         "bullets": []
@@ -19332,8 +19332,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the SEO backlog through evidence, not constant chat",
         "paragraphs": [
-          "Manage the SEO backlog through evidence, not constant chat. A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
-          "For budget planning, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Budget planning lens: A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
+          "For this budget article, review SEO backlog age, rework, evidence quality, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -19347,8 +19347,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the SEO schedule in Philippine time and client time before day one",
         "paragraphs": [
-          "Coverage requirements affect cost, so define them before comparing candidates. state the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
-          "Keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Coverage requirements affect cost, so define them before comparing candidates. State the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
+          "For budget planning, keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -22093,7 +22093,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a Bookkeeping Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Bookkeeping Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Bookkeeping Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A Bookkeeping Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as transaction coding, document follow-up, reconciliations, and month-end preparation. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring tax positions, final accounting review, and decisions that require a qualified accountant."
         ]
       },
@@ -22120,8 +22120,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the month-end handoff, not every individual transaction",
         "paragraphs": [
-          "Manage the month-end handoff, not every individual transaction. A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good bookkeeping week ends with fewer unexplained items, not simply more coded transactions. Reconciliations are current, missing documents are visible, unusual items are flagged, and the close checklist is closer to review-ready.",
+          "For this role article, review reconciliation accuracy, unresolved-item age, close readiness, and avoidable rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -22134,7 +22134,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "Set the Philippine work calendar around your close window",
         "paragraphs": [
           "Make the working-hours decision part of the role scope. if the business has a month-end or weekly close, write the required overlap in Philippine Time and the client's time zone. Decide how cut-off days, local holidays, client-country holidays, and urgent document requests will be handled. A Philippines-based bookkeeper does not need to mirror every client hour if the close checklist and escalation window are explicit.",
-          "Keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "For role scoping, keep tax positions, final accounting review, judgment-heavy journal entries, and decisions reserved to the accountant or client with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -22874,7 +22874,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "The short answer: what the customer service Virtual Assistant owns",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Customer Service Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Customer Service Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A customer service Virtual Assistant is most useful when they own a repeatable part of the workflow rather than waiting for random tasks. In practice, that can mean email support, live chat, ticket triage, order-status updates, and returns support. For teams delegating ticket triage, the exact mix depends on the business, but the role should have a recognizable queue, a definition of done, and a clear route for exceptions."
         ]
       },
@@ -22901,8 +22901,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Policy boundaries are what make delegated support safe",
         "paragraphs": [
-          "Policy boundaries are what make delegated support safe. A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means customers get timely, accurate answers and fewer tickets reopen because the first response missed the issue. Quality of resolution and handoff matters more than raw ticket count.",
+          "For this role article, review first-response time, resolution quality, reopen rate, escalation quality, and policy errors. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -22914,8 +22914,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Publish the Philippine support window and the handoff between shifts",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. state coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
-          "Keep refunds outside policy, legal threats, security issues, public escalations, and commitments that exceed approved customer-service authority with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. State coverage in Philippine Time and the customer's primary market time zone. If you need evenings, weekends, or holiday coverage, say exactly which periods matter. Decide which holiday calendar applies and how unresolved tickets are handed off at the end of a shift so customers do not restart the conversation.",
+          "For role scoping, keep refunds outside policy, legal threats, security issues, public escalations, and commitments beyond approved support authority with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -23859,7 +23859,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a Lead Generation Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Lead Generation Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Lead Generation Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A Lead Generation Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as prospect research, list building, CRM enrichment, outreach preparation, and lead-status updates. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring commercial terms, qualification exceptions, sensitive outreach decisions, and commitments owned by sales."
         ]
       },
@@ -23886,8 +23886,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Measure usable pipeline inputs, not raw lead count",
         "paragraphs": [
-          "Measure usable pipeline inputs, not raw lead count. A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week produces records the sales team actually uses. Acceptance rate, data accuracy, complete fields, and timely handoffs matter more than a headline number of leads sourced.",
+          "For this role article, review accepted-lead rate, data accuracy, duplicate rate, missing fields, and stale follow-up. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -23899,8 +23899,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Define Philippine overlap around the sales handoff",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
-          "Keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Decide when live overlap is actually required. Research and enrichment can usually be asynchronous; appointment handoffs, rapid inbound follow-up, or coordination with SDRs may need a defined overlap window. Write both time zones into the role and state which holiday calendar applies to live outreach or handoffs.",
+          "For role scoping, keep commercial terms, qualification exceptions, sensitive outreach decisions, legal or compliance judgments, and commitments owned by sales with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -24003,7 +24003,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "The short answer: what the legal Virtual Assistant owns",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Legal Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Legal Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A legal Virtual Assistant is most useful when they own a repeatable part of the workflow rather than waiting for random tasks. In practice, that can mean client intake administration, calendar and deadline support, document organization, case-file updates, and billing administration. For teams delegating document organization, the exact mix depends on the business, but the role should have a recognizable queue, a definition of done, and a clear route for exceptions."
         ]
       },
@@ -24030,8 +24030,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Confidentiality rules need an operating workflow, not a paragraph in the contract",
         "paragraphs": [
-          "Confidentiality rules need an operating workflow, not a paragraph in the contract. A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means attorneys can trust the administrative record. Matters are easy to find, deadlines and follow-up are visible, client communications are documented, and the VA does not blur the line between administration and legal advice.",
+          "For this role article, review matter-record accuracy, deadline follow-up, document-filing errors, and escalation quality. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -24043,8 +24043,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine intake coverage and attorney handoff times clearly",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
-          "Keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Define whether the role covers live intake, next-business-day administration, or a mix. Put the schedule in Philippine Time and the firm's local time, decide which holiday calendar applies, and state how urgent client or deadline-related items move to an attorney when the VA's shift is ending.",
+          "For role scoping, keep legal advice, attorney judgment, privileged strategy, court decisions, and work reserved to licensed professionals with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -25485,7 +25485,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a Real Estate Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Real Estate Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Real Estate Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A Real Estate Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as lead follow-up, CRM updates, listing administration, appointments, and transaction support. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring licensed representation, negotiation, legal interpretation, and broker or agent decisions."
         ]
       },
@@ -25505,15 +25505,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep licensed representation, negotiation, legal interpretation, and broker or agent decisions with the person accountable for the decision",
         "paragraphs": [
-          "In a real estate handoff involving lead follow-up, write down the decisions the real estate Virtual Assistant may make alone and the decisions that need approval. For Real Estate Virtual Assistant, keep offer terms, negotiation, pricing, disclosure decisions, and final client commitments with licensed or authorized staff.",
+          "During role scoping, keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role.",
           "Administrative follow-up can be delegated; licensed representation and negotiation cannot simply be treated as another task in the queue. Write that boundary into the workflow so the VA knows when to stop and route the conversation."
         ]
       },
       {
         "heading": "Use response rules and handoff stages instead of telling the VA to 'follow up'",
         "paragraphs": [
-          "Use response rules and handoff stages instead of telling the VA to 'follow up'. A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week is not the highest call count. It is fast follow-up during the agreed window, complete CRM notes, fewer leads with no next action, and clean handoffs when an agent or broker needs to take over.",
+          "For this role article, review lead-response time, CRM completeness, next-action coverage, and stale records. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -25525,8 +25525,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Match Philippine coverage to the market hours that actually matter",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
-          "Keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Decide whether you need overlap with the market's morning lead window, evening follow-up, transaction-team hours, or only a daily handoff. Write both time zones into the role brief and decide which holiday calendar governs coverage. Do not advertise 'US hours' if only two or three hours of live overlap are actually necessary.",
+          "For role scoping, keep licensed representation, negotiation, legal interpretation, trust-account activity, and decisions reserved to the agent or broker with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -26394,7 +26394,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What an Amazon Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Amazon Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For an Amazon Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "An Amazon Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as Seller Central listings, order monitoring, inventory records, customer issues, and marketplace reporting. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions."
         ]
       },
@@ -26414,15 +26414,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision",
         "paragraphs": [
-          "For Amazon teams working on order monitoring, write down the decisions the Amazon Virtual Assistant may make alone and the decisions that need approval. For Amazon Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "During role scoping, keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role.",
           "Seller Central gives users the ability to make changes with very different levels of risk. Separate routine catalog and order work from pricing, policy appeals, account settings, and other actions that deserve explicit approval."
         ]
       },
       {
         "heading": "Protect account-sensitive actions with an approval lane",
         "paragraphs": [
-          "Protect account-sensitive actions with an approval lane. A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means fewer unresolved catalog and order issues, cleaner records, and no surprise account-sensitive changes. The VA should know which actions are routine and which ones can affect revenue, policy, or account health.",
+          "For this role article, review catalog accuracy, exception age, order follow-up, account-issue documentation, and rework. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -26434,8 +26434,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Set Philippine coverage around the marketplace queue",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
-          "Keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Decide what actually needs live coverage: customer messages, order exceptions, inventory alerts, or scheduled team handoffs. Put the hours in Philippine Time and the client's time zone, and define which holiday calendar applies during major sale periods. Research, catalog work, and reporting can often run asynchronously.",
+          "For role scoping, keep pricing strategy, major account changes, policy appeals, supplier commitments, and revenue-sensitive decisions with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -26848,7 +26848,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "The short answer: what the ecommerce Virtual Assistant owns",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Ecommerce Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For an Ecommerce Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "An ecommerce Virtual Assistant is most useful when they own a repeatable part of the workflow rather than waiting for random tasks. In practice, that can mean product listing updates, order support, inventory coordination, customer service, and store content updates. In an ecommerce workflow that includes product listing updates, the exact mix depends on the business, but the role should have a recognizable queue, a definition of done, and a clear route for exceptions."
         ]
       },
@@ -26868,15 +26868,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What should stay with a manager or qualified specialist",
         "paragraphs": [
-          "When order support is part of the ecommerce scope, write down the decisions the ecommerce Virtual Assistant may make alone and the decisions that need approval. For Ecommerce Virtual Assistant, keep pricing changes, exceptional refunds, supplier commitments, account ownership, and public policy changes with the business owner or designated manager.",
+          "During role scoping, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. The assistant should have enough authority to complete routine work without inheriting decisions outside the role.",
           "Fast ecommerce support still needs limits. A VA can resolve routine cases inside the written policy, but pricing, large refunds, supplier commitments, and account-level changes should have an approval path."
         ]
       },
       {
         "heading": "Set refund, listing, and inventory authority before the first customer issue",
         "paragraphs": [
-          "Set refund, listing, and inventory authority before the first customer issue. A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means fewer order mistakes, fewer stale exceptions, accurate listings, and customer cases resolved within policy. The VA should reduce operational noise without making unapproved promises that create margin or policy problems.",
+          "For this role article, review order errors, stale exceptions, customer-response time, listing accuracy, and avoidable refunds. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -26888,8 +26888,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Plan Philippine coverage around store peaks, not a generic night shift",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
-          "Keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and changes with significant margin or policy impact with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Use order volume and customer-response expectations to decide overlap. If the store needs live coverage during a US or Australian peak, state the exact Philippine hours. If most catalog and reporting work can be asynchronous, say so. Also define which holiday calendar applies during promotions and peak seasons.",
+          "For role scoping, keep pricing strategy, material refunds outside policy, supplier commitments, account ownership, and significant margin or policy changes with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -26992,7 +26992,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What an Executive Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Executive Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For an Executive Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "An Executive Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as calendar, inbox, meeting preparation, follow-up, and executive coordination. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring executive judgment, sensitive commitments, compensation, and decisions only the leader can make."
         ]
       },
@@ -27019,8 +27019,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Give the executive assistant decision lanes instead of unlimited access",
         "paragraphs": [
-          "Give the executive assistant decision lanes instead of unlimited access. A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means the executive walks into meetings prepared, does not rediscover the same follow-up twice, and can trust that calendar and inbox rules were applied consistently. Fewer preventable interruptions are a better signal than the number of emails processed.",
+          "For this role article, review calendar errors, follow-up completion, meeting readiness, and repeated re-triage. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -27032,8 +27032,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Agree the executive's Philippine overlap and after-hours rules explicitly",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
-          "Keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not explicitly delegated with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Define the live overlap in Philippine Time and the executive's local time, especially if mornings, board meetings, or travel days matter. State whether after-hours messages are informational or require action, which holiday calendar applies, and how the assistant should hand off anything that arrives outside the agreed coverage window.",
+          "For role scoping, keep executive commitments, sensitive people decisions, compensation, legal or investor matters, and anything the leader has not delegated with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -27451,7 +27451,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "The role in one sentence: repeatable SEO execution with clear boundaries",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a SEO Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For an SEO Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "An SEO Virtual Assistant is best used as an execution owner for repeatable search work, not as a substitute for strategy. A well-designed role can own keyword research, on-page updates, internal linking, content-brief preparation, Search Console monitoring, reporting, and documented technical checks while the SEO lead keeps responsibility for priorities, risky site changes, and final decisions."
         ],
         "bullets": []
@@ -27486,8 +27486,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Manage the SEO backlog through evidence, not constant chat",
         "paragraphs": [
-          "Manage the SEO backlog through evidence, not constant chat. A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good SEO week is easy to audit. Priority work moved, the backlog did not quietly age, recommendations have evidence attached, and technical or strategic exceptions reached the SEO lead before they became production mistakes.",
+          "For this role article, review SEO backlog age, rework, evidence quality, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -27505,8 +27505,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the SEO schedule in Philippine time and client time before day one",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. state the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
-          "Keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. State the weekly hours and required live overlap in both Philippine Time and the client's time zone. Decide which meetings truly need real-time attendance, whether the role follows Philippine holidays, the client-country calendar, or a written hybrid, and what happens when a deadline falls outside the agreed window. Most SEO research and production can be asynchronous if the handoff is designed well.",
+          "For role scoping, keep sitewide redirects, canonicals, robots directives, noindex changes, migrations, and final SEO strategy with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {
@@ -27605,7 +27605,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "What a Medical Virtual Assistant can own",
         "paragraphs": [
-          "Define the role around one recurring operating problem, then add responsibilities only when the first queue is stable. For a Medical Virtual Assistant, write down the source of truth, the completion standard, and the decisions that still belong to the accountable owner.",
+          "Role scoping should begin with the actual workflow. For a Medical Virtual Assistant, document the source of truth, the completion standard, and the decisions that still belong to the accountable owner before adding more scope.",
           "A Medical Virtual Assistant is most useful when they own a repeatable administrative or operational queue such as scheduling, reminders, referrals, records administration, intake, and billing support. The role should have clear records, quality checks, and escalation rules so routine work moves without transferring clinical judgment, diagnosis, medical advice, and decisions reserved to licensed or authorized staff."
         ]
       },
@@ -27632,8 +27632,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "In medical admin, escalation discipline matters more than improvisation",
         "paragraphs": [
-          "In medical admin, escalation discipline matters more than improvisation. A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
-          "For role scoping, track the measures already defined in this article and review the exception queue, not just completed activity."
+          "Role scoping lens: A good week means the schedule is cleaner, referral and records requests have owners, patient messages are documented, and anything clinical or urgent reached the right staff member promptly. Speed is useful only when the record is accurate.",
+          "For this role article, review scheduling accuracy, unresolved-message age, referral follow-up, and late escalations. Those signals show whether the workflow is becoming easier to trust, not merely busier."
         ]
       },
       {
@@ -27645,8 +27645,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         "heading": "Write the clinic coverage window in both time zones",
         "paragraphs": [
-          "Make the working-hours decision part of the role scope. publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
-          "Keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision, and write the escalation path before the first live handoff."
+          "Make the working-hours decision part of the role scope. Publish the exact coverage window in Philippine Time and the clinic's local time. Decide how lunch coverage, opening and closing periods, client-country holidays, Philippine holidays, and urgent handoffs work. If live phone or scheduling coverage is essential, the contingency process should be agreed before the first patient interaction.",
+          "For role scoping, keep clinical judgment, diagnosis, medical advice, treatment decisions, and work reserved to licensed or authorized staff with the person accountable for the decision. Write the escalation path before the first live handoff so exceptions do not depend on guesswork."
         ]
       },
       {

@@ -15,7 +15,7 @@ import { verifyTurnstile } from "@/lib/turnstile";
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(12),
+  password: z.string().min(8),
   next: z.string().optional(),
   lead: z.string().uuid().optional()
 });
@@ -30,6 +30,7 @@ const oauthSchema = z.object({
 });
 
 const joinSchema = loginSchema.extend({
+  password: z.string().min(12),
   full_name: z.string().min(2).max(100),
   role: z.enum(["client", "va"]),
   talent: z.string().max(160).optional(),

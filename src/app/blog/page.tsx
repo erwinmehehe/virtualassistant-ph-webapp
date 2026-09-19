@@ -12,7 +12,6 @@ import { canonicalPath } from "@/lib/seo-url";
 export const metadata: Metadata = {
   title: "Virtual Assistant Hiring & Management Blog",
   description: "Practical guides for hiring, pricing, onboarding, and managing virtual assistants from the Philippines, plus role-specific advice for SEO, medical, legal, ecommerce, real estate, and more.",
-  keywords: ["virtual assistant blog", "how to hire a virtual assistant", "virtual assistant philippines guide", "managing remote virtual assistants"],
   alternates: { canonical: canonicalPath("/blog") }
 };
 

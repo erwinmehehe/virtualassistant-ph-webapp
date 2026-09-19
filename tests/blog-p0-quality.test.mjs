@@ -31,3 +31,55 @@ test("legacy archive has no unresolved numeric citation placeholders or false 20
   assert.doesNotMatch(archive, /revoke[^<]{0,80}within one hour/i);
   assert.match(archive, /HHS: HIPAA Security Rule/);
 });
+
+
+function parseBlogPosts() {
+  const text = source("src/lib/blog-content.ts");
+  const marker = "export const BLOG_POSTS: BlogPost[] = ";
+  const markerIndex = text.indexOf(marker);
+  assert.ok(markerIndex >= 0, "blog content marker missing");
+  const start = text.indexOf("[", markerIndex + marker.length);
+  const end = text.lastIndexOf("];");
+  return JSON.parse(text.slice(start, end + 1));
+}
+
+test("blog metadata does not emit obsolete meta-keywords", () => {
+  const articlePage = source("src/app/blog/[slug]/page.tsx");
+  const blogIndex = source("src/app/blog/page.tsx");
+
+  assert.doesNotMatch(articlePage, /keywords:\s*\[/);
+  assert.doesNotMatch(blogIndex, /keywords:\s*\[/);
+});
+
+test("structured blog internal links use canonical non-trailing-slash paths", () => {
+  const posts = parseBlogPosts();
+  for (const post of posts) {
+    for (const link of post.internalLinks || []) {
+      assert.ok(link.href === "/" || !link.href.endsWith("/"), `${post.slug}: trailing-slash internal link ${link.href}`);
+    }
+  }
+});
+
+test("SEO editorial cluster has distinct intent-led architecture", () => {
+  const posts = parseBlogPosts();
+  const seoPosts = posts.filter((post) => post.serviceSlug === "seo");
+  assert.equal(seoPosts.length, 9);
+
+  const bannedGenericHeadings = new Set([
+    "Build a scorecard you can use on every candidate",
+    "Source against the work, not the broadest possible title",
+    "Screen for evidence before scheduling a long interview",
+    "Why rates vary even when the job title is the same",
+    "Build the monthly budget from hours and ownership",
+    "What a normal week can look like"
+  ]);
+
+  for (const post of seoPosts) {
+    assert.equal(post.updatedAt, "2026-09-19", `${post.slug}: substantive SEO rewrite should carry current update date`);
+    for (const section of post.sections || []) {
+      assert.equal(bannedGenericHeadings.has(section.heading), false, `${post.slug}: generic cluster heading survived: ${section.heading}`);
+    }
+    const serialized = JSON.stringify(post);
+    assert.doesNotMatch(serialized, /approval\.For SEO Virtual Assistant/);
+  }
+});

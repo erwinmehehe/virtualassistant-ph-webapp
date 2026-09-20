@@ -115,3 +115,12 @@ test("recruiter onboarding rescue queue focuses on recent zero-completion VAs an
   assert.match(categories, /Number\(b\.email_verified\) - Number\(a\.email_verified\)/);
   assert.match(categories, /Recent 0% accounts · 7 days/);
 });
+
+
+test("quick setup uses the same live minimum hourly rate as the full VA profile", () => {
+  assert.match(quickPage, /getBusinessSettings/);
+  assert.match(quickPage, /settings\.minHourlyRate/);
+  assert.match(quickAction, /getBusinessSettings/);
+  assert.match(quickAction, /settings\.minHourlyRate/);
+  assert.doesNotMatch(quickAction, /MIN_HOURLY_RATE/);
+});

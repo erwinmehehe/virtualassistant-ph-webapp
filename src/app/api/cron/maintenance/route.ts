@@ -113,12 +113,27 @@ async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>
   ]);
 
   let deleted = 0;
+  let storageObjectsDeleted = 0;
   for (const userId of ids) {
     if (protectedIds.has(userId)) continue;
+
+    // VA uploads are stored under <userId>/... in these buckets. Remove the
+    // actual Storage objects before Auth deletion so abandoned CVs/photos do
+    // not survive as orphaned files after the database rows cascade away.
+    for (const bucket of ["avatars", "resumes"]) {
+      const { data: objects } = await admin.storage.from(bucket).list(userId, { limit: 1000 });
+      const paths = (objects || []).filter((object) => object.name).map((object) => `${userId}/${object.name}`);
+      if (paths.length) {
+        const { error: storageError } = await admin.storage.from(bucket).remove(paths);
+        if (storageError) continue;
+        storageObjectsDeleted += paths.length;
+      }
+    }
+
     const { error } = await admin.auth.admin.deleteUser(userId);
     if (!error) deleted++;
   }
-  return { checked: ids.length, deleted, protected: protectedIds.size };
+  return { checked: ids.length, deleted, protected: protectedIds.size, storageObjectsDeleted };
 }
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {

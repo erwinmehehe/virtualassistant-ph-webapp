@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { BlogArticle } from "@/components/blog-article";
 import { BLOG_POSTS, blogHref, blogPostBySlug } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
-import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso } from "@/lib/archive";
+import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso, archiveUpdatedIso } from "@/lib/archive";
 import { ArchiveArticle } from "@/components/archive-article";
 import { organizationRef } from "@/lib/organization";
 
@@ -22,11 +22,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) return {};
+    const archiveUpdated = archiveUpdatedIso(archived);
     return {
       title: { absolute: archived.title },
       description: archived.excerpt.slice(0, 160),
       alternates: { canonical: canonicalPath(`/blog/${archived.slug}`) },
-      openGraph: { type: "article", title: archived.title, description: archived.excerpt.slice(0, 160), publishedTime: archivePublishedIso(archived) }
+      openGraph: {
+        type: "article",
+        title: archived.title,
+        description: archived.excerpt.slice(0, 160),
+        publishedTime: archivePublishedIso(archived),
+        ...(archiveUpdated ? { modifiedTime: archiveUpdated } : {})
+      }
     };
   }
   const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
@@ -50,7 +57,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) notFound();
-    return <><SiteHeader/><main id="main-content"><ArchiveArticle post={archived}/></main><SiteFooter/></>;
+    const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
+    const archiveUrl = `${base}/blog/${archived.slug}`;
+    const archiveSchema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "@id": `${archiveUrl}#article`,
+          headline: archived.title,
+          description: archived.excerpt,
+          datePublished: archivePublishedIso(archived),
+          ...(archiveUpdatedIso(archived) ? { dateModified: archiveUpdatedIso(archived) } : {}),
+          mainEntityOfPage: archiveUrl,
+          articleSection: archived.tag,
+          author: { "@type": "Organization", name: "VirtualAssistant.com.ph Editorial Team", url: `${base}/authors/editorial-team` },
+          publisher: organizationRef(base)
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${archiveUrl}#breadcrumb`,
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: base },
+            { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog` },
+            { "@type": "ListItem", position: 3, name: archived.title, item: archiveUrl }
+          ]
+        }
+      ]
+    };
+    return <><SiteHeader/><main id="main-content"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(archiveSchema).replace(/</g,"\\u003c") }}/><ArchiveArticle post={archived}/></main><SiteFooter/></>;
   }
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const url = `${base}${blogHref(post)}`;

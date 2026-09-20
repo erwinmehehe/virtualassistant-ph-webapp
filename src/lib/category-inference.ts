@@ -1,22 +1,30 @@
 const rules: Array<[string, string[]]> = [
-  ["Dental & Healthcare", ["dental", "healthcare", "patient", "billing", "front desk"]],
-  ["Customer Service", ["customer service", "support", "dispatch", "inquiries"]],
-  ["Phone & Reception", ["reception", "receptionist", "outbound call", "cold call", "phone"]],
-  ["Lead Generation & Sales", ["lead generation", "prospect", "sales", "docusign", "proposal", "crm"]],
-  ["Marketing & Social Media", ["social media", "facebook", "instagram", "linkedin", "tiktok", "content"]],
-  ["Video Editing & Creative", ["video editing", "reels", "shorts", "video", "canva", "creative"]],
-  ["SEO", ["seo", "search engine", "keyword", "backlink"]],
-  ["Executive Assistance", ["executive assistant", "calendar", "email management", "principal"]],
-  ["Administrative Support", ["admin", "administrative", "data entry", "spreadsheet", "reporting"]],
-  ["Bookkeeping & Finance", ["bookkeeping", "invoice", "accounting", "quickbooks"]],
-  ["Real Estate", ["real estate", "property", "realtor"]],
-  ["Ecommerce", ["ecommerce", "shopify", "amazon", "product listing"]],
-  ["Web & WordPress", ["wordpress", "website", "web design", "elementor"]]
+  ["Dental & Healthcare", ["dental", "healthcare", "patient care", "medical billing", "dental billing", "clinic"]],
+  ["Customer Service", ["customer service", "customer support", "helpdesk", "support ticket", "zendesk", "gorgias", "dispatch"]],
+  ["Phone & Reception", ["reception", "receptionist", "phone support", "inbound call", "outbound call", "cold call", "appointment setting"]],
+  ["Lead Generation & Sales", ["lead generation", "lead gen", "prospecting", "sales development", "sales outreach", "pipeline management", "appointment setter"]],
+  ["Marketing & Social Media", ["social media", "social media management", "facebook ads", "instagram", "linkedin marketing", "tiktok", "content calendar", "community management"]],
+  ["Video Editing & Creative", ["video editing", "video editor", "reels", "youtube shorts", "short-form video", "ad creative", "canva design", "graphic design"]],
+  ["SEO", ["seo", "search engine optimization", "keyword research", "technical seo", "on-page seo", "link building", "backlink"]],
+  ["Executive Assistance", ["executive assistant", "executive support", "calendar management", "inbox management", "email management", "travel management"]],
+  ["Administrative Support", ["administrative assistant", "admin assistant", "administrative support", "data entry", "spreadsheet management", "document management", "research assistant"]],
+  ["Bookkeeping & Finance", ["bookkeeping", "bookkeeper", "accounts payable", "accounts receivable", "accounting", "quickbooks", "xero"]],
+  ["Real Estate", ["real estate", "property management", "realtor", "mls", "transaction coordinator"]],
+  ["Ecommerce", ["ecommerce", "e-commerce", "shopify", "amazon seller", "product listing", "woocommerce"]],
+  ["Web & WordPress", ["wordpress", "web design", "web developer", "elementor", "webflow", "woocommerce development"]]
 ];
 
 export function inferCategories(...values: Array<string | null | undefined>) {
   const text = values.filter(Boolean).join(" ").toLowerCase();
-  const matches = rules.filter(([, terms]) => terms.some((term) => text.includes(term))).map(([category]) => category);
+  const matches = rules
+    .map(([category, terms], index) => ({
+      category,
+      index,
+      score: terms.reduce((total, term) => total + (text.includes(term) ? 1 : 0), 0)
+    }))
+    .filter((match) => match.score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((match) => match.category);
   return [...new Set(matches)].slice(0, 3);
 }
 

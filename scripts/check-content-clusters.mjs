@@ -89,6 +89,18 @@ for (const [serviceSlug, count] of clusterCounts) {
 if (!/serviceBlogPosts\(s\.slug/.test(servicePage)) {
   failures.push("service template must pull role-specific blog guides with serviceBlogPosts(s.slug)");
 }
+if (!/INDUSTRIES\.filter\(\(industry\) => industry\.serviceSlugs\.includes\(s\.slug\)\)/.test(servicePage)) {
+  failures.push("service template must derive relevant industry guides from industry.serviceSlugs");
+}
+if (!servicePage.includes('relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`')) {
+  failures.push("service template must link each related industry to its canonical /industries/:slug URL");
+}
+if (!/page\.serviceSlugs\.map\(servicePageBySlug\)/.test(industryPage)) {
+  failures.push("industry template must resolve its mapped service pages");
+}
+if (!industryPage.includes('services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`')) {
+  failures.push("industry template must link mapped services to canonical /service/:slug URLs");
+}
 if (!/INDUSTRIES\.filter/.test(blogArticle) || !/industry\.serviceSlugs\.includes\(post\.serviceSlug/.test(blogArticle)) {
   failures.push("blog article must derive relevant industry guides from the service-industry map");
 }

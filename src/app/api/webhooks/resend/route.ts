@@ -32,7 +32,13 @@ export async function POST(request: Request) {
   if (!status || !providerId) return Response.json({ received: true });
   const admin = createAdminClient();
   const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).maybeSingle();
-  if (["bounced", "complained", "suppressed"].includes(status)) {\n    for (const raw of event.data?.to || []) {\n      const email = String(raw || "").trim().toLowerCase();\n      if (email) await admin.from("email_suppressions").upsert({ email, reason: status, provider_id: providerId, suppressed_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });\n    }\n  }\n  if (existing?.id) {
+  if (["bounced", "complained", "suppressed"].includes(status)) {
+    for (const raw of event.data?.to || []) {
+      const email = String(raw || "").trim().toLowerCase();
+      if (email) await admin.from("email_suppressions").upsert({ email, reason: status, provider_id: providerId, suppressed_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
+    }
+  }
+  if (existing?.id) {
     await admin.from("outbound_email_events").update({ status }).eq("id", existing.id);
   } else {
     await admin.from("outbound_email_events").insert({ event_type: event.type, recipient: event.data?.to?.join(",") || null, status, provider_id: providerId });

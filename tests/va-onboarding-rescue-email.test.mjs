@@ -15,8 +15,8 @@ test("zero-completion VA reminders return the user to quick setup",async()=>{
   assert.match(reminder,/Complete my quick setup/);
 });
 
-test("one failed profile reminder cannot abort the maintenance batch",async()=>{
+test("maintenance does not send profile completion reminder emails",async()=>{
   const cron=await read("src/app/api/cron/maintenance/route.ts");
-  assert.match(cron,/try \{[\s\S]*sendProfileCompletionReminderEmail[\s\S]*\} catch \{[\s\S]*continue;[\s\S]*\}/);
-  assert.match(cron,/if \(!result\.sent\) continue;/);
+  assert.doesNotMatch(cron,/sendProfileCompletionReminderEmail/);
+  assert.doesNotMatch(cron,/runProfileNudges/);
 });

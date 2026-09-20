@@ -34,9 +34,9 @@ import "./homepage-sections.css";
 import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
+  title: { absolute: "Virtual Assistant Philippines | Vetted Filipino VA Agency" },
   description:
-    "Virtual Assistant Philippines is a recruiter-led virtual assistant agency. Hire vetted Filipino virtual assistants matched to your role, tools and budget.",
+    "Virtual Assistant Philippines is a virtual assistant agency for businesses hiring vetted Filipino VAs, matched by role, tools, schedule and budget.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalPath("/") },
   openGraph: {
     type: "website",
-    title: "Virtual Assistant Philippines | Hire Vetted Filipino VAs",
+    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
     url: canonicalPath("/"),
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Virtual Assistant Philippines | Hire Vetted Filipino VAs",
+    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
     images: [canonicalUrl("/twitter-image")],

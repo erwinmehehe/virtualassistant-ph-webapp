@@ -1,18 +1,19 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays } from "lucide-react";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import type { ArchivePost } from "@/lib/archive-types";
 
 /**
- * Renders a post recovered from the previous WordPress site.
+ * Renders a retained article recovered from the previous site.
  *
- * These predate the current editorial schema, so their original HTML is
- * rendered directly rather than being reshaped into sections, FAQs and
- * internal links. The HTML was sanitized at import: script, style, iframe,
- * object and embed elements and inline event handlers were removed.
+ * The nine remaining archive articles have distinct search intent and have
+ * been substantively re-reviewed. Their sanitized HTML stays portable while
+ * the wrapper provides current editorial signals and the right conversion
+ * path for employers versus Virtual Assistant applicants.
  */
 export function ArchiveArticle({ post }: { post: ArchivePost }) {
   const label = post.tag || "Editorial guide";
+  const candidate = post.audience === "candidate";
 
   return <div className="blog-editorial-page archive-editorial-page">
     <header className="blog-editorial-hero archive-editorial-hero">
@@ -28,26 +29,46 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
             {post.tag ? <span className="blog-topic-pill">{post.tag}</span> : null}
             <h1>{post.title}</h1>
             {post.excerpt ? <p className="blog-deck">{post.excerpt}</p> : null}
-            {post.date ? <div className="blog-byline archive-byline"><span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span></div> : null}
+            <div className="blog-byline archive-byline">
+              {post.date ? <span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span> : null}
+              {post.updatedDate ? <span><CalendarDays size={14} aria-hidden="true"/>Updated {post.updatedDate}</span> : null}
+            </div>
           </div>
 
-          <BlogFeaturedVisual title={post.title} label={label} detail="Recovered from the VirtualAssistant.com.ph editorial archive." />
+          <BlogFeaturedVisual
+            title={post.title}
+            label={label}
+            detail={post.updatedDate ? "Reviewed and updated by the VirtualAssistant.com.ph editorial team." : "From the VirtualAssistant.com.ph editorial archive."}
+          />
         </div>
       </div>
     </header>
 
     <section className="blog-editorial-body archive-editorial-body">
       <div className="container archive-editorial-layout">
-        <article className="archive-body" dangerouslySetInnerHTML={{ __html: post.html }} />
+        <article className="archive-body">
+          {post.fieldNotes?.length ? <aside className="blog-field-notes" aria-label={candidate ? "Applicant readiness notes" : "Recruiter field notes"}>
+            <div className="kicker">{candidate ? "Applicant readiness" : "Recruiter field notes"}</div>
+            <h2>{candidate ? "What makes the next step easier" : "What we would verify before shortlisting"}</h2>
+            <ul>{post.fieldNotes.map((item, index) => <li key={`${item}-${index}`}><BadgeCheck size={17} aria-hidden="true"/><span>{item}</span></li>)}</ul>
+          </aside> : null}
+          <div dangerouslySetInnerHTML={{ __html: post.html }} />
+        </article>
 
         <aside className="blog-bottom-conversion archive-bottom-conversion">
           <div className="blog-bottom-copy">
-            <span className="blog-bottom-label">Ready when you are</span>
-            <h2>Start by comparing vetted talent.</h2>
-            <p>Compare vetted Filipino Virtual Assistants first. If you want help shaping the role, book a discovery call with our team.</p>
+            <span className="blog-bottom-label">{candidate ? "Build your VA career" : "Ready when you are"}</span>
+            <h2>{candidate ? "Apply for roles that match the work you can prove." : "Start by comparing vetted talent."}</h2>
+            <p>{candidate
+              ? "Review current Virtual Assistant jobs, then create a profile that shows your skills, tools, availability and work setup clearly."
+              : "Compare vetted Filipino Virtual Assistants first. If you want help shaping the role, book a discovery call with our team."}</p>
             <div className="blog-bottom-actions">
-              <Link className="btn btn-primary btn-lg" href="/find-talent">Browse vetted talent <ArrowRight size={16}/></Link>
-              <Link className="btn btn-lg" href="/book-client-call">Book a discovery call</Link>
+              <Link className="btn btn-primary btn-lg" href={candidate ? "/jobs" : "/find-talent"}>
+                {candidate ? "Browse VA jobs" : "Browse vetted talent"} <ArrowRight size={16}/>
+              </Link>
+              <Link className="btn btn-lg" href={candidate ? "/auth/join/va" : "/book-client-call"}>
+                {candidate ? "Create VA profile" : "Book a discovery call"}
+              </Link>
             </div>
           </div>
         </aside>

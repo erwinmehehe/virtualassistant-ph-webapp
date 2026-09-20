@@ -65,6 +65,22 @@ function blogFamily(post) {
   return "other";
 }
 
+function compactBlogDiagnostics(post) {
+  return {
+    description: post.description,
+    headings: (post.sections || []).slice(0, 7).map((section) => section.heading),
+    internalLinks: (post.internalLinks || []).map((link) => link.href).slice(0, 10)
+  };
+}
+
+function compactServiceDiagnostics(service) {
+  return {
+    focus: service.focus,
+    intro: service.intro,
+    sampleTasks: (service.tasks || []).slice(0, 6)
+  };
+}
+
 const candidates = [];
 
 for (const post of blogs) {
@@ -101,7 +117,9 @@ for (const post of blogs) {
         targetTitle: service.metaTitle,
         targetKeyword: service.primaryKeyword,
         sameCluster,
-        reason
+        reason,
+        blogDiagnostics: compactBlogDiagnostics(post),
+        serviceDiagnostics: compactServiceDiagnostics(service)
       });
     }
   }
@@ -127,7 +145,8 @@ for (const post of blogs) {
         target: `/industries/${industry.slug}`,
         targetTitle: industry.metaTitle,
         targetKeyword: industry.primaryKeyword,
-        reason: "high overlap without an explicit blog↔industry relationship"
+        reason: "high overlap without an explicit blog↔industry relationship",
+        blogDiagnostics: compactBlogDiagnostics(post)
       });
     }
   }
@@ -148,7 +167,8 @@ for (const post of archive) {
         target: `/service/${service.slug}`,
         targetTitle: service.metaTitle,
         targetKeyword: service.primaryKeyword,
-        reason: "retained archive guide is lexically close to a service money page"
+        reason: "retained archive guide is lexically close to a service money page",
+        serviceDiagnostics: compactServiceDiagnostics(service)
       });
     }
   }

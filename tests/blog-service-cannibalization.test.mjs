@@ -117,3 +117,41 @@ test("duplicate law-firm tools guide stays consolidated", () => {
   const lawPosts = posts.filter((post) => post.serviceSlug === "law-firm-virtual-assistant");
   assert.equal(lawPosts.length, 10);
 });
+
+
+test("medical comparison guides stay workflow-specific instead of sharing a factory template", () => {
+  const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
+  const billing = posts.find((post) => post.slug === "medical-billing-va-vs-medical-va");
+  const reception = posts.find((post) => post.slug === "medical-receptionist-vs-medical-va");
+
+  assert.ok(billing);
+  assert.ok(reception);
+  assert.equal(billing.updatedAt, "2026-09-20");
+  assert.equal(reception.updatedAt, "2026-09-20");
+
+  assert.match(JSON.stringify(billing), /claim-status|denial|payment-posting|revenue-cycle/i);
+  assert.match(JSON.stringify(reception), /onsite|physical front-desk|waiting-room|in the clinic/i);
+  assert.ok((billing.fieldNotes || []).length >= 3);
+  assert.ok((reception.fieldNotes || []).length >= 3);
+
+  const words = (post) => (post.sections || [])
+    .flatMap((section) => [section.heading, ...(section.paragraphs || []), ...(section.bullets || []), ...(section.numbered || [])])
+    .join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/);
+
+  const shingles = (post) => {
+    const list = words(post);
+    const set = new Set();
+    for (let index = 0; index <= list.length - 5; index += 1) set.add(list.slice(index, index + 5).join(" "));
+    return set;
+  };
+
+  const left = shingles(billing);
+  const right = shingles(reception);
+  const shared = [...left].filter((value) => right.has(value)).length;
+  const union = new Set([...left, ...right]).size;
+  assert.ok(shared / union < 0.25, `medical comparison guides are too similar: ${shared / union}`);
+});

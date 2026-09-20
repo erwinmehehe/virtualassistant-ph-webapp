@@ -73,7 +73,7 @@ test("blog articles render dated first-party marketplace evidence and recruiter 
   assert.match(evidence, /"Customer Support": 20/);
   assert.match(evidence, /"Calendar Management": 17/);
   assert.match(evidence, /"Data Entry": 17/);
-  assert.match(evidence, /No structured candidate rejection-reason records are currently available/);
+  assert.match(evidence, /candidateRejectionRecords: 0/);
   assert.match(evidence, /self-reported|optional fields|not a market-wide survey/i);
 });
 

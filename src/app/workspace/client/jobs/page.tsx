@@ -7,11 +7,14 @@ import { dateShort } from "@/lib/format";
 export default async function ClientJobsPage(){
   const {user}=await requireRole("client");
   const supabase=await createClient();
-  const {data:jobs}=await supabase
+  const [{data:jobs},{data:clientProfile}]=await Promise.all([
+    supabase
     .from("jobs")
     .select("id,title,status,hours_per_week,min_hourly_rate,created_at")
     .eq("client_id",user.id)
-    .order("created_at",{ascending:false});
+    .order("created_at",{ascending:false}),
+    supabase.from("client_profiles").select("can_self_publish_jobs").eq("user_id",user.id).maybeSingle()
+  ]);
 
   const ids=(jobs||[]).map((job:any)=>job.id);
   const admin=createAdminClient();
@@ -24,9 +27,10 @@ export default async function ClientJobsPage(){
   return <>
     <div className="page-head">
       <div><h1>Your hiring requests</h1><p>Follow each role from brief review through recruiting, shortlist, interviews, and hire.</p></div>
-      <Link className="btn btn-primary" href="/workspace/client/jobs/new">New hiring request</Link>
+      <Link className="btn btn-primary" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs?"Post a job":"New hiring request"}</Link>
     </div>
     <div className="table-wrap responsive-table">
+      {clientProfile?.can_self_publish_jobs?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for your account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:null}
       {jobs?.length?<table>
         <thead><tr><th>Role</th><th>Status</th><th>Hours</th><th>Candidates</th><th>Created</th><th></th></tr></thead>
         <tbody>{jobs.map((job:any)=><tr key={job.id}>

@@ -1,0 +1,88 @@
+{
+  "auditedAt": "2026-09-20",
+  "baselineCommit": "23d943f8e737948802dab436c8bd04ac6ced3c47",
+  "legacyCountAtHandoff": 27,
+  "consolidatedBeforeThisPass": 16,
+  "remainingAtStartOfPass": 11,
+  "items": [
+    {
+      "slug": "ai-augmented-vas-why-you-should-pay-for-output-not-hours",
+      "action": "merge",
+      "audience": "client",
+      "primaryIntent": "AI-enabled VA productivity and workflow design",
+      "target": "/blog/how-a-filipino-va-can-manage-your-ai-workflow",
+      "reason": "The output-versus-hours angle substantially overlaps the stronger AI-workflow article and contains unsupported productivity claims. Preserve authority in the clearer canonical guide."
+    },
+    {
+      "slug": "become-virtual-assistant-no-experience",
+      "action": "reposition",
+      "audience": "candidate",
+      "primaryIntent": "entry-level Filipino VA career guidance",
+      "reason": "Distinct candidate intent. Keep indexed, but align the next rewrite with the actual application, vetting, jobs, equipment, and portfolio path on VirtualAssistant.com.ph."
+    },
+    {
+      "slug": "ecommerce-va-vs-in-house-assistant",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "ecommerce VA versus local in-house hire comparison",
+      "reason": "Distinct ecommerce comparison intent. Retain, but replace unsupported savings examples with transparent scenarios and link to the ecommerce service and broader VA-versus-employee comparison."
+    },
+    {
+      "slug": "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "general VA versus executive VA role selection",
+      "reason": "Distinct role-selection intent. Retain and sharpen shortlist criteria, judgment level, tool expectations, confidentiality, and escalation signals."
+    },
+    {
+      "slug": "get-paid-virtual-assistant-philippines",
+      "action": "reposition",
+      "audience": "candidate",
+      "primaryIntent": "international payment options for Filipino VAs",
+      "reason": "Distinct candidate-side payment intent. Keep indexed and connect it to VA jobs, applicant guidance, invoicing, fees, and tax-compliance caveats without turning it into employer pricing content."
+    },
+    {
+      "slug": "hourly-rates-for-filipino-virtual-project-manager",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "Filipino virtual project manager rate and scope guidance",
+      "reason": "No modern project-manager cost page owns this exact role-rate intent. Keep, but qualify benchmarks, separate coordinator versus PM scope, and connect it to project-coordination hiring."
+    },
+    {
+      "slug": "how-a-filipino-va-can-manage-your-ai-workflow",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "delegating AI-assisted workflows to a Filipino VA",
+      "reason": "This is the stronger canonical AI article. Expand with review controls, privacy boundaries, QA checkpoints, prompt handoff, and recruiter-observed tool patterns rather than generic AI hype."
+    },
+    {
+      "slug": "how-to-become-bookkeeping-virtual-assistant",
+      "action": "reposition",
+      "audience": "candidate",
+      "primaryIntent": "bookkeeping VA career path in the Philippines",
+      "reason": "Distinct candidate intent. Keep indexed, but separate bookkeeping support from licensed accounting work and tie the guide to real tool, experience, and application expectations."
+    },
+    {
+      "slug": "how-to-pay-a-filipino-virtual-assistant-directly",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "paying a Filipino VA directly",
+      "reason": "Distinct client-side payment intent. Retain, but remove broad agency-margin claims, compare payment rails using transparent fee variables, and link to compensation and engagement-model guidance."
+    },
+    {
+      "slug": "how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",
+      "action": "improve",
+      "audience": "client",
+      "primaryIntent": "secure credential and purchasing delegation",
+      "reason": "Distinct trust and security intent. Retain and strengthen around least privilege, password managers, virtual cards, approval limits, audit logs, offboarding, and prohibited credential sharing."
+    },
+    {
+      "slug": "virtual-assistant-agency-philippines-guide",
+      "action": "redirect",
+      "audience": "client",
+      "primaryIntent": "hiring a virtual assistant agency in the Philippines",
+      "target": "/blog/hire-virtual-assistant-philippines",
+      "reason": "The broad hiring-guide intent overlaps the current recruiter-grade Philippines hiring guide plus agency-versus-freelancer comparisons. Consolidate rather than maintain another broad guide."
+    }
+  ]
+}

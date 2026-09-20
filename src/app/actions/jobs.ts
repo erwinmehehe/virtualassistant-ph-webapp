@@ -178,7 +178,8 @@ export async function createJobAction(formData: FormData) {
   }
 
   // Notify only when a private brief is first submitted for team review.
-  // Publishing happens later, after commercial terms are accepted.
+  // Admin-approved self-publishing clients skip this review notification for
+  // complete curated-placement roles because those roles are already public.
   await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: savedStatus, submit_mode: submitMode } });
 
   if (savedStatus === "pending" && previousStatus !== "pending") {

@@ -83,7 +83,6 @@ test("archive keeps distinct intent and consolidates broad duplicates", () => {
   const archive = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
   const slugs = new Set(archive.map((item) => item.slug));
   const retained = [
-    "ai-augmented-vas-why-you-should-pay-for-output-not-hours",
     "become-virtual-assistant-no-experience",
     "ecommerce-va-vs-in-house-assistant",
     "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
@@ -93,7 +92,6 @@ test("archive keeps distinct intent and consolidates broad duplicates", () => {
     "how-to-become-bookkeeping-virtual-assistant",
     "how-to-pay-a-filipino-virtual-assistant-directly",
     "how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",
-    "virtual-assistant-agency-philippines-guide"
   ];
   const removed = [
     "can-a-filipino-va-be-hipaa-compliant-security-checklist",
@@ -111,9 +109,11 @@ test("archive keeps distinct intent and consolidates broad duplicates", () => {
     "seo-virtual-assistant-philippines-guide",
     "virtual-assistant-hourly-rate-philippines",
     "virtual-assistant-outsourcing-guide",
-    "virtual-assistant-services-philippines-guide"
+    "virtual-assistant-services-philippines-guide",
+    "ai-augmented-vas-why-you-should-pay-for-output-not-hours",
+    "virtual-assistant-agency-philippines-guide"
   ];
-  assert.equal(archive.length, 11);
+  assert.equal(archive.length, 9);
   for (const slug of retained) assert.ok(slugs.has(slug), `${slug}: distinct archive article should stay`);
   for (const slug of removed) assert.equal(slugs.has(slug), false, `${slug}: overlapping archive article should be consolidated`);
 });

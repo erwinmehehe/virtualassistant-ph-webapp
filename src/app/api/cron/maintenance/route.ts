@@ -11,8 +11,7 @@ import { BLOG_POSTS, blogHref } from "@/lib/blog";
 // to a client or make a hiring/rejection decision.
 const NUDGE_GRACE_DAYS = 2;
 const NUDGE_REPEAT_DAYS = 7;
-const STALE_HIDE_DAYS = 90;
-const STALE_HIDE_GRACE_AFTER_REMINDER_DAYS = 14;
+const ABANDONED_VA_DAYS = 10;
 const WORKFLOW_REMINDER_REPEAT_DAYS = 5;
 const MAX_WORKFLOW_REMINDERS = 3;
 
@@ -84,40 +83,42 @@ async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdmin
   return { checked: bookings?.length || 0, reminder24h, reminder1h };
 }
 
-async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {
-  const staleCutoff = daysAgo(STALE_HIDE_DAYS);
-  const reminderGraceCutoff = daysAgo(STALE_HIDE_GRACE_AFTER_REMINDER_DAYS);
-  const { data: stale } = await admin
+async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>) {
+  const cutoff = daysAgo(ABANDONED_VA_DAYS);
+  const { data: candidates } = await admin
     .from("recruiter_va_directory")
-    .select("user_id,last_activity_at,directory_visible,account_status")
+    .select("user_id,completion_score,account_created_at")
     .eq("account_status", "active")
-    .eq("directory_visible", true)
-    .not("last_activity_at", "is", null)
-    .lte("last_activity_at", staleCutoff)
+    .lt("completion_score", 100)
+    .lte("account_created_at", cutoff)
     .limit(500);
-  const ids = (stale || []).map((row: any) => row.user_id);
-  const { data: reminders } = ids.length
-    ? await admin.from("va_profile_reminders").select("va_id,reminder_count,last_sent_at").in("va_id", ids)
-    : { data: [] as any[] };
-  const eligible = new Set((reminders || [])
-    .filter((row: any) => Number(row.reminder_count || 0) >= 2 && row.last_sent_at && row.last_sent_at <= reminderGraceCutoff)
-    .map((row: any) => row.va_id));
-  const hideIds = ids.filter((id: string) => eligible.has(id));
-  if (!hideIds.length) return { checked: stale?.length || 0, hidden: 0 };
 
-  const now = new Date().toISOString();
-  const { error } = await admin.from("va_profiles").update({ directory_visible: false, updated_at: now }).in("user_id", hideIds);
-  if (error) throw error;
-  await admin.from("notifications").insert(hideIds.map((id: string) => ({
-    user_id: id,
-    title: "Your VA profile is hidden until you update it",
-    body: "Your profile was inactive for 90+ days after profile reminders. Update your availability and profile to return to recruiter/public consideration.",
-    href: "/workspace/va/profile"
-  })));
-  await admin.from("recruiter_activity").insert(hideIds.map((id: string) => ({
-    subject_type: "va", subject_id: id, action: "auto_hidden_stale", description: "Automatically hidden after 90+ days inactive and two profile reminders", actor_id: null, metadata: {}
-  })));
-  return { checked: stale?.length || 0, hidden: hideIds.length };
+  const ids = (candidates || []).map((row: any) => row.user_id);
+  if (!ids.length) return { checked: 0, deleted: 0, protected: 0 };
+
+  const [{ data: vetting }, { data: applications }, { data: workrooms }, { data: offers }, { data: profiles }] = await Promise.all([
+    admin.from("va_vetting").select("va_id,stage").in("va_id", ids).in("stage", ["approved", "bench"]),
+    admin.from("applications").select("va_id").in("va_id", ids),
+    admin.from("workrooms").select("va_id").in("va_id", ids),
+    admin.from("placement_offers").select("va_id").in("va_id", ids),
+    admin.from("profiles").select("id,role").in("id", ids)
+  ]);
+
+  const protectedIds = new Set<string>([
+    ...(vetting || []).map((row: any) => row.va_id),
+    ...(applications || []).map((row: any) => row.va_id),
+    ...(workrooms || []).map((row: any) => row.va_id),
+    ...(offers || []).map((row: any) => row.va_id),
+    ...(profiles || []).filter((row: any) => row.role !== "va").map((row: any) => row.id)
+  ]);
+
+  let deleted = 0;
+  for (const userId of ids) {
+    if (protectedIds.has(userId)) continue;
+    const { error } = await admin.auth.admin.deleteUser(userId);
+    if (!error) deleted++;
+  }
+  return { checked: ids.length, deleted, protected: protectedIds.size };
 }
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
@@ -324,7 +325,7 @@ export async function GET(request: Request) {
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
   const quoteResult = await autoQuoteStraightforwardJobs();
   const [staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
-    runStaleVaCleanup(admin),
+    runAbandonedVaCleanup(admin),
     runLeadClaimNudges(admin),
     runPendingJobMatching(admin),
     runWorkflowReminders(admin),
@@ -334,5 +335,5 @@ export async function GET(request: Request) {
     runIndexNowSubmission(admin)
   ]);
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
 }

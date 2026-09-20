@@ -88,6 +88,9 @@ const nextConfig: NextConfig = {
       { source: "/services/executive-virtual-assistant", destination: "/service/executive-virtual-assistant", permanent: true },
       { source: "/services/ecommerce-virtual-assistant", destination: "/service/ecommerce", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
+      // Consolidated law-firm tool guide. Preserve authority and backlinks on the stronger canonical article.
+      { source: "/blog/best-legal-practice-management-tools-for-vas", destination: "/blog/best-tools-for-law-firm-virtual-assistant", permanent: true },
+      { source: "/blog/best-legal-practice-management-tools-for-vas/", destination: "/blog/best-tools-for-law-firm-virtual-assistant", permanent: true },
       // Legacy article slugs from the crawl. Keep their authority instead of returning 404.
       { source: "/blog/ai-augmented-vas-why-you-should-pay-for-output-not-hours", destination: "/blog/how-a-filipino-va-can-manage-your-ai-workflow", permanent: true },
       { source: "/blog/ai-augmented-vas-why-you-should-pay-for-output-not-hours/", destination: "/blog/how-a-filipino-va-can-manage-your-ai-workflow", permanent: true },

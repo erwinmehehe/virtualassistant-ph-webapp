@@ -83,7 +83,7 @@ for (const industry of industries) {
 }
 
 for (const [serviceSlug, count] of clusterCounts) {
-  if (count > 9) warnings.push(`${serviceSlug}: ${count} blog posts in one service cluster; review search-intent separation`);
+  // Cluster size alone is not cannibalization; the dedicated intent-overlap audit checks page-pair risk.\n  if (count > 12) warnings.push(`${serviceSlug}: ${count} blog posts in one service cluster; review whether the cluster is becoming unnecessarily broad`);
 }
 
 if (!/serviceBlogPosts\(s\.slug/.test(servicePage)) {

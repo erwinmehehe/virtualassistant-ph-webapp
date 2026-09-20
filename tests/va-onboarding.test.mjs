@@ -18,9 +18,16 @@ const categories = fs.readFileSync("src/app/workspace/recruiter/categories/page.
 const constants = fs.readFileSync("src/lib/constants.ts", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 
-test("new VA signups land in quick setup instead of a 0% dashboard", () => {
+test("new VA signups land in a focused quick setup instead of the full profile editor", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
-  assert.match(quickPage, /redirect\("\/workspace\/va\/profile#basics"\)/);
+  assert.match(quickPage, /completeVaQuickSetupAction/);
+  assert.match(quickPage, /Start with the details recruiters need first/);
+  assert.match(quickPage, /name="primary_category"/);
+  assert.match(quickPage, /name="headline"/);
+  assert.match(quickPage, /name="years_experience"/);
+  assert.match(quickPage, /name="weekly_hours"/);
+  assert.match(quickPage, /name="hourly_rate"/);
+  assert.doesNotMatch(quickPage, /redirect\("\/workspace\/va\/profile#basics"\)/);
   assert.match(profilePage, /Get ready for client matching/);
   assert.doesNotMatch(nav, /\["Quick setup", "\/workspace\/va\/onboarding"/);
 });
@@ -92,4 +99,19 @@ test("recruiter dashboard has canonical category labels including SMM", () => {
   assert.match(categories, /VA categories & onboarding health/);
   assert.match(categories, /Verified but still 0%/);
   assert.doesNotMatch(nav, /\["VA categories", "\/workspace\/recruiter\/categories"/);
+});
+
+
+test("quick setup returns VAs to a guided dashboard rather than dropping them into the long profile form", () => {
+  assert.match(quickAction, /redirect\("\/workspace\/va\?setup=complete"\)/);
+  assert.match(vaPage, /searchParams/);
+  assert.match(vaPage, /Quick setup saved/);
+  assert.match(vaPage, /OnboardingChecklist/);
+});
+
+test("recruiter onboarding rescue queue focuses on recent zero-completion VAs and prioritizes verified accounts", () => {
+  assert.match(categories, /recentZeroProfiles/);
+  assert.match(categories, /verifiedRecentZero/);
+  assert.match(categories, /Number\(b\.email_verified\) - Number\(a\.email_verified\)/);
+  assert.match(categories, /Recent 0% accounts · 7 days/);
 });

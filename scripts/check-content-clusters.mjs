@@ -33,15 +33,24 @@ const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: Bl
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const servicePage = source("src/app/service/[slug]/page.tsx");
+const industryPage = source("src/app/industries/[slug]/page.tsx");
 const blogArticle = source("src/components/blog-article.tsx");
 
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
+const industrySlugs = new Set(industries.map((item) => item.slug));
 const familyOwners = new Map();
 const clusterCounts = new Map();
+let explicitBlogIndustryEdges = 0;
+let industryServiceEdges = 0;
 
 for (const post of posts) {
+  for (const industrySlug of post.industrySlugs || []) {
+    explicitBlogIndustryEdges += 1;
+    if (!industrySlugs.has(industrySlug)) failures.push(`${post.slug}: unresolved industry ${industrySlug}`);
+  }
+
   if (!post.serviceSlug) continue;
   if (!serviceSlugs.has(post.serviceSlug)) {
     failures.push(`${post.slug}: serviceSlug ${post.serviceSlug} does not resolve to a current service page`);
@@ -68,6 +77,7 @@ for (const post of posts) {
 
 for (const industry of industries) {
   for (const serviceSlug of industry.serviceSlugs || []) {
+    industryServiceEdges += 1;
     if (!serviceSlugs.has(serviceSlug)) failures.push(`${industry.slug}: unresolved service ${serviceSlug}`);
   }
 }
@@ -78,6 +88,21 @@ for (const [serviceSlug, count] of clusterCounts) {
 
 if (!/serviceBlogPosts\(s\.slug/.test(servicePage)) {
   failures.push("service template must pull role-specific blog guides with serviceBlogPosts(s.slug)");
+}
+if (!/INDUSTRIES\.filter\(\(industry\) => industry\.serviceSlugs\.includes\(s\.slug\)\)/.test(servicePage)) {
+  failures.push("service template must derive relevant industry guides from industry.serviceSlugs");
+}
+if (!servicePage.includes('relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`')) {
+  failures.push("service template must link each related industry to its canonical /industries/:slug URL");
+}
+if (!/page\.serviceSlugs\.map\(servicePageBySlug\)/.test(industryPage)) {
+  failures.push("industry template must resolve its mapped service pages");
+}
+if (!industryPage.includes('services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`')) {
+  failures.push("industry template must link mapped services to canonical /service/:slug URLs");
+}
+if (!/serviceBlogPosts\(serviceSlug, 2\)/.test(industryPage) || !/href: blogHref\(post\)/.test(industryPage)) {
+  failures.push("industry template must link relevant role-specific blog guides from its mapped services");
 }
 if (!/INDUSTRIES\.filter/.test(blogArticle) || !/industry\.serviceSlugs\.includes\(post\.serviceSlug/.test(blogArticle)) {
   failures.push("blog article must derive relevant industry guides from the service-industry map");
@@ -91,6 +116,8 @@ const stats = {
   serviceClusters: clusterCounts.size,
   editorialFamilies: familyOwners.size,
   industryPages: industries.length,
+  industryServiceEdges,
+  explicitBlogIndustryEdges,
   failures: failures.length,
   warnings: warnings.length
 };

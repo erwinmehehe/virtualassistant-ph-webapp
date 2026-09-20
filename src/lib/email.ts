@@ -640,7 +640,10 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
   const labels: Record<string,string> = { photo: "profile photo", headline: "headline", bio: "professional summary", category: "Virtual Assistant category", skills: "skills", tools: "tools", experience: "experience", availability: "availability", rate: "preferred rate", resume: "resume", portfolio: "portfolio sample" };
   const missing = args.missing.slice(0, 6).map((item) => labels[item] || item);
   const list = missing.length ? `<ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
-  const profileUrl = `${args.appUrl}/workspace/va/profile`;
+  const profileUrl = args.score === 0
+    ? `${args.appUrl}/workspace/va/onboarding`
+    : `${args.appUrl}/workspace/va/profile`;
+  const ctaLabel = args.score === 0 ? "Complete my quick setup" : "Complete my profile";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p style="margin:0 0 10px;color:#344054;font-size:16px;line-height:1.7;">Please finish these items:</p>${list}` : ""}<p style="margin:18px 0 0;color:#475467;font-size:15px;line-height:1.7;">There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`;
   await trackedSend(config, {
     from: config.from,

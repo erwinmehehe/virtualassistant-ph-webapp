@@ -48,3 +48,45 @@ test("legacy broad SEO guide consolidates into the SEO service money page", () =
     /source: "\/blog\/seo-virtual-assistant-philippines-guide\/", destination: "\/service\/seo", permanent: true/
   );
 });
+
+
+test("role screening guides stay informational and distinct from service money pages", () => {
+  const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
+  const slugs = [
+    "how-to-hire-a-appointment-setter-virtual-assistant",
+    "how-to-hire-a-cold-calling-virtual-assistant",
+    "how-to-hire-a-content-marketing-virtual-assistant",
+    "how-to-hire-a-credit-repair-virtual-assistant",
+    "how-to-hire-a-dental-billing-virtual-assistant",
+    "how-to-hire-a-financial-advisor-virtual-assistant",
+    "how-to-hire-a-google-ads-virtual-assistant",
+    "how-to-hire-a-law-firm-virtual-assistant",
+    "how-to-hire-a-lead-generation",
+    "how-to-hire-a-medical-billing-virtual-assistant",
+    "how-to-hire-a-medical-scribe-virtual-assistant",
+    "how-to-hire-a-mental-health-virtual-assistant",
+    "how-to-hire-a-real-estate",
+    "how-to-hire-a-short-term-rental-virtual-assistant",
+    "how-to-hire-a-web-developer-virtual-assistant"
+  ];
+
+  for (const slug of slugs) {
+    const post = posts.find((item) => item.slug === slug);
+    assert.ok(post, `${slug}: screening guide missing`);
+    assert.equal(post.intent, "informational", `${slug}: should not compete as a commercial money page`);
+    assert.match(post.metaTitle, /Screening & Interview Guide/);
+    assert.doesNotMatch(post.metaTitle, /Hiring Guide/);
+    assert.match(post.description, /screen/i);
+    assert.ok((post.internalLinks || []).some((link) => link.href === `/service/${post.serviceSlug}`), `${slug}: must point to its service money page`);
+  }
+});
+
+test("medical VA comparison explicitly bridges both compared service pages", () => {
+  const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
+  const post = posts.find((item) => item.slug === "medical-billing-va-vs-medical-va");
+  assert.ok(post, "medical comparison guide missing");
+  const hrefs = new Set((post.internalLinks || []).map((link) => link.href));
+  assert.ok(hrefs.has("/service/medical-virtual-assistant"));
+  assert.ok(hrefs.has("/service/medical-billing-virtual-assistant"));
+  assert.equal(post.intent, "comparison");
+});

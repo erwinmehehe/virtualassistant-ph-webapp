@@ -18,7 +18,8 @@
     "configure:auth-smtp": "node scripts/configure-supabase-smtp.mjs",
     "service:check": "node scripts/check-service-seo.mjs",
     "cluster:check": "node scripts/check-content-clusters.mjs",
-    "archive:check": "node scripts/check-archive-editorial-status.mjs"
+    "archive:check": "node scripts/check-archive-editorial-status.mjs",
+    "content:intent-audit": "node scripts/audit-content-intent-overlap.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

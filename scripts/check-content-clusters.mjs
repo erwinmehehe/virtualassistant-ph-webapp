@@ -101,6 +101,9 @@ if (!/page\.serviceSlugs\.map\(servicePageBySlug\)/.test(industryPage)) {
 if (!industryPage.includes('services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`')) {
   failures.push("industry template must link mapped services to canonical /service/:slug URLs");
 }
+if (!/serviceBlogPosts\(serviceSlug, 2\)/.test(industryPage) || !/href: blogHref\(post\)/.test(industryPage)) {
+  failures.push("industry template must link relevant role-specific blog guides from its mapped services");
+}
 if (!/INDUSTRIES\.filter/.test(blogArticle) || !/industry\.serviceSlugs\.includes\(post\.serviceSlug/.test(blogArticle)) {
   failures.push("blog article must derive relevant industry guides from the service-industry map");
 }

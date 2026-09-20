@@ -24,7 +24,8 @@ export default async function RecruiterVaCategoriesPage({searchParams}:{searchPa
   const newAccounts = rows.filter((row) => row.account_created_at && new Date(row.account_created_at).getTime() >= sevenDaysAgo);
   const newStarted = newAccounts.filter((row) => Number(row.completion_score || 0) > 0);
   const zeroProfiles = rows.filter((row) => Number(row.completion_score || 0) === 0);
-  const verifiedZero = zeroProfiles.filter((row) => Boolean(row.email_verified));
+  const recentZeroProfiles = newAccounts.filter((row) => Number(row.completion_score || 0) === 0);
+  const verifiedRecentZero = recentZeroProfiles.filter((row) => Boolean(row.email_verified));
   const uncategorized = rows.filter((row) => !row.primary_category);
   const startedRate = newAccounts.length ? Math.round((newStarted.length / newAccounts.length) * 100) : 0;
 
@@ -33,7 +34,10 @@ export default async function RecruiterVaCategoriesPage({searchParams}:{searchPa
     if (!row.primary_category) continue;
     counts.set(row.primary_category, (counts.get(row.primary_category) || 0) + 1);
   }
-  const stalled = zeroProfiles.slice(0, 12);
+  const stalled = [...recentZeroProfiles].sort((a,b) =>
+    Number(b.email_verified) - Number(a.email_verified) ||
+    new Date(b.account_created_at || 0).getTime() - new Date(a.account_created_at || 0).getTime()
+  ).slice(0, 12);
 
   return <>
     {params.categorized != null ? <div className="success-banner" role="status">Auto-categorized {Number(params.categorized) || 0} VA profile{Number(params.categorized) === 1 ? "" : "s"}.{Number(params.skipped) ? ` Skipped ${Number(params.skipped)} profiles that need manual review or had too little profile evidence.` : ""}</div> : null}
@@ -46,8 +50,8 @@ export default async function RecruiterVaCategoriesPage({searchParams}:{searchPa
       <div className="dashboard-section-head"><div><h2>Signup → profile health</h2><p>A 0% profile means the account exists but none of the profile-strength fields have been completed yet.</p></div><span className={`badge ${startedRate >= 60 ? "badge-success" : "badge-warning"}`}>{startedRate}% of new VAs started setup</span></div>
       <div className="stats">
         <div className="stat-card"><span className="small muted">New VA accounts · 7 days</span><strong>{newAccounts.length}</strong><small className="muted">Account creation is reaching Supabase</small></div>
-        <Link className="stat-card" href="/workspace/recruiter/talent?readiness=zero"><span className="small muted">0% profiles</span><strong>{zeroProfiles.length}</strong><small className="muted">Created an account, setup not started</small></Link>
-        <div className="stat-card"><span className="small muted">Verified but still 0%</span><strong>{verifiedZero.length}</strong><small className="muted">Highest-priority onboarding drop-off</small></div>
+        <Link className="stat-card" href="/workspace/recruiter/talent?readiness=zero"><span className="small muted">Recent 0% profiles · 7 days</span><strong>{recentZeroProfiles.length}</strong><small className="muted">Newest accounts that still need the quick setup</small></Link>
+        <div className="stat-card"><span className="small muted">Verified recent 0%</span><strong>{verifiedRecentZero.length}</strong><small className="muted">Highest-priority onboarding rescue queue</small></div>
         <div className="stat-card"><span className="small muted">Uncategorized VAs</span><strong>{uncategorized.length}</strong><small className="muted">Auto-repair fills only clear matches before approval. Approved/bench VAs stay manual.</small></div>
       </div>
     </section>
@@ -63,7 +67,7 @@ export default async function RecruiterVaCategoriesPage({searchParams}:{searchPa
     </section>
 
     <section className="card dashboard-section-card">
-      <div className="dashboard-section-head"><div><h2>Recent 0% accounts</h2><p>Use this as the quick check for VA signup friction. Verified accounts that stay here need onboarding help, not another registration attempt.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all 0% profiles</Link></div>
+      <div className="dashboard-section-head"><div><h2>Recent 0% accounts · 7 days</h2><p>Newest stalled signups appear here first, with verified accounts prioritized. These VAs need onboarding help, not another registration attempt.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all {zeroProfiles.length} 0% profiles</Link></div>
       {stalled.length ? <div className="compact-list">{stalled.map((row) => {
         const lastActiveDays = row.last_activity_at ? Math.max(0, Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000)) : null;
         return <Link href={`/workspace/recruiter/candidates/${row.user_id}`} key={row.user_id}>

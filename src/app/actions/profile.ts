@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
+import { inferCategories } from "@/lib/category-inference";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
@@ -72,15 +73,52 @@ export async function updateVaProfileAction(formData: FormData) {
   if (weeklyHours != null && (!Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80)) throw new Error("Weekly availability must be between 1 and 80 hours.");
   if (overlapHours != null && (!Number.isInteger(overlapHours) || overlapHours < 0 || overlapHours > 12)) throw new Error("Daily overlap must be between 0 and 12 hours.");
 
+  const headlineValue = headline(formData.get("headline"));
+  const bioValue = String(formData.get("bio") ?? "").trim() || null;
+  const selectedPrimaryCategory = String(formData.get("primary_category") ?? "").trim();
+  if (selectedPrimaryCategory && !VA_CATEGORIES.includes(selectedPrimaryCategory as (typeof VA_CATEGORIES)[number])) {
+    throw new Error("Choose a valid primary specialty.");
+  }
+  const selectedCategories = list(formData.get("categories"), "additional specialty").slice(0, 3);
+  const skills = list(formData.get("skills"), "skill");
+  const tools = list(formData.get("tools"), "tool");
+  const industries = list(formData.get("industries"), "industry");
+  const languages = list(formData.get("languages"), "language");
+  const inferredCategories = inferCategories(
+    headlineValue,
+    bioValue,
+    selectedCategories.join(" "),
+    skills.join(" "),
+    tools.join(" "),
+    industries.join(" ")
+  );
+
+  const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
+    admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
+    admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
+    admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+  ]);
+  if (!current) throw new Error("VA profile not found.");
+
+  const inferenceAllowed = !["approved", "bench"].includes(String(vetting?.stage || ""));
+  const proposedPrimaryCategory = selectedPrimaryCategory || inferredCategories[0] || null;
+  const resolvedPrimaryCategory = inferenceAllowed
+    ? proposedPrimaryCategory
+    : selectedPrimaryCategory || current.primary_category || null;
+  const resolvedCategories = [...new Set([
+    ...selectedCategories,
+    ...(inferenceAllowed ? inferredCategories.filter((category) => category !== resolvedPrimaryCategory) : [])
+  ])].slice(0, 3);
+
   const updates = {
-    headline: headline(formData.get("headline")),
-    bio: String(formData.get("bio") ?? "").trim() || null,
-    primary_category: String(formData.get("primary_category") ?? "").trim() || null,
-    categories: list(formData.get("categories"), "additional specialty").slice(0, 3),
-    skills: list(formData.get("skills"), "skill"),
-    tools: list(formData.get("tools"), "tool"),
-    industries: list(formData.get("industries"), "industry"),
-    languages: list(formData.get("languages"), "language"),
+    headline: headlineValue,
+    bio: bioValue,
+    primary_category: resolvedPrimaryCategory,
+    categories: resolvedCategories,
+    skills,
+    tools,
+    industries,
+    languages,
     years_experience: yearsExperience,
     weekly_hours: weeklyHours,
     schedule: String(formData.get("schedule") ?? "").trim() || null,
@@ -92,11 +130,6 @@ export async function updateVaProfileAction(formData: FormData) {
     directory_visible: formData.get("directory_visible") === "on"
   };
 
-  const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
-    admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
-    admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
-    admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
-  ]);
   const listKey = (value: unknown) => Array.isArray(value) ? [...value].map(String).sort().join("\u0000") : "";
   const categoryChanged = (current?.primary_category ?? null) !== updates.primary_category;
   let materialChanged = categoryChanged ||
@@ -111,7 +144,6 @@ export async function updateVaProfileAction(formData: FormData) {
     (current?.portfolio_url ?? null) !== updates.portfolio_url ||
     (current?.linkedin_url ?? null) !== updates.linkedin_url;
 
-  if (!current) throw new Error("VA profile not found.");
   const [{ error: nameError }, { error: profileError }] = await Promise.all([
     admin.from("profiles").update({ full_name: fullName }).eq("id", user.id),
     admin.from("va_profiles").update(updates).eq("user_id", user.id)
@@ -204,7 +236,7 @@ export async function updateVaProfileAction(formData: FormData) {
     const safePrefixes = [
       "Enter ", "Hourly rate ", "Years of experience ", "Weekly availability ", "Daily overlap ",
       "Your headline ", "One of your ", "Use a valid URL", "Only http or https",
-      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG"
+      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty"
     ];
     const message = safePrefixes.some((prefix) => raw.startsWith(prefix))
       ? raw

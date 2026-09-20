@@ -6,7 +6,6 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 
 test("browse and utility hubs use the compact header instead of a full marketing hero", () => {
   const pages = [
-    "src/app/jobs/page.tsx",
     "src/app/find-talent/page.tsx",
     "src/app/services/page.tsx",
     "src/app/industries/page.tsx",
@@ -31,4 +30,18 @@ test("compact public header stays responsive and action-focused", () => {
   assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /@media \(max-width: 520px\)/);
+});
+
+
+test("jobs directory uses its dedicated marketplace hero and SEO content", () => {
+  const page = read("src/app/jobs/page.tsx");
+  const css = read("src/app/globals.css");
+
+  assert.match(page, /jobs-market-hero/);
+  assert.match(page, /Post a VA job/);
+  assert.match(page, /Finding remote virtual assistant jobs in the Philippines/);
+  assert.match(page, /FAQPage/);
+  assert.match(page, /jobs-bottom-cta/);
+  assert.match(css, /\.jobs-market-hero/);
+  assert.match(css, /\.jobs-seo-section/);
 });

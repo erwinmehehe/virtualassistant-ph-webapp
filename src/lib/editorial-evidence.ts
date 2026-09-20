@@ -12,6 +12,9 @@ export const MARKETPLACE_SNAPSHOT = {
   weeklyHoursSample: 83,
   medianOverlapHours: 4,
   overlapSample: 67,
+  // No structured candidate rejection-reason records exist yet. Do not publish
+  // observed rejection-reason claims until a structured, reviewable source exists.
+  candidateRejectionRecords: 0,
   candidateTools: {
     Canva: 40,
     "Google Workspace": 34,
@@ -112,6 +115,6 @@ export function marketplaceEvidenceForPost(post: Pick<BlogPost, "serviceSlug" | 
   return {
     asOf: MARKETPLACE_SNAPSHOT.asOf,
     items,
-    note: "Snapshot from VirtualAssistant.com.ph platform records. Candidate experience, availability, tools and skills are self-reported and optional fields are not complete for every profile. Tool and skill labels are normalized only where stated. No structured candidate rejection-reason records are currently available, so this evidence does not claim observed rejection reasons. These figures describe this platform snapshot, not a market-wide survey of Filipino virtual assistants."
+    note: "Snapshot from VirtualAssistant.com.ph platform records. Candidate experience, availability, tools and skills are self-reported and optional fields are not complete for every profile. Tool and skill labels are normalized only where stated. These figures describe this platform snapshot, not a market-wide survey of Filipino virtual assistants."
   };
 }

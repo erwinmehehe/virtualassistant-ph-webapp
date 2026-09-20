@@ -2682,3 +2682,103 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .floating-cta { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
   .floating-cta .btn { min-height: 36px; padding: 0 13px 0 11px; font-size: 13px; }
 }
+
+
+/* Jobs marketplace refresh */
+.public-jobs-page { background: #f8fafc; }
+.jobs-market-hero { position: relative; overflow: hidden; padding: 72px 0 62px; border-bottom: 1px solid var(--line); background: linear-gradient(135deg,#fff 0%,#f7f7ff 52%,#eef2ff 100%); }
+.jobs-market-glow { position: absolute; width: 540px; height: 540px; right: -180px; top: -260px; border-radius: 50%; background: color-mix(in srgb,var(--brand) 10%,transparent); pointer-events: none; }
+.jobs-market-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: clamp(32px,6vw,78px); align-items: center; }
+.jobs-market-copy { max-width: 790px; }
+.jobs-market-eyebrow { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 14px; color: var(--success); font-size: 12px; font-weight: 800; letter-spacing: .02em; }
+.jobs-market-copy h1 { max-width: 820px; margin: 0; font-size: clamp(44px,5.4vw,68px); line-height: 1; letter-spacing: -.055em; }
+.jobs-market-copy > p { max-width: 720px; margin: 20px 0 0; color: #475467; font-size: 18px; line-height: 1.65; }
+.jobs-market-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.jobs-market-proof { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 24px; color: #475467; font-size: 12px; font-weight: 700; }
+.jobs-market-proof span { display: inline-flex; align-items: center; gap: 6px; }
+.jobs-market-proof svg { color: var(--brand); }
+.jobs-market-summary-card { display: grid; gap: 10px; padding: 26px; border: 1px solid rgba(255,255,255,.9); border-radius: 24px; background: rgba(255,255,255,.82); box-shadow: 0 24px 64px rgba(16,24,40,.09); backdrop-filter: blur(16px); }
+.jobs-market-summary-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 6px; border-radius: 15px; background: var(--brand-soft); color: var(--brand); }
+.jobs-market-summary-card > strong { font-size: 32px; line-height: 1; letter-spacing: -.045em; }
+.jobs-market-summary-card > p { margin: 0 0 8px; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+.jobs-market-summary-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 11px; border-top: 1px solid var(--line); font-size: 11px; }
+.jobs-market-summary-row span { color: var(--muted); }
+.jobs-market-summary-row b { color: #344054; }
+
+.jobs-market-paths { position: relative; z-index: 2; margin-top: -20px; }
+.jobs-market-path-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.jobs-market-path-grid > div { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; grid-template-areas: "icon label link" "icon copy link"; column-gap: 11px; align-items: center; padding: 17px 19px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: 0 12px 30px rgba(16,24,40,.055); }
+.jobs-market-path-grid svg { grid-area: icon; color: var(--brand); }
+.jobs-market-path-grid span { grid-area: label; color: var(--muted); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.jobs-market-path-grid strong { grid-area: copy; font-size: 13px; line-height: 1.4; }
+.jobs-market-path-grid a { grid-area: link; display: inline-flex; align-items: center; gap: 5px; color: var(--brand); font-size: 12px; font-weight: 800; white-space: nowrap; }
+
+.public-jobs-page .jobs-directory { padding: 42px 0 68px; }
+.public-jobs-page .jobs-filterbar { position: sticky; top: 76px; z-index: 8; padding: 12px; border-radius: 16px; box-shadow: 0 10px 28px rgba(16,24,40,.05); }
+.public-jobs-page .job-market-card { padding: 24px; border-radius: 18px; box-shadow: 0 6px 18px rgba(16,24,40,.025); }
+.public-jobs-page .job-market-card:hover { border-color: color-mix(in srgb,var(--brand) 24%,var(--line)); box-shadow: 0 18px 42px rgba(16,24,40,.075); transform: translateY(-2px); }
+.public-jobs-page .job-market-title-row h2 { margin-top: 5px; font-size: 22px; }
+.public-jobs-page .job-market-summary { max-width: 850px; font-size: 13.5px; line-height: 1.65; }
+.public-jobs-page .job-market-facts { margin-top: 2px; }
+.public-jobs-page .job-market-side { min-width: 160px; }
+.jobs-empty-market { display: grid; grid-template-columns: 56px minmax(0,1fr) auto; gap: 18px; align-items: center; padding: 30px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg,#fff,#f8faff); }
+.jobs-empty-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: var(--brand-soft); color: var(--brand); }
+.jobs-empty-market h2 { margin: 3px 0 7px; font-size: 22px; letter-spacing: -.03em; }
+.jobs-empty-market p { max-width: 720px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.jobs-empty-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+.jobs-seo-section { padding: 78px 0 84px; border-top: 1px solid var(--line); background: #fff; }
+.jobs-seo-intro { max-width: 840px; margin-bottom: 34px; }
+.jobs-seo-intro h2, .jobs-how-it-works h2, .jobs-faq-head h2, .jobs-bottom-cta h2 { margin: 7px 0 12px; font-size: clamp(30px,3.5vw,44px); line-height: 1.08; letter-spacing: -.045em; }
+.jobs-seo-intro > p, .jobs-how-it-works > div > p { margin: 0; color: #475467; font-size: 15px; line-height: 1.75; }
+.jobs-seo-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.jobs-seo-grid article { padding: 23px; border: 1px solid var(--line); border-radius: 18px; background: #fbfcff; }
+.jobs-seo-grid svg { color: var(--brand); }
+.jobs-seo-grid h3 { margin: 14px 0 7px; font-size: 17px; }
+.jobs-seo-grid p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+.jobs-how-it-works { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: clamp(30px,6vw,76px); align-items: start; margin-top: 72px; padding: 42px; border-radius: 24px; background: #f8fafc; }
+.jobs-how-it-works ol { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.jobs-how-it-works li { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.jobs-how-it-works li:last-child { border-bottom: 0; }
+.jobs-how-it-works li > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 800; }
+.jobs-how-it-works li strong { font-size: 13px; }
+.jobs-how-it-works li p { margin: 4px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+.jobs-faq { margin-top: 72px; }
+.jobs-faq-head { max-width: 680px; margin-bottom: 22px; }
+.jobs-faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.jobs-faq-grid details { padding: 18px 19px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.jobs-faq-grid summary { cursor: pointer; font-size: 13px; font-weight: 800; }
+.jobs-faq-grid p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.jobs-bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-top: 72px; padding: 34px 38px; border-radius: 24px; background: linear-gradient(135deg,#151b4d,#312e81); color: #fff; }
+.jobs-bottom-cta span { color: #c7d2fe; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.jobs-bottom-cta h2 { max-width: 650px; margin-bottom: 8px; font-size: 32px; }
+.jobs-bottom-cta p { max-width: 680px; margin: 0; color: #dbe4ff; font-size: 13px; line-height: 1.55; }
+.jobs-bottom-actions { display: flex; flex-wrap: wrap; gap: 9px; flex: 0 0 auto; }
+.jobs-bottom-cta .btn:not(.btn-primary) { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.08); color: #fff; }
+
+@media (max-width: 920px) {
+  .jobs-market-hero-grid, .jobs-how-it-works { grid-template-columns: 1fr; }
+  .jobs-market-summary-card { max-width: 560px; }
+  .jobs-market-path-grid, .jobs-seo-grid { grid-template-columns: 1fr; }
+  .jobs-market-path-grid > div { grid-template-columns: 32px minmax(0,1fr); grid-template-areas: "icon label" "icon copy" "icon link"; }
+  .jobs-market-path-grid a { margin-top: 7px; }
+  .public-jobs-page .jobs-filterbar { position: static; }
+  .jobs-bottom-cta { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 680px) {
+  .jobs-market-hero { padding: 48px 0 46px; }
+  .jobs-market-copy h1 { font-size: 42px; }
+  .jobs-market-copy > p { font-size: 16px; }
+  .jobs-market-actions .btn { width: 100%; justify-content: center; }
+  .jobs-market-paths { margin-top: -12px; }
+  .jobs-market-path-grid > div { padding: 15px; }
+  .jobs-empty-market { grid-template-columns: 1fr; padding: 22px; }
+  .jobs-empty-actions { justify-content: flex-start; }
+  .jobs-faq-grid { grid-template-columns: 1fr; }
+  .jobs-how-it-works { padding: 24px 20px; margin-top: 54px; }
+  .jobs-seo-section { padding: 58px 0 62px; }
+  .jobs-bottom-cta { margin-top: 54px; padding: 26px 22px; }
+  .jobs-bottom-actions, .jobs-bottom-actions .btn { width: 100%; }
+  .jobs-bottom-actions .btn { justify-content: center; }
+}

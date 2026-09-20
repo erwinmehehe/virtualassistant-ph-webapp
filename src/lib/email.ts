@@ -467,7 +467,7 @@ export async function sendSystemTestEmail(to: string) {
     to: [to],
     subject: "VirtualAssistant.com.ph email test",
     html: "<p>Your application email configuration is working.</p>"
-  }, "system_test");
+  }, "system_test", { archive: false, teamCc: false });
 }
 
 function escapeHtml(value: string) {

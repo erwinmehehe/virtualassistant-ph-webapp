@@ -87,3 +87,12 @@ test("Bryan is also blocked from direct VA match emails", () => {
   assert.match(matchEmail, /reason: blocked \? "blocked_recipient"/);
 });
 
+
+test("system email tests do not copy archive or team recipients", () => {
+  const email = source("src/lib/email.ts");
+
+  assert.match(
+    email,
+    /}, "system_test", \{ archive: false, teamCc: false \}\);/,
+  );
+});

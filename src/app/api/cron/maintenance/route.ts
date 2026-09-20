@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendProfileCompletionReminderEmail, sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
+import { sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
 import { bookingManageUrl } from "@/lib/booking-operations";
 import { formatDiscoverySlot } from "@/lib/discovery-booking";
 import { submitToIndexNow } from "@/lib/indexnow";
@@ -11,7 +11,6 @@ import { BLOG_POSTS, blogHref } from "@/lib/blog";
 // to a client or make a hiring/rejection decision.
 const NUDGE_GRACE_DAYS = 2;
 const NUDGE_REPEAT_DAYS = 7;
-const MAX_PROFILE_REMINDERS = 3;\nconst MAX_PROFILE_REMINDERS_PER_RUN = 20;\nconst MAX_NONCRITICAL_EMAILS_PER_DAY = 50;
 const STALE_HIDE_DAYS = 90;
 const STALE_HIDE_GRACE_AFTER_REMINDER_DAYS = 14;
 const WORKFLOW_REMINDER_REPEAT_DAYS = 5;
@@ -83,57 +82,6 @@ async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdmin
     }
   }
   return { checked: bookings?.length || 0, reminder24h, reminder1h };
-}
-
-async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
-  const graceCutoff = daysAgo(NUDGE_GRACE_DAYS);
-  const repeatCutoff = daysAgo(NUDGE_REPEAT_DAYS);
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const { data: candidates } = await admin
-    .from("recruiter_va_directory")
-    .select("user_id,full_name,completion_score,missing_items,account_created_at,account_status")
-    .eq("account_status", "active")
-    .lt("completion_score", 100)
-    .lte("account_created_at", graceCutoff)
-    .limit(500);
-
-  const ids = (candidates || []).map((row: any) => row.user_id);
-  const { data: reminders } = ids.length
-    ? await admin.from("va_profile_reminders").select("va_id,reminder_count,last_sent_at").in("va_id", ids)
-    : { data: [] as any[] };
-  const reminderMap = new Map((reminders || []).map((row: any) => [row.va_id, row]));
-
-  let sent = 0;
-  for (const row of candidates || []) {
-    const previous: any = reminderMap.get(row.user_id);
-    if (Number(previous?.reminder_count || 0) >= MAX_PROFILE_REMINDERS) continue;
-    if (previous?.last_sent_at && previous.last_sent_at > repeatCutoff) continue;
-    const { data } = await admin.auth.admin.getUserById(row.user_id);
-    if (!data.user?.email) continue;\n    if (!data.user.email_confirmed_at) { skippedUnverified++; continue; }
-    let result;
-    try {
-      result = await sendProfileCompletionReminderEmail({
-        to: data.user.email,
-        fullName: row.full_name,
-        score: Number(row.completion_score || 0),
-        missing: Array.isArray(row.missing_items) ? row.missing_items : [],
-        appUrl
-      });
-    } catch {
-      continue;
-    }
-    if (!result.sent) continue;
-    await admin.from("va_profile_reminders").upsert({
-      va_id: row.user_id,
-      reminder_count: Number(previous?.reminder_count || 0) + 1,
-      last_score: Number(row.completion_score || 0),
-      last_sent_at: new Date().toISOString(),
-      last_sent_by: null,
-      updated_at: new Date().toISOString()
-    }, { onConflict: "va_id" });
-    sent += 1;
-  }
-  return { checked: candidates?.length || 0, sent, skippedUnverified, skippedCapacity };
 }
 
 async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {
@@ -375,8 +323,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
   const quoteResult = await autoQuoteStraightforwardJobs();
-  const [nudgeResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
-    runProfileNudges(admin),
+  const [staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
     runStaleVaCleanup(admin),
     runLeadClaimNudges(admin),
     runPendingJobMatching(admin),
@@ -387,5 +334,5 @@ export async function GET(request: Request) {
     runIndexNowSubmission(admin)
   ]);
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, nudges: nudgeResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, staleCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
 }

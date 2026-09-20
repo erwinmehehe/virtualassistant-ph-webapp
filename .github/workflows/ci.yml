@@ -36,6 +36,8 @@ jobs:
         run: npm run content:check
       - name: Content cluster audit
         run: npm run cluster:check
+      - name: Legacy archive editorial audit
+        run: npm run archive:check
       - name: Type-check
         run: npm run typecheck
       - name: Security audit

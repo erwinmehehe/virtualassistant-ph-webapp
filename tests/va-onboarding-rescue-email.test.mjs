@@ -6,9 +6,13 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("zero-completion VA reminders return the user to quick setup",async()=>{
   const email=await read("src/lib/email.ts");
-  assert.match(email,/const profileUrl = args\.score === 0[\s\S]*\/workspace\/va\/onboarding[\s\S]*:\s*`\$\{args\.appUrl\}\/workspace\/va\/profile`/);
-  assert.match(email,/ctaHref: profileUrl/);
-  assert.match(email,/Complete my quick setup/);
+  const start=email.indexOf("export async function sendProfileCompletionReminderEmail");
+  const end=email.indexOf("export async function sendDiscoveryBookingEmail",start);
+  const reminder=email.slice(start,end);
+  assert.ok(start >= 0 && end > start);
+  assert.match(reminder,/const profileUrl = args\.score === 0[\s\S]*\/workspace\/va\/onboarding[\s\S]*:\s*`\$\{args\.appUrl\}\/workspace\/va\/profile`/);
+  assert.match(reminder,/ctaHref: profileUrl/);
+  assert.match(reminder,/Complete my quick setup/);
 });
 
 test("one failed profile reminder cannot abort the maintenance batch",async()=>{

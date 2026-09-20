@@ -4,7 +4,10 @@ export type ArchivePost = {
   legacyPath?: string;
   title: string;
   date: string;
+  updatedDate?: string;
   tag: string;
   excerpt: string;
+  audience?: "client" | "candidate";
+  fieldNotes?: string[];
   html: string;
 };

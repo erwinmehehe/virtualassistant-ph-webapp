@@ -107,7 +107,7 @@ export async function updateVaProfileAction(formData: FormData) {
     : selectedPrimaryCategory || current.primary_category || null;
   const resolvedCategories = [...new Set([
     ...selectedCategories,
-    ...inferredCategories.filter((category) => category !== resolvedPrimaryCategory)
+    ...(inferenceAllowed ? inferredCategories.filter((category) => category !== resolvedPrimaryCategory) : [])
   ])].slice(0, 3);
 
   const updates = {

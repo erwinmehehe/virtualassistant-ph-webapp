@@ -236,15 +236,17 @@ export async function setClientJobSelfPublishAction(formData: FormData) {
   const { user } = await requireRole("admin");
   const clientId = String(formData.get("client_id") || "").trim();
   const enabled = String(formData.get("enabled") || "") === "1";
-  const returnTo = String(formData.get("return_to") || "/workspace/admin/jobs").trim();
+  const requestedReturnTo = String(formData.get("return_to") || "/workspace/admin/jobs").trim();
+  const returnTo = requestedReturnTo.startsWith("/workspace/admin/")
+    ? requestedReturnTo
+    : "/workspace/admin/jobs";
 
   if (!clientId) throw new Error("Client account is required.");
 
   const admin = createAdminClient();
   const { error } = await admin
     .from("client_profiles")
-    .update({ can_self_publish_jobs: enabled })
-    .eq("user_id", clientId);
+    .upsert({ user_id: clientId, can_self_publish_jobs: enabled }, { onConflict: "user_id" });
 
   if (error) throw error;
 

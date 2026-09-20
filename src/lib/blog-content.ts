@@ -16149,6 +16149,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Doctors & Medical Practices hiring guide",
         "href": "/industries/medical-practices",
         "description": "See how medical support roles fit physicians, clinics, and practice operations."
+      },
+      {
+        "label": "Healthcare guides",
+        "href": "/blog/topic/healthcare",
+        "description": "Browse practical guides for medical and healthcare Virtual Assistant hiring, workflows, privacy, and operations."
       }
     ],
     "sources": [
@@ -16588,6 +16593,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Doctors & Medical Practices hiring guide",
         "href": "/industries/medical-practices",
         "description": "See how remote administration can fit the operating model of a clinic or medical practice."
+      },
+      {
+        "label": "Healthcare guides",
+        "href": "/blog/topic/healthcare",
+        "description": "Browse practical guides for medical and healthcare Virtual Assistant hiring, workflows, privacy, and operations."
       }
     ],
     "sources": [

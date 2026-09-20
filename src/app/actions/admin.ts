@@ -231,6 +231,35 @@ export async function sendSystemTestEmailAction() {
   redirect("/workspace/admin/system?email_test=sent");
 }
 
+
+export async function setClientJobSelfPublishAction(formData: FormData) {
+  const { user } = await requireRole("admin");
+  const clientId = String(formData.get("client_id") || "").trim();
+  const enabled = String(formData.get("enabled") || "") === "1";
+  const returnTo = String(formData.get("return_to") || "/workspace/admin/jobs").trim();
+
+  if (!clientId) throw new Error("Client account is required.");
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("client_profiles")
+    .update({ can_self_publish_jobs: enabled })
+    .eq("user_id", clientId);
+
+  if (error) throw error;
+
+  const { writeAdminAudit } = await import("@/lib/admin-audit");
+  await writeAdminAudit({
+    actorId: user.id,
+    action: enabled ? "client_job_self_publish_enabled" : "client_job_self_publish_disabled",
+    targetType: "client",
+    targetId: clientId,
+  });
+
+  revalidatePath("/workspace/admin/jobs");
+  revalidatePath(returnTo);
+}
+
 export async function setClientCompanyVerificationAction(formData: FormData) {
   const { user } = await requireRole("admin");
   const clientId = String(formData.get("client_id") || "");

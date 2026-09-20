@@ -17,6 +17,7 @@ import {
   industryWorkflowDescription
 } from "@/lib/industry-seo-content";
 import { servicePageBySlug } from "@/lib/service-pages";
+import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
@@ -48,6 +49,13 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   if (!industry) notFound();
   const page = industry!;
   const services = page.serviceSlugs.map(servicePageBySlug).filter(Boolean);
+  const guides = Array.from(
+    new Map(
+      page.serviceSlugs
+        .flatMap((serviceSlug) => serviceBlogPosts(serviceSlug, 2))
+        .map((post) => [post.slug, post] as const)
+    ).values()
+  ).slice(0, 6);
   const hub = page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined;
   const spokes = INDUSTRIES.filter((i) => i.clusterSlug === page.slug);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
@@ -124,8 +132,16 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band> : null}
 
       <Band tone={spokes.length ? "white" : "soft"}>
-        <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
-        <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire ${service!.name}`, sub: `Role focus: ${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
+        <div className="sp-related">
+          <div>
+            <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
+            <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire ${service!.name}`, sub: `Role focus: ${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
+          </div>
+          {guides.length ? <div>
+            <SectionHead kicker="Hiring guides" title="Go deeper on the roles behind this workflow." lede="These guides cover screening, cost, responsibilities, tools and hiring decisions for roles connected to this industry."/>
+            <LinkTiles items={guides.map((post) => ({ href: blogHref(post), label: post.title, sub: post.excerpt }))}/>
+          </div> : null}
+        </div>
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>

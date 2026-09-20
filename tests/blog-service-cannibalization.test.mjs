@@ -74,6 +74,7 @@ test("role screening guides stay informational and distinct from service money p
     const post = posts.find((item) => item.slug === slug);
     assert.ok(post, `${slug}: screening guide missing`);
     assert.equal(post.intent, "informational", `${slug}: should not compete as a commercial money page`);
+    assert.equal(post.updatedAt, "2026-09-20", `${slug}: should expose the September 20 intent-change date`);
     assert.match(post.metaTitle, /Screening & Interview Guide/);
     assert.doesNotMatch(post.metaTitle, /Hiring Guide/);
     assert.match(post.description, /screen/i);

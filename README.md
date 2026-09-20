@@ -1,6 +1,6 @@
 # VirtualAssistant.com.ph Web Application v4.10.2
 
-VirtualAssistant.com.ph is a Next.js and Supabase marketplace for matching businesses with vetted Philippines-based virtual assistants.
+[VirtualAssistant.com.ph](https://virtualassistant.com.ph/) is a Next.js and Supabase marketplace for matching businesses with vetted Philippines-based virtual assistants.
 
 ## v4.10.2 React key hotfix
 

@@ -5,6 +5,8 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
+import { publicationBlocker } from "@/lib/job-publication";
+import { prepareStandardPlacementTermsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -53,8 +55,14 @@ function slaLabel(stage: string, entered?: string | null) {
   return { late: left < 0, text: left < 0 ? `${Math.ceil(Math.abs(left))}h past target` : `${Math.ceil(left)}h remaining` };
 }
 
-export default async function RoleControlCenter({ params }: { params: Promise<{ id: string }> }) {
-  const [{ id }, { userId }] = await Promise.all([params, requireRoleFast("recruiter")]);
+export default async function RoleControlCenter({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const [{ id }, query, { userId }] = await Promise.all([params, searchParams, requireRoleFast("recruiter")]);
   const admin = createAdminClient();
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
@@ -122,9 +130,18 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
     (job.must_have_tools?.length || 0) +
     (job.required_industries?.length || 0) +
     (job.dealbreakers?.length || 0);
+  const publication = publicationBlocker(job, commercial);
 
   return (
     <>
+      {query.client_claim_sent ? (
+        <div className="success-banner" role="status">
+          Client account link sent. The role will attach automatically when the client signs up or logs in with the same email.
+        </div>
+      ) : null}
+      {query.client_already_linked ? (
+        <div className="success-banner" role="status">The client account is already linked to this role.</div>
+      ) : null}
       <div className="page-head">
         <div>
           <div className="kicker">Role Control Center</div>
@@ -173,6 +190,43 @@ export default async function RoleControlCenter({ params }: { params: Promise<{ 
           <strong style={{ display: "block", marginTop: 5 }}>{job.target_start_date || job.start_timing || "Not set"}</strong>
         </div>
       </div>
+
+      <section className="card" style={{ marginTop: 18 }}>
+        <div className="row-between wrap">
+          <div>
+            <h2 style={{ margin: 0 }}>Publication status</h2>
+            <div className="row wrap" style={{ marginTop: 8 }}>
+              <span className={`badge ${publication.key === "published" ? "badge-success" : publication.key === "waiting_client_approval" ? "badge-warning" : ""}`}>
+                {publication.label}
+              </span>
+            </div>
+            <p className="small muted" style={{ margin: "8px 0 0" }}>{publication.detail}</p>
+          </div>
+          <Clock3 size={20} />
+        </div>
+        <div className="row wrap" style={{ marginTop: 14 }}>
+          {publication.key === "needs_client_account" && lead?.email ? (
+            <form action={sendClientAccountClaimAction}>
+              <input type="hidden" name="job_id" value={job.id} />
+              <button className="btn btn-primary" type="submit">Send client account link</button>
+            </form>
+          ) : null}
+          {publication.key === "needs_terms" ? (
+            <form action={prepareStandardPlacementTermsAction}>
+              <input type="hidden" name="job_id" value={job.id} />
+              <button className="btn btn-primary" type="submit">Prepare standard terms</button>
+            </form>
+          ) : null}
+          {publication.key === "needs_role_details" || publication.key === "needs_role_review" ? (
+            <Link className="btn btn-primary" href={`/workspace/recruiter/matching/${job.id}`}>Complete role review</Link>
+          ) : null}
+          {publication.key === "waiting_client_approval" ? (
+            <Link className="btn" href={lead?.email ? `/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/leads"}>
+              Follow up with client
+            </Link>
+          ) : null}
+        </div>
+      </section>
 
       <section className="card" style={{ marginTop: 18 }}>
         <div className="row-between wrap">

@@ -3,8 +3,8 @@ import type { BlogPost } from "@/lib/blog-types";
 export const MARKETPLACE_SNAPSHOT = {
   asOf: "2026-09-20",
   approvedBenchProfiles: 101,
-  shortlistRows: 521,
-  shortlistJobs: 69,
+  shortlistRows: 444,
+  shortlistJobs: 58,
   shortlistCandidates: 69,
   medianYearsExperience: 3,
   experienceSample: 85,
@@ -17,11 +17,27 @@ export const MARKETPLACE_SNAPSHOT = {
     "Google Workspace": 34,
     Slack: 20,
     Zoom: 14,
+    "Microsoft Office": 9,
     ChatGPT: 8,
+    "Microsoft Teams": 8,
     Salesforce: 7,
-    Zendesk: 6,
+    ClickUp: 6,
+    "Google Drive": 6,
+    Notion: 6,
+    Outlook: 6,
     Shopify: 6,
-    "Microsoft Teams": 8
+    Zendesk: 6
+  },
+  candidateSkills: {
+    "Customer Support": 20,
+    "Calendar Management": 17,
+    "Data Entry": 17,
+    "Email Management": 14,
+    "Administrative Support": 10,
+    "Social Media Management": 10,
+    "Customer Service": 9,
+    "Attention To Detail": 6,
+    "Lead Generation": 6
   },
   jobCategoryCounts: {
     "Administrative Support": 35,
@@ -69,6 +85,14 @@ export function marketplaceEvidenceForPost(post: Pick<BlogPost, "serviceSlug" | 
     {
       value: `${MARKETPLACE_SNAPSHOT.medianWeeklyHours} hrs/week`,
       label: `median stated availability among ${MARKETPLACE_SNAPSHOT.weeklyHoursSample} profiles that supplied weekly hours`
+    },
+    {
+      value: `${MARKETPLACE_SNAPSHOT.candidateTools.Canva} profiles`,
+      label: `listed Canva among self-reported tools; Google Workspace appeared on ${MARKETPLACE_SNAPSHOT.candidateTools["Google Workspace"]} approved/bench profiles and Slack on ${MARKETPLACE_SNAPSHOT.candidateTools.Slack}`
+    },
+    {
+      value: `${MARKETPLACE_SNAPSHOT.candidateSkills["Customer Support"]} profiles`,
+      label: `listed Customer Support among normalized self-reported skills; Calendar Management and Data Entry each appeared on ${MARKETPLACE_SNAPSHOT.candidateSkills["Calendar Management"]} approved/bench profiles`
     }
   ];
 
@@ -88,6 +112,6 @@ export function marketplaceEvidenceForPost(post: Pick<BlogPost, "serviceSlug" | 
   return {
     asOf: MARKETPLACE_SNAPSHOT.asOf,
     items,
-    note: "Snapshot from VirtualAssistant.com.ph platform records. Candidate experience, availability, tools and some profile fields are self-reported and optional fields are not complete for every profile. These figures describe this platform snapshot, not a market-wide survey of Filipino virtual assistants."
+    note: "Snapshot from VirtualAssistant.com.ph platform records. Candidate experience, availability, tools and skills are self-reported and optional fields are not complete for every profile. Tool and skill labels are normalized only where stated. No structured candidate rejection-reason records are currently available, so this evidence does not claim observed rejection reasons. These figures describe this platform snapshot, not a market-wide survey of Filipino virtual assistants."
   };
 }

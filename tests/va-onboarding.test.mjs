@@ -97,7 +97,7 @@ test("quick setup preserves existing VA identity and profile state", () => {
 test("recruiter dashboard has canonical category labels including SMM", () => {
   assert.match(constants, /"Marketing & Social Media": "SMM \/ Social Media"/);
   assert.match(categories, /VA categories & onboarding health/);
-  assert.match(categories, /Verified but still 0%/);
+  assert.match(categories, /Verified recent 0%/);
   assert.doesNotMatch(nav, /\["VA categories", "\/workspace\/recruiter\/categories"/);
 });
 

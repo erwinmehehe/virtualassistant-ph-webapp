@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
+import { VA_CATEGORIES } from "@/lib/constants";
+import { getBusinessSettings } from "@/lib/business-settings";
 
 function numberValue(value: FormDataEntryValue | null) {
   const parsed = Number(String(value ?? ""));
@@ -16,7 +17,7 @@ function onboardingError(message: string) {
 }
 
 export async function completeVaQuickSetupAction(formData: FormData) {
-  const { user } = await requireRole("va");
+  const [{ user }, settings] = await Promise.all([requireRole("va"), getBusinessSettings()]);
   const category = String(formData.get("primary_category") || "").trim();
   const headline = String(formData.get("headline") || "").trim();
   const yearsExperience = numberValue(formData.get("years_experience"));
@@ -27,7 +28,7 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   if (headline.length < 8 || headline.length > 80) onboardingError("Write a short professional headline between 8 and 80 characters.");
   if (yearsExperience == null || !Number.isInteger(yearsExperience) || yearsExperience < 0 || yearsExperience > 60) onboardingError("Enter your years of professional experience.");
   if (weeklyHours == null || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80) onboardingError("Enter how many hours you can work each week.");
-  if (hourlyRate == null || hourlyRate < MIN_HOURLY_RATE || hourlyRate > 1000) onboardingError(`Preferred rate must be at least USD ${MIN_HOURLY_RATE} per hour.`);
+  if (hourlyRate == null || hourlyRate < settings.minHourlyRate || hourlyRate > 1000) onboardingError(`Preferred rate must be at least USD ${settings.minHourlyRate} per hour.`);
 
   const admin = createAdminClient();
   const { data: updatedProfile, error: profileError } = await admin.from("va_profiles").update({
@@ -51,5 +52,5 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   revalidatePath("/workspace/va/vetting");
   revalidatePath("/workspace/recruiter/categories");
   revalidatePath("/workspace/recruiter/talent");
-  redirect("/workspace/va/profile?saved=1#basics");
+  redirect("/workspace/va?setup=complete");
 }

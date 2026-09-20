@@ -16,7 +16,8 @@ import { getVaDashboardSummary } from "@/lib/va-dashboard";
 
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
-export default async function VaDashboardPage(){
+export default async function VaDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
+  const params=await searchParams;
   const {userId}=await requireRoleFast("va");
   const {data:summary,error:summaryError}=await getVaDashboardSummary(userId);
   const va=summary?.profile||{};
@@ -75,6 +76,7 @@ export default async function VaDashboardPage(){
 
   return <div className="dash-page role-overview va-overview">
     <DashboardDegradedNotice issues={issues}/>
+    {params.setup==="complete"?<div className="success-banner" role="status"><strong>Quick setup saved.</strong> Your profile is now {completion.score}% complete. Follow the next action below and finish the remaining items in smaller steps.</div>:null}
     <div className="dash-header"><div><div className="dash-kicker">Vetted VA workspace</div><h1>What should you do next?</h1><p>Stay recruiter-ready, respond quickly to real opportunities, and manage interviews, offers, and active placements from the right workspace.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary" href="/workspace/va/jobs">Browse roles</Link></div>
 
     <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>

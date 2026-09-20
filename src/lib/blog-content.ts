@@ -7840,8 +7840,8 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     "slug": "how-to-hire-a-law-firm-virtual-assistant",
-    "title": "Law Firm VA Screening & Interview Guide",
-    "metaTitle": "Law Firm VA Screening & Interview Guide",
+    "title": "Law Firm VA Candidate Screening & Interview Guide",
+    "metaTitle": "Law Firm VA Candidate Screening & Interview Guide",
     "description": "Screen law firm VAs for confidentiality, deadline discipline, client-intake judgment, case-management workflow evidence, and escalation before hiring.",
     "excerpt": "Build a clearer law firm role, screen for evidence, interview with real scenarios, and onboard without creating a second full-time job for yourself.",
     "topic": "hiring",

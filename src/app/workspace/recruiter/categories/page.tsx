@@ -6,8 +6,10 @@ import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { dateShort } from "@/lib/format";
 import { vettingStatusLabel } from "@/lib/vetting";
 import type { RecruiterVaDirectoryRow } from "@/lib/workspace-rows";
+import { autoCategorizeUncategorizedVasAction } from "@/app/actions/va-categories";
 
-export default async function RecruiterVaCategoriesPage() {
+export default async function RecruiterVaCategoriesPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
+  const params = await searchParams;
   await requireRole("recruiter");
   const admin = createAdminClient();
   const { data, error } = await admin.from("recruiter_va_directory")
@@ -34,9 +36,10 @@ export default async function RecruiterVaCategoriesPage() {
   const stalled = zeroProfiles.slice(0, 12);
 
   return <>
+    {params.categorized != null ? <div className="success-banner" role="status">Auto-categorized {Number(params.categorized) || 0} VA profile{Number(params.categorized) === 1 ? "" : "s"}.{Number(params.skipped) ? ` Skipped ${Number(params.skipped)} profiles that need manual review or had too little profile evidence.` : ""}</div> : null}
     <div className="page-head">
       <div><div className="kicker">Talent operations</div><h1>VA categories & onboarding health</h1><p>See whether new VA accounts are moving past signup, then open talent by specialty such as SMM, SEO, Executive VA, customer support, and more.</p></div>
-      <Link className="btn btn-primary" href="/workspace/recruiter/talent">All VA accounts</Link>
+      <div className="row wrap"><form action={autoCategorizeUncategorizedVasAction}><button className="btn" type="submit" disabled={!uncategorized.length}>Auto-categorize uncategorized</button></form><Link className="btn btn-primary" href="/workspace/recruiter/talent">All VA accounts</Link></div>
     </div>
 
     <section className="card dashboard-section-card">
@@ -45,7 +48,7 @@ export default async function RecruiterVaCategoriesPage() {
         <div className="stat-card"><span className="small muted">New VA accounts · 7 days</span><strong>{newAccounts.length}</strong><small className="muted">Account creation is reaching Supabase</small></div>
         <Link className="stat-card" href="/workspace/recruiter/talent?readiness=zero"><span className="small muted">0% profiles</span><strong>{zeroProfiles.length}</strong><small className="muted">Created an account, setup not started</small></Link>
         <div className="stat-card"><span className="small muted">Verified but still 0%</span><strong>{verifiedZero.length}</strong><small className="muted">Highest-priority onboarding drop-off</small></div>
-        <div className="stat-card"><span className="small muted">Uncategorized VAs</span><strong>{uncategorized.length}</strong><small className="muted">No primary specialty selected</small></div>
+        <div className="stat-card"><span className="small muted">Uncategorized VAs</span><strong>{uncategorized.length}</strong><small className="muted">Auto-repair fills only clear matches before approval. Approved/bench VAs stay manual.</small></div>
       </div>
     </section>
 

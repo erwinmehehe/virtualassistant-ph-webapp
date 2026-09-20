@@ -112,8 +112,32 @@ export async function createJobAction(formData: FormData) {
   } else {
     const slug = await uniqueJobSlug(admin, title);
     const { data, error } = await admin.from("jobs").insert({ ...payload, slug }).select("id").single();
-    if (error) throw error;
-    savedId = data.id;
+    if (error) {
+      // The database enforces one open role per client + normalized title.
+      // If two submits race, reuse the role that won instead of surfacing a
+      // generic database error or creating another copy.
+      if (error.code === "23505") {
+        const { data: openJobs } = await admin
+          .from("jobs")
+          .select("id,status,title")
+          .eq("client_id", user.id)
+          .in("status", ["draft", "pending", "published"])
+          .limit(100);
+        const normalizedTitle = title.trim().toLowerCase();
+        const existing = (openJobs || []).find((job) => String(job.title || "").trim().toLowerCase() === normalizedTitle);
+        if (existing) {
+          savedId = existing.id;
+          savedStatus = existing.status;
+          previousStatus = existing.status;
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    } else {
+      savedId = data.id;
+    }
   }
 
   // Notify only when a private brief is first submitted for team review.

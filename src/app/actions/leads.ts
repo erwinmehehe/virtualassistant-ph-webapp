@@ -24,7 +24,7 @@ export type ServiceMatchState = {
   vaApplicant?: boolean;
 };
 
-const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 5;
+const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30;
 
 /**
  * Stores a hiring-form submission that reads like a VA applying for work as a
@@ -60,7 +60,7 @@ async function routeVaApplicant(args: { name?: string | null; email: string; pho
 
 /**
  * Finds a lead already submitted by this same email, for the same
- * service/category, in the last few minutes -- catches double-clicks and
+ * service/category, in the last 30 minutes -- catches double-clicks and
  * accidental resubmits (a double-click before the button's disabled state
  * kicks in, or a page-refresh resubmit) without adding any friction to a
  * genuine first submission. Returns the existing lead + its job so the

@@ -7,7 +7,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 test("Vercel only auto-deploys main from Git",async()=>{
   const config=JSON.parse(await read("vercel.json"));
   assert.equal(config.git?.deploymentEnabled?.main,true);
-  assert.equal(config.git?.deploymentEnabled?.["*"],false);
+  assert.equal(config.git?.deploymentEnabled?.["**"],false);
 });
 
 test("optional CLI production deploy cannot report success without credentials",async()=>{

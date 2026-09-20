@@ -35,7 +35,7 @@ test("compact public header stays responsive and action-focused", () => {
 
 test("jobs directory uses its dedicated marketplace hero and SEO content", () => {
   const page = read("src/app/jobs/page.tsx");
-  const css = read("src/app/globals.css");
+  const css = read("src/app/jobs/jobs-marketplace.css");
 
   assert.match(page, /jobs-market-hero/);
   assert.match(page, /Post a VA job/);

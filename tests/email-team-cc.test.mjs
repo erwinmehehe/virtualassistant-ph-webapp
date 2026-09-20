@@ -16,7 +16,7 @@ test("internal team and archive copies are hidden with BCC", () => {
   assert.match(email, /const requestedBcc = normalizeEmailList/);
   assert.match(email, /archiveBcc/);
   assert.match(email, /teamBccRecipients/);
-  assert.match(email, /bcc: bcc\.length \? bcc : undefined/);
+  assert.match(email, /bcc: safeBcc\.length \? safeBcc : undefined/);
 
   // Regression: archive recipients must never be merged into the visible To line.
   assert.doesNotMatch(email, /normalizeEmailList\(\[payload\.to, archive/);

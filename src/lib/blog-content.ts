@@ -6924,7 +6924,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "credit-repair-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -7270,7 +7270,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "dental-billing-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -8342,7 +8342,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "medical-billing-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -8515,7 +8515,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "medical-scribe-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -8866,7 +8866,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "mental-health-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -10540,7 +10540,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "short-term-rental-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {
@@ -10894,7 +10894,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "serviceSlug": "web-developer-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-08-09",
-    "updatedAt": "2026-08-09",
+    "updatedAt": "2026-09-20",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "sections": [
       {

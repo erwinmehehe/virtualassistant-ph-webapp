@@ -61,22 +61,58 @@ export async function createJobAction(formData: FormData) {
   }
 
   const title = String(formData.get("title") ?? "Untitled job").trim() || "Untitled job";
+  const summary = String(formData.get("summary") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const responsibilities = lines(formData.get("responsibilities"));
+  const requiredSkills = csv(formData.get("required_skills"));
+  const requiredTools = csv(formData.get("required_tools"));
+  const categories = csv(formData.get("categories")).slice(0, 3);
+  const hoursPerWeek = n(formData.get("hours_per_week"));
+  const timezone = String(formData.get("timezone") ?? "").trim();
+  const startTiming = String(formData.get("start_timing") ?? "").trim();
+  const serviceModel = String(formData.get("service_model") ?? "curated_placement") === "managed_service"
+    ? "managed_service"
+    : "curated_placement";
 
+  const admin = createAdminClient();
+  const { data: clientProfile } = await admin
+    .from("client_profiles")
+    .select("can_self_publish_jobs")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const canSelfPublish = Boolean(clientProfile?.can_self_publish_jobs) && serviceModel === "curated_placement";
+  const selfPublishMissing: string[] = [];
+  if (canSelfPublish && submitMode !== "draft") {
+    if (title.length < 3) selfPublishMissing.push("role title");
+    if (summary.length < 20) selfPublishMissing.push("role summary");
+    if (!responsibilities.length) selfPublishMissing.push("responsibilities");
+    if (requiredSkills.length < 2) selfPublishMissing.push("at least 2 required skills");
+    if (!hoursPerWeek) selfPublishMissing.push("weekly hours");
+    if (!timezone) selfPublishMissing.push("timezone");
+    if (minRate == null) selfPublishMissing.push("VA budget");
+    if (!startTiming) selfPublishMissing.push("start timing");
+    if (selfPublishMissing.length) {
+      throw new Error(`Complete the public job before publishing: ${selfPublishMissing.join(", ")}.`);
+    }
+  }
+
+  const selfPublish = canSelfPublish && submitMode !== "draft";
   const payload = {
     client_id: user.id,
     requested_va_id: requestedVaId,
     title,
     company_name: String(formData.get("company_name") ?? "").trim() || null,
-    summary: String(formData.get("summary") ?? "").trim() || null,
-    description: String(formData.get("description") ?? "").trim() || null,
-    responsibilities: lines(formData.get("responsibilities")),
-    required_skills: csv(formData.get("required_skills")),
-    required_tools: csv(formData.get("required_tools")),
-    categories: csv(formData.get("categories")).slice(0, 3),
-    hours_per_week: n(formData.get("hours_per_week")),
+    summary: summary || null,
+    description: description || null,
+    responsibilities,
+    required_skills: requiredSkills,
+    required_tools: requiredTools,
+    categories,
+    hours_per_week: hoursPerWeek,
     min_hourly_rate: minRate,
     max_hourly_rate: maxRate,
-    timezone: String(formData.get("timezone") ?? "").trim() || null,
+    timezone: timezone || null,
     overlap_hours: overlap,
     live_coverage_exception: exception,
     schedule_notes: String(formData.get("schedule_notes") ?? "").trim() || null,
@@ -84,14 +120,15 @@ export async function createJobAction(formData: FormData) {
     direct_feedback: formData.get("direct_feedback") !== "off",
     engagement_length: String(formData.get("engagement_length") ?? "").trim() || null,
     experience_level: ["entry","intermediate","senior","expert"].includes(String(formData.get("experience_level") ?? "")) ? String(formData.get("experience_level")) : "intermediate",
-    start_timing: String(formData.get("start_timing") ?? "").trim() || null,
-    service_model: String(formData.get("service_model") ?? "curated_placement") === "managed_service" ? "managed_service" : "curated_placement",
-    status: submitMode === "draft" ? "draft" : "pending",
-    ...(submitMode === "draft" ? {} : { published_at: null })
+    start_timing: startTiming || null,
+    service_model: serviceModel,
+    status: submitMode === "draft" ? "draft" : selfPublish ? "published" : "pending",
+    ...(submitMode === "draft"
+      ? {}
+      : { published_at: selfPublish ? new Date().toISOString() : null })
   };
 
   const jobId = String(formData.get("job_id") ?? "").trim();
-  const admin = createAdminClient();
   let savedId = jobId;
   let previousStatus: string | null = null;
   let savedStatus = payload.status;
@@ -141,7 +178,8 @@ export async function createJobAction(formData: FormData) {
   }
 
   // Notify only when a private brief is first submitted for team review.
-  // Publishing happens later, after commercial terms are accepted.
+  // Admin-approved self-publishing clients skip this review notification for
+  // complete curated-placement roles because those roles are already public.
   await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: savedStatus, submit_mode: submitMode } });
 
   if (savedStatus === "pending" && previousStatus !== "pending") {
@@ -166,6 +204,8 @@ export async function createJobAction(formData: FormData) {
 
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
+  revalidatePath("/jobs");
+  if (savedStatus === "published") revalidatePath(`/jobs/${savedId}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
 }
 

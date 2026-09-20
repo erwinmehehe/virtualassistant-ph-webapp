@@ -54,3 +54,34 @@ test("client claim email points to the secure lead-bound account flow", async ()
   assert.match(actions, /sendClaimDraftEmail/);
   assert.match(actions, /client_account_claim_sent/);
 });
+
+
+test("selected clients can self-publish complete curated-placement jobs only", async () => {
+  const migration = await read("supabase/migrations/20260920090500_client_job_self_publish_permission.sql");
+  const jobs = await read("src/app/actions/jobs.ts");
+  const admin = await read("src/app/actions/admin.ts");
+  const adminJob = await read("src/app/workspace/admin/jobs/[id]/page.tsx");
+
+  assert.match(migration, /can_self_publish_jobs boolean not null default false/);
+  assert.match(jobs, /select\("can_self_publish_jobs"\)/);
+  assert.match(jobs, /serviceModel === "curated_placement"/);
+  assert.match(jobs, /status: submitMode === "draft" \? "draft" : selfPublish \? "published" : "pending"/);
+  assert.match(jobs, /published_at: selfPublish \? new Date\(\)\.toISOString\(\) : null/);
+  assert.match(jobs, /Complete the public job before publishing/);
+  assert.match(admin, /setClientJobSelfPublishAction/);
+  assert.match(adminJob, /Allow direct publishing/);
+  assert.match(adminJob, /Managed-service roles still require review/);
+});
+
+test("approved client publishing UI explains when a job will go live", async () => {
+  const newJob = await read("src/app/workspace/client/jobs/new/page.tsx");
+  const wizard = await read("src/components/job-wizard.tsx");
+  const clientJobs = await read("src/app/workspace/client/jobs/page.tsx");
+
+  assert.match(newJob, /can_self_publish_jobs/);
+  assert.match(newJob, /Post a Virtual Assistant job/);
+  assert.match(wizard, /canSelfPublishJobs/);
+  assert.match(wizard, /Publish job/);
+  assert.match(wizard, /public Virtual Assistant jobs directory immediately/);
+  assert.match(clientJobs, /Direct publishing is enabled for your account/);
+});

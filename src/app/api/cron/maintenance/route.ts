@@ -110,13 +110,18 @@ async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
     if (previous?.last_sent_at && previous.last_sent_at > repeatCutoff) continue;
     const { data } = await admin.auth.admin.getUserById(row.user_id);
     if (!data.user?.email) continue;
-    const result = await sendProfileCompletionReminderEmail({
-      to: data.user.email,
-      fullName: row.full_name,
-      score: Number(row.completion_score || 0),
-      missing: Array.isArray(row.missing_items) ? row.missing_items : [],
-      appUrl
-    });
+    let result;
+    try {
+      result = await sendProfileCompletionReminderEmail({
+        to: data.user.email,
+        fullName: row.full_name,
+        score: Number(row.completion_score || 0),
+        missing: Array.isArray(row.missing_items) ? row.missing_items : [],
+        appUrl
+      });
+    } catch {
+      continue;
+    }
     if (!result.sent) continue;
     await admin.from("va_profile_reminders").upsert({
       va_id: row.user_id,

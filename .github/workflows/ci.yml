@@ -38,6 +38,8 @@ jobs:
         run: npm run cluster:check
       - name: Legacy archive editorial audit
         run: npm run archive:check
+      - name: Content intent overlap report
+        run: npm run content:intent-audit
       - name: Type-check
         run: npm run typecheck
       - name: Security audit

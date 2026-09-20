@@ -81,6 +81,55 @@ function compactServiceDiagnostics(service) {
   };
 }
 
+function bodyShingles(post, size = 5) {
+  const words = (post.sections || [])
+    .flatMap((section) => [
+      section.heading,
+      ...(section.paragraphs || []),
+      ...(section.bullets || []),
+      ...(section.numbered || [])
+    ])
+    .join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const values = new Set();
+  for (let index = 0; index <= words.length - size; index += 1) {
+    values.add(words.slice(index, index + size).join(" "));
+  }
+  return values;
+}
+
+function bodySimilarity(left, right) {
+  const a = bodyShingles(left);
+  const b = bodyShingles(right);
+  if (Math.min(a.size, b.size) < 80) return 0;
+  const shared = [...a].filter((value) => b.has(value)).length;
+  return shared / new Set([...a, ...b]).size;
+}
+
+const bodySimilarityCandidates = [];
+for (let left = 0; left < blogs.length; left += 1) {
+  for (let right = left + 1; right < blogs.length; right += 1) {
+    const a = blogs[left];
+    const b = blogs[right];
+    if (!a.serviceSlug || a.serviceSlug !== b.serviceSlug) continue;
+    const score = bodySimilarity(a, b);
+    if (score >= 0.35) {
+      bodySimilarityCandidates.push({
+        service: a.serviceSlug,
+        score: Number(score.toFixed(3)),
+        left: `/blog/${a.slug}`,
+        right: `/blog/${b.slug}`,
+        reason: "same-service articles share too much five-word body structure"
+      });
+    }
+  }
+}
+
 const candidates = [];
 
 for (const post of blogs) {
@@ -188,10 +237,15 @@ console.log(JSON.stringify({
   },
   candidateCount: candidates.length,
   highSimilarityCount: high.length,
+  bodySimilarityCount: bodySimilarityCandidates.length,
+  bodySimilarityCandidates: bodySimilarityCandidates.slice(0, 40),
   candidates: candidates.slice(0, 120)
 }, null, 2));
 
+if (bodySimilarityCandidates.length) {
+  console.error("\nParaphrased body-template overlap remains. Rewrite or consolidate these same-service article pairs.");
+}
 if (candidates.length) {
   console.error("\nUnexplained high-intent overlaps remain. Review or explicitly differentiate these page pairs.");
-  process.exit(1);
 }
+if (bodySimilarityCandidates.length || candidates.length) process.exit(1);

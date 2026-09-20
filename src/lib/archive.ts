@@ -17,3 +17,10 @@ export function archivePublishedIso(post: { date: string }) {
   const parsed = new Date(post.date);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString().slice(0, 10);
 }
+
+
+export function archiveUpdatedIso(post: { updatedDate?: string }) {
+  if (!post.updatedDate) return undefined;
+  const parsed = new Date(post.updatedDate);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString().slice(0, 10);
+}

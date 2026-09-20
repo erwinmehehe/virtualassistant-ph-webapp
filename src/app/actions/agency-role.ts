@@ -48,3 +48,56 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
   revalidatePath("/workspace/admin/jobs");
   redirect(`/workspace/recruiter/matching/${job.id}?terms_prepared=1`);
 }
+
+export async function sendClientAccountClaimAction(formData: FormData) {
+  const { user } = await requireRole("recruiter");
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Role is required.");
+
+  const admin = createAdminClient();
+  const { data: job } = await admin
+    .from("jobs")
+    .select("id,title,client_id,lead_id,recruiter_id")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (!job) throw new Error("Role not found.");
+  if (job.recruiter_id && job.recruiter_id !== user.id) throw new Error("This role is assigned to another recruiter.");
+  if (job.client_id) redirect(`/workspace/recruiter/roles/${jobId}?client_already_linked=1`);
+  if (!job.lead_id) throw new Error("This role does not have a lead to claim.");
+
+  const { data: lead } = await admin
+    .from("lead_intake")
+    .select("id,name,email,client_id")
+    .eq("id", job.lead_id)
+    .maybeSingle();
+
+  if (!lead?.email) throw new Error("The lead does not have an email address.");
+  if (lead.client_id) redirect(`/workspace/recruiter/roles/${jobId}?client_already_linked=1`);
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const { sendClaimDraftEmail } = await import("@/lib/email");
+  const result = await sendClaimDraftEmail({
+    to: lead.email,
+    name: lead.name,
+    jobTitle: job.title || "Virtual Assistant role",
+    leadId: lead.id,
+    appUrl,
+  });
+
+  if (!result.sent) throw new Error("The client account email could not be sent.");
+
+  await admin.from("lead_intake").update({ nudged_at: new Date().toISOString() }).eq("id", lead.id);
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "client_account_claim_sent",
+    description: "Sent the client a secure account-claim link for this hiring request",
+    actorId: user.id,
+    metadata: { lead_id: lead.id },
+  });
+
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  redirect(`/workspace/recruiter/roles/${jobId}?client_claim_sent=1`);
+}
+

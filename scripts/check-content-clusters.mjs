@@ -33,15 +33,24 @@ const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: Bl
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const servicePage = source("src/app/service/[slug]/page.tsx");
+const industryPage = source("src/app/industries/[slug]/page.tsx");
 const blogArticle = source("src/components/blog-article.tsx");
 
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
+const industrySlugs = new Set(industries.map((item) => item.slug));
 const familyOwners = new Map();
 const clusterCounts = new Map();
+let explicitBlogIndustryEdges = 0;
+let industryServiceEdges = 0;
 
 for (const post of posts) {
+  for (const industrySlug of post.industrySlugs || []) {
+    explicitBlogIndustryEdges += 1;
+    if (!industrySlugs.has(industrySlug)) failures.push(`${post.slug}: unresolved industry ${industrySlug}`);
+  }
+
   if (!post.serviceSlug) continue;
   if (!serviceSlugs.has(post.serviceSlug)) {
     failures.push(`${post.slug}: serviceSlug ${post.serviceSlug} does not resolve to a current service page`);
@@ -68,6 +77,7 @@ for (const post of posts) {
 
 for (const industry of industries) {
   for (const serviceSlug of industry.serviceSlugs || []) {
+    industryServiceEdges += 1;
     if (!serviceSlugs.has(serviceSlug)) failures.push(`${industry.slug}: unresolved service ${serviceSlug}`);
   }
 }
@@ -91,6 +101,8 @@ const stats = {
   serviceClusters: clusterCounts.size,
   editorialFamilies: familyOwners.size,
   industryPages: industries.length,
+  industryServiceEdges,
+  explicitBlogIndustryEdges,
   failures: failures.length,
   warnings: warnings.length
 };

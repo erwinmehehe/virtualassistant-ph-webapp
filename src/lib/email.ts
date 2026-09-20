@@ -391,20 +391,22 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
-  const hiringCallUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "")}/book-client-call`;
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>. Our recruiting team has your request and can use it to screen relevant candidates.</p><p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">If you want to talk through the role, schedule, budget, or must-have experience, choose a discovery-call time below.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">You do not need to create a client account to continue the conversation. If you already have one, your Client Portal remains available for private candidate details and hiring workflow.</p>`;
+  const origin = args.appUrl.replace(/\/$/, "");
+  const claimUrl = `${origin}/auth/join/client?lead=${encodeURIComponent(args.leadId)}`;
+  const hiringCallUrl = `${origin}/book-client-call`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>. We have kept that hiring request private while our recruiting team reviews it.</p><p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Create or log in to your client account using the same email address to claim the role, review commercial terms, and continue toward publication and candidate review.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Prefer to talk first? <a href="${escapeHtml(hiringCallUrl)}" style="color:#4f46e5;">Choose a discovery-call time</a>.</p>`;
   await trackedSend(config, {
     from: config.from,
     to: [args.to],
     replyTo: configuredReplyTo(),
-    subject: `Following up on your Virtual Assistant request — ${args.jobTitle}`,
-    text: `Hi ${firstName},\n\nYou asked about hiring for ${args.jobTitle}. Our recruiting team has your request and can use it to screen relevant candidates.\n\nChoose a discovery-call time: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
+    subject: `Claim your Virtual Assistant hiring request — ${args.jobTitle}`,
+    text: `Hi ${firstName},\n\nYou asked about hiring for ${args.jobTitle}. Create or log in to your client account with this same email address to claim the role and continue the hiring workflow:\n\n${claimUrl}\n\nPrefer to talk first? ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
       firstName,
       bodyHtml,
       senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: hiringCallUrl,
-      ctaLabel: "Choose a call time"
+      ctaHref: claimUrl,
+      ctaLabel: "Claim my hiring request"
     })
   }, "lead_claim_nudge");
   return { sent: true as const };

@@ -95,10 +95,12 @@ for (const post of blogs) {
 
     const sameCluster = post.serviceSlug === service.slug;
     const family = blogFamily(post);
-    const distinctFamily = ["cost","interview","tasks","job-description","training","tools","role-definition"].includes(family);
+    const distinctFamily = ["cost","interview","tasks","job-description","training","tools","role-definition","hiring"].includes(family);
+    const targetHref = `/service/${service.slug}`;
+    const comparisonBridge = post.intent === "comparison" && (post.internalLinks || []).some((link) => link.href === targetHref);
 
     let reason = null;
-    if (!sameCluster) reason = "high lexical overlap outside declared service cluster";
+    if (!sameCluster && !comparisonBridge) reason = "high lexical overlap outside declared service cluster";
     else if (family === "hiring" && post.intent === "commercial") reason = "commercial hiring guide overlaps its service money page";
     else if (!distinctFamily && sim.score >= 0.88) reason = "same-cluster article has no strong editorial-family separator";
 
@@ -189,5 +191,7 @@ console.log(JSON.stringify({
   candidates: candidates.slice(0, 120)
 }, null, 2));
 
-// This first pass is intentionally report-only. Human review decides which
-// overlaps are legitimate hub/spoke relationships before any pair is gated.
+if (candidates.length) {
+  console.error("\nUnexplained high-intent overlaps remain. Review or explicitly differentiate these page pairs.");
+  process.exit(1);
+}

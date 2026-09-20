@@ -27,3 +27,12 @@ test("recruiter bulk category repair only fills uncategorized pre-approval VAs",
   assert.match(page,/Auto-categorize uncategorized/);
   assert.match(page,/autoCategorizeUncategorizedVasAction/);
 });
+
+test("category inference favors specific evidence instead of generic support/content words",async()=>{
+  const inference=await read("src/lib/category-inference.ts");
+  assert.doesNotMatch(inference,/\["Customer Service", \[[^\]]*"support"[,\]]/);
+  assert.doesNotMatch(inference,/\["Marketing & Social Media", \[[^\]]*"content"[,\]]/);
+  assert.doesNotMatch(inference,/\["Web & WordPress", \[[^\]]*"website"[,\]]/);
+  assert.match(inference,/score: terms\.reduce/);
+  assert.match(inference,/sort\(\(a, b\) => b\.score - a\.score/);
+});

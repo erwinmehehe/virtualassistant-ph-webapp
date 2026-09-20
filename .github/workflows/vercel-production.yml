@@ -1,9 +1,6 @@
 name: Vercel Production Deploy
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -12,9 +9,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -24,41 +18,30 @@ jobs:
 
     steps:
       - name: Check deployment credential
-        id: auth
         shell: bash
         run: |
-          if [ -n "$VERCEL_TOKEN" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::VERCEL_TOKEN is not configured. Git integration remains the active production deployment path."
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::VERCEL_TOKEN is not configured. Add it as a GitHub Actions secret before using this workflow."
+            exit 1
           fi
 
       - name: Checkout validated commit
-        if: steps.auth.outputs.available == 'true'
         uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set up Node.js
-        if: steps.auth.outputs.available == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
-        if: steps.auth.outputs.available == 'true'
         run: npm ci
 
       - name: Pull production environment
-        if: steps.auth.outputs.available == 'true'
         run: npx --yes vercel@59.20.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build production artifact
-        if: steps.auth.outputs.available == 'true'
         run: npx --yes vercel@59.20.0 build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy prebuilt artifact
-        if: steps.auth.outputs.available == 'true'
         run: npx --yes vercel@59.20.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"

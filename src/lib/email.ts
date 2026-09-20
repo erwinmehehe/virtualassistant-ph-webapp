@@ -196,12 +196,12 @@ async function trackedSend(
   try {
     if (!safeTo.length) {
       await logEmailEvent(eventType, payload.to, "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.");
-      return { data: null, suppressed: true };
+      return { sent: false as const, data: null, suppressed: true, reason: suppressed.size ? "recipient_suppressed" : "no_valid_recipient" };
     }
     const result: any = await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
     await logEmailEvent(eventType, payload.to, "sent", result?.data?.id || null, null);
-    return result;
+    return { ...result, sent: true as const };
   } catch (error) {
     await logEmailEvent(eventType, payload.to, "failed", null, error instanceof Error ? error.message : String(error));
     throw error;
@@ -216,14 +216,14 @@ export async function sendApplicationEmail(args: {
 }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
     bcc: applicationBccRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
     subject: `New application: ${args.jobTitle}`,
     html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
   }, "new_application");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendLeadNotificationEmail(args: {
@@ -264,14 +264,14 @@ export async function sendLeadNotificationEmail(args: {
     ["Pending job ID", args.jobId]
   ].filter(([, value]) => value);
 
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: recipients,
     replyTo: args.email,
     subject: `New lead: ${subjectLabel}`,
     html: `<h2>New VirtualAssistant.com.ph lead</h2>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}${args.message ? `<hr><p><strong>Request</strong></p><p>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>` : ""}`
   }, "new_lead");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendLeadAcknowledgementEmail(args: {
@@ -296,7 +296,7 @@ export async function sendLeadAcknowledgementEmail(args: {
     `Prefer to talk it through first? <a href="${hiringCallUrl}">Book a 20-minute call</a> and we can cover the role, schedule, budget, and must-have experience together.`
   ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
 
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     replyTo: configuredReplyTo(),
@@ -310,7 +310,7 @@ export async function sendLeadAcknowledgementEmail(args: {
       ctaLabel: "Create my account"
     })
   }, "lead_acknowledgement");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 /**
@@ -333,7 +333,7 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
     `To be considered for client roles, create your free Virtual Assistant profile and complete the screening steps. You can also <a href="${escapeHtml(jobsUrl)}" style="color:#4f46e5;">browse open roles</a>. There is no fee to join or apply.`
   ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
 
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: "Applying to work as a Virtual Assistant",
@@ -346,7 +346,7 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
       ctaLabel: "Create my VA profile"
     })
   }, "va_applicant_redirect", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 /**
@@ -360,13 +360,13 @@ export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobT
   const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
     .filter((email) => !isBlockedEmailRecipient(email));
   if (!config || !recipients.length) return { sent: false as const, reason: !recipients.length ? "no_recipient_configured" : "email_not_configured" };
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: recipients,
     subject: `Job ready for review: ${args.jobTitle}`,
     html: `<h2>A client submitted a job for review</h2><p><strong>Title:</strong> ${escapeHtml(args.jobTitle)}</p>${args.clientName ? `<p><strong>Client:</strong> ${escapeHtml(args.clientName)}</p>` : ""}<p><a href="${args.appUrl}/workspace/admin/jobs/${args.jobId}">Open the job review page</a></p>`
   }, "job_submitted");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 /**
@@ -381,7 +381,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
   const profileUrl = `${args.appUrl}/workspace/va/profile`;
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You started creating a Virtual Assistant profile but haven’t finished the first step yet. A complete profile unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">It only takes a few minutes. If you have questions about the process, reply to this email.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: "Finish your VirtualAssistant.com.ph profile",
@@ -393,7 +393,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
       ctaLabel: "Finish my profile"
     })
   }, "profile_stage_nudge", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 /**
@@ -412,7 +412,7 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   const claimUrl = `${origin}/auth/join/client?lead=${encodeURIComponent(args.leadId)}`;
   const hiringCallUrl = `${origin}/book-client-call`;
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>. We have kept that hiring request private while our recruiting team reviews it.</p><p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Create or log in to your client account using the same email address to claim the role, review commercial terms, and continue toward publication and candidate review.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Prefer to talk first? <a href="${escapeHtml(hiringCallUrl)}" style="color:#4f46e5;">Choose a discovery-call time</a>.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
     replyTo: configuredReplyTo(),
@@ -426,7 +426,7 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
       ctaLabel: "Claim my hiring request"
     })
   }, "lead_claim_nudge");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 function renderAuthActionEmail(args: {
@@ -442,7 +442,7 @@ export async function sendAccountConfirmationEmail(args: { to: string; actionUrl
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: "Confirm your VirtualAssistant.com.ph account",
@@ -454,14 +454,14 @@ export async function sendAccountConfirmationEmail(args: { to: string; actionUrl
       ctaLabel: "Confirm my email"
     })
   }, "account_confirmation", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendPasswordRecoveryEmail(args: { to: string; actionUrl: string }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: "Reset your VirtualAssistant.com.ph password",
@@ -473,18 +473,19 @@ export async function sendPasswordRecoveryEmail(args: { to: string; actionUrl: s
       ctaLabel: "Reset my password"
     })
   }, "password_recovery", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendSystemTestEmail(to: string) {
   const config = resendConfig();
   if (!config) throw new Error("App email is not configured. Set RESEND_API_KEY and a verified EMAIL_FROM sender first.");
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [to],
     subject: "VirtualAssistant.com.ph email test",
     html: "<p>Your application email configuration is working.</p>"
   }, "system_test", { archive: false, teamCc: false });
+  return delivery;
 }
 
 function escapeHtml(value: string) {
@@ -579,7 +580,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
   const label = args.status.replaceAll("_", " ");
   const applicationsUrl = `${args.appUrl}/workspace/va/applications`;
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your application for <strong>${escapeHtml(args.jobTitle)}</strong> is now <strong>${escapeHtml(label)}</strong>.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: `Application update: ${args.jobTitle}`,
@@ -591,7 +592,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
       ctaLabel: "View my applications"
     })
   }, "application_status", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendStaffClientFollowupEmail(args: {
@@ -607,7 +608,7 @@ export async function sendStaffClientFollowupEmail(args: {
   const sender = args.senderName?.trim() || "VirtualAssistant.com.ph Hiring Team";
   const normalized = normalizeClientFollowup(args.subject, args.message, { preserveSignoff: true });
   const bodyHtml = renderMessageParagraphs(normalized.message);
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
@@ -621,7 +622,7 @@ export async function sendStaffClientFollowupEmail(args: {
       appendSignature: false
     })
   }, "client_followup");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; teamCc?: boolean }) {
@@ -630,7 +631,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
   const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
   const bodyHtml = `<p style="margin:0;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     replyTo: isPasswordChangeNotice ? undefined : configuredReplyTo(),
@@ -646,7 +647,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
       ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
     })
   }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false && !isPasswordChangeNotice });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendProfileCompletionReminderEmail(args: { to: string; fullName?: string | null; score: number; missing: string[]; appUrl: string }) {
@@ -662,7 +663,7 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
     : `${args.appUrl}/workspace/va/profile`;
   const ctaLabel = args.score === 0 ? "Complete my quick setup" : "Complete my profile";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your VirtualAssistant.com.ph profile is currently <strong>${Math.max(0, Math.min(100, args.score))}% complete</strong>. Recruiters use your completed profile to decide whether to review and match you to client roles.</p>${missing.length ? `<p style="margin:0 0 10px;color:#344054;font-size:16px;line-height:1.7;">Please finish these items:</p>${list}` : ""}<p style="margin:18px 0 0;color:#475467;font-size:15px;line-height:1.7;">There is no fee for Virtual Assistants to complete a profile, apply, or be considered for placement.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: `Complete your Virtual Assistant profile (${Math.max(0, Math.min(100, args.score))}% ready)`,
@@ -674,7 +675,7 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
       ctaLabel
     })
   }, "profile_completion_reminder", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendDiscoveryBookingEmail(args: {
@@ -691,7 +692,7 @@ export async function sendDiscoveryBookingEmail(args: {
   const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
   const senderName = args.recruiterName || "VirtualAssistant.com.ph Hiring Team";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your discovery call is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     replyTo: configuredReplyTo(),
@@ -705,7 +706,7 @@ export async function sendDiscoveryBookingEmail(args: {
       ctaLabel: args.meetingUrl ? "Join Google Meet" : undefined
     })
   }, "discovery_booking");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendPublicDiscoveryBookingEmail(args: {
@@ -809,7 +810,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     <p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We already have your hiring brief, so there is nothing else you need to submit before the call. If anything changes, use the reschedule link above or reply to this email.</p>
   `;
 
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
@@ -822,7 +823,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
       senderName: "VirtualAssistant.com.ph Hiring Team"
     }),
   }, "public_discovery_booking");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendInternalDiscoveryBookingNotificationEmail(args: {
@@ -838,7 +839,7 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
   if (!config) return { sent: false as const, reason: "email_not_configured" };
 
   const meetingLine = args.meetingUrl ? `Google Meet: ${args.meetingUrl}` : "Google Meet: pending";
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [JERVIS_BOOKING_EMAIL],
     replyTo: args.clientEmail,
@@ -862,7 +863,7 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
       <p><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}</p>
       <p><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>`
   }, "discovery_booking_internal_jervis", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendDiscoveryMeetingSetupFailureEmail(args: {
@@ -876,14 +877,14 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const primary = "erwinvalles20@gmail.com";
   const hidden = ["jrvsaccad@gmail.com"];
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [primary],
     bcc: hidden,
     subject: `Action required: discovery call has no Google Meet link — ${args.company || args.clientName || args.clientEmail}`,
     html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
   }, "discovery_google_meet_setup_failed", { archive: false, teamCc: false });
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendDiscoveryReminderEmail(args: { to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
@@ -893,7 +894,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
   const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
   const timing = args.window === "24h" ? "tomorrow" : "in about one hour";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;"><a href="${escapeHtml(args.manageUrl)}" style="color:#4f46e5;">Reschedule or cancel</a> if your availability changed.</p>`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
@@ -908,7 +909,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
       ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking"
     }),
   }, `discovery_reminder_${args.window}`);
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendLeadProposalEmail(args: {
@@ -927,7 +928,7 @@ export async function sendLeadProposalEmail(args: {
   const expiryText = args.expiresLabel ? ` This proposal is valid until ${args.expiresLabel}.` : "";
   const expiry = args.expiresLabel ? `<p style="margin:18px 0 0;color:#667085;font-size:14px;line-height:1.6;">This proposal is valid until ${escapeHtml(args.expiresLabel)}.</p>` : "";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Based on our conversation, your proposal for <strong>${escapeHtml(args.roleTitle)}</strong> is ready.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Review the role, expected Virtual Assistant compensation, service fee, and next steps on one page.</p>${expiry}`;
-  await trackedSend(config, {
+  const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     replyTo: configuredReplyTo(),
@@ -941,5 +942,5 @@ export async function sendLeadProposalEmail(args: {
       ctaLabel: "Review proposal"
     })
   }, "client_proposal");
-  return { sent: true as const };
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }

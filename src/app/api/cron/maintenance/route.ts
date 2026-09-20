@@ -114,26 +114,38 @@ async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>
 
   let deleted = 0;
   let storageObjectsDeleted = 0;
+  let storageCleanupFailures = 0;
   for (const userId of ids) {
     if (protectedIds.has(userId)) continue;
 
-    // VA uploads are stored under <userId>/... in these buckets. Remove the
-    // actual Storage objects before Auth deletion so abandoned CVs/photos do
-    // not survive as orphaned files after the database rows cascade away.
+    // Never delete Auth if Storage cleanup is uncertain. Otherwise a transient
+    // Storage failure can orphan a VA's CV/photo after the database cascades.
+    let storageCleanupFailed = false;
     for (const bucket of ["avatars", "resumes"]) {
-      const { data: objects } = await admin.storage.from(bucket).list(userId, { limit: 1000 });
+      const { data: objects, error: listError } = await admin.storage.from(bucket).list(userId, { limit: 1000 });
+      if (listError) {
+        storageCleanupFailed = true;
+        break;
+      }
       const paths = (objects || []).filter((object) => object.name).map((object) => `${userId}/${object.name}`);
       if (paths.length) {
         const { error: storageError } = await admin.storage.from(bucket).remove(paths);
-        if (storageError) continue;
+        if (storageError) {
+          storageCleanupFailed = true;
+          break;
+        }
         storageObjectsDeleted += paths.length;
       }
+    }
+    if (storageCleanupFailed) {
+      storageCleanupFailures++;
+      continue;
     }
 
     const { error } = await admin.auth.admin.deleteUser(userId);
     if (!error) deleted++;
   }
-  return { checked: ids.length, deleted, protected: protectedIds.size, storageObjectsDeleted };
+  return { checked: ids.length, deleted, protected: protectedIds.size, storageObjectsDeleted, storageCleanupFailures };
 }
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
@@ -331,6 +343,16 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   return { leadReminders, proposalReminders };
 }
 
+async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Promise<T | { error: string }> {
+  try {
+    return await task();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[maintenance] ${name} failed`, error);
+    return { error: message };
+  }
+}
+
 export async function GET(request: Request) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const authHeader = request.headers.get("authorization");
@@ -338,16 +360,16 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const quoteResult = await autoQuoteStraightforwardJobs();
-  const [staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
-    runAbandonedVaCleanup(admin),
-    runLeadClaimNudges(admin),
-    runPendingJobMatching(admin),
-    runWorkflowReminders(admin),
-    runTalentHealthNudges(admin),
-    runSalesCrmReminders(admin),
-    runDiscoveryBookingReminders(admin),
-    runIndexNowSubmission(admin)
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
+    runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
+    runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
+    runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
+    runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
+    runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
+    runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
+    runMaintenanceTask("discovery reminders", () => runDiscoveryBookingReminders(admin)),
+    runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
 
   return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });

@@ -76,6 +76,12 @@ for (const slug of activeSlugs) {
   if (decision && (decision.action === "merge" || decision.action === "redirect")) {
     failures.push(`${slug}: ${decision.action} decision must not remain in ARCHIVE_POSTS`);
   }
+  if (decision && decision.status !== "completed") {
+    failures.push(`${slug}: retained editorial decision is not marked completed`);
+  }
+  if (decision && decision.completedAt !== "2026-09-20") {
+    failures.push(`${slug}: retained editorial completion date is missing or stale`);
+  }
 }
 for (const [slug, decision] of decisions) {
   if (!["merge", "redirect"].includes(decision.action) && !activeSlugs.has(slug)) {

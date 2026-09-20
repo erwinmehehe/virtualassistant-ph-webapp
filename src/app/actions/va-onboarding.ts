@@ -51,5 +51,5 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   revalidatePath("/workspace/va/vetting");
   revalidatePath("/workspace/recruiter/categories");
   revalidatePath("/workspace/recruiter/talent");
-  redirect("/workspace/va/profile?saved=1#basics");
+  redirect("/workspace/va?setup=complete");
 }

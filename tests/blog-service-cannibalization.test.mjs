@@ -90,3 +90,29 @@ test("medical VA comparison explicitly bridges both compared service pages", () 
   assert.ok(hrefs.has("/service/medical-billing-virtual-assistant"));
   assert.equal(post.intent, "comparison");
 });
+
+
+test("duplicate law-firm tools guide stays consolidated", () => {
+  const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
+  const slugs = new Set(posts.map((post) => post.slug));
+  const oldHref = "/blog/best-legal-practice-management-tools-for-vas";
+  const canonicalHref = "/blog/best-tools-for-law-firm-virtual-assistant";
+
+  assert.equal(slugs.has("best-legal-practice-management-tools-for-vas"), false);
+  assert.equal(slugs.has("best-tools-for-law-firm-virtual-assistant"), true);
+
+  for (const post of posts) {
+    assert.equal(
+      (post.internalLinks || []).some((link) => link.href === oldHref),
+      false,
+      `${post.slug}: stale link to consolidated law-firm tool guide`
+    );
+  }
+
+  const nextConfig = source("next.config.ts");
+  assert.match(nextConfig, /best-legal-practice-management-tools-for-vas/);
+  assert.match(nextConfig, /best-tools-for-law-firm-virtual-assistant/);
+
+  const lawPosts = posts.filter((post) => post.serviceSlug === "law-firm-virtual-assistant");
+  assert.equal(lawPosts.length, 10);
+});

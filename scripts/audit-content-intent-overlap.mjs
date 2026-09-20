@@ -151,7 +151,7 @@ for (const post of blogs) {
     let reason = null;
     if (!sameCluster && !comparisonBridge) reason = "high lexical overlap outside declared service cluster";
     else if (family === "hiring" && post.intent === "commercial") reason = "commercial hiring guide overlaps its service money page";
-    else if (!distinctFamily && sim.score >= 0.88) reason = "same-cluster article has no strong editorial-family separator";
+    else if (sameCluster && !distinctFamily && sim.score >= 0.88) reason = "same-cluster article has no strong editorial-family separator";
 
     if (reason) {
       candidates.push({

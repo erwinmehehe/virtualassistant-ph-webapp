@@ -11,7 +11,7 @@ import { BLOG_POSTS, blogHref } from "@/lib/blog";
 // to a client or make a hiring/rejection decision.
 const NUDGE_GRACE_DAYS = 2;
 const NUDGE_REPEAT_DAYS = 7;
-const MAX_PROFILE_REMINDERS = 3;
+const MAX_PROFILE_REMINDERS = 3;\nconst MAX_PROFILE_REMINDERS_PER_RUN = 20;\nconst MAX_NONCRITICAL_EMAILS_PER_DAY = 50;
 const STALE_HIDE_DAYS = 90;
 const STALE_HIDE_GRACE_AFTER_REMINDER_DAYS = 14;
 const WORKFLOW_REMINDER_REPEAT_DAYS = 5;
@@ -109,7 +109,7 @@ async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
     if (Number(previous?.reminder_count || 0) >= MAX_PROFILE_REMINDERS) continue;
     if (previous?.last_sent_at && previous.last_sent_at > repeatCutoff) continue;
     const { data } = await admin.auth.admin.getUserById(row.user_id);
-    if (!data.user?.email) continue;
+    if (!data.user?.email) continue;\n    if (!data.user.email_confirmed_at) { skippedUnverified++; continue; }
     let result;
     try {
       result = await sendProfileCompletionReminderEmail({
@@ -133,7 +133,7 @@ async function runProfileNudges(admin: ReturnType<typeof createAdminClient>) {
     }, { onConflict: "va_id" });
     sent += 1;
   }
-  return { checked: candidates?.length || 0, sent };
+  return { checked: candidates?.length || 0, sent, skippedUnverified, skippedCapacity };
 }
 
 async function runStaleVaCleanup(admin: ReturnType<typeof createAdminClient>) {

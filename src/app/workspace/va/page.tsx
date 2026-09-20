@@ -17,7 +17,8 @@ import { getVaDashboardSummary } from "@/lib/va-dashboard";
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
 export default async function VaDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const params=await searchParams;\n  const {userId}=await requireRoleFast("va");
+  const params=await searchParams;
+  const {userId}=await requireRoleFast("va");
   const {data:summary,error:summaryError}=await getVaDashboardSummary(userId);
   const va=summary?.profile||{};
   const avatarUrl=summary?.avatar_url||null;

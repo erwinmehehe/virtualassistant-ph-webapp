@@ -44,8 +44,8 @@ const initial: JobDraft = {
   engagement_length: "Long-term preferred", start_timing: "", experience_level: "intermediate"
 };
 
-export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0 }: {
-  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number;
+export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0, canSelfPublishJobs = false }: {
+  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number; canSelfPublishJobs?: boolean;
 }) {
   const [step, setStep] = useState(Math.max(0, Math.min(steps.length - 1, initialStep)));
   const [data, setData] = useState<JobDraft>({ ...initial, ...initialData });
@@ -228,12 +228,12 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <div><span>Hiring support</span><strong>{data.service_model === "managed_service" ? "Managed VA service" : "Curated placement"}</strong></div>
         </div>
         <div className="card review-section"><div className="row-between"><h3>Skills & tools</h3><button className="text-button" type="button" onClick={() => setStep(0)}>Edit</button></div><div className="pill-list">{mergeUniqueStrings(data.required_skills.split(","), data.required_tools.split(",")).map((x, index) => <span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
-        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div><ul className="check-list compact"><li>Your recruiting team reviews and improves the brief before it goes live.</li><li>We confirm one clear service fee separately from VA compensation.</li><li>You approve the commercial terms before publication.</li><li>Once approved, candidate access is included and we start shortlisting vetted VAs.</li></ul></div>
+        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>Your contact details stay private unless you choose to make your company profile public.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your recruiting team reviews and improves the brief before it goes live.</li><li>We confirm one clear service fee separately from VA compensation.</li><li>You approve the commercial terms before publication.</li><li>Once approved, candidate access is included and we start shortlisting vetted VAs.</li></ul>}</div>
       </div> : null}
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{jobId?"Save role changes":"Send hiring brief"}</button>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{jobId ? "Save role changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Send hiring brief"}</button>}</div>
       </div>
     </div>
   </form>;

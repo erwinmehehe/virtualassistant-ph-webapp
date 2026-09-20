@@ -23,13 +23,19 @@ test("blog content no longer depends on a runtime $5 pricing sanitizer", () => {
   assert.doesNotMatch(blog, /CURRENT_PRICING_FAQ/);
 });
 
-test("legacy archive has no unresolved numeric citation placeholders or false 2026 HIPAA mandates", () => {
+test("archive stays clean and canonical HIPAA guidance keeps authoritative sources", () => {
   const archive = source("src/lib/archive-posts.ts");
   assert.doesNotMatch(archive, /\[[0-9]+(?:\.[0-9]+)+\]/);
   assert.doesNotMatch(archive, /2026 HIPAA updates/i);
   assert.doesNotMatch(archive, /100% HIPAA compliant/i);
   assert.doesNotMatch(archive, /revoke[^<]{0,80}within one hour/i);
-  assert.match(archive, /HHS: HIPAA Security Rule/);
+
+  const hipaa = parseBlogPosts().find((post) => post.slug === "hipaa-and-remote-virtual-assistants");
+  assert.ok(hipaa, "canonical HIPAA guide missing");
+  assert.ok(
+    (hipaa.sources || []).some((item) => item.label === "HHS: HIPAA Security Rule" && item.href.startsWith("https://www.hhs.gov/")),
+    "canonical HIPAA guide must keep the HHS Security Rule source"
+  );
 });
 
 

@@ -40,6 +40,7 @@ export type BlogPost = {
   reviewNote?: string;
   sources?: { label: string; href: string }[];
   keyTakeaways: string[];
+  fieldNotes?: string[];
   sections: BlogSection[];
   faqs: BlogFaq[];
   internalLinks: BlogInternalLink[];

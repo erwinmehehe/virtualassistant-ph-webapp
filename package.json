@@ -16,7 +16,8 @@
     "secret:lead": "node scripts/generate-lead-secret.mjs",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "configure:auth-smtp": "node scripts/configure-supabase-smtp.mjs",
-    "service:check": "node scripts/check-service-seo.mjs"
+    "service:check": "node scripts/check-service-seo.mjs",
+    "cluster:check": "node scripts/check-content-clusters.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

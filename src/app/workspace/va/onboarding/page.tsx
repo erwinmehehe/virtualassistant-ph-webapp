@@ -4,11 +4,12 @@ import { completeVaQuickSetupAction } from "@/app/actions/va-onboarding";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getVaCompletion } from "@/lib/profile-completeness";
-import { MIN_HOURLY_RATE, VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
+import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
+import { getBusinessSettings } from "@/lib/business-settings";
 
 export default async function VaOnboardingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
-  const { user, profile } = await requireRole("va");
+  const [{ user, profile }, settings] = await Promise.all([requireRole("va"), getBusinessSettings()]);
   const supabase = await createClient();
   const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).maybeSingle();
   const completion = getVaCompletion(va, profile.avatar_url);
@@ -58,7 +59,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
           <div className="form-grid">
             <div className="field"><label htmlFor="quick-years">Years of experience</label><input id="quick-years" type="number" min="0" max="60" name="years_experience" required defaultValue={va?.years_experience ?? ""}/></div>
             <div className="field"><label htmlFor="quick-hours">Hours available/week</label><input id="quick-hours" type="number" min="1" max="80" name="weekly_hours" required defaultValue={va?.weekly_hours ?? ""}/></div>
-            <div className="field"><label htmlFor="quick-rate">Preferred hourly rate, USD</label><input id="quick-rate" type="number" min={MIN_HOURLY_RATE} max="1000" step="0.01" name="hourly_rate" required defaultValue={va?.hourly_rate ?? ""}/></div>
+            <div className="field"><label htmlFor="quick-rate">Preferred hourly rate, USD</label><input id="quick-rate" type="number" min={settings.minHourlyRate} max="1000" step="0.01" name="hourly_rate" required defaultValue={va?.hourly_rate ?? ""}/></div>
           </div>
           <button className="btn btn-primary btn-lg" type="submit">Save quick setup <ArrowRight size={16}/></button>
           <span className="small muted">You can add your photo, summary, skills, tools, resume, and work-readiness details one step at a time afterward.</span>

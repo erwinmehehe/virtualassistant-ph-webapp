@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath } from "@/lib/seo-url";
+import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Jobs Philippines",

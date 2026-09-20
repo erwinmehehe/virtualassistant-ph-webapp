@@ -362,7 +362,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.fullName?.trim().split(" ")[0] || "there";
-  const profileUrl = `${args.appUrl}/workspace/va/profile`;
+  const profileUrl = args.score === 0\n    ? `${args.appUrl}/workspace/va/onboarding`\n    : `${args.appUrl}/workspace/va/profile`;\n  const ctaLabel = args.score === 0 ? "Complete my quick setup" : "Complete my profile";
   const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You started creating a Virtual Assistant profile but haven’t finished the first step yet. A complete profile unlocks your category skills test, the next stage toward getting approved and matched with clients.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">It only takes a few minutes. If you have questions about the process, reply to this email.</p>`;
   await trackedSend(config, {
     from: config.from,
@@ -651,7 +651,7 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
       firstName,
       bodyHtml,
       ctaHref: profileUrl,
-      ctaLabel: "Complete my profile"
+      ctaLabel
     })
   }, "profile_completion_reminder", { archive: false, teamCc: false });
   return { sent: true as const };

@@ -145,6 +145,25 @@ async function createPendingJobForLead(args: {
   requestedVaId?: string | null;
   clientId?: string | null;
 }) {
+  // Lead-to-job creation is idempotent. Retries, double submits and concurrent
+  // request processing must reuse the job already linked to this exact lead.
+  const { data: existingLead } = await args.admin
+    .from("lead_intake")
+    .select("job_id")
+    .eq("id", args.leadId)
+    .maybeSingle();
+  if (existingLead?.job_id) return existingLead.job_id as string;
+
+  const { data: existingJob } = await args.admin
+    .from("jobs")
+    .select("id")
+    .eq("lead_id", args.leadId)
+    .maybeSingle();
+  if (existingJob?.id) {
+    await args.admin.from("lead_intake").update({ job_id: existingJob.id, client_id: args.clientId || null }).eq("id", args.leadId).is("job_id", null);
+    return existingJob.id as string;
+  }
+
   const categories = args.service && VA_CATEGORIES.includes(args.service as (typeof VA_CATEGORIES)[number])
     ? [args.service]
     : inferCategories(args.service, args.message);

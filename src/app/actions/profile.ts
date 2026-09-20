@@ -101,8 +101,10 @@ export async function updateVaProfileAction(formData: FormData) {
   if (!current) throw new Error("VA profile not found.");
 
   const inferenceAllowed = !["approved", "bench"].includes(String(vetting?.stage || ""));
-  const resolvedPrimaryCategory =
-    selectedPrimaryCategory || (inferenceAllowed ? inferredCategories[0] : current.primary_category ?? null) || null;
+  const proposedPrimaryCategory = selectedPrimaryCategory || inferredCategories[0] || null;
+  const resolvedPrimaryCategory = inferenceAllowed
+    ? proposedPrimaryCategory
+    : selectedPrimaryCategory || current.primary_category || null;
   const resolvedCategories = [...new Set([
     ...selectedCategories,
     ...inferredCategories.filter((category) => category !== resolvedPrimaryCategory)

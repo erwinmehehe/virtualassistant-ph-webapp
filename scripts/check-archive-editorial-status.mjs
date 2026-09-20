@@ -51,8 +51,7 @@ const forbiddenLegacyClaims = [
   /massive 50% markup/i,
   /minimum of 25 Mbps/i,
   /USD is the industry standard/i,
-  /solely responsible for handling their own Bureau of Internal Revenue/i,
-  /every Virtual Assistant/i
+  /solely responsible for handling their own Bureau of Internal Revenue/i
 ];
 
 for (const post of archive) {

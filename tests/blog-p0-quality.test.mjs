@@ -272,3 +272,66 @@ test("priority blogs do not reuse templated section architecture", () => {
 
   assert.deepEqual(reused, []);
 });
+
+
+test("next 20 commercial authority posts replace factory structure with recruiter evidence", () => {
+  const posts = parseBlogPosts();
+  const targetSlugs = [
+    "appointment-setter-virtual-assistant-cost-philippines",
+    "how-to-hire-a-appointment-setter-virtual-assistant",
+    "cold-calling-virtual-assistant-cost-philippines",
+    "how-to-hire-a-cold-calling-virtual-assistant",
+    "construction-virtual-assistant-cost-philippines",
+    "how-to-hire-a-construction-virtual-assistant",
+    "content-marketing-virtual-assistant-cost-philippines",
+    "how-to-hire-a-content-marketing-virtual-assistant",
+    "dental-virtual-assistant-cost-philippines",
+    "how-to-hire-a-dental-virtual-assistant",
+    "financial-advisor-virtual-assistant-cost-philippines",
+    "how-to-hire-a-financial-advisor-virtual-assistant",
+    "google-ads-virtual-assistant-cost-philippines",
+    "how-to-hire-a-google-ads-virtual-assistant",
+    "insurance-virtual-assistant-cost-philippines",
+    "how-to-hire-a-insurance-virtual-assistant",
+    "law-firm-virtual-assistant-cost-philippines",
+    "how-to-hire-a-law-firm-virtual-assistant",
+    "shopify-virtual-assistant-cost-philippines",
+    "how-to-hire-a-shopify-virtual-assistant"
+  ];
+  const bannedHeadings = new Set([
+    "Why rates vary even when the job title is the same",
+    "Set the budget from scope, experience, and responsibility",
+    "Build the monthly budget from hours and ownership",
+    "Where cheap hiring becomes expensive",
+    "How to discuss budget with candidates",
+    "A practical budget check before you publish",
+    "Build a scorecard you can use on every candidate",
+    "Source against the work, not the broadest possible title",
+    "Screen for evidence before scheduling a long interview",
+    "Make the first 30 days a controlled handoff",
+    "Do a final role and budget sanity check"
+  ]);
+  const fieldNoteOwners = new Map();
+
+  for (const slug of targetSlugs) {
+    const post = posts.find((item) => item.slug === slug);
+    assert.ok(post, `${slug}: authority article missing`);
+    assert.equal(post.updatedAt, "2026-09-20", `${slug}: needs current substantive review date`);
+    assert.ok((post.fieldNotes || []).length >= 3, `${slug}: needs recruiter field notes`);
+
+    for (const section of post.sections || []) {
+      assert.equal(bannedHeadings.has(section.heading), false, `${slug}: factory heading survived: ${section.heading}`);
+    }
+
+    const body = JSON.stringify(post);
+    assert.match(body, /candidate|screen|interview|shortlist/i, `${slug}: needs hiring evidence`);
+    assert.match(body, /Philippine|Philippines/i, `${slug}: needs Philippine hiring context`);
+    assert.match(body, /approval|escalat|boundary|decision/i, `${slug}: needs operating boundaries`);
+
+    for (const note of post.fieldNotes || []) {
+      const owner = fieldNoteOwners.get(note);
+      assert.equal(owner, undefined, `${slug}: field note duplicates ${owner}`);
+      fieldNoteOwners.set(note, slug);
+    }
+  }
+});

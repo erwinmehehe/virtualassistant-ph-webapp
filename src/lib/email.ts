@@ -172,15 +172,32 @@ async function trackedSend(
     ? rawReplyTo.filter((email) => !isPrivateInternalEmail(email))
     : rawReplyTo;
 
+  const suppressionCheck = [...new Set([...to, ...cc, ...bcc].map((email) => email.toLowerCase()))];
+  let suppressed = new Set<string>();
+  if (suppressionCheck.length) {
+    try {
+      const { data } = await createAdminClient().from("email_suppressions").select("email").in("email", suppressionCheck);
+      suppressed = new Set((data || []).map((row: any) => String(row.email).toLowerCase()));
+    } catch {
+      // Suppression lookup must not break transactional mail if the registry is unavailable.
+    }
+  }
+  const safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));
+  const safeCc = cc.filter((email) => !suppressed.has(email.toLowerCase()));
+  const safeBcc = bcc.filter((email) => !suppressed.has(email.toLowerCase()));
+
   payload = {
     ...payload,
-    to,
-    cc: cc.length ? cc : undefined,
-    bcc: bcc.length ? bcc : undefined,
+    to: safeTo,
+    cc: safeCc.length ? safeCc : undefined,
+    bcc: safeBcc.length ? safeBcc : undefined,
     replyTo: replyTo.length ? replyTo : undefined
   };
   try {
-    if (!to.length) throw new Error("No valid email recipients were configured.");
+    if (!safeTo.length) {
+      await logEmailEvent(eventType, payload.to, "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.");
+      return { data: null, suppressed: true };
+    }
     const result: any = await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
     await logEmailEvent(eventType, payload.to, "sent", result?.data?.id || null, null);

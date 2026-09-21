@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { recordSecurityEvent } from "@/lib/account-security";
 
 const sessionIdSchema = z.string().uuid();
@@ -14,7 +15,30 @@ export async function revokeOwnSessionAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data: revoked } = await supabase.rpc("revoke_own_auth_session", { target_session_id: parsed.data });
+  const [
+    { data: userData },
+    { data: claimsData },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getClaims(),
+  ]);
+
+  const user = userData.user;
+  const currentSessionId =
+    claimsData?.claims && typeof claimsData.claims.session_id === "string"
+      ? claimsData.claims.session_id
+      : null;
+
+  if (!user || !currentSessionId) {
+    redirect("/auth/login?next=/workspace/account?tab=security");
+  }
+
+  const admin = createAdminClient();
+  const { data: revoked } = await admin.rpc("revoke_auth_session_for_user", {
+    target_user_id: user.id,
+    target_session_id: parsed.data,
+    current_session_id: currentSessionId,
+  });
   if (revoked) {
     try {
       await recordSecurityEvent({

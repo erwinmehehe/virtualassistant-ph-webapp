@@ -9,8 +9,8 @@ test("account security state derives identity and current session server-side", 
   assert.match(source, /auth\.getUser\(\)/);
   assert.match(source, /auth\.getClaims\(\)/);
   assert.match(source, /claims.*session_id/s);
-  assert.match(source, /rpc\("list_own_auth_sessions"\)/);
-  assert.doesNotMatch(source, /getAccountSecurityState\([^)]*userId/);
+  assert.match(source, /admin\.rpc\("list_auth_sessions_for_user"/);
+  assert.match(source, /target_user_id: user\.id/);\n  assert.doesNotMatch(source, /getAccountSecurityState\([^)]*userId/);
 });
 
 test("security events derive sensitive request data server-side", async () => {

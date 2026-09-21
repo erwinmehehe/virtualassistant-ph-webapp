@@ -127,11 +127,12 @@ test("login security captures coarse Vercel location and richer device metadata"
   assert.match(security, /region:/);
   assert.match(security, /country:/);
   assert.match(security, /sign_in_method:/);
-  assert.match(security, /const shouldAlert = loginHistory\.length > 0 && !recognized/);
+  assert.match(security, /recognized/);
+  assert.match(security, /baseline/);
+  assert.doesNotMatch(security, /shouldAlert|sendNewLoginSecurityEmail/);
   assert.match(auth, /signInMethod:\s*"Email & password"/);
   assert.match(callback, /signInMethod:/);
-  assert.match(email, /device\?: string \| null/);
-  assert.match(email, /location\?: string \| null/);
+  assert.doesNotMatch(email, /sendNewLoginSecurityEmail/);
 });
 
 

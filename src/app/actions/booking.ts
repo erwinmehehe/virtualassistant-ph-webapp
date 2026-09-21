@@ -20,7 +20,7 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* the CRM cancellation remains valid if Google Calendar is temporarily unavailable */ }
-  await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. You can contact our hiring team whenever you are ready to book again.", href: bookingManageUrl(token), hrefLabel: "View booking" });
+  await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. You can contact our hiring team whenever you are ready to book again.", href: bookingManageUrl(token), hrefLabel: "View booking", priority: "critical", idempotencyKey: `booking-cancelled-${lead.id}` });
   redirect(managePath(token, "cancelled=1"));
 }
 
@@ -77,6 +77,6 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   }
 
   const label = formatDiscoverySlot(scheduledAt, lead.timezone || "Asia/Manila");
-  await sendTransactionalEventEmail({ to: lead.email, subject: `Discovery call rescheduled: ${label}`, heading: "Your discovery call was rescheduled", body: `Your new time is ${label}.`, href: bookingManageUrl(token), hrefLabel: "Manage booking" });
+  await sendTransactionalEventEmail({ to: lead.email, subject: `Discovery call rescheduled: ${label}`, heading: "Your discovery call was rescheduled", body: `Your new time is ${label}.`, href: bookingManageUrl(token), hrefLabel: "Manage booking", priority: "critical", idempotencyKey: `booking-rescheduled-${lead.id}-${scheduledAt}` });
   redirect(managePath(token, "rescheduled=1"));
 }

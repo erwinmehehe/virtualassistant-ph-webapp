@@ -71,9 +71,8 @@ const staffClientFollowupBccRecipients = normalizeEmailList([
   process.env.CLIENT_FOLLOWUP_BCC_EMAIL,
 ]).filter((email) => !isBlockedEmailRecipient(email));
 
-// Added to outgoing mail as a hidden archive copy so internal recipients never
-// appear to clients or Virtual Assistants. Existing env var names remain
-// supported for backwards compatibility, but archive delivery is always BCC.
+// Available only to explicitly opted-in human follow-ups. Automated customer
+// and VA messages do not receive an archive copy by default.
 const DEFAULT_ARCHIVE_TO = "erwinvalles20@gmail.com";
 const configuredArchiveRecipients = normalizeEmailList(
   process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
@@ -334,9 +333,8 @@ export async function sendLeadNotificationEmail(args: {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
 
-  // LEAD_NOTIFICATION_EMAIL accepts a comma-separated list so more than one
-  // person on the team can get lead notifications -- explicit and
-  // configurable here, unlike the hardcoded forced-CC this replaced.
+  // Use one responsible recipient/shared inbox. Extra comma-separated
+  // addresses are intentionally ignored so a lead creates one internal delivery.
   const recipient = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
     .filter((email) => !isBlockedEmailRecipient(email))[0];
   if (!recipient) return { sent: false as const, reason: "no_recipient_configured" };

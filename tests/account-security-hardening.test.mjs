@@ -12,6 +12,9 @@ test("sensitive account changes require current-password reauthentication", asyn
 
   assert.match(actions, /async function verifySensitiveAccountPassword/);
   assert.match(actions, /signInWithPassword/);
+  assert.match(actions, /persistSession:\s*false/);
+  assert.match(actions, /autoRefreshToken:\s*false/);
+  assert.match(actions, /signOut\(\{ scope: "local" \}\)/);
   assert.match(actions, /current_password/);
   assert.match(actions, /requestAccountEmailChangeAction/);
   assert.match(actions, /requestAccountDeletionAction/);

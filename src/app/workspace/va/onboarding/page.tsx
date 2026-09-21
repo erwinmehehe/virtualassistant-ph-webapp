@@ -35,9 +35,9 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
           <span className="badge"><Sparkles size={13}/> Step 1</span>
         </div>
 
-        <div className="progress" aria-label={`Profile ${completion.score}% complete`}>
-          <span style={{ width: `${completion.score}%` }}/>
-        </div>
+        <progress className="va-quick-setup-meter" value={completion.score} max={100} aria-label={`Profile ${completion.score}% complete`}>
+          {completion.score}%
+        </progress>
 
         <div className="va-quick-setup-step-list" aria-label="Quick setup checklist">
           <div className="va-quick-setup-step">

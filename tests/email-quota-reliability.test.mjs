@@ -79,3 +79,18 @@ test("email health shows recipient-based quota and prevented-send counters", asy
   assert.match(page, /automation/);
   assert.match(page, /event\.priority === "low"/);
 });
+
+
+test("recipient accounting preserves To + CC + BCC totals after delivery webhooks", async () => {
+  const [email, webhook, page] = await Promise.all([
+    read("src/lib/email.ts"),
+    read("src/app/api/webhooks/resend/route.ts"),
+    read("src/app/workspace/admin/email-health/page.tsx"),
+  ]);
+
+  assert.match(email, /const legacyCount = countRecipientAddresses\(row\.recipient\)/);
+  assert.match(email, /structuredCount > 0 \|\| legacyCount === 0/);
+  assert.doesNotMatch(webhook, /patch\.recipient_count\s*=\s*recipientCount/);
+  assert.match(webhook, /Preserve the app-recorded To \+ CC \+ BCC recipient_count/);
+  assert.match(page, /event\.recipient_count > 0 \|\| legacyCount === 0/);
+});

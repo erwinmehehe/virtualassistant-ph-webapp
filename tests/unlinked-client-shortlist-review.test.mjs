@@ -20,7 +20,9 @@ test("invite mode saves the exact selected VAs and sends a secure claim link", (
   assert.match(matchingAction, /client_review_invited/);
   assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id \}/);
   assert.match(matchingAction, /\/auth\/join\/client\?/);
+  assert.match(matchingAction, /firstName,/);
   assert.match(matchingAction, /Review my shortlist/);
+  assert.doesNotMatch(matchingAction, /body: \`Hi \${firstName}/);
   assert.match(recruiterPage, /client_invited/);
 });
 

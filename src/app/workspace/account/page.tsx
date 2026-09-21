@@ -657,7 +657,7 @@ export default async function AccountSettingsPage({
                       <strong>Download account data</strong>
                       <small>Download your profile, account preferences, notification settings, and recent account security activity as JSON.</small>
                     </div>
-                    <a className="btn btn-sm" href="/workspace/account/export"><Download size={15} /> Download</a>
+                    {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- attachment response must use native browser download navigation */}\n                    <a className="btn btn-sm" href="/workspace/account/export"><Download size={15} /> Download</a>
                   </div>
                 </section>
 

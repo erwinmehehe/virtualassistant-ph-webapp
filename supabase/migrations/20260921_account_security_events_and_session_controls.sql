@@ -38,7 +38,7 @@ returns table (
 )
 language sql
 security definer
-set search_path = pg_catalog, auth, public
+set search_path = ''
 as $$
   select
     s.id,
@@ -62,7 +62,7 @@ create or replace function public.revoke_own_auth_session(target_session_id uuid
 returns boolean
 language plpgsql
 security definer
-set search_path = pg_catalog, auth, public
+set search_path = ''
 as $$
 declare
   current_session_id uuid;
@@ -85,18 +85,3 @@ $$;
 
 revoke all on function public.revoke_own_auth_session(uuid) from public, anon;
 grant execute on function public.revoke_own_auth_session(uuid) to authenticated;
-
-create or replace function public.lookup_auth_user_id_by_email(target_email text)
-returns uuid
-language sql
-security definer
-set search_path = pg_catalog, auth, public
-as $$
-  select u.id
-  from auth.users u
-  where lower(u.email) = lower(target_email)
-  limit 1;
-$$;
-
-revoke all on function public.lookup_auth_user_id_by_email(text) from public, anon, authenticated;
-grant execute on function public.lookup_auth_user_id_by_email(text) to service_role;

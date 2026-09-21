@@ -145,9 +145,10 @@ async function getRecipientUsageToday(admin: ReturnType<typeof createAdminClient
   return (data || []).reduce((total: number, row: any) => {
     if (!row.provider_id) return total;
     const structuredCount = Number(row.recipient_count);
-    const recipientCount = Number.isFinite(structuredCount) && structuredCount >= 0
+    const legacyCount = countRecipientAddresses(row.recipient);
+    const recipientCount = Number.isFinite(structuredCount) && (structuredCount > 0 || legacyCount === 0)
       ? structuredCount
-      : countRecipientAddresses(row.recipient);
+      : legacyCount;
     return total + recipientCount;
   }, 0);
 }

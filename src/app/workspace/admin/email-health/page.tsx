@@ -8,6 +8,11 @@ type EmailRow = {
   id: string;
   event_type: string | null;
   recipient: string | null;
+  recipient_count: number | null;
+  priority: "critical" | "standard" | "low" | null;
+  idempotency_key: string | null;
+  skip_reason: string | null;
+  automation: string | null;
   status: string;
   provider_id: string | null;
   error_message: string | null;
@@ -23,8 +28,12 @@ type SuppressionRow = {
 const problemStatuses = ["failed", "bounced", "complained", "suppressed", "suppression_unavailable", "skipped_quota"];
 const quotaConsumedStatuses = ["sent", "delivered", "bounced", "complained", "suppressed"];
 
-function recipient_count(recipient: string | null) {
-  return String(recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+function eventRecipientCount(event: Pick<EmailRow, "recipient" | "recipient_count">) {
+  const legacyCount = String(event.recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+  if (typeof event.recipient_count === "number" && Number.isFinite(event.recipient_count) && (event.recipient_count > 0 || legacyCount === 0)) {
+    return event.recipient_count;
+  }
+  return legacyCount;
 }
 
 function utcDayStart() {
@@ -41,7 +50,7 @@ export default async function AdminEmailHealthPage() {
   const [eventsRes, suppressionsRes] = await Promise.all([
     admin
       .from("outbound_email_events")
-      .select("id,event_type,recipient,status,provider_id,error_message,created_at")
+      .select("id,event_type,recipient,recipient_count,priority,idempotency_key,skip_reason,automation,status,provider_id,error_message,created_at")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
@@ -87,21 +96,21 @@ export default async function AdminEmailHealthPage() {
   const suppressions = (suppressionsRes.data ?? []) as SuppressionRow[];
   const deliveriesToday = events
     .filter((event) => Boolean(event.provider_id) && quotaConsumedStatuses.includes(event.status))
-    .reduce((total, event) => total + recipient_count(event.recipient), 0);
+    .reduce((total, event) => total + eventRecipientCount(event), 0);
   const remaining = Math.max(0, DAILY_RECIPIENT_LIMIT - deliveriesToday);
   const duplicatePrevented = events.filter((event) => event.status === "duplicate_prevented").length;
   const suppressedSends = events.filter((event) => event.status === "suppressed").length;
-  const lowPrioritySkipped = events.filter((event) => event.status === "skipped_quota" && /Skipped low email/i.test(event.error_message || "")).length;
+  const lowPrioritySkipped = events.filter((event) => event.status === "skipped_quota" && event.priority === "low").length;
   const failed = events.filter((event) => event.status === "failed").length;
   const bounced = events.filter((event) => event.status === "bounced").length;
 
   const byType = new Map<string, { messages: number; recipients: number; failed: number }>();
   for (const event of events) {
     if (!event.provider_id || !quotaConsumedStatuses.includes(event.status)) continue;
-    const key = event.event_type || "unknown";
+    const key = event.automation || event.event_type || "unknown";
     const value = byType.get(key) || { messages: 0, recipients: 0, failed: 0 };
     value.messages += 1;
-    value.recipients += recipient_count(event.recipient);
+    value.recipients += eventRecipientCount(event);
     if (problemStatuses.includes(event.status)) value.failed += 1;
     byType.set(key, value);
   }
@@ -221,7 +230,8 @@ export default async function AdminEmailHealthPage() {
                 <span>
                   <strong>{(event.event_type || "email").replaceAll("_", " ")}</strong>
                   <small>
-                    {event.status + " · " + (event.error_message || "Provider delivery event") +
+                    {event.status + " · " + (event.skip_reason || event.error_message || "Provider delivery event") +
+                      (event.priority ? " · " + event.priority : "") +
                       (event.recipient ? " · " + event.recipient : "")}
                   </small>
                 </span>

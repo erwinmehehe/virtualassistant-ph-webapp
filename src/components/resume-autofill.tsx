@@ -2,7 +2,9 @@
 
 import { useActionState, useRef } from "react";
 import { Sparkles, UploadCloud } from "lucide-react";
-import { parseResumeAction, parseResumeInitialState, type ParseResumeState } from "@/app/actions/resume-autofill";
+import { parseResumeAction, type ParseResumeState } from "@/app/actions/resume-autofill";
+
+const parseResumeInitialState: ParseResumeState = { status: "idle" };
 
 /**
  * Uploads a resume, sends it to the server for AI extraction, then fills in

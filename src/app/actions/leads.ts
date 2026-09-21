@@ -849,6 +849,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
 
   try {
     await sendInternalDiscoveryBookingNotificationEmail({
+      leadId: lead.id,
       clientName: parsed.data.name,
       clientEmail: parsed.data.email,
       company: parsed.data.company,

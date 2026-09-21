@@ -8,6 +8,13 @@ export const runtime = "nodejs";
 type ReminderWindow = "24h" | "1h";
 type ReminderField = "discovery_reminder_24h_sent_at" | "discovery_reminder_1h_sent_at";
 
+const RETRIABLE_EMAIL_REASONS = new Set([
+  "email_not_configured",
+  "suppression_lookup_failed",
+  "quota_lookup_failed",
+  "daily_quota_reserved",
+]);
+
 async function isAuthorized(request: Request, admin: ReturnType<typeof createAdminClient>) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const authorization = request.headers.get("authorization");
@@ -110,7 +117,7 @@ export async function GET(request: Request) {
       });
 
       if (!result.sent) {
-        if (result.reason === "email_not_configured") {
+        if (result.reason && RETRIABLE_EMAIL_REASONS.has(result.reason)) {
           await releaseDiscoveryReminderClaim(admin, lead.id, window, claimAt);
         }
         continue;

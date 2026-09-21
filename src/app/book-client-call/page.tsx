@@ -76,7 +76,7 @@ export default async function BookClientCallPage({
                 <div>
                   <p className="kicker">Time confirmed</p>
                   <h2>We will talk on {bookedWhen}</h2>
-                  <p>A confirmation was sent to your email and copied to our hiring team. We will review your request and make sure the conversation is focused on the role you need to fill.</p>
+                  <p>A confirmation was sent to your email. Our hiring team receives a separate booking alert so we can prepare for the role you need to fill.</p>
                   <div className="booking-success-actions">
                     <Link className="btn btn-primary" href="/hire">Add more hiring details</Link>
                     <Link className="btn" href="/">Return home</Link>

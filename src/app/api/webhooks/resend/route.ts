@@ -31,6 +31,7 @@ export async function POST(request: Request) {
   const providerId = event.data?.email_id;
   if (!status || !providerId) return Response.json({ received: true });
   const admin = createAdminClient();
+  const recipientCount = (event.data?.to || []).filter(Boolean).length;
   const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).maybeSingle();
   if (["bounced", "complained", "suppressed"].includes(status)) {
     for (const raw of event.data?.to || []) {
@@ -39,9 +40,18 @@ export async function POST(request: Request) {
     }
   }
   if (existing?.id) {
+    // Preserve the app-recorded To + CC + BCC recipient_count. Resend delivery
+    // webhooks expose the visible To list, which can be smaller than quota usage.
     await admin.from("outbound_email_events").update({ status }).eq("id", existing.id);
   } else {
-    await admin.from("outbound_email_events").insert({ event_type: event.type, recipient: event.data?.to?.join(",") || null, status, provider_id: providerId });
+    await admin.from("outbound_email_events").insert({
+      event_type: event.type,
+      automation: event.type,
+      recipient: event.data?.to?.join(",") || null,
+      recipient_count: recipientCount,
+      status,
+      provider_id: providerId
+    });
   }
   return Response.json({ received: true });
 }

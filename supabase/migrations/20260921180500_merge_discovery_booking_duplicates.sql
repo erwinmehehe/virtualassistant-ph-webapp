@@ -42,6 +42,14 @@ begin
     raise exception 'Lead companies do not match';
   end if;
 
+  if canonical_row.discovery_scheduled_at is not null then
+    raise exception 'Canonical lead already has a discovery booking';
+  end if;
+
+  if booking_row.discovery_scheduled_at is null then
+    raise exception 'Booking lead has no discovery slot';
+  end if;
+
   merged_message := case
     when nullif(trim(canonical_row.message), '') is null then booking_row.message
     when nullif(trim(booking_row.message), '') is null then canonical_row.message

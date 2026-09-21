@@ -134,3 +134,27 @@ test("login security captures coarse Vercel location and richer device metadata"
   assert.match(email, /device\?: string \| null/);
   assert.match(email, /location\?: string \| null/);
 });
+
+
+test("account display preference and privacy actions stay authenticated and user-scoped", async () => {
+  const [actions, exportRoute] = await Promise.all([
+    read("src/app/actions/account-security.ts"),
+    readOrEmpty("src/app/workspace/account/export/route.ts"),
+  ]);
+
+  assert.match(actions, /updateAccountDisplayPreferencesAction/);
+  assert.match(actions, /Intl\.DateTimeFormat/);
+  assert.match(actions, /date_format/);
+  assert.match(actions, /time_format/);
+  assert.match(actions, /user_id:\s*user\.id/);
+  assert.match(actions, /requestAccountDeletionAction/);
+  assert.match(actions, /DELETE MY ACCOUNT/);
+  assert.doesNotMatch(actions, /deleteUser\(/);
+
+  assert.match(exportRoute, /auth\.getUser\(\)/);
+  assert.match(exportRoute, /\.eq\("id", user\.id\)/);
+  assert.match(exportRoute, /\.eq\("user_id", user\.id\)/);
+  assert.match(exportRoute, /Content-Disposition/);
+  assert.match(exportRoute, /virtualassistant-account-data\.json/);
+  assert.doesNotMatch(exportRoute, /searchParams|get\("user_id"\)|target_user/i);
+});

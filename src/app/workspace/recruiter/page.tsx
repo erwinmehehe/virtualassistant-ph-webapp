@@ -174,26 +174,6 @@ function RecruiterDashboardFallback() {
         <div className="workspace-skeleton-card" />
         <div className="workspace-skeleton-card" />
       </div>
-      <Panel
-        title="Upcoming discovery calls"
-        subtitle="All active client discovery bookings in the next 7 days, across recruiters"
-        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/agenda">Open agenda <ArrowRight size={14} aria-hidden="true" /></Link>}
-      >
-        {upcomingDiscoveries.length ? <div className="dash-list">
-          {upcomingDiscoveries.map((meeting) => {
-            const href = meeting.job_id ? `/workspace/recruiter/matching/${meeting.job_id}` : `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(meeting.company || meeting.name || "")}`;
-            return <div className="dash-list-row" key={meeting.id}>
-              <Link prefetch={false} href={href} style={{minWidth:0,flex:1}}>
-                <span><strong>{meeting.company || meeting.name || "Client discovery"}</strong><small>{meeting.service || "Hiring discovery"} · {queueTimeLabel(meeting.discovery_scheduled_at)} · {meeting.discovery_duration_minutes || 30} min</small></span>
-              </Link>
-              <div className="row wrap">
-                {meeting.discovery_meeting_url ? <a className="dash-btn dash-btn-light" href={meeting.discovery_meeting_url} target="_blank" rel="noreferrer">Join Meet</a> : <Pill tone="amber">Meet pending</Pill>}
-              </div>
-            </div>;
-          })}
-        </div> : <Empty title="No upcoming discovery calls" desc="There are no active discovery bookings in the next 7 days." />}
-      </Panel>
-
       <div className="dash-grid recruiter-priority-grid">
         <Panel title="Next actions" subtitle="Loading your exact current work">
           <div className="workspace-skeleton-card" />
@@ -300,6 +280,26 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
         <StatCard label="Discovery calls" value={value("discovery_next_two_days")} icon={<CalendarClock size={20} />} tone="violet" href="/workspace/recruiter/leads?view=discovery" sub="Today and tomorrow, Manila time" chip={{ label: value("discovery_next_two_days") ? "Prep the brief" : "None booked", tone: "neutral" }} />
         <StatCard label="Open client pipeline" value={value("open_leads")} icon={<TrendingUp size={20} />} tone="emerald" href="/workspace/recruiter/leads?view=open" sub={`USD ${value("open_pipeline_value").toLocaleString()} estimated value`} />
       </div>
+
+      <Panel
+        title="Upcoming discovery calls"
+        subtitle="All active client discovery bookings in the next 7 days, across recruiters"
+        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/agenda">Open agenda <ArrowRight size={14} aria-hidden="true" /></Link>}
+      >
+        {upcomingDiscoveries.length ? <div className="dash-list">
+          {upcomingDiscoveries.map((meeting) => {
+            const href = meeting.job_id ? `/workspace/recruiter/matching/${meeting.job_id}` : `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(meeting.company || meeting.name || "")}`;
+            return <div className="dash-list-row" key={meeting.id}>
+              <Link prefetch={false} href={href} style={{minWidth:0,flex:1}}>
+                <span><strong>{meeting.company || meeting.name || "Client discovery"}</strong><small>{meeting.service || "Hiring discovery"} · {queueTimeLabel(meeting.discovery_scheduled_at)} · {meeting.discovery_duration_minutes || 30} min</small></span>
+              </Link>
+              <div className="row wrap">
+                {meeting.discovery_meeting_url ? <a className="dash-btn dash-btn-light" href={meeting.discovery_meeting_url} target="_blank" rel="noreferrer">Join Meet</a> : <Pill tone="amber">Meet pending</Pill>}
+              </div>
+            </div>;
+          })}
+        </div> : <Empty title="No upcoming discovery calls" desc="There are no active discovery bookings in the next 7 days." />}
+      </Panel>
 
       <div className="dash-grid recruiter-priority-grid">
         <div className="dash-col">

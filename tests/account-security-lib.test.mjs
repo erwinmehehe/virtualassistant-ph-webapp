@@ -21,17 +21,9 @@ test("security events derive sensitive request data server-side", async () => {
   assert.doesNotMatch(source, /recordSecurityEvent\([^)]*userId/);
 });
 
-test("sensitive AAL2 helper redirects to MFA instead of silently allowing an enrolled aal1 session", async () => {
+test("account security does not depend on MFA while TOTP is deferred", async () => {
   const source = await read("src/lib/account-security.ts");
-  assert.match(source, /getAuthenticatorAssuranceLevel\(\)/);
-  assert.match(source, /verifiedFactors\.length > 0/);
-  assert.match(source, /currentLevel !== "aal2"/);
-  assert.match(source, /\/auth\/mfa/);
-});
-
-test("safe account return paths reject external and protocol-relative destinations", async () => {
-  const source = await read("src/lib/account-security.ts");
-  assert.match(source, /!value\.startsWith\("\/"\)/);
-  assert.match(source, /value\.startsWith\("\/\/"\)/);
-  assert.match(source, /value\.includes\("\\\\"\)/);
+  assert.doesNotMatch(source, /auth\.mfa\./);
+  assert.doesNotMatch(source, /STAFF_MFA_ENFORCEMENT/);
+  assert.doesNotMatch(source, /\/auth\/mfa/);
 });

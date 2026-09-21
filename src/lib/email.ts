@@ -657,6 +657,31 @@ function renderMessageParagraphs(value: string) {
     .join("");
 }
 
+function stripLeadingBrandedGreeting(bodyHtml: string) {
+  const paragraphStart = bodyHtml.search(/<p\b[^>]*>/i);
+  if (paragraphStart < 0) return bodyHtml;
+
+  const openingMatch = bodyHtml.slice(paragraphStart).match(/^<p\b[^>]*>/i);
+  if (!openingMatch) return bodyHtml;
+
+  const contentStart = paragraphStart + openingMatch[0].length;
+  const paragraphEnd = bodyHtml.toLowerCase().indexOf("</p>", contentStart);
+  if (paragraphEnd < 0) return bodyHtml;
+
+  const inner = bodyHtml.slice(contentStart, paragraphEnd);
+  const withoutGreeting = inner.replace(
+    /^\s*(?:<strong\b[^>]*>)?\s*(?:hi|hello|hey|dear)\s+(?:there|[^,<>{}]{1,60})[!,]\s*(?:<\/strong>)?\s*/i,
+    ""
+  );
+  if (withoutGreeting === inner) return bodyHtml;
+
+  if (!withoutGreeting.trim()) {
+    return bodyHtml.slice(0, paragraphStart) + bodyHtml.slice(paragraphEnd + 4);
+  }
+
+  return bodyHtml.slice(0, contentStart) + withoutGreeting + bodyHtml.slice(paragraphEnd);
+}
+
 function renderBrandedEmail(args: {
   firstName: string;
   bodyHtml: string;
@@ -667,13 +692,14 @@ function renderBrandedEmail(args: {
   ctaLabel?: string;
   appendSignature?: boolean;
 }) {
+  const bodyHtml = stripLeadingBrandedGreeting(args.bodyHtml);
   const cta = args.ctaHref
     ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
     : "";
   const signature = args.appendSignature === false
     ? ""
     : `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p>`;
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${args.bodyHtml}${cta}${signature}</td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${bodyHtml}${cta}${signature}</td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
 }
 
 function renderHiringEmail(args: {
@@ -691,18 +717,19 @@ function renderHiringEmail(args: {
   });
 }
 
-function renderTalentEmail(args: {
+export function renderTalentEmail(args: {
   firstName: string;
   bodyHtml: string;
   senderName?: string;
   ctaHref?: string | null;
   ctaLabel?: string;
+  footerText?: string;
 }) {
   return renderBrandedEmail({
     ...args,
     senderName: args.senderName || "VirtualAssistant.com.ph Talent Team",
     teamLabel: "Talent team",
-    footerText: "You are receiving this because you have a Virtual Assistant account, application, or profile with VirtualAssistant.com.ph."
+    footerText: args.footerText || "You are receiving this because you have a Virtual Assistant account, application, or profile with VirtualAssistant.com.ph."
   });
 }
 

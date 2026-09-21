@@ -1017,6 +1017,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
 }
 
 export async function sendInternalDiscoveryBookingNotificationEmail(args: {
+  leadId: string;
   clientName: string;
   clientEmail: string;
   company: string;
@@ -1052,7 +1053,11 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
       <p><strong>Philippines time:</strong> ${escapeHtml(args.manilaLabel)}</p>
       <p><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}</p>
       <p><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>`
-  }, "discovery_booking_internal_jervis", { archive: false, priority: "critical" });
+  }, "discovery_booking_internal_jervis", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: `booking-internal-${args.leadId}`
+  });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

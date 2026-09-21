@@ -119,7 +119,7 @@ export default async function AccountSettingsPage({
 
           <section className="stack">
             <div>
-              <h2>Where you&apos;re logged in</h2>
+              <h2>{"Where you're logged in"}</h2>
               <p className="muted">Review active browser sessions and remove access from devices you no longer use.</p>
             </div>
             <SessionList sessions={state.sessions} />

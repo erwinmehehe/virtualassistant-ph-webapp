@@ -12,7 +12,8 @@ export type SecurityEventType =
   | "logout_others"
   | "logout_all"
   | "session_revoked"
-  | "password_changed";
+  | "password_changed"
+  | "profile_updated";
 
 export type AccountSession = {
   id: string;

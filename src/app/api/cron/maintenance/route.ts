@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
-import { bookingManageUrl } from "@/lib/booking-operations";
-import { formatDiscoverySlot } from "@/lib/discovery-booking";
+import { sendClaimDraftEmail, sendStaffDailyDigestEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 
@@ -43,44 +41,6 @@ async function runIndexNowSubmission(admin: ReturnType<typeof createAdminClient>
   for (const job of jobs || []) changed.push(`${base}/jobs/${job.slug || job.id}`);
 
   return submitToIndexNow(changed);
-}
-
-async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdminClient>) {
-  const now = Date.now();
-  const upper = new Date(now + 25 * 60 * 60 * 1000).toISOString();
-  const lower = new Date(now + 30 * 60 * 1000).toISOString();
-  const { data: bookings, error } = await admin.from("lead_intake")
-    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
-    .not("discovery_scheduled_at", "is", null)
-    .is("discovery_cancelled_at", null)
-    .is("discovery_completed_at", null)
-    .gte("discovery_scheduled_at", lower)
-    .lte("discovery_scheduled_at", upper)
-    .limit(300);
-  if (error) throw error;
-
-  let reminder24h = 0;
-  let reminder1h = 0;
-  for (const booking of bookings || []) {
-    if (!booking.email || !booking.discovery_scheduled_at || !booking.discovery_manage_token) continue;
-    const minutesUntil = (new Date(booking.discovery_scheduled_at).getTime() - now) / 60_000;
-    const scheduledLabel = formatDiscoverySlot(booking.discovery_scheduled_at, booking.timezone || "Asia/Manila");
-    const manageUrl = bookingManageUrl(booking.discovery_manage_token);
-    if (minutesUntil <= 90 && minutesUntil >= 30 && !booking.discovery_reminder_1h_sent_at) {
-      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "1h" });
-      if (result.sent) {
-        await admin.from("lead_intake").update({ discovery_reminder_1h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_1h_sent_at", null);
-        reminder1h++;
-      }
-    } else if (minutesUntil <= 25 * 60 && minutesUntil >= 23 * 60 && !booking.discovery_reminder_24h_sent_at) {
-      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "24h" });
-      if (result.sent) {
-        await admin.from("lead_intake").update({ discovery_reminder_24h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_24h_sent_at", null);
-        reminder24h++;
-      }
-    }
-  }
-  return { checked: bookings?.length || 0, reminder24h, reminder1h };
 }
 
 async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>) {
@@ -176,19 +136,35 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
 }
 
 type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
-async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number }) {
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low" }) {
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
   if (Number(previous?.reminder_count || 0) >= MAX_WORKFLOW_REMINDERS || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
   const now = new Date().toISOString();
-  const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: Number(previous?.reminder_count || 0) + 1, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
+  const reminderCount = Number(previous?.reminder_count || 0) + 1;
+  const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: reminderCount, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
   if (error) return false;
   await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href });
+  if (!args.email) return true;
+
   const { data: auth } = await admin.auth.admin.getUserById(args.recipientId);
   const recipientEmail = auth.user?.email?.trim();
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   if (recipientEmail) {
-    try { await sendTransactionalEventEmail({ to: recipientEmail, subject: args.title, heading: args.title, body: args.body, href: `${appUrl}${args.href}`, hrefLabel: "Open workspace" }); } catch (error) { console.error("[email] Workflow reminder delivery failed", error); }
+    try {
+      await sendTransactionalEventEmail({
+        to: recipientEmail,
+        subject: args.title,
+        heading: args.title,
+        body: args.body,
+        href: `${appUrl}${args.href}`,
+        hrefLabel: "Open workspace",
+        priority: args.emailPriority || "standard",
+        idempotencyKey: `workflow-reminder-${args.subjectType}-${args.subjectId}-${args.action}-${reminderCount}`,
+      });
+    } catch (error) {
+      console.error("[email] Workflow reminder delivery failed", error);
+    }
   }
   return true;
 }
@@ -224,9 +200,9 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     if (!releasedAt) continue;
     const ageMs = Date.now() - new Date(releasedAt).getTime();
     if (ageMs >= 24 * 60 * 60 * 1000 && ageMs < 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: true, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
     } else if (ageMs >= 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: true, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
     }
   }
 
@@ -238,6 +214,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
       subjectId: interview.job_id,
       recipientId: interview.client_id,
       action: `schedule_interview_${interview.id}`,
+      email: true,
       title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
       body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
       href: "/workspace/client/interviews",
@@ -253,7 +230,8 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         subjectId: offer.job_id,
         recipientId: offer.va_id,
         action: `placement_offer_va_${offer.id}`,
-        title: `Placement offer waiting${job?.title ? `: ${job.title}` : ""}`,
+        email: true,
+      title: `Placement offer waiting${job?.title ? `: ${job.title}` : ""}`,
         body: "A placement offer is waiting for your review. Open Offers to review the final rate, hours, schedule, and start date.",
         href: "/workspace/va/offers",
         repeatDays: 2
@@ -265,7 +243,8 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         subjectId: offer.job_id,
         recipientId: offer.client_id,
         action: `placement_offer_client_${offer.id}`,
-        title: `Confirm the placement${job?.title ? `: ${job.title}` : ""}`,
+        email: true,
+      title: `Confirm the placement${job?.title ? `: ${job.title}` : ""}`,
         body: "The VA accepted the placement offer. Open Offers to confirm the final placement and start onboarding.",
         href: "/workspace/client/offers",
         repeatDays: 2
@@ -280,7 +259,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
       || (application.status === "interview" && interviewPairs.has(pair))
       || (application.status === "offered" && offerPairs.has(pair));
     if (managedByCanonicalFlow) continue;
-    if (await sendWorkflowReminder(admin, { subjectType: "application", subjectId: application.id, recipientId: application.va_id, action: "application_follow_up", title: "Your application has an update waiting", body: `Your application is still in the ${application.status} stage. Check the role and messages for any next steps.`, href: "/workspace/va/applications" })) vaNudges++;
+    if (await sendWorkflowReminder(admin, { subjectType: "application", subjectId: application.id, recipientId: application.va_id, action: "application_follow_up", email: true, title: "Your application has an update waiting", body: `Your application is still in the ${application.status} stage. Check the role and messages for any next steps.`, href: "/workspace/va/applications" })) vaNudges++;
   }
   return { recruiterNudges, client24h, client48h, vaNudges, interviewScheduleNudges, offerNudges };
 }
@@ -296,6 +275,8 @@ async function runTalentHealthNudges(admin: ReturnType<typeof createAdminClient>
       subjectId: row.va_id,
       recipientId: row.va_id,
       action: "monthly_profile_update",
+      email: true,
+      emailPriority: "low",
       title: "Please refresh your VA profile",
       body: "Your vetted profile has not been updated recently. Confirm your current skills, rate, hours, and availability so recruiters can match you accurately.",
       href: "/workspace/va/profile",
@@ -343,6 +324,52 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   return { leadReminders, proposalReminders };
 }
 
+async function runStaffReminderDigest(admin: ReturnType<typeof createAdminClient>) {
+  const { data: staff, error: staffError } = await admin
+    .from("profiles")
+    .select("id")
+    .in("role", ["recruiter", "admin"])
+    .eq("account_status", "active");
+  if (staffError) throw staffError;
+
+  const staffIds = (staff || []).map((row: any) => row.id);
+  if (!staffIds.length) return { staff: 0, sent: 0, skipped: 0 };
+
+  const { data: reminders, error: reminderError } = await admin
+    .from("notifications")
+    .select("user_id,title,body,href,created_at")
+    .in("user_id", staffIds)
+    .gte("created_at", daysAgo(1))
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (reminderError) throw reminderError;
+
+  const grouped = new Map<string, Array<{ title: string; body: string; href?: string | null }>>();
+  for (const row of reminders || []) {
+    const items = grouped.get(row.user_id) || [];
+    if (items.length < 20) items.push({ title: row.title, body: row.body, href: row.href });
+    grouped.set(row.user_id, items);
+  }
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const dateKey = new Date().toISOString().slice(0, 10);
+  let sent = 0;
+  let skipped = 0;
+
+  for (const userId of staffIds) {
+    const items = grouped.get(userId) || [];
+    if (!items.length) continue;
+    const { data: auth } = await admin.auth.admin.getUserById(userId);
+    const email = auth.user?.email?.trim();
+    if (!email) continue;
+    const result = await sendStaffDailyDigestEmail({ to: email, userId, dateKey, appUrl, items });
+    if (result.sent) sent += 1;
+    else skipped += 1;
+  }
+
+  return { staff: staffIds.length, sent, skipped };
+}
+
 async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await task();
@@ -360,7 +387,7 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
@@ -368,9 +395,9 @@ export async function GET(request: Request) {
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
-    runMaintenanceTask("discovery reminders", () => runDiscoveryBookingReminders(admin)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
+  const staffDigestResult = await runMaintenanceTask("staff reminder digest", () => runStaffReminderDigest(admin));
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, staffReminderDigest: staffDigestResult, indexNow: indexNowResult });
 }

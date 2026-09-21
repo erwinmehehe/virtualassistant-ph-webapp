@@ -41,19 +41,30 @@ export async function getAccountDisplayPreferences(userId: string): Promise<Acco
   };
 }
 
+export type AccountDeletionRequestStatus = "pending" | "cancelled" | "reviewing" | "approved" | "rejected";
+
+function normalizeDeletionStatus(value: unknown): AccountDeletionRequestStatus {
+  return value === "cancelled" || value === "reviewing" || value === "approved" || value === "rejected"
+    ? value
+    : "pending";
+}
+
 export async function getPendingAccountDeletionRequest(userId: string) {
   const admin = createAdminClient();
   const { data } = await admin
     .from("account_deletion_requests")
-    .select("status,requested_at")
+    .select("status,requested_at,reviewed_at,review_note")
     .eq("user_id", userId)
-    .eq("status", "pending")
     .maybeSingle();
 
   if (!data) return null;
+  const status = normalizeDeletionStatus(data.status);
+  if (status === "cancelled") return null;
 
   return {
-    status: "pending" as const,
+    status,
     requested_at: data.requested_at,
+    reviewed_at: data.reviewed_at ?? null,
+    review_note: data.review_note ?? null,
   };
 }

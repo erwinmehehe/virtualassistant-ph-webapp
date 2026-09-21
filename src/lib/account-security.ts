@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendNewLoginSecurityEmail } from "@/lib/email";
+import { siteOrigin } from "@/lib/seo-url";
 
 export type SecurityEventType =
   | "login_succeeded"
@@ -13,7 +15,9 @@ export type SecurityEventType =
   | "logout_all"
   | "session_revoked"
   | "password_changed"
-  | "profile_updated";
+  | "profile_updated"
+  | "email_change_requested"
+  | "email_changed";
 
 export type AccountSession = {
   id: string;
@@ -66,7 +70,102 @@ function claimsSessionId(claims: unknown) {
   return typeof value === "string" ? value : null;
 }
 
+function loginDevice(userAgent: string | null) {
+  const ua = userAgent || "";
+  const browser = /Edg\//.test(ua)
+    ? "Edge"
+    : /Chrome\//.test(ua)
+      ? "Chrome"
+      : /Firefox\//.test(ua)
+        ? "Firefox"
+        : /Safari\//.test(ua)
+          ? "Safari"
+          : "Browser";
+  const os = /Windows NT/.test(ua)
+    ? "Windows"
+    : /Mac OS X/.test(ua) && !/iPhone|iPad/.test(ua)
+      ? "macOS"
+      : /iPhone|iPad/.test(ua)
+        ? "iOS"
+        : /Android/.test(ua)
+          ? "Android"
+          : /Linux/.test(ua)
+            ? "Linux"
+            : "Unknown OS";
+  const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return {
+    browser,
+    os,
+    deviceKey: `${slug(browser)}:${slug(os)}`,
+  };
+}
 
+export async function recordSuccessfulLoginAndMaybeAlert(args: {
+  userId: string;
+  email?: string | null;
+  fullName?: string | null;
+}) {
+  const [requestContext, supabase] = await Promise.all([
+    requestSecurityContext(),
+    createClient(),
+  ]);
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const sessionId = claimsSessionId(claimsData?.claims);
+  const device = loginDevice(requestContext.userAgent);
+  const admin = createAdminClient();
+  const occurredAt = new Date().toISOString();
+  const seenSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: recentLogins } = await admin
+    .from("account_security_events")
+    .select("metadata")
+    .eq("user_id", args.userId)
+    .eq("event_type", "login_succeeded")
+    .gte("created_at", seenSince)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const loginHistory = recentLogins ?? [];
+  const recognized = loginHistory.some((event) => {
+    const metadata = event.metadata && typeof event.metadata === "object"
+      ? event.metadata as Record<string, unknown>
+      : {};
+    return metadata.device_key === device.deviceKey;
+  });
+  const shouldAlert = loginHistory.length > 0 && !recognized;
+
+  await admin.from("account_security_events").insert({
+    user_id: args.userId,
+    event_type: "login_succeeded",
+    session_id: sessionId,
+    ip: requestContext.ip,
+    user_agent: requestContext.userAgent,
+    metadata: {
+      device_key: device.deviceKey,
+      browser: device.browser,
+      os: device.os,
+      recognized,
+      baseline: loginHistory.length === 0,
+    },
+  });
+
+  if (shouldAlert && args.email) {
+    try {
+      await sendNewLoginSecurityEmail({
+        to: args.email,
+        fullName: args.fullName,
+        browser: device.browser,
+        os: device.os,
+        ip: requestContext.ip,
+        occurredAt,
+        reviewUrl: `${siteOrigin()}/workspace/account?tab=security`,
+        alertKey: `${args.userId}-${device.deviceKey}-${occurredAt.slice(0, 10)}`,
+      });
+    } catch {
+      // A security-email outage must not block a valid sign-in.
+    }
+  }
+}
 
 export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const supabase = await createClient();

@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   BriefcaseBusiness,
   Building2,
+  Bell,
   Camera,
   CheckCircle2,
   Clock3,
@@ -15,9 +16,14 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { SessionList } from "@/components/account-security/session-list";
-import { updateAccountProfileAction } from "@/app/actions/account-security";
+import {
+  requestAccountEmailChangeAction,
+  updateAccountProfileAction,
+  updateNotificationPreferencesAction,
+} from "@/app/actions/account-security";
 import { requireAnyRole } from "@/lib/auth";
 import { getAccountSecurityState, type SecurityEventType } from "@/lib/account-security";
+import { getAccountNotificationPreferences, getPendingEmailChange } from "@/lib/account-preferences";
 import type { Role } from "@/lib/types";
 
 export const metadata = { robots: { index: false, follow: false } };
@@ -31,6 +37,8 @@ const eventLabels: Record<SecurityEventType, string> = {
   session_revoked: "Signed out a device",
   password_changed: "Password changed",
   profile_updated: "Personal profile updated",
+  email_change_requested: "Email change requested",
+  email_changed: "Email address changed",
 };
 
 function formatDate(value?: string | null) {
@@ -113,9 +121,13 @@ export default async function AccountSettingsPage({
   searchParams: Promise<{ tab?: string; message?: string; error?: string; saved?: string }>;
 }) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter", "client", "va"]);
-  const state = await getAccountSecurityState();
+  const [state, preferences, pendingEmailChange] = await Promise.all([
+    getAccountSecurityState(),
+    getAccountNotificationPreferences(user.id),
+    getPendingEmailChange(user.id),
+  ]);
   const params = await searchParams;
-  const tab = params.tab === "security" ? "security" : "account";
+  const tab = params.tab === "security" || params.tab === "notifications" ? params.tab : "account";
   const role = profile.role as Role;
   const roleName = roleLabel(role);
   const email = state.user.email || user.email || "";
@@ -176,6 +188,14 @@ export default async function AccountSettingsPage({
             <span>Account</span>
           </Link>
           <Link
+            className={tab === "notifications" ? "active" : ""}
+            aria-current={tab === "notifications" ? "page" : undefined}
+            href="/workspace/account?tab=notifications"
+          >
+            <Bell size={17} />
+            <span>Notifications</span>
+          </Link>
+          <Link
             className={tab === "security" ? "active" : ""}
             aria-current={tab === "security" ? "page" : undefined}
             href="/workspace/account?tab=security"
@@ -232,7 +252,7 @@ export default async function AccountSettingsPage({
                         <span id="account-email">{email || "Not available"}</span>
                         {emailVerified ? <CheckCircle2 size={16} className="account-readonly-check" /> : null}
                       </div>
-                      <span className="field-help">Email changes require a separate verified account flow.</span>
+                      <span className="field-help">Email changes require a separate verified account flow. Use the secure email section below.</span>
                     </div>
 
                     <div className="field">
@@ -257,6 +277,51 @@ export default async function AccountSettingsPage({
                     <span>Your changes apply across your workspace immediately.</span>
                     <button className="btn btn-primary" type="submit">Save changes</button>
                   </div>
+                </form>
+              </section>
+
+              <section className="card account-panel account-email-card" id="email-settings">
+                <div className="account-panel-head">
+                  <div>
+                    <span className="account-panel-eyebrow">Sign-in email</span>
+                    <h2>Change email securely</h2>
+                    <p>Your current email stays active until you confirm the new address from its inbox.</p>
+                  </div>
+                  <span className="account-security-lock"><ShieldCheck size={15} /> Verification required</span>
+                </div>
+
+                <div className="account-current-email">
+                  <span>Current email</span>
+                  <strong>{email || "Not available"}</strong>
+                  {emailVerified ? <small><BadgeCheck size={14} /> Verified</small> : null}
+                </div>
+
+                {pendingEmailChange ? (
+                  <div className="account-pending-change" role="status">
+                    <Mail size={18} />
+                    <div>
+                      <strong>Verification pending for {pendingEmailChange.new_email}</strong>
+                      <span>Use the link in that inbox before {formatDate(pendingEmailChange.expires_at)}. A new request replaces the previous link.</span>
+                    </div>
+                  </div>
+                ) : null}
+
+                <form action={requestAccountEmailChangeAction} className="account-email-change-form">
+                  <div className="field">
+                    <label htmlFor="new-account-email">New email address</label>
+                    <input
+                      id="new-account-email"
+                      name="new_email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="you@company.com"
+                      required
+                      maxLength={254}
+                    />
+                    <span className="field-help">We send a one-hour verification link to the new address. The account email does not change before confirmation.</span>
+                  </div>
+                  <button className="btn btn-primary" type="submit">Send verification</button>
                 </form>
               </section>
 
@@ -316,6 +381,77 @@ export default async function AccountSettingsPage({
               </section>
             </aside>
           </div>
+        ) : tab === "notifications" ? (
+          <div className="account-security-stack">
+            <section className="card account-panel">
+              <div className="account-panel-head">
+                <div>
+                  <span className="account-panel-eyebrow">Email notifications</span>
+                  <h2>Choose what reaches your inbox</h2>
+                  <p>Control optional account emails without moving company, hiring, skills, rates, or other role-specific profile data into Account Settings.</p>
+                </div>
+              </div>
+
+              <form action={updateNotificationPreferencesAction} className="account-preferences-form">
+                <label className="account-preference-row">
+                  <span className="account-preference-copy">
+                    <strong>Hiring & recruiter updates</strong>
+                    <small>Non-critical follow-ups about active hiring requests and recruiter workflow updates.</small>
+                  </span>
+                  <span className="account-switch">
+                    <input type="checkbox" name="hiring_updates" defaultChecked={preferences.hiring_updates} />
+                    <span aria-hidden="true" />
+                  </span>
+                </label>
+
+                <label className="account-preference-row">
+                  <span className="account-preference-copy">
+                    <strong>Booking reminders</strong>
+                    <small>Reminder emails before scheduled discovery or hiring calls. Booking confirmations still send.</small>
+                  </span>
+                  <span className="account-switch">
+                    <input type="checkbox" name="booking_reminders" defaultChecked={preferences.booking_reminders} />
+                    <span aria-hidden="true" />
+                  </span>
+                </label>
+
+                <label className="account-preference-row">
+                  <span className="account-preference-copy">
+                    <strong>Candidate activity</strong>
+                    <small>Application, shortlist, and candidate-progress notifications that are not security-critical.</small>
+                  </span>
+                  <span className="account-switch">
+                    <input type="checkbox" name="candidate_activity" defaultChecked={preferences.candidate_activity} />
+                    <span aria-hidden="true" />
+                  </span>
+                </label>
+
+                <label className="account-preference-row">
+                  <span className="account-preference-copy">
+                    <strong>Product emails</strong>
+                    <small>Optional product updates and feature announcements. Off by default.</small>
+                  </span>
+                  <span className="account-switch">
+                    <input type="checkbox" name="product_emails" defaultChecked={preferences.product_emails} />
+                    <span aria-hidden="true" />
+                  </span>
+                </label>
+
+                <div className="account-preference-row is-locked">
+                  <span className="account-preference-copy">
+                    <strong><ShieldCheck size={16} /> Security alerts</strong>
+                    <small>Password, verified email, and new or unusual sign-in notices are mandatory for account protection.</small>
+                  </span>
+                  <span className="account-mandatory-badge">Always on</span>
+                </div>
+
+                <div className="account-form-actions">
+                  <span>Security alerts cannot be disabled.</span>
+                  <button className="btn btn-primary" type="submit">Save preferences</button>
+                </div>
+              </form>
+            </section>
+          </div>
         ) : (
           <div className="account-security-stack">
             <section className="account-security-summary">
@@ -344,6 +480,15 @@ export default async function AccountSettingsPage({
                 <p>Use a strong, unique password. Changing it does not require changing your workspace profile.</p>
               </div>
               <Link className="btn" href="/auth/update-password?source=account">Change password</Link>
+            </section>
+
+            <section className="card account-panel account-security-alert-card">
+              <div className="account-password-icon"><Bell size={20} /></div>
+              <div>
+                <h2>New-login alerts</h2>
+                <p>We email you when a successful sign-in comes from a browser and operating-system combination we have not seen recently. Normal repeat logins stay quiet.</p>
+              </div>
+              <span className="account-mandatory-badge">Always on</span>
             </section>
 
             <section className="account-security-section">

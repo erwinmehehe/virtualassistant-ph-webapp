@@ -71,6 +71,41 @@
 .account-form-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--line); }
 .account-form-actions > span { color: var(--muted); font-size: 12px; }
 
+.account-security-lock, .account-mandatory-badge {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border-radius: 999px; padding: 6px 9px; background: #f2f4f7; color: #475467; font-size: 11px; font-weight: 750;
+}
+.account-email-card { display: grid; gap: 0; }
+.account-current-email { display: grid; grid-template-columns: minmax(110px,.35fr) minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid #e5eaf0; border-radius: 13px; background: #fbfcfe; }
+.account-current-email > span { color: var(--muted); font-size: 12px; }
+.account-current-email > strong { min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
+.account-current-email > small { display: inline-flex; align-items: center; gap: 5px; color: var(--success); font-weight: 720; }
+.account-pending-change { margin-top: 14px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 11px; border: 1px solid #f0dca4; border-radius: 13px; background: #fffbeb; color: #7a4d0b; }
+.account-pending-change > svg { flex: 0 0 auto; margin-top: 1px; }
+.account-pending-change strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.account-pending-change span { display: block; margin-top: 3px; font-size: 12px; line-height: 1.5; color: #8a631e; }
+.account-email-change-form { margin-top: 18px; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 14px; }
+.account-email-change-form .field { min-width: 0; }
+.account-email-change-form .btn { min-height: 44px; }
+
+.account-preferences-form { display: grid; }
+.account-preference-row { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 0; border-bottom: 1px solid #edf0f3; cursor: pointer; }
+.account-preference-row:first-child { padding-top: 0; }
+.account-preference-row.is-locked { cursor: default; }
+.account-preference-copy { min-width: 0; display: grid; gap: 4px; }
+.account-preference-copy strong { display: flex; align-items: center; gap: 7px; font-size: 14px; color: #101828; }
+.account-preference-copy small { color: var(--muted); font-size: 12px; line-height: 1.5; max-width: 700px; }
+.account-switch { position: relative; width: 44px; height: 24px; flex: 0 0 auto; }
+.account-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.account-switch > span { position: absolute; inset: 0; pointer-events: none; border-radius: 999px; background: #d0d5dd; transition: background .18s ease; }
+.account-switch > span::after { content: ""; position: absolute; width: 18px; height: 18px; top: 3px; left: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(16,24,40,.25); transition: transform .18s ease; }
+.account-switch input:checked + span { background: var(--brand); }
+.account-switch input:checked + span::after { transform: translateX(20px); }
+.account-switch input:focus-visible + span { outline: 3px solid rgba(68,76,231,.18); outline-offset: 2px; }
+.account-preferences-form .account-form-actions { margin-top: 2px; }
+.account-security-alert-card { display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 16px; }
+.account-security-alert-card h2 { margin: 0 0 5px; font-size: 20px; letter-spacing: -.025em; }
+.account-security-alert-card p { margin: 0; color: var(--muted); max-width: 760px; }
+
 .account-workspace-card { display: grid; grid-template-columns: 46px minmax(0,1fr) auto; align-items: center; gap: 16px; }
 .account-workspace-icon, .account-security-promo-icon, .account-password-icon {
   width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: var(--brand-soft); color: var(--brand);
@@ -134,8 +169,12 @@
   .account-identity-hero { align-items: flex-start; flex-direction: column; padding: 22px; }
   .account-hero-actions { width: 100%; justify-content: flex-start; }
   .account-form-grid, .account-sidebar-stack { grid-template-columns: 1fr; }
-  .account-workspace-card, .account-password-card { grid-template-columns: 44px 1fr; }
+  .account-workspace-card, .account-password-card, .account-security-alert-card { grid-template-columns: 44px 1fr; }
   .account-workspace-card > .btn, .account-password-card > .btn { grid-column: 1 / -1; justify-self: stretch; }
+  .account-security-alert-card > .account-mandatory-badge { grid-column: 1 / -1; justify-self: start; }
+  .account-email-change-form { grid-template-columns: 1fr; align-items: stretch; }
+  .account-email-change-form .btn { width: 100%; }
+  .account-current-email { grid-template-columns: 1fr; gap: 5px; }
   .account-session-card { grid-template-columns: 40px minmax(0,1fr); }
   .account-session-action { grid-column: 1 / -1; justify-self: stretch; }
   .account-session-action .btn { width: 100%; }
@@ -156,6 +195,8 @@
   .account-panel { padding: 20px; }
   .account-photo-editor { align-items: flex-start; }
   .account-form-actions { flex-direction: column; align-items: stretch; }
+  .account-preference-row { align-items: flex-start; gap: 14px; }
+  .account-security-lock { display: none; }
   .account-form-actions .btn { width: 100%; }
   .account-security-summary { grid-template-columns: 1fr; }
 }

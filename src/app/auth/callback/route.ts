@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
+import { recordSuccessfulLoginAndMaybeAlert } from "@/lib/account-security";
 
 function safeNext(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;
@@ -35,6 +36,16 @@ export async function GET(request: Request) {
       if (!user || !profile) {
         await supabase.auth.signOut();
         return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));
+      }
+
+      try {
+        await recordSuccessfulLoginAndMaybeAlert({
+          userId: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+        });
+      } catch {
+        // OAuth sign-in remains available if security-event persistence is temporarily unavailable.
       }
 
       if (user.email && lead && profile.role === "client") {

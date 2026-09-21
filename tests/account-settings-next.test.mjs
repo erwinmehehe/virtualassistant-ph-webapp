@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const readOrEmpty = async (path) => { try { return await read(path); } catch { return ""; } };
 
 test("Account Center uses a verified email-change flow instead of direct editing", async () => {
   const [page, actions, confirmRoute, email] = await Promise.all([
@@ -83,4 +84,21 @@ test("optional email categories honor saved notification preferences", async () 
   assert.match(email, /get_account_notification_preferences_by_email/);
   assert.match(migration, /revoke all on function public\.get_account_notification_preferences_by_email\(text\) from public, anon, authenticated/);
   assert.match(migration, /grant execute on function public\.get_account_notification_preferences_by_email\(text\) to service_role/);
+});
+
+
+test("account display preferences and deletion requests are owner-scoped", async () => {
+  const [migration, preferences] = await Promise.all([
+    readOrEmpty("supabase/migrations/20260921190000_account_display_preferences_and_deletion_requests.sql"),
+    readOrEmpty("src/lib/account-display-preferences.ts"),
+  ]);
+
+  assert.match(migration, /create table if not exists public\.account_display_preferences/);
+  assert.match(migration, /create table if not exists public\.account_deletion_requests/);
+  assert.match(migration, /alter table public\.account_display_preferences enable row level security/);
+  assert.match(migration, /alter table public\.account_deletion_requests enable row level security/);
+  assert.match(migration, /\(select auth\.uid\(\)\) = user_id/);
+  assert.match(preferences, /DEFAULT_ACCOUNT_DISPLAY_PREFERENCES/);
+  assert.match(preferences, /getAccountDisplayPreferences/);
+  assert.match(preferences, /getPendingAccountDeletionRequest/);
 });

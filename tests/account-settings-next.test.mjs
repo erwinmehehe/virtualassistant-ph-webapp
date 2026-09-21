@@ -60,7 +60,8 @@ test("new-login alerts only fire for browser and OS combinations not seen recent
 
   assert.match(security, /90 \* 24 \* 60 \* 60 \* 1000/);
   assert.match(security, /device_key/);
-  assert.match(security, /if \(!recognized && args\.email\)/);
+  assert.match(security, /const shouldAlert = loginHistory\.length > 0 && !recognized/);
+  assert.match(security, /if \(shouldAlert && args\.email\)/);
   assert.match(security, /sendNewLoginSecurityEmail/);
   assert.match(auth, /recordSuccessfulLoginAndMaybeAlert/);
   assert.match(callback, /recordSuccessfulLoginAndMaybeAlert/);

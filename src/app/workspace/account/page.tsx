@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { SessionList } from "@/components/account-security/session-list";
-import { TotpManager } from "@/components/account-security/totp-manager";
 import { requireAnyRole } from "@/lib/auth";
 import { getAccountSecurityState, type SecurityEventType } from "@/lib/account-security";
 import type { Role } from "@/lib/types";
@@ -14,13 +13,8 @@ const eventLabels: Record<SecurityEventType, string> = {
   logout_current: "Signed out this device",
   logout_others: "Signed out other devices",
   logout_all: "Signed out everywhere",
+  session_revoked: "Signed out a device",
   password_changed: "Password changed",
-  totp_enrollment_started: "Authenticator setup started",
-  totp_enabled: "Authenticator app enabled",
-  totp_factor_removed: "Authenticator factor removed",
-  mfa_challenge_succeeded: "Two-factor verification completed",
-  mfa_challenge_failed: "Two-factor verification failed",
-  admin_mfa_recovery: "Authenticator access reset by support",
 };
 
 function formatDate(value: string) {
@@ -44,33 +38,25 @@ function eventDevice(userAgent: string | null) {
 export default async function AccountSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; setup?: string; message?: string; error?: string }>;
+  searchParams: Promise<{ tab?: string; message?: string; error?: string }>;
 }) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter", "client", "va"]);
   const state = await getAccountSecurityState();
   const params = await searchParams;
   const tab = params.tab === "security" ? "security" : "account";
   const role = profile.role as Role;
-  const staff = role === "admin" || role === "recruiter";
 
   return (
     <AppShell userId={user.id} role={role} name={profile.full_name} title="Account settings">
       <div className="page-head">
         <div>
           <h1>Account settings</h1>
-          <p>Manage your personal account, sign-in methods, two-factor security, and active sessions.</p>
+          <p>Manage your personal account, sign-in methods, password, active sessions, and security activity.</p>
         </div>
       </div>
 
       {params.message ? <p className="success-banner" role="status">{params.message}</p> : null}
       {params.error ? <p className="alert" role="alert">{params.error}</p> : null}
-      {params.setup === "required" ? (
-        <div className="alert" role="alert">
-          <strong>Two-factor authentication is required for your role.</strong>
-          <p className="small">Set up an authenticator app before returning to the staff workspace.</p>
-        </div>
-      ) : null}
-
       <div className="row wrap" style={{ marginBottom: 18 }}>
         <Link className={`btn ${tab === "account" ? "btn-primary" : ""}`} href="/workspace/account?tab=account">
           Account
@@ -99,20 +85,6 @@ export default async function AccountSettingsPage({
         </section>
       ) : (
         <div className="stack">
-          <section className="card stack">
-            <div>
-              <h2 style={{ margin: 0 }}>Two-factor authentication</h2>
-              <p className="muted">
-                {staff ? "Required for Admin and Recruiter accounts." : "Optional for your account."}
-              </p>
-            </div>
-            <div className="data-row">
-              <span>Current session</span>
-              <strong>{state.currentLevel === "aal2" ? "2FA verified" : "Password or social sign-in"}</strong>
-            </div>
-            <TotpManager factors={state.factors} required={staff} />
-          </section>
-
           <section className="stack">
             <div>
               <h2>{"Where you're logged in"}</h2>

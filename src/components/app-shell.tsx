@@ -57,10 +57,15 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
 
         <div className="sidebar-footer">
           <Link className="app-support-link" href="/contact"><LifeBuoy size={15}/><span>Help and support</span></Link>
-          <div className="app-account-card">
+          <Link
+            className="app-account-card"
+            href="/workspace/account"
+            aria-label="Open account settings"
+            title="Account settings"
+          >
             <span className="app-account-avatar"><CircleUserRound size={18}/></span>
             <div className="user-copy"><strong>{name || "Account"}</strong><span>{roleLabel}</span></div>
-          </div>
+          </Link>
           <form action={logoutAction}>
             <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
           </form>

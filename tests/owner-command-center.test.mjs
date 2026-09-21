@@ -33,12 +33,13 @@ test("admin hiring oversight can search an exact lead and send tracked follow-up
   assert.doesNotMatch(page,/Open recruiter role/);
 });
 
-test("current workspace card links back to each workspace home",async()=>{
+test("authenticated sidebar removes the redundant current workspace card",async()=>{
   const shell=await read("src/components/app-shell.tsx");
   assert.match(shell,/workspaceHome/);
   assert.match(shell,/recruiter:\s*"\/workspace\/recruiter"/);
   assert.match(shell,/admin:\s*"\/workspace\/admin\/today"/);
-  assert.match(shell,/className="app-workspace-card"/);
+  assert.doesNotMatch(shell,/className="app-workspace-card"/);
+  assert.doesNotMatch(shell,/Current workspace/);
 });
 
 test("recruiter overview and owner today are discoverable from navigation",async()=>{

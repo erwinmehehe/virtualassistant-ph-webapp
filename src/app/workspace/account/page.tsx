@@ -52,7 +52,6 @@ export default async function AccountSettingsPage({
   const tab = params.tab === "security" ? "security" : "account";
   const role = profile.role as Role;
   const staff = role === "admin" || role === "recruiter";
-  const verifiedFactorCount = state.factors.filter((factor) => factor.status === "verified").length;
 
   return (
     <AppShell userId={user.id} role={role} name={profile.full_name} title="Account settings">

@@ -88,7 +88,7 @@ export default async function AdminAccountDeletionRequestsPage({
                       </td>
                       <td>
                         <form action={reviewAccountDeletionRequestAction} className="stack">
-                          <input type="hidden" name="user_id" value={request.user_id} />
+                          <input type="hidden" name="target_user_id" value={request.user_id} />
                           <select name="status" defaultValue={request.status === "pending" ? "reviewing" : request.status}>
                             <option value="reviewing">Reviewing</option>
                             <option value="approved">Approved for controlled review</option>

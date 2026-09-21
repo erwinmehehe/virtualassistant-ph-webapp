@@ -389,7 +389,7 @@
 .account-email-change-form,
 .account-deletion-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: end;
   gap: 14px;
   padding-top: 14px;
@@ -623,6 +623,22 @@
 
 .account-session-action {
   justify-self: end;
+  display: grid;
+  gap: 6px;
+}
+
+.account-session-action form {
+  margin: 0;
+}
+
+.account-password-form {
+  width: min(100%, 430px);
+  display: grid;
+  gap: 8px;
+}
+
+.account-password-form input {
+  min-width: 0;
 }
 
 .account-session-footer {
@@ -862,5 +878,27 @@
 
   .account-settings-identity {
     align-items: flex-start;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .account-email-change-form,
+  .account-deletion-form {
+    grid-template-columns: 1fr;
+  }
+
+  .account-password-form {
+    width: 100%;
+  }
+
+  .account-session-action {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .account-session-action form,
+  .account-session-action .btn {
+    width: 100%;
   }
 }

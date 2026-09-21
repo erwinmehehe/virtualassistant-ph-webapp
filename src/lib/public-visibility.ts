@@ -46,12 +46,22 @@ export function isPubliclyEligible(
 }
 
 /**
- * Approval is a recruiter quality decision, not consent to public processing.
- * Keep this bar focused on profile readiness; public_va_directory separately
- * requires explicit public-profile consent before any approved VA is exposed.
+ * The bar to approve a VA into the bench, deliberately lower than the public
+ * one. An approved VA can be matched, shortlisted and put in front of a client
+ * by a recruiter; none of that exposes them, because public_va_directory
+ * separately requires a photo, PUBLIC_VA_MIN_COMPLETION, two years, a rate,
+ * availability and explicit public-profile consent.
+ *
+ * Approving also protects the account: the abandoned-account cleanup skips
+ * anyone at stage approved or bench.
+ */
+export const APPROVAL_MIN_COMPLETION = 45;
+
+/**
+ * Approval is a recruiter quality decision, not consent to public processing,
+ * so this checks only that there is enough profile to judge. The photo stays a
+ * public-listing requirement, not an approval one.
  */
 export function isRowApprovable(row: { completion_score?: number | null; missing_items?: unknown }) {
-  const missing = Array.isArray(row.missing_items) ? row.missing_items.map(String) : [];
-  const hasPhoto = !missing.includes("photo");
-  return Number(row.completion_score || 0) >= PUBLIC_VA_MIN_COMPLETION && hasPhoto;
+  return Number(row.completion_score || 0) >= APPROVAL_MIN_COMPLETION;
 }

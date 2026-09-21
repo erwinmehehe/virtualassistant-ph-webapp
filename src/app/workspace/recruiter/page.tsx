@@ -5,7 +5,7 @@ import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { BarChart, DashHeader, Empty, Notice, Panel, Pill, ProgressRing, SignalList, StatCard, type Tone } from "@/components/dash-ui";
 import { requireRoleFast } from "@/lib/auth";
 import { getVaCompletion } from "@/lib/profile-completeness";
-import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
+import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { VaProfile } from "@/lib/types";
 
@@ -360,7 +360,7 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       />
 
       {params.bulk_done ? <Notice tone="success">{RESULT_WORD[params.bulk_done] ? `${params.affected || 0} ${RESULT_WORD[params.bulk_done]}` : "Done"}{params.published !== undefined ? ` · ${params.published} now live in the public directory` : ""}.</Notice> : null}
-      {params.skipped ? <Notice tone="warn">Skipped, not directory-ready: {params.skipped}. Approval needs a photo and a profile at {PUBLIC_VA_MIN_COMPLETION}% or better.</Notice> : null}
+      {params.skipped ? <Notice tone="warn">Skipped, too little profile to judge: {params.skipped}. Approval needs a profile at {APPROVAL_MIN_COMPLETION}% or better. Approved VAs stay off the public directory until they add a photo, reach {PUBLIC_VA_MIN_COMPLETION}% and opt in.</Notice> : null}
       {params.bulk_error ? <Notice tone="error">{params.bulk_error}</Notice> : null}
 
       <Suspense fallback={<RecruiterDashboardFallback />}>

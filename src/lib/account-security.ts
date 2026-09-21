@@ -15,10 +15,13 @@ export type SecurityEventType =
   | "logout_others"
   | "logout_all"
   | "session_revoked"
+  | "session_reported"
   | "password_changed"
   | "profile_updated"
   | "email_change_requested"
-  | "email_changed";
+  | "email_changed"
+  | "account_deletion_requested"
+  | "account_deletion_cancelled";
 
 export type AccountApproximateLocation = {
   city: string | null;

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendClaimDraftEmail, sendTransactionalEventEmail, sendDiscoveryReminderEmail } from "@/lib/email";
-import { bookingManageUrl } from "@/lib/booking-operations";
-import { formatDiscoverySlot } from "@/lib/discovery-booking";
+import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 
@@ -43,44 +41,6 @@ async function runIndexNowSubmission(admin: ReturnType<typeof createAdminClient>
   for (const job of jobs || []) changed.push(`${base}/jobs/${job.slug || job.id}`);
 
   return submitToIndexNow(changed);
-}
-
-async function runDiscoveryBookingReminders(admin: ReturnType<typeof createAdminClient>) {
-  const now = Date.now();
-  const upper = new Date(now + 25 * 60 * 60 * 1000).toISOString();
-  const lower = new Date(now + 30 * 60 * 1000).toISOString();
-  const { data: bookings, error } = await admin.from("lead_intake")
-    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
-    .not("discovery_scheduled_at", "is", null)
-    .is("discovery_cancelled_at", null)
-    .is("discovery_completed_at", null)
-    .gte("discovery_scheduled_at", lower)
-    .lte("discovery_scheduled_at", upper)
-    .limit(300);
-  if (error) throw error;
-
-  let reminder24h = 0;
-  let reminder1h = 0;
-  for (const booking of bookings || []) {
-    if (!booking.email || !booking.discovery_scheduled_at || !booking.discovery_manage_token) continue;
-    const minutesUntil = (new Date(booking.discovery_scheduled_at).getTime() - now) / 60_000;
-    const scheduledLabel = formatDiscoverySlot(booking.discovery_scheduled_at, booking.timezone || "Asia/Manila");
-    const manageUrl = bookingManageUrl(booking.discovery_manage_token);
-    if (minutesUntil <= 90 && minutesUntil >= 30 && !booking.discovery_reminder_1h_sent_at) {
-      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "1h" });
-      if (result.sent) {
-        await admin.from("lead_intake").update({ discovery_reminder_1h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_1h_sent_at", null);
-        reminder1h++;
-      }
-    } else if (minutesUntil <= 25 * 60 && minutesUntil >= 23 * 60 && !booking.discovery_reminder_24h_sent_at) {
-      const result = await sendDiscoveryReminderEmail({ to: booking.email, clientName: booking.name, scheduledLabel, meetingUrl: booking.discovery_meeting_url, manageUrl, window: "24h" });
-      if (result.sent) {
-        await admin.from("lead_intake").update({ discovery_reminder_24h_sent_at: new Date().toISOString() }).eq("id", booking.id).is("discovery_reminder_24h_sent_at", null);
-        reminder24h++;
-      }
-    }
-  }
-  return { checked: bookings?.length || 0, reminder24h, reminder1h };
 }
 
 async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>) {
@@ -360,7 +320,7 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, discoveryReminderResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
@@ -368,9 +328,8 @@ export async function GET(request: Request) {
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
-    runMaintenanceTask("discovery reminders", () => runDiscoveryBookingReminders(admin)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
 
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, discoveryReminders: discoveryReminderResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, indexNow: indexNowResult });
 }

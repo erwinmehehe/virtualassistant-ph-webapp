@@ -68,6 +68,14 @@ function joinErrorPath(role: "client" | "va", message: string, extras?: { talent
   return `/auth/join/${role}?${params.toString()}`;
 }
 
+function joinValidationMessage(error: z.ZodError) {
+  const fields = new Set(error.issues.map((issue) => String(issue.path[0] || "form")));
+  if (fields.has("password")) return "Use 12+ characters with uppercase, lowercase, a number, and a symbol. Avoid common password phrases.";
+  if (fields.has("email")) return "Enter a valid email address.";
+  if (fields.has("full_name")) return "Enter your full name.";
+  return "Please check the highlighted account details and try again.";
+}
+
 function tokenFromGeneratedActionLink(actionLink: string | undefined | null) {
   if (!actionLink) return null;
   try {
@@ -216,7 +224,11 @@ export async function joinAction(formData: FormData) {
   const next = String(formData.get("next") || "").trim() || undefined;
   const parsed = joinSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
-    redirect(joinErrorPath(role, "Please complete all required fields", { talent, lead, next }));
+    console.warn("[auth_join] validation_failed", {
+      role,
+      fields: [...new Set(parsed.error.issues.map((issue) => String(issue.path[0] || "form")))],
+    });
+    redirect(joinErrorPath(role, joinValidationMessage(parsed.error), { talent, lead, next }));
   }
 
   if (isDisposableEmail(parsed.data.email)) {
@@ -249,6 +261,11 @@ export async function joinAction(formData: FormData) {
   });
 
   if (error || !data.user) {
+    console.error("[auth_join] generate_link_failed", {
+      role: parsed.data.role,
+      code: (error as { code?: string } | null)?.code || null,
+      status: (error as { status?: number } | null)?.status || null,
+    });
     const accountMayExist = /already|registered|exists/i.test(error?.message || "");
     if (accountMayExist) {
       const loginParams = new URLSearchParams({
@@ -316,21 +333,34 @@ export async function joinAction(formData: FormData) {
     brandedConfirmationSent = false;
   }
 
+  let fallbackConfirmationSent = false;
   if (!brandedConfirmationSent) {
     try {
       const fallbackSupabase = await createClient();
-      await fallbackSupabase.auth.resend({
+      const { error: resendError } = await fallbackSupabase.auth.resend({
         type: "signup",
         email: parsed.data.email,
         options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(destination)}` }
       });
+      fallbackConfirmationSent = !resendError;
+      if (resendError) {
+        console.error("[auth_join] fallback_confirmation_failed", {
+          role: parsed.data.role,
+          code: (resendError as { code?: string } | null)?.code || null,
+          status: (resendError as { status?: number } | null)?.status || null,
+        });
+      }
     } catch {
-      // The account remains valid and the login page exposes confirmation recovery.
+      fallbackConfirmationSent = false;
+      console.error("[auth_join] fallback_confirmation_failed", { role: parsed.data.role, code: "exception" });
     }
   }
 
+  const confirmationDeliveredToProvider = brandedConfirmationSent || fallbackConfirmationSent;
   const loginParams = new URLSearchParams({
-    message: "Check your email to confirm your account",
+    message: confirmationDeliveredToProvider
+      ? "Check your email to confirm your account"
+      : "Your account was created, but the confirmation email could not be sent. Use Resend email below.",
     next: destination,
     confirm: "1"
   });

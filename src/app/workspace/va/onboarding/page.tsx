@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { completeVaQuickSetupAction } from "@/app/actions/va-onboarding";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -14,57 +14,96 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
   const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).maybeSingle();
   const completion = getVaCompletion(va, profile.avatar_url);
 
-  return <>
-    <div className="page-head">
+  return <div className="va-quick-setup-page">
+    <div className="page-head va-quick-setup-head">
       <div>
         <div className="kicker">VA quick setup</div>
         <h1>Start with the details recruiters need first</h1>
-        <p>This short step takes about two minutes. Save the essentials now, then use your dashboard checklist to finish the rest in smaller steps.</p>
+        <p>Save the essentials in about two minutes. Your dashboard will guide you through the remaining profile details one step at a time.</p>
       </div>
-      <Link className="btn" href="/workspace/va/profile">Open full profile</Link>
     </div>
 
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
 
-    <div className="grid-2">
-      <section className="card">
+    <div className="va-quick-setup-layout">
+      <aside className="card va-quick-setup-progress">
         <div className="row-between wrap">
-          <div><span className="small muted">Current profile strength</span><h2 style={{ margin: "4px 0 0" }}>{completion.score}% complete</h2></div>
+          <div>
+            <span className="small muted">Current profile strength</span>
+            <h2>{completion.score}% complete</h2>
+          </div>
           <span className="badge"><Sparkles size={13}/> Step 1</span>
         </div>
-        <div className="progress" aria-label={`Profile ${completion.score}% complete`} style={{ marginTop: 12 }}><span style={{ width: `${completion.score}%` }}/></div>
-        <div className="stack" style={{ marginTop: 18 }}>
-          <div className="row"><CheckCircle2 size={17}/><span>Choose your main VA specialty</span></div>
-          <div className="row"><CheckCircle2 size={17}/><span>Add your experience and availability</span></div>
-          <div className="row"><CheckCircle2 size={17}/><span>Set a realistic preferred hourly rate</span></div>
-        </div>
-        <p className="small muted" style={{ marginTop: 18, marginBottom: 0 }}>After this, your dashboard will show the next missing item instead of sending you through the whole profile at once.</p>
-      </section>
 
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Quick setup</h2>
-        <form action={completeVaQuickSetupAction} className="stack">
+        <div className="progress" aria-label={`Profile ${completion.score}% complete`}>
+          <span style={{ width: `${completion.score}%` }}/>
+        </div>
+
+        <div className="va-quick-setup-step-list" aria-label="Quick setup checklist">
+          <div className="va-quick-setup-step">
+            <span>1</span>
+            <div><strong>Choose your main specialty</strong><small>Tell recruiters the kind of work you want to be matched with.</small></div>
+          </div>
+          <div className="va-quick-setup-step">
+            <span>2</span>
+            <div><strong>Add experience and availability</strong><small>Give recruiters a fast read on your seniority and weekly capacity.</small></div>
+          </div>
+          <div className="va-quick-setup-step">
+            <span>3</span>
+            <div><strong>Set your preferred hourly rate</strong><small>Use the rate you would realistically accept for the right client.</small></div>
+          </div>
+        </div>
+
+        <div className="va-quick-setup-note">
+          <strong>What happens next</strong>
+          <p>Your dashboard will show the next missing profile item instead of sending you through one long form.</p>
+        </div>
+      </aside>
+
+      <section className="card va-quick-setup-form-card">
+        <div className="va-quick-setup-card-head">
+          <span className="small">Quick setup</span>
+          <h2>Tell recruiters how you work</h2>
+          <p>Keep this concise. You can add your photo, summary, tools, resume, and work-readiness evidence after saving.</p>
+        </div>
+
+        <form action={completeVaQuickSetupAction} className="va-quick-setup-form">
           <div className="field">
-            <label htmlFor="quick-primary-category">What type of VA are you?</label>
+            <label htmlFor="quick-primary-category">Main VA specialty</label>
             <select id="quick-primary-category" name="primary_category" defaultValue={va?.primary_category || ""} required>
               <option value="" disabled>Choose your main specialty</option>
               {VA_CATEGORIES.map((category) => <option value={category} key={category}>{vaCategoryLabel(category)}</option>)}
             </select>
             <span className="field-help">Pick the closest match. You can add up to three additional specialties later.</span>
           </div>
+
           <div className="field">
             <label htmlFor="quick-headline">Professional headline</label>
             <input id="quick-headline" name="headline" minLength={8} maxLength={80} required defaultValue={va?.headline || ""} placeholder="Social Media VA | Content & Community"/>
+            <span className="field-help">Use a short role-focused headline that a recruiter can understand at a glance.</span>
           </div>
-          <div className="form-grid">
-            <div className="field"><label htmlFor="quick-years">Years of experience</label><input id="quick-years" type="number" min="0" max="60" name="years_experience" required defaultValue={va?.years_experience ?? ""}/></div>
-            <div className="field"><label htmlFor="quick-hours">Hours available/week</label><input id="quick-hours" type="number" min="1" max="80" name="weekly_hours" required defaultValue={va?.weekly_hours ?? ""}/></div>
-            <div className="field"><label htmlFor="quick-rate">Preferred hourly rate, USD</label><input id="quick-rate" type="number" min={settings.minHourlyRate} max="1000" step="0.01" name="hourly_rate" required defaultValue={va?.hourly_rate ?? ""}/></div>
+
+          <div className="va-quick-setup-metrics">
+            <div className="field">
+              <label htmlFor="quick-years">Years of experience</label>
+              <input id="quick-years" type="number" min="0" max="60" name="years_experience" required defaultValue={va?.years_experience ?? ""} placeholder="3"/>
+            </div>
+            <div className="field">
+              <label htmlFor="quick-hours">Hours available/week</label>
+              <input id="quick-hours" type="number" min="1" max="80" name="weekly_hours" required defaultValue={va?.weekly_hours ?? ""} placeholder="40"/>
+            </div>
+            <div className="field">
+              <label htmlFor="quick-rate">Preferred hourly rate, USD</label>
+              <input id="quick-rate" type="number" min={settings.minHourlyRate} max="1000" step="0.01" name="hourly_rate" required defaultValue={va?.hourly_rate ?? ""} placeholder="8.00"/>
+            </div>
           </div>
-          <button className="btn btn-primary btn-lg" type="submit">Save quick setup <ArrowRight size={16}/></button>
-          <span className="small muted">You can add your photo, summary, skills, tools, resume, and work-readiness details one step at a time afterward.</span>
+
+          <div className="va-quick-setup-actions">
+            <button className="btn btn-primary btn-lg" type="submit">Save quick setup <ArrowRight size={16}/></button>
+            <Link className="btn btn-ghost" href="/workspace/va/profile">Open full profile</Link>
+          </div>
         </form>
       </section>
     </div>
-  </>;
+  </div>;
 }

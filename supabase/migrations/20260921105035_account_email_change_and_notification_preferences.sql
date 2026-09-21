@@ -53,6 +53,14 @@ create index if not exists account_email_change_requests_user_created_idx
 alter table public.account_email_change_requests enable row level security;
 revoke all on public.account_email_change_requests from anon, authenticated;
 
+drop policy if exists "server only email change requests" on public.account_email_change_requests;
+create policy "server only email change requests"
+  on public.account_email_change_requests
+  for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
 create or replace function public.get_account_notification_preferences_by_email(target_email text)
 returns table (
   hiring_updates boolean,

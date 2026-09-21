@@ -39,7 +39,7 @@ export default async function RecruiterAgendaPage(){
   const jobMap=new Map(ownedJobRows.map((job)=>[job.id,job.title]));
 
   const [{data:discoveries,error:discoveryError},{data:tasks,error:taskError},{data:vettingInterviews,error:vettingError},clientInterviewResult]=await Promise.all([
-    admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,owner_id").eq("owner_id",userId).not("discovery_scheduled_at","is",null).is("discovery_completed_at",null).is("discovery_cancelled_at",null).gte("discovery_scheduled_at",startIso).lt("discovery_scheduled_at",endIso).order("discovery_scheduled_at"),
+    admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,owner_id").not("discovery_scheduled_at","is",null).is("discovery_completed_at",null).is("discovery_cancelled_at",null).gte("discovery_scheduled_at",startIso).lt("discovery_scheduled_at",endIso).order("discovery_scheduled_at"),
     admin.from("recruiter_tasks").select("id,title,description,due_at,priority,href,repeat_rule,subject_type,subject_id").eq("assignee_id",userId).eq("status","todo").not("due_at","is",null).gte("due_at",startIso).lt("due_at",endIso).order("due_at"),
     admin.from("va_vetting").select("va_id,recruiter_interview_at,candidate:profiles!va_vetting_va_id_fkey(full_name)").eq("recruiter_id",userId).not("recruiter_interview_at","is",null).gte("recruiter_interview_at",startIso).lt("recruiter_interview_at",endIso).order("recruiter_interview_at"),
     ownedJobIds.length?admin.from("candidate_interviews").select("id,job_id,va_id,scheduled_at,timezone,duration_minutes,meeting_url,status,candidate:profiles!candidate_interviews_va_id_fkey(full_name)").in("job_id",ownedJobIds).eq("status","scheduled").not("scheduled_at","is",null).gte("scheduled_at",startIso).lt("scheduled_at",endIso).order("scheduled_at"):Promise.resolve({data:[],error:null})
@@ -57,7 +57,7 @@ export default async function RecruiterAgendaPage(){
   const days=Array.from({length:7},(_,index)=>{const date=new Date(start.getTime()+index*86400000);return{key:ymdInManila(date),label:new Intl.DateTimeFormat("en-PH",{weekday:"long",month:"short",day:"numeric",timeZone:"Asia/Manila"}).format(date)};});
 
   return <div className="dash-page">
-    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>This Week</h1><p>Your owned discovery calls, client candidate interviews, recruiter vetting interviews, and scheduled tasks in one agenda.</p></div><div className="row wrap"><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link><Link className="btn" href="/workspace/recruiter/tasks">Tasks</Link></div></div>
+    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>This Week</h1><p>All active discovery calls, plus your client candidate interviews, recruiter vetting interviews, and scheduled tasks in one agenda.</p></div><div className="row wrap"><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link><Link className="btn" href="/workspace/recruiter/tasks">Tasks</Link></div></div>
 
     <div className="stack">
       {days.map((day)=>{const dayItems=items.filter((item)=>ymdInManila(new Date(item.at))===day.key);return <section className="card dashboard-section-card" key={day.key}>

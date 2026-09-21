@@ -65,9 +65,8 @@ const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(em
 
 const BOOKING_TEAM_EMAILS = normalizeEmailList([
   process.env.BOOKING_TEAM_EMAILS,
-  "erwinvalles20@gmail.com",
   "jrvsaccad@gmail.com",
-]).filter((email) => !isBlockedEmailRecipient(email));
+]).filter((email) => !isBlockedEmailRecipient(email) && email.toLowerCase() !== "erwinvalles20@gmail.com");
 const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "erwinvalles20@gmail.com",

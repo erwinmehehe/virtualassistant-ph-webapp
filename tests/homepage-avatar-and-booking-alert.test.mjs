@@ -10,15 +10,15 @@ test("homepage talent photos are clipped to clean 72px circles", async () => {
   assert.match(css, /\.hs-talent-top \.avatar img \{[\s\S]*width: 100%;[\s\S]*height: 100%;[\s\S]*border-radius: 50%;[\s\S]*object-fit: cover;/);
 });
 
-test("every public discovery booking sends both booking owners the full internal brief", async () => {
+test("every public discovery booking sends Jervis the full internal brief without copying Erwin", async () => {
   const [email, action] = await Promise.all([
     read("src/lib/email.ts"),
     read("src/app/actions/leads.ts"),
   ]);
 
   assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
-  assert.match(email, /erwinvalles20@gmail\.com/);
   assert.match(email, /jrvsaccad@gmail\.com/);
+  assert.match(email, /email\.toLowerCase\(\) !== "erwinvalles20@gmail\.com"/);
   assert.match(email, /export async function sendInternalDiscoveryBookingNotificationEmail/);
   assert.match(email, /Role<\/td>/);
   assert.match(email, /Hours<\/td>/);

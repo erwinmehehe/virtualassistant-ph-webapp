@@ -68,7 +68,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
         ["Client Success", "/workspace/client-success", Wrench],
-        ["Account settings", "/workspace/account", Settings],
       ],
     },
     {
@@ -109,6 +108,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Audit Log", "/workspace/admin/audit", Activity],
         ["Email Health", "/workspace/admin/email-health", Activity],
+        ["Deletion requests", "/workspace/admin/account-deletion-requests", ShieldCheck],
         ["Settings", "/workspace/admin/settings", Settings],
       ],
     },

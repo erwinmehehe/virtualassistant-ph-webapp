@@ -19,6 +19,8 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { SessionList } from "@/components/account-security/session-list";
 import {
+  cancelAccountDeletionRequestAction,
+  changeAccountPasswordAction,
   requestAccountDeletionAction,
   requestAccountEmailChangeAction,
   updateAccountDisplayPreferencesAction,
@@ -47,10 +49,13 @@ const eventLabels: Record<SecurityEventType, string> = {
   logout_others: "Signed out other devices",
   logout_all: "Signed out everywhere",
   session_revoked: "Signed out a device",
+  session_reported: "Reported an unrecognized session",
   password_changed: "Password changed",
   profile_updated: "Personal profile updated",
   email_change_requested: "Email change requested",
   email_changed: "Email address changed",
+  account_deletion_requested: "Account deletion requested",
+  account_deletion_cancelled: "Account deletion request cancelled",
 };
 
 const commonTimeZones = [
@@ -357,6 +362,17 @@ export default async function AccountSettingsPage({
                       />
                       <span className="field-help">We send a one-hour verification link to the new inbox before anything changes.</span>
                     </div>
+                    <div className="field">
+                      <label htmlFor="email-change-current-password">Confirm current password</label>
+                      <input
+                        id="email-change-current-password"
+                        name="current_password"
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                      />
+                      <span className="field-help">Required before a sign-in email can be changed. Google/Microsoft-only accounts can set a password through password recovery first.</span>
+                    </div>
                     <button className="btn" type="submit">Send verification</button>
                   </form>
                 </section>
@@ -411,12 +427,17 @@ export default async function AccountSettingsPage({
                     </div>
                   </div>
 
-                  <div className="account-setting-row">
+                  <div className="account-setting-row account-setting-row-form">
                     <div className="account-setting-copy">
-                      <strong>Password</strong>
-                      <small>Use a strong, unique password for this account.</small>
+                      <strong>Change password</strong>
+                      <small>Confirm your current password first. A successful change signs out every other session.</small>
                     </div>
-                    <Link className="btn btn-sm" href="/auth/update-password?source=account"><KeyRound size={15} /> Change password</Link>
+                    <form action={changeAccountPasswordAction} className="account-password-form">
+                      <input name="current_password" type="password" autoComplete="current-password" placeholder="Current password" aria-label="Current password" required />
+                      <input name="new_password" type="password" autoComplete="new-password" placeholder="New password" aria-label="New password" minLength={12} required />
+                      <input name="confirm_password" type="password" autoComplete="new-password" placeholder="Confirm new password" aria-label="Confirm new password" minLength={12} required />
+                      <button className="btn btn-sm" type="submit"><KeyRound size={15} /> Change password</button>
+                    </form>
                   </div>
 
                   <div className="account-setting-row">
@@ -437,10 +458,10 @@ export default async function AccountSettingsPage({
 
                   <div className="account-setting-row">
                     <div className="account-setting-copy">
-                      <strong>New-login alerts</strong>
-                      <small>We email you when a successful sign-in uses a browser/device combination we have not seen recently.</small>
+                      <strong>New sign-in tracking</strong>
+                      <small>Successful sign-ins are recorded in your security activity so you can review devices without consuming email quota.</small>
                     </div>
-                    <span className="account-mandatory-badge"><ShieldCheck size={14} /> Always on</span>
+                    <span className="account-mandatory-badge"><ShieldCheck size={14} /> Recorded</span>
                   </div>
                 </section>
 
@@ -674,8 +695,22 @@ export default async function AccountSettingsPage({
                     <div className="account-deletion-pending" role="status">
                       <Trash2 size={18} />
                       <div>
-                        <strong>Deletion request pending</strong>
-                        <span>Requested {formatDate(pendingDeletionRequest.requested_at, displayPreferences)}. The request will be reviewed before linked records are removed.</span>
+                        <strong>
+                          {pendingDeletionRequest.status === "reviewing"
+                            ? "Deletion request under review"
+                            : pendingDeletionRequest.status === "approved"
+                              ? "Deletion request approved for controlled review"
+                              : pendingDeletionRequest.status === "rejected"
+                                ? "Deletion request not approved"
+                                : "Deletion request pending"}
+                        </strong>
+                        <span>Requested {formatDate(pendingDeletionRequest.requested_at, displayPreferences)}. Permanent deletion is never automatic.</span>
+                        {pendingDeletionRequest.review_note ? <span>Review note: {pendingDeletionRequest.review_note}</span> : null}
+                        {pendingDeletionRequest.status === "pending" || pendingDeletionRequest.status === "reviewing" ? (
+                          <form action={cancelAccountDeletionRequestAction}>
+                            <button className="btn btn-sm" type="submit">Cancel deletion request</button>
+                          </form>
+                        ) : null}
                       </div>
                     </div>
                   ) : (
@@ -690,6 +725,17 @@ export default async function AccountSettingsPage({
                           placeholder="DELETE MY ACCOUNT"
                         />
                         <span className="field-help">This creates a review request only. Permanent deletion is not automatic.</span>
+                      </div>
+                      <div className="field">
+                        <label htmlFor="delete-current-password">Confirm current password</label>
+                        <input
+                          id="delete-current-password"
+                          name="current_password"
+                          type="password"
+                          autoComplete="current-password"
+                          required
+                        />
+                        <span className="field-help">A deletion request is security-sensitive, so your current password is required.</span>
                       </div>
                       <button className="btn btn-danger" type="submit">Request deletion</button>
                     </form>

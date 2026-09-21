@@ -51,8 +51,9 @@ export async function saveVaWorkSetupAction(formData: FormData) {
     actorId: user.id
   });
   revalidatePath("/workspace/va/profile");
+  revalidatePath("/workspace/va/work-readiness");
   revalidatePath("/workspace/recruiter/work-readiness");
-  redirect("/workspace/va/profile?work_setup_saved=1#work-readiness");
+  redirect("/workspace/va/work-readiness?saved=1");
 }
 
 export async function verifyVaWorkSetupAction(formData: FormData) {

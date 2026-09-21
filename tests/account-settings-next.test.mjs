@@ -51,7 +51,7 @@ test("notification preferences are distinct from role-specific profile data and 
   assert.doesNotMatch(page, /name="hourly_rate"|name="skills"|name="hiring_notes"/);
 });
 
-test("new-login alerts only fire for browser and OS combinations not seen recently", async () => {
+test("new sign-ins are recorded with recognition metadata without consuming email quota", async () => {
   const [security, auth, callback, email] = await Promise.all([
     read("src/lib/account-security.ts"),
     read("src/app/actions/auth.ts"),
@@ -61,13 +61,12 @@ test("new-login alerts only fire for browser and OS combinations not seen recent
 
   assert.match(security, /90 \* 24 \* 60 \* 60 \* 1000/);
   assert.match(security, /device_key/);
-  assert.match(security, /const shouldAlert = loginHistory\.length > 0 && !recognized/);
-  assert.match(security, /if \(shouldAlert && args\.email\)/);
-  assert.match(security, /sendNewLoginSecurityEmail/);
+  assert.match(security, /recognized/);
+  assert.match(security, /baseline/);
+  assert.doesNotMatch(security, /sendNewLoginSecurityEmail|shouldAlert/);
   assert.match(auth, /recordSuccessfulLoginAndMaybeAlert/);
   assert.match(callback, /recordSuccessfulLoginAndMaybeAlert/);
-  assert.match(email, /New sign-in to your VirtualAssistant\.com\.ph account/);
-  assert.match(email, /Security alerts are mandatory and cannot be disabled/);
+  assert.doesNotMatch(email, /New sign-in to your VirtualAssistant\.com\.ph account/);
 });
 
 test("optional email categories honor saved notification preferences", async () => {
@@ -128,11 +127,12 @@ test("login security captures coarse Vercel location and richer device metadata"
   assert.match(security, /region:/);
   assert.match(security, /country:/);
   assert.match(security, /sign_in_method:/);
-  assert.match(security, /const shouldAlert = loginHistory\.length > 0 && !recognized/);
+  assert.match(security, /recognized/);
+  assert.match(security, /baseline/);
+  assert.doesNotMatch(security, /shouldAlert|sendNewLoginSecurityEmail/);
   assert.match(auth, /signInMethod:\s*"Email & password"/);
   assert.match(callback, /signInMethod:/);
-  assert.match(email, /device\?: string \| null/);
-  assert.match(email, /location\?: string \| null/);
+  assert.doesNotMatch(email, /sendNewLoginSecurityEmail/);
 });
 
 

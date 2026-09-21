@@ -97,13 +97,6 @@ function locationFromMetadata(metadata: Record<string, unknown>): AccountApproxi
   };
 }
 
-function approximateLocationLabel(location: AccountApproximateLocation) {
-  const parts = [location.city, location.region, location.country].filter(
-    (value, index, values): value is string => Boolean(value) && values.indexOf(value) === index
-  );
-  return parts.length ? parts.join(", ") : null;
-}
-
 async function requestSecurityContext() {
   const requestHeaders = await headers();
   return {

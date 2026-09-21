@@ -9,6 +9,15 @@ function safeNext(value: string | null) {
   return value;
 }
 
+function oauthSignInMethod(provider: unknown) {
+  if (provider === "google") return "Google";
+  if (provider === "azure") return "Microsoft";
+  if (typeof provider === "string" && provider.trim()) {
+    return provider.charAt(0).toUpperCase() + provider.slice(1);
+  }
+  return "Social sign-in";
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -43,6 +52,7 @@ export async function GET(request: Request) {
           userId: user.id,
           email: user.email,
           fullName: profile.full_name,
+          signInMethod: oauthSignInMethod(user.app_metadata?.provider),
         });
       } catch {
         // OAuth sign-in remains available if security-event persistence is temporarily unavailable.

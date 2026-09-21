@@ -243,7 +243,7 @@ async function trackedSend(
       );
       return { sent: false as const, data: null, reason: "daily_quota_reserved" };
     }
-  } catch (error) {
+  } catch {
     if (priority !== "critical") {
       await logEmailEvent(eventType, allRecipients, "skipped_quota", null, "Quota usage lookup failed; non-critical email was not sent.");
       return { sent: false as const, data: null, reason: "quota_lookup_failed" };

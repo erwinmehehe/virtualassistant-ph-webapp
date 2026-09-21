@@ -159,7 +159,7 @@ Commit message: `feat: add account display and deletion request storage`
 - [ ] **Step 1: Write failing device/location tests**
 
 Extend `tests/account-settings-next.test.mjs` to assert:
-- the pure parser recognizes Windows, macOS, iPhone/iOS, iPad/iOS, Android, Linux
+- the parser source contains explicit Windows, macOS, iPhone/iOS, iPad/iOS, Android, and Linux branches, with TypeScript/CI providing executable validation
 - `account-security.ts` reads all three Vercel coarse location headers
 - no latitude/longitude header names appear
 - login metadata includes `device`, `city`, `region`, `country`, `sign_in_method`
@@ -168,7 +168,7 @@ Extend `tests/account-settings-next.test.mjs` to assert:
 - the existing `loginHistory.length > 0 && !recognized` baseline check remains
 - login alert email supports optional device/location text.
 
-Use source-reading assertions plus a pure parser import test where Node can load the module without server-only dependencies.
+Use source-reading assertions for the TypeScript parser in this Node-only regression file; executable parser correctness is additionally gated by `npm run typecheck` and the production build.
 
 - [ ] **Step 2: Run the targeted tests and verify RED**
 

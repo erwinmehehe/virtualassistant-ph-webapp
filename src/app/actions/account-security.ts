@@ -564,7 +564,7 @@ export async function reviewAccountDeletionRequestAction(formData: FormData) {
 
   const admin = createAdminClient();
   const now = new Date().toISOString();
-  const { error } = await admin
+  const { data: updatedRequest, error } = await admin
     .from("account_deletion_requests")
     .update({
       status: status.data,
@@ -573,9 +573,11 @@ export async function reviewAccountDeletionRequestAction(formData: FormData) {
       review_note: note,
       updated_at: now,
     })
-    .eq("user_id", targetUserId.data);
+    .eq("user_id", targetUserId.data)
+    .select("user_id")
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedRequest) {
     redirect("/workspace/admin/account-deletion-requests?error=Could%20not%20update%20the%20deletion%20request");
   }
 

@@ -13,6 +13,7 @@ import { socialLoginEnabled } from "@/lib/social-login";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { sendAccountConfirmationEmail, sendPasswordRecoveryEmail } from "@/lib/email";
+import { recordSuccessfulLoginAndMaybeAlert } from "@/lib/account-security";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -175,6 +176,15 @@ export async function loginAction(formData: FormData) {
   if (!user || !profile) {
     await supabase.auth.signOut();
     redirect("/auth/login?error=Your%20account%20was%20authenticated%20but%20its%20workspace%20could%20not%20be%20loaded.%20Please%20try%20again%20or%20contact%20support.");
+  }
+  try {
+    await recordSuccessfulLoginAndMaybeAlert({
+      userId: user.id,
+      email: user.email,
+      fullName: profile.full_name,
+    });
+  } catch {
+    // Sign-in remains available if security-event persistence is temporarily unavailable.
   }
   const fallback = `/workspace/${profile.role}`;
   const requested = safePath(parsed.data.next, fallback);

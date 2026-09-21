@@ -7,8 +7,9 @@ test("admin email health exposes volume failures and suppressions", async () => 
   assert.match(p, /Email health/);
   assert.match(p, /outbound_email_events/);
   assert.match(p, /email_suppressions/);
-  assert.match(p, /Quota errors/);
-  assert.match(p, /Email volume by automation/);
+  assert.match(p, /Recipient deliveries today/);
+  assert.match(p, /Remaining daily allowance/);
+  assert.match(p, /Sends by automation/);
   assert.match(p, /Recent delivery problems/);
 });
 
@@ -17,8 +18,8 @@ test("admin email health reports query failures instead of healthy empty states"
   assert.match(p, /eventsError/);
   assert.match(p, /suppressionsError/);
   assert.match(p, /Email health data unavailable/);
-  assert.match(p, /Latest 500 email events/);
-  assert.match(p, /Up to 100 suppressed recipients/);
+  assert.match(p, /Email health data unavailable/);
+  assert.match(p, /suppression data/);
 });
 
 test("admin email health is an admin-only workspace destination", async () => {

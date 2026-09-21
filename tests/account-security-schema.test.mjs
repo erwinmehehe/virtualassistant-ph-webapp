@@ -10,7 +10,7 @@ test("account security migration stores private events and exposes only own sess
   assert.match(sql, /create table if not exists public\.account_security_events/i);
   assert.match(sql, /user_id uuid not null references auth\.users\(id\)/i);
   assert.match(sql, /enable row level security/i);
-  assert.match(sql, /auth\.uid\(\) = user_id/i);
+  assert.match(sql, /(?:select\s+)?auth\.uid\(\)\)? = user_id/i);
 
   assert.match(sql, /create or replace function public\.list_own_auth_sessions\(\)/i);
   assert.match(sql, /from auth\.sessions/i);

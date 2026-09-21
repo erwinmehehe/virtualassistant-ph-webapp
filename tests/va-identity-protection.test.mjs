@@ -38,8 +38,9 @@ test("the full name appears only once the client is committed", () => {
 });
 
 test("pre-placement client surfaces mask the name", () => {
+  assert.match(source("src/components/client-shortlist-candidate-card.tsx"), /maskVaName\(/);
+  assert.match(source("src/app/workspace/client/candidates/page.tsx"), /ClientShortlistCandidateCard/);
   for (const rel of [
-    "src/app/workspace/client/candidates/page.tsx",
     "src/app/workspace/client/candidates/[id]/page.tsx",
     "src/app/workspace/client/compare/page.tsx",
     "src/app/workspace/client/interviews/page.tsx"

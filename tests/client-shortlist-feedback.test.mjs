@@ -6,6 +6,7 @@ const actions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");
 const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const clientCandidateCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
 const recruiterQueue = fs.readFileSync("src/app/workspace/recruiter/client-review/page.tsx", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 const migration = fs.readFileSync("supabase/migrations/20260915005739_client_shortlist_feedback_and_availability.sql", "utf8");
@@ -34,7 +35,8 @@ test("client shortlist records viewed state and offers interested interview and 
   assert.match(clientCandidates, />Interested</);
   assert.match(clientCandidates, />Request interview</);
   assert.match(clientCandidates, />Confirm pass</);
-  assert.match(clientCandidates, /Why we recommend this VA/);
+  assert.match(clientCandidateCard, /Why we recommend this VA/);
+  assert.match(clientCandidates, /ClientShortlistCandidateCard/);
 });
 
 test("recruiter client-review queue exposes follow-up and replacement states", () => {

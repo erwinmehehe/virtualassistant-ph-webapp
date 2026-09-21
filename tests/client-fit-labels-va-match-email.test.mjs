@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const candidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const sharedCandidateCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
 const candidate = fs.readFileSync("src/app/workspace/client/candidates/[id]/page.tsx", "utf8");
 const compare = fs.readFileSync("src/app/workspace/client/compare/page.tsx", "utf8");
 const job = fs.readFileSync("src/app/workspace/client/jobs/[id]/page.tsx", "utf8");
@@ -10,7 +11,7 @@ const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const matchingLib = fs.readFileSync("src/lib/matching.ts", "utf8");
 const matchEmail = fs.readFileSync("src/lib/match-email.ts", "utf8");
 
-const clientCandidateSurfaces = [candidates, candidate, compare];
+const clientCandidateSurfaces = [sharedCandidateCard, candidate, compare];
 
 test("client candidate surfaces use qualitative fit labels without numeric match scores", () => {
   for (const source of clientCandidateSurfaces) {
@@ -20,7 +21,8 @@ test("client candidate surfaces use qualitative fit labels without numeric match
     assert.doesNotMatch(source, /\{row\.match_score\}\/100/);
     assert.doesNotMatch(source, /\{row\.match_score\}%/);
   }
-  assert.match(candidates, /Why we recommend this VA/);
+  assert.match(sharedCandidateCard, /Why we recommend this VA/);
+  assert.match(candidates, /ClientShortlistCandidateCard/);
   assert.match(candidate, /Why we recommend this VA/);
   assert.match(job, /You do not need to manage raw applicants/);
   assert.doesNotMatch(job, /match_score|Match confidence|\/100/);

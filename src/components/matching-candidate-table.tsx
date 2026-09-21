@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { matchLabel } from "@/lib/matching";
+import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
 
 function availabilityLabel(value?: string | null) {
   if (!value) return "Not set";
@@ -68,6 +69,7 @@ export function MatchingCandidateTable({
 }) {
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [showClientPreview, setShowClientPreview] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(
       pool
@@ -89,6 +91,7 @@ export function MatchingCandidateTable({
   }, [pool, query]);
 
   const visible = query || showAll ? filtered : filtered.slice(0, 20);
+  const selectedRows = pool.filter((row) => selected.has(String(row.va.user_id)));
   const selectedCount = selected.size;
 
   function toggleSelected(vaId: string, checked: boolean) {
@@ -107,6 +110,9 @@ export function MatchingCandidateTable({
         <div className="small muted">Only checked candidates are included in Save or Send. Previously released candidates stay with the client and are not re-sent.</div>
       </div>
       <div className="row wrap">
+        <button className="btn" type="button" disabled={!selectedCount} aria-expanded={showClientPreview} onClick={() => setShowClientPreview((value) => !value)}>
+          {showClientPreview ? "Hide client preview" : "Preview client view"}
+        </button>
         <button className="btn" type="submit" name="mode" value="save" disabled={!selectedCount}>Save {selectedCount || ""} internally</button>
         {canSendClient
           ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount}>Send {selectedCount || 0} to client</button>
@@ -115,6 +121,43 @@ export function MatchingCandidateTable({
             : null}
       </div>
     </div>
+
+    {showClientPreview && selectedRows.length ? <section className="card" style={{margin:"0 0 16px",background:"#f8fafc"}} aria-label="Client shortlist preview">
+      <div className="row-between wrap" style={{marginBottom:12}}>
+        <div>
+          <div className="small muted">Client view preview</div>
+          <h3 style={{margin:"2px 0 4px"}}>{selectedRows.length} candidate{selectedRows.length===1?"":"s"} selected</h3>
+          <p className="small muted" style={{margin:0}}>This mirrors the client shortlist card. Full names, internal match percentages, confidence, recruiter-only risks, and private notes are not shown.</p>
+        </div>
+        <span className="badge">Preview only</span>
+      </div>
+      <div className="grid-3 browse-va-grid">
+        {selectedRows.map((row) => {
+          const vaId = String(row.va.user_id);
+          return <ClientShortlistCandidateCard
+            key={vaId}
+            fullName={row.account?.full_name}
+            headline={row.va.headline}
+            primaryCategory={row.va.primary_category}
+            matchScore={row.score}
+            yearsExperience={row.va.years_experience}
+            weeklyHours={row.va.weekly_hours}
+            hourlyRate={row.va.hourly_rate}
+            skills={row.va.skills}
+            tools={row.va.tools}
+            recommendation={recommendations[vaId] || null}
+            actions={<div className="stack" style={{marginTop:10}}>
+              <div className="row wrap">
+                <button className="btn btn-sm" type="button" disabled>Interested</button>
+                <button className="btn btn-sm" type="button" disabled>Request interview</button>
+                <button className="btn btn-sm" type="button" disabled>Hold</button>
+                <button className="btn btn-sm" type="button" disabled>Pass</button>
+              </div>
+            </div>}
+          />;
+        })}
+      </div>
+    </section> : null}
 
     <div className="row-between wrap" style={{ margin: "0 0 12px", gap: 10 }}>
       <div className="field" style={{ margin: 0, flex: "1 1 340px" }}>

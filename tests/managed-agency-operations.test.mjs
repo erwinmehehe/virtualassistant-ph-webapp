@@ -6,9 +6,11 @@ const read=(path)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8")
 
 test("client workspace exposes recruiter-curated shortlist instead of raw applicant management",()=>{
   const candidates=read("src/app/workspace/client/candidates/page.tsx");
+  const candidateCard=read("src/components/client-shortlist-candidate-card.tsx");
   const job=read("src/app/workspace/client/jobs/[id]/page.tsx");
   assert.match(candidates,/Only candidates selected by our recruiting team appear here/);
-  assert.match(candidates,/Why we recommend this VA/);
+  assert.match(candidates,/ClientShortlistCandidateCard/);
+  assert.match(candidateCard,/Why we recommend this VA/);
   assert.doesNotMatch(candidates,/updateApplicationStatusAction|hireCandidateAction|inviteVaAction/);
   assert.match(job,/You do not need to manage raw applicants/);
   assert.doesNotMatch(job,/updateApplicationStatusAction|hireCandidateAction|inviteVaAction/);

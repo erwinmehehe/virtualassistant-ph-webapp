@@ -19,7 +19,10 @@ test("account security migration stores private events and exposes only own sess
   assert.match(sql, /create or replace function public\.revoke_own_auth_session\(target_session_id uuid\)/i);
   assert.match(sql, /id = target_session_id/i);
   assert.match(sql, /user_id = \(select auth\.uid\(\)\)/i);
-  assert.match(sql, /auth\.jwt\(\)->>'session_id'/i);\n  assert.match(sql, /set search_path = \'\'/i);\n  assert.doesNotMatch(sql, /lookup_auth_user_id_by_email/i);\n});
+  assert.match(sql, /auth\.jwt\(\)->>'session_id'/i);
+  assert.match(sql, /set search_path = ''/i);
+  assert.doesNotMatch(sql, /lookup_auth_user_id_by_email/i);
+});
 
 test("session RPC does not accept a browser-supplied user id", async () => {
   const sql = await read("supabase/migrations/20260921_account_security_events_and_session_controls.sql");

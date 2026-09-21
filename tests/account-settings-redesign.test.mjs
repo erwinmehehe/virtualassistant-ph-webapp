@@ -4,14 +4,14 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("Account Center has an editable personal profile and role-aware workspace shortcuts", async () => {
+test("Account Center keeps editable personal profile controls and role-aware workspace shortcuts", async () => {
   const [page, actions] = await Promise.all([
     read("src/app/workspace/account/page.tsx"),
     read("src/app/actions/account-security.ts"),
   ]);
 
-  assert.match(page, /account-identity-hero/);
-  assert.match(page, /Profile information/);
+  assert.match(page, /account-settings-header/);
+  assert.match(page, /Personal profile/);
   assert.match(page, /action=\{updateAccountProfileAction\}/);
   assert.match(page, /name="full_name"/);
   assert.match(page, /name="avatar"/);
@@ -20,6 +20,7 @@ test("Account Center has an editable personal profile and role-aware workspace s
   assert.match(page, /Professional VA profile/);
   assert.match(page, /Recruiter workspace/);
   assert.match(page, /Admin workspace/);
+  assert.doesNotMatch(page, /account-identity-hero/);
 
   assert.match(actions, /export async function updateAccountProfileAction/);
   assert.match(actions, /requireAnyRole\(\["admin", "recruiter", "client", "va"\]\)/);
@@ -34,9 +35,8 @@ test("Account Center has an editable personal profile and role-aware workspace s
 test("Account Center exposes meaningful account and security state without TOTP", async () => {
   const page = await read("src/app/workspace/account/page.tsx");
 
-  assert.match(page, /Email verified/);
-  assert.match(page, /Account overview/);
-  assert.match(page, /Active session/);
+  assert.match(page, /account-verified-badge/);
+  assert.match(page, /active session/);
   assert.match(page, /Last sign-in/);
   assert.match(page, /Change password/);
   assert.match(page, /Where you're logged in/);
@@ -45,7 +45,7 @@ test("Account Center exposes meaningful account and security state without TOTP"
   assert.doesNotMatch(page, /TOTP|Two-factor authentication|Authenticator app/);
 });
 
-test("Account Center session UI is card-based and responsive", async () => {
+test("Account Center session UI is information-rich and responsive", async () => {
   const [sessions, css] = await Promise.all([
     read("src/components/account-security/session-list.tsx"),
     read("src/app/workspace/account-center.css"),
@@ -53,13 +53,17 @@ test("Account Center session UI is card-based and responsive", async () => {
 
   assert.match(sessions, /account-session-card/);
   assert.match(sessions, /This device/);
+  assert.match(sessions, /Location unavailable/);
   assert.match(sessions, /IP address/);
+  assert.match(sessions, /Sign-in method/);
   assert.match(sessions, /Last activity/);
   assert.match(sessions, /Log out other devices/);
   assert.match(sessions, /Log out everywhere/);
 
-  assert.match(css, /\.account-layout \{ display: grid;/);
-  assert.match(css, /\.account-security-summary \{ display: grid;/);
-  assert.match(css, /@media \(max-width: 760px\)/);
-  assert.match(css, /\.account-session-meta \{ grid-template-columns: 1fr;/);
+  assert.match(css, /\.account-settings-shell \{/);
+  assert.match(css, /\.account-settings-nav \{/);
+  assert.match(css, /@media \(max-width: 900px\)/);
+  assert.match(css, /overflow-x: auto/);
+  assert.match(css, /\.account-session-meta \{/);
+  assert.match(css, /grid-template-columns: 1fr/);
 });

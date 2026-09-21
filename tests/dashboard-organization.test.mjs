@@ -58,3 +58,15 @@ test("overview pages preserve useful loading and degraded states", () => {
   assert.match(va, /aria-busy="true"/);
   assert.match(recruiter, /aria-busy="true"/);
 });
+
+
+test("authenticated workspace shell does not promote the public site", () => {
+  assert.doesNotMatch(shell, /Public site/);
+  assert.doesNotMatch(shell, /app-topbar-public/);
+  assert.doesNotMatch(shell, /ExternalLink/);
+});
+
+test("VA dashboard does not duplicate action verbs in profile guidance", () => {
+  assert.doesNotMatch(va, /Add \$\{completion\.next\.label\}/);
+  assert.match(va, /completion\.next\.label/);
+});

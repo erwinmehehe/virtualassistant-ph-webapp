@@ -735,9 +735,14 @@ const discoveryBookingSchema = z.object({
   phone: z.string().trim().max(50).optional(),
   company: z.string().trim().min(2).max(160),
   company_url: z.string().trim().url().max(300).or(z.literal("")).optional(),
-  service: z.string().trim().min(2).max(100),
-  hours: z.string().trim().min(2).max(80),
-  budget: z.string().trim().min(2).max(100),
+  service: z.string().trim().min(3).max(100).refine((value) => !/^virtual assistant hiring$/i.test(value), {
+    message: "Tell us the actual role you need to hire.",
+  }),
+  hours: z.string().trim().min(1).max(3).refine((value) => {
+    const hours = Number(value);
+    return Number.isInteger(hours) && hours >= 1 && hours <= 80;
+  }, { message: "Hours per week must be between 1 and 80." }),
+  budget: z.string().trim().min(1).max(100),
   start_time: z.string().trim().min(2).max(100),
   message: z.string().trim().min(15).max(3000),
   website: z.string().max(200).optional(),
@@ -814,10 +819,33 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
   }
 
+  let jobId: string | null = null;
+  try {
+    const clientId = await currentClientId();
+    jobId = await createPendingJobForLead({
+      admin,
+      leadId: lead.id,
+      clientId,
+      title: parsed.data.service,
+      service: parsed.data.service,
+      company: parsed.data.company,
+      hours: parsed.data.hours,
+      timezone: parsed.data.timezone,
+      startTime: parsed.data.start_time,
+      message: parsed.data.message,
+      budget: parsed.data.budget,
+    });
+  } catch (jobError) {
+    console.error("[booking] Could not create pending job draft", {
+      leadId: lead.id,
+      error: jobError instanceof Error ? jobError.message : String(jobError),
+    });
+  }
+
   await admin.from("analytics_events").insert({
     event_name: "booking_completed",
     path: "/book-client-call",
-    metadata: { lead_id: lead.id, service: parsed.data.service, audience: "client" },
+    metadata: { lead_id: lead.id, job_id: jobId, service: parsed.data.service, audience: "client" },
   });
 
   const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
@@ -853,6 +881,11 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientName: parsed.data.name,
       clientEmail: parsed.data.email,
       company: parsed.data.company,
+      service: parsed.data.service,
+      hours: parsed.data.hours,
+      budget: parsed.data.budget,
+      startTime: parsed.data.start_time,
+      message: parsed.data.message,
       clientLabel,
       manilaLabel,
       meetingUrl: meeting?.joinUrl || null,

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { parseAccountDevice } from "@/lib/account-device";
 import { sendNewLoginSecurityEmail } from "@/lib/email";
 import { siteOrigin } from "@/lib/seo-url";
 
@@ -19,6 +20,12 @@ export type SecurityEventType =
   | "email_change_requested"
   | "email_changed";
 
+export type AccountApproximateLocation = {
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
+
 export type AccountSession = {
   id: string;
   created_at: string;
@@ -29,6 +36,12 @@ export type AccountSession = {
   ip: string | null;
   aal: "aal1" | "aal2" | null;
   current: boolean;
+  browser: string;
+  os: string;
+  device: string;
+  location: AccountApproximateLocation;
+  recognized: boolean | null;
+  signInMethod: string | null;
 };
 
 export type SecurityEvent = {
@@ -56,11 +69,50 @@ function headerIp(value: string | null) {
   return first || null;
 }
 
+function decodedHeader(value: string | null) {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function metadataString(metadata: Record<string, unknown>, key: string) {
+  const value = metadata[key];
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function metadataBoolean(metadata: Record<string, unknown>, key: string) {
+  const value = metadata[key];
+  return typeof value === "boolean" ? value : null;
+}
+
+function locationFromMetadata(metadata: Record<string, unknown>): AccountApproximateLocation {
+  return {
+    city: metadataString(metadata, "city"),
+    region: metadataString(metadata, "region"),
+    country: metadataString(metadata, "country"),
+  };
+}
+
+function approximateLocationLabel(location: AccountApproximateLocation) {
+  const parts = [location.city, location.region, location.country].filter(
+    (value, index, values): value is string => Boolean(value) && values.indexOf(value) === index
+  );
+  return parts.length ? parts.join(", ") : null;
+}
+
 async function requestSecurityContext() {
   const requestHeaders = await headers();
   return {
     ip: headerIp(requestHeaders.get("x-forwarded-for")) || headerIp(requestHeaders.get("x-real-ip")),
     userAgent: requestHeaders.get("user-agent"),
+    location: {
+      city: decodedHeader(requestHeaders.get("x-vercel-ip-city")),
+      region: decodedHeader(requestHeaders.get("x-vercel-ip-country-region")),
+      country: decodedHeader(requestHeaders.get("x-vercel-ip-country")),
+    } satisfies AccountApproximateLocation,
   };
 }
 
@@ -70,40 +122,11 @@ function claimsSessionId(claims: unknown) {
   return typeof value === "string" ? value : null;
 }
 
-function loginDevice(userAgent: string | null) {
-  const ua = userAgent || "";
-  const browser = /Edg\//.test(ua)
-    ? "Edge"
-    : /Chrome\//.test(ua)
-      ? "Chrome"
-      : /Firefox\//.test(ua)
-        ? "Firefox"
-        : /Safari\//.test(ua)
-          ? "Safari"
-          : "Browser";
-  const os = /Windows NT/.test(ua)
-    ? "Windows"
-    : /Mac OS X/.test(ua) && !/iPhone|iPad/.test(ua)
-      ? "macOS"
-      : /iPhone|iPad/.test(ua)
-        ? "iOS"
-        : /Android/.test(ua)
-          ? "Android"
-          : /Linux/.test(ua)
-            ? "Linux"
-            : "Unknown OS";
-  const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  return {
-    browser,
-    os,
-    deviceKey: `${slug(browser)}:${slug(os)}`,
-  };
-}
-
 export async function recordSuccessfulLoginAndMaybeAlert(args: {
   userId: string;
   email?: string | null;
   fullName?: string | null;
+  signInMethod?: string | null;
 }) {
   const [requestContext, supabase] = await Promise.all([
     requestSecurityContext(),
@@ -111,7 +134,7 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
   ]);
   const { data: claimsData } = await supabase.auth.getClaims();
   const sessionId = claimsSessionId(claimsData?.claims);
-  const device = loginDevice(requestContext.userAgent);
+  const device = parseAccountDevice(requestContext.userAgent);
   const admin = createAdminClient();
   const occurredAt = new Date().toISOString();
   const seenSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
@@ -144,6 +167,11 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
       device_key: device.deviceKey,
       browser: device.browser,
       os: device.os,
+      device: device.device,
+      city: requestContext.location.city,
+      region: requestContext.location.region,
+      country: requestContext.location.country,
+      sign_in_method: args.signInMethod ?? null,
       recognized,
       baseline: loginHistory.length === 0,
     },
@@ -156,6 +184,8 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
         fullName: args.fullName,
         browser: device.browser,
         os: device.os,
+        device: device.device,
+        location: approximateLocationLabel(requestContext.location),
         ip: requestContext.ip,
         occurredAt,
         reviewUrl: `${siteOrigin()}/workspace/account?tab=security`,
@@ -184,21 +214,40 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const currentSessionId = claimsSessionId(claimsData?.claims);
   const admin = createAdminClient();
 
-  const [sessionsResult, { data: events }] = await Promise.all([
+  const [sessionsResult, { data: eventRows }] = await Promise.all([
     admin.rpc("list_auth_sessions_for_user", { target_user_id: user.id }),
     supabase
       .from("account_security_events")
       .select("id,event_type,session_id,ip,user_agent,metadata,created_at")
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(100),
   ]);
+
+  const allEvents = (eventRows ?? []) as SecurityEvent[];
+  const loginBySession = new Map<string, SecurityEvent>();
+  for (const event of allEvents) {
+    if (event.event_type === "login_succeeded" && event.session_id && !loginBySession.has(event.session_id)) {
+      loginBySession.set(event.session_id, event);
+    }
+  }
 
   const sessions = Array.isArray(sessionsResult.data)
     ? sessionsResult.data.map((row) => {
-        const session = row as Omit<AccountSession, "current">;
+        const raw = row as Omit<AccountSession, "current" | "browser" | "os" | "device" | "location" | "recognized" | "signInMethod">;
+        const parsedDevice = parseAccountDevice(raw.user_agent);
+        const loginEvent = loginBySession.get(raw.id);
+        const metadata = loginEvent?.metadata && typeof loginEvent.metadata === "object"
+          ? loginEvent.metadata
+          : {};
         return {
-          ...session,
-          current: session.id === currentSessionId,
+          ...raw,
+          current: raw.id === currentSessionId,
+          browser: metadataString(metadata, "browser") ?? parsedDevice.browser,
+          os: metadataString(metadata, "os") ?? parsedDevice.os,
+          device: metadataString(metadata, "device") ?? parsedDevice.device,
+          location: locationFromMetadata(metadata),
+          recognized: metadataBoolean(metadata, "recognized"),
+          signInMethod: metadataString(metadata, "sign_in_method"),
         };
       })
     : [];
@@ -212,7 +261,7 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
       .map((identity) => identity.provider)
       .filter((provider): provider is string => Boolean(provider)),
     sessions,
-    events: (events ?? []) as SecurityEvent[],
+    events: allEvents.slice(0, 20),
   };
 }
 

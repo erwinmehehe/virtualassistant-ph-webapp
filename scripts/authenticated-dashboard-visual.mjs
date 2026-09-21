@@ -18,6 +18,9 @@ const roles = [
   { role: "client", email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
   { role: "va", email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }
 ];
+
+const accountTabs = ["profile", "security", "notifications", "preferences", "privacy"];
+
 const viewports = [
   { name: "mobile", width: 390, height: 844 },
   { name: "tablet", width: 768, height: 1024 },
@@ -82,6 +85,32 @@ try {
       if (consoleErrors.length) throw new Error(`${role.role} ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
       await context.close();
       console.log(`Captured ${role.role} dashboard at ${viewport.width}x${viewport.height}`);
+    }
+  }
+
+  const recruiterSession = await signIn(process.env.SMOKE_RECRUITER_EMAIL, process.env.SMOKE_RECRUITER_PASSWORD);
+  for (const tab of accountTabs) {
+    for (const viewport of viewports) {
+      const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+      if (bypassSecret) {
+        await context.setExtraHTTPHeaders({ "x-vercel-protection-bypass": bypassSecret });
+      }
+      await context.addCookies(sessionCookies(recruiterSession, new URL(baseUrl).hostname));
+      const page = await context.newPage();
+      const consoleErrors = [];
+      page.on("console", (message) => {
+        if (message.type() === "error") consoleErrors.push(message.text());
+      });
+      const response = await page.goto(`${baseUrl}/workspace/account?tab=${tab}`, { waitUntil: "networkidle", timeout: 90000 });
+      if (!response?.ok()) throw new Error(`account ${tab} ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
+      await page.locator(".account-settings-content").waitFor({ state: "visible", timeout: 30000 });
+      await page.locator(`.account-settings-nav a[href="/workspace/account?tab=${tab}"]`).waitFor({ state: "visible", timeout: 30000 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+      if (overflow) throw new Error(`account ${tab} ${viewport.name} has horizontal page overflow.`);
+      await page.screenshot({ path: path.join(outputDir, `account-${tab}-${viewport.name}.png`), fullPage: true });
+      if (consoleErrors.length) throw new Error(`account ${tab} ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
+      await context.close();
+      console.log(`Captured account ${tab} at ${viewport.width}x${viewport.height}`);
     }
   }
 } finally {

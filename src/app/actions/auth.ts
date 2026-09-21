@@ -182,6 +182,7 @@ export async function loginAction(formData: FormData) {
       userId: user.id,
       email: user.email,
       fullName: profile.full_name,
+      signInMethod: "Email & password",
     });
   } catch {
     // Sign-in remains available if security-event persistence is temporarily unavailable.

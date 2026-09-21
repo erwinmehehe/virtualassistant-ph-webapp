@@ -267,3 +267,79 @@ export async function updateNotificationPreferencesAction(formData: FormData) {
   revalidatePath("/workspace/account");
   redirect("/workspace/account?tab=notifications&message=Notification%20preferences%20saved");
 }
+
+
+const accountDisplayPreferencesSchema = z.object({
+  timezone: z.string().trim().min(1).max(100),
+  date_format: z.enum(["medium", "short"]),
+  time_format: z.enum(["12h", "24h"]),
+});
+
+function isValidTimeZone(value: string) {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value }).format(new Date());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateAccountDisplayPreferencesAction(formData: FormData) {
+  const { user } = await requireAnyRole(["admin", "recruiter", "client", "va"]);
+  const parsed = accountDisplayPreferencesSchema.safeParse({
+    timezone: String(formData.get("timezone") || ""),
+    date_format: String(formData.get("date_format") || ""),
+    time_format: String(formData.get("time_format") || ""),
+  });
+
+  if (!parsed.success || !isValidTimeZone(parsed.data.timezone)) {
+    redirect("/workspace/account?tab=preferences&error=Choose%20a%20valid%20timezone%20and%20display%20format");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("account_display_preferences")
+    .upsert({
+      user_id: user.id,
+      timezone: parsed.data.timezone,
+      date_format: parsed.data.date_format,
+      time_format: parsed.data.time_format,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+
+  if (error) {
+    redirect("/workspace/account?tab=preferences&error=We%20could%20not%20save%20your%20display%20preferences");
+  }
+
+  revalidatePath("/workspace/account");
+  redirect("/workspace/account?tab=preferences&message=Display%20preferences%20saved");
+}
+
+const deletionConfirmationSchema = z.literal("DELETE MY ACCOUNT");
+
+export async function requestAccountDeletionAction(formData: FormData) {
+  const { user } = await requireAnyRole(["admin", "recruiter", "client", "va"]);
+  const confirmation = deletionConfirmationSchema.safeParse(String(formData.get("confirmation") || "").trim());
+
+  if (!confirmation.success) {
+    redirect("/workspace/account?tab=privacy&error=Type%20DELETE%20MY%20ACCOUNT%20to%20confirm%20the%20request");
+  }
+
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("account_deletion_requests")
+    .upsert({
+      user_id: user.id,
+      status: "pending",
+      requested_at: now,
+      updated_at: now,
+    }, { onConflict: "user_id" });
+
+  if (error) {
+    redirect("/workspace/account?tab=privacy&error=We%20could%20not%20submit%20your%20account%20deletion%20request");
+  }
+
+  revalidatePath("/workspace/account");
+  redirect("/workspace/account?tab=privacy&message=Account%20deletion%20request%20submitted%20for%20review");
+}

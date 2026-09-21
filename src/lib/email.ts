@@ -762,6 +762,8 @@ export async function sendNewLoginSecurityEmail(args: {
   fullName?: string | null;
   browser: string;
   os: string;
+  device?: string | null;
+  location?: string | null;
   ip?: string | null;
   occurredAt: string;
   reviewUrl: string;
@@ -776,13 +778,17 @@ export async function sendNewLoginSecurityEmail(args: {
     timeStyle: "short",
     timeZone: "UTC",
   }).format(new Date(args.occurredAt));
+  const deviceLabel = args.device && args.device !== "Unknown device"
+    ? `${args.browser} on ${args.device}`
+    : `${args.browser} on ${args.os}`;
+  const locationLine = args.location ? `<br><strong>Approximate location:</strong> ${escapeHtml(args.location)}` : "";
   const ipLine = args.ip ? `<br><strong>IP:</strong> ${escapeHtml(args.ip)}` : "";
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We noticed a sign-in from a browser or device we have not seen recently.</p><p style="margin:0 0 18px;padding:16px;border:1px solid #eaecf0;border-radius:12px;background:#f9fafb;color:#344054;font-size:15px;line-height:1.7;"><strong>${escapeHtml(args.browser)} on ${escapeHtml(args.os)}</strong>${ipLine}<br><strong>Time:</strong> ${escapeHtml(when)} UTC</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If this was you, no action is needed. Otherwise, review your signed-in devices and secure your account.</p>`;
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We noticed a sign-in from a browser or device we have not seen recently.</p><p style="margin:0 0 18px;padding:16px;border:1px solid #eaecf0;border-radius:12px;background:#f9fafb;color:#344054;font-size:15px;line-height:1.7;"><strong>${escapeHtml(deviceLabel)}</strong>${locationLine}${ipLine}<br><strong>Time:</strong> ${escapeHtml(when)} UTC</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If this was you, no action is needed. Otherwise, review your signed-in devices and secure your account.</p>`;
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: "New sign-in to your VirtualAssistant.com.ph account",
-    text: `New sign-in to your VirtualAssistant.com.ph account\n\n${args.browser} on ${args.os}${args.ip ? ` · IP ${args.ip}` : ""} · ${when} UTC\n\nIf this was not you, review account security: ${args.reviewUrl}`,
+    text: `New sign-in to your VirtualAssistant.com.ph account\n\n${deviceLabel}${args.location ? ` · ${args.location}` : ""}${args.ip ? ` · IP ${args.ip}` : ""} · ${when} UTC\n\nIf this was not you, review account security: ${args.reviewUrl}`,
     html: renderBrandedEmail({
       firstName,
       bodyHtml,

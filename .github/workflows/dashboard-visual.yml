@@ -50,7 +50,8 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Authenticated dashboard screenshots are ready but skipped until the SMOKE_* and VERCEL_AUTOMATION_BYPASS_SECRET repository secrets are configured."
+            echo "::error::Authenticated dashboard QA is required. Configure the SMOKE_* and VERCEL_AUTOMATION_BYPASS_SECRET repository secrets."
+            exit 1
           fi
       - if: steps.credentials.outputs.enabled == 'true'
         run: npm ci

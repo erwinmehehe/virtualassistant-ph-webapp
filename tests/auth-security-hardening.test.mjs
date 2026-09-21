@@ -12,11 +12,14 @@ test("email/password auth requires at least 12 characters", async () => {
   ]);
 
   assert.match(auth, /const loginSchema = z\.object\(\{[\s\S]*password: z\.string\(\)\.min\(8\)/);
-  assert.match(auth, /const joinSchema = loginSchema\.extend\(\{[\s\S]*password: z\.string\(\)\.min\(12\)/);
-  assert.match(auth, /password\.length < 12/);
+  assert.match(auth, /const newPasswordSchema = z\.string\(\)[\s\S]*\.min\(12\)[\s\S]*\.regex\(\/\[a-z\]\/[\s\S]*\.regex\(\/\[A-Z\]\/[\s\S]*\.regex\(\/\[0-9\]\/[\s\S]*\.regex\(\/\[\^A-Za-z0-9\]\//);
+  assert.match(auth, /COMMON_PASSWORD_PARTS/);
+  assert.match(auth, /password: newPasswordSchema/);
+  assert.match(auth, /!newPasswordSchema\.safeParse\(password\)\.success/);
   assert.match(join, /minLength=\{12\}/);
-  assert.match(join, /At least 12 characters\./);
+  assert.match(join, /uppercase, lowercase, a number, and a symbol/);
   assert.match(updatePage, /minLength=\{12\}/);
+  assert.match(updatePage, /uppercase, lowercase, a number, and a symbol/);
 });
 
 test("Supabase auth ops config uses branded Resend auth mail without changing existing login password policy", async () => {

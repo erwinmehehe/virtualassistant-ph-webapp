@@ -4,13 +4,13 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("workspace shell exposes three home affordances",async()=>{
+test("workspace shell keeps two intentional home affordances",async()=>{
   const shell=await read("src/components/app-shell.tsx");
   const homeLinks=(shell.match(/href=\{workspaceHome\[role\]\}/g)||[]).length;
-  assert.equal(homeLinks,3);
+  assert.equal(homeLinks,2);
   assert.match(shell,/className="app-brand"/);
-  assert.match(shell,/className="app-workspace-card"/);
   assert.match(shell,/className="app-topbar-workspace-home"/);
+  assert.doesNotMatch(shell,/className="app-workspace-card"/);
 });
 
 test("recruiter workspace home resolves to recruiter dashboard",async()=>{

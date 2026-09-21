@@ -36,7 +36,7 @@ test("notification preferences are distinct from role-specific profile data and 
     read("supabase/migrations/20260921105035_account_email_change_and_notification_preferences.sql"),
   ]);
 
-  assert.match(page, /tab=notifications/);
+  assert.match(page, /tab: "notifications"/);
   assert.match(page, /Hiring & recruiter updates/);
   assert.match(page, /Booking reminders/);
   assert.match(page, /Candidate activity/);
@@ -48,7 +48,7 @@ test("notification preferences are distinct from role-specific profile data and 
   assert.match(migration, /check \(security_alerts = true\)/);
   assert.match(migration, /users update own notification preferences/);
   assert.match(migration, /with check \(\(select auth\.uid\(\)\) = user_id and security_alerts = true\)/);
-  assert.doesNotMatch(page, /name="timezone"|name="hourly_rate"|name="skills"|name="hiring_notes"/);
+  assert.doesNotMatch(page, /name="hourly_rate"|name="skills"|name="hiring_notes"/);
 });
 
 test("new-login alerts only fire for browser and OS combinations not seen recently", async () => {
@@ -167,14 +167,14 @@ test("Account Center uses the complete five-section settings architecture", asyn
     read("src/components/account-security/session-list.tsx"),
   ]);
 
-  assert.match(page, />Profile</);
-  assert.match(page, />Sign-in & security</);
-  assert.match(page, />Notifications</);
-  assert.match(page, />Preferences</);
-  assert.match(page, />Privacy & account</);
-  assert.match(page, /tab=profile/);
-  assert.match(page, /tab=preferences/);
-  assert.match(page, /tab=privacy/);
+  assert.match(page, /label: "Profile"/);
+  assert.match(page, /label: "Sign-in & security"/);
+  assert.match(page, /label: "Notifications"/);
+  assert.match(page, /label: "Preferences"/);
+  assert.match(page, /label: "Privacy & account"/);
+  assert.match(page, /tab: "profile"/);
+  assert.match(page, /tab: "preferences"/);
+  assert.match(page, /tab: "privacy"/);
   assert.match(page, /params\.tab === "account"/);
   assert.doesNotMatch(page, /account-identity-hero/);
   assert.doesNotMatch(page, /account-tabs/);

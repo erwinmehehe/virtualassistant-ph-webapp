@@ -131,11 +131,14 @@ function utcDayStart() {
 async function getRecipientUsageToday(admin: ReturnType<typeof createAdminClient>) {
   const { data, error } = await admin
     .from("outbound_email_events")
-    .select("recipient,status")
+    .select("recipient,status,provider_id")
     .gte("created_at", utcDayStart())
     .in("status", ["sent", "delivered", "bounced", "complained", "suppressed"]);
   if (error) throw error;
-  return (data || []).reduce((total: number, row: any) => total + countRecipientAddresses(row.recipient), 0);
+  return (data || []).reduce(
+    (total: number, row: any) => total + (row.provider_id ? countRecipientAddresses(row.recipient) : 0),
+    0
+  );
 }
 
 async function logEmailEvent(
@@ -200,9 +203,18 @@ async function trackedSend(
     }
   }
 
-  if (suppressionError && options?.priority !== "critical") {
-    await logEmailEvent(eventType, suppressionCheck, "suppression_unavailable", null, "Suppression lookup failed; non-critical email was not sent.");
-    return { sent: false as const, data: null, reason: "suppression_lookup_failed" };
+  if (suppressionError) {
+    const critical = options?.priority === "critical";
+    await logEmailEvent(
+      eventType,
+      suppressionCheck,
+      "suppression_unavailable",
+      null,
+      critical
+        ? "Suppression lookup failed; critical email was allowed through and the outage was recorded."
+        : "Suppression lookup failed; non-critical email was not sent."
+    );
+    if (!critical) return { sent: false as const, data: null, reason: "suppression_lookup_failed" };
   }
 
   const safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));

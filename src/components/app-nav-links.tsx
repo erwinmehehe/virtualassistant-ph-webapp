@@ -39,6 +39,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["My Team", "/workspace/client/team", UsersRound],
         ["Notifications", "/workspace/client/notifications", Bell],
         ["Payments", "/workspace/client/payments", CircleDollarSign],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -53,6 +54,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["My Placement", "/workspace/va/workroom", Wrench],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -66,6 +68,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
         ["Client Success", "/workspace/client-success", Wrench],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
     {
@@ -98,6 +101,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Agency Funnel", "/workspace/admin/funnel", Activity],
         ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
     {

@@ -632,6 +632,8 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
       body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
       href: meet.joinUrl,
       hrefLabel: "Join Google Meet",
+      priority: "critical",
+      idempotencyKey: `booking-meet-link-${leadId}-${meet.eventId}`,
     });
   } catch {
     // CRM remains the source of truth even if the notification is temporarily unavailable.
@@ -682,7 +684,9 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
       heading: "Your discovery call is cancelled",
       body: "Your time has been released. Contact our hiring team whenever you are ready to book again.",
       href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/book-client-call`,
-      hrefLabel: "Book another time"
+      hrefLabel: "Book another time",
+      priority: "critical",
+      idempotencyKey: `booking-cancelled-by-recruiter-${leadId}`
     });
   } catch { /* the booking state is the source of truth if delivery is unavailable */ }
   await writeRecruiterActivity({

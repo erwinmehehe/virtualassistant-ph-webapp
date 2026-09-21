@@ -22,6 +22,9 @@ test("invite mode saves the exact selected VAs and sends a secure claim link", (
   assert.match(matchingAction, /\/auth\/join\/client\?/);
   assert.match(matchingAction, /firstName,/);
   assert.match(matchingAction, /Review my shortlist/);
+  assert.match(matchingAction, /teamLabel: "Hiring team"/);
+  assert.match(matchingAction, /senderName: "VirtualAssistant\.com\.ph Hiring Team"/);
+  assert.match(matchingAction, /contacted VirtualAssistant\.com\.ph about hiring support/);
   assert.doesNotMatch(matchingAction, /body: \`Hi \${firstName}/);
   assert.match(recruiterPage, /client_invited/);
 });

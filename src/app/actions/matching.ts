@@ -197,7 +197,10 @@ export async function saveJobShortlistAction(formData: FormData) {
       heading: "Your recruiter has a shortlist ready",
       body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
       href: claimUrl,
-      hrefLabel: "Review my shortlist"
+      hrefLabel: "Review my shortlist",
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      teamLabel: "Hiring team",
+      footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support."
     });
     if (!delivery.sent) return fail("The shortlist was saved internally, but the client invite email could not be sent. Check the email configuration and try again.");
 

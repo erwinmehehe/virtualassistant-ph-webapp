@@ -142,7 +142,8 @@ async function filterRecipientsByNotificationPreference(
       const { data, error } = await admin.rpc("get_account_notification_preferences_by_email", {
         target_email: bareEmailAddress(recipient),
       });
-      if (error || !Array.isArray(data) || !data[0]) return true;
+      if (error) return true;
+      if (!Array.isArray(data) || !data[0]) return field !== "product_emails";
       return data[0][field] !== false;
     } catch {
       // Preference lookup outages must not silently drop account communication.

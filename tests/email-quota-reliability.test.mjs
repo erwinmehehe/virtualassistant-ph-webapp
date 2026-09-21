@@ -12,7 +12,10 @@ test("tracked sends use deterministic Resend idempotency keys and quota accounti
   assert.match(email, /DAILY_RECIPIENT_LIMIT/);
   assert.match(email, /RESERVED_CRITICAL_RECIPIENTS/);
   assert.match(email, /recipient_count/);
-  assert.match(email, /row\.provider_id \? countRecipientAddresses/);
+  assert.match(email, /idempotency_key/);
+  assert.match(email, /skip_reason/);
+  assert.match(email, /automation/);
+  assert.match(email, /recipient_count,status,provider_id/);
   assert.match(email, /"skipped_quota"/);
   assert.match(email, /priority: "critical"/);
 });
@@ -43,6 +46,11 @@ test("dedicated discovery runner claims each reminder before sending", async () 
   const sendIndex = route.indexOf("await sendDiscoveryReminderEmail");
   assert.ok(claimIndex >= 0 && sendIndex > claimIndex, "claim helper must be defined before send use");
   assert.match(route, /leadId: lead\.id/);
+  assert.match(route, /RETRIABLE_EMAIL_REASONS/);
+  assert.match(route, /"suppression_lookup_failed"/);
+  assert.match(route, /"quota_lookup_failed"/);
+  assert.match(route, /"daily_quota_reserved"/);
+  assert.match(route, /RETRIABLE_EMAIL_REASONS\.has\(result\.reason\)/);
 });
 
 test("recruiter and admin workflow reminders stay in-app and get one daily digest", async () => {
@@ -66,4 +74,8 @@ test("email health shows recipient-based quota and prevented-send counters", asy
   assert.match(page, /Suppressed sends/);
   assert.match(page, /Low-priority messages skipped/);
   assert.match(page, /recipient_count/);
+  assert.match(page, /idempotency_key/);
+  assert.match(page, /skip_reason/);
+  assert.match(page, /automation/);
+  assert.match(page, /event\.priority === "low"/);
 });

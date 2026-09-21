@@ -80,6 +80,11 @@ function claimsSessionId(claims: unknown) {
   return typeof value === "string" ? value : null;
 }
 
+function normalizeAal(value: unknown): "aal1" | "aal2" | null {
+  if (value === "aal1" || value === "aal2") return value;
+  return null;
+}
+
 export function safeAccountNext(
   value: string | null | undefined,
   fallback = "/workspace/account?tab=security",
@@ -136,8 +141,8 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
     signInProviders: (user.identities ?? [])
       .map((identity) => identity.provider)
       .filter((provider): provider is string => Boolean(provider)),
-    currentLevel: aalData?.currentLevel ?? "aal1",
-    nextLevel: aalData?.nextLevel ?? "aal1",
+    currentLevel: normalizeAal(aalData?.currentLevel) ?? "aal1",
+    nextLevel: normalizeAal(aalData?.nextLevel) ?? "aal1",
     factors: (factorsData?.totp ?? []).map((factor) => ({
       id: factor.id,
       friendly_name: factor.friendly_name,

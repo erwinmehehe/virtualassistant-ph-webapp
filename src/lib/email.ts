@@ -63,16 +63,7 @@ const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
 const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
 const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
 
-const DEFAULT_TEAM_BCC = "jrvsaccad@gmail.com";
-const teamBccRecipients = normalizeEmailList([DEFAULT_TEAM_BCC, process.env.TEAM_CC_EMAIL, process.env.TEAM_BCC_EMAIL]);
-const applicationBccRecipients = normalizeEmailList([process.env.APPLICATION_CC_EMAIL, process.env.APPLICATION_BCC_EMAIL]);
 const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail.com";
-const discoveryBookingBccRecipients = normalizeEmailList([
-  JERVIS_BOOKING_EMAIL,
-  "erwinvalles20@gmail.com",
-  process.env.DISCOVERY_BOOKING_CC_EMAIL,
-  process.env.DISCOVERY_BOOKING_BCC_EMAIL,
-]).filter((email) => !isBlockedEmailRecipient(email));
 const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "erwinvalles20@gmail.com",
@@ -118,9 +109,45 @@ function configuredReplyTo() {
   ])[0] || undefined;
 }
 
-async function logEmailEvent(eventType: string, recipient: string | string[] | undefined, status: "sent" | "failed", providerId?: string | null, errorMessage?: string | null) {
+type EmailPriority = "critical" | "standard" | "low";
+type EmailEventStatus = "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
+
+export const DAILY_RECIPIENT_LIMIT = Math.max(1, Number.parseInt(process.env.RESEND_DAILY_RECIPIENT_LIMIT || "100", 10) || 100);
+export const RESERVED_CRITICAL_RECIPIENTS = Math.min(
+  DAILY_RECIPIENT_LIMIT,
+  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "20", 10) || 20)
+);
+const NON_CRITICAL_DAILY_LIMIT = Math.max(0, DAILY_RECIPIENT_LIMIT - RESERVED_CRITICAL_RECIPIENTS);
+
+function countRecipientAddresses(value: string | null | undefined) {
+  return String(value || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+}
+
+function utcDayStart() {
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0);
+  return now.toISOString();
+}
+
+async function getRecipientUsageToday(admin: ReturnType<typeof createAdminClient>) {
+  const { data, error } = await admin
+    .from("outbound_email_events")
+    .select("recipient,status")
+    .gte("created_at", utcDayStart())
+    .in("status", ["sent", "delivered", "bounced", "complained", "suppressed"]);
+  if (error) throw error;
+  return (data || []).reduce((total: number, row: any) => total + countRecipientAddresses(row.recipient), 0);
+}
+
+async function logEmailEvent(
+  eventType: string,
+  recipients: string | string[] | undefined,
+  status: EmailEventStatus,
+  providerId?: string | null,
+  errorMessage?: string | null
+) {
   try {
-    const safeRecipient = Array.isArray(recipient) ? recipient.join(",") : recipient || null;
+    const safeRecipient = Array.isArray(recipients) ? recipients.join(",") : recipients || null;
     await createAdminClient().from("outbound_email_events").insert({
       event_type: eventType,
       recipient: safeRecipient,
@@ -137,31 +164,19 @@ async function trackedSend(
   config: NonNullable<ReturnType<typeof resendConfig>>,
   payload: any,
   eventType: string,
-  options?: { archive?: boolean; teamCc?: boolean }
+  options?: { archive?: boolean; idempotencyKey?: string; priority?: EmailPriority }
 ) {
-  // Internal archive/team copies are always hidden from external recipients.
-  // Security-sensitive messages can still opt out with archive:false/teamCc:false.
-  const archiveBcc = options?.archive === false ? undefined : archiveExtraFor(payload);
+  // Automated mail is recipient-only by default. Archive copies must be explicitly
+  // requested by a human-written flow.
+  const archiveBcc = options?.archive === true ? archiveExtraFor(payload) : undefined;
   const rawTo = normalizeEmailList(payload.to).filter((email) => !isBlockedEmailRecipient(email));
   const hasExternalRecipient = rawTo.some((email) => !isPrivateInternalEmail(email));
-
-  // Privacy rule: when any external recipient is present, Erwin and Jervis
-  // must never appear in visible To, CC, or Reply-To headers. Bryan is a VA,
-  // so his address is suppressed from every outbound message entirely.
-  const hiddenInternalFromTo = hasExternalRecipient ? rawTo.filter(isPrivateInternalEmail) : [];
   const to = hasExternalRecipient ? rawTo.filter((email) => !isPrivateInternalEmail(email)) : rawTo;
 
   const rawCc = normalizeEmailList(payload.cc).filter((email) => !isBlockedEmailRecipient(email));
-  const hiddenInternalFromCc = hasExternalRecipient ? rawCc.filter(isPrivateInternalEmail) : [];
   const requestedCc = hasExternalRecipient ? rawCc.filter((email) => !isPrivateInternalEmail(email)) : rawCc;
+  const requestedBcc = normalizeEmailList([payload.bcc, archiveBcc]).filter((email) => !isBlockedEmailRecipient(email));
 
-  const requestedBcc = normalizeEmailList([
-    payload.bcc,
-    hiddenInternalFromTo,
-    hiddenInternalFromCc,
-    archiveBcc,
-    options?.teamCc === false ? [] : teamBccRecipients
-  ]).filter((email) => !isBlockedEmailRecipient(email));
   const toSet = new Set(to.map((email) => email.toLowerCase()));
   const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
   const ccSet = new Set(cc.map((email) => email.toLowerCase()));
@@ -172,19 +187,33 @@ async function trackedSend(
     ? rawReplyTo.filter((email) => !isPrivateInternalEmail(email))
     : rawReplyTo;
 
+  const admin = createAdminClient();
   const suppressionCheck = [...new Set([...to, ...cc, ...bcc].map((email) => email.toLowerCase()))];
   let suppressed = new Set<string>();
+  let suppressionError: unknown = null;
   if (suppressionCheck.length) {
     try {
-      const { data } = await createAdminClient().from("email_suppressions").select("email").in("email", suppressionCheck);
-      suppressed = new Set((data || []).map((row: any) => String(row.email).toLowerCase()));
-    } catch {
-      // Suppression lookup must not break transactional mail if the registry is unavailable.
+      const { data, error } = await admin.from("email_suppressions").select("email").in("email", suppressionCheck);
+      if (error) suppressionError = error;
+      else suppressed = new Set((data || []).map((row: any) => String(row.email).toLowerCase()));
+    } catch (error) {
+      suppressionError = error;
     }
   }
+
+  if (suppressionError && options?.priority !== "critical") {
+    await logEmailEvent(eventType, suppressionCheck, "suppression_unavailable", null, "Suppression lookup failed; non-critical email was not sent.");
+    return { sent: false as const, data: null, reason: "suppression_lookup_failed" };
+  }
+
   const safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeCc = cc.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeBcc = bcc.filter((email) => !suppressed.has(email.toLowerCase()));
+  const suppressedRecipients = suppressionCheck.filter((email) => suppressed.has(email));
+
+  if (suppressedRecipients.length) {
+    await logEmailEvent(eventType, suppressedRecipients, "suppressed", null, "Recipient suppressed after bounce, complaint, or provider suppression.");
+  }
 
   payload = {
     ...payload,
@@ -193,17 +222,54 @@ async function trackedSend(
     bcc: safeBcc.length ? safeBcc : undefined,
     replyTo: replyTo.length ? replyTo : undefined
   };
+
+  if (!safeTo.length) {
+    await logEmailEvent(eventType, [], "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.");
+    return { sent: false as const, data: null, suppressed: true, reason: suppressed.size ? "recipient_suppressed" : "no_valid_recipient" };
+  }
+
+  const allRecipients = [...safeTo, ...safeCc, ...safeBcc];
+  const recipient_count = allRecipients.length;
+  const priority = options?.priority || "standard";
+  const quotaLimit = priority === "critical" ? DAILY_RECIPIENT_LIMIT : NON_CRITICAL_DAILY_LIMIT;
   try {
-    if (!safeTo.length) {
-      await logEmailEvent(eventType, payload.to, "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.");
-      return { sent: false as const, data: null, suppressed: true, reason: suppressed.size ? "recipient_suppressed" : "no_valid_recipient" };
+    const usedToday = await getRecipientUsageToday(admin);
+    if (usedToday + recipient_count > quotaLimit) {
+      await logEmailEvent(
+        eventType,
+        allRecipients,
+        "skipped_quota",
+        null,
+        `Skipped ${priority} email at ${usedToday}/${DAILY_RECIPIENT_LIMIT} tracked recipient deliveries; ${RESERVED_CRITICAL_RECIPIENTS} are reserved for critical mail.`
+      );
+      return { sent: false as const, data: null, reason: "daily_quota_reserved" };
     }
-    const result: any = await config.client.emails.send(payload);
+  } catch (error) {
+    if (priority !== "critical") {
+      await logEmailEvent(eventType, allRecipients, "skipped_quota", null, "Quota usage lookup failed; non-critical email was not sent.");
+      return { sent: false as const, data: null, reason: "quota_lookup_failed" };
+    }
+  }
+
+  try {
+    const result: any = options?.idempotencyKey
+      ? await config.client.emails.send(payload, { idempotencyKey: options.idempotencyKey })
+      : await config.client.emails.send(payload);
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
-    await logEmailEvent(eventType, payload.to, "sent", result?.data?.id || null, null);
+
+    const providerId = result?.data?.id || null;
+    if (providerId && options?.idempotencyKey) {
+      const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).limit(1).maybeSingle();
+      if (existing?.id) {
+        await logEmailEvent(eventType, [], "duplicate_prevented", null, `Resend idempotency prevented a duplicate request: ${options.idempotencyKey}`);
+        return { ...result, sent: true as const, duplicatePrevented: true as const };
+      }
+    }
+
+    await logEmailEvent(eventType, allRecipients, "sent", providerId, null);
     return { ...result, sent: true as const };
   } catch (error) {
-    await logEmailEvent(eventType, payload.to, "failed", null, error instanceof Error ? error.message : String(error));
+    await logEmailEvent(eventType, allRecipients, "failed", null, error instanceof Error ? error.message : String(error));
     throw error;
   }
 }

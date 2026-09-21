@@ -197,6 +197,52 @@ async function createPendingJobForLead(args: {
   return job.id as string;
 }
 
+async function attachBookingToRecentClientJob(args: {
+  admin: ReturnType<typeof createAdminClient>;
+  leadId: string;
+  email: string;
+  company: string;
+  hours: string;
+  budget: string;
+  timezone: string;
+  startTime: string;
+  clientId?: string | null;
+}) {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: candidates } = await args.admin
+    .from("lead_intake")
+    .select("id,job_id,company")
+    .ilike("email", args.email)
+    .not("job_id", "is", null)
+    .neq("id", args.leadId)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const companyKey = args.company.trim().toLowerCase();
+  const related = (candidates || []).find((row: any) => String(row.company || "").trim().toLowerCase() === companyKey);
+  if (!related?.job_id) return null;
+
+  const rates = rateRangeFromBudget(args.budget);
+  const hoursPerWeek = inferHours(args.hours);
+  const { error: jobError } = await args.admin.from("jobs").update({
+    ...(hoursPerWeek ? { hours_per_week: hoursPerWeek } : {}),
+    min_hourly_rate: rates.min,
+    max_hourly_rate: rates.max,
+    timezone: args.timezone,
+    start_timing: args.startTime,
+  }).eq("id", related.job_id);
+  if (jobError) throw jobError;
+
+  const { error: leadError } = await args.admin.from("lead_intake").update({
+    job_id: related.job_id,
+    client_id: args.clientId || null,
+  }).eq("id", args.leadId);
+  if (leadError) throw leadError;
+
+  return related.job_id as string;
+}
+
 async function resolveRequestedVaId(admin: ReturnType<typeof createAdminClient>, talent?: string | null) {
   if (!talent) return null;
   const { data } = await admin.from("public_va_directory").select("user_id").eq("slug", talent).maybeSingle();
@@ -742,7 +788,10 @@ const discoveryBookingSchema = z.object({
     const hours = Number(value);
     return Number.isInteger(hours) && hours >= 1 && hours <= 80;
   }, { message: "Hours per week must be between 1 and 80." }),
-  budget: z.string().trim().min(1).max(100),
+  budget: z.string().trim().min(1).max(100).refine((value) => {
+    const rates = value.match(/\d+(?:\.\d+)?/g)?.map(Number).filter(Number.isFinite) || [];
+    return rates.length > 0 && rates.some((rate) => rate >= MIN_HOURLY_RATE);
+  }, { message: `Enter an hourly VA budget of at least USD ${MIN_HOURLY_RATE}/hour.` }),
   start_time: z.string().trim().min(2).max(100),
   message: z.string().trim().min(15).max(3000),
   website: z.string().max(200).optional(),
@@ -822,19 +871,32 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   let jobId: string | null = null;
   try {
     const clientId = await currentClientId();
-    jobId = await createPendingJobForLead({
+    jobId = await attachBookingToRecentClientJob({
       admin,
       leadId: lead.id,
-      clientId,
-      title: parsed.data.service,
-      service: parsed.data.service,
+      email: parsed.data.email,
       company: parsed.data.company,
       hours: parsed.data.hours,
+      budget: parsed.data.budget,
       timezone: parsed.data.timezone,
       startTime: parsed.data.start_time,
-      message: parsed.data.message,
-      budget: parsed.data.budget,
+      clientId,
     });
+    if (!jobId) {
+      jobId = await createPendingJobForLead({
+        admin,
+        leadId: lead.id,
+        clientId,
+        title: parsed.data.service,
+        service: parsed.data.service,
+        company: parsed.data.company,
+        hours: parsed.data.hours,
+        timezone: parsed.data.timezone,
+        startTime: parsed.data.start_time,
+        message: parsed.data.message,
+        budget: parsed.data.budget,
+      });
+    }
   } catch (jobError) {
     console.error("[booking] Could not create pending job draft", {
       leadId: lead.id,

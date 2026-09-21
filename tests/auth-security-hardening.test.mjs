@@ -43,3 +43,22 @@ test("role changes away from active recruiter reassign open client leads", async
   assert.match(migration, /lead_type = 'client_hiring'/);
   assert.match(migration, /public\.default_recruiter_id\(\)/);
 });
+
+
+test("VA signup gives browser-level strong-password validation and disables duplicate submits", async () => {
+  const [auth, join, submit] = await Promise.all([
+    read("src/app/actions/auth.ts"),
+    read("src/components/join-account-form.tsx"),
+    read("src/components/join-submit-button.tsx"),
+  ]);
+
+  assert.match(join, /pattern=/);
+  assert.match(join, /title="Use 12\+ characters with uppercase, lowercase, a number, and a symbol\."/);
+  assert.match(join, /JoinSubmitButton/);
+  assert.match(submit, /useFormStatus/);
+  assert.match(submit, /disabled=\{pending\}/);
+  assert.match(submit, /Creating account/);
+  assert.match(auth, /password.*12\+ characters with uppercase, lowercase, a number, and a symbol/i);
+  assert.match(auth, /\[auth_join\] validation_failed/);
+  assert.match(auth, /\[auth_join\] generate_link_failed/);
+});

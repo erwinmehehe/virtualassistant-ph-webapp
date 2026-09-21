@@ -274,6 +274,32 @@ async function trackedSend(
   }
 }
 
+export async function sendTrackedRawEmail(args: {
+  to: string;
+  replyTo?: string;
+  subject: string;
+  text?: string;
+  html: string;
+  eventType: string;
+  idempotencyKey?: string;
+  priority?: EmailPriority;
+}) {
+  const config = resendConfig();
+  if (!config) return { sent: false as const, reason: "email_not_configured" };
+  return trackedSend(config, {
+    from: config.from,
+    to: [args.to],
+    replyTo: args.replyTo,
+    subject: args.subject,
+    text: args.text,
+    html: args.html
+  }, args.eventType, {
+    archive: false,
+    idempotencyKey: args.idempotencyKey,
+    priority: args.priority || "standard"
+  });
+}
+
 export async function sendApplicationEmail(args: {
   to?: string | null;
   applicantName: string;
@@ -285,10 +311,9 @@ export async function sendApplicationEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    bcc: applicationBccRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
     subject: `New application: ${args.jobTitle}`,
     html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
-  }, "new_application");
+  }, "new_application", { archive: false, priority: "standard", idempotencyKey: `new-application-${args.applicationId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -312,9 +337,9 @@ export async function sendLeadNotificationEmail(args: {
   // LEAD_NOTIFICATION_EMAIL accepts a comma-separated list so more than one
   // person on the team can get lead notifications -- explicit and
   // configurable here, unlike the hardcoded forced-CC this replaced.
-  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
-    .filter((email) => !isBlockedEmailRecipient(email));
-  if (!recipients.length) return { sent: false as const, reason: "no_recipient_configured" };
+  const recipient = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
+    .filter((email) => !isBlockedEmailRecipient(email))[0];
+  if (!recipient) return { sent: false as const, reason: "no_recipient_configured" };
   const subjectLabel = args.service?.trim() || "Virtual Assistant enquiry";
   const rows = [
     ["Name", args.name],
@@ -332,11 +357,11 @@ export async function sendLeadNotificationEmail(args: {
 
   const delivery = await trackedSend(config, {
     from: config.from,
-    to: recipients,
+    to: [recipient],
     replyTo: args.email,
     subject: `New lead: ${subjectLabel}`,
     html: `<h2>New VirtualAssistant.com.ph lead</h2>${rows.map(([label, value]) => `<p><strong>${escapeHtml(String(label))}:</strong> ${escapeHtml(String(value))}</p>`).join("")}${args.message ? `<hr><p><strong>Request</strong></p><p>${escapeHtml(args.message).replace(/\n/g, "<br>")}</p>` : ""}`
-  }, "new_lead");
+  }, "new_lead", { archive: false, priority: "critical", idempotencyKey: args.leadId ? `new-lead-${args.leadId}` : undefined });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -375,7 +400,7 @@ export async function sendLeadAcknowledgementEmail(args: {
       ctaHref: joinUrl,
       ctaLabel: "Create my account"
     })
-  }, "lead_acknowledgement");
+  }, "lead_acknowledgement", { archive: false, priority: "critical", idempotencyKey: args.leadId ? `lead-acknowledgement-${args.leadId}` : undefined });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -411,7 +436,7 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
       ctaHref: joinUrl,
       ctaLabel: "Create my VA profile"
     })
-  }, "va_applicant_redirect", { archive: false, teamCc: false });
+  }, "va_applicant_redirect", { archive: false });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -423,15 +448,15 @@ export async function sendVaApplicantRedirectEmail(args: { to: string; name?: st
  */
 export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobTitle: string; clientName?: string | null; appUrl: string }) {
   const config = resendConfig();
-  const recipients = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
-    .filter((email) => !isBlockedEmailRecipient(email));
-  if (!config || !recipients.length) return { sent: false as const, reason: !recipients.length ? "no_recipient_configured" : "email_not_configured" };
+  const recipient = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
+    .filter((email) => !isBlockedEmailRecipient(email))[0];
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "no_recipient_configured" : "email_not_configured" };
   const delivery = await trackedSend(config, {
     from: config.from,
-    to: recipients,
+    to: [recipient],
     subject: `Job ready for review: ${args.jobTitle}`,
     html: `<h2>A client submitted a job for review</h2><p><strong>Title:</strong> ${escapeHtml(args.jobTitle)}</p>${args.clientName ? `<p><strong>Client:</strong> ${escapeHtml(args.clientName)}</p>` : ""}<p><a href="${args.appUrl}/workspace/admin/jobs/${args.jobId}">Open the job review page</a></p>`
-  }, "job_submitted");
+  }, "job_submitted", { archive: false, priority: "critical", idempotencyKey: `job-submitted-${args.jobId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -458,7 +483,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
       ctaHref: profileUrl,
       ctaLabel: "Finish my profile"
     })
-  }, "profile_stage_nudge", { archive: false, teamCc: false });
+  }, "profile_stage_nudge", { archive: false, priority: "low" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -491,7 +516,7 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
       ctaHref: claimUrl,
       ctaLabel: "Claim my hiring request"
     })
-  }, "lead_claim_nudge");
+  }, "lead_claim_nudge", { archive: false, priority: "low", idempotencyKey: `lead-claim-nudge-${args.leadId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -519,7 +544,7 @@ export async function sendAccountConfirmationEmail(args: { to: string; actionUrl
       ctaHref: args.actionUrl,
       ctaLabel: "Confirm my email"
     })
-  }, "account_confirmation", { archive: false, teamCc: false });
+  }, "account_confirmation", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -538,7 +563,7 @@ export async function sendPasswordRecoveryEmail(args: { to: string; actionUrl: s
       ctaHref: args.actionUrl,
       ctaLabel: "Reset my password"
     })
-  }, "password_recovery", { archive: false, teamCc: false });
+  }, "password_recovery", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -550,7 +575,7 @@ export async function sendSystemTestEmail(to: string) {
     to: [to],
     subject: "VirtualAssistant.com.ph email test",
     html: "<p>Your application email configuration is working.</p>"
-  }, "system_test", { archive: false, teamCc: false });
+  }, "system_test", { archive: false, priority: "standard" });
   return delivery;
 }
 
@@ -657,7 +682,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
       ctaHref: applicationsUrl,
       ctaLabel: "View my applications"
     })
-  }, "application_status", { archive: false, teamCc: false });
+  }, "application_status", { archive: false, priority: "standard" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -667,6 +692,7 @@ export async function sendStaffClientFollowupEmail(args: {
   message: string;
   senderName?: string | null;
   href?: string | null;
+  archiveCopy?: boolean;
 }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -677,7 +703,7 @@ export async function sendStaffClientFollowupEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    bcc: staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
+    bcc: args.archiveCopy ? staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()) : undefined,
     replyTo: configuredReplyTo(),
     subject: normalized.subject,
     text: `Hi ${normalized.firstName},\n\n${normalized.message}`,
@@ -687,11 +713,11 @@ export async function sendStaffClientFollowupEmail(args: {
       senderName: sender,
       appendSignature: false
     })
-  }, "client_followup");
+  }, "client_followup", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
-export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; teamCc?: boolean }) {
+export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -712,7 +738,43 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
       ctaHref: args.href,
       ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
     })
-  }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false && !isPasswordChangeNotice });
+  }, "transactional_event", { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+export async function sendStaffDailyDigestEmail(args: {
+  to: string;
+  userId: string;
+  dateKey: string;
+  appUrl: string;
+  items: Array<{ title: string; body: string; href?: string | null }>;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient || !args.items.length) {
+    return { sent: false as const, reason: !recipient ? "invalid_recipient" : !args.items.length ? "empty_digest" : "email_not_configured" };
+  }
+  const items = args.items.slice(0, 20);
+  const base = args.appUrl.replace(/\/$/, "");
+  const textItems = items.map((item, index) => `${index + 1}. ${item.title} — ${item.body}${item.href ? ` (${base}${item.href})` : ""}`).join("\n");
+  const bodyHtml = `<p style="margin:0 0 16px;color:#344054;font-size:15px;line-height:1.7;">You have ${items.length} recruiter/admin reminder${items.length === 1 ? "" : "s"} waiting in your workspace.</p><ol style="margin:0;padding-left:22px;color:#344054;">${items.map((item) => `<li style="margin:0 0 12px;"><strong>${escapeHtml(item.title)}</strong><br><span>${escapeHtml(item.body)}</span>${item.href ? `<br><a href="${escapeHtml(base + item.href)}" style="color:#4f46e5;">Open item</a>` : ""}</li>`).join("")}</ol>`;
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: `Daily recruiter reminder digest — ${items.length} item${items.length === 1 ? "" : "s"}`,
+    text: `Your VirtualAssistant.com.ph reminder digest:\n\n${textItems}`,
+    html: renderBrandedEmail({
+      firstName: "there",
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Operations",
+      teamLabel: "Daily reminder digest",
+      footerText: "Recruiter and admin reminders stay in-app by default. This is the single daily summary."
+    })
+  }, "staff_daily_digest", {
+    archive: false,
+    priority: "low",
+    idempotencyKey: `staff-digest-${args.userId}-${args.dateKey}`
+  });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -740,7 +802,7 @@ export async function sendProfileCompletionReminderEmail(args: { to: string; ful
       ctaHref: profileUrl,
       ctaLabel
     })
-  }, "profile_completion_reminder", { archive: false, teamCc: false });
+  }, "profile_completion_reminder", { archive: false, priority: "low" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -771,7 +833,7 @@ export async function sendDiscoveryBookingEmail(args: {
       ctaHref: args.meetingUrl || undefined,
       ctaLabel: args.meetingUrl ? "Join Google Meet" : undefined
     })
-  }, "discovery_booking");
+  }, "discovery_booking", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -879,7 +941,6 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: replyTo ? [replyTo] : undefined,
     attachments: invite ? [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }] : undefined,
     subject: `Discovery call confirmed — ${args.clientLabel}`,
@@ -888,7 +949,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
       bodyHtml,
       senderName: "VirtualAssistant.com.ph Hiring Team"
     }),
-  }, "public_discovery_booking");
+  }, "public_discovery_booking", { archive: false, priority: "critical", idempotencyKey: `booking-confirmation-${args.leadId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -928,7 +989,7 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
       <p><strong>Philippines time:</strong> ${escapeHtml(args.manilaLabel)}</p>
       <p><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}</p>
       <p><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>`
-  }, "discovery_booking_internal_jervis", { archive: false, teamCc: false });
+  }, "discovery_booking_internal_jervis", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -942,18 +1003,16 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const primary = "erwinvalles20@gmail.com";
-  const hidden = ["jrvsaccad@gmail.com"];
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [primary],
-    bcc: hidden,
     subject: `Action required: discovery call has no Google Meet link — ${args.company || args.clientName || args.clientEmail}`,
     html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
-  }, "discovery_google_meet_setup_failed", { archive: false, teamCc: false });
+  }, "discovery_google_meet_setup_failed", { archive: false, priority: "critical" });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
-export async function sendDiscoveryReminderEmail(args: { to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
+export async function sendDiscoveryReminderEmail(args: { leadId: string; to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -963,7 +1022,6 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: configuredReplyTo(),
     subject: `Reminder: your discovery call is ${timing}`,
     text: `Hi ${firstName},\n\nYour VirtualAssistant.com.ph discovery call is ${timing}, at ${args.scheduledLabel}.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nReschedule or cancel: ${args.manageUrl}`,
@@ -974,7 +1032,7 @@ export async function sendDiscoveryReminderEmail(args: { to: string; clientName?
       ctaHref: args.meetingUrl || args.manageUrl,
       ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking"
     }),
-  }, `discovery_reminder_${args.window}`);
+  }, `discovery_reminder_${args.window}`, { archive: false, priority: "critical", idempotencyKey: `booking-reminder-${args.window}-${args.leadId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -1007,6 +1065,6 @@ export async function sendLeadProposalEmail(args: {
       ctaHref: args.proposalUrl,
       ctaLabel: "Review proposal"
     })
-  }, "client_proposal");
+  }, "client_proposal", { archive: false, priority: "critical", idempotencyKey: `client-proposal-${args.proposalUrl.split("/").filter(Boolean).pop() || args.roleTitle}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }

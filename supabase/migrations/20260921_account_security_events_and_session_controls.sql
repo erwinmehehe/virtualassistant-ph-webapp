@@ -25,7 +25,7 @@ create policy "users read own account security events"
   to authenticated
   using ((select auth.uid()) = user_id);
 
-create or replace function public.list_own_auth_sessions()
+create or replace function public.list_auth_sessions_for_user(target_user_id uuid)
 returns table (
   id uuid,
   created_at timestamptz,
@@ -39,7 +39,7 @@ returns table (
 language sql
 security definer
 set search_path = ''
-as $$
+as $
   select
     s.id,
     s.created_at,
@@ -50,38 +50,42 @@ as $$
     s.ip,
     s.aal::text
   from auth.sessions s
-  where s.user_id = (select auth.uid())
-    and (s.not_after is null or s.not_after > now())
+  where s.user_id = target_user_id
+    and (s.not_after is null or s.not_after > pg_catalog.now())
   order by coalesce(s.refreshed_at::timestamptz, s.updated_at, s.created_at) desc;
-$$;
+$;
 
-revoke all on function public.list_own_auth_sessions() from public, anon;
-grant execute on function public.list_own_auth_sessions() to authenticated;
+revoke all on function public.list_auth_sessions_for_user(uuid) from public, anon, authenticated;
+grant execute on function public.list_auth_sessions_for_user(uuid) to service_role;
 
-create or replace function public.revoke_own_auth_session(target_session_id uuid)
+create or replace function public.revoke_auth_session_for_user(
+  target_user_id uuid,
+  target_session_id uuid,
+  current_session_id uuid
+)
 returns boolean
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $
 declare
-  current_session_id uuid;
   deleted_count integer;
 begin
-  current_session_id := nullif((select auth.jwt()->>'session_id'), '')::uuid;
-
-  if target_session_id is null or target_session_id = current_session_id then
+  if target_user_id is null
+     or target_session_id is null
+     or current_session_id is null
+     or target_session_id = current_session_id then
     return false;
   end if;
 
   delete from auth.sessions
   where id = target_session_id
-    and user_id = (select auth.uid());
+    and user_id = target_user_id;
 
   get diagnostics deleted_count = row_count;
   return deleted_count = 1;
 end;
-$$;
+$;
 
-revoke all on function public.revoke_own_auth_session(uuid) from public, anon;
-grant execute on function public.revoke_own_auth_session(uuid) to authenticated;
+revoke all on function public.revoke_auth_session_for_user(uuid, uuid, uuid) from public, anon, authenticated;
+grant execute on function public.revoke_auth_session_for_user(uuid, uuid, uuid) to service_role;

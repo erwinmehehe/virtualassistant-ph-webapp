@@ -9,9 +9,6 @@ export type ParseResumeState = {
   fields?: ParsedResumeFields;
 };
 
-const initialState: ParseResumeState = { status: "idle" };
-export { initialState as parseResumeInitialState };
-
 const ALLOWED_MIME = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"

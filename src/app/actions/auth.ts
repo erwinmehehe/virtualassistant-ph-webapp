@@ -358,12 +358,13 @@ export async function joinAction(formData: FormData) {
 
   const confirmationDeliveredToProvider = brandedConfirmationSent || fallbackConfirmationSent;
   const loginParams = new URLSearchParams({
-    message: confirmationDeliveredToProvider
-      ? "Check your email to confirm your account"
-      : "Your account was created, but the confirmation email could not be sent. Use Resend email below.",
+    message: "Check your email to confirm your account",
     next: destination,
     confirm: "1"
   });
+  if (!confirmationDeliveredToProvider) {
+    loginParams.set("message", "Your account was created, but the confirmation email could not be sent. Use Resend email below.");
+  }
   if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
   redirect(`/auth/login?${loginParams.toString()}`);
 }

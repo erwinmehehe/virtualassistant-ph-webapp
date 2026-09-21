@@ -228,19 +228,6 @@ async function mergeBookingIntoRecentClientLead(args: {
   );
   if (!related?.job_id) return null;
 
-  const rates = rateRangeFromBudget(args.budget);
-  const hoursPerWeek = inferHours(args.hours);
-  const { error: jobError } = await args.admin.from("jobs").update({
-    title: args.service,
-    company_name: args.company,
-    ...(hoursPerWeek ? { hours_per_week: hoursPerWeek } : {}),
-    min_hourly_rate: rates.min,
-    max_hourly_rate: rates.max,
-    timezone: args.timezone,
-    start_timing: args.startTime,
-  }).eq("id", related.job_id);
-  if (jobError) throw jobError;
-
   if (args.clientId) {
     const { error: clientError } = await args.admin
       .from("lead_intake")
@@ -257,6 +244,19 @@ async function mergeBookingIntoRecentClientLead(args: {
     },
   );
   if (mergeError) throw mergeError;
+
+  const rates = rateRangeFromBudget(args.budget);
+  const hoursPerWeek = inferHours(args.hours);
+  const { error: jobError } = await args.admin.from("jobs").update({
+    title: args.service,
+    company_name: args.company,
+    ...(hoursPerWeek ? { hours_per_week: hoursPerWeek } : {}),
+    min_hourly_rate: rates.min,
+    max_hourly_rate: rates.max,
+    timezone: args.timezone,
+    start_timing: args.startTime,
+  }).eq("id", related.job_id);
+  if (jobError) throw jobError;
 
   return {
     leadId: String(mergedLeadId || related.id),

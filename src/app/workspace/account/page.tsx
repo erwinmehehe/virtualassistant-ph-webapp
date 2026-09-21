@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { SessionList } from "@/components/account-security/session-list";
+import { TotpManager } from "@/components/account-security/totp-manager";
 import { requireAnyRole } from "@/lib/auth";
 import { getAccountSecurityState, type SecurityEventType } from "@/lib/account-security";
 import type { Role } from "@/lib/types";
@@ -107,14 +108,10 @@ export default async function AccountSettingsPage({
               </p>
             </div>
             <div className="data-row">
-              <span>Status</span>
-              <strong>{verifiedFactorCount ? "Enabled" : "Not enabled"}</strong>
-            </div>
-            <div className="data-row">
               <span>Current session</span>
               <strong>{state.currentLevel === "aal2" ? "2FA verified" : "Password or social sign-in"}</strong>
             </div>
-            <p className="small muted">Authenticator app setup controls are added in the next security step.</p>
+            <TotpManager factors={state.factors} required={staff} />
           </section>
 
           <section className="stack">

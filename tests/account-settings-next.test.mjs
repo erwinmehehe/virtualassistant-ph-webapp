@@ -158,3 +158,38 @@ test("account display preference and privacy actions stay authenticated and user
   assert.match(exportRoute, /virtualassistant-account-data\.json/);
   assert.doesNotMatch(exportRoute, /searchParams|get\("user_id"\)|target_user/i);
 });
+
+
+test("Account Center uses the complete five-section settings architecture", async () => {
+  const [page, css, sessions] = await Promise.all([
+    read("src/app/workspace/account/page.tsx"),
+    read("src/app/workspace/account-center.css"),
+    read("src/components/account-security/session-list.tsx"),
+  ]);
+
+  assert.match(page, />Profile</);
+  assert.match(page, />Sign-in & security</);
+  assert.match(page, />Notifications</);
+  assert.match(page, />Preferences</);
+  assert.match(page, />Privacy & account</);
+  assert.match(page, /tab=profile/);
+  assert.match(page, /tab=preferences/);
+  assert.match(page, /tab=privacy/);
+  assert.match(page, /params\.tab === "account"/);
+  assert.doesNotMatch(page, /account-identity-hero/);
+  assert.doesNotMatch(page, /account-tabs/);
+  assert.doesNotMatch(page, /account-overview-card/);
+  assert.doesNotMatch(page, /account-security-promo/);
+  assert.doesNotMatch(page, /account-readonly-field/);
+  assert.match(page, /action=\{updateAccountDisplayPreferencesAction\}/);
+  assert.match(page, /Download account data/);
+  assert.match(page, /action=\{requestAccountDeletionAction\}/);
+  assert.match(page, /DELETE MY ACCOUNT/);
+  assert.doesNotMatch(page, /deleteUser\(/);
+  assert.match(page, /Where you're logged in/);
+  assert.match(page, /approximate/i);
+  assert.match(sessions, /Location unavailable/);
+  assert.match(sessions, /signInMethod/);
+  assert.match(css, /account-settings-nav/);
+  assert.match(css, /overflow-x:\s*auto/);
+});

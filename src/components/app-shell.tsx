@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { CircleUserRound, ExternalLink, LifeBuoy, LogOut, Sparkles } from "lucide-react";
+import { CircleUserRound, LifeBuoy, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
 import { getWorkspaceBadges, type WorkspaceBadges } from "@/lib/workspace-badges";
@@ -76,7 +76,6 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
         <div className="app-topbar">
           <div className="app-topbar-inner">
             <div className="app-topbar-title"><Link className="app-topbar-workspace-home" href={workspaceHome[role]}>{roleLabel} workspace</Link><strong className="app-topbar-page-title">{title}</strong></div>
-            <Link className="btn btn-sm app-topbar-public" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink size={15}/><span>Public site</span></Link>
           </div>
         </div>
         <div className="app-content">{children}</div>

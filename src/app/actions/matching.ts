@@ -7,7 +7,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candidate-access";
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
-import { sendVaMatchEmail } from "@/lib/match-email";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
@@ -249,18 +248,6 @@ export async function saveJobShortlistAction(formData: FormData) {
       body: `Your recruiter shortlisted your profile as a ${matchLabel(row.match_score)} for client review. Keep your availability and profile current while the client reviews the shortlist.`,
       href: "/workspace/va/profile"
     })));
-    await Promise.all(newlyReleasedGoodMatches.map(async (row) => {
-      const { data: authUser } = await admin.auth.admin.getUserById(row.va_id);
-      try {
-        await sendVaMatchEmail({
-          to: authUser.user?.email,
-          fitLabel: matchLabel(row.match_score),
-          appUrl: process.env.NEXT_PUBLIC_APP_URL
-        });
-      } catch (emailError) {
-        console.error("[email] VA match alert delivery failed", emailError);
-      }
-    }));
   }
 
   if (mode === "release" && job.client_id) {

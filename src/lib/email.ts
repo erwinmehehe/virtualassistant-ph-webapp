@@ -113,6 +113,48 @@ function configuredReplyTo() {
 
 type EmailPriority = "critical" | "standard" | "low";
 type EmailEventStatus = "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
+type NotificationPreferenceField = "hiring_updates" | "booking_reminders" | "candidate_activity" | "product_emails";
+
+function notificationPreferenceField(eventType: string): NotificationPreferenceField | null {
+  if (eventType.startsWith("discovery_reminder_")) return "booking_reminders";
+  if (["client_followup", "lead_claim_nudge"].includes(eventType)) return "hiring_updates";
+  if (["new_application", "application_status", "profile_completion_reminder", "profile_stage_nudge"].includes(eventType)) {
+    return "candidate_activity";
+  }
+  if (eventType.startsWith("product_")) return "product_emails";
+  return null;
+}
+
+function bareEmailAddress(value: string) {
+  return value.match(/<([^<>]+)>$/)?.[1]?.trim() || value.trim();
+}
+
+async function filterRecipientsByNotificationPreference(
+  admin: ReturnType<typeof createAdminClient>,
+  recipients: string[],
+  eventType: string,
+) {
+  const field = notificationPreferenceField(eventType);
+  if (!field || !recipients.length) return { allowed: recipients, skipped: [] as string[] };
+
+  const decisions = await Promise.all(recipients.map(async (recipient) => {
+    try {
+      const { data, error } = await admin.rpc("get_account_notification_preferences_by_email", {
+        target_email: bareEmailAddress(recipient),
+      });
+      if (error || !Array.isArray(data) || !data[0]) return true;
+      return data[0][field] !== false;
+    } catch {
+      // Preference lookup outages must not silently drop account communication.
+      return true;
+    }
+  }));
+
+  return {
+    allowed: recipients.filter((_, index) => decisions[index]),
+    skipped: recipients.filter((_, index) => !decisions[index]),
+  };
+}
 type EmailEventLogMeta = {
   recipientCount?: number;
   priority?: EmailPriority;
@@ -250,7 +292,7 @@ async function trackedSend(
     if (!critical) return { sent: false as const, data: null, reason: "suppression_lookup_failed" };
   }
 
-  const safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));
+  let safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeCc = cc.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeBcc = bcc.filter((email) => !suppressed.has(email.toLowerCase()));
   const suppressedRecipients = suppressionCheck.filter((email) => suppressed.has(email));
@@ -263,6 +305,23 @@ async function trackedSend(
     });
   }
 
+  const preferenceDecision = await filterRecipientsByNotificationPreference(admin, safeTo, eventType);
+  safeTo = preferenceDecision.allowed;
+  if (preferenceDecision.skipped.length) {
+    await logEmailEvent(
+      eventType,
+      preferenceDecision.skipped,
+      "suppressed",
+      null,
+      "Recipient disabled this notification category in Account settings.",
+      {
+        ...eventMeta,
+        recipientCount: preferenceDecision.skipped.length,
+        skipReason: "notification_preference_disabled",
+      },
+    );
+  }
+
   payload = {
     ...payload,
     to: safeTo,
@@ -272,13 +331,29 @@ async function trackedSend(
   };
 
   if (!safeTo.length) {
-    const reason = suppressed.size ? "recipient_suppressed" : "no_valid_recipient";
-    await logEmailEvent(eventType, [], "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.", {
-      ...eventMeta,
-      recipientCount: 0,
-      skipReason: reason
-    });
-    return { sent: false as const, data: null, suppressed: true, reason: suppressed.size ? "recipient_suppressed" : "no_valid_recipient" };
+    const preferenceDisabled = preferenceDecision.skipped.length > 0 && suppressed.size === 0;
+    const reason = preferenceDisabled
+      ? "notification_preference_disabled"
+      : suppressed.size
+        ? "recipient_suppressed"
+        : "no_valid_recipient";
+    await logEmailEvent(
+      eventType,
+      [],
+      "failed",
+      null,
+      preferenceDisabled
+        ? "All recipients disabled this notification category."
+        : suppressed.size
+          ? "Recipient suppressed after bounce/complaint."
+          : "No valid email recipients were configured.",
+      {
+        ...eventMeta,
+        recipientCount: 0,
+        skipReason: reason,
+      },
+    );
+    return { sent: false as const, data: null, suppressed: true, reason };
   }
 
   const allRecipients = [...safeTo, ...safeCc, ...safeBcc];
@@ -631,6 +706,97 @@ export async function sendPasswordRecoveryEmail(args: { to: string; actionUrl: s
       ctaLabel: "Reset my password"
     })
   }, "password_recovery", { archive: false, priority: "critical" });
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+export async function sendEmailChangeVerificationEmail(args: { to: string; actionUrl: string }) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: "Verify your new VirtualAssistant.com.ph email",
+    text: `Verify this email address for your VirtualAssistant.com.ph account: ${args.actionUrl}\n\nThe account email will not change until you use this link.`,
+    html: renderAuthActionEmail({
+      heading: "Verify your new email",
+      body: "Confirm that you own this email address. Your account email will only change after you use the secure verification link below.",
+      ctaHref: args.actionUrl,
+      ctaLabel: "Verify new email",
+    }),
+  }, "account_email_change_verification", { archive: false, priority: "critical" });
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+export async function sendAccountEmailChangedNoticeEmail(args: {
+  to: string;
+  newEmail: string;
+  reviewUrl: string;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">The email address on your VirtualAssistant.com.ph account was changed to <strong>${escapeHtml(args.newEmail)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If you made this change, no action is needed. If you did not, review your signed-in devices and secure the account now.</p>`;
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: "Your VirtualAssistant.com.ph account email changed",
+    text: `Your VirtualAssistant.com.ph account email was changed to ${args.newEmail}. If this was not you, review account security: ${args.reviewUrl}`,
+    html: renderBrandedEmail({
+      firstName: "there",
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Security",
+      teamLabel: "Account security",
+      footerText: "Security notices are always enabled for your account.",
+      ctaHref: args.reviewUrl,
+      ctaLabel: "Review account security",
+      appendSignature: false,
+    }),
+  }, "account_email_changed_notice", { archive: false, priority: "critical" });
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+export async function sendNewLoginSecurityEmail(args: {
+  to: string;
+  fullName?: string | null;
+  browser: string;
+  os: string;
+  ip?: string | null;
+  occurredAt: string;
+  reviewUrl: string;
+  alertKey: string;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const firstName = args.fullName?.trim().split(/\s+/)[0] || "there";
+  const when = new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(new Date(args.occurredAt));
+  const ipLine = args.ip ? `<br><strong>IP:</strong> ${escapeHtml(args.ip)}` : "";
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We noticed a sign-in from a browser or device we have not seen recently.</p><p style="margin:0 0 18px;padding:16px;border:1px solid #eaecf0;border-radius:12px;background:#f9fafb;color:#344054;font-size:15px;line-height:1.7;"><strong>${escapeHtml(args.browser)} on ${escapeHtml(args.os)}</strong>${ipLine}<br><strong>Time:</strong> ${escapeHtml(when)} UTC</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If this was you, no action is needed. Otherwise, review your signed-in devices and secure your account.</p>`;
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    subject: "New sign-in to your VirtualAssistant.com.ph account",
+    text: `New sign-in to your VirtualAssistant.com.ph account\n\n${args.browser} on ${args.os}${args.ip ? ` · IP ${args.ip}` : ""} · ${when} UTC\n\nIf this was not you, review account security: ${args.reviewUrl}`,
+    html: renderBrandedEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Security",
+      teamLabel: "Account security",
+      footerText: "Security alerts are mandatory and cannot be disabled.",
+      ctaHref: args.reviewUrl,
+      ctaLabel: "Review account security",
+      appendSignature: false,
+    }),
+  }, "account_new_login_alert", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: `new-login-${args.alertKey}`,
+  });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

@@ -40,9 +40,9 @@ export async function POST(request: Request) {
     }
   }
   if (existing?.id) {
-    const patch: Record<string, unknown> = { status };
-    if (recipientCount > 0) patch.recipient_count = recipientCount;
-    await admin.from("outbound_email_events").update(patch).eq("id", existing.id);
+    // Preserve the app-recorded To + CC + BCC recipient_count. Resend delivery
+    // webhooks expose the visible To list, which can be smaller than quota usage.
+    await admin.from("outbound_email_events").update({ status }).eq("id", existing.id);
   } else {
     await admin.from("outbound_email_events").insert({
       event_type: event.type,

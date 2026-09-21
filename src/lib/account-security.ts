@@ -167,8 +167,7 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
       baseline: loginHistory.length === 0,
     },
   });
-
-
+}
 
 export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const supabase = await createClient();

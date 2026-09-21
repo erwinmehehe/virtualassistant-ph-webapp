@@ -218,7 +218,6 @@ export async function closeJobAction(formData: FormData) {
   const admin = createAdminClient();
   const { error } = await admin.from("jobs").update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", id).eq("client_id", user.id);
   if (error) throw error;
-  try { const authUser=await admin.auth.admin.getUserById(user.id); const {sendTransactionalEventEmail}=await import("@/lib/email"); await sendTransactionalEventEmail({to:authUser.data.user?.email,subject:`Job closed: ${job.title}`,heading:"Your job is now closed",body:`${job.title} is no longer accepting applications.`,href:`${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${id}`,hrefLabel:"View job"}); } catch {}
   revalidatePath(`/workspace/client/jobs/${id}`);
   revalidatePath("/workspace/client");
 }
@@ -249,7 +248,6 @@ export async function acceptCommercialTermsAction(formData: FormData) {
 
   if (publishedJob) {
     await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
-    try { const auth = await admin.auth.admin.getUserById(user.id); const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: auth.data.user?.email, subject: `Job published: ${publishedJob.title}`, heading: "Your hiring request is live", body: "We have confirmed the role and your candidate access is active. Our recruiting team can now shortlist vetted VAs while the role receives applications.", href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${jobId}`, hrefLabel: "View hiring progress" }); } catch {}
     try {
       const { autoReleaseTopMatches } = await import("@/lib/auto-matching");
       await autoReleaseTopMatches(publishedJob);

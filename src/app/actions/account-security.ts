@@ -537,7 +537,7 @@ export async function cancelAccountDeletionRequestAction() {
 
 export async function reviewAccountDeletionRequestAction(formData: FormData) {
   const { user } = await requireRole("admin");
-  const targetUserId = sessionIdSchema.safeParse(String(formData.get("user_id") || ""));
+  const targetUserId = sessionIdSchema.safeParse(String(formData.get("target_user_id") || ""));
   const status = deletionReviewStatusSchema.safeParse(String(formData.get("status") || ""));
   const note = String(formData.get("review_note") || "").trim().slice(0, 500) || null;
 

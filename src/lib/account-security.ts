@@ -11,13 +11,8 @@ export type SecurityEventType =
   | "logout_current"
   | "logout_others"
   | "logout_all"
-  | "password_changed"
-  | "totp_enrollment_started"
-  | "totp_enabled"
-  | "totp_factor_removed"
-  | "mfa_challenge_succeeded"
-  | "mfa_challenge_failed"
-  | "admin_mfa_recovery";
+  | "session_revoked"
+  | "password_changed";
 
 export type AccountSession = {
   id: string;
@@ -47,16 +42,6 @@ export type AccountSecurityState = {
     email?: string;
   };
   signInProviders: string[];
-  currentLevel: "aal1" | "aal2" | null;
-  nextLevel: "aal1" | "aal2" | null;
-  factors: Array<{
-    id: string;
-    friendly_name?: string | null;
-    factor_type?: string;
-    status?: string;
-    created_at?: string;
-    updated_at?: string;
-  }>;
   sessions: AccountSession[];
   events: SecurityEvent[];
 };
@@ -80,20 +65,7 @@ function claimsSessionId(claims: unknown) {
   return typeof value === "string" ? value : null;
 }
 
-function normalizeAal(value: unknown): "aal1" | "aal2" | null {
-  if (value === "aal1" || value === "aal2") return value;
-  return null;
-}
 
-export function safeAccountNext(
-  value: string | null | undefined,
-  fallback = "/workspace/account?tab=security",
-) {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
-    return fallback;
-  }
-  return value;
-}
 
 export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const supabase = await createClient();
@@ -101,14 +73,10 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const [
     { data: userData },
     { data: claimsData },
-    { data: aalData },
-    { data: factorsData },
     sessionsResult,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.auth.getClaims(),
-    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
-    supabase.auth.mfa.listFactors(),
     supabase.rpc("list_own_auth_sessions"),
   ]);
 
@@ -141,16 +109,6 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
     signInProviders: (user.identities ?? [])
       .map((identity) => identity.provider)
       .filter((provider): provider is string => Boolean(provider)),
-    currentLevel: normalizeAal(aalData?.currentLevel) ?? "aal1",
-    nextLevel: normalizeAal(aalData?.nextLevel) ?? "aal1",
-    factors: (factorsData?.totp ?? []).map((factor) => ({
-      id: factor.id,
-      friendly_name: factor.friendly_name,
-      factor_type: factor.factor_type,
-      status: factor.status,
-      created_at: factor.created_at,
-      updated_at: factor.updated_at,
-    })),
     sessions,
     events: (events ?? []) as SecurityEvent[],
   };
@@ -197,38 +155,4 @@ export async function recordSecurityEventForUser(args: {
     user_agent: requestContext.userAgent,
     metadata: args.metadata ?? {},
   });
-}
-
-export async function requireSensitiveAal2(next = "/workspace/account?tab=security") {
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-  if (!user) redirect(`/auth/login?next=${encodeURIComponent(safeAccountNext(next))}`);
-
-  const [
-    { data: profile },
-    { data: aal },
-    { data: factors },
-  ] = await Promise.all([
-    supabase.from("profiles").select("role").eq("id", user.id).maybeSingle(),
-    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
-    supabase.auth.mfa.listFactors(),
-  ]);
-
-  const role = String(profile?.role || "");
-  const staff = role === "admin" || role === "recruiter";
-  const verifiedFactors = (factors?.totp ?? []).filter((factor) => factor.status === "verified");
-  const staffEnforcementEnabled = process.env.STAFF_MFA_ENFORCEMENT === "on";
-
-  if (staff && staffEnforcementEnabled && verifiedFactors.length === 0) {
-    redirect("/workspace/account?tab=security&setup=required");
-  }
-
-  const shouldRequireAal2 = staff ? staffEnforcementEnabled : verifiedFactors.length > 0;
-  const currentLevel = aal?.currentLevel ?? "aal1";
-
-  if (shouldRequireAal2 && currentLevel !== "aal2") {
-    const destination = safeAccountNext(next);
-    redirect(`/auth/mfa?next=${encodeURIComponent(destination)}`);
-  }
 }

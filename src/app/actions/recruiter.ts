@@ -198,6 +198,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const subject = String(formData.get("subject") || "").trim();
   const message = String(formData.get("message") || "").trim();
+  const archiveCopy = formData.get("archive_copy") === "1";
   if ((!leadId && !jobId) || subject.length < 3 || subject.length > 180 || message.length < 10 || message.length > 5000) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}`);
   }
@@ -258,7 +259,8 @@ export async function sendClientFollowupAction(formData: FormData) {
     subject,
     message,
     senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
-    href
+    href,
+    archiveCopy
   });
   if (!result.sent) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check the email configuration and recipient address.")}`);

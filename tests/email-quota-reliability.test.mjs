@@ -12,6 +12,7 @@ test("tracked sends use deterministic Resend idempotency keys and quota accounti
   assert.match(email, /DAILY_RECIPIENT_LIMIT/);
   assert.match(email, /RESERVED_CRITICAL_RECIPIENTS/);
   assert.match(email, /recipient_count/);
+  assert.match(email, /row\.provider_id \? countRecipientAddresses/);
   assert.match(email, /"skipped_quota"/);
   assert.match(email, /priority: "critical"/);
 });
@@ -21,7 +22,8 @@ test("suppression lookup failures do not silently fail open for non-critical mai
 
   assert.match(email, /suppressionError/);
   assert.match(email, /suppression_lookup_failed/);
-  assert.match(email, /options\?\.priority !== "critical"/);
+  assert.match(email, /const critical = options\?\.priority === "critical"/);
+  assert.match(email, /critical email was allowed through and the outage was recorded/);
 });
 
 test("daily maintenance no longer runs discovery reminders", async () => {

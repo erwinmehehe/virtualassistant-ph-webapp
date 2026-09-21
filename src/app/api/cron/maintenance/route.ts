@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendClaimDraftEmail, sendStaffDailyDigestEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 
@@ -324,52 +324,6 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   return { leadReminders, proposalReminders };
 }
 
-async function runStaffReminderDigest(admin: ReturnType<typeof createAdminClient>) {
-  const { data: staff, error: staffError } = await admin
-    .from("profiles")
-    .select("id")
-    .in("role", ["recruiter", "admin"])
-    .eq("account_status", "active");
-  if (staffError) throw staffError;
-
-  const staffIds = (staff || []).map((row: any) => row.id);
-  if (!staffIds.length) return { staff: 0, sent: 0, skipped: 0 };
-
-  const { data: reminders, error: reminderError } = await admin
-    .from("notifications")
-    .select("user_id,title,body,href,created_at")
-    .in("user_id", staffIds)
-    .gte("created_at", daysAgo(1))
-    .order("created_at", { ascending: false })
-    .limit(500);
-  if (reminderError) throw reminderError;
-
-  const grouped = new Map<string, Array<{ title: string; body: string; href?: string | null }>>();
-  for (const row of reminders || []) {
-    const items = grouped.get(row.user_id) || [];
-    if (items.length < 20) items.push({ title: row.title, body: row.body, href: row.href });
-    grouped.set(row.user_id, items);
-  }
-
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const dateKey = new Date().toISOString().slice(0, 10);
-  let sent = 0;
-  let skipped = 0;
-
-  for (const userId of staffIds) {
-    const items = grouped.get(userId) || [];
-    if (!items.length) continue;
-    const { data: auth } = await admin.auth.admin.getUserById(userId);
-    const email = auth.user?.email?.trim();
-    if (!email) continue;
-    const result = await sendStaffDailyDigestEmail({ to: email, userId, dateKey, appUrl, items });
-    if (result.sent) sent += 1;
-    else skipped += 1;
-  }
-
-  return { staff: staffIds.length, sent, skipped };
-}
-
 async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await task();
@@ -397,7 +351,5 @@ export async function GET(request: Request) {
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  const staffDigestResult = await runMaintenanceTask("staff reminder digest", () => runStaffReminderDigest(admin));
-
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, staffReminderDigest: staffDigestResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, indexNow: indexNowResult });
 }

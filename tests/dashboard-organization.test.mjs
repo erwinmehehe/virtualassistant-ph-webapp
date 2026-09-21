@@ -83,3 +83,9 @@ test("VA quick setup uses a dedicated focused onboarding layout", () => {
   assert.doesNotMatch(onboarding, /className="grid-2"/);
   assert.doesNotMatch(onboarding, /style=\{/);
 });
+
+
+test("sidebar does not render redundant current workspace card", () => {
+  assert.doesNotMatch(shell, /Current workspace/);
+  assert.doesNotMatch(shell, /app-workspace-card/);
+});

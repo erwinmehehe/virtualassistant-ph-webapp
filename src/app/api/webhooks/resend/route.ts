@@ -31,6 +31,7 @@ export async function POST(request: Request) {
   const providerId = event.data?.email_id;
   if (!status || !providerId) return Response.json({ received: true });
   const admin = createAdminClient();
+  const recipientCount = (event.data?.to || []).filter(Boolean).length;
   const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).maybeSingle();
   if (["bounced", "complained", "suppressed"].includes(status)) {
     for (const raw of event.data?.to || []) {
@@ -39,9 +40,18 @@ export async function POST(request: Request) {
     }
   }
   if (existing?.id) {
-    await admin.from("outbound_email_events").update({ status }).eq("id", existing.id);
+    const patch: Record<string, unknown> = { status };
+    if (recipientCount > 0) patch.recipient_count = recipientCount;
+    await admin.from("outbound_email_events").update(patch).eq("id", existing.id);
   } else {
-    await admin.from("outbound_email_events").insert({ event_type: event.type, recipient: event.data?.to?.join(",") || null, status, provider_id: providerId });
+    await admin.from("outbound_email_events").insert({
+      event_type: event.type,
+      automation: event.type,
+      recipient: event.data?.to?.join(",") || null,
+      recipient_count: recipientCount,
+      status,
+      provider_id: providerId
+    });
   }
   return Response.json({ received: true });
 }

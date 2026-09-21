@@ -192,9 +192,10 @@ export async function saveJobShortlistAction(formData: FormData) {
     const { sendTransactionalEventEmail } = await import("@/lib/email");
     const delivery = await sendTransactionalEventEmail({
       to: inviteLead.email,
+      firstName,
       subject: `Your VA shortlist is ready to review: ${job.title}`,
       heading: "Your recruiter has a shortlist ready",
-      body: `Hi ${firstName}, we reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
+      body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
       href: claimUrl,
       hrefLabel: "Review my shortlist"
     });

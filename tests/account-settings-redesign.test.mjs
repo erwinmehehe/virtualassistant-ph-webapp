@@ -23,7 +23,7 @@ test("Account Center has an editable personal profile and role-aware workspace s
 
   assert.match(actions, /export async function updateAccountProfileAction/);
   assert.match(actions, /requireAnyRole\(\["admin", "recruiter", "client", "va"\]\)/);
-  assert.match(actions, /Profile photo must be 3 MB or smaller/);
+  assert.match(actions, /avatar\.size > 3 \* 1024 \* 1024/);
   assert.match(actions, /image\/jpeg/);
   assert.match(actions, /image\/png/);
   assert.match(actions, /image\/webp/);
@@ -48,7 +48,7 @@ test("Account Center exposes meaningful account and security state without TOTP"
 test("Account Center session UI is card-based and responsive", async () => {
   const [sessions, css] = await Promise.all([
     read("src/components/account-security/session-list.tsx"),
-    read("src/app/globals.css"),
+    read("src/app/workspace/account-center.css"),
   ]);
 
   assert.match(sessions, /account-session-card/);

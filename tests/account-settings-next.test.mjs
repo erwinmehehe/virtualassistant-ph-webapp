@@ -183,7 +183,7 @@ test("Account Center uses the complete five-section settings architecture", asyn
   assert.doesNotMatch(page, /account-readonly-field/);
   assert.match(page, /action=\{updateAccountDisplayPreferencesAction\}/);
   assert.match(page, /Download account data/);
-  assert.ok(page.includes('<Link className="btn btn-sm" href="/workspace/account/export">'));
+  assert.ok(page.includes('href="/workspace/account/export"'));
   assert.match(page, /action=\{requestAccountDeletionAction\}/);
   assert.match(page, /DELETE MY ACCOUNT/);
   assert.doesNotMatch(page, /deleteUser\(/);

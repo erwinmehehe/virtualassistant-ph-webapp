@@ -73,23 +73,25 @@ export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const [
     { data: userData },
     { data: claimsData },
-    sessionsResult,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.auth.getClaims(),
-    supabase.rpc("list_own_auth_sessions"),
   ]);
 
   const user = userData.user;
   if (!user) redirect("/auth/login?next=/workspace/account");
 
   const currentSessionId = claimsSessionId(claimsData?.claims);
+  const admin = createAdminClient();
 
-  const { data: events } = await supabase
-    .from("account_security_events")
-    .select("id,event_type,session_id,ip,user_agent,metadata,created_at")
-    .order("created_at", { ascending: false })
-    .limit(20);
+  const [sessionsResult, { data: events }] = await Promise.all([
+    admin.rpc("list_auth_sessions_for_user", { target_user_id: user.id }),
+    supabase
+      .from("account_security_events")
+      .select("id,event_type,session_id,ip,user_agent,metadata,created_at")
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
 
   const sessions = Array.isArray(sessionsResult.data)
     ? sessionsResult.data.map((row) => {

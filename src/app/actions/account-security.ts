@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordSecurityEvent } from "@/lib/account-security";
@@ -34,14 +35,30 @@ async function verifySensitiveAccountPassword(
     redirect(`${returnPath}${returnPath.includes("?") ? "&" : "?"}error=${encodeURIComponent("Too many password checks. Please wait a few minutes and try again.")}`);
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const verifier = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    },
+  );
+  const { error } = await verifier.auth.signInWithPassword({
     email: user.email,
     password: currentPassword,
   });
 
   if (error) {
     redirect(`${returnPath}${returnPath.includes("?") ? "&" : "?"}error=${encodeURIComponent("Current password is incorrect. If you only use Google or Microsoft sign-in, set an account password first.")}`);
+  }
+
+  try {
+    await verifier.auth.signOut({ scope: "local" });
+  } catch {
+    // Reauthentication already succeeded. The isolated session is never persisted in browser cookies.
   }
 }
 

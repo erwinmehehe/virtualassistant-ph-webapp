@@ -39,7 +39,7 @@ returns table (
 language sql
 security definer
 set search_path = ''
-as $
+as $$
   select
     s.id,
     s.created_at,
@@ -53,7 +53,7 @@ as $
   where s.user_id = target_user_id
     and (s.not_after is null or s.not_after > pg_catalog.now())
   order by coalesce(s.refreshed_at::timestamptz, s.updated_at, s.created_at) desc;
-$;
+$$;
 
 revoke all on function public.list_auth_sessions_for_user(uuid) from public, anon, authenticated;
 grant execute on function public.list_auth_sessions_for_user(uuid) to service_role;
@@ -67,7 +67,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   deleted_count integer;
 begin
@@ -85,7 +85,7 @@ begin
   get diagnostics deleted_count = row_count;
   return deleted_count = 1;
 end;
-$;
+$$;
 
 revoke all on function public.revoke_auth_session_for_user(uuid, uuid, uuid) from public, anon, authenticated;
 grant execute on function public.revoke_auth_session_for_user(uuid, uuid, uuid) to service_role;

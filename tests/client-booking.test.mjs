@@ -50,20 +50,32 @@ test("discovery booking is available 24/7 and grouped in the visitor timezone", 
   assert.match(form, /localDays\.map/);
 });
 
-test("client booking is two steps and does not repeat the hiring questionnaire", async () => {
-  const form = await read("src/components/client-booking-form.tsx");
+test("client booking stays two steps but requires a job-ready minimum brief", async () => {
+  const [form, action] = await Promise.all([
+    read("src/components/client-booking-form.tsx"),
+    read("src/app/actions/leads.ts"),
+  ]);
 
   assert.match(form, /Step 1 of 2/);
   assert.match(form, /Step 2 of 2/);
   assert.doesNotMatch(form, /Step 3 of 3/);
-  assert.doesNotMatch(form, /What type of VA do you need\?/);
-  assert.doesNotMatch(form, /Hourly VA budget \*/);
-  assert.doesNotMatch(form, /What should the VA own, and what is your biggest challenge\?/);
-  assert.match(form, /name="name"/);
-  assert.match(form, /name="email"/);
-  assert.match(form, /name="company"/);
-  assert.match(form, /name="service" value="Virtual Assistant hiring"/);
-  assert.match(form, /Role details will be confirmed during the conversation/);
+  assert.match(form, /Role you need to hire \*/);
+  assert.match(form, /Hours per week \*/);
+  assert.match(form, /Hourly VA budget \(USD\) \*/);
+  assert.match(form, /Preferred start \*/);
+  assert.match(form, /What should this VA own\? \*/);
+  assert.match(form, /name="service" required/);
+  assert.match(form, /name="hours" required type="number"/);
+  assert.match(form, /name="budget" required/);
+  assert.match(form, /name="start_time" required/);
+  assert.match(form, /name="message" required/);
+  assert.doesNotMatch(form, /Virtual Assistant hiring/);
+  assert.doesNotMatch(form, /To discuss on the call/);
+  assert.match(action, /Tell us the actual role you need to hire/);
+  assert.match(action, /Hours per week must be between 1 and 80/);
+  assert.match(action, /jobId = await createPendingJobForLead/);
+  assert.match(action, /title: parsed\.data\.service/);
+  assert.match(action, /metadata: \{ lead_id: lead\.id, job_id: jobId/);
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {
@@ -73,7 +85,7 @@ test("floating call prompt is restricted to high-intent behavior", async () => {
   assert.match(cta, /isHighIntentPath/);
 });
 
-test("client booking prevents slot conflicts, records CRM state, and privately notifies all three internal contacts", async () => {
+test("client booking prevents slot conflicts, records CRM state, and privately notifies both booking owners", async () => {
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
@@ -84,9 +96,10 @@ test("client booking prevents slot conflicts, records CRM state, and privately n
   assert.match(action, /event_name: "booking_completed"/);
   assert.match(migration, /create unique index/);
   assert.match(migration, /discovery_scheduled_at/);
-  assert.match(email, /jrvsaccad@gmail\.com/);
-  assert.match(email, /bryanbatarina@gmail\.com/);
+  assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
   assert.match(email, /erwinvalles20@gmail\.com/);
+  assert.match(email, /jrvsaccad@gmail\.com/);
+  assert.match(email, /"discovery_booking_internal_team"/);
   assert.doesNotMatch(email, /Jervis or Bryan will add the meeting link/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);
   assert.match(email, /What we have on your brief/);

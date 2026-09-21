@@ -22,7 +22,6 @@ test("ordinary logout is local while explicit controls cover others and global",
   assert.match(auth, /signOut\(\{ scope: "local" \}\)/);
   assert.match(account, /signOut\(\{ scope: "others" \}\)/);
   assert.match(account, /signOut\(\{ scope: "global" \}\)/);
-  assert.match(account, /requireSensitiveAal2\("\/workspace\/account\?tab=security"\)/);
 });
 
 test("session revocation calls own-session RPC instead of accepting a user id", async () => {
@@ -40,4 +39,21 @@ test("shared account page separates personal settings from agency settings and s
   assert.match(page, /Recent security activity/);
   assert.match(page, /Sign-in methods/);
   assert.doesNotMatch(page, /updateMarketplaceSettingsAction/);
+});
+
+
+test("sidebar user card opens personal Account settings", async () => {
+  const shell = await read("src/components/app-shell.tsx");
+  assert.match(shell, /className="app-account-card"[\s\S]*href="\/workspace\/account"/);
+  assert.match(shell, /aria-label="Open account settings"/);
+});
+
+test("Account Security stays session-focused while TOTP is deferred", async () => {
+  const [page, actions] = await Promise.all([
+    read("src/app/workspace/account/page.tsx"),
+    read("src/app/actions/account-security.ts"),
+  ]);
+  assert.doesNotMatch(page, /TotpManager|Two-factor authentication|authenticator app/i);
+  assert.doesNotMatch(actions, /auth\.mfa\.|Totp|Mfa/);
+  assert.match(actions, /eventType: "session_revoked"/);
 });

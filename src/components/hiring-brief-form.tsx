@@ -17,6 +17,7 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
+import { indefiniteArticleFor } from "@/lib/content-language";
 
 /**
  * The one hiring form used across the site's hiring pages (service, software,
@@ -232,13 +233,15 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   }
 
   const base = (props.variant === "service" ? props.roleLabel : props.industryLabel).replace(/\s+(virtual assistants?|VAs?)$/i, "").trim();
-  const label = `${/^[aeiou]/i.test(base) ? "an" : "a"} ${base} VA`;
+  const title = props.variant === "service"
+    ? `Hire ${indefiniteArticleFor(base)} ${base} Virtual Assistant`
+    : `Hire Virtual Assistant support for ${base}`;
   const sourcePath = props.sourcePath || (props.variant === "service" ? `/service/${props.slug}/` : `/industries/${props.slug}/`);
   const id = `hb-${props.variant}-${props.slug}`;
 
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={`Hire ${label}`} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
+      <Head title={title} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
       <form action={formAction} className="hb-form">
         <input type="hidden" name="slug" value={props.slug} />
         {props.variant === "service" ? <input type="hidden" name="category" value={props.category} /> : null}

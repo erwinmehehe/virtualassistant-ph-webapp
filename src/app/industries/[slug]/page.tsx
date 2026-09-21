@@ -21,6 +21,7 @@ import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
+import { titleCaseWithAcronyms } from "@/lib/content-language";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -36,12 +37,13 @@ export async function generateMetadata({ params }: { params: Promise<{slug:strin
     description,
     keywords: [industry.primaryKeyword, title.toLowerCase(), `virtual assistant services for ${industry.label.toLowerCase()}`],
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description }
+    openGraph: { type: "website", url: canonical, title, description },
+    twitter: { card: "summary_large_image", title, description }
   };
 }
 
 function safeJson(value: unknown) { return JSON.stringify(value).replace(/</g, "\\u003c"); }
-function titleCase(value: string) { return value.replace(/\b\w/g, (m) => m.toUpperCase()); }
+function titleCase(value: string) { return titleCaseWithAcronyms(value); }
 
 export default async function IndustryPage({ params }: { params: Promise<{slug:string}> }) {
   const { slug } = await params;

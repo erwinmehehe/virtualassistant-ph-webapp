@@ -33,6 +33,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
+import { preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 
 export const revalidate = 3600;
 
@@ -63,7 +64,7 @@ function safeJson(value: unknown) {
 }
 
 function toTitle(value: string) {
-  return value.replace(/\b\w/g, (match) => match.toUpperCase());
+  return titleCaseWithAcronyms(value);
 }
 
 function roleName(name: string) {
@@ -139,7 +140,7 @@ function costFactorsFor(s: ServiceSeoPage) {
     `How much ${s.tasks[0]} you need each week, and whether it is steady or seasonal`,
     `Depth in ${s.tools.slice(0, 2).join(" and ")} rather than general familiarity`,
     `Whether the role owns ${s.tasks[1]} end to end or hands it back for review`,
-    `Live overlap with your hours, which matters more for ${s.focus.toLowerCase()}`
+    `Live overlap with your hours, which matters more for ${preserveAcronyms(s.focus)}`
   ];
   return [...specific, ...derived].slice(0, 4);
 }

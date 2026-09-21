@@ -4,7 +4,8 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const roots = [join(repoRoot, "src"), join(repoRoot, "scripts")];
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -17,14 +18,14 @@ async function walk(dir) {
   return files;
 }
 
-test("production code cannot bypass the shared tracked Resend sender", async () => {
+test("app and operational scripts cannot bypass the shared tracked Resend sender", async () => {
   const offenders = [];
-  const files = await walk(root);
+  const files = (await Promise.all(roots.map(walk))).flat();
   for (const file of files) {
     const source = await readFile(file, "utf8");
     if (/from\s+["']resend["']|new\s+Resend\s*\(|\.emails\.send\s*\(/.test(source)) {
-      const rel = relative(root, file).replaceAll("\\", "/");
-      if (rel !== "lib/email.ts") offenders.push(rel);
+      const rel = relative(repoRoot, file).replaceAll("\\", "/");
+      if (rel !== "src/lib/email.ts") offenders.push(rel);
     }
   }
 

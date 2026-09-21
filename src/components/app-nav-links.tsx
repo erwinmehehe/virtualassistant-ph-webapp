@@ -109,6 +109,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Audit Log", "/workspace/admin/audit", Activity],
         ["Email Health", "/workspace/admin/email-health", Activity],
+        ["Deletion requests", "/workspace/admin/account-deletion-requests", ShieldCheck],
         ["Settings", "/workspace/admin/settings", Settings],
       ],
     },

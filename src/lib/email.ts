@@ -784,7 +784,7 @@ export async function sendStaffClientFollowupEmail(args: {
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
-export async function sendTransactionalEventEmail(args: { to?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority }) {
+export async function sendTransactionalEventEmail(args: { to?: string | null; firstName?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -797,7 +797,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
     subject: args.subject,
     text: `${args.heading}\n\n${args.body}${args.href ? `\n\n${args.hrefLabel || "Open VirtualAssistant.com.ph"}: ${args.href}` : ""}`,
     html: renderBrandedEmail({
-      firstName: "there",
+      firstName: args.firstName?.trim().split(/\s+/)[0] || "there",
       bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:22px;line-height:1.3;">${escapeHtml(args.heading)}</h2>${bodyHtml}`,
       senderName: "VirtualAssistant.com.ph Team",
       teamLabel: "Account update",

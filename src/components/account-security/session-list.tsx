@@ -2,6 +2,7 @@ import { MapPin, MonitorSmartphone, ShieldCheck } from "lucide-react";
 import {
   logoutEverywhereAction,
   logoutOtherDevicesAction,
+  reportUnknownSessionAction,
   revokeOwnSessionAction,
 } from "@/app/actions/account-security";
 import type { AccountDisplayPreferences } from "@/lib/account-display-preferences";
@@ -110,10 +111,16 @@ export function SessionList({
             </div>
 
             {!session.current ? (
-              <form action={revokeOwnSessionAction} className="account-session-action">
-                <input type="hidden" name="session_id" value={session.id} />
-                <button className="btn btn-sm" type="submit">Log out</button>
-              </form>
+              <div className="account-session-action">
+                <form action={revokeOwnSessionAction}>
+                  <input type="hidden" name="session_id" value={session.id} />
+                  <button className="btn btn-sm" type="submit">Log out</button>
+                </form>
+                <form action={reportUnknownSessionAction}>
+                  <input type="hidden" name="session_id" value={session.id} />
+                  <button className="btn btn-sm btn-danger" type="submit">This wasn&apos;t me</button>
+                </form>
+              </div>
             ) : null}
           </article>
         ))

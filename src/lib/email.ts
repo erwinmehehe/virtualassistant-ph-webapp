@@ -110,6 +110,13 @@ function configuredReplyTo() {
 
 type EmailPriority = "critical" | "standard" | "low";
 type EmailEventStatus = "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
+type EmailEventLogMeta = {
+  recipientCount?: number;
+  priority?: EmailPriority;
+  idempotencyKey?: string | null;
+  skipReason?: string | null;
+  automation?: string | null;
+};
 
 export const DAILY_RECIPIENT_LIMIT = Math.max(1, Number.parseInt(process.env.RESEND_DAILY_RECIPIENT_LIMIT || "100", 10) || 100);
 export const RESERVED_CRITICAL_RECIPIENTS = Math.min(
@@ -131,14 +138,18 @@ function utcDayStart() {
 async function getRecipientUsageToday(admin: ReturnType<typeof createAdminClient>) {
   const { data, error } = await admin
     .from("outbound_email_events")
-    .select("recipient,status,provider_id")
+    .select("recipient,recipient_count,status,provider_id")
     .gte("created_at", utcDayStart())
     .in("status", ["sent", "delivered", "bounced", "complained", "suppressed"]);
   if (error) throw error;
-  return (data || []).reduce(
-    (total: number, row: any) => total + (row.provider_id ? countRecipientAddresses(row.recipient) : 0),
-    0
-  );
+  return (data || []).reduce((total: number, row: any) => {
+    if (!row.provider_id) return total;
+    const structuredCount = Number(row.recipient_count);
+    const recipientCount = Number.isFinite(structuredCount) && structuredCount >= 0
+      ? structuredCount
+      : countRecipientAddresses(row.recipient);
+    return total + recipientCount;
+  }, 0);
 }
 
 async function logEmailEvent(
@@ -146,16 +157,23 @@ async function logEmailEvent(
   recipients: string | string[] | undefined,
   status: EmailEventStatus,
   providerId?: string | null,
-  errorMessage?: string | null
+  errorMessage?: string | null,
+  meta?: EmailEventLogMeta
 ) {
   try {
     const safeRecipient = Array.isArray(recipients) ? recipients.join(",") : recipients || null;
+    const derivedRecipientCount = meta?.recipientCount ?? countRecipientAddresses(safeRecipient);
     await createAdminClient().from("outbound_email_events").insert({
       event_type: eventType,
       recipient: safeRecipient,
+      recipient_count: Math.max(0, Number.isFinite(derivedRecipientCount) ? derivedRecipientCount : 0),
       status,
       provider_id: providerId || null,
-      error_message: errorMessage ? String(errorMessage).slice(0, 1000) : null
+      error_message: errorMessage ? String(errorMessage).slice(0, 1000) : null,
+      priority: meta?.priority || null,
+      idempotency_key: meta?.idempotencyKey || null,
+      skip_reason: meta?.skipReason || null,
+      automation: meta?.automation || eventType
     });
   } catch {
     // Email delivery must never fail just because operational logging is unavailable.
@@ -190,6 +208,12 @@ async function trackedSend(
     : rawReplyTo;
 
   const admin = createAdminClient();
+  const priority = options?.priority || "standard";
+  const eventMeta: EmailEventLogMeta = {
+    priority,
+    idempotencyKey: options?.idempotencyKey || null,
+    automation: eventType
+  };
   const suppressionCheck = [...new Set([...to, ...cc, ...bcc].map((email) => email.toLowerCase()))];
   let suppressed = new Set<string>();
   let suppressionError: unknown = null;
@@ -212,7 +236,12 @@ async function trackedSend(
       null,
       critical
         ? "Suppression lookup failed; critical email was allowed through and the outage was recorded."
-        : "Suppression lookup failed; non-critical email was not sent."
+        : "Suppression lookup failed; non-critical email was not sent.",
+      {
+        ...eventMeta,
+        recipientCount: suppressionCheck.length,
+        skipReason: critical ? null : "suppression_lookup_failed"
+      }
     );
     if (!critical) return { sent: false as const, data: null, reason: "suppression_lookup_failed" };
   }
@@ -223,7 +252,11 @@ async function trackedSend(
   const suppressedRecipients = suppressionCheck.filter((email) => suppressed.has(email));
 
   if (suppressedRecipients.length) {
-    await logEmailEvent(eventType, suppressedRecipients, "suppressed", null, "Recipient suppressed after bounce, complaint, or provider suppression.");
+    await logEmailEvent(eventType, suppressedRecipients, "suppressed", null, "Recipient suppressed after bounce, complaint, or provider suppression.", {
+      ...eventMeta,
+      recipientCount: suppressedRecipients.length,
+      skipReason: "recipient_suppressed"
+    });
   }
 
   payload = {
@@ -235,13 +268,17 @@ async function trackedSend(
   };
 
   if (!safeTo.length) {
-    await logEmailEvent(eventType, [], "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.");
+    const reason = suppressed.size ? "recipient_suppressed" : "no_valid_recipient";
+    await logEmailEvent(eventType, [], "failed", null, suppressed.size ? "Recipient suppressed after bounce/complaint." : "No valid email recipients were configured.", {
+      ...eventMeta,
+      recipientCount: 0,
+      skipReason: reason
+    });
     return { sent: false as const, data: null, suppressed: true, reason: suppressed.size ? "recipient_suppressed" : "no_valid_recipient" };
   }
 
   const allRecipients = [...safeTo, ...safeCc, ...safeBcc];
   const recipient_count = allRecipients.length;
-  const priority = options?.priority || "standard";
   const quotaLimit = priority === "critical" ? DAILY_RECIPIENT_LIMIT : NON_CRITICAL_DAILY_LIMIT;
   try {
     const usedToday = await getRecipientUsageToday(admin);
@@ -251,13 +288,18 @@ async function trackedSend(
         allRecipients,
         "skipped_quota",
         null,
-        `Skipped ${priority} email at ${usedToday}/${DAILY_RECIPIENT_LIMIT} tracked recipient deliveries; ${RESERVED_CRITICAL_RECIPIENTS} are reserved for critical mail.`
+        `Skipped ${priority} email at ${usedToday}/${DAILY_RECIPIENT_LIMIT} tracked recipient deliveries; ${RESERVED_CRITICAL_RECIPIENTS} are reserved for critical mail.`,
+        { ...eventMeta, recipientCount: recipient_count, skipReason: "daily_quota_reserved" }
       );
       return { sent: false as const, data: null, reason: "daily_quota_reserved" };
     }
   } catch {
     if (priority !== "critical") {
-      await logEmailEvent(eventType, allRecipients, "skipped_quota", null, "Quota usage lookup failed; non-critical email was not sent.");
+      await logEmailEvent(eventType, allRecipients, "skipped_quota", null, "Quota usage lookup failed; non-critical email was not sent.", {
+        ...eventMeta,
+        recipientCount: recipient_count,
+        skipReason: "quota_lookup_failed"
+      });
       return { sent: false as const, data: null, reason: "quota_lookup_failed" };
     }
   }
@@ -272,15 +314,26 @@ async function trackedSend(
     if (providerId && options?.idempotencyKey) {
       const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).limit(1).maybeSingle();
       if (existing?.id) {
-        await logEmailEvent(eventType, [], "duplicate_prevented", null, `Resend idempotency prevented a duplicate request: ${options.idempotencyKey}`);
+        await logEmailEvent(eventType, [], "duplicate_prevented", null, `Resend idempotency prevented a duplicate request: ${options.idempotencyKey}`, {
+          ...eventMeta,
+          recipientCount: 0,
+          skipReason: "idempotency_replay"
+        });
         return { ...result, sent: true as const, duplicatePrevented: true as const };
       }
     }
 
-    await logEmailEvent(eventType, allRecipients, "sent", providerId, null);
+    await logEmailEvent(eventType, allRecipients, "sent", providerId, null, {
+      ...eventMeta,
+      recipientCount: recipient_count
+    });
     return { ...result, sent: true as const };
   } catch (error) {
-    await logEmailEvent(eventType, allRecipients, "failed", null, error instanceof Error ? error.message : String(error));
+    await logEmailEvent(eventType, allRecipients, "failed", null, error instanceof Error ? error.message : String(error), {
+      ...eventMeta,
+      recipientCount: recipient_count,
+      skipReason: "provider_error"
+    });
     throw error;
   }
 }

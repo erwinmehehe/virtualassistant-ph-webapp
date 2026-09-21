@@ -102,3 +102,35 @@ test("account display preferences and deletion requests are owner-scoped", async
   assert.match(preferences, /getAccountDisplayPreferences/);
   assert.match(preferences, /getPendingAccountDeletionRequest/);
 });
+
+
+test("login security captures coarse Vercel location and richer device metadata", async () => {
+  const [device, security, auth, callback, email] = await Promise.all([
+    readOrEmpty("src/lib/account-device.ts"),
+    read("src/lib/account-security.ts"),
+    read("src/app/actions/auth.ts"),
+    read("src/app/auth/callback/route.ts"),
+    read("src/lib/email.ts"),
+  ]);
+
+  assert.match(device, /Windows PC/);
+  assert.match(device, /Mac/);
+  assert.match(device, /iPhone/);
+  assert.match(device, /iPad/);
+  assert.match(device, /Android device/);
+  assert.match(device, /Linux device/);
+  assert.match(security, /x-vercel-ip-city/);
+  assert.match(security, /x-vercel-ip-country-region/);
+  assert.match(security, /x-vercel-ip-country/);
+  assert.doesNotMatch(security, /x-vercel-ip-latitude|x-vercel-ip-longitude/);
+  assert.match(security, /device:/);
+  assert.match(security, /city:/);
+  assert.match(security, /region:/);
+  assert.match(security, /country:/);
+  assert.match(security, /sign_in_method:/);
+  assert.match(security, /const shouldAlert = loginHistory\.length > 0 && !recognized/);
+  assert.match(auth, /signInMethod:\s*"Email & password"/);
+  assert.match(callback, /signInMethod:/);
+  assert.match(email, /device\?: string \| null/);
+  assert.match(email, /location\?: string \| null/);
+});

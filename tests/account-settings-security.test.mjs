@@ -26,7 +26,10 @@ test("ordinary logout is local while explicit controls cover others and global",
 
 test("session revocation uses the server-only RPC and derives user identity on the server", async () => {
   const account = await read("src/app/actions/account-security.ts");
-  assert.match(account, /admin\.rpc\("revoke_auth_session_for_user"/);\n  assert.match(account, /auth\.getUser\(\)/);\n  assert.match(account, /auth\.getClaims\(\)/);\n  assert.match(account, /target_user_id: user\.id/);
+  assert.match(account, /admin\.rpc\("revoke_auth_session_for_user"/);
+  assert.match(account, /auth\.getUser\(\)/);
+  assert.match(account, /auth\.getClaims\(\)/);
+  assert.match(account, /target_user_id: user\.id/);
   assert.doesNotMatch(account, /formData\.get\("user_id"\)/);
   assert.match(account, /formData\.get\("session_id"\)/);
 });

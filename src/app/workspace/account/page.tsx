@@ -245,7 +245,7 @@ export default async function AccountSettingsPage({
                     </div>
 
                     <div className="field">
-                      <label>Sign-in method</label>
+                      <label>Sign-in methods</label>
                       <div className="account-readonly-field">
                         <KeyRound size={16} />
                         <span>{providers.join(", ")}</span>

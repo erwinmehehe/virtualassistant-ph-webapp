@@ -66,6 +66,17 @@ type TodayQueueItem = {
 /** Row from recruiter_dashboard_signups(). */
 type SignupWeek = { week_start: string; count: number | string | null };
 
+type UpcomingDiscovery = {
+  id: string;
+  name: string | null;
+  company: string | null;
+  service: string | null;
+  job_id: string | null;
+  discovery_scheduled_at: string;
+  discovery_duration_minutes: number | null;
+  discovery_meeting_url: string | null;
+};
+
 type RecruiterDashboardOverview = {
   metrics?: Partial<RecruiterDashboardMetrics>;
   vetting_queue?: VettingQueueRow[];
@@ -231,18 +242,32 @@ async function RecruiterAnalytics({ metrics }: { metrics: Partial<RecruiterDashb
 
 async function RecruiterDashboardContent({ userId }: { userId: string }) {
   const admin = createAdminClient();
-  const [{ data, error }, { data: myDayData, error: myDayError }] = await Promise.all([
+  const nowIso = new Date().toISOString();
+  const nextWeekIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [{ data, error }, { data: myDayData, error: myDayError }, { data: discoveryData, error: discoveryError }] = await Promise.all([
     admin.rpc("recruiter_dashboard_overview", { p_queue_limit: QUEUE_PREVIEW }),
-    admin.rpc("recruiter_today_queue", { p_user_id: userId, p_limit: 5 })
+    admin.rpc("recruiter_today_queue", { p_user_id: userId, p_limit: 5 }),
+    admin
+      .from("lead_intake")
+      .select("id,name,company,service,job_id,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url")
+      .not("discovery_scheduled_at", "is", null)
+      .is("discovery_completed_at", null)
+      .is("discovery_cancelled_at", null)
+      .gte("discovery_scheduled_at", nowIso)
+      .lt("discovery_scheduled_at", nextWeekIso)
+      .order("discovery_scheduled_at")
+      .limit(8)
   ]);
   if (error) throw error;
   if (myDayError) throw myDayError;
+  if (discoveryError) throw discoveryError;
 
   const overview = (data || {}) as RecruiterDashboardOverview;
   const metrics = overview.metrics || {};
   const queueRows = Array.isArray(overview.vetting_queue) ? overview.vetting_queue : [];
   const jobs = Array.isArray(overview.roles_needing_matching) ? overview.roles_needing_matching : [];
   const nextActions: TodayQueueItem[] = Array.isArray(myDayData) ? myDayData.slice(0, 5) : [];
+  const upcomingDiscoveries = (Array.isArray(discoveryData) ? discoveryData : []) as UpcomingDiscovery[];
   const value = (key: keyof RecruiterDashboardMetrics) => Number(metrics[key] || 0);
   const unreviewed = value("unreviewed");
   const rolesWithoutCandidates = value("roles_without_candidates");
@@ -255,6 +280,26 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
         <StatCard label="Discovery calls" value={value("discovery_next_two_days")} icon={<CalendarClock size={20} />} tone="violet" href="/workspace/recruiter/leads?view=discovery" sub="Today and tomorrow, Manila time" chip={{ label: value("discovery_next_two_days") ? "Prep the brief" : "None booked", tone: "neutral" }} />
         <StatCard label="Open client pipeline" value={value("open_leads")} icon={<TrendingUp size={20} />} tone="emerald" href="/workspace/recruiter/leads?view=open" sub={`USD ${value("open_pipeline_value").toLocaleString()} estimated value`} />
       </div>
+
+      <Panel
+        title="Upcoming discovery calls"
+        subtitle="All active client discovery bookings in the next 7 days, across recruiters"
+        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/agenda">Open agenda <ArrowRight size={14} aria-hidden="true" /></Link>}
+      >
+        {upcomingDiscoveries.length ? <div className="dash-list">
+          {upcomingDiscoveries.map((meeting) => {
+            const href = meeting.job_id ? `/workspace/recruiter/matching/${meeting.job_id}` : `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(meeting.company || meeting.name || "")}`;
+            return <div className="dash-list-row" key={meeting.id}>
+              <Link prefetch={false} href={href} style={{minWidth:0,flex:1}}>
+                <span><strong>{meeting.company || meeting.name || "Client discovery"}</strong><small>{meeting.service || "Hiring discovery"} · {queueTimeLabel(meeting.discovery_scheduled_at)} · {meeting.discovery_duration_minutes || 30} min</small></span>
+              </Link>
+              <div className="row wrap">
+                {meeting.discovery_meeting_url ? <a className="dash-btn dash-btn-light" href={meeting.discovery_meeting_url} target="_blank" rel="noreferrer">Join Meet</a> : <Pill tone="amber">Meet pending</Pill>}
+              </div>
+            </div>;
+          })}
+        </div> : <Empty title="No upcoming discovery calls" desc="There are no active discovery bookings in the next 7 days." />}
+      </Panel>
 
       <div className="dash-grid recruiter-priority-grid">
         <div className="dash-col">

@@ -104,6 +104,35 @@ async function assertPublicBaseline() {
   console.log("✓ public baseline and logged-out protection");
 }
 
+async function smokeClientHandoff(role, cookie) {
+  if (role === "recruiter") {
+    const board = await appRequest("/workspace/recruiter/matching", cookie);
+    assert(board.status === 200, `Recruiter matching board returned ${board.status}.`);
+    const boardHtml = await board.text();
+    const match = boardHtml.match(/\/workspace\/recruiter\/matching\/([0-9a-f-]{36})/i);
+    if (match?.[1]) {
+      const detail = await appRequest(`/workspace/recruiter/matching/${match[1]}`, cookie);
+      const detailHtml = await detail.text();
+      assert(detail.status === 200, `Recruiter matching detail returned ${detail.status}.`);
+      if (detailHtml.includes("Reviewed candidates")) {
+        assert(detailHtml.includes("Preview client view"), "Recruiter matching detail has reviewed candidates but no client preview control.");
+      }
+    }
+    console.log("✓ recruiter: client-preview handoff surface");
+  }
+
+  if (role === "client") {
+    const hiringRoom = await appRequest("/workspace/client/candidates", cookie);
+    const hiringRoomHtml = await hiringRoom.text();
+    assert(hiringRoom.status === 200, `Client Hiring Room returned ${hiringRoom.status}.`);
+    assert(hiringRoomHtml.includes("Hiring Room"), "Client Hiring Room marker is missing.");
+    for (const forbidden of ["Open recruiter scorecard", "match-meter", "% confidence"]) {
+      assert(!hiringRoomHtml.includes(forbidden), `Client Hiring Room leaked recruiter-only UI: ${forbidden}`);
+    }
+    console.log("✓ client: Hiring Room hides recruiter-only scoring UI");
+  }
+}
+
 async function smokeRole(config) {
   assert(config.email && config.password, `Missing smoke credentials for ${config.role}.`);
   const session = await signIn(config.email, config.password);
@@ -124,6 +153,7 @@ async function smokeRole(config) {
   );
 
   console.log(`✓ ${config.role}: authenticated dashboard + cross-role guard`);
+  await smokeClientHandoff(config.role, cookie);
 }
 
 await assertPublicBaseline();

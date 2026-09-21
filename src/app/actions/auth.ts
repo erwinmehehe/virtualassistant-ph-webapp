@@ -21,6 +21,16 @@ const loginSchema = z.object({
   lead: z.string().uuid().optional()
 });
 
+const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admin", "iloveyou", "123456"];
+
+const newPasswordSchema = z.string()
+  .min(12)
+  .max(128)
+  .regex(/[a-z]/)
+  .regex(/[A-Z]/)
+  .regex(/[0-9]/)
+  .regex(/[^A-Za-z0-9]/)
+  .refine((value) => !COMMON_PASSWORD_PARTS.some((part) => value.toLowerCase().includes(part)));
 
 const oauthSchema = z.object({
   provider: z.enum(["google", "azure"]),
@@ -31,7 +41,7 @@ const oauthSchema = z.object({
 });
 
 const joinSchema = loginSchema.extend({
-  password: z.string().min(12),
+  password: newPasswordSchema,
   full_name: z.string().min(2).max(100),
   role: z.enum(["client", "va"]),
   talent: z.string().max(160).optional(),
@@ -368,7 +378,9 @@ export async function requestPasswordResetAction(formData: FormData) {
 
 export async function updatePasswordAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
-  if (password.length < 12) redirect("/auth/update-password?error=Password%20must%20be%20at%20least%2012%20characters");
+  if (!newPasswordSchema.safeParse(password).success) {
+    redirect("/auth/update-password?error=Use%2012%2B%20characters%20with%20uppercase%2C%20lowercase%2C%20a%20number%2C%20and%20a%20symbol.%20Avoid%20common%20password%20phrases.");
+  }
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) redirect(`/auth/update-password?error=${encodeURIComponent(error.message)}`);

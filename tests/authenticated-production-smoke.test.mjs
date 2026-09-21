@@ -33,3 +33,15 @@ test("authenticated production smoke verifies role isolation for every workspace
   assert.match(smoke, /cross-role request should redirect/);
   assert.match(smoke, /logged-out client workspace should redirect/i);
 });
+
+
+test("authenticated smoke checks the recruiter-to-client shortlist handoff without mutating production", () => {
+  assert.match(smoke, /smokeClientHandoff/);
+  assert.match(smoke, /\/workspace\/recruiter\/matching/);
+  assert.match(smoke, /Preview client view/);
+  assert.match(smoke, /\/workspace\/client\/candidates/);
+  assert.match(smoke, /Client Hiring Room leaked recruiter-only UI/);
+  assert.match(smoke, /Open recruiter scorecard/);
+  assert.match(smoke, /match-meter/);
+  assert.match(smoke, /% confidence/);
+});

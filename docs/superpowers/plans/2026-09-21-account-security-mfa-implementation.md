@@ -25,7 +25,7 @@
 - Normal logout affects only the current device.
 - Keep `/workspace/admin/settings` as agency settings; personal settings live at `/workspace/account`.
 - Do not add global AAL2 RLS policies to every existing business table in this release.
-- Staff MFA enforcement must have an emergency environment kill switch and default to enabled only after production smoke verification.
+- Staff MFA enforcement must have an emergency environment kill switch. It remains disabled unless `STAFF_MFA_ENFORCEMENT=on`, and that value is set only after staff enrollment and production smoke verification.
 
 ## Review Focus
 
@@ -49,6 +49,7 @@
   - table `public.account_security_events`
   - RPC `public.list_own_auth_sessions()`
   - RPC `public.revoke_own_auth_session(uuid)`
+  - service-role-only RPC `public.lookup_auth_user_id_by_email(text)` for non-enumerating failed-login event attribution
 
 - [ ] **Step 1: Write the failing schema regression test**
 
@@ -77,6 +78,8 @@ test("account security migration stores private events and exposes only own sess
   assert.match(sql, /id = target_session_id/i);
   assert.match(sql, /user_id = \(select auth\.uid\(\)\)/i);
   assert.match(sql, /auth\.jwt\(\)->>'session_id'/i);
+  assert.match(sql, /create or replace function public\.lookup_auth_user_id_by_email\(target_email text\)/i);
+  assert.match(sql, /grant execute on function public\.lookup_auth_user_id_by_email\(text\) to service_role/i);
 });
 
 test("session RPC does not accept a browser-supplied user id", async () => {
@@ -179,9 +182,24 @@ $$;
 
 revoke all on function public.revoke_own_auth_session(uuid) from public, anon;
 grant execute on function public.revoke_own_auth_session(uuid) to authenticated;
+
+create or replace function public.lookup_auth_user_id_by_email(target_email text)
+returns uuid
+language sql
+security definer
+set search_path = pg_catalog, auth, public
+as $$
+  select u.id
+  from auth.users u
+  where lower(u.email) = lower(target_email)
+  limit 1;
+$$;
+
+revoke all on function public.lookup_auth_user_id_by_email(text) from public, anon, authenticated;
+grant execute on function public.lookup_auth_user_id_by_email(text) to service_role;
 ```
 
-Do not grant insert/update/delete on `account_security_events` to `authenticated`; writes remain server-controlled.
+Do not grant insert/update/delete on `account_security_events` to `authenticated`; writes remain server-controlled. The email lookup RPC is service-role-only, must never be called from a browser session, and must never change the public login error response.
 
 - [ ] **Step 4: Run schema regression test**
 
@@ -233,7 +251,8 @@ git commit -m "feat: add account security session controls"
   - `type SecurityEventType`
   - `getAccountSecurityState(): Promise<AccountSecurityState>`
   - `recordSecurityEvent(args): Promise<void>`
-  - `requireSensitiveAal2(): Promise<void>`
+  - `recordSecurityEventForUser(args): Promise<void>` for trusted server-only workflows
+  - `requireSensitiveAal2(next?: string): Promise<void>`
   - `safeAccountNext(value, fallback): string`
 
 - [ ] **Step 1: Write failing module regression tests**
@@ -331,8 +350,15 @@ export async function getAccountSecurityState() {
     ? claimsData.claims.session_id
     : null;
 
+  const { data: events } = await supabase
+    .from("account_security_events")
+    .select("id,event_type,session_id,ip,user_agent,metadata,created_at")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   return {
     user,
+    signInProviders: (user.identities ?? []).map((identity) => identity.provider),
     currentLevel: aalData?.currentLevel ?? "aal1",
     nextLevel: aalData?.nextLevel ?? "aal1",
     factors: factorsData?.totp ?? [],
@@ -340,13 +366,16 @@ export async function getAccountSecurityState() {
       ...row,
       current: row.id === currentSessionId,
     })),
+    events: events ?? [],
   };
 }
 ```
 
 `recordSecurityEvent()` must derive `user_id` from `auth.getUser()`, derive session ID from `getClaims()`, derive IP/user-agent from `headers()`, and write with the admin client. It must not accept `user_id`, IP, session ID, or user-agent from the browser.
 
-`requireSensitiveAal2()` must call `getAuthenticatorAssuranceLevel()` and redirect to `/auth/mfa?next=...` when the session can/should be upgraded.
+`recordSecurityEventForUser()` must live in this `server-only` module and accept a trusted target user ID only from server code such as failed-login attribution and Admin MFA recovery.
+
+`requireSensitiveAal2(next)` must load the authenticated profile, verified factors, and current AAL. It requires AAL2 only when either (a) the user is Admin/Recruiter and `STAFF_MFA_ENFORCEMENT === "on"`, or (b) the user is Client/VA with at least one verified TOTP factor. A Client/VA with no factor must not be redirected into an impossible AAL2 challenge.
 
 - [ ] **Step 4: Run module test and typecheck**
 
@@ -492,11 +521,12 @@ Account tab:
   <div className="data-row"><span>Name</span><strong>{profile.full_name}</strong></div>
   <div className="data-row"><span>Email</span><strong>{user.email}</strong></div>
   <div className="data-row"><span>Role</span><strong>{profile.role}</strong></div>
+  <div className="data-row"><span>Sign-in methods</span><strong>{state.signInProviders.join(", ") || "Email/password"}</strong></div>
   <Link className="btn" href="/auth/update-password?source=account">Change password</Link>
 </section>
 ```
 
-Security tab renders TOTP status placeholder plus `<SessionList />`. Task 4 replaces the placeholder with live TOTP controls.
+Security tab renders the TOTP status placeholder plus `<SessionList />` and a "Recent security activity" card using the last 20 `state.events`. Each activity row shows a human label, timestamp, IP when present, and device/browser summary from the stored user agent. It must never render raw metadata keys that could contain secrets. Task 4 replaces the TOTP placeholder with live controls.
 
 - [ ] **Step 5: Add Account Settings to every role nav**
 
@@ -711,8 +741,8 @@ git commit -m "feat: add authenticator app enrollment"
 - Create: `tests/mfa-challenge.test.mjs`
 
 **Interfaces:**
-- Consumes `safeAccountNext()`, browser Supabase MFA APIs.
-- Produces `/auth/mfa?next=<safe internal path>`.
+- Consumes `safeAccountNext()`, Supabase MFA APIs through the authenticated server client, and the existing rate limiter.
+- Produces `verifyMfaChallengeAction(prevState, formData)` and `/auth/mfa?next=<safe internal path>`.
 
 - [ ] **Step 1: Write failing challenge tests**
 
@@ -731,11 +761,13 @@ test("MFA challenge verifies a selected TOTP factor and uses a safe internal ret
   ]);
 
   assert.match(page, /safeAccountNext/);
-  assert.match(challenge, /auth\.mfa\.listFactors\(\)/);
-  assert.match(challenge, /auth\.mfa\.challenge\(/);
-  assert.match(challenge, /auth\.mfa\.verify\(/);
-  assert.match(challenge, /getAuthenticatorAssuranceLevel\(\)/);
-  assert.match(challenge, /currentLevel === "aal2"/);
+  assert.match(page, /auth\.mfa\.listFactors\(\)/);
+  assert.match(challenge, /verifyMfaChallengeAction/);
+  const actions = await read("src/app/actions/account-security.ts");
+  assert.match(actions, /auth\.mfa\.challenge\(/);
+  assert.match(actions, /auth\.mfa\.verify\(/);
+  assert.match(actions, /getAuthenticatorAssuranceLevel\(\)/);
+  assert.match(actions, /currentLevel !== "aal2"/);
   assert.match(security, /startsWith\("\/"\)/);
   assert.match(security, /startsWith\("\/\/"\)/);
 });
@@ -778,23 +810,71 @@ export default async function MfaPage({ searchParams }) {
 }
 ```
 
-- [ ] **Step 4: Implement challenge component**
+- [ ] **Step 4: Implement the challenge as a server action**
 
-On submit:
+Add `verifyMfaChallengeAction(prevState, formData)` to `src/app/actions/account-security.ts`. It must:
 
-1. challenge selected factor
-2. verify six-digit code
-3. fetch AAL again
-4. only redirect when `currentLevel === "aal2"`
-5. show generic error otherwise
+1. resolve the authenticated user server-side
+2. rate-limit by user ID at 8 attempts / 15 minutes
+3. validate `factor_id` as UUID, `code` as exactly six digits, and `next` with `safeAccountNext()`
+4. confirm the selected factor belongs to the current user's verified TOTP factors
+5. call `auth.mfa.challenge({ factorId })`
+6. call `auth.mfa.verify({ factorId, challengeId, code })`
+7. re-check `getAuthenticatorAssuranceLevel()`
+8. record `mfa_challenge_failed` on challenge/verify failure and return only a generic error
+9. record `mfa_challenge_succeeded` only when `currentLevel === "aal2"`
+10. redirect to the sanitized `next` path on success
 
-Use `window.location.assign(next)` only with the server-sanitized `next` prop.
+Core shape:
 
-- [ ] **Step 5: Add rate limiting to challenge attempts**
+```ts
+export async function verifyMfaChallengeAction(
+  _previous: { error: string },
+  formData: FormData,
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
 
-Add a narrowly scoped server action `checkMfaChallengeRateLimitAction()` using existing `enforceActionRateLimit` keyed by authenticated user ID before client verification. The client calls it before each challenge attempt.
+  await enforceActionRateLimit("mfa_challenge", user.id, 8, 15);
 
-Expected policy: 8 attempts / 15 minutes.
+  const factorId = z.string().uuid().parse(String(formData.get("factor_id") || ""));
+  const code = z.string().regex(/^\d{6}$/).parse(String(formData.get("code") || ""));
+  const next = safeAccountNext(String(formData.get("next") || ""));
+
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  const factor = (factors?.totp ?? []).find((item) => item.id === factorId && item.status === "verified");
+  if (!factor) return { error: "Authenticator verification could not be completed." };
+
+  const challenge = await supabase.auth.mfa.challenge({ factorId });
+  if (challenge.error) {
+    await recordSecurityEvent({ eventType: "mfa_challenge_failed" });
+    return { error: "Authenticator verification could not be completed." };
+  }
+
+  const verified = await supabase.auth.mfa.verify({
+    factorId,
+    challengeId: challenge.data.id,
+    code,
+  });
+  if (verified.error) {
+    await recordSecurityEvent({ eventType: "mfa_challenge_failed" });
+    return { error: "That authenticator code is invalid or expired." };
+  }
+
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.currentLevel !== "aal2") {
+    return { error: "Authenticator verification could not be completed." };
+  }
+
+  await recordSecurityEvent({ eventType: "mfa_challenge_succeeded" });
+  redirect(next);
+}
+```
+
+- [ ] **Step 5: Implement the challenge form**
+
+`MfaChallenge` uses `useActionState(verifyMfaChallengeAction, { error: "" })`, renders a factor selector when more than one verified factor exists, a six-digit `inputMode="numeric"` code field, the hidden sanitized `next`, and a single submit button. It does not call the Supabase browser client directly.
 
 - [ ] **Step 6: Run tests and typecheck**
 
@@ -845,6 +925,8 @@ test("staff requires enrollment while client and VA do not", async () => {
   assert.match(auth, /recruiter.*setup_required/s);
   assert.match(auth, /client.*allow/s);
   assert.match(auth, /va.*allow/s);
+  assert.match(auth, /STAFF_MFA_ENFORCEMENT === "on"/);
+  assert.doesNotMatch(auth, /STAFF_MFA_ENFORCEMENT === "off"/);
 });
 
 test("any role with a verified factor requires aal2", async () => {
@@ -900,16 +982,22 @@ This pure function must be directly unit-testable in addition to source regressi
 Add:
 
 ```ts
+function staffMfaEnforcementEnabled() {
+  return process.env.STAFF_MFA_ENFORCEMENT === "on";
+}
+
 export async function requireRoleWithMfa(role: Role) {
   const session = await requireRoleFast(role);
-  if (process.env.STAFF_MFA_ENFORCEMENT === "off") return session;
-
   const supabase = await createClient();
   const [{ data: aal }, { data: factors }] = await Promise.all([
     supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
     supabase.auth.mfa.listFactors(),
   ]);
   const verified = (factors?.totp ?? []).filter((factor) => factor.status === "verified");
+  const staff = role === "admin" || role === "recruiter";
+
+  if (staff && !staffMfaEnforcementEnabled()) return session;
+
   const decision = mfaDecisionForSession(role, aal?.currentLevel ?? "aal1", verified.length);
 
   if (decision === "setup_required") {
@@ -922,7 +1010,7 @@ export async function requireRoleWithMfa(role: Role) {
 }
 ```
 
-The kill switch is for emergency rollback only. Do not advertise it in the UI.
+The staff kill switch is explicit opt-in: absent or any value other than `on` means mandatory staff MFA is disabled. It disables only Admin/Recruiter enforcement; Client/VA accounts that voluntarily enrolled TOTP still require AAL2. Do not advertise the switch in the UI.
 
 - [ ] **Step 5: Switch all four role layouts to `requireRoleWithMfa`**
 
@@ -1024,23 +1112,33 @@ export async function recoverUserMfaAction(formData: FormData) {
   await requireSensitiveAal2("/workspace/admin/users");
 
   const targetUserId = z.string().uuid().parse(String(formData.get("user_id") || ""));
-  const factorId = z.string().uuid().parse(String(formData.get("factor_id") || ""));
-
   if (targetUserId === user.id) {
     throw new Error("You cannot recover your own MFA from this admin session.");
   }
 
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.mfa.deleteFactor({
+  const { data: factorData, error: listError } = await admin.auth.admin.mfa.listFactors({
     userId: targetUserId,
-    id: factorId,
   });
-  if (error) throw new Error("Could not remove the user's authenticator factor.");
+  if (listError) throw new Error("Could not inspect the user's authenticator factors.");
+
+  const verifiedTotp = (factorData?.factors ?? []).filter(
+    (factor) => factor.factor_type === "totp" && factor.status === "verified",
+  );
+  if (verifiedTotp.length === 0) throw new Error("This user has no verified authenticator factor.");
+
+  for (const factor of verifiedTotp) {
+    const { error } = await admin.auth.admin.mfa.deleteFactor({
+      userId: targetUserId,
+      id: factor.id,
+    });
+    if (error) throw new Error("Could not reset the user's authenticator factors.");
+  }
 
   await recordSecurityEventForUser({
     targetUserId,
     eventType: "admin_mfa_recovery",
-    metadata: { recovered_by: user.id, factor_id: factorId },
+    metadata: { recovered_by: user.id, factor_count: verifiedTotp.length },
   });
 
   revalidatePath("/workspace/admin/users");
@@ -1051,7 +1149,7 @@ export async function recoverUserMfaAction(formData: FormData) {
 
 - [ ] **Step 4: Add recovery UI only on Admin Users**
 
-Show verified factor count and a recovery action only for another user. Require an explicit confirmation text such as `REMOVE MFA` before submitting. Do not show TOTP secrets.
+Show an "Reset authenticator access" action only for another user. Require an explicit confirmation text `RESET MFA` before submitting. The server action lists and removes that target user's verified TOTP factors itself, so the browser never supplies a factor ID. Do not show TOTP secrets.
 
 - [ ] **Step 5: Verify that deleting a verified factor invalidates sessions in Supabase integration testing**
 
@@ -1121,7 +1219,9 @@ Expected: FAIL until event writes are wired.
 
 - [ ] **Step 3: Record successful authentication events**
 
-After successful password login and OAuth callback, record `login_succeeded` only after a valid user/profile exists. Do not attempt to record anonymous failed-login events in this release because `account_security_events.user_id` intentionally requires an authenticated account.
+After successful password login and OAuth callback, record `login_succeeded` only after a valid user/profile exists.
+
+For a failed password login, call the service-role-only `lookup_auth_user_id_by_email` RPC with the normalized submitted email. If it returns a user ID, call `recordSecurityEventForUser({ targetUserId, eventType: "login_failed" })`. If it returns null or errors, continue with the same existing generic login failure response. This preserves non-enumeration while still showing known-account failed attempts in Recent security activity.
 
 - [ ] **Step 4: Record current-device logout before local signout**
 
@@ -1173,7 +1273,7 @@ git commit -m "test: cover account security production flows"
 ### Task 9: Controlled rollout and staff enrollment
 
 **Files:**
-- Modify: `README.md` or existing deployment/runbook documentation if one exists.
+- Create: `docs/account-security-rollout.md`
 - No application behavior changes unless smoke finds a defect.
 
 **Interfaces:**
@@ -1293,6 +1393,6 @@ Expected: all green.
 - [ ] **Step 9: Commit rollout documentation**
 
 ```bash
-git add README.md
+git add docs/account-security-rollout.md
 git commit -m "docs: add account security rollout runbook"
 ```

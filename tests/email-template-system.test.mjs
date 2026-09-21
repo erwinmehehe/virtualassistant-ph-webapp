@@ -49,12 +49,13 @@ test("VA lifecycle emails stay private from default team/archive copies", async 
   assert.match(email, /"profile_stage_nudge", \{ archive: false, priority: "low" \}/);
 });
 
-test("VA match alert uses a branded template, text fallback, and reply routing", async () => {
+test("VA match alert uses the shared talent template, text fallback, and reply routing", async () => {
   const matchEmail = await read("src/lib/match-email.ts");
 
   assert.match(matchEmail, /replyTo: configuredReplyTo\(\)/);
   assert.match(matchEmail, /text: `Hi there,/);
-  assert.match(matchEmail, /Talent team/);
-  assert.match(matchEmail, /Review my profile/);
+  assert.match(matchEmail, /renderTalentEmail\(\{/);
+  assert.match(matchEmail, /ctaLabel: "Review my profile"/);
   assert.match(matchEmail, /This is not yet an interview or job offer/);
+  assert.doesNotMatch(matchEmail, /<!doctype html>/);
 });

@@ -29,10 +29,11 @@ const problemStatuses = ["failed", "bounced", "complained", "suppressed", "suppr
 const quotaConsumedStatuses = ["sent", "delivered", "bounced", "complained", "suppressed"];
 
 function eventRecipientCount(event: Pick<EmailRow, "recipient" | "recipient_count">) {
-  if (typeof event.recipient_count === "number" && Number.isFinite(event.recipient_count) && event.recipient_count >= 0) {
+  const legacyCount = String(event.recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+  if (typeof event.recipient_count === "number" && Number.isFinite(event.recipient_count) && (event.recipient_count > 0 || legacyCount === 0)) {
     return event.recipient_count;
   }
-  return String(event.recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+  return legacyCount;
 }
 
 function utcDayStart() {

@@ -194,3 +194,104 @@ test("Account Center uses the complete five-section settings architecture", asyn
   assert.match(css, /account-settings-nav/);
   assert.match(css, /overflow-x:\s*auto/);
 });
+
+
+test("complete Account Center adds display preferences and non-destructive deletion requests", async () => {
+  const [page, actions, prefs, migration] = await Promise.all([
+    read("src/app/workspace/account/page.tsx"),
+    read("src/app/actions/account-security.ts"),
+    read("src/lib/account-display-preferences.ts"),
+    read("supabase/migrations/20260921190000_account_display_preferences_and_deletion_requests.sql"),
+  ]);
+
+  assert.match(migration, /create table if not exists public\.account_display_preferences/);
+  assert.match(migration, /create table if not exists public\.account_deletion_requests/);
+  assert.match(migration, /alter table public\.account_display_preferences enable row level security/);
+  assert.match(migration, /alter table public\.account_deletion_requests enable row level security/);
+  assert.match(migration, /using \(\(select auth\.uid\(\)\) = user_id\)/);
+  assert.match(migration, /with check \(\(select auth\.uid\(\)\) = user_id\)/);
+  assert.match(prefs, /DEFAULT_ACCOUNT_DISPLAY_PREFERENCES/);
+  assert.match(prefs, /getAccountDisplayPreferences/);
+  assert.match(prefs, /getPendingAccountDeletionRequest/);
+  assert.match(actions, /updateAccountDisplayPreferencesAction/);
+  assert.match(actions, /requestAccountDeletionAction/);
+  assert.match(actions, /DELETE MY ACCOUNT/);
+  assert.doesNotMatch(actions, /deleteUser\(/);
+  assert.match(page, /Preferences/);
+  assert.match(page, /Privacy & account/);
+});
+
+test("login security captures coarse Vercel location and richer device metadata", async () => {
+  const [device, security, auth, callback, email] = await Promise.all([
+    read("src/lib/account-device.ts"),
+    read("src/lib/account-security.ts"),
+    read("src/app/actions/auth.ts"),
+    read("src/app/auth/callback/route.ts"),
+    read("src/lib/email.ts"),
+  ]);
+
+  assert.match(device, /Windows PC/);
+  assert.match(device, /Mac/);
+  assert.match(device, /iPhone/);
+  assert.match(device, /iPad/);
+  assert.match(device, /Android/);
+  assert.match(device, /Linux/);
+  assert.match(security, /x-vercel-ip-city/);
+  assert.match(security, /x-vercel-ip-country-region/);
+  assert.match(security, /x-vercel-ip-country/);
+  assert.doesNotMatch(security, /x-vercel-ip-latitude|x-vercel-ip-longitude/);
+  assert.match(security, /sign_in_method/);
+  assert.match(security, /device:/);
+  assert.match(security, /city:/);
+  assert.match(security, /region:/);
+  assert.match(security, /country:/);
+  assert.match(security, /loginHistory\.length > 0 && !recognized/);
+  assert.match(auth, /signInMethod:\s*"Email & password"/);
+  assert.match(callback, /signInMethod/);
+  assert.match(email, /location\?: string \| null/);
+  assert.match(email, /device\?: string \| null/);
+});
+
+test("account export is authenticated and scoped while deletion stays non-destructive", async () => {
+  const [route, actions] = await Promise.all([
+    read("src/app/workspace/account/export/route.ts"),
+    read("src/app/actions/account-security.ts"),
+  ]);
+
+  assert.match(route, /auth\.getUser\(\)/);
+  assert.match(route, /Content-Disposition/);
+  assert.match(route, /virtualassistant-account-data\.json/);
+  assert.match(route, /\.eq\("id", user\.id\)/);
+  assert.match(route, /\.eq\("user_id", user\.id\)/);
+  assert.doesNotMatch(route, /searchParams|get\("user_id"\)|get\("target/);
+  assert.match(actions, /confirmation !== "DELETE MY ACCOUNT"/);
+  assert.match(actions, /user_id: user\.id/);
+  assert.doesNotMatch(actions, /auth\.admin\.deleteUser/);
+});
+
+test("Account Center uses five settings sections and removes dashboard-style scaffolding", async () => {
+  const [page, sessions, css] = await Promise.all([
+    read("src/app/workspace/account/page.tsx"),
+    read("src/components/account-security/session-list.tsx"),
+    read("src/app/workspace/account-center.css"),
+  ]);
+
+  assert.match(page, /Profile/);
+  assert.match(page, /Sign-in & security/);
+  assert.match(page, /Notifications/);
+  assert.match(page, /Preferences/);
+  assert.match(page, /Privacy & account/);
+  assert.match(page, /params\.tab === "account"/);
+  assert.doesNotMatch(page, /account-identity-hero/);
+  assert.doesNotMatch(page, /account-overview-card/);
+  assert.doesNotMatch(page, /account-security-promo/);
+  assert.doesNotMatch(page, /account-readonly-field/);
+  assert.match(page, /Download your data/);
+  assert.match(page, /Request account deletion/);
+  assert.match(page, /Where you're logged in/);
+  assert.match(page, /approximate/i);
+  assert.match(sessions, /Location unavailable/);
+  assert.match(sessions, /signInMethod/);
+  assert.match(css, /account-settings-nav/);
+  assert.match(css, /overflow-x:\s*auto/);
+});

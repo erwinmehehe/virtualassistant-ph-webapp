@@ -73,6 +73,10 @@ test("client booking stays two steps but requires a job-ready minimum brief", as
   assert.doesNotMatch(form, /To discuss on the call/);
   assert.match(action, /Tell us the actual role you need to hire/);
   assert.match(action, /Hours per week must be between 1 and 80/);
+  assert.match(action, /Enter an hourly VA budget of at least USD/);
+  assert.match(action, /attachBookingToRecentClientJob/);
+  assert.match(action, /\.ilike\("email", args\.email\)/);
+  assert.match(action, /String\(row\.company \|\| ""\)\.trim\(\)\.toLowerCase\(\) === companyKey/);
   assert.match(action, /jobId = await createPendingJobForLead/);
   assert.match(action, /title: parsed\.data\.service/);
   assert.match(action, /metadata: \{ lead_id: lead\.id, job_id: jobId/);
@@ -136,4 +140,15 @@ test("recruiter agenda shows all active discovery bookings, not only the assigne
   assert.match(discoveryQuery, /discovery_scheduled_at/);
   assert.doesNotMatch(discoveryQuery, /\.eq\("owner_id",userId\)/);
   assert.match(agenda, /All active discovery calls/);
+});
+
+
+test("recruiter dashboard shows all upcoming discovery calls for the next seven days", async () => {
+  const dashboard = await read("src/app/workspace/recruiter/page.tsx");
+  assert.match(dashboard, /Upcoming discovery calls/);
+  assert.match(dashboard, /All active client discovery bookings in the next 7 days, across recruiters/);
+  assert.match(dashboard, /\.from\("lead_intake"\)/);
+  assert.match(dashboard, /\.gte\("discovery_scheduled_at", nowIso\)/);
+  assert.match(dashboard, /\.lt\("discovery_scheduled_at", nextWeekIso\)/);
+  assert.doesNotMatch(dashboard.match(/\.from\("lead_intake"\)[\s\S]*?\.limit\(8\)/)?.[0] || "", /owner_id/);
 });

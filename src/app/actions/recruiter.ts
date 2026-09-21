@@ -198,6 +198,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const subject = String(formData.get("subject") || "").trim();
   const message = String(formData.get("message") || "").trim();
+  const archiveCopy = formData.get("archive_copy") === "1";
   if ((!leadId && !jobId) || subject.length < 3 || subject.length > 180 || message.length < 10 || message.length > 5000) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}`);
   }
@@ -258,7 +259,8 @@ export async function sendClientFollowupAction(formData: FormData) {
     subject,
     message,
     senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
-    href
+    href,
+    archiveCopy
   });
   if (!result.sent) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check the email configuration and recipient address.")}`);
@@ -632,6 +634,8 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
       body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
       href: meet.joinUrl,
       hrefLabel: "Join Google Meet",
+      priority: "critical",
+      idempotencyKey: `booking-meet-link-${leadId}-${meet.eventId}`,
     });
   } catch {
     // CRM remains the source of truth even if the notification is temporarily unavailable.
@@ -682,7 +686,9 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
       heading: "Your discovery call is cancelled",
       body: "Your time has been released. Contact our hiring team whenever you are ready to book again.",
       href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/book-client-call`,
-      hrefLabel: "Book another time"
+      hrefLabel: "Book another time",
+      priority: "critical",
+      idempotencyKey: `booking-cancelled-by-recruiter-${leadId}`
     });
   } catch { /* the booking state is the source of truth if delivery is unavailable */ }
   await writeRecruiterActivity({

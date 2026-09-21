@@ -1,13 +1,15 @@
-import { AlertTriangle, CheckCircle2, Mail, ShieldX } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Mail, ShieldCheck, ShieldX } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
+import { DAILY_RECIPIENT_LIMIT } from "@/lib/email";
 
 type EmailRow = {
   id: string;
   event_type: string | null;
   recipient: string | null;
   status: string;
+  provider_id: string | null;
   error_message: string | null;
   created_at: string;
 };
@@ -18,20 +20,31 @@ type SuppressionRow = {
   suppressed_at: string;
 };
 
-const problemStatuses = ["failed", "bounced", "suppressed", "complained"];
+const problemStatuses = ["failed", "bounced", "complained", "suppressed", "suppression_unavailable", "skipped_quota"];
+const quotaConsumedStatuses = ["sent", "delivered", "bounced", "complained", "suppressed"];
+
+function recipient_count(recipient: string | null) {
+  return String(recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
+}
+
+function utcDayStart() {
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0);
+  return now.toISOString();
+}
 
 export default async function AdminEmailHealthPage() {
   await requireRole("admin");
 
   const admin = createAdminClient();
-  const since = new Date(Date.now() - 86_400_000).toISOString();
+  const since = utcDayStart();
   const [eventsRes, suppressionsRes] = await Promise.all([
     admin
       .from("outbound_email_events")
-      .select("id,event_type,recipient,status,error_message,created_at")
+      .select("id,event_type,recipient,status,provider_id,error_message,created_at")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
-      .limit(500),
+      .limit(1000),
     admin
       .from("email_suppressions")
       .select("email,reason,suppressed_at")
@@ -72,20 +85,28 @@ export default async function AdminEmailHealthPage() {
 
   const events = (eventsRes.data ?? []) as EmailRow[];
   const suppressions = (suppressionsRes.data ?? []) as SuppressionRow[];
-  const delivered = events.filter((event) => ["sent", "delivered"].includes(event.status)).length;
+  const deliveriesToday = events
+    .filter((event) => Boolean(event.provider_id) && quotaConsumedStatuses.includes(event.status))
+    .reduce((total, event) => total + recipient_count(event.recipient), 0);
+  const remaining = Math.max(0, DAILY_RECIPIENT_LIMIT - deliveriesToday);
+  const duplicatePrevented = events.filter((event) => event.status === "duplicate_prevented").length;
+  const suppressedSends = events.filter((event) => event.status === "suppressed").length;
+  const lowPrioritySkipped = events.filter((event) => event.status === "skipped_quota" && /Skipped low email/i.test(event.error_message || "")).length;
   const failed = events.filter((event) => event.status === "failed").length;
   const bounced = events.filter((event) => event.status === "bounced").length;
-  const quota = events.filter((event) => /quota|rate limit|daily/i.test(event.error_message ?? "")).length;
 
-  const byType = new Map<string, { total: number; failed: number }>();
+  const byType = new Map<string, { messages: number; recipients: number; failed: number }>();
   for (const event of events) {
+    if (!event.provider_id || !quotaConsumedStatuses.includes(event.status)) continue;
     const key = event.event_type || "unknown";
-    const value = byType.get(key) || { total: 0, failed: 0 };
-    value.total++;
-    if (problemStatuses.includes(event.status)) value.failed++;
+    const value = byType.get(key) || { messages: 0, recipients: 0, failed: 0 };
+    value.messages += 1;
+    value.recipients += recipient_count(event.recipient);
+    if (problemStatuses.includes(event.status)) value.failed += 1;
     byType.set(key, value);
   }
-  const types = [...byType.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 12);
+
+  const types = [...byType.entries()].sort((a, b) => b[1].recipients - a[1].recipients).slice(0, 12);
   const recentProblems = events.filter((event) => problemStatuses.includes(event.status)).slice(0, 50);
 
   return (
@@ -94,71 +115,79 @@ export default async function AdminEmailHealthPage() {
         <div>
           <div className="kicker">Email operations</div>
           <h1>Email health</h1>
-          <p>Latest 500 email events from the last 24 hours, plus up to 100 suppressed recipients.</p>
+          <p>App-tracked recipient usage for the current UTC day. The final 20 daily recipients are reserved for critical transactional mail.</p>
         </div>
       </div>
 
       <div className="health-grid">
         <div className="health-card ok">
-          <CheckCircle2 size={19} />
-          <div>
-            <span>Sent / delivered in sample</span>
-            <strong>{delivered}</strong>
-            <small>Latest 500 email events maximum</small>
-          </div>
-        </div>
-        <div className={"health-card " + (failed ? "warn" : "ok")}>
-          <AlertTriangle size={19} />
-          <div>
-            <span>Failed in sample</span>
-            <strong>{failed}</strong>
-            <small>Provider or recipient failures</small>
-          </div>
-        </div>
-        <div className={"health-card " + (bounced ? "warn" : "ok")}>
           <Mail size={19} />
           <div>
-            <span>Bounced in sample</span>
-            <strong>{bounced}</strong>
-            <small>Hard delivery failures</small>
+            <span>Recipient deliveries today</span>
+            <strong>{deliveriesToday}</strong>
+            <small>Counts To + CC + BCC on provider-accepted messages</small>
           </div>
         </div>
-        <div className={"health-card " + (quota ? "warn" : "ok")}>
-          <ShieldX size={19} />
+        <div className={"health-card " + (remaining <= 20 ? "warn" : "ok")}>
+          <ShieldCheck size={19} />
           <div>
-            <span>Quota errors in sample</span>
-            <strong>{quota}</strong>
-            <small>Capacity failures that can block critical mail</small>
+            <span>Remaining daily allowance</span>
+            <strong>{remaining}</strong>
+            <small>Configured limit: {DAILY_RECIPIENT_LIMIT}</small>
           </div>
         </div>
-        <div className="health-card">
+        <div className="health-card ok">
+          <CheckCircle2 size={19} />
+          <div>
+            <span>Prevented duplicate sends</span>
+            <strong>{duplicatePrevented}</strong>
+            <small>Detected Resend idempotency replays</small>
+          </div>
+        </div>
+        <div className={"health-card " + (suppressedSends ? "warn" : "ok")}>
           <ShieldX size={19} />
           <div>
-            <span>Suppressed recipients loaded</span>
-            <strong>{suppressions.length}</strong>
-            <small>Up to 100 suppressed recipients</small>
+            <span>Suppressed sends</span>
+            <strong>{suppressedSends}</strong>
+            <small>Known bounce, complaint, or provider suppressions</small>
+          </div>
+        </div>
+        <div className={"health-card " + (lowPrioritySkipped ? "warn" : "ok")}>
+          <AlertTriangle size={19} />
+          <div>
+            <span>Low-priority messages skipped</span>
+            <strong>{lowPrioritySkipped}</strong>
+            <small>Stopped to preserve critical email capacity</small>
+          </div>
+        </div>
+        <div className={"health-card " + (failed || bounced ? "warn" : "ok")}>
+          <AlertTriangle size={19} />
+          <div>
+            <span>Failed / bounced</span>
+            <strong>{failed + bounced}</strong>
+            <small>{failed} failed, {bounced} bounced</small>
           </div>
         </div>
       </div>
 
       <div className="grid-2">
         <section className="card">
-          <h2>Email volume by automation</h2>
-          <p className="muted">Latest 500 email events from the last 24 hours. Counts are a recent sample, not guaranteed totals.</p>
+          <h2>Sends by automation</h2>
+          <p className="muted">Provider-accepted messages today, ranked by recipient deliveries.</p>
           {types.length ? (
             <div className="compact-list">
               {types.map(([name, value]) => (
                 <div className="compact-static" key={name}>
                   <span>
                     <strong>{name.replaceAll("_", " ")}</strong>
-                    <small>{value.failed ? String(value.failed) + " failed" : "No recorded failures in sample"}</small>
+                    <small>{value.messages} message{value.messages === 1 ? "" : "s"} · {value.failed ? `${value.failed} delivery problem${value.failed === 1 ? "" : "s"}` : "No recorded failures"}</small>
                   </span>
-                  <strong>{value.total}</strong>
+                  <strong>{value.recipients}</strong>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="empty">No email events were recorded in the latest sample.</div>
+            <div className="empty">No provider-accepted email events were recorded today.</div>
           )}
         </section>
 
@@ -201,7 +230,7 @@ export default async function AdminEmailHealthPage() {
             ))}
           </div>
         ) : (
-          <div className="empty">No delivery problems were recorded in the latest sample.</div>
+          <div className="empty">No delivery problems were recorded today.</div>
         )}
       </section>
     </>

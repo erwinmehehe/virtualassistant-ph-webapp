@@ -18,7 +18,7 @@ test("every public discovery booking sends Jervis a dedicated internal alert", a
 
   assert.match(email, /const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail\.com"/);
   assert.match(email, /export async function sendInternalDiscoveryBookingNotificationEmail/);
-  assert.match(email, /"discovery_booking_internal_jervis", \{ archive: false, teamCc: false \}/);
+  assert.match(email, /"discovery_booking_internal_jervis", \{ archive: false, priority: "critical" \}/);
   assert.match(action, /await sendInternalDiscoveryBookingNotificationEmail\(\{/);
   assert.match(action, /meetingUrl: meeting\?\.joinUrl \|\| null/);
   assert.match(action, /manageUrl: bookingManageUrl\(manage\.token\)/);

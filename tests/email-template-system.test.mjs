@@ -43,10 +43,10 @@ test("manual recruiter follow-up preserves the written closing without extra CTA
 test("VA lifecycle emails stay private from default team/archive copies", async () => {
   const email = await read("src/lib/email.ts");
 
-  assert.match(email, /"va_applicant_redirect", \{ archive: false, teamCc: false \}/);
-  assert.match(email, /"application_status", \{ archive: false, teamCc: false \}/);
-  assert.match(email, /"profile_completion_reminder", \{ archive: false, teamCc: false \}/);
-  assert.match(email, /"profile_stage_nudge", \{ archive: false, teamCc: false \}/);
+  assert.match(email, /"va_applicant_redirect", \{ archive: false \}/);
+  assert.match(email, /"application_status", \{ archive: false, priority: "standard" \}/);
+  assert.match(email, /"profile_completion_reminder", \{ archive: false, priority: "low" \}/);
+  assert.match(email, /"profile_stage_nudge", \{ archive: false, priority: "low" \}/);
 });
 
 test("VA match alert uses a branded template, text fallback, and reply routing", async () => {

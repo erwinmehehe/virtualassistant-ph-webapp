@@ -5,6 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
+type ReminderWindow = "24h" | "1h";
+type ReminderField = "discovery_reminder_24h_sent_at" | "discovery_reminder_1h_sent_at";
+
 async function isAuthorized(request: Request, admin: ReturnType<typeof createAdminClient>) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const authorization = request.headers.get("authorization");
@@ -14,6 +17,43 @@ async function isAuthorized(request: Request, admin: ReturnType<typeof createAdm
   if (!schedulerToken) return false;
   const { data, error } = await admin.rpc("verify_discovery_reminder_cron_token", { candidate: schedulerToken });
   return !error && data === true;
+}
+
+function reminderField(window: ReminderWindow): ReminderField {
+  return window === "1h" ? "discovery_reminder_1h_sent_at" : "discovery_reminder_24h_sent_at";
+}
+
+async function claimDiscoveryReminder(
+  admin: ReturnType<typeof createAdminClient>,
+  leadId: string,
+  window: ReminderWindow,
+) {
+  const field = reminderField(window);
+  const claimAt = new Date().toISOString();
+  const { data, error } = await admin
+    .from("lead_intake")
+    .update({ [field]: claimAt })
+    .eq("id", leadId)
+    .is(field, null)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  return data?.id ? claimAt : null;
+}
+
+async function releaseDiscoveryReminderClaim(
+  admin: ReturnType<typeof createAdminClient>,
+  leadId: string,
+  window: ReminderWindow,
+  claimAt: string,
+) {
+  const field = reminderField(window);
+  const { error } = await admin
+    .from("lead_intake")
+    .update({ [field]: null })
+    .eq("id", leadId)
+    .eq(field, claimAt);
+  if (error) console.error("[discovery-reminders] Could not release failed reminder claim", { leadId, window, error: error.message });
 }
 
 export async function GET(request: Request) {
@@ -35,49 +75,54 @@ export async function GET(request: Request) {
 
   let reminder24h = 0;
   let reminder1h = 0;
+  let claimedElsewhere = 0;
+
   for (const lead of leads || []) {
     if (!lead.email || !lead.discovery_scheduled_at || !lead.discovery_manage_token) continue;
-    const minutesUntil = (new Date(lead.discovery_scheduled_at).getTime() - now) / 60_000;
-    const scheduledLabel = formatDiscoverySlot(lead.discovery_scheduled_at, lead.timezone || "Asia/Manila");
-    const manageUrl = bookingManageUrl(lead.discovery_manage_token);
 
-    if (minutesUntil >= 30 && minutesUntil <= 90 && !lead.discovery_reminder_1h_sent_at) {
-      const result = await sendDiscoveryReminderEmail({
-        to: lead.email,
-        clientName: lead.name,
-        scheduledLabel,
-        meetingUrl: lead.discovery_meeting_url,
-        manageUrl,
-        window: "1h",
-      });
-      if (result.sent) {
-        await admin.from("lead_intake")
-          .update({ discovery_reminder_1h_sent_at: new Date().toISOString() })
-          .eq("id", lead.id)
-          .is("discovery_reminder_1h_sent_at", null);
-        reminder1h += 1;
-      }
+    const minutesUntil = (new Date(lead.discovery_scheduled_at).getTime() - now) / 60_000;
+    const window: ReminderWindow | null =
+      minutesUntil >= 30 && minutesUntil <= 90 && !lead.discovery_reminder_1h_sent_at
+        ? "1h"
+        : minutesUntil >= 23 * 60 && minutesUntil <= 25 * 60 && !lead.discovery_reminder_24h_sent_at
+          ? "24h"
+          : null;
+    if (!window) continue;
+
+    const claimAt = await claimDiscoveryReminder(admin, lead.id, window);
+    if (!claimAt) {
+      claimedElsewhere += 1;
       continue;
     }
 
-    if (minutesUntil >= 23 * 60 && minutesUntil <= 25 * 60 && !lead.discovery_reminder_24h_sent_at) {
+    const scheduledLabel = formatDiscoverySlot(lead.discovery_scheduled_at, lead.timezone || "Asia/Manila");
+    const manageUrl = bookingManageUrl(lead.discovery_manage_token);
+
+    try {
       const result = await sendDiscoveryReminderEmail({
+        leadId: lead.id,
         to: lead.email,
         clientName: lead.name,
         scheduledLabel,
         meetingUrl: lead.discovery_meeting_url,
         manageUrl,
-        window: "24h",
+        window,
       });
-      if (result.sent) {
-        await admin.from("lead_intake")
-          .update({ discovery_reminder_24h_sent_at: new Date().toISOString() })
-          .eq("id", lead.id)
-          .is("discovery_reminder_24h_sent_at", null);
-        reminder24h += 1;
+
+      if (!result.sent) {
+        if (result.reason === "email_not_configured") {
+          await releaseDiscoveryReminderClaim(admin, lead.id, window, claimAt);
+        }
+        continue;
       }
+
+      if (window === "1h") reminder1h += 1;
+      else reminder24h += 1;
+    } catch (sendError) {
+      await releaseDiscoveryReminderClaim(admin, lead.id, window, claimAt);
+      console.error("[discovery-reminders] Reminder send failed", { leadId: lead.id, window, error: sendError instanceof Error ? sendError.message : String(sendError) });
     }
   }
 
-  return Response.json({ ok: true, checked: leads?.length || 0, reminder24h, reminder1h });
+  return Response.json({ ok: true, checked: leads?.length || 0, reminder24h, reminder1h, claimedElsewhere });
 }

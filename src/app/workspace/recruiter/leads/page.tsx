@@ -421,6 +421,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <div className="small muted">To: <strong>{lead.email}</strong></div>
                   <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
                   <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
+                  <label className="small"><input type="checkbox" name="archive_copy" value="1"/> Send a hidden archive copy to the configured internal archive recipients</label>
                   <div className="row wrap"><button className="btn btn-primary" type="submit">Send reply</button><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
                 </form>
               </details>

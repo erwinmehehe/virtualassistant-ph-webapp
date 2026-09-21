@@ -15,7 +15,7 @@ test("new account confirmation uses Supabase generateLink plus branded Resend", 
   assert.doesNotMatch(auth, /supabase\.auth\.signUp\(/);
 
   assert.match(email, /export async function sendAccountConfirmationEmail/);
-  assert.match(email, /"account_confirmation", \{ archive: false, teamCc: false \}/);
+  assert.match(email, /"account_confirmation", \{ archive: false, priority: "critical" \}/);
   assert.match(email, /Confirm your VirtualAssistant\.com\.ph account/);
 });
 
@@ -28,7 +28,7 @@ test("password recovery uses branded Resend and keeps a Supabase fallback", asyn
   assert.match(auth, /fallbackSupabase\.auth\.resetPasswordForEmail/);
 
   assert.match(email, /export async function sendPasswordRecoveryEmail/);
-  assert.match(email, /"password_recovery", \{ archive: false, teamCc: false \}/);
+  assert.match(email, /"password_recovery", \{ archive: false, priority: "critical" \}/);
   assert.match(email, /Reset your VirtualAssistant\.com\.ph password/);
 });
 
@@ -49,7 +49,7 @@ test("custom auth email shell does not send team or archive copies", async () =>
   const recoveryEnd = email.indexOf("export async function sendSystemTestEmail", confirmationStart);
   const authEmailSection = email.slice(confirmationStart, recoveryEnd);
 
-  assert.match(authEmailSection, /archive: false, teamCc: false/);
+  assert.match(authEmailSection, /archive: false, priority: "critical"/);
   assert.doesNotMatch(authEmailSection, /bcc:/);
   assert.doesNotMatch(authEmailSection, /replyTo:/);
 });

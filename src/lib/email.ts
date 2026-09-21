@@ -63,7 +63,11 @@ const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
 const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
 const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
 
-const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail.com";
+const BOOKING_TEAM_EMAILS = normalizeEmailList([
+  process.env.BOOKING_TEAM_EMAILS,
+  "erwinvalles20@gmail.com",
+  "jrvsaccad@gmail.com",
+]).filter((email) => !isBlockedEmailRecipient(email));
 const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "erwinvalles20@gmail.com",
@@ -1022,6 +1026,11 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
   clientName: string;
   clientEmail: string;
   company: string;
+  service: string;
+  hours: string;
+  budget: string;
+  startTime: string;
+  message: string;
   clientLabel: string;
   manilaLabel: string;
   meetingUrl?: string | null;
@@ -1031,30 +1040,66 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
   if (!config) return { sent: false as const, reason: "email_not_configured" };
 
   const meetingLine = args.meetingUrl ? `Google Meet: ${args.meetingUrl}` : "Google Meet: pending";
+  const bodyHtml = `
+    <p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">A new client discovery call is confirmed. The booking is ready for the hiring team to review before the meeting.</p>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;border:1px solid #eaecf0;border-radius:14px;overflow:hidden;">
+      <tr><td style="padding:18px 20px;background:#f9fafb;border-bottom:1px solid #eaecf0;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:7px;">Philippines team time</div>
+        <div style="font-size:18px;font-weight:800;line-height:1.45;color:#101828;">${escapeHtml(args.manilaLabel)}</div>
+        <div style="font-size:14px;line-height:1.6;color:#667085;margin-top:5px;">Client time: ${escapeHtml(args.clientLabel)}</div>
+      </td></tr>
+    </table>
+
+    <div style="margin:0 0 24px;padding:18px 20px;background:#f9fafb;border-radius:14px;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:12px;">Client and hiring brief</div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;line-height:1.6;">
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;width:120px;">Client</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.clientName)} · ${escapeHtml(args.clientEmail)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Company</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.company)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Role</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.service)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Hours</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.hours)} per week</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">VA budget</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.budget)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Preferred start</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.startTime)}</td></tr>
+      </table>
+    </div>
+
+    <div style="margin:0 0 24px;padding:18px 20px;border:1px solid #e0e7ff;border-radius:14px;background:#f5f7ff;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4f46e5;margin-bottom:8px;">What the VA should own</div>
+      <div style="font-size:15px;line-height:1.7;color:#344054;white-space:pre-line;">${escapeHtml(args.message)}</div>
+    </div>
+
+    <p style="margin:0;color:#475467;font-size:15px;line-height:1.7;"><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}<br><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>
+  `;
+
   const delivery = await trackedSend(config, {
     from: config.from,
-    to: [JERVIS_BOOKING_EMAIL],
+    to: BOOKING_TEAM_EMAILS,
     replyTo: args.clientEmail,
-    subject: `New discovery call booked: ${args.company}`,
+    subject: `New discovery call: ${args.company} — ${args.service}`,
     text: [
       "A new client discovery call was booked.",
       "",
       `Client: ${args.clientName}`,
       `Email: ${args.clientEmail}`,
       `Company: ${args.company}`,
+      `Role: ${args.service}`,
+      `Hours: ${args.hours} per week`,
+      `VA budget: ${args.budget}`,
+      `Preferred start: ${args.startTime}`,
+      `What the VA should own: ${args.message}`,
       `Client time: ${args.clientLabel}`,
       `Philippines time: ${args.manilaLabel}`,
       meetingLine,
       `Manage booking: ${args.manageUrl}`,
     ].join("\n"),
-    html: `<h2>New discovery call booked</h2>
-      <p><strong>Client:</strong> ${escapeHtml(args.clientName)} (${escapeHtml(args.clientEmail)})</p>
-      <p><strong>Company:</strong> ${escapeHtml(args.company)}</p>
-      <p><strong>Client time:</strong> ${escapeHtml(args.clientLabel)}</p>
-      <p><strong>Philippines time:</strong> ${escapeHtml(args.manilaLabel)}</p>
-      <p><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}</p>
-      <p><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>`
-  }, "discovery_booking_internal_jervis", {
+    html: renderHiringEmail({
+      firstName: "team",
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Booking System",
+      ctaHref: args.meetingUrl || args.manageUrl,
+      ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking",
+    }),
+  }, "discovery_booking_internal_team", {
     archive: false,
     priority: "critical",
     idempotencyKey: `booking-internal-${args.leadId}`

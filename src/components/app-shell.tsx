@@ -43,15 +43,6 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
           </Link>
         </div>
 
-        <Link
-          className="app-workspace-card"
-          href={workspaceHome[role]}
-          aria-label={`Go to ${roleLabel} workspace home`}
-          title={`Go to ${roleLabel} workspace home`}
-        >
-          <span className="app-workspace-icon"><CircleUserRound size={18}/></span>
-          <span><small>Current workspace</small><strong>{roleLabel}</strong></span>
-        </Link>
 
         {nav}
 

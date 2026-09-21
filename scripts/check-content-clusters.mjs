@@ -34,6 +34,7 @@ const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PA
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const servicePage = source("src/app/service/[slug]/page.tsx");
 const industryPage = source("src/app/industries/[slug]/page.tsx");
+const industrySeoContent = source("src/lib/industry-seo-content.ts");
 const blogArticle = source("src/components/blog-article.tsx");
 
 const failures = [];
@@ -81,6 +82,16 @@ for (const industry of industries) {
     if (!serviceSlugs.has(serviceSlug)) failures.push(`${industry.slug}: unresolved service ${serviceSlug}`);
   }
 }
+
+const customHeroSlugs = new Set([...industrySeoContent.matchAll(/^  "([^"]+)": \{/gm)].map((match) => match[1]));
+for (const industry of industries) {
+  if (!customHeroSlugs.has(industry.slug)) failures.push(`${industry.slug}: missing industry-specific hero introduction`);
+  if (industry.metaTitle.length < 40 || industry.metaTitle.length > 60) failures.push(`${industry.slug}: meta title length ${industry.metaTitle.length}`);
+  if (industry.metaDescription.length < 145 || industry.metaDescription.length > 160) failures.push(`${industry.slug}: meta description length ${industry.metaDescription.length}`);
+}
+
+if (!/titleCaseWithAcronyms/.test(industryPage)) failures.push("industry template must preserve acronyms in generated labels");
+if (!/twitter:\s*\{\s*card:\s*"summary_large_image",\s*title,\s*description\s*\}/.test(industryPage)) failures.push("industry metadata must expose the same Twitter card fields as service pages");
 
 for (const [serviceSlug, count] of clusterCounts) {
   // Cluster size alone is not cannibalization; the dedicated intent-overlap audit checks page-pair risk.\n  if (count > 12) warnings.push(`${serviceSlug}: ${count} blog posts in one service cluster; review whether the cluster is becoming unnecessarily broad`);

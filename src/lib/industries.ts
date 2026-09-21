@@ -890,7 +890,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Clear Your Firm's Month-End & Compliance Production Backlog",
     "primaryKeyword": "outsourced month end production accounting firm",
     "metaTitle": "Month-End Production for Accounting Firms | Philippines",
-    "metaDescription": "Outsource month-end production for accounting firms, including reconciliations, workpapers, AP/AR, payroll prep and client document follow-up.",
+    "metaDescription": "Outsource month-end production to Philippines-based accounting support for reconciliations, workpapers, AP/AR, payroll prep and document follow-up.",
     "intro": "We clear your firm's month-end and compliance production backlog -- not \"offshore accountants,\" a production function built around your firm's checklist and deadlines. Use this guide to decide what to delegate, which tools and schedule matter, and which decisions should stay with your registered accountant.",
     "audience": "accounting firms, bookkeeping practices, and outsourced CFO teams",
     "workflows": [
@@ -929,7 +929,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Run Your Invoice-to-Claim Back Office",
     "primaryKeyword": "outsourced ndis billing claims processing",
     "metaTitle": "NDIS Billing & Claims Operations | Philippines",
-    "metaDescription": "NDIS administration support for claims, remittance reconciliation, participant onboarding, service agreements, rejected claims and reporting.",
+    "metaDescription": "Hire Philippines-based NDIS administration support for claims, remittance reconciliation, onboarding, service agreements, rejected claims and reporting.",
     "intro": "We run the invoice-to-claim back office for NDIS providers -- not \"an NDIS virtual assistant,\" a claims operations function sized to your participant volume. Use this guide to decide what to delegate, which platforms and schedule matter, and which approvals should stay with your organization.",
     "audience": "NDIS registered providers, plan managers, and support coordination businesses",
     "workflows": [
@@ -968,8 +968,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Mortgage Loan Processing",
     "h1": "Keep More Mortgage Files Moving From Application to Settlement",
     "primaryKeyword": "mortgage broker loan processing outsourcing",
-    "metaTitle": "Mortgage Broker Loan Processing Support",
-    "metaDescription": "Mortgage loan-processing support for document collection, ApplyOnline entry, lender conditions, approvals and settlement tracking.",
+    "metaTitle": "Mortgage Broker Loan Processing | Philippines",
+    "metaDescription": "Outsource mortgage loan-processing support to the Philippines for document collection, ApplyOnline entry, lender conditions and settlement tracking.",
     "intro": "Your brokers should be structuring deals and advising clients, not rebuilding checklists and chasing every outstanding document. An outsourced processing desk handles the production workflow around each application while your broker retains the lending advice and approval decisions.",
     "audience": "mortgage brokers, finance brokers and loan processing teams",
     "workflows": [
@@ -1008,8 +1008,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "SMSF Production",
     "h1": "Clear Your SMSF Production Backlog Before Review Season",
     "primaryKeyword": "smsf production outsourcing",
-    "metaTitle": "SMSF Production Outsourcing Support",
-    "metaDescription": "SMSF production support for transaction coding, reconciliations, workpapers, document follow-up and audit-pack preparation.",
+    "metaTitle": "SMSF Production Outsourcing | Philippines",
+    "metaDescription": "Outsource SMSF production to Philippines-based support for transaction coding, reconciliations, workpapers, document follow-up and audit-pack preparation.",
     "intro": "The bottleneck in SMSF work is often the production queue before an accountant can review the fund. A dedicated production workflow gets transactions coded, investments reconciled, documents organised, and audit support assembled before professional review.",
     "audience": "smsf accountants, public practice firms and superannuation administration teams",
     "workflows": [
@@ -1049,7 +1049,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep Every Strata Portfolio Ready for the Next Meeting",
     "primaryKeyword": "strata management administration outsourcing",
     "metaTitle": "Strata Management Administration Support",
-    "metaDescription": "Strata administration support for meeting packs, owner records, notices, minutes, levy workflows, arrears follow-up and action registers.",
+    "metaDescription": "Hire Philippines-based strata administration support for meeting packs, owner records, notices, minutes, levy workflows, arrears and action registers.",
     "intro": "Strata managers need portfolio information, meeting documents, correspondence, and action lists ready before deadlines arrive. An outsourced administration desk keeps those production tasks moving so managers can focus on committees, disputes, decisions, and portfolio oversight.",
     "audience": "strata managers, owners corporation managers and body corporate management firms",
     "workflows": [
@@ -1089,7 +1089,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Move Tenant Maintenance Requests From Inbox to Completion",
     "primaryKeyword": "property management maintenance outsourcing",
     "metaTitle": "Property Management Maintenance Coordination",
-    "metaDescription": "Maintenance coordination support for tenant requests, contractor quotes, work orders, scheduling, follow-up and property-system updates.",
+    "metaDescription": "Hire Philippines-based maintenance coordination support for tenant requests, contractor quotes, work orders, scheduling and property-system updates.",
     "intro": "Property managers should manage owner decisions and tenancy issues, not manually chase every contractor appointment. A maintenance coordination desk moves routine requests from intake through completion while escalating emergencies, approvals, and exceptions to the local manager.",
     "audience": "property managers, real estate agencies and residential portfolio teams",
     "workflows": [
@@ -1129,7 +1129,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Keep Referrals, Billing and Recalls Moving Between Appointments",
     "primaryKeyword": "allied health administration outsourcing",
     "metaTitle": "Allied Health Referral & Billing Support",
-    "metaDescription": "Allied-health administration support for referrals, scheduling, billing records, recalls, patient follow-up and practice-system updates.",
+    "metaDescription": "Hire Philippines-based allied-health administration support for referrals, scheduling, billing records, recalls, follow-up and practice-system updates.",
     "intro": "A growing caseload creates administrative work before and after every appointment. A dedicated support desk moves referrals, patient records, billing tasks, and recalls through the practice workflow while clinicians keep control of clinical decisions and patient care.",
     "audience": "physiotherapists, occupational therapists, speech pathologists, psychologists and allied health clinics",
     "workflows": [
@@ -1169,8 +1169,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Trades Administration",
     "h1": "Turn Every Service Call Into a Scheduled, Invoiced Job",
     "primaryKeyword": "trades administration outsourcing",
-    "metaTitle": "Trades Service Administration Support",
-    "metaDescription": "Trades administration support for job intake, scheduling, technician follow-up, quotes, invoices and ServiceM8, simPRO or AroFlo updates.",
+    "metaTitle": "Trades Administration Outsourcing | Philippines",
+    "metaDescription": "Hire Philippines-based trades administration support for job intake, scheduling, technician follow-up, quotes, invoices and field-service updates.",
     "intro": "The office workload grows every time another technician goes into the field. A dedicated service administration desk turns calls into jobs, keeps schedules and paperwork current, and pushes completed work toward invoicing while the trade business controls technical decisions.",
     "audience": "electricians, hvac contractors, plumbers, solar installers and field service businesses",
     "workflows": [
@@ -1211,7 +1211,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Expand Your BIM Production Capacity Without Moving Design Authority",
     "primaryKeyword": "bim revit outsourcing",
     "metaTitle": "BIM & Revit Production Support | Philippines",
-    "metaDescription": "BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing-package preparation.",
+    "metaDescription": "Hire Philippines-based BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing packages.",
     "intro": "Design teams often lose senior hours to model housekeeping, sheet production, markups, and repetitive documentation. An outsourced BIM production layer handles that defined production work while architects and engineers retain responsibility for design intent and technical approval.",
     "audience": "architecture practices, structural engineers, mep consultants and bim teams",
     "workflows": [
@@ -1250,8 +1250,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Candidate Sourcing",
     "h1": "Keep Recruiter Pipelines Full Before Consultants Start Calling",
     "primaryKeyword": "recruitment candidate sourcing outsourcing",
-    "metaTitle": "Recruitment Candidate Sourcing Support",
-    "metaDescription": "Candidate-sourcing support for LinkedIn research, longlists, CRM cleanup, approved outreach, screening admin and interview scheduling.",
+    "metaTitle": "Candidate Sourcing Outsourcing | Philippines",
+    "metaDescription": "Hire Philippines-based candidate-sourcing support for LinkedIn research, longlists, CRM cleanup, approved outreach, screening and interview scheduling.",
     "intro": "Recruiters create the most value when they are qualifying candidates, advising clients, and closing placements. A sourcing desk handles repeatable search, database, outreach, and scheduling work so each consultant starts with a structured candidate pipeline.",
     "audience": "recruitment agencies, executive search firms and talent acquisition teams",
     "workflows": [
@@ -1291,8 +1291,8 @@ export const INDUSTRIES: IndustryPage[] = [
     "label": "Insurance Renewals",
     "h1": "Put Every Renewal File in Front of the Broker Ready for Review",
     "primaryKeyword": "insurance broker renewal outsourcing",
-    "metaTitle": "Insurance Broker Renewal Desk Support",
-    "metaDescription": "Insurance renewal support for client data updates, insurer follow-up, quote comparison schedules, certificates and renewal administration.",
+    "metaTitle": "Insurance Renewal Desk Support | Philippines",
+    "metaDescription": "Hire Philippines-based insurance renewal support for client data updates, insurer follow-up, quote comparison schedules, certificates and administration.",
     "intro": "Renewal season becomes a capacity problem when brokers have to collect data, update systems, chase markets, and rebuild comparison material themselves. A renewal desk handles the administrative production around each policy so the broker can focus on coverage decisions and client advice.",
     "audience": "general insurance brokers, commercial brokerages and insurance broking teams",
     "workflows": [

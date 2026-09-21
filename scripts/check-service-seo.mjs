@@ -5,9 +5,11 @@ const root = process.cwd();
 const dataPath = path.join(root, 'src/lib/service-pages.ts');
 const pagePath = path.join(root, 'src/app/service/[slug]/page.tsx');
 const heroPath = path.join(root, 'src/components/hiring-hero.tsx');
+const formPath = path.join(root, 'src/components/hiring-brief-form.tsx');
 const source = fs.readFileSync(dataPath, 'utf8');
 const pageSource = fs.readFileSync(pagePath, 'utf8');
 const heroSource = fs.readFileSync(heroPath, 'utf8');
+const formSource = fs.readFileSync(formPath, 'utf8');
 const marker = 'export const SERVICE_PAGES: ServiceSeoPage[] = ';
 const markerIndex = source.indexOf(marker);
 if (markerIndex < 0) throw new Error('SERVICE_PAGES marker not found');
@@ -119,6 +121,13 @@ for (const [label, pattern] of templateRequirements) {
 
 const h1Count = (heroSource.match(/<h1\b/g) || []).length;
 if (h1Count !== 1) failures.push(`shared hiring hero: expected exactly one H1, found ${h1Count}`);
+
+if (!/titleCaseWithAcronyms/.test(pageSource)) failures.push('shared service template: must preserve acronyms in generated labels');
+if (/s\.focus\.toLowerCase\(\)/.test(pageSource)) failures.push('shared service template: must not lowercase role acronyms in cost copy');
+if (!/indefiniteArticleFor/.test(formSource)) failures.push('hiring brief form: must use acronym-aware article selection');
+if (/\^\[aeiou\]/i.test(formSource)) failures.push('hiring brief form: simple first-letter article selection breaks SEO, SMSF, NDIS, HR and similar acronyms');
+if (/\$\{base\} VA/.test(formSource)) failures.push('hiring brief form: headings must spell out Virtual Assistant instead of VA');
+if (!/\$\{base\} Virtual Assistant/.test(formSource)) failures.push('hiring brief form: service headings must use the full Virtual Assistant role name');
 
 console.log(`Service SEO pages checked: ${pages.length}`);
 console.log(`Generated meta titles: ${seenTitles.size}`);

@@ -125,12 +125,14 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const recognized = (recentLogins ?? []).some((event) => {
+  const loginHistory = recentLogins ?? [];
+  const recognized = loginHistory.some((event) => {
     const metadata = event.metadata && typeof event.metadata === "object"
       ? event.metadata as Record<string, unknown>
       : {};
     return metadata.device_key === device.deviceKey;
   });
+  const shouldAlert = loginHistory.length > 0 && !recognized;
 
   await admin.from("account_security_events").insert({
     user_id: args.userId,
@@ -143,10 +145,11 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
       browser: device.browser,
       os: device.os,
       recognized,
+      baseline: loginHistory.length === 0,
     },
   });
 
-  if (!recognized && args.email) {
+  if (shouldAlert && args.email) {
     try {
       await sendNewLoginSecurityEmail({
         to: args.email,

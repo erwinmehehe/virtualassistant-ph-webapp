@@ -18,7 +18,7 @@ The Account Center will use a persistent settings navigation with five sections:
 4. Preferences
 5. Privacy & account
 
-Desktop uses a slim left settings navigation beside a focused settings content column. Mobile converts the navigation into a compact horizontally scrollable selector or equivalent mobile-safe control.
+Desktop uses a slim left settings navigation beside a focused settings content column. Mobile converts the navigation into a compact horizontally scrollable settings selector.
 
 The current oversized identity hero, detached three-tab pill bar, redundant Account Security promo card, and large At-a-glance sidebar are removed.
 
@@ -138,14 +138,14 @@ Security alerts remain always enabled in both UI and database enforcement.
 
 ## Preferences
 
-Add personal display preferences that affect the Account Center and application presentation, without duplicating company or VA business settings.
+Add personal display preferences that affect account and security presentation without duplicating company or VA business settings.
 
-Initial preferences:
+Initial persisted preferences:
 - Personal timezone for display of account/security timestamps
-- Language: English initially
 - Date format
 - Time format: 12-hour / 24-hour
-- Appearance: System / Light / Dark only if the application shell supports a safe persisted theme without introducing a second incompatible theming system
+
+Language is not added until localization exists. Appearance is not added in this release unless the existing app shell already has a single supported persisted theme mechanism; this release must not introduce a second theming system merely to populate Settings.
 
 Timezone here is a personal display preference only. It does not replace company timezone, booking timezone rules, or role-specific availability settings.
 
@@ -153,13 +153,11 @@ Timezone here is a personal display preference only. It does not replace company
 
 Create a dedicated per-user account preference record rather than adding unrelated presentation fields to notification preferences.
 
-Expected persisted fields:
+Persisted fields:
 - user_id
 - timezone
-- language
 - date_format
 - time_format
-- appearance if supported
 - created_at
 - updated_at
 
@@ -167,16 +165,35 @@ RLS must limit read/write access to the authenticated owner only.
 
 ## Privacy & account
 
-This section must avoid destructive shortcuts.
+This release includes useful privacy/account controls without introducing unsafe destructive behavior.
 
-### Data export
-Provide an account data export/request action only if it can produce a bounded user-owned export without leaking records belonging to other users or agency-wide operational data.
+### Download account data
 
-### Account deactivation
-A deactivation flow may be implemented as a reversible account-status change only after confirming the existing authorization layer respects that status on login/workspace access.
+Add an authenticated account-export route/action that returns only the signed-in user's bounded account data:
+- core account/profile fields
+- account display preferences
+- notification preferences
+- recent account security events
+
+Do not include agency-wide records or another user's records. Role-specific operational data such as client hiring pipelines, VA applications, placements, interviews, invoices, or admin audit data remains outside this personal account export until a broader data-portability policy is defined.
+
+### Account deletion request
+
+Add a non-destructive self-service "Request account deletion" flow in the Danger zone.
+
+The request must:
+- require an authenticated user
+- require explicit confirmation text
+- create a server-side deletion request record owned by that user
+- record request time and current status
+- allow the user to see that a request is pending
+- avoid deleting the Supabase Auth user or linked operational records automatically
+
+This keeps the Account Center functional while preserving linked hiring/placement records until retention and ownership rules are formally audited.
 
 ### Permanent deletion
-Do not implement a blind Supabase Auth delete button.
+
+Do not implement a blind Supabase Auth delete button in this release.
 
 Before permanent deletion is enabled, audit:
 - foreign keys and cascades
@@ -189,7 +206,9 @@ Before permanent deletion is enabled, audit:
 - legal/operational retention needs
 - sole-owner/admin constraints
 
-For this Account Center release, the Privacy section may present a clearly separated Danger zone and a safe request/deactivation action, but permanent destructive deletion must remain gated until the dependency audit proves it safe.
+### Deactivation
+
+Do not add reversible account deactivation in this release. The current authorization layer only has explicit banned-account handling; adding a new deactivated state would require a separate login/reactivation design and is not needed to complete this Account Center release.
 
 ## Visual system
 
@@ -214,12 +233,14 @@ Reuse existing site tokens/components where practical rather than introducing an
 
 ## Data flow
 
-1. Account page loads authenticated profile, notification preferences, display preferences, sessions, and security events in parallel.
+1. Account page loads authenticated profile, notification preferences, display preferences, sessions, security events, and deletion-request state in parallel.
 2. Login flows record enriched security metadata from request headers.
 3. Session rendering joins current auth-session data with the most recent matching successful-login event metadata by session_id when available.
 4. Display formatting uses the user's saved timezone/date/time preferences.
 5. Notification actions continue to upsert current notification preference storage.
 6. New account-display preference actions upsert only the authenticated user's preference record.
+7. Account export reads only the authenticated user's bounded personal-account datasets.
+8. Account deletion requests insert/update only the authenticated user's request record and do not hard-delete auth or operational data.
 
 ## Error handling
 
@@ -227,6 +248,8 @@ Reuse existing site tokens/components where practical rather than introducing an
 - Missing/legacy user agents render generic browser/device labels.
 - Preference reads fall back to safe defaults.
 - Preference writes redirect with user-visible success/error state.
+- Export failures return a clear error without leaking partial data.
+- Duplicate pending deletion requests do not create duplicate active requests.
 - Security event persistence/email failures never block a valid login.
 - Session revocation behavior remains unchanged.
 - Existing email verification behavior remains unchanged.
@@ -234,11 +257,13 @@ Reuse existing site tokens/components where practical rather than introducing an
 ## Security requirements
 
 - No service-role key in client code.
-- RLS on any new public preference table.
+- RLS on every new public table.
 - Owner-only SELECT/INSERT/UPDATE policies with both USING and WITH CHECK where appropriate.
 - No precise location persistence.
 - No user_metadata-based authorization.
-- No direct destructive account deletion without the dependency audit.
+- Export endpoints derive the user identity server-side and never accept a target user id from the browser.
+- Deletion requests are non-destructive in this release.
+- No direct permanent account deletion without the dependency audit.
 - TOTP remains out of scope for this release.
 
 ## Testing
@@ -255,8 +280,10 @@ Add/extend regression tests for:
 - session/event enrichment with graceful legacy fallback
 - new-login baseline behavior unchanged
 - new-login email uses location only when available
+- account export is authenticated and user-scoped
+- deletion request is authenticated, explicit, non-destructive, and deduplicated
 - responsive navigation/classes
-- privacy Danger zone does not expose unsafe hard-delete behavior
+- privacy Danger zone exposes no unsafe hard-delete behavior
 
 Run:
 - release safety tests
@@ -270,11 +297,13 @@ Run:
 
 The release is acceptable when:
 - Account Settings no longer looks like a dashboard skeleton.
-- All five settings areas have a clear purpose and real content.
+- All five settings areas have a clear purpose and working content.
 - Profile is compact and does not duplicate role-specific workspace data.
 - Security clearly identifies sessions using device/browser/location/time information when available.
 - Approximate location is coarse and privacy-safe.
 - Personal timestamp/display preferences persist.
+- A signed-in user can download a bounded personal account export.
+- A signed-in user can submit and see a non-destructive deletion request.
 - Existing verified email, session revocation, notification, and login-alert behavior do not regress.
 - Mobile navigation and session controls remain fully usable.
 - No unsafe permanent account deletion path is introduced.

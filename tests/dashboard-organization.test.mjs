@@ -70,3 +70,16 @@ test("VA dashboard does not duplicate action verbs in profile guidance", () => {
   assert.doesNotMatch(va, /Add \$\{completion\.next\.label\}/);
   assert.match(va, /completion\.next\.label/);
 });
+
+
+test("VA quick setup uses a dedicated focused onboarding layout", () => {
+  const onboarding = read("src/app/workspace/va/onboarding/page.tsx");
+  assert.match(onboarding, /va-quick-setup-page/);
+  assert.match(onboarding, /va-quick-setup-layout/);
+  assert.match(onboarding, /va-quick-setup-progress/);
+  assert.match(onboarding, /va-quick-setup-form-card/);
+  assert.match(onboarding, /va-quick-setup-metrics/);
+  assert.match(onboarding, /va-quick-setup-actions/);
+  assert.doesNotMatch(onboarding, /className="grid-2"/);
+  assert.doesNotMatch(onboarding, /style=\{/);
+});

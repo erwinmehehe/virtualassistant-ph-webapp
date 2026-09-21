@@ -1,3 +1,4 @@
+import { MonitorSmartphone, ShieldCheck } from "lucide-react";
 import {
   logoutEverywhereAction,
   logoutOtherDevicesAction,
@@ -46,41 +47,57 @@ function lastActivity(session: AccountSession) {
 
 export function SessionList({ sessions }: { sessions: AccountSession[] }) {
   return (
-    <div className="stack">
+    <div className="account-session-stack">
       {sessions.length ? (
         sessions.map((session) => (
-          <article className="card" key={session.id}>
-            <div className="row-between" style={{ alignItems: "flex-start", gap: 16 }}>
-              <div className="stack" style={{ gap: 6 }}>
-                <div className="row wrap" style={{ gap: 8 }}>
-                  <strong>{deviceLabel(session.user_agent)}</strong>
-                  {session.current ? <span className="pill">Current device</span> : null}
-                  {session.aal === "aal2" ? <span className="pill">2FA verified</span> : null}
-                </div>
-                <span className="small muted">IP: {session.ip || "Unavailable"}</span>
-                <span className="small muted">Signed in: {formatDate(session.created_at)}</span>
-                <span className="small muted">Last activity: {formatDate(lastActivity(session))}</span>
-              </div>
-              {!session.current ? (
-                <form action={revokeOwnSessionAction}>
-                  <input type="hidden" name="session_id" value={session.id} />
-                  <button className="btn btn-sm" type="submit">Log out this device</button>
-                </form>
-              ) : null}
+          <article className={`account-session-card ${session.current ? "is-current" : ""}`} key={session.id}>
+            <div className="account-session-icon" aria-hidden="true">
+              <MonitorSmartphone size={20} />
             </div>
+            <div className="account-session-content">
+              <div className="account-session-title-row">
+                <strong>{deviceLabel(session.user_agent)}</strong>
+                {session.current ? (
+                  <span className="account-current-badge"><ShieldCheck size={13} /> This device</span>
+                ) : null}
+              </div>
+              <div className="account-session-meta">
+                <span><small>IP address</small><strong>{session.ip || "Unavailable"}</strong></span>
+                <span><small>Signed in</small><strong>{formatDate(session.created_at)}</strong></span>
+                <span><small>Last activity</small><strong>{formatDate(lastActivity(session))}</strong></span>
+              </div>
+            </div>
+            {!session.current ? (
+              <form action={revokeOwnSessionAction} className="account-session-action">
+                <input type="hidden" name="session_id" value={session.id} />
+                <button className="btn btn-sm" type="submit">Log out</button>
+              </form>
+            ) : null}
           </article>
         ))
       ) : (
-        <p className="muted">No active sessions were returned for this account.</p>
+        <div className="account-session-empty">
+          <MonitorSmartphone size={22} />
+          <div>
+            <strong>No active sessions returned</strong>
+            <p>Refresh the page or sign in again if you expected to see this device.</p>
+          </div>
+        </div>
       )}
 
-      <div className="row wrap">
-        <form action={logoutOtherDevicesAction}>
-          <button className="btn" type="submit">Log out other devices</button>
-        </form>
-        <form action={logoutEverywhereAction}>
-          <button className="btn btn-danger" type="submit">Log out everywhere</button>
-        </form>
+      <div className="account-session-footer">
+        <div>
+          <strong>Need to secure the account quickly?</strong>
+          <span>Remove other sessions while keeping this browser signed in, or sign out everywhere.</span>
+        </div>
+        <div className="account-session-footer-actions">
+          <form action={logoutOtherDevicesAction}>
+            <button className="btn" type="submit">Log out other devices</button>
+          </form>
+          <form action={logoutEverywhereAction}>
+            <button className="btn btn-danger" type="submit">Log out everywhere</button>
+          </form>
+        </div>
       </div>
     </div>
   );

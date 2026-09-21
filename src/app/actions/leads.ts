@@ -197,11 +197,12 @@ async function createPendingJobForLead(args: {
   return job.id as string;
 }
 
-async function attachBookingToRecentClientJob(args: {
+async function mergeBookingIntoRecentClientLead(args: {
   admin: ReturnType<typeof createAdminClient>;
-  leadId: string;
+  bookingLeadId: string;
   email: string;
   company: string;
+  service: string;
   hours: string;
   budget: string;
   timezone: string;
@@ -213,19 +214,42 @@ async function attachBookingToRecentClientJob(args: {
     .from("lead_intake")
     .select("id,job_id,company")
     .ilike("email", args.email)
+    .eq("lead_type", "client_hiring")
     .not("job_id", "is", null)
-    .neq("id", args.leadId)
+    .is("discovery_scheduled_at", null)
+    .neq("id", args.bookingLeadId)
     .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(10);
 
   const companyKey = args.company.trim().toLowerCase();
-  const related = (candidates || []).find((row: any) => String(row.company || "").trim().toLowerCase() === companyKey);
+  const related = (candidates || []).find(
+    (row: any) => String(row.company || "").trim().toLowerCase() === companyKey,
+  );
   if (!related?.job_id) return null;
+
+  if (args.clientId) {
+    const { error: clientError } = await args.admin
+      .from("lead_intake")
+      .update({ client_id: args.clientId })
+      .eq("id", args.bookingLeadId);
+    if (clientError) throw clientError;
+  }
+
+  const { data: mergedLeadId, error: mergeError } = await args.admin.rpc(
+    "merge_discovery_booking_lead",
+    {
+      canonical_lead_id: related.id,
+      booking_lead_id: args.bookingLeadId,
+    },
+  );
+  if (mergeError) throw mergeError;
 
   const rates = rateRangeFromBudget(args.budget);
   const hoursPerWeek = inferHours(args.hours);
   const { error: jobError } = await args.admin.from("jobs").update({
+    title: args.service,
+    company_name: args.company,
     ...(hoursPerWeek ? { hours_per_week: hoursPerWeek } : {}),
     min_hourly_rate: rates.min,
     max_hourly_rate: rates.max,
@@ -234,13 +258,10 @@ async function attachBookingToRecentClientJob(args: {
   }).eq("id", related.job_id);
   if (jobError) throw jobError;
 
-  const { error: leadError } = await args.admin.from("lead_intake").update({
-    job_id: related.job_id,
-    client_id: args.clientId || null,
-  }).eq("id", args.leadId);
-  if (leadError) throw leadError;
-
-  return related.job_id as string;
+  return {
+    leadId: String(mergedLeadId || related.id),
+    jobId: String(related.job_id),
+  };
 }
 
 async function resolveRequestedVaId(admin: ReturnType<typeof createAdminClient>, talent?: string | null) {
@@ -868,24 +889,29 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
   }
 
+  let leadId = lead.id as string;
   let jobId: string | null = null;
   try {
     const clientId = await currentClientId();
-    jobId = await attachBookingToRecentClientJob({
+    const merged = await mergeBookingIntoRecentClientLead({
       admin,
-      leadId: lead.id,
+      bookingLeadId: leadId,
       email: parsed.data.email,
       company: parsed.data.company,
+      service: parsed.data.service,
       hours: parsed.data.hours,
       budget: parsed.data.budget,
       timezone: parsed.data.timezone,
       startTime: parsed.data.start_time,
       clientId,
     });
-    if (!jobId) {
+    if (merged) {
+      leadId = merged.leadId;
+      jobId = merged.jobId;
+    } else {
       jobId = await createPendingJobForLead({
         admin,
-        leadId: lead.id,
+        leadId,
         clientId,
         title: parsed.data.service,
         service: parsed.data.service,
@@ -898,8 +924,8 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       });
     }
   } catch (jobError) {
-    console.error("[booking] Could not create pending job draft", {
-      leadId: lead.id,
+    console.error("[booking] Could not create or merge pending job draft", {
+      leadId,
       error: jobError instanceof Error ? jobError.message : String(jobError),
     });
   }
@@ -907,14 +933,14 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   await admin.from("analytics_events").insert({
     event_name: "booking_completed",
     path: "/book-client-call",
-    metadata: { lead_id: lead.id, job_id: jobId, service: parsed.data.service, audience: "client" },
+    metadata: { lead_id: leadId, job_id: jobId, service: parsed.data.service, audience: "client" },
   });
 
   const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
   const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
   try {
     await sendPublicDiscoveryBookingEmail({
-      leadId: lead.id,
+      leadId,
       to: parsed.data.email,
       clientName: parsed.data.name,
       company: parsed.data.company,
@@ -939,7 +965,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
 
   try {
     await sendInternalDiscoveryBookingNotificationEmail({
-      leadId: lead.id,
+      leadId,
       clientName: parsed.data.name,
       clientEmail: parsed.data.email,
       company: parsed.data.company,

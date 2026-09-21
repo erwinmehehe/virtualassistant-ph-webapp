@@ -10,17 +10,29 @@ test("homepage talent photos are clipped to clean 72px circles", async () => {
   assert.match(css, /\.hs-talent-top \.avatar img \{[\s\S]*width: 100%;[\s\S]*height: 100%;[\s\S]*border-radius: 50%;[\s\S]*object-fit: cover;/);
 });
 
-test("every public discovery booking sends Jervis a dedicated internal alert", async () => {
+test("every public discovery booking sends both booking owners the full internal brief", async () => {
   const [email, action] = await Promise.all([
     read("src/lib/email.ts"),
     read("src/app/actions/leads.ts"),
   ]);
 
-  assert.match(email, /const JERVIS_BOOKING_EMAIL = "jrvsaccad@gmail\.com"/);
+  assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
+  assert.match(email, /erwinvalles20@gmail\.com/);
+  assert.match(email, /jrvsaccad@gmail\.com/);
   assert.match(email, /export async function sendInternalDiscoveryBookingNotificationEmail/);
-  assert.match(email, /"discovery_booking_internal_jervis", \{[\s\S]*archive: false,[\s\S]*priority: "critical",[\s\S]*idempotencyKey: \`booking-internal-\$\{args\.leadId\}\`/);
+  assert.match(email, /Role<\/td>/);
+  assert.match(email, /Hours<\/td>/);
+  assert.match(email, /VA budget<\/td>/);
+  assert.match(email, /Preferred start<\/td>/);
+  assert.match(email, /What the VA should own/);
+  assert.match(email, /"discovery_booking_internal_team", \{[\s\S]*archive: false,[\s\S]*priority: "critical",[\s\S]*idempotencyKey: `booking-internal-\$\{args\.leadId\}`/);
   assert.match(action, /await sendInternalDiscoveryBookingNotificationEmail\(\{/);
   assert.match(action, /leadId: lead\.id/);
+  assert.match(action, /service: parsed\.data\.service/);
+  assert.match(action, /hours: parsed\.data\.hours/);
+  assert.match(action, /budget: parsed\.data\.budget/);
+  assert.match(action, /startTime: parsed\.data\.start_time/);
+  assert.match(action, /message: parsed\.data\.message/);
   assert.match(action, /meetingUrl: meeting\?\.joinUrl \|\| null/);
   assert.match(action, /manageUrl: bookingManageUrl\(manage\.token\)/);
 });

@@ -142,11 +142,6 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <input type="hidden" name="timezone" value={displayTimeZone} />
           <input type="hidden" name="phone" value="" />
           <input type="hidden" name="company_url" value="" />
-          <input type="hidden" name="service" value="Virtual Assistant hiring" />
-          <input type="hidden" name="hours" value="To discuss on the call" />
-          <input type="hidden" name="budget" value="To discuss on the call" />
-          <input type="hidden" name="start_time" value="To discuss on the call" />
-          <input type="hidden" name="message" value="Client booked a discovery call. Role details will be confirmed during the conversation." />
           <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
           <div className="booking-section">
@@ -193,13 +188,27 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                 <div className="booking-question-grid">
                   <div className="field"><label htmlFor="booking-name">Your name *</label><input id="booking-name" name="name" required minLength={2} autoComplete="name" /></div>
                   <div className="field"><label htmlFor="booking-email">Work email *</label><input id="booking-email" name="email" required type="email" autoComplete="email" /></div>
-                  <div className="field"><label htmlFor="booking-company">Company *</label><input id="booking-company" name="company" required minLength={2} autoComplete="organization" /></div>
+                  <div className="field span-2"><label htmlFor="booking-company">Company *</label><input id="booking-company" name="company" required minLength={2} autoComplete="organization" /></div>
+                </div>
+
+                <div className="booking-section-title booking-brief-title">
+                  <span>Hiring brief</span>
+                  <h3>Give us enough to prepare the role before the call</h3>
+                  <p>These answers create a private pending job draft for recruiter review. Nothing is published automatically.</p>
+                </div>
+
+                <div className="booking-question-grid">
+                  <div className="field span-2"><label htmlFor="booking-role">Role you need to hire *</label><input id="booking-role" name="service" required minLength={3} maxLength={100} placeholder="e.g. Dental Virtual Assistant, Executive Assistant, SEO Virtual Assistant" /></div>
+                  <div className="field"><label htmlFor="booking-hours">Hours per week *</label><input id="booking-hours" name="hours" required type="number" min={1} max={80} step={1} inputMode="numeric" placeholder="20" /></div>
+                  <div className="field"><label htmlFor="booking-budget">Hourly VA budget (USD) *</label><input id="booking-budget" name="budget" required minLength={1} maxLength={100} placeholder="e.g. $8-$12/hour" /></div>
+                  <div className="field span-2"><label htmlFor="booking-start">Preferred start *</label><select id="booking-start" name="start_time" required defaultValue=""><option value="" disabled>Select when you want the VA to start</option><option value="As soon as possible">As soon as possible</option><option value="Within 2 weeks">Within 2 weeks</option><option value="Within 30 days">Within 30 days</option><option value="Within 1-2 months">Within 1-2 months</option><option value="Flexible">Flexible</option></select></div>
+                  <div className="field span-2"><label htmlFor="booking-responsibilities">What should this VA own? *</label><textarea id="booking-responsibilities" name="message" required minLength={15} maxLength={3000} placeholder="List the main responsibilities, workflows, tools, or outcomes you want this person to own." /></div>
                 </div>
 
                 <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
                   Confirm this time
                 </button>
-                <p className="small muted booking-consent">We only need your contact details here. We will confirm the role, schedule, and priorities together on the call.</p>
+                <p className="small muted booking-consent">We use this brief to prepare a private job draft and the discovery call. Your recruiter can refine schedule overlap, tools, must-have experience, and final scope with you before anything is published.</p>
               </>
             ) : (
               <div className="booking-no-slots">No online times are currently available. Please use the hiring request form and our team will contact you.</div>

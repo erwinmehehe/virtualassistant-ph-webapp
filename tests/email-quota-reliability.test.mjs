@@ -38,7 +38,7 @@ test("dedicated discovery runner claims each reminder before sending", async () 
   assert.match(route, /claimDiscoveryReminder/);
   assert.match(route, /releaseDiscoveryReminderClaim/);
   const claimIndex = route.indexOf("claimDiscoveryReminder");
-  const sendIndex = route.indexOf("sendDiscoveryReminderEmail");
+  const sendIndex = route.indexOf("await sendDiscoveryReminderEmail");
   assert.ok(claimIndex >= 0 && sendIndex > claimIndex, "claim helper must be defined before send use");
   assert.match(route, /leadId: lead\.id/);
 });

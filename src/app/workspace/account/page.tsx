@@ -458,10 +458,10 @@ export default async function AccountSettingsPage({
 
                   <div className="account-setting-row">
                     <div className="account-setting-copy">
-                      <strong>New-login alerts</strong>
-                      <small>We email you when a successful sign-in uses a browser/device combination we have not seen recently.</small>
+                      <strong>New sign-in tracking</strong>
+                      <small>Successful sign-ins are recorded in your security activity so you can review devices without consuming email quota.</small>
                     </div>
-                    <span className="account-mandatory-badge"><ShieldCheck size={14} /> Always on</span>
+                    <span className="account-mandatory-badge"><ShieldCheck size={14} /> Recorded</span>
                   </div>
                 </section>
 

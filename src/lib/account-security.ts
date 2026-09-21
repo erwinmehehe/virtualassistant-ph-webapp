@@ -5,8 +5,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseAccountDevice } from "@/lib/account-device";
-import { sendNewLoginSecurityEmail } from "@/lib/email";
-import { siteOrigin } from "@/lib/seo-url";
 
 export type SecurityEventType =
   | "login_succeeded"
@@ -139,7 +137,6 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
   const sessionId = claimsSessionId(claimsData?.claims);
   const device = parseAccountDevice(requestContext.userAgent);
   const admin = createAdminClient();
-  const occurredAt = new Date().toISOString();
   const seenSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: recentLogins } = await admin
@@ -158,8 +155,6 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
       : {};
     return metadata.device_key === device.deviceKey;
   });
-  const shouldAlert = loginHistory.length > 0 && !recognized;
-
   await admin.from("account_security_events").insert({
     user_id: args.userId,
     event_type: "login_succeeded",
@@ -180,25 +175,7 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
     },
   });
 
-  if (shouldAlert && args.email) {
-    try {
-      await sendNewLoginSecurityEmail({
-        to: args.email,
-        fullName: args.fullName,
-        browser: device.browser,
-        os: device.os,
-        device: device.device,
-        location: approximateLocationLabel(requestContext.location),
-        ip: requestContext.ip,
-        occurredAt,
-        reviewUrl: `${siteOrigin()}/workspace/account?tab=security`,
-        alertKey: `${args.userId}-${device.deviceKey}-${occurredAt.slice(0, 10)}`,
-      });
-    } catch {
-      // A security-email outage must not block a valid sign-in.
-    }
-  }
-}
+
 
 export async function getAccountSecurityState(): Promise<AccountSecurityState> {
   const supabase = await createClient();

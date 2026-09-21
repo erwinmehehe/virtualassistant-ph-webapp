@@ -25,6 +25,16 @@ test("human-written client follow-ups keep archive copying opt-in", () => {
   assert.match(email, /"client_followup", \{ archive: false/);
 });
 
+test("human-written client follow-ups expose an explicit archive opt-in", () => {
+  const action = source("src/app/actions/recruiter.ts");
+  const page = source("src/app/workspace/recruiter/leads/page.tsx");
+
+  assert.match(action, /formData\.get\("archive_copy"\) === "1"/);
+  assert.match(action, /archiveCopy/);
+  assert.match(page, /name="archive_copy"/);
+  assert.match(page, /hidden archive copy/);
+});
+
 test("password reset and account confirmation remain recipient-only", () => {
   const email = source("src/lib/email.ts");
   const auth = source("src/app/actions/auth.ts");

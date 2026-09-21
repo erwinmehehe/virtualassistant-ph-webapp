@@ -988,6 +988,17 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const dashboardOnly = [args.subject, args.heading, args.body].some((value) => /shortlist presented|matched VA profiles? (?:were )?presented|^job published:|^job closed:|daily recruiter reminder digest/i.test(value.trim()));
+  if (dashboardOnly) {
+    await logEmailEvent("transactional_event", [recipient], "suppressed", null, "Routine workspace state change kept in-app to preserve email quota.", {
+      priority: args.priority || "low",
+      idempotencyKey: args.idempotencyKey || null,
+      recipientCount: 1,
+      skipReason: "dashboard_only",
+      automation: "transactional_event",
+    });
+    return { sent: false as const, reason: "dashboard_only" };
+  }
   const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
   const bodyHtml = `<p style="margin:0;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p>`;
   const delivery = await trackedSend(config, {
@@ -1016,33 +1027,17 @@ export async function sendStaffDailyDigestEmail(args: {
   appUrl: string;
   items: Array<{ title: string; body: string; href?: string | null }>;
 }) {
-  const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient || !args.items.length) {
-    return { sent: false as const, reason: !recipient ? "invalid_recipient" : !args.items.length ? "empty_digest" : "email_not_configured" };
+  if (recipient) {
+    await logEmailEvent("staff_daily_digest", [recipient], "suppressed", null, "Routine recruiter/admin reminders stay in the dashboard to preserve email quota.", {
+      priority: "low",
+      idempotencyKey: `staff-digest-${args.userId}-${args.dateKey}`,
+      recipientCount: 1,
+      skipReason: "dashboard_only",
+      automation: "staff_daily_digest",
+    });
   }
-  const items = args.items.slice(0, 20);
-  const base = args.appUrl.replace(/\/$/, "");
-  const textItems = items.map((item, index) => `${index + 1}. ${item.title} — ${item.body}${item.href ? ` (${base}${item.href})` : ""}`).join("\n");
-  const bodyHtml = `<p style="margin:0 0 16px;color:#344054;font-size:15px;line-height:1.7;">You have ${items.length} recruiter/admin reminder${items.length === 1 ? "" : "s"} waiting in your workspace.</p><ol style="margin:0;padding-left:22px;color:#344054;">${items.map((item) => `<li style="margin:0 0 12px;"><strong>${escapeHtml(item.title)}</strong><br><span>${escapeHtml(item.body)}</span>${item.href ? `<br><a href="${escapeHtml(base + item.href)}" style="color:#4f46e5;">Open item</a>` : ""}</li>`).join("")}</ol>`;
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    subject: `Daily recruiter reminder digest — ${items.length} item${items.length === 1 ? "" : "s"}`,
-    text: `Your VirtualAssistant.com.ph reminder digest:\n\n${textItems}`,
-    html: renderBrandedEmail({
-      firstName: "there",
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Operations",
-      teamLabel: "Daily reminder digest",
-      footerText: "Recruiter and admin reminders stay in-app by default. This is the single daily summary."
-    })
-  }, "staff_daily_digest", {
-    archive: false,
-    priority: "low",
-    idempotencyKey: `staff-digest-${args.userId}-${args.dateKey}`
-  });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return { sent: false as const, reason: "dashboard_only" };
 }
 
 export async function sendProfileCompletionReminderEmail(args: { to: string; fullName?: string | null; score: number; missing: string[]; appUrl: string }) {

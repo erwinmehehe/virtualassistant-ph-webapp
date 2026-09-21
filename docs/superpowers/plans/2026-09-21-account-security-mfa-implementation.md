@@ -489,6 +489,7 @@ export async function logoutOtherDevicesAction() {
 }
 
 export async function logoutEverywhereAction() {
+  await requireSensitiveAal2("/workspace/account?tab=security");
   const supabase = await createClient();
   await recordSecurityEvent({ eventType: "logout_all" });
   await supabase.auth.signOut({ scope: "global" });
@@ -658,6 +659,7 @@ export function TotpManager({ onVerified }: { onVerified?: () => void }) {
       qrCode: data.totp.qr_code,
       secret: data.totp.secret,
     });
+    await confirmMfaEnrollmentStartedAction(data.id);
   }
 
   async function verifyEnrollment() {
@@ -698,6 +700,8 @@ export async function removeTotpFactorAction(formData: FormData) {
   redirect("/workspace/account?tab=security");
 }
 ```
+
+Add `confirmMfaEnrollmentStartedAction(factorId)`, which verifies the current user owns an unverified TOTP factor with that ID before recording `totp_enrollment_started`.
 
 After successful client verification, call a narrow server action `confirmMfaEnabledAction()` that verifies current AAL is now `aal2` and at least one verified TOTP factor exists before recording `totp_enabled`.
 
@@ -899,6 +903,7 @@ git commit -m "feat: add TOTP challenge flow"
 
 **Files:**
 - Modify: `src/lib/auth.ts`
+- Create: `src/lib/password-policy.ts`
 - Modify: `src/app/actions/auth.ts`
 - Modify: `src/app/auth/callback/route.ts`
 - Modify: `src/app/auth/confirm/route.ts`
@@ -1034,7 +1039,8 @@ Add `changePasswordFromAccountAction(formData)` in `src/app/actions/account-secu
 export async function changePasswordFromAccountAction(formData: FormData) {
   await requireSensitiveAal2("/workspace/account?tab=account");
   const password = String(formData.get("password") || "");
-  // use the same exported password policy helper as signup/recovery
+  const parsedPassword = newPasswordSchema.safeParse(password);
+  if (!parsedPassword.success) throw new Error("Password does not meet the account security requirements.");
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) throw new Error("Could not update password.");
@@ -1043,7 +1049,9 @@ export async function changePasswordFromAccountAction(formData: FormData) {
 }
 ```
 
-Refactor the existing password validation into an exported server-safe helper so signup, recovery, and Account Settings use one rule.
+Move `COMMON_PASSWORD_PARTS` and `newPasswordSchema` out of the `"use server"` action module into `src/lib/password-policy.ts` and import them from both `src/app/actions/auth.ts` and `src/app/actions/account-security.ts`. Do not export a schema or other non-async value from a `"use server"` file.
+
+Replace the Account tab's temporary "Change password" link with a form wired to `changePasswordFromAccountAction`; keep the recovery page and `updatePasswordAction` as the separate lost-password flow.
 
 - [ ] **Step 9: Run targeted and full verification**
 
@@ -1059,7 +1067,7 @@ Expected: all PASS.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add src/lib/auth.ts src/app/actions/auth.ts src/app/actions/account-security.ts src/app/auth/callback/route.ts src/app/auth/confirm/route.ts src/app/workspace/*/layout.tsx tests/mfa-role-enforcement.test.mjs
+git add src/lib/auth.ts src/lib/password-policy.ts src/app/actions/auth.ts src/app/actions/account-security.ts src/app/auth/callback/route.ts src/app/auth/confirm/route.ts src/app/workspace/account/page.tsx src/app/workspace/*/layout.tsx tests/mfa-role-enforcement.test.mjs
 git commit -m "feat: enforce MFA by account role"
 ```
 
@@ -1203,6 +1211,8 @@ test("security events are written from trusted auth actions without browser-supp
     read("src/app/actions/account-security.ts"),
   ]);
   assert.match(auth, /login_succeeded/);
+  assert.match(auth, /login_failed/);
+  assert.match(account, /totp_enrollment_started/);
   assert.match(account, /logout_current|logout_others|logout_all/);
   assert.doesNotMatch(account, /formData\.get\("ip"\)/);
   assert.doesNotMatch(account, /formData\.get\("user_id"\)/);
@@ -1291,7 +1301,7 @@ select count(*) from public.account_security_events;
 select routine_name
 from information_schema.routines
 where routine_schema='public'
-  and routine_name in ('list_own_auth_sessions','revoke_own_auth_session');
+  and routine_name in ('list_own_auth_sessions','revoke_own_auth_session','lookup_auth_user_id_by_email');
 ```
 
 Expected: table and both RPCs exist.
@@ -1317,7 +1327,7 @@ For each internal staff account:
 5. Add a backup authenticator where practical.
 6. Confirm session row shows AAL2.
 
-Do not enable mandatory enforcement until every active Admin and Recruiter has at least one verified factor.
+Do not enable mandatory enforcement until every active Admin and Recruiter has at least one verified factor. The rollout runbook must also document a break-glass recovery path using the Supabase project-owner/admin tooling if all in-app Admin accounts simultaneously lose every TOTP factor; this path must never be exposed as an AAL1 in-app button.
 
 - [ ] **Step 4: Enable staff enforcement**
 

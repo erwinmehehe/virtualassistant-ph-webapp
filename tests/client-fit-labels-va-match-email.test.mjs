@@ -9,7 +9,6 @@ const compare = fs.readFileSync("src/app/workspace/client/compare/page.tsx", "ut
 const job = fs.readFileSync("src/app/workspace/client/jobs/[id]/page.tsx", "utf8");
 const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const matchingLib = fs.readFileSync("src/lib/matching.ts", "utf8");
-const matchEmail = fs.readFileSync("src/lib/match-email.ts", "utf8");
 
 const clientCandidateSurfaces = [sharedCandidateCard, candidate, compare];
 
@@ -37,13 +36,11 @@ test("client fit vocabulary is limited to strong good and potential", () => {
   assert.doesNotMatch(helper, /Review fit/);
 });
 
-test("VA match alert only fires for newly released good-or-better matches", () => {
+test("newly released good-or-better VA matches notify in-app without consuming email quota", () => {
   assert.match(matchingAction, /mode === "release"/);
   assert.match(matchingAction, /row\.match_score >= 60/);
   assert.match(matchingAction, /existingMap\.get\(row\.va_id\) !== "released"/);
-  assert.match(matchingAction, /sendVaMatchEmail/);
   assert.match(matchingAction, /A client role may be a good fit/);
-  assert.match(matchEmail, /This is not yet an interview or job offer/);
-  assert.match(matchEmail, /va_match_alert/);
-  assert.match(matchEmail, /workspace\/va\/profile/);
+  assert.match(matchingAction, /admin\.from\("notifications"\)\.insert/);
+  assert.doesNotMatch(matchingAction, /sendVaMatchEmail/);
 });

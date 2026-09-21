@@ -74,12 +74,17 @@ test("client booking stays two steps but requires a job-ready minimum brief", as
   assert.match(action, /Tell us the actual role you need to hire/);
   assert.match(action, /Hours per week must be between 1 and 80/);
   assert.match(action, /Enter an hourly VA budget of at least USD/);
-  assert.match(action, /attachBookingToRecentClientJob/);
+  assert.match(action, /mergeBookingIntoRecentClientLead/);
   assert.match(action, /\.ilike\("email", args\.email\)/);
+  assert.match(action, /\.eq\("lead_type", "client_hiring"\)/);
+  assert.match(action, /\.is\("discovery_scheduled_at", null\)/);
   assert.match(action, /String\(row\.company \|\| ""\)\.trim\(\)\.toLowerCase\(\) === companyKey/);
+  assert.match(action, /admin\.rpc\([\s\S]*"merge_discovery_booking_lead"/);
+  assert.match(action, /leadId = merged\.leadId/);
+  assert.match(action, /jobId = merged\.jobId/);
   assert.match(action, /jobId = await createPendingJobForLead/);
   assert.match(action, /title: parsed\.data\.service/);
-  assert.match(action, /metadata: \{ lead_id: lead\.id, job_id: jobId/);
+  assert.match(action, /metadata: \{ lead_id: leadId, job_id: jobId/);
 });
 
 test("floating call prompt is restricted to high-intent behavior", async () => {
@@ -151,4 +156,21 @@ test("recruiter dashboard shows all upcoming discovery calls for the next seven 
   assert.match(dashboard, /\.gte\("discovery_scheduled_at", nowIso\)/);
   assert.match(dashboard, /\.lt\("discovery_scheduled_at", nextWeekIso\)/);
   assert.doesNotMatch(dashboard.match(/\.from\("lead_intake"\)[\s\S]*?\.limit\(8\)/)?.[0] || "", /owner_id/);
+});
+
+
+test("discovery booking lead merge is atomic and server-only", async () => {
+  const migration = await read("supabase/migrations/20260921180500_merge_discovery_booking_duplicates.sql");
+
+  assert.match(migration, /create or replace function public\.merge_discovery_booking_lead/);
+  assert.match(migration, /for update/);
+  assert.match(migration, /Canonical lead already has a discovery booking/);
+  assert.match(migration, /Booking lead has no discovery slot/);
+  assert.match(migration, /discovery_scheduled_at = null/);
+  assert.match(migration, /discovery_manage_token_hash = null/);
+  assert.match(migration, /update public\.jobs[\s\S]*set lead_id = canonical_lead_id/);
+  assert.match(migration, /update public\.lead_proposals[\s\S]*set lead_id = canonical_lead_id/);
+  assert.match(migration, /delete from public\.lead_intake[\s\S]*booking_lead_id/);
+  assert.match(migration, /grant execute on function public\.merge_discovery_booking_lead\(uuid, uuid\) to service_role/);
+  assert.match(migration, /revoke all on function public\.merge_discovery_booking_lead\(uuid, uuid\) from public, anon, authenticated/);
 });

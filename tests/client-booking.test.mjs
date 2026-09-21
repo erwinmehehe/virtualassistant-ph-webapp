@@ -85,7 +85,7 @@ test("floating call prompt is restricted to high-intent behavior", async () => {
   assert.match(cta, /isHighIntentPath/);
 });
 
-test("client booking prevents slot conflicts, records CRM state, and privately notifies both booking owners", async () => {
+test("client booking prevents slot conflicts, records CRM state, and privately notifies Jervis while the dashboard covers all meetings", async () => {
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
@@ -97,8 +97,8 @@ test("client booking prevents slot conflicts, records CRM state, and privately n
   assert.match(migration, /create unique index/);
   assert.match(migration, /discovery_scheduled_at/);
   assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
-  assert.match(email, /erwinvalles20@gmail\.com/);
   assert.match(email, /jrvsaccad@gmail\.com/);
+  assert.match(email, /email\.toLowerCase\(\) !== "erwinvalles20@gmail\.com"/);
   assert.match(email, /"discovery_booking_internal_team"/);
   assert.doesNotMatch(email, /Jervis or Bryan will add the meeting link/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);
@@ -127,4 +127,13 @@ test("discovery bookings support Google Meet, reminders, self-service changes, a
     assert.match(recruiter, new RegExp(outcome));
     assert.match(migration, new RegExp(outcome));
   }
+});
+
+
+test("recruiter agenda shows all active discovery bookings, not only the assigned owner", async () => {
+  const agenda = await read("src/app/workspace/recruiter/agenda/page.tsx");
+  const discoveryQuery = agenda.match(/admin\.from\("lead_intake"\)[\s\S]*?\.order\("discovery_scheduled_at"\)/)?.[0] || "";
+  assert.match(discoveryQuery, /discovery_scheduled_at/);
+  assert.doesNotMatch(discoveryQuery, /\.eq\("owner_id",userId\)/);
+  assert.match(agenda, /All active discovery calls/);
 });

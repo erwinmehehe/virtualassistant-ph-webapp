@@ -53,7 +53,7 @@ test("dedicated discovery runner claims each reminder before sending", async () 
   assert.match(route, /RETRIABLE_EMAIL_REASONS\.has\(result\.reason\)/);
 });
 
-test("recruiter and admin workflow reminders stay in-app and get one daily digest", async () => {
+test("recruiter and admin workflow reminders stay in-app without a daily email digest", async () => {
   const [maintenance, email] = await Promise.all([
     read("src/app/api/cron/maintenance/route.ts"),
     read("src/lib/email.ts"),
@@ -61,8 +61,10 @@ test("recruiter and admin workflow reminders stay in-app and get one daily diges
 
   assert.match(maintenance, /email\?: boolean/);
   assert.match(maintenance, /if \(!args\.email\) return true/);
-  assert.match(maintenance, /runStaffReminderDigest/);
-  assert.match(email, /sendStaffDailyDigestEmail/);
+  assert.doesNotMatch(maintenance, /runStaffReminderDigest/);
+  assert.doesNotMatch(maintenance, /staffReminderDigest:/);
+  assert.match(email, /Routine recruiter\/admin reminders stay in the dashboard to preserve email quota/);
+  assert.match(email, /reason: "dashboard_only"/);
 });
 
 test("email health shows recipient-based quota and prevented-send counters", async () => {

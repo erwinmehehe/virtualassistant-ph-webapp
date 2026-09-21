@@ -3,6 +3,7 @@ import { BriefcaseBusiness, CheckCircle2, UserRoundCheck } from "lucide-react";
 import { joinAction, oauthAction } from "@/app/actions/auth";
 import { googleLoginEnabled, microsoftLoginEnabled } from "@/lib/social-login";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { JoinSubmitButton } from "@/components/join-submit-button";
 
 export function JoinAccountForm({
   role,
@@ -73,9 +74,9 @@ export function JoinAccountForm({
       {next ? <input type="hidden" name="next" value={next}/> : null}
       <div className="field"><label htmlFor={`${role}-full-name`}>Full name</label><input id={`${role}-full-name`} name="full_name" required minLength={2} autoComplete="name"/></div>
       <div className="field"><label htmlFor={`${role}-email`}>{client ? "Work email" : "Email"}</label><input id={`${role}-email`} type="email" name="email" required autoComplete="email"/></div>
-      <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={12} required autoComplete="new-password"/><span className="small muted">12+ characters with uppercase, lowercase, a number, and a symbol. Avoid common password phrases.</span></div>
+      <div className="field"><label htmlFor={`${role}-password`}>Password</label><input id={`${role}-password`} type="password" name="password" minLength={12} maxLength={128} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,128}" title="Use 12+ characters with uppercase, lowercase, a number, and a symbol." required autoComplete="new-password"/><span className="small muted">12+ characters with uppercase, lowercase, a number, and a symbol. Avoid common password phrases.</span></div>
       <TurnstileWidget/>
-      <button className="btn btn-primary btn-lg" type="submit">{client ? "Create client account" : "Create VA account"}</button>
+      <JoinSubmitButton role={role}/>
       {!client ? <span className="small muted">Next: a short VA quick setup. You can finish the longer profile in stages.</span> : null}
     </form>
 

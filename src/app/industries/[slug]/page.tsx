@@ -22,6 +22,7 @@ import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
 import { titleCaseWithAcronyms } from "@/lib/content-language";
+import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -62,9 +63,12 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const spokes = INDUSTRIES.filter((i) => i.clusterSlug === page.slug);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/industries/${page.slug}`;
-  const category = services[0]?.directoryCategory || "Administrative Support";
-  const hireHref = `/hire?category=${encodeURIComponent(category)}`;
-  const talentHref = `/find-talent?category=${encodeURIComponent(category)}`;
+  const talentFilters = industryTalentFilters(page.slug);
+  const talentParams = new URLSearchParams();
+  talentParams.set("category", talentFilters.category);
+  talentParams.set("q", talentFilters.query);
+  const hireHref = `/hire?category=${encodeURIComponent(talentFilters.category)}`;
+  const talentHref = `/find-talent?${talentParams.toString()}`;
   const seoTitle = industrySeoTitle(page);
   const seoDescription = industryMetaDescription(page);
   // SEO title and visible H1 have different jobs. Keep the SERP title concise,

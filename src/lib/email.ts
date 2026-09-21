@@ -137,11 +137,11 @@ async function trackedSend(
   config: NonNullable<ReturnType<typeof resendConfig>>,
   payload: any,
   eventType: string,
-  options?: { archive?: boolean; teamCc?: boolean }
+  options?: { archive?: boolean; teamCc?: boolean; allowSuppressionLookupFailure?: boolean }
 ) {
   // Internal archive/team copies are always hidden from external recipients.
   // Security-sensitive messages can still opt out with archive:false/teamCc:false.
-  const archiveBcc = options?.archive === false ? undefined : archiveExtraFor(payload);
+  const archiveBcc = options?.archive === true ? archiveExtraFor(payload) : undefined;
   const rawTo = normalizeEmailList(payload.to).filter((email) => !isBlockedEmailRecipient(email));
   const hasExternalRecipient = rawTo.some((email) => !isPrivateInternalEmail(email));
 
@@ -160,7 +160,7 @@ async function trackedSend(
     hiddenInternalFromTo,
     hiddenInternalFromCc,
     archiveBcc,
-    options?.teamCc === false ? [] : teamBccRecipients
+    options?.teamCc === true ? teamBccRecipients : []
   ]).filter((email) => !isBlockedEmailRecipient(email));
   const toSet = new Set(to.map((email) => email.toLowerCase()));
   const cc = requestedCc.filter((email) => !toSet.has(email.toLowerCase()));
@@ -174,14 +174,29 @@ async function trackedSend(
 
   const suppressionCheck = [...new Set([...to, ...cc, ...bcc].map((email) => email.toLowerCase()))];
   let suppressed = new Set<string>();
+  let suppressionError: unknown = null;
   if (suppressionCheck.length) {
     try {
-      const { data } = await createAdminClient().from("email_suppressions").select("email").in("email", suppressionCheck);
-      suppressed = new Set((data || []).map((row: any) => String(row.email).toLowerCase()));
-    } catch {
-      // Suppression lookup must not break transactional mail if the registry is unavailable.
+      const { data, error } = await createAdminClient()
+        .from("email_suppressions")
+        .select("email")
+        .in("email", suppressionCheck);
+      if (error) suppressionError = error;
+      else suppressed = new Set((data || []).map((row: any) => String(row.email).toLowerCase()));
+    } catch (error) {
+      suppressionError = error;
     }
   }
+  if (suppressionError && !options?.allowSuppressionLookupFailure) {
+    await logEmailEvent(eventType, suppressionCheck, "failed", null, "Suppression check unavailable.");
+    return {
+      sent: false as const,
+      data: null,
+      suppressed: false,
+      reason: "suppression_check_unavailable" as const,
+    };
+  }
+
   const safeTo = to.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeCc = cc.filter((email) => !suppressed.has(email.toLowerCase()));
   const safeBcc = bcc.filter((email) => !suppressed.has(email.toLowerCase()));
@@ -219,7 +234,6 @@ export async function sendApplicationEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    bcc: applicationBccRecipients.filter((email) => email.toLowerCase() !== args.to?.toLowerCase()),
     subject: `New application: ${args.jobTitle}`,
     html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
   }, "new_application");
@@ -453,7 +467,7 @@ export async function sendAccountConfirmationEmail(args: { to: string; actionUrl
       ctaHref: args.actionUrl,
       ctaLabel: "Confirm my email"
     })
-  }, "account_confirmation", { archive: false, teamCc: false });
+  }, "account_confirmation", { archive: false, teamCc: false, allowSuppressionLookupFailure: true });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -472,7 +486,7 @@ export async function sendPasswordRecoveryEmail(args: { to: string; actionUrl: s
       ctaHref: args.actionUrl,
       ctaLabel: "Reset my password"
     })
-  }, "password_recovery", { archive: false, teamCc: false });
+  }, "password_recovery", { archive: false, teamCc: false, allowSuppressionLookupFailure: true });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -646,7 +660,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; su
       ctaHref: args.href,
       ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
     })
-  }, "transactional_event", { archive: args.archive !== false, teamCc: args.teamCc !== false && !isPasswordChangeNotice });
+  }, "transactional_event", { archive: args.archive === true, teamCc: args.teamCc === true && !isPasswordChangeNotice });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
@@ -813,7 +827,6 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    bcc: discoveryBookingBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()),
     replyTo: replyTo ? [replyTo] : undefined,
     attachments: invite ? [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }] : undefined,
     subject: `Discovery call confirmed — ${args.clientLabel}`,

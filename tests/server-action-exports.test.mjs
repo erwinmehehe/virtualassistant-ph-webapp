@@ -26,12 +26,22 @@ test('"use server" modules only expose async runtime functions', async () => {
 
     const invalidNamed = [...source.matchAll(/^\s*export\s+(const|let|var|class|enum)\s+([A-Za-z_$][\w$]*)/gm)]
       .map((match) => `${match[1]} ${match[2]}`);
+    const syncFunctions = [...source.matchAll(/^\s*export\s+function\s+([A-Za-z_$][\w$]*)/gm)]
+      .map((match) => `function ${match[1]}`);
+    const runtimeExportLists = [...source.matchAll(/^\s*export\s*\{(?!\s*type\b)([^}]+)\}/gm)]
+      .map((match) => `export { ${match[1].trim()} }`);
     const invalidDefault = /^\s*export\s+default\s+(?!async\s+function)/m.test(source);
+    const invalidExports = [
+      ...invalidNamed,
+      ...syncFunctions,
+      ...runtimeExportLists,
+      ...(invalidDefault ? ["default non-async value"] : [])
+    ];
 
-    if (invalidNamed.length || invalidDefault) {
+    if (invalidExports.length) {
       offenders.push({
         file: relative(root, file).replaceAll("\\", "/"),
-        exports: [...invalidNamed, ...(invalidDefault ? ["default non-async value"] : [])]
+        exports: invalidExports
       });
     }
   }

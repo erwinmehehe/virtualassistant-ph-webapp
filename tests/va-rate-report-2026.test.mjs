@@ -43,6 +43,7 @@ test("rate report is discoverable without competing with the commercial rate gui
 
   assert.match(routes, /lastModified: "2026-09-22"/);
   assert.match(sitemap, /route\.lastModified/);
+  assert.match(sitemap, /archiveUpdatedIso\(post\)/);
   assert.match(authority, /"average-hourly-rate-virtual-assistants-philippines": \[RATE_REPORT\]/);
   assert.match(authority, /href: "\/average-hourly-rate-virtual-assistants-philippines"/);
 });

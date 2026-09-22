@@ -47,7 +47,7 @@ test("Today command centers have focused route loading states",async()=>{
   ]){
     const source=await read(path);
     assert.match(source,/WorkspaceSkeleton/);
-    assert.match(source,/cards={4}/);
+    assert.match(source,/cards=\{4\}/);
   }
 });
 

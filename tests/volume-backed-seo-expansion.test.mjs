@@ -58,6 +58,35 @@ test("SEO expansion checker validates all eight September 22 resource families",
   assert.equal(result.invalidSeptember22ServiceMappings, 0);
 });
 
+test("generated resource URLs use correct a/an grammar and preserve legacy slugs", () => {
+  const resources = source("src/lib/seo-resource-pages.ts");
+  const redirects = source("next.config.ts");
+
+  assert.match(resources, /function articleWord\(value: string\)/);
+  assert.match(resources, /\^\[A-Z\]\{2,\}\$/);
+  assert.ok(resources.includes('definition: "what-does-" + article + "-" + cluster.slugBase + "-do"'));
+  assert.ok(resources.includes('hiring: "how-to-hire-" + article + "-" + cluster.slugBase'));
+
+  for (const slugBase of [
+    "administrative-virtual-assistant",
+    "accounting-virtual-assistant",
+    "it-virtual-assistant",
+    "email-marketing-virtual-assistant",
+    "operations-virtual-assistant",
+    "airbnb-virtual-assistant",
+  ]) {
+    for (const [legacy, canonical] of [
+      [`what-does-a-${slugBase}-do`, `what-does-an-${slugBase}-do`],
+      [`how-to-hire-a-${slugBase}`, `how-to-hire-an-${slugBase}`],
+    ]) {
+      assert.ok(
+        redirects.includes(`source: "/resources/${legacy}", destination: "/resources/${canonical}", permanent: true`),
+        `missing redirect for ${legacy}`,
+      );
+    }
+  }
+});
+
 test("volume-backed expansion leaves the homepage source untouched", () => {
   const baseRef = process.env.SEO_HOMEPAGE_BASE_REF || "origin/main";
   try {

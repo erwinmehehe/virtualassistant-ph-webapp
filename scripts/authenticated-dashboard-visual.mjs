@@ -5,7 +5,6 @@ import { chromium } from "playwright";
 const baseUrl = String(process.env.VISUAL_BASE_URL || "").replace(/\/$/, "");
 const supabaseUrl = String(process.env.SMOKE_SUPABASE_URL || "").replace(/\/$/, "");
 const anonKey = String(process.env.SMOKE_SUPABASE_ANON_KEY || "");
-const bypassSecret = String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || "");
 
 if (!baseUrl || !supabaseUrl || !anonKey) {
   throw new Error("VISUAL_BASE_URL, SMOKE_SUPABASE_URL, and SMOKE_SUPABASE_ANON_KEY are required.");
@@ -14,6 +13,7 @@ if (!baseUrl || !supabaseUrl || !anonKey) {
 const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
 const outputDir = path.resolve("artifacts/dashboard-visual");
 const roles = [
+  { role: "admin", email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin", marker: "Operations by exception" },
   { role: "recruiter", email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter", marker: "Today’s work" },
   { role: "client", email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
   { role: "va", email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }
@@ -41,7 +41,10 @@ async function signIn(email, password) {
   return session;
 }
 
-function sessionCookies(session, hostname) {
+function sessionCookies(session, baseUrlValue) {
+  const parsedBaseUrl = new URL(baseUrlValue);
+  const hostname = parsedBaseUrl.hostname;
+  const secure = parsedBaseUrl.protocol === "https:";
   const value = `base64-${Buffer.from(JSON.stringify({
     ...session,
     expires_at: session.expires_at || Math.floor(Date.now() / 1000) + Number(session.expires_in || 3600)
@@ -57,7 +60,7 @@ function sessionCookies(session, hostname) {
     domain: hostname,
     path: "/",
     httpOnly: false,
-    secure: true,
+    secure,
     sameSite: "Lax"
   }));
 }
@@ -69,10 +72,7 @@ try {
     const session = await signIn(role.email, role.password);
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
-      if (bypassSecret) {
-        await context.setExtraHTTPHeaders({ "x-vercel-protection-bypass": bypassSecret });
-      }
-      await context.addCookies(sessionCookies(session, new URL(baseUrl).hostname));
+      await context.addCookies(sessionCookies(session, baseUrl));
       const page = await context.newPage();
       const consoleErrors = [];
       page.on("console", (message) => {
@@ -92,10 +92,7 @@ try {
   for (const tab of accountTabs) {
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
-      if (bypassSecret) {
-        await context.setExtraHTTPHeaders({ "x-vercel-protection-bypass": bypassSecret });
-      }
-      await context.addCookies(sessionCookies(recruiterSession, new URL(baseUrl).hostname));
+      await context.addCookies(sessionCookies(recruiterSession, baseUrl));
       const page = await context.newPage();
       const consoleErrors = [];
       page.on("console", (message) => {

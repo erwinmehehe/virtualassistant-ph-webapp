@@ -6,7 +6,7 @@ import { dateShort } from "@/lib/format";
 import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
-import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
+import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import type { JobOptionRow, RecruiterVaDirectoryRow, VaProfileReminderRow } from "@/lib/workspace-rows";
 
 const PAGE_SIZE = 25;
@@ -21,7 +21,8 @@ function qs(params: Record<string, string | undefined>, overrides: Record<string
   for (const [key, value] of Object.entries({ ...params, ...overrides })) {
     if (value !== undefined && String(value) !== "") out.set(key, String(value));
   }
-  return `?${out.toString()}`;
+  const query = out.toString();
+  return query ? `?${query}` : "";
 }
 
 export default async function RecruiterTalentDirectory({
@@ -103,6 +104,27 @@ export default async function RecruiterTalentDirectory({
   </>;
 
   const stages = ["profile", "test", "video", "recruiter_review", "finalist", "approved", "bench", "rejected"];
+  const advancedFiltersActive = Boolean(params.photo || params.resume || params.skill || params.min_experience || params.max_rate || params.availability || params.stale);
+  const readinessLabels: Record<string, string> = {
+    zero: "Not started",
+    incomplete: `Below ${APPROVAL_MIN_COMPLETION}%`,
+    approval_ready: `Approval-ready (${APPROVAL_MIN_COMPLETION}%+)`,
+    ready: `${PUBLIC_VA_MIN_COMPLETION}%+ with photo`,
+    vetted_hidden: "Approved, not public"
+  };
+  const activeFilters = [
+    params.q ? { key: "q", label: `Search: ${params.q}` } : null,
+    params.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(params.stage)}` } : null,
+    params.readiness ? { key: "readiness", label: readinessLabels[params.readiness] || params.readiness } : null,
+    params.photo ? { key: "photo", label: params.photo === "yes" ? "Has photo" : "Missing photo" } : null,
+    params.resume ? { key: "resume", label: params.resume === "yes" ? "Has resume" : "Missing resume" } : null,
+    params.skill ? { key: "skill", label: `Skill: ${params.skill}` } : null,
+    params.min_experience ? { key: "min_experience", label: `${params.min_experience}+ yrs` } : null,
+    params.max_rate ? { key: "max_rate", label: `Up to ${params.max_rate}/hr` } : null,
+    params.availability ? { key: "availability", label: params.availability === "available" ? "Available" : "Unavailable" } : null,
+    params.stale ? { key: "stale", label: `Inactive ${params.stale}+ days` } : null
+  ].filter(Boolean) as { key: string; label: string }[];
+
 
   return <>
     <div className="page-head">
@@ -150,8 +172,9 @@ export default async function RecruiterTalentDirectory({
           <select name="readiness" defaultValue={params.readiness || ""}>
             <option value="">Any readiness</option>
             <option value="zero">Not started</option>
-            <option value="incomplete">In progress</option>
-            <option value="ready">Public-ready</option>
+            <option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option>
+            <option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option>
+            <option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option>
             <option value="vetted_hidden">Approved, not public</option>
           </select>
         </label>
@@ -159,7 +182,7 @@ export default async function RecruiterTalentDirectory({
         <Link className="filter-reset" href="/workspace/recruiter/talent"><X size={14} /> Clear</Link>
       </div>
 
-      <details className="filter-more">
+      <details className="filter-more" open={advancedFiltersActive}>
         <summary><SlidersHorizontal size={15} /><span>More filters</span><ChevronDown size={15} className="filter-more-chevron" /></summary>
         <div className="filter-more-grid">
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={params.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
@@ -171,7 +194,18 @@ export default async function RecruiterTalentDirectory({
           <label className="filter-field"><span>Max. hourly rate</span><input type="number" min="5" step="1" name="max_rate" defaultValue={params.max_rate} placeholder="USD / hr" /></label>
         </div>
       </details>
-      <div className="filter-context-note">Approval starts at {APPROVAL_MIN_COMPLETION}% profile completion. Public profiles still require a photo and all public-directory requirements.</div>
+      {activeFilters.length ? (
+        <div className="active-filter-row" aria-label="Active filters">
+          <span className="active-filter-label">{activeFilters.length} active</span>
+          {activeFilters.map((filter) => (
+            <Link key={filter.key} className="active-filter-chip" href={`/workspace/recruiter/talent${qs(params, { [filter.key]: undefined, page: 1 })}`}>
+              {filter.label}<X size={12} />
+            </Link>
+          ))}
+          <Link className="active-filter-clear" href="/workspace/recruiter/talent">Clear all</Link>
+        </div>
+      ) : null}
+      <div className="filter-context-note"><strong>{APPROVAL_MIN_COMPLETION}%</strong> is enough for recruiter approval. A photo is only required for public visibility, together with the remaining public-directory requirements.</div>
     </form>
 
     <div className="row-between wrap" style={{ margin: "16px 0" }}>
@@ -185,7 +219,7 @@ export default async function RecruiterTalentDirectory({
       <div className="bulk-action-bar">
         <label className="bulk-scope">
           <input type="checkbox" name="selection_scope" value="filtered" />
-          <span><strong>Select all {total} filtered results</strong><small>Unchecked = only row checkboxes below</small></span>
+          <span><strong>{total > 500 ? "Select first 500 filtered VAs" : `Select all ${total} filtered VAs`}</strong><small>{total > 500 ? "Narrow the filters for safer bulk actions." : "Leave off to act only on checked rows."}</small></span>
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>
@@ -201,15 +235,15 @@ export default async function RecruiterTalentDirectory({
           <option value="send_client_review">Send approved VAs to client review</option>
         </select>
         <select name="job_id" defaultValue="">
-          <option value="">Role for assignment / client review…</option>
+          <option value="">Role (only for assignment / client review)…</option>
           {((roles || []) as JobOptionRow[]).map((job) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}{job.client_id ? " · client linked" : " · internal only"}</option>)}
         </select>
-        <button className="btn btn-primary" type="submit">Apply</button>
+        <button className="btn btn-primary" type="submit">Run action</button>
       </div>
 
-      <div className="table-wrap responsive-table">
+      <div className="table-wrap responsive-table recruiter-talent-table">
         <table>
-          <thead><tr><th></th><th>VA</th><th>Stage</th><th>Readiness</th><th>Missing</th><th>Experience / rate</th><th>Activity</th><th>Reminder</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Candidate</th><th>Status</th><th>Profile health</th><th>Experience</th><th>Activity</th><th></th></tr></thead>
           <tbody>
             {rows.length ? rows.map((row) => {
               const missing = Array.isArray(row.missing_items) ? row.missing_items : [];
@@ -217,24 +251,37 @@ export default async function RecruiterTalentDirectory({
               const activity = row.last_activity_at ? Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000) : null;
               const publicNow = publicIds.has(row.user_id);
               const approved = ["approved", "bench"].includes(String(row.stage || ""));
-              const visibility = publicNow ? "Public" : approved ? (row.directory_visible ? "Blocked from public" : "Hidden") : "Private";
+              const visibility = publicNow ? "Public" : approved ? (row.directory_visible ? "Public blocked" : "Hidden") : "Private";
+              const score = row.completion_score || 0;
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
-                <td data-label="VA">
+                <td data-label="Candidate">
                   <strong>{row.full_name || "VA account"}</strong>
                   <div className="small muted">{row.headline || row.primary_category || "Profile setup not started"}</div>
-                  <div className="small muted">{row.headline || row.primary_category ? `${row.availability_status || "Not set"}` : "Availability not set yet"} · {visibility}</div>
+                  <div className="candidate-meta-line">{row.availability_status || "Availability not set"}</div>
                 </td>
-                <td data-label="Stage"><span className="badge">{vettingStatusLabel(row.stage || "profile")}</span></td>
-                <td data-label="Readiness"><div className="readiness-cell"><strong>{row.completion_score || 0}% ready</strong><div className="progress mini"><span style={{ width: `${row.completion_score || 0}%` }} /></div></div></td>
-                <td data-label="Missing"><div className="pill-list compact-pills">{missing.length ? missing.slice(0, 4).map((item: string) => <span className="badge badge-warning" key={item}>{item}</span>) : <span className="badge badge-success">Complete</span>}{missing.length > 4 ? <span className="small muted">+{missing.length - 4}</span> : null}</div></td>
-                <td data-label="Experience / rate">{row.years_experience ?? 0} yrs<div className="small muted">{row.hourly_rate ? `USD ${Number(row.hourly_rate).toFixed(2)}/hr` : "Rate missing"}</div></td>
-                <td data-label="Activity">{activity == null ? <span className="small muted">Unknown</span> : <span className={activity >= 60 ? "badge badge-warning" : "small"}><Clock3 size={13} /> {activity}d ago</span>}</td>
-                <td data-label="Reminder">{reminder?.last_sent_at ? <span className="small"><Mail size={13} /> {dateShort(reminder.last_sent_at)} · #{reminder.reminder_count}</span> : <span className="small muted">Never</span>}</td>
-                <td data-label="Action"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/candidates/${row.user_id}`}>Internal profile</Link></td>
+                <td data-label="Status">
+                  <div className="status-stack">
+                    <span className="badge">{vettingStatusLabel(row.stage || "profile")}</span>
+                    <span className={`visibility-label visibility-${visibility.toLowerCase().replaceAll(" ", "-")}`}>{visibility}</span>
+                  </div>
+                </td>
+                <td data-label="Profile health">
+                  <div className="readiness-cell">
+                    <div className="readiness-line"><strong>{score}% complete</strong>{score >= APPROVAL_MIN_COMPLETION && !approved ? <span className="approval-ready-label">Approval-ready</span> : null}</div>
+                    <div className="progress mini"><span style={{ width: `${score}%` }} /></div>
+                    <div className="profile-issues">{missing.length ? `Needs: ${missing.slice(0, 2).join(" · ")}${missing.length > 2 ? ` +${missing.length - 2}` : ""}` : "No profile gaps flagged"}</div>
+                  </div>
+                </td>
+                <td data-label="Experience">{row.years_experience ?? 0} yrs<div className="small muted">{row.hourly_rate ? `USD ${Number(row.hourly_rate).toFixed(2)}/hr` : "Rate missing"}</div></td>
+                <td data-label="Activity">
+                  {activity == null ? <span className="small muted">Activity unknown</span> : <span className={activity >= 60 ? "activity-stale" : "small"}><Clock3 size={13} /> {activity}d ago</span>}
+                  <div className="activity-reminder">{reminder?.last_sent_at ? <><Mail size={12} /> Reminded {dateShort(reminder.last_sent_at)}</> : "No reminder sent"}</div>
+                </td>
+                <td data-label="Action"><Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${row.user_id}`}>View profile</Link></td>
               </tr>;
-            }) : <tr><td colSpan={9}><div className="empty">No VAs match those filters.</div></td></tr>}
+            }) : <tr><td colSpan={7}><div className="empty">No VAs match those filters.</div></td></tr>}
           </tbody>
         </table>
       </div>

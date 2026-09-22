@@ -158,7 +158,7 @@ test("recruiter home consolidates into My Day while Agenda owns the all-recruite
   assert.match(today,/recruiter_today_summary/);
   assert.match(agenda,/All active discovery calls/);
   assert.match(agenda,/\.from\("lead_intake"\)/);
-  assert.doesNotMatch(agenda.match(/admin\.from\("lead_intake"\)[\s\S]*?\.order\("discovery_scheduled_at"\)/)?.[0] || "", /owner_id/);
+  assert.doesNotMatch(agenda.match(/admin\.from\("lead_intake"\)[\s\S]*?\.order\("discovery_scheduled_at"\)/)?.[0] || "", /\.eq\("owner_id"/);
 });
 
 

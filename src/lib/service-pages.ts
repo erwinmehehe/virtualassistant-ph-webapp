@@ -474,8 +474,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Executive Assistance",
     "primaryKeyword": "hire executive virtual assistant philippines",
     "metaTitle": "Executive Virtual Assistant Philippines",
-    "metaDescription": "Hire a vetted Executive Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire an Executive Virtual Assistant in the Philippines to handle complex calendar management, inbox triage, and meeting preparation. Write down calendar, inbox, meeting, and decision rules so the Virtual Assistant can act consistently without asking the same preference questions every day.",
+    "metaDescription": "Hire an Executive Virtual Assistant in the Philippines for calendar, inbox, meeting, travel, and leadership support. Compare judgment, tools, and availability.",
+    "intro": "An Executive Virtual Assistant is a high-trust remote professional who supports founders and leaders with complex calendars, inbox triage, meeting preparation, priority tracking, and stakeholder follow-up. Hire one in the Philippines when the role needs stronger judgment, confidentiality, and proactive coordination.",
     "focus": "high-trust support for founders, executives, and leadership teams",
     "tasks": [
       "complex calendar management",
@@ -1231,8 +1231,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "hire general virtual assistant philippines",
     "metaTitle": "General Virtual Assistant Philippines",
-    "metaDescription": "Hire a vetted General Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire a General Virtual Assistant in the Philippines to handle email and calendar support, data entry, and research. This is strongest when recurring work has a clear owner, source of truth, due date, and definition of done.",
+    "metaDescription": "Hire a General Virtual Assistant in the Philippines for admin, research, CRM, scheduling, and recurring support. Compare experience, tools, and availability.",
+    "intro": "A General Virtual Assistant is a flexible remote support professional for recurring admin, research, coordination, CRM, and customer follow-up. When hiring a General Virtual Assistant in the Philippines, define the recurring workload, systems, priorities, and escalation rules before you compare candidates.",
     "focus": "flexible recurring support across administration, research, coordination, and customer workflows",
     "tasks": [
       "email and calendar support",

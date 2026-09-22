@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlayCircle, ShieldCheck } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { clientMatchLabel } from "@/lib/matching";
 import { uniqueStrings } from "@/lib/collections";
@@ -11,8 +11,8 @@ import { CandidateAccessGate } from "@/components/candidate-access-gate";
 import { maskVaName } from "@/lib/va-identity";
 
 export default async function CandidateReviewPage({params}:{params:Promise<{id:string}>}){
-  const {id}=await params;const {user}=await requireRole("client");const admin=createAdminClient();
-  const {data:summary}=await admin.from("applications").select("id,job_id,va_id,status,match_score,profile_snapshot,cover_note,jobs!inner(id,title,status,client_id)").eq("id",id).eq("jobs.client_id",user.id).single();
+  const {id}=await params;const {userId}=await requireRoleFast("client");const admin=createAdminClient();
+  const {data:summary}=await admin.from("applications").select("id,job_id,va_id,status,match_score,profile_snapshot,cover_note,jobs!inner(id,title,status,client_id)").eq("id",id).eq("jobs.client_id",userId).single();
   if(!summary)notFound();
   const job=Array.isArray(summary.jobs)?summary.jobs[0]:summary.jobs;
   const [{data:shortlist},{data:access},{count:releasedCount}]=await Promise.all([
@@ -27,8 +27,8 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
   if(job?.status!=="published")return <><div className="page-head"><div><Link className="text-link small" href={`/workspace/client/candidates?role=${summary.job_id}`}>← Back to shortlist</Link><h1 style={{marginTop:8}}>Candidate profile is being prepared</h1><p>Your recruiter has selected this VA, but the role is not active for client review yet.</p></div></div></>;
   if(!candidateAccessUnlocked(access?.access_status))return <><div className="page-head"><div><Link className="text-link small" href={`/workspace/client/candidates?role=${summary.job_id}`}>← Back to shortlist</Link><h1 style={{marginTop:8}}>Candidate access required</h1><p>Private hiring evidence remains protected until candidate access is active.</p></div></div><CandidateAccessGate jobId={summary.job_id} access={access} applicantCount={0} releasedCount={releasedCount||0} returnTo={`/workspace/client/candidates/${id}`}/></>;
 
-  await recordProductEvent("candidate_viewed",{userId:user.id,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,recruiter_released:true}});
-  try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","va").eq("subject_id",summary.va_id).eq("action","client_viewed").gte("created_at",cutoff).contains("metadata",{application_id:id});if(!count)await admin.from("recruiter_activity").insert({subject_type:"va",subject_id:summary.va_id,action:"client_viewed",description:`Client viewed recruiter-released candidate for ${job?.title||"role"}`,actor_id:user.id,metadata:{application_id:id,job_id:summary.job_id}});}catch{}
+  await recordProductEvent("candidate_viewed",{userId:userId,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,recruiter_released:true}});
+  try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","va").eq("subject_id",summary.va_id).eq("action","client_viewed").gte("created_at",cutoff).contains("metadata",{application_id:id});if(!count)await admin.from("recruiter_activity").insert({subject_type:"va",subject_id:summary.va_id,action:"client_viewed",description:`Client viewed recruiter-released candidate for ${job?.title||"role"}`,actor_id:userId,metadata:{application_id:id,job_id:summary.job_id}});}catch{}
 
   const {data:vetting}=await admin.from("va_vetting").select("video_url").eq("va_id",summary.va_id).maybeSingle();
   const profile:any=summary.profile_snapshot||{};const score=Number(shortlist.match_score??summary.match_score??0);

@@ -289,13 +289,15 @@ export async function completeClientOnboardingAction(formData: FormData) {
   const timezone = String(formData.get("timezone") ?? "").trim();
   const hiringNeeds = String(formData.get("hiring_needs") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
-  const budgetMin = Number(formData.get("budget_min") ?? 0);
-  const budgetMax = Number(formData.get("budget_max") ?? 0);
+  const budgetMinInput = String(formData.get("budget_min") ?? "").trim();
+  const budgetMaxInput = String(formData.get("budget_max") ?? "").trim();
+  const budgetMin = Number(budgetMinInput);
+  const budgetMax = Number(budgetMaxInput);
   if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) {
     redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Complete the required onboarding details.")}`);
   }
   if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) {
-    redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Enter a valid hiring budget range. Make sure the maximum is not lower than the minimum.")}`);
+    redirect(`/workspace/client/onboarding?budget_error=invalid_range&budget_min=${encodeURIComponent(budgetMinInput)}&budget_max=${encodeURIComponent(budgetMaxInput)}`);
   }
   const admin = createAdminClient();
   const { error: profileError } = await admin.from("profiles").update({ full_name: fullName }).eq("id", user.id);

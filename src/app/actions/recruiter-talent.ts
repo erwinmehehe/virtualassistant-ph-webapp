@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { saveJobShortlistAction } from "@/app/actions/matching";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
-import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
+import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function filterValue(formData: FormData, name: string) {
@@ -62,12 +62,12 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   countQuery = applyRecruiterTalentFilters(countQuery, filters);
   const { count: filteredCount, error: countError } = await countQuery;
   if (countError) throw countError;
-  if (Number(filteredCount || 0) > 500) {
+  if (Number(filteredCount || 0) > RECRUITER_BULK_LIMIT) {
     const returnTo = safeReturnTo(formData);
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent("Filtered bulk actions are limited to 500 VAs. Narrow the filters before running the action.")}`);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent(`Filtered bulk actions are limited to ${RECRUITER_BULK_LIMIT} VAs. Narrow the filters before running the action.`)}`);
   }
 
-  let query: any = admin.from("recruiter_va_directory").select("user_id").limit(500);
+  let query: any = admin.from("recruiter_va_directory").select("user_id").limit(RECRUITER_BULK_LIMIT);
   query = applyRecruiterTalentFilters(query, filters);
 
   const { data, error } = await query;

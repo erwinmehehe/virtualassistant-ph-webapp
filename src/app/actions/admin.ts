@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
-import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
+import { APPROVAL_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
 
 export async function reviewJobAction(formData: FormData) {
   const { user } = await requireRole("admin");
@@ -101,7 +101,7 @@ export async function bulkApproveExperiencedVAsAction() {
   await requireRole("admin");
   const admin = createAdminClient();
 
-  const { data: pending } = await admin.from("va_vetting").select("va_id").not("stage", "in", "(approved,bench,rejected)");
+  const { data: pending } = await admin.from("va_vetting").select("va_id").or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)");
   const pendingIds = (pending || []).map((row: any) => row.va_id);
   const { data: experienced } = pendingIds.length
     ? await admin
@@ -111,7 +111,7 @@ export async function bulkApproveExperiencedVAsAction() {
         .gte("years_experience", 2)
         .gte("completion_score", APPROVAL_MIN_COMPLETION)
     : { data: [] as any[] };
-  const ids = (experienced || []).map((row: any) => row.user_id);
+  const ids = (experienced || []).filter(isRowApprovable).map((row: any) => row.user_id);
   if (!ids.length) {
     revalidatePath("/workspace/admin/vetting");
     return { approved: 0 };

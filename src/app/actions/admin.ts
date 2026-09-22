@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
+import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
 
 export async function reviewJobAction(formData: FormData) {
   const { user } = await requireRole("admin");
@@ -103,7 +104,12 @@ export async function bulkApproveExperiencedVAsAction() {
   const { data: pending } = await admin.from("va_vetting").select("va_id").not("stage", "in", "(approved,bench,rejected)");
   const pendingIds = (pending || []).map((row: any) => row.va_id);
   const { data: experienced } = pendingIds.length
-    ? await admin.from("va_profiles").select("user_id").in("user_id", pendingIds).gte("years_experience", 2)
+    ? await admin
+        .from("recruiter_va_directory")
+        .select("user_id,completion_score,years_experience")
+        .in("user_id", pendingIds)
+        .gte("years_experience", 2)
+        .gte("completion_score", APPROVAL_MIN_COMPLETION)
     : { data: [] as any[] };
   const ids = (experienced || []).map((row: any) => row.user_id);
   if (!ids.length) {
@@ -112,7 +118,7 @@ export async function bulkApproveExperiencedVAsAction() {
   }
 
   const now = new Date().toISOString();
-  await admin.from("va_vetting").update({ stage: "approved", approved_at: now, admin_notes: "Bulk-approved: 2+ years experience (skipped remaining vetting steps)." }).in("va_id", ids);
+  await admin.from("va_vetting").update({ stage: "approved", approved_at: now, admin_notes: `Bulk-approved: 2+ years experience and ${APPROVAL_MIN_COMPLETION}%+ profile completion (skipped remaining vetting steps).` }).in("va_id", ids);
   await admin.from("notifications").insert(ids.map((id: string) => ({
     user_id: id,
     title: "Your Virtual Assistant profile is approved",

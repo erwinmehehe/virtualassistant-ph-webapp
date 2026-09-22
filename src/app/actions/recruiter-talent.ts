@@ -44,8 +44,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
-  let query: any = admin.from("recruiter_va_directory").select("user_id").limit(500);
-  query = applyRecruiterTalentFilters(query, {
+  const filters = {
     q: filterValue(formData, "filter_q"),
     stage: filterValue(formData, "filter_stage"),
     readiness: filterValue(formData, "filter_readiness"),
@@ -56,7 +55,19 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     max_rate: filterValue(formData, "filter_max_rate"),
     availability: filterValue(formData, "filter_availability"),
     stale: filterValue(formData, "filter_stale")
-  });
+  };
+
+  let countQuery: any = admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true });
+  countQuery = applyRecruiterTalentFilters(countQuery, filters);
+  const { count: filteredCount, error: countError } = await countQuery;
+  if (countError) throw countError;
+  if (Number(filteredCount || 0) > 500) {
+    const returnTo = safeReturnTo(formData);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent("Filtered bulk actions are limited to 500 VAs. Narrow the filters before running the action.")}`);
+  }
+
+  let query: any = admin.from("recruiter_va_directory").select("user_id").limit(500);
+  query = applyRecruiterTalentFilters(query, filters);
 
   const { data, error } = await query;
   if (error) throw error;

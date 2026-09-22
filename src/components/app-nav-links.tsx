@@ -75,8 +75,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Recruiting tools",
       items: [
-        ["Bench", "/workspace/recruiter/bench", UsersRound],
-        ["Stalled", "/workspace/recruiter/stalled", Activity],
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
       ],
     },

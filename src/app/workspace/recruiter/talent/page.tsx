@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertCircle, CheckCircle2, ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
+import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-operations-panel";
 import { PublicAvatar } from "@/components/public-avatar";
 import { requireRole } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
@@ -19,6 +20,7 @@ const SAVED_VIEWS = [
   { key: "approval_ready", label: "Approval-ready", filters: { readiness: "approval_ready" } },
   { key: "missing_photo", label: "Missing photo", filters: { photo: "no" } },
   { key: "approved_hidden", label: "Approved but hidden", filters: { readiness: "vetted_hidden" } },
+  { key: "bench", label: "Bench / active pool", filters: { stage: "bench" } },
   { key: "stale_60", label: "Stale 60d+", filters: { stale: "60" } },
   { key: "available", label: "Available now", filters: { availability: "available" } },
   { key: "needs_review", label: "Needs recruiter review", filters: { stage: "recruiter_review" } }
@@ -207,6 +209,8 @@ export default async function RecruiterTalentDirectory({
     ) : null}
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}
 
+    {params.view === "bench" ? <RecruiterTalentOperationsPanel /> : null}
+
     <section className="talent-onboarding-rescue">
       <div className="talent-onboarding-head">
         <div><div className="kicker">New VA onboarding</div><h2>Signup → profile rescue</h2><p>New accounts that are still at 0% belong here in Talent, not in a separate Categories dashboard. Email-verified accounts are prioritized first.</p></div>
@@ -313,9 +317,9 @@ export default async function RecruiterTalentDirectory({
       <input type="hidden" name="return_to" value={currentUrl} />
       {filterHidden}
       <div className="bulk-action-bar">
-        <label className="bulk-scope">
-          <input type="checkbox" name="selection_scope" value="filtered" />
-          <span><strong>{total > 500 ? "Select first 500 filtered VAs" : `Select all ${total} filtered VAs`}</strong><small>{total > 500 ? "Narrow the filters for safer bulk actions." : "Leave off to act only on checked rows."}</small></span>
+        <label className={`bulk-scope ${total > 500 ? "bulk-scope-blocked" : ""}`}>
+          <input type="checkbox" name="selection_scope" value="filtered" disabled={total > 500} />
+          <span><strong>{total > 500 ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > 500 ? "Narrow the filters to 500 or fewer before running a filtered bulk action." : "Leave off to act only on checked rows."}</small></span>
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>

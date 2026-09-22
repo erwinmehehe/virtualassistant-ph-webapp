@@ -278,3 +278,15 @@
     grid-template-columns:1fr;
   }
 }
+
+
+.bulk-scope-blocked {
+  opacity:.68;
+  cursor:not-allowed;
+}
+.bulk-scope-blocked input {
+  cursor:not-allowed;
+}
+.bulk-scope-blocked strong {
+  color:#b54708;
+}

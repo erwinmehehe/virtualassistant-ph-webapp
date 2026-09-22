@@ -17,7 +17,7 @@ import { organizationRef } from "@/lib/organization";
 async function getPublishedJob(key: string) {
   try {
     const supabase = await createClient();
-    const query = supabase.from("jobs").select("*").eq("status", "published").not("client_id", "is", null);
+    const query = supabase.from("jobs").select("*").eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null);
     const { data } = isUuid(key) ? await query.eq("id", key).maybeSingle() : await query.eq("slug", key).maybeSingle();
     return data;
   } catch (err) {

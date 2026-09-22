@@ -37,6 +37,7 @@ jobs:
       SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
       SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
       SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
+      SMOKE_JOB_ID: ${{ vars.SMOKE_JOB_ID }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

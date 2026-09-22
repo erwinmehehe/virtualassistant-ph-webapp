@@ -1,6 +1,7 @@
 const baseUrl = String(process.env.SMOKE_BASE_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
 const supabaseUrl = String(process.env.SMOKE_SUPABASE_URL || "").replace(/\/$/, "");
 const anonKey = String(process.env.SMOKE_SUPABASE_ANON_KEY || "");
+const smokeJobId = String(process.env.SMOKE_JOB_ID || "").trim();
 
 if (!supabaseUrl || !anonKey) {
   throw new Error("Set SMOKE_SUPABASE_URL and SMOKE_SUPABASE_ANON_KEY before running authenticated production smoke tests.");
@@ -69,7 +70,7 @@ async function signIn(email, password) {
     method: "POST",
     headers: {
       apikey: anonKey,
-      authorization: `Bearer ${anonKey}`,
+      ...(anonKey.startsWith("eyJ") ? { authorization: `Bearer ${anonKey}` } : {}),
       "content-type": "application/json"
     },
     body: JSON.stringify({ email, password })
@@ -106,26 +107,28 @@ async function assertPublicBaseline() {
 
 async function smokeClientHandoff(role, cookie) {
   if (role === "recruiter") {
-    const board = await appRequest("/workspace/recruiter/matching", cookie);
-    assert(board.status === 200, `Recruiter matching board returned ${board.status}.`);
-    const boardHtml = await board.text();
-    const match = boardHtml.match(/\/workspace\/recruiter\/matching\/([0-9a-f-]{36})/i);
-    if (match?.[1]) {
-      const detail = await appRequest(`/workspace/recruiter/matching/${match[1]}`, cookie);
+    if (smokeJobId) {
+      const detail = await appRequest(`/workspace/recruiter/roles/${smokeJobId}`, cookie);
       const detailHtml = await detail.text();
-      assert(detail.status === 200, `Recruiter matching detail returned ${detail.status}.`);
-      if (detailHtml.includes("Reviewed candidates")) {
-        assert(detailHtml.includes("Preview client view"), "Recruiter matching detail has reviewed candidates but no client preview control.");
-      }
+      assert(detail.status === 200, `Protected smoke recruiter role returned ${detail.status}.`);
+      assert(detailHtml.includes("Role Control Center"), "Smoke recruiter role is missing the Role Control Center.");
+      assert(detailHtml.includes("[SMOKE QA] Admin Support"), "SMOKE_JOB_ID does not point to the protected smoke QA role.");
+      assert(detailHtml.includes("Preview client view"), "Smoke recruiter role is missing the client preview control.");
+      console.log("✓ recruiter: exact protected smoke role + client-preview handoff surface");
+    } else {
+      const board = await appRequest("/workspace/recruiter/roles", cookie);
+      assert(board.status === 200, `Recruiter roles board returned ${board.status}.`);
+      console.log("✓ recruiter: roles board (set SMOKE_JOB_ID to enable exact handoff checks)");
     }
-    console.log("✓ recruiter: client-preview handoff surface");
   }
 
   if (role === "client") {
-    const hiringRoom = await appRequest("/workspace/client/candidates", cookie);
+    const path = smokeJobId ? `/workspace/client/candidates?role=${encodeURIComponent(smokeJobId)}` : "/workspace/client/candidates";
+    const hiringRoom = await appRequest(path, cookie);
     const hiringRoomHtml = await hiringRoom.text();
     assert(hiringRoom.status === 200, `Client Hiring Room returned ${hiringRoom.status}.`);
     assert(hiringRoomHtml.includes("Hiring Room"), "Client Hiring Room marker is missing.");
+    if (smokeJobId) assert(hiringRoomHtml.includes("[SMOKE QA] Admin Support"), "Client Hiring Room did not resolve the protected smoke role.");
     for (const forbidden of ["Open recruiter scorecard", "match-meter", "% confidence"]) {
       assert(!hiringRoomHtml.includes(forbidden), `Client Hiring Room leaked recruiter-only UI: ${forbidden}`);
     }

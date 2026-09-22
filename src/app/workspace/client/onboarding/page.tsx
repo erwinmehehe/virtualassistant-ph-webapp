@@ -3,11 +3,13 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { completeClientOnboardingAction } from "@/app/actions/profile";
 
-export default async function ClientOnboardingPage(){
+export default async function ClientOnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }){
+  const params=await searchParams;
   const {user,profile}=await requireRole("client");
   const supabase=await createClient();
   const {data:company}=await supabase.from("client_profiles").select("*").eq("user_id",user.id).maybeSingle();
   return <>
+    {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
     <div className="onboarding-hero card"><span className="badge badge-success">Welcome to your hiring workspace</span><h1>Let’s get your hiring request started.</h1><p>Share the essentials in a few minutes. You can describe the help you need in your own words—we’ll guide the rest.</p><div className="onboarding-outcomes"><span><CheckCircle2 size={15}/> Create a hiring brief</span><span><CheckCircle2 size={15}/> Recruiter matches candidates</span><span><CheckCircle2 size={15}/> You review and hire</span></div></div>
     <form action={completeClientOnboardingAction} className="client-onboarding-grid">
       <section className="card onboarding-step-card"><div className="onboarding-step-icon"><Building2 size={20}/></div><span className="small muted">Step 1</span><h2>Your company</h2><div className="field"><label>Your name</label><input name="full_name" required minLength={2} maxLength={100} defaultValue={profile.full_name||""}/></div><div className="field"><label>Company name</label><input name="company_name" required minLength={2} maxLength={140} defaultValue={company?.company_name||""}/></div><div className="field"><label>Timezone</label><input name="timezone" required placeholder="Australia/Sydney, US Eastern, GMT+8" defaultValue={company?.timezone||""}/></div></section>

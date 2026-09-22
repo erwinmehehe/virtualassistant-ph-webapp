@@ -149,7 +149,7 @@ export async function updateVaProfileAction(formData: FormData) {
     admin.from("va_profiles").update(updates).eq("user_id", user.id)
   ]);
   if (nameError) throw nameError;
-  if (profileError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your account details. Please try again.")}`);
+  if (profileError) throw profileError;
 
   const resume = formData.get("resume");
   if (resume instanceof File && resume.size > 0) {
@@ -264,7 +264,7 @@ export async function updateClientProfileAction(formData: FormData) {
     hiring_needs: String(formData.get("hiring_needs") ?? "").trim() || null,
     hiring_notes: String(formData.get("hiring_notes") ?? "").trim() || null
   }).eq("user_id", user.id);
-  if (companyError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your company details. Please try again.")}`);
+  if (companyError) throw companyError;
   const logo = formData.get("logo");
   if (logo instanceof File && logo.size > 0) {
     if (logo.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
@@ -299,9 +299,9 @@ export async function completeClientOnboardingAction(formData: FormData) {
   }
   const admin = createAdminClient();
   const { error: profileError } = await admin.from("profiles").update({ full_name: fullName }).eq("id", user.id);
-  if (profileError) throw profileError;
+  if (profileError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your account details. Please try again.")}`);
   const { error: companyError } = await admin.from("client_profiles").update({ company_name: companyName, timezone, hiring_needs: hiringNeeds, hiring_notes: hiringNeeds, location: location || null, budget_min: budgetMin, budget_max: budgetMax, onboarding_completed_at: new Date().toISOString() }).eq("user_id", user.id);
-  if (companyError) throw companyError;
+  if (companyError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your company details. Please try again.")}`);
   try { await admin.from("analytics_events").insert({ event_name: "client_onboarding_completed", path: "/workspace/client/onboarding", user_id: user.id, metadata: { budget_min: budgetMin, budget_max: budgetMax } }); } catch {}
   redirect("/workspace/client/jobs/new?onboarded=1");
 }

@@ -5,6 +5,7 @@ import { chromium } from "playwright";
 const baseUrl = String(process.env.VISUAL_BASE_URL || "").replace(/\/$/, "");
 const supabaseUrl = String(process.env.SMOKE_SUPABASE_URL || "").replace(/\/$/, "");
 const anonKey = String(process.env.SMOKE_SUPABASE_ANON_KEY || "");
+const smokeJobId = String(process.env.SMOKE_JOB_ID || "").trim();
 
 if (!baseUrl || !supabaseUrl || !anonKey) {
   throw new Error("VISUAL_BASE_URL, SMOKE_SUPABASE_URL, and SMOKE_SUPABASE_ANON_KEY are required.");
@@ -109,6 +110,91 @@ try {
       await context.close();
       console.log(`Captured account ${tab} at ${viewport.width}x${viewport.height}`);
     }
+  }
+
+
+  if (smokeJobId) {
+    const smokeTitle = "[SMOKE QA] Admin Support";
+    const smokeNames = ["Smoke VA One", "Smoke VA Two", "Smoke VA Three"];
+    const recruiterSession = await signIn(process.env.SMOKE_RECRUITER_EMAIL, process.env.SMOKE_RECRUITER_PASSWORD);
+    const recruiterContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+    await recruiterContext.addCookies(sessionCookies(recruiterSession, baseUrl));
+    const recruiterPage = await recruiterContext.newPage();
+
+    const roleResponse = await recruiterPage.goto(`${baseUrl}/workspace/recruiter/roles/${smokeJobId}`, { waitUntil: "networkidle", timeout: 90000 });
+    if (!roleResponse?.ok()) throw new Error(`Smoke recruiter role returned HTTP ${roleResponse?.status() || "unknown"}.`);
+    await recruiterPage.getByText("Role Control Center", { exact: false }).waitFor({ state: "visible", timeout: 30000 });
+    const roleHeading = await recruiterPage.locator("h1").first().textContent();
+    if (!String(roleHeading || "").includes(smokeTitle)) throw new Error("SMOKE_JOB_ID does not point to the protected smoke QA role.");
+
+    // Make repeat runs idempotent by removing only the three named smoke VAs from a previous shortlist.
+    for (const name of smokeNames) {
+      const search = recruiterPage.getByRole("searchbox", { name: "Search candidates" });
+      await search.fill(name);
+      const row = recruiterPage.locator("tbody tr").filter({ hasText: name }).first();
+      if (await row.count()) {
+        const remove = row.getByRole("button", { name: "Remove", exact: true });
+        if (await remove.count()) {
+          await Promise.all([
+            recruiterPage.waitForLoadState("networkidle"),
+            remove.click()
+          ]);
+        }
+      }
+    }
+
+    const search = recruiterPage.getByRole("searchbox", { name: "Search candidates" });
+    await search.fill("Smoke VA");
+    for (const name of smokeNames) {
+      const checkbox = recruiterPage.getByRole("checkbox", { name: `Select ${name}` });
+      await checkbox.waitFor({ state: "visible", timeout: 30000 });
+      await checkbox.check();
+    }
+    await recruiterPage.getByText("3 selected", { exact: false }).waitFor({ state: "visible" });
+    await recruiterPage.getByRole("button", { name: "Preview client view" }).click();
+    const preview = recruiterPage.getByRole("region", { name: "Client shortlist preview" });
+    await preview.waitFor({ state: "visible", timeout: 30000 });
+
+    // Force a non-default order and verify that exact sequence survives the client handoff.
+    await recruiterPage.getByRole("button", { name: "Move Smoke VA Three up" }).click();
+    await recruiterPage.getByRole("button", { name: "Move Smoke VA Three up" }).click();
+    await recruiterPage.screenshot({ path: path.join(outputDir, "recruiter-smoke-shortlist-preview.png"), fullPage: true });
+
+    await recruiterPage.getByRole("button", { name: "Send 3 to client" }).click();
+    await recruiterPage.waitForURL(/shortlist_released=1/, { timeout: 90000 });
+    await recruiterPage.getByText("Shortlist released to the client.", { exact: true }).waitFor({ state: "visible", timeout: 30000 });
+    await recruiterContext.close();
+
+    const clientSession = await signIn(process.env.SMOKE_CLIENT_EMAIL, process.env.SMOKE_CLIENT_PASSWORD);
+    const clientContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+    await clientContext.addCookies(sessionCookies(clientSession, baseUrl));
+    const clientPage = await clientContext.newPage();
+    const clientResponse = await clientPage.goto(`${baseUrl}/workspace/client/candidates?role=${encodeURIComponent(smokeJobId)}`, { waitUntil: "networkidle", timeout: 90000 });
+    if (!clientResponse?.ok()) throw new Error(`Smoke client Hiring Room returned HTTP ${clientResponse?.status() || "unknown"}.`);
+    await clientPage.getByText(`Recruiter shortlist for ${smokeTitle}`, { exact: false }).waitFor({ state: "visible", timeout: 30000 });
+    const shortlistText = await clientPage.locator("#recruiter-shortlist .browse-va-grid").innerText();
+    const positions = ["Smoke VA Three", "Smoke VA One", "Smoke VA Two"].map((name) => shortlistText.indexOf(name));
+    if (positions.some((value) => value < 0) || !(positions[0] < positions[1] && positions[1] < positions[2])) {
+      throw new Error(`Client shortlist order did not match recruiter order: ${positions.join(",")}`);
+    }
+    await clientPage.screenshot({ path: path.join(outputDir, "client-smoke-shortlist.png"), fullPage: true });
+
+    const firstCard = clientPage.locator("#recruiter-shortlist .browse-va-grid > *").filter({ hasText: "Smoke VA Three" }).first();
+    await firstCard.getByRole("button", { name: "Request interview" }).click();
+    await clientPage.waitForURL(/\/workspace\/client\/interviews\?requested=1/, { timeout: 90000 });
+    await clientContext.close();
+
+    const verifyContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+    await verifyContext.addCookies(sessionCookies(recruiterSession, baseUrl));
+    const verifyPage = await verifyContext.newPage();
+    const verifyResponse = await verifyPage.goto(`${baseUrl}/workspace/recruiter/roles/${smokeJobId}#interviews`, { waitUntil: "networkidle", timeout: 90000 });
+    if (!verifyResponse?.ok()) throw new Error(`Smoke recruiter interview verification returned HTTP ${verifyResponse?.status() || "unknown"}.`);
+    const interviewSection = verifyPage.locator("#interviews");
+    await interviewSection.getByText("Smoke VA Three", { exact: true }).waitFor({ state: "visible", timeout: 30000 });
+    await interviewSection.getByText("requested", { exact: false }).waitFor({ state: "visible", timeout: 30000 });
+    await verifyPage.screenshot({ path: path.join(outputDir, "recruiter-smoke-interview-requested.png"), fullPage: true });
+    await verifyContext.close();
+    console.log("Verified smoke recruiter → shortlist order → client handoff → interview request");
   }
 } finally {
   await browser.close();

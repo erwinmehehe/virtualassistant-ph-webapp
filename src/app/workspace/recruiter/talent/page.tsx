@@ -6,7 +6,7 @@ import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-op
 import { PublicAvatar } from "@/components/public-avatar";
 import { requireRole } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
-import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
+import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
 import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION, publicVisibilityRequirements } from "@/lib/public-visibility";
@@ -321,9 +321,9 @@ export default async function RecruiterTalentDirectory({
       <input type="hidden" name="return_to" value={currentUrl} />
       {filterHidden}
       <div className="bulk-action-bar">
-        <label className={`bulk-scope ${total > 500 ? "bulk-scope-blocked" : ""}`}>
-          <input type="checkbox" name="selection_scope" value="filtered" disabled={total > 500} />
-          <span><strong>{total > 500 ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > 500 ? "Narrow the filters to 500 or fewer before running a filtered bulk action." : "Leave off to act only on checked rows."}</small></span>
+        <label className={`bulk-scope ${total > RECRUITER_BULK_LIMIT ? "bulk-scope-blocked" : ""}`}>
+          <input type="checkbox" name="selection_scope" value="filtered" disabled={total > RECRUITER_BULK_LIMIT} />
+          <span><strong>{total > RECRUITER_BULK_LIMIT ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > RECRUITER_BULK_LIMIT ? "{`Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer before running a filtered bulk action.`}" : "Leave off to act only on checked rows."}</small></span>
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>

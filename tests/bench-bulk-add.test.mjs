@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const page = fs.readFileSync("src/app/workspace/recruiter/bench/page.tsx", "utf8");
+const page = fs.readFileSync("src/components/recruiter-talent-operations-panel.tsx", "utf8");
 const action = fs.readFileSync("src/app/actions/bench.ts", "utf8");
 const selectAll = fs.readFileSync("src/components/bench-bulk-select-all.tsx", "utf8");
 

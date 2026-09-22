@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default function ResourcesPage() {
-  const client = SEO_RESOURCE_PAGES.filter((page) => page.audience === "client" && page.intent === "definition");
+  const client = SEO_RESOURCE_PAGES.filter((page) => page.audience === "client" && page.intent === "hiring");
   const candidate = candidateSeoResources().filter((page) => !EDITORIAL_RESOURCE_SLUGS.includes(page.slug as typeof EDITORIAL_RESOURCE_SLUGS[number]) && !EXISTING_BLOG_RESOURCE_REDIRECTS[page.slug]);
   return <><SiteHeader/><main id="main-content">
     <CompactPageHeader
@@ -30,7 +30,7 @@ export default function ResourcesPage() {
     />
     <div className="hs-root sp-root">
       <Band>
-        <SectionHead kicker="For businesses" title="Virtual Assistant hiring guides" lede={"Start with one guide for each of " + SEO_RESOURCE_ROLE_COUNT + " Virtual Assistant role families, then continue into tasks, interview questions, costs, tools, and hiring guidance."}/>
+        <SectionHead kicker="For businesses" title="Deep Virtual Assistant hiring guides" lede={"Start with one deep hiring guide for each supported role family, then use the paired cost guide when you are ready to budget the role."}/>
         <div className="premium-service-grid">
           {client.map((page) => <Link className="premium-service-card" href={"/resources/" + page.slug} key={page.slug}><div><h3>{page.title}</h3><p>{page.metaDescription}</p></div><span className="premium-service-link">Read guide <ArrowRight size={14}/></span></Link>)}
         </div>

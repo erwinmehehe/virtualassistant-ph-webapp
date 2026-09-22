@@ -676,7 +676,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "legacyPath": "/average-hourly-rate-virtual-assistants-philippines/",
     "title": "Average Hourly Rate for Virtual Assistants in the Philippines: 2026 Guide",
     "metaTitle": "Virtual Assistant Hourly Rate Philippines: 2026 Guide",
-    "description": "Compare Virtual Assistant hourly rates in the Philippines, what changes the budget, how hours affect monthly cost, and why $5/hour is only the platform floor.",
+    "description": "Compare Virtual Assistant hourly rates in the Philippines, what changes the budget, how weekly hours affect monthly cost, and how role scope changes pay.",
     "excerpt": "Use hourly-rate benchmarks as context, then budget for the responsibility and evidence of skill your role actually needs.",
     "topic": "pricing",
     "clusterLabel": "Pricing",

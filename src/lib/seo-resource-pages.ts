@@ -409,11 +409,6 @@ function withArticle(value: string) {
   return articleWord(value) + " " + value;
 }
 
-function sentenceArticle(value: string) {
-  const phrase = withArticle(value);
-  return phrase.charAt(0).toUpperCase() + phrase.slice(1);
-}
-
 function fitMetaTitle(primary: string, fallback: string) {
   return primary.length <= 60 ? primary : fallback;
 }

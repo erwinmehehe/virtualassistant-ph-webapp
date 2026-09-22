@@ -58,8 +58,79 @@ const CONTENT_MARKETING_GUIDE: SeoPriorityLink = {
   description: "Compare content operations, publishing support, reporting, and workflow ownership before combining writing with broader marketing work."
 };
 
+const DENTAL_INTERVIEW: SeoPriorityLink = {
+  href: "/blog/dental-virtual-assistant-interview-questions",
+  label: "Dental Virtual Assistant interview questions",
+  description: "Use practical dental workflow scenarios to test communication, tools, quality checks, privacy judgment, and escalation."
+};
+
+const DENTAL_COST: SeoPriorityLink = {
+  href: "/blog/dental-virtual-assistant-cost-philippines",
+  label: "Dental Virtual Assistant cost in the Philippines",
+  description: "Plan a dental support budget around patient contact, systems access, coverage hours, billing scope, and experience."
+};
+
+const DENTAL_SERVICE: SeoPriorityLink = {
+  href: "/service/dental-virtual-assistant",
+  label: "Hire a Dental Virtual Assistant",
+  description: "Review the role scope, approved talent, responsibilities, tools, and managed hiring process for dental support."
+};
+
+const HVAC_HIRING: SeoPriorityLink = {
+  href: "/blog/how-to-hire-a-hvac-virtual-assistant",
+  label: "HVAC Virtual Assistant hiring guide",
+  description: "Define the HVAC workflow, screen for evidence, test live customer and dispatch scenarios, and set escalation boundaries."
+};
+
+const HVAC_COST: SeoPriorityLink = {
+  href: "/blog/hvac-virtual-assistant-cost-philippines",
+  label: "HVAC Virtual Assistant cost in the Philippines",
+  description: "Budget HVAC support around call coverage, scheduling, dispatch coordination, tools, seasonality, and responsibility level."
+};
+
+const EBAY_HIRING: SeoPriorityLink = {
+  href: "/blog/how-to-hire-a-ebay-virtual-assistant",
+  label: "eBay Virtual Assistant hiring guide",
+  description: "Screen eBay candidates on listing workflows, customer support, order handling, account discipline, and marketplace evidence."
+};
+
+const EBAY_COST: SeoPriorityLink = {
+  href: "/blog/ebay-virtual-assistant-cost-philippines",
+  label: "eBay Virtual Assistant cost in the Philippines",
+  description: "Plan an eBay support budget around catalog complexity, order volume, customer service, tools, and marketplace experience."
+};
+
+const MEDICAL_SERVICE: SeoPriorityLink = {
+  href: "/service/medical-virtual-assistant",
+  label: "Hire a Medical Virtual Assistant",
+  description: "Review the role scope, approved talent, non-clinical workflows, tools, access boundaries, and managed hiring process."
+};
+
+const MEDICAL_COST: SeoPriorityLink = {
+  href: "/blog/medical-virtual-assistant-cost-philippines",
+  label: "Medical Virtual Assistant cost in the Philippines",
+  description: "Plan a medical support budget around workflow complexity, patient contact, privacy requirements, systems, and coverage."
+};
+
+const COLD_CALLING_SERVICE: SeoPriorityLink = {
+  href: "/service/cold-calling-virtual-assistant",
+  label: "Hire a Cold Calling Virtual Assistant",
+  description: "Review cold-calling responsibilities, approved talent, coverage, call workflow, QA, and escalation expectations."
+};
+
+const COLD_CALLING_COST: SeoPriorityLink = {
+  href: "/blog/cold-calling-virtual-assistant-cost-philippines",
+  label: "Cold Calling Virtual Assistant cost in the Philippines",
+  description: "Budget a calling role around campaign scope, coverage hours, lead volume, tooling, QA, and objection-handling responsibility."
+};
+
 export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT],
+  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE],
+  "dental-virtual-assistant-interview-questions": [DENTAL_COST, DENTAL_SERVICE],
+  "medical-virtual-assistant-interview-questions": [MEDICAL_COST, MEDICAL_SERVICE],
+  "what-does-a-cold-calling-virtual-assistant-do": [COLD_CALLING_SERVICE, COLD_CALLING_COST],
+  "medical-virtual-assistant-cost-philippines": [RATE_REPORT, MEDICAL_SERVICE],
   "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, DIRECT_PAYMENT],
   "hire-virtual-assistant-philippines": [RATE_GUIDE, GENERAL_VS_EXECUTIVE],
   "outsourcing-philippines-virtual-assistant": [SSS_GUIDE, DIRECT_PAYMENT],
@@ -71,8 +142,9 @@ export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
 export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "become-virtual-assistant-no-experience": [GET_PAID_GUIDE],
   "how-to-become-bookkeeping-virtual-assistant": [GET_PAID_GUIDE],
+  "get-paid-virtual-assistant-philippines": [RATE_GUIDE, SSS_GUIDE],
   "ecommerce-va-vs-in-house-assistant": [RATE_GUIDE],
-  "hourly-rates-for-filipino-virtual-project-manager": [RATE_GUIDE],
+  "hourly-rates-for-filipino-virtual-project-manager": [RATE_GUIDE, RATE_REPORT],
   "how-to-pay-a-filipino-virtual-assistant-directly": [RATE_GUIDE, SSS_GUIDE],
   "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines": [RATE_GUIDE]
 };
@@ -83,6 +155,11 @@ export const SERVICE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "general-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE],
   "executive-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE],
   "fulfilment": [ECOMMERCE_TASKS],
+  "dental-virtual-assistant": [DENTAL_INTERVIEW, DENTAL_COST],
+  "hvac-virtual-assistant": [HVAC_HIRING, HVAC_COST],
+  "ebay-virtual-assistant": [EBAY_HIRING, EBAY_COST],
+  "transcription": [RATE_GUIDE],
+  "travel-lifestyle": [RATE_GUIDE],
   "content-writing": [CONTENT_MARKETING_GUIDE]
 };
 

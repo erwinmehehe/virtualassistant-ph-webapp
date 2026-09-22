@@ -8,7 +8,7 @@ export function ManageBookingForm({ token, days, rebookOnly = false }: { token: 
   const [slot, setSlot] = useState("");
   return <div className="booking-client-form">
     <section className="booking-section">
-      <div className="booking-section-title"><h2>{rebookOnly ? "Choose a new time" : "Choose a new time"}</h2><p>{rebookOnly ? "Pick any available time below to rebook your discovery call." : "All available times are shown in Philippine time."}</p></div>
+      <div className="booking-section-title"><h2>Choose a new time</h2><p>{rebookOnly ? "Pick any available time below to rebook your discovery call." : "All available times are shown in Philippine time."}</p></div>
       <form action={rescheduleDiscoveryBookingAction}>
         <input type="hidden" name="token" value={token}/><input type="hidden" name="scheduled_at" value={slot}/>
         <div className="booking-time-grid" role="radiogroup" aria-label="Available discovery call times">

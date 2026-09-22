@@ -269,6 +269,35 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   "insurance-broker-renewal-desk": {
     heroIntro: "Insurance brokers need renewal files complete before advice and placement decisions begin. A renewal desk can chase approved information, update broking systems and prepare factual comparison schedules while licensed recommendations and binding decisions remain with the broker."
   }
+  "nonprofits": {
+    seoLabel: "Nonprofits & Charities",
+    heroIntro: "Nonprofit teams lose time when donor records, volunteer coordination, event administration, newsletters and recurring operations are split across inboxes and spreadsheets. A Virtual Assistant can own that administrative layer while fundraising strategy, governance, financial authority and sensitive beneficiary decisions stay with accountable staff.",
+    workflowDetails: {
+      "donor CRM updates": "Keep donor contact details, interactions, campaign tags, notes and follow-up fields current so development staff can trust the CRM instead of rebuilding history from email.",
+      "volunteer coordination": "Track volunteer availability, schedules, confirmations and routine communication while safeguarding personal information and escalating issues that require staff judgment.",
+      "event administration": "Coordinate approved invitations, attendee lists, reminders, venue or supplier follow-up and post-event administration against a shared checklist.",
+      "newsletter preparation": "Prepare approved newsletter content, formatting, links, audience segments and send checklists while final messaging and fundraising claims remain with the organization.",
+      "research": "Compile publicly available grant, partner, donor or program information from approved sources and document where each item came from.",
+      "calendar and inbox support": "Triage routine correspondence, schedule meetings, create reminders and route sensitive or strategic messages to the appropriate staff member.",
+      "document organization": "Maintain naming, folders, templates and version control for recurring operational documents while restricting access to sensitive records.",
+      "report preparation": "Prepare administrative summaries for donor activity, volunteers, events and open tasks so managers can focus on exceptions and decisions."
+    },
+    toolDetails: {
+      "Salesforce": "Donor or stakeholder CRM records, activities, campaigns and follow-up.",
+      "HubSpot": "Contact records, outreach tracking, forms and marketing administration.",
+      "Mailchimp": "Newsletter builds, audience administration and campaign QA.",
+      "Canva": "Templated event, newsletter and social assets from approved brand materials.",
+      "Google Workspace": "Email, calendars, documents, spreadsheets and shared operational records.",
+      "Microsoft 365": "Email, calendars, documents and team coordination."
+    },
+    first30Days: [
+      "Week 1: map donor, volunteer, event and communication workflows plus privacy and approval boundaries.",
+      "Week 2: own a limited CRM-cleanup or coordination queue with staff review.",
+      "Week 3: add newsletter, event or research administration once record accuracy is consistent.",
+      "Week 4: review CRM quality, overdue follow-up, volunteer communication and unresolved exceptions."
+    ],
+    metrics: ["Donor records with a next action", "CRM records missing key fields", "Volunteer confirmations completed", "Event checklist items overdue", "Newsletter QA corrections", "Research items with source notes", "Inbox items awaiting ownership", "Recurring admin backlog"]
+  },
 };
 
 export function industrySeoTitle(industry: IndustryPage) {

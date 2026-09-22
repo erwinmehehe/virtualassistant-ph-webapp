@@ -38,8 +38,8 @@ const roles = [
     role: "admin",
     email: process.env.SMOKE_ADMIN_EMAIL,
     password: process.env.SMOKE_ADMIN_PASSWORD,
-    path: "/workspace/admin",
-    marker: "Operations by exception",
+    path: "/workspace/admin/today",
+    marker: "Owner Command Center",
     forbiddenPath: "/workspace/client"
   }
 ];

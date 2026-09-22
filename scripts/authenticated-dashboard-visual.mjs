@@ -13,7 +13,7 @@ if (!baseUrl || !supabaseUrl || !anonKey) {
 const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
 const outputDir = path.resolve("artifacts/dashboard-visual");
 const roles = [
-  { role: "admin", email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin", marker: "Operations by exception" },
+  { role: "admin", email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin/today", marker: "Owner Command Center" },
   { role: "recruiter", email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter", marker: "Today’s work" },
   { role: "client", email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
   { role: "va", email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }

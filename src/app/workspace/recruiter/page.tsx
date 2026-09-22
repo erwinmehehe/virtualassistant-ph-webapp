@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AlertCircle, ArrowRight, BriefcaseBusiness, CalendarClock, CheckCircle2, CirclePlay, CircleX, Clock3, Mail, MessageSquare, Sparkles, Star, TrendingUp, UserRoundCheck } from "lucide-react";
+import { AlertCircle, ArrowRight, BriefcaseBusiness, CalendarClock, CheckCircle2, CirclePlay, CircleX, Clock3, Eye, Mail, MessageSquare, Sparkles, Star, TrendingUp, UserRoundCheck } from "lucide-react";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { BarChart, DashHeader, Empty, Notice, Panel, Pill, ProgressRing, SignalList, StatCard, type Tone } from "@/components/dash-ui";
 import { requireRoleFast } from "@/lib/auth";
@@ -123,14 +123,14 @@ function RecruiterVettingQueue({ unreviewed, queueRows }: { unreviewed: number; 
                   <div className="dash-chip-row">
                     <span className="dash-chip"><CirclePlay size={12} aria-hidden="true" /> Video {row.video_url ? "submitted" : "pending"}</span>
                     <span className="dash-chip"><Star size={12} aria-hidden="true" /> Test {testScore != null ? `${testScore}%` : "pending"}</span>
-                    {completion < PUBLIC_VA_MIN_COMPLETION ? <Pill tone="amber">under {PUBLIC_VA_MIN_COMPLETION}%</Pill> : null}
+                    {completion < APPROVAL_MIN_COMPLETION ? <Pill tone="amber">under {APPROVAL_MIN_COMPLETION}%</Pill> : <Pill tone="emerald">approval-ready</Pill>}
                   </div>
                 </div>
               </div>
               <div className="dash-queue-actions">
                 <form action={bulkRecruiterVaAction}>
                   <input type="hidden" name="va_id" value={row.va_id} />
-                  <input type="hidden" name="bulk_action" value="approve_publish" />
+                  <input type="hidden" name="bulk_action" value="approve" />
                   <input type="hidden" name="return_to" value="/workspace/recruiter" />
                   <button className="dash-btn dash-btn-success" type="submit"><CheckCircle2 size={15} aria-hidden="true" /> Approve</button>
                 </form>
@@ -244,7 +244,7 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
   const admin = createAdminClient();
   const nowIso = new Date().toISOString();
   const nextWeekIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-  const [{ data, error }, { data: myDayData, error: myDayError }, { data: discoveryData, error: discoveryError }] = await Promise.all([
+  const [{ data, error }, { data: myDayData, error: myDayError }, { data: discoveryData, error: discoveryError }, { count: approvalReadyCount, error: approvalReadyError }] = await Promise.all([
     admin.rpc("recruiter_dashboard_overview", { p_queue_limit: QUEUE_PREVIEW }),
     admin.rpc("recruiter_today_queue", { p_user_id: userId, p_limit: 5 }),
     admin
@@ -256,11 +256,18 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
       .gte("discovery_scheduled_at", nowIso)
       .lt("discovery_scheduled_at", nextWeekIso)
       .order("discovery_scheduled_at")
-      .limit(8)
+      .limit(8),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id", { count: "exact", head: true })
+      .eq("account_status", "active")
+      .gte("completion_score", APPROVAL_MIN_COMPLETION)
+      .not("stage", "in", "(approved,bench,rejected)")
   ]);
   if (error) throw error;
   if (myDayError) throw myDayError;
   if (discoveryError) throw discoveryError;
+  if (approvalReadyError) throw approvalReadyError;
 
   const overview = (data || {}) as RecruiterDashboardOverview;
   const metrics = overview.metrics || {};
@@ -326,7 +333,8 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
           <RecruiterRolesNeedingMatching count={rolesWithoutCandidates} jobs={jobs}/>
           <Panel title="Hiring and talent signals">
             <SignalList items={[
-              { label: "Ready to approve", count: value("ready"), href: "/workspace/recruiter/talent?readiness=ready", icon: <UserRoundCheck size={16} />, hint: `${PUBLIC_VA_MIN_COMPLETION}%+ profile with a photo` },
+              { label: "Approval-ready profiles", count: Number(approvalReadyCount || 0), href: "/workspace/recruiter/talent?readiness=approval_ready", icon: <UserRoundCheck size={16} />, hint: `${APPROVAL_MIN_COMPLETION}%+ complete; photo not required for recruiter approval` },
+              { label: "Public-ready profiles", count: value("ready"), href: "/workspace/recruiter/talent?readiness=ready", icon: <Eye size={16} />, hint: `${PUBLIC_VA_MIN_COMPLETION}%+ profile with a photo` },
               { label: "Active client roles", count: value("active_jobs"), href: "/workspace/recruiter/matching", icon: <BriefcaseBusiness size={16} />, hint: `${rolesWithoutCandidates} with no candidates yet` },
               { label: "Incomplete profiles", count: value("incomplete"), href: "/workspace/recruiter/talent?readiness=incomplete", icon: <AlertCircle size={16} />, hint: "Missing details clients need" },
               { label: "New applications", count: value("new_apps"), href: "/workspace/recruiter/matching?view=applications", icon: <CheckCircle2 size={16} />, hint: "Across all roles" },

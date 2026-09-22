@@ -18,6 +18,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  Target,
   UsersRound,
   Wrench
 } from "lucide-react";
@@ -78,6 +79,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       label: "Recruiting tools",
       items: [
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
+        ["Coverage", "/workspace/recruiter/coverage", Target],
       ],
     },
     {

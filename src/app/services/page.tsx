@@ -9,7 +9,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Services Philippines | 74+ VA Roles",
+  title: "Virtual Assistant Services Philippines | VA Roles",
   description: "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.",
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
   alternates: { canonical: canonicalPath("/services") }

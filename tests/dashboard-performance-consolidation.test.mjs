@@ -17,6 +17,8 @@ test("staff landing dashboards use one compact summary RPC each",async()=>{
   assert.equal((admin.match(/\.rpc\(/g)||[]).length,1);
   assert.doesNotMatch(admin,/\.from\("/);
   assert.doesNotMatch(admin,/\.limit\(250\)/);
+  assert.match(recruiter,/withServerTiming\("recruiter\.today_summary"/);
+  assert.match(admin,/withServerTiming\("admin\.today_summary"/);
 });
 
 test("client and VA homes retain their existing summary fast paths",async()=>{
@@ -38,4 +40,13 @@ test("recruiter overview is consolidated into My Day",async()=>{
   assert.match(root,/redirect\("\/workspace\/recruiter\/today"\)/);
   assert.doesNotMatch(nav,/\["Overview", "\/workspace\/recruiter"/);
   assert.match(shell,/recruiter:\s*"\/workspace\/recruiter\/today"/);
+});
+
+
+test("workspace auth redirects use canonical role homes",async()=>{
+  const auth=await read("src/lib/auth.ts");
+  assert.match(auth,/recruiter: "\\/workspace\\/recruiter\\/today"/);
+  assert.match(auth,/admin: "\\/workspace\\/admin\\/today"/);
+  assert.match(auth,/redirect\(roleHome\(actual as Role\)\)/);
+  assert.match(auth,/encodeURIComponent\(roleHome\(role\)\)/);
 });

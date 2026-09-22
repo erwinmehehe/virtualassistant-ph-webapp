@@ -90,7 +90,7 @@ for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assi
   assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);
 }
 
-for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
+for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant", "hubspot-virtual-assistant", "xero-virtual-assistant", "klaviyo-virtual-assistant", "quickbooks-virtual-assistant"]) {
   assert(files.software.includes(`slug: "${softwareSlug}"`), `missing software expansion page: ${softwareSlug}`);
 }
 
@@ -120,7 +120,7 @@ console.log(JSON.stringify({
   manualResources: candidateSlugs.length,
   totalResources: roleServiceSlugs.length * 6 + candidateSlugs.length,
   authorityPages: expectedAuthorityPaths.length,
-  softwarePagesAdded: 3,
+  softwarePagesAdded: 7,
   failures: failures.length,
   warnings: warnings.length
 }, null, 2));

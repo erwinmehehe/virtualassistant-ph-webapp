@@ -1358,46 +1358,6 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["professional-services-growth","small-business","startups"]
   },
   {
-    slug: "salesforce-virtual-assistant",
-    name: "Salesforce Virtual Assistant",
-    software: "Salesforce",
-    category: "CRM & Sales",
-    directoryCategory: "Lead Generation & Sales",
-    primaryKeyword: "salesforce virtual assistant",
-    metaTitle: "Hire Salesforce Virtual Assistant Philippines",
-    metaDescription: "Hire Salesforce Virtual Assistant support for contact cleanup, opportunity updates, activity logging, lead routing, task queues and CRM reporting.",
-    h1: "Keep Salesforce Records and Follow-Up Queues Current",
-    intro: "A Salesforce Virtual Assistant can own repeatable CRM administration so sales and service teams spend less time correcting records and chasing missing next actions.",
-    focus: "salesforce crm administration",
-    workflows: ["update contact and account records","maintain opportunity stages","log approved activities","manage task queues","route leads","deduplicate records","prepare reports","document exceptions"],
-    tasks: ["crm data entry","opportunity updates","activity logging","lead routing","duplicate cleanup","reporting","task administration"],
-    bestFor: ["B2B sales teams","professional-services firms","financial-services teams","nonprofits"],
-    outcomes: ["Pipeline data stays more reliable.","Open follow-up becomes easier to see.","Managers spend less time repairing CRM records."],
-    hiringNotes: ["Document field definitions and stage rules.","Use role-based Salesforce permissions.","Keep commercial approvals and destructive admin actions with authorised users."],
-    relatedServiceSlugs: ["crm","sales-virtual-assistant","lead-generation","admin-inbox"],
-    relatedIndustrySlugs: ["professional-services-growth","banking-financial-services","nonprofits"]
-  },
-  {
-    slug: "gohighlevel-virtual-assistant",
-    name: "GoHighLevel Virtual Assistant",
-    software: "GoHighLevel",
-    category: "CRM & Marketing",
-    directoryCategory: "Marketing & Social Media",
-    primaryKeyword: "gohighlevel virtual assistant",
-    metaTitle: "Hire GoHighLevel Virtual Assistant Philippines",
-    metaDescription: "Hire GoHighLevel Virtual Assistant support for CRM updates, pipeline stages, calendars, approved automations, lead follow-up and campaign admin.",
-    h1: "Keep GoHighLevel Pipelines, Calendars and Lead Follow-Up Organised",
-    intro: "A GoHighLevel Virtual Assistant can maintain day-to-day CRM and campaign administration while strategy, offers and high-impact automation changes stay with your team.",
-    focus: "gohighlevel crm and campaign administration",
-    workflows: ["update contact records","maintain opportunity stages","manage calendars","prepare approved workflows","check lead routing","record follow-up activity","clean duplicate records","prepare campaign reports"],
-    tasks: ["crm administration","pipeline updates","calendar setup","workflow support","lead routing","follow-up logging","reporting"],
-    bestFor: ["marketing agencies","local-service businesses","lead generation teams"],
-    outcomes: ["Lead records have clearer next actions.","Calendar and pipeline data stay current.","Routine campaign administration takes less manager time."],
-    hiringNotes: ["Document pipeline stages and automation ownership.","Restrict billing, domain and destructive workflow permissions.","Require review before activating material automation changes."],
-    relatedServiceSlugs: ["crm","lead-generation","appointment-setter-virtual-assistant","digital-marketing-virtual-assistant"],
-    relatedIndustrySlugs: ["home-local-services","professional-services-growth","small-business"]
-  },
-  {
     slug: "xero-virtual-assistant",
     name: "Xero Virtual Assistant",
     software: "Xero",
@@ -1416,26 +1376,6 @@ export const softwarePages: SoftwareSeoPage[] = [
     hiringNotes: ["Separate data preparation from approval.","Limit payment and banking permissions.","Keep tax positions, final journals and financial advice with qualified professionals."],
     relatedServiceSlugs: ["bookkeeping","accounting-virtual-assistant","month-end-production-virtual-assistant"],
     relatedIndustrySlugs: ["accountants-cpas","accounting-firms-month-end","small-business"]
-  },
-  {
-    slug: "canva-virtual-assistant",
-    name: "Canva Virtual Assistant",
-    software: "Canva",
-    category: "Design & Marketing",
-    directoryCategory: "Video Editing & Creative",
-    primaryKeyword: "canva virtual assistant",
-    metaTitle: "Hire Canva Virtual Assistant Philippines",
-    metaDescription: "Hire Canva Virtual Assistant support for social graphics, presentation updates, template production, resizing, brand assets and design workflow admin.",
-    h1: "Turn Approved Brand Templates Into Consistent Canva Production",
-    intro: "A Canva Virtual Assistant can handle repeatable design production from approved templates so marketers and founders spend less time resizing, formatting and organising routine assets.",
-    focus: "canva design production and asset administration",
-    workflows: ["receive the approved brief","select the correct brand template","produce requested variations","check text and dimensions","organise files","route drafts for review","apply approved revisions","archive final assets"],
-    tasks: ["social graphic production","presentation updates","template production","asset resizing","thumbnail creation","brand asset organisation","revision handling"],
-    bestFor: ["marketing teams","content creators","small businesses","ecommerce brands"],
-    outcomes: ["Routine design work moves faster.","Brand templates are used more consistently.","Creative leads spend less time on production edits."],
-    hiringNotes: ["Provide brand rules and approved templates.","Keep final claims and major creative direction with the client.","Confirm image, font and asset rights before publishing."],
-    relatedServiceSlugs: ["graphic-design","social-media","content-marketing-virtual-assistant"],
-    relatedIndustrySlugs: ["photographers-creatives","ecommerce-stores","small-business"]
   },
   {
     slug: "klaviyo-virtual-assistant",
@@ -1476,7 +1416,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     hiringNotes: ["Use role-based access and approval rules.","Keep payment authority and bank changes restricted.","Keep tax, final accounting and financial advice with qualified professionals."],
     relatedServiceSlugs: ["quickbooks-virtual-assistant","bookkeeping","accounting-virtual-assistant"],
     relatedIndustrySlugs: ["small-business","accountants-cpas","accounting-firms-month-end"]
-  },
+  }
 ];
 
 export const softwarePagesBySlug = Object.fromEntries(

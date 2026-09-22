@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /**
- * The programmatic pages (74 services, 33 industries, 20 software guides) are
+ * The programmatic pages (76 services, 33 industries, and the current software guides) are
  * cheap to add and easy to point at a term a sibling page already owns. These
  * checks keep one page per query and stop a page targeting a phrase made only
  * of words every page shares.

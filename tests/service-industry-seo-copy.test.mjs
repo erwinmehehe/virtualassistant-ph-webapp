@@ -18,7 +18,7 @@ function parseArray(path, marker) {
 test("all service pages use reviewed full-role meta descriptions", () => {
   const serviceSource = source("src/lib/service-pages.ts");
   const pages = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
-  assert.equal(pages.length, 74);
+  assert.equal(pages.length, 76);
   assert.match(serviceSource, /return page\.metaDescription\.replace/);
   assert.doesNotMatch(serviceSource, /replace\([^\n]+Virtual Assistant[^\n]+" VA"/);
 

@@ -54,7 +54,7 @@ for (const unsafe of [
 assert(candidateSlugs.length === 17, `expected 17 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
 assert(files.resources.includes("ROLE_CLUSTERS.flatMap"), "role resources must be generated from the role cluster map");
-for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", "costPage"]) {
+for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", "costPage", "toolsPage"]) {
   assert(files.resources.includes(fn + "(cluster)"), `missing generated resource family: ${fn}`);
 }
 
@@ -90,7 +90,7 @@ for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assi
   assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);
 }
 
-for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
+for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant", "hubspot-virtual-assistant", "xero-virtual-assistant", "klaviyo-virtual-assistant", "quickbooks-virtual-assistant"]) {
   assert(files.software.includes(`slug: "${softwareSlug}"`), `missing software expansion page: ${softwareSlug}`);
 }
 
@@ -116,11 +116,11 @@ for (const desc of descValues) {
 
 console.log(JSON.stringify({
   roleClusters: roleServiceSlugs.length,
-  generatedClientResources: roleServiceSlugs.length * 5,
+  generatedClientResources: roleServiceSlugs.length * 6,
   manualResources: candidateSlugs.length,
-  totalResources: roleServiceSlugs.length * 5 + candidateSlugs.length,
+  totalResources: roleServiceSlugs.length * 6 + candidateSlugs.length,
   authorityPages: expectedAuthorityPaths.length,
-  softwarePagesAdded: 3,
+  softwarePagesAdded: 7,
   failures: failures.length,
   warnings: warnings.length
 }, null, 2));

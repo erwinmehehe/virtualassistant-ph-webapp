@@ -1,13 +1,13 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateClientProfileAction } from "@/app/actions/profile";
 import { updatePublicCompanyVisibilityAction } from "@/app/actions/company-visibility";
 
 export default async function ClientCompanyPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  const {user,profile}=await requireRole("client");
+  const {userId,profile}=await requireRoleFast("client");
   const supabase=await createClient();
-  const {data:company}=await supabase.from("client_profiles").select("*").eq("user_id",user.id).single();
+  const {data:company}=await supabase.from("client_profiles").select("*").eq("user_id",userId).single();
   return <>
     {params.visibility==="public"?<div className="success-banner">Your company can now appear by name on public job listings.</div>:null}
     {params.visibility==="private"?<div className="success-banner">Public company identity is off. Public job listings will use “Confidential Client”.</div>:null}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, Clock3 } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { JobSummaryRow } from "@/lib/workspace-rows";
 
@@ -9,8 +9,8 @@ import { confirmPlacementOfferAction } from "@/app/actions/recruiter-operations-
 import { clientFacingVaName, offerRevealsIdentity } from "@/lib/va-identity";
 
 export default async function ClientOffersPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const query=await searchParams;const {user}=await requireRole("client");const admin=createAdminClient();
-  const {data:offerData,error}=await admin.from("placement_offers").select("*").eq("client_id",user.id).order("created_at",{ascending:false}).limit(100);if(error)throw error;
+  const query=await searchParams;const {userId}=await requireRoleFast("client");const admin=createAdminClient();
+  const {data:offerData,error}=await admin.from("placement_offers").select("*").eq("client_id",userId).order("created_at",{ascending:false}).limit(100);if(error)throw error;
   const offers=(offerData||[]) as ClientOfferRow[];
   const jobIds=[...new Set(offers.map((row)=>row.job_id))];const vaIds=[...new Set(offers.map((row)=>row.va_id))];
   const [{data:jobs},{data:profiles}]=await Promise.all([

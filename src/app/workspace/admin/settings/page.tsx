@@ -1,9 +1,9 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateFocusVerticalAction, updateMarketplaceSettingsAction } from "@/app/actions/settings";
 
 export default async function MarketplaceSettingsPage(){
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const [{data:settings},{data:verticals},{data:agencyPeople}]=await Promise.all([
     admin.from("admin_settings").select("*").eq("id",1).single(),

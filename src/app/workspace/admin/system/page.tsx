@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getRuntimeSetupStatus } from "@/lib/env-status";
 import { sendSystemTestEmailAction } from "@/app/actions/admin";
@@ -10,13 +10,13 @@ function StatusBadge({ configured, manual = false }: { configured: boolean | nul
 
 export default async function AdminSystemPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
-  const { user } = await requireRole("admin");
+  const { userId } = await requireRoleFast("admin");
   const admin = createAdminClient();
   const status = getRuntimeSetupStatus();
   const [{ count: admins }, { count: recruiters }, { data: authUser }] = await Promise.all([
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "recruiter"),
-    admin.auth.admin.getUserById(user.id)
+    admin.auth.admin.getUserById(userId)
   ]);
   const adminEmail = authUser.user?.email || null;
 

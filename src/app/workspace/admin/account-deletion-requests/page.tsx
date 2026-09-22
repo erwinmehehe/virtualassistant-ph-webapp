@@ -1,6 +1,7 @@
 import { reviewAccountDeletionRequestAction } from "@/app/actions/account-security";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { PublicAvatar } from "@/components/public-avatar";
 
 type DeletionRequestRow = {
   user_id: string;
@@ -23,7 +24,7 @@ export default async function AdminAccountDeletionRequestsPage({
 }: {
   searchParams: Promise<{ message?: string; error?: string }>;
 }) {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const params = await searchParams;
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -37,8 +38,8 @@ export default async function AdminAccountDeletionRequestsPage({
   const requests = (data ?? []) as DeletionRequestRow[];
   const userIds = [...new Set(requests.map((row) => row.user_id))];
   const { data: profiles } = userIds.length
-    ? await admin.from("profiles").select("id,full_name,role").in("id", userIds)
-    : { data: [] as Array<{ id: string; full_name: string | null; role: string }> };
+    ? await admin.from("profiles").select("id,full_name,role,avatar_url").in("id", userIds)
+    : { data: [] as Array<{ id: string; full_name: string | null; role: string; avatar_url: string | null }> };
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
   const emailEntries = await Promise.all(userIds.map(async (userId) => {
@@ -78,8 +79,7 @@ export default async function AdminAccountDeletionRequestsPage({
                   return (
                     <tr key={request.user_id}>
                       <td>
-                        <strong>{profile?.full_name || emailMap.get(request.user_id) || "Account"}</strong>
-                        <div className="muted small">{emailMap.get(request.user_id) || "Email unavailable"} · {profile?.role || "unknown role"}</div>
+                        <div className="row"><PublicAvatar name={profile?.full_name || "Account"} src={profile?.avatar_url} size="sm"/><div><strong>{profile?.full_name || emailMap.get(request.user_id) || "Account"}</strong><div className="muted small">{emailMap.get(request.user_id) || "Email unavailable"} · {profile?.role || "unknown role"}</div></div></div>
                       </td>
                       <td><span className="status-badge">{request.status}</span></td>
                       <td>

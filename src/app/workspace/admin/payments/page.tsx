@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createInvoiceAction, releasePayoutAction, resolveDisputeReleaseAction, resolveDisputeRefundAction } from "@/app/actions/payments";
 import { createApprovedTimeInvoiceAction } from "@/app/actions/approved-time-invoice";
@@ -14,7 +14,7 @@ const statusLabel:Record<string,string>={draft:"Draft",awaiting_payment:"Awaitin
 
 export default async function AdminPaymentsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const [{data:paymentData},{data:workroomData},{data:timeEntryData}]=await Promise.all([
     admin.from("payments").select("id,description,amount_total,currency,status,paid_at,released_at,created_at,client_id,va_id,workroom_id,dispute_reason,dispute_resolution,provider_payment_id,release_note,profiles_client:profiles!payments_client_id_fkey(full_name),profiles_va:profiles!payments_va_id_fkey(full_name)").order("created_at",{ascending:false}).limit(100),

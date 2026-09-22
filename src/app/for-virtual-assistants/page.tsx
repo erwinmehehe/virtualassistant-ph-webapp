@@ -28,6 +28,7 @@ export default function ForVirtualAssistantsPage() {
         <div className="row wrap">
           <Link className="btn btn-primary btn-lg" href="/auth/join/va">Create your profile <ArrowRight size={16}/></Link>
           <Link className="btn btn-lg" href="/jobs">Browse Virtual Assistant jobs</Link>
+          <Link className="btn btn-ghost btn-lg" href="/resources">VA career resources</Link>
           <Link className="btn btn-ghost btn-lg" href="/auth/login?next=%2Fworkspace%2Fva">Open your workspace</Link>
         </div>
       </div>

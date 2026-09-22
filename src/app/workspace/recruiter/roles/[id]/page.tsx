@@ -86,7 +86,7 @@ export default async function RoleControlCenter({
           .maybeSingle()
       : Promise.resolve({ data: null }),
     admin.from("job_commercials").select("*").eq("job_id", id).maybeSingle(),
-    admin.from("job_shortlist_candidates").select("*").eq("job_id", id).order("created_at"),
+    admin.from("job_shortlist_candidates").select("*").eq("job_id", id).order("shortlist_order", { ascending: true, nullsFirst: false }).order("created_at"),
     admin.from("candidate_interviews").select("*").eq("job_id", id).order("created_at"),
     admin.from("placement_offers").select("*").eq("job_id", id).order("created_at", { ascending: false }),
     admin

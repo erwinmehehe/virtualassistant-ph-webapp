@@ -117,7 +117,7 @@ test("public resource copy avoids internal SEO jargon", () => {
 
   assert.ok(hub.includes("Virtual Assistant hiring and career resources."));
   assert.ok(hub.includes("Virtual Assistant hiring guides"));
-  assert.ok(hub.includes("Virtual Assistant career guides"));
+  assert.ok(hub.includes("Career guidance now lives in the blog"));
   assert.ok(detail.includes("Keep planning your next step."));
 });
 
@@ -209,9 +209,9 @@ test("new services inherit indexable static routes, sitemap entries, canonicals,
 test("commercial hubs bridge broad demand to one canonical owner", () => {
   const requiredLinks = new Map([
     ["src/app/services/page.tsx", ["/outsourcing-philippines-virtual-assistant", "/pricing"]],
-    ["src/app/hire/page.tsx", ["/services", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]],
+    ["src/app/hire/page.tsx", ["/services", "/pricing", "/blog/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]],
     ["src/app/pricing/page.tsx", ["/services", "/find-talent", "/outsourcing-philippines-virtual-assistant"]],
-    ["src/app/find-talent/page.tsx", ["/services", "/pricing", "/virtual-assistant-companies-philippines"]],
+    ["src/app/find-talent/page.tsx", ["/services", "/pricing", "/blog/virtual-assistant-companies-philippines"]],
   ]);
 
   for (const [path, links] of requiredLinks) {

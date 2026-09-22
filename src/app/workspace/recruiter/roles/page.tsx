@@ -165,7 +165,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
             <td>{row.supply}</td>
             <td>{row.demand}</td>
             <td><span className={"coverage-state "+(row.state==="Healthy"?"healthy":row.state==="Thin coverage"?"thin":row.state==="No talent"?"risk":"quiet")}>{row.state}</span></td>
-            <td><Link className="text-link" href={"/workspace/recruiter/talent?q="+encodeURIComponent(row.category)}>View talent</Link></td>
+            <td><Link className="text-link" href={"/workspace/recruiter/talent?category="+encodeURIComponent(row.category)+"&sort=recent"}>{row.state==="No talent" ? `Source for ${row.demand} role${row.demand===1?"":"s"}` : row.state==="Thin coverage" ? "Review thin pool" : row.demand ? "Review matching pool" : "Browse specialty"}</Link></td>
           </tr>)}</tbody>
         </table>
       </div>

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Clock3, Mail, Search, ShieldCheck } from "lucide-react";
+import { ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { requireRole } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
+import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
 import type { JobOptionRow, RecruiterVaDirectoryRow, VaProfileReminderRow } from "@/lib/workspace-rows";
 
 const PAGE_SIZE = 25;
@@ -131,48 +132,46 @@ export default async function RecruiterTalentDirectory({
     ) : null}
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}
 
-    <form className="recruiter-filter-panel" method="get">
-      <div className="directory-filter-search">
-        <Search size={16} />
-        <input name="q" defaultValue={params.q} placeholder="Search name, headline, category" />
+    <form className="recruiter-filter-panel recruiter-filter-panel-clean" method="get">
+      <div className="filter-primary-row">
+        <label className="directory-filter-search" aria-label="Search Virtual Assistants">
+          <Search size={17} />
+          <input name="q" defaultValue={params.q} placeholder="Search VAs by name, role, or category" />
+        </label>
+        <label className="filter-field">
+          <span>Stage</span>
+          <select name="stage" defaultValue={params.stage || ""}>
+            <option value="">All stages</option>
+            {stages.map((value) => <option key={value} value={value}>{vettingStatusLabel(value)}</option>)}
+          </select>
+        </label>
+        <label className="filter-field">
+          <span>Readiness</span>
+          <select name="readiness" defaultValue={params.readiness || ""}>
+            <option value="">Any readiness</option>
+            <option value="zero">Not started</option>
+            <option value="incomplete">In progress</option>
+            <option value="ready">Public-ready</option>
+            <option value="vetted_hidden">Approved, not public</option>
+          </select>
+        </label>
+        <button className="btn btn-primary filter-apply" type="submit"><SlidersHorizontal size={15} /> Apply</button>
+        <Link className="filter-reset" href="/workspace/recruiter/talent"><X size={14} /> Clear</Link>
       </div>
-      <select name="stage" defaultValue={params.stage || ""}>
-        <option value="">All stages</option>
-        {stages.map((value) => <option key={value} value={value}>{vettingStatusLabel(value)}</option>)}
-      </select>
-      <select name="readiness" defaultValue={params.readiness || ""}>
-        <option value="">Any readiness</option>
-        <option value="zero">0% - Profile not started</option>
-        <option value="incomplete">1-79% - Incomplete</option>
-        <option value="ready">80%+ with a photo - Ready to approve</option>
-        <option value="vetted_hidden">Approved but not public</option>
-      </select>
-      <select name="photo" defaultValue={params.photo || ""}>
-        <option value="">Photo: any</option>
-        <option value="yes">Has photo</option>
-        <option value="no">Missing photo</option>
-      </select>
-      <select name="resume" defaultValue={params.resume || ""}>
-        <option value="">Resume: any</option>
-        <option value="yes">Has resume</option>
-        <option value="no">Missing resume</option>
-      </select>
-      <input name="skill" defaultValue={params.skill} placeholder="Skill contains" />
-      <input type="number" min="0" name="min_experience" defaultValue={params.min_experience} placeholder="Min years" />
-      <input type="number" min="5" step="1" name="max_rate" defaultValue={params.max_rate} placeholder="Max $/hr" />
-      <select name="availability" defaultValue={params.availability || ""}>
-        <option value="">Availability: any</option>
-        <option value="available">Available</option>
-        <option value="unavailable">Unavailable</option>
-      </select>
-      <select name="stale" defaultValue={params.stale || ""}>
-        <option value="">Activity: any</option>
-        <option value="30">Stale 30+ days</option>
-        <option value="60">Stale 60+ days</option>
-        <option value="90">Stale 90+ days</option>
-      </select>
-      <button className="btn btn-primary" type="submit">Apply filters</button>
-      <Link className="btn" href="/workspace/recruiter/talent">Reset</Link>
+
+      <details className="filter-more">
+        <summary><SlidersHorizontal size={15} /><span>More filters</span><ChevronDown size={15} className="filter-more-chevron" /></summary>
+        <div className="filter-more-grid">
+          <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={params.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
+          <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={params.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
+          <label className="filter-field"><span>Availability</span><select name="availability" defaultValue={params.availability || ""}><option value="">Any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>
+          <label className="filter-field"><span>Activity</span><select name="stale" defaultValue={params.stale || ""}><option value="">Any</option><option value="30">Inactive 30+ days</option><option value="60">Inactive 60+ days</option><option value="90">Inactive 90+ days</option></select></label>
+          <label className="filter-field filter-field-wide"><span>Skill</span><input name="skill" defaultValue={params.skill} placeholder="e.g. SEO, bookkeeping" /></label>
+          <label className="filter-field"><span>Min. experience</span><input type="number" min="0" name="min_experience" defaultValue={params.min_experience} placeholder="Years" /></label>
+          <label className="filter-field"><span>Max. hourly rate</span><input type="number" min="5" step="1" name="max_rate" defaultValue={params.max_rate} placeholder="USD / hr" /></label>
+        </div>
+      </details>
+      <div className="filter-context-note">Approval starts at {APPROVAL_MIN_COMPLETION}% profile completion. Public profiles still require a photo and all public-directory requirements.</div>
     </form>
 
     <div className="row-between wrap" style={{ margin: "16px 0" }}>
@@ -190,7 +189,7 @@ export default async function RecruiterTalentDirectory({
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>
-          <option value="approve">Approve eligible (80% + photo)</option>
+          <option value="approve">Approve eligible (60%+)</option>
           <option value="bench">Move approved to Bench</option>
           <option value="approve_publish">Approve + publish if public-ready</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>

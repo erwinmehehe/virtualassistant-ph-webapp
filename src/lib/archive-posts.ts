@@ -39,7 +39,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
     "title": "General Virtual Assistant vs. Executive Virtual Assistant: Which Should You Hire in the Philippines?",
-    "metaTitle": "General Virtual Assistant vs Executive Virtual Assistant",
+    "metaTitle": "General vs Executive Virtual Assistant: Roles Compared",
     "metaDescription": "Compare General and Executive Virtual Assistant roles in the Philippines by tasks, judgment, confidentiality, workflow ownership, and hiring fit.",
     "date": "July 12, 2026",
     "tag": "Hiring Guide",
@@ -56,8 +56,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "get-paid-virtual-assistant-philippines",
     "title": "How to Get Paid as a Virtual Assistant in the Philippines by International Clients",
-    "metaTitle": "How Filipino Virtual Assistants Get Paid by Global Clients",
-    "metaDescription": "See how Filipino Virtual Assistants receive international client payments, choose currency and payment methods, invoice clearly, compare fees, and avoid scams.",
+    "metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines",
+    "metaDescription": "Learn how Filipino Virtual Assistants get paid by international clients, including currency, invoices, transfer methods, fees, records, and scam checks.",
     "date": "July 5, 2026",
     "tag": "Rates & Payments",
     "excerpt": "A candidate-focused guide to getting paid by international clients: agree on currency and schedule, invoice clearly, compare transfer fees, keep records, and avoid payment scams.",
@@ -73,7 +73,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "hourly-rates-for-filipino-virtual-project-manager",
     "title": "Filipino Virtual Project Manager Rates in 2026: Scope and Hiring Guide",
-    "metaTitle": "Filipino Virtual Project Manager Rates: 2026 Guide",
+    "metaTitle": "Virtual Project Manager Rates Philippines | 2026 Guide",
     "metaDescription": "Plan a Filipino virtual project manager budget by scope, ownership, schedule, complexity, stakeholder load, tools, reporting, and decision authority.",
     "date": "March 3, 2026",
     "tag": "Rates & Payments",

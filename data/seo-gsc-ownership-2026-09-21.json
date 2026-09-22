@@ -1,0 +1,262 @@
+{
+  "source": {
+    "file": "https___virtualassistant.com.ph_-Performance-on-Search-2026-09-21.xlsx",
+    "exported": "2026-09-21",
+    "searchType": "Web",
+    "window": "Last 3 months",
+    "normalization": "Trailing-slash and non-trailing-slash variants are combined by normalized path. Position is impression-weighted when variants are combined.",
+    "limitation": "The Queries and Pages tabs are separate aggregates, so query-to-page pairings are not invented."
+  },
+  "canonicalOwnership": [
+    {
+      "cluster": "Virtual Assistant salary Philippines",
+      "canonical": "/blog/virtual-assistant-salary-philippines",
+      "observed": [
+        {
+          "path": "/virtual-assistant-salary-philippines",
+          "clicks": 1,
+          "impressions": 1290,
+          "ctr": 0.0008,
+          "position": 11.73
+        },
+        {
+          "path": "/blog/virtual-assistant-salary-philippines",
+          "clicks": 0,
+          "impressions": 423,
+          "ctr": 0,
+          "position": 20.92
+        }
+      ],
+      "action": "Redirect the legacy root salary URL to the dedicated salary article, not the hourly-rate guide."
+    },
+    {
+      "cluster": "Virtual Assistant hourly rate Philippines",
+      "canonical": "/average-hourly-rate-virtual-assistants-philippines",
+      "observed": [
+        {
+          "path": "/average-hourly-rate-virtual-assistants-philippines",
+          "clicks": 2,
+          "impressions": 1684,
+          "ctr": 0.0012,
+          "position": 10.61
+        },
+        {
+          "path": "/blog/virtual-assistant-hourly-rate-philippines",
+          "clicks": 1,
+          "impressions": 120,
+          "ctr": 0.0083,
+          "position": 17.65
+        },
+        {
+          "path": "/blog/how-much-do-filipino-virtual-assistants-typically-charge-per-hour",
+          "clicks": 0,
+          "impressions": 61,
+          "ctr": 0,
+          "position": 11.98
+        }
+      ],
+      "action": "Keep the root hourly-rate guide as owner; legacy rate variants already consolidate into it."
+    },
+    {
+      "cluster": "Virtual project manager rates Philippines",
+      "canonical": "/blog/hourly-rates-for-filipino-virtual-project-manager",
+      "observed": [
+        {
+          "path": "/rate-project-manager-virtual-assistant",
+          "clicks": 1,
+          "impressions": 157,
+          "ctr": 0.0064,
+          "position": 9.37
+        },
+        {
+          "path": "/blog/hourly-rates-for-filipino-virtual-project-manager",
+          "clicks": 2,
+          "impressions": 105,
+          "ctr": 0.019,
+          "position": 7.22
+        }
+      ],
+      "action": "Keep the detailed project-manager rate guide as owner and preserve permanent legacy redirects."
+    },
+    {
+      "cluster": "Paying a Filipino Virtual Assistant",
+      "canonical": "/blog/how-to-pay-a-filipino-virtual-assistant-directly",
+      "observed": [
+        {
+          "path": "/blog/how-to-pay-a-filipino-virtual-assistant-directly",
+          "clicks": 2,
+          "impressions": 155,
+          "ctr": 0.0129,
+          "position": 13.55
+        },
+        {
+          "path": "/how-to-pay-a-virtual-assistant-in-the-philippines-in-depth-2026-guide",
+          "clicks": 0,
+          "impressions": 71,
+          "ctr": 0,
+          "position": 14.54
+        },
+        {
+          "path": "/blog/how-to-pay-a-virtual-assistant-in-the-philippines-in-depth-2026-guide",
+          "clicks": 0,
+          "impressions": 68,
+          "ctr": 0,
+          "position": 13.69
+        }
+      ],
+      "action": "Keep the direct-payment guide as owner; old in-depth URLs remain permanent redirects."
+    },
+    {
+      "cluster": "SEO Virtual Assistant Philippines",
+      "canonical": "/service/seo",
+      "observed": [
+        {
+          "path": "/seo-virtual-assistant-philippines-guide",
+          "clicks": 0,
+          "impressions": 65,
+          "ctr": 0,
+          "position": 17.69
+        }
+      ],
+      "action": "Keep the service page as the commercial owner and preserve the old guide redirect."
+    }
+  ],
+  "ctrOpportunities": [
+    {
+      "path": "/average-hourly-rate-virtual-assistants-philippines",
+      "impressions": 1684,
+      "clicks": 2,
+      "ctr": 0.0012,
+      "position": 10.61
+    },
+    {
+      "path": "/virtual-assistant-salary-philippines",
+      "impressions": 1290,
+      "clicks": 1,
+      "ctr": 0.0008,
+      "position": 11.73
+    },
+    {
+      "path": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
+      "impressions": 323,
+      "clicks": 7,
+      "ctr": 0.0217,
+      "position": 9.02
+    },
+    {
+      "path": "/blog/get-paid-virtual-assistant-philippines",
+      "impressions": 263,
+      "clicks": 1,
+      "ctr": 0.0038,
+      "position": 6.35
+    },
+    {
+      "path": "/blog/general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
+      "impressions": 248,
+      "clicks": 0,
+      "ctr": 0,
+      "position": 9.01
+    },
+    {
+      "path": "/rate-project-manager-virtual-assistant",
+      "impressions": 157,
+      "clicks": 1,
+      "ctr": 0.0064,
+      "position": 9.37
+    },
+    {
+      "path": "/blog/how-to-pay-a-filipino-virtual-assistant-directly",
+      "impressions": 155,
+      "clicks": 2,
+      "ctr": 0.0129,
+      "position": 13.55
+    },
+    {
+      "path": "/blog/virtual-assistant-hourly-rate-philippines",
+      "impressions": 120,
+      "clicks": 1,
+      "ctr": 0.0083,
+      "position": 17.65
+    },
+    {
+      "path": "/blog/hourly-rates-for-filipino-virtual-project-manager",
+      "impressions": 105,
+      "clicks": 2,
+      "ctr": 0.019,
+      "position": 7.22
+    }
+  ],
+  "queryThemesAtPositions4To20": [
+    {
+      "query": "agency for virtual assistants philippines",
+      "impressions": 10,
+      "clicks": 0,
+      "position": 4.5
+    },
+    {
+      "query": "hourly rate for virtual assistant philippines",
+      "impressions": 10,
+      "clicks": 0,
+      "position": 11
+    },
+    {
+      "query": "what is executive virtual assistant",
+      "impressions": 8,
+      "clicks": 0,
+      "position": 8.62
+    },
+    {
+      "query": "general va vs executive va",
+      "impressions": 7,
+      "clicks": 0,
+      "position": 8.43
+    },
+    {
+      "query": "va rate per hour philippines",
+      "impressions": 7,
+      "clicks": 0,
+      "position": 10.71
+    },
+    {
+      "query": "general virtual assistant hiring",
+      "impressions": 6,
+      "clicks": 1,
+      "position": 16
+    },
+    {
+      "query": "minimum wage for virtual assistant per hour",
+      "impressions": 4,
+      "clicks": 0,
+      "position": 6
+    },
+    {
+      "query": "virtual assistant salary per hour",
+      "impressions": 4,
+      "clicks": 0,
+      "position": 10
+    }
+  ],
+  "authorityLinkSources": [
+    "average-hourly-rate-virtual-assistants-philippines",
+    "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
+    "dental-virtual-assistant-interview-questions",
+    "medical-virtual-assistant-interview-questions",
+    "what-does-a-cold-calling-virtual-assistant-do",
+    "medical-virtual-assistant-cost-philippines",
+    "virtual-assistant-salary-philippines",
+    "hire-virtual-assistant-philippines",
+    "outsourcing-philippines-virtual-assistant",
+    "philippines-vs-india-virtual-assistants",
+    "virtual-assistant-vs-employee",
+    "executive-virtual-assistant-cost-philippines",
+    "what-does-a-real-estate-virtual-assistant-do",
+    "what-is-a-virtual-medical-assistant",
+    "what-does-a-shopify-virtual-assistant-do",
+    "how-to-hire-a-medical-virtual-assistant",
+    "virtual-assistant-agency-vs-freelancer",
+    "onlinejobs-ph-vs-virtual-assistant-agency",
+    "what-does-an-appointment-setter-virtual-assistant-do",
+    "hourly-rates-for-filipino-virtual-project-manager",
+    "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines"
+  ]
+}

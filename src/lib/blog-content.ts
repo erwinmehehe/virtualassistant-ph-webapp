@@ -676,7 +676,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "legacyPath": "/average-hourly-rate-virtual-assistants-philippines/",
     "title": "Average Hourly Rate for Virtual Assistants in the Philippines: 2026 Guide",
     "metaTitle": "Virtual Assistant Hourly Rate Philippines: 2026 Guide",
-    "description": "Compare Virtual Assistant hourly rates in the Philippines, what changes the budget, how weekly hours affect monthly cost, and how role scope changes pay.",
+    "description": "Compare 2026 Virtual Assistant hourly rates in the Philippines, including beginner rates, monthly cost examples, experience, hours, and role scope.",
     "excerpt": "Use hourly-rate benchmarks as context, then budget for the responsibility and evidence of skill your role actually needs.",
     "topic": "pricing",
     "clusterLabel": "Pricing",
@@ -834,6 +834,16 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant cost calculator",
         "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
+      },
+      {
+            "label": "Virtual Assistant pricing",
+            "href": "/pricing",
+            "description": "Compare the hiring model, what the service includes, and how pricing relates to the scope and hours you need."
+      },
+      {
+            "label": "Hire a Virtual Assistant",
+            "href": "/hire",
+            "description": "Turn the workload, hours, schedule, and budget into a hiring brief before comparing candidates."
       }
     ]
   },
@@ -10653,6 +10663,16 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant job description generator",
         "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
+      },
+      {
+            "label": "Hire a Virtual Assistant",
+            "href": "/hire",
+            "description": "Start with a structured hiring brief and get matched with vetted Virtual Assistant candidates for the work you need covered."
+      },
+      {
+            "label": "Outsourcing virtual assistant work to the Philippines",
+            "href": "/outsourcing-philippines-virtual-assistant",
+            "description": "Use the outsourcing guide to compare role scope, operating model, screening, and handoff considerations before you hire."
       }
     ],
     "fieldNotes": [
@@ -18071,6 +18091,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant cost calculator",
         "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
+      },
+      {
+            "label": "Virtual Assistant companies in the Philippines",
+            "href": "/virtual-assistant-companies-philippines",
+            "description": "Compare Philippine Virtual Assistant companies and the differences in recruiting, screening, support, and hiring models."
       }
     ]
   },
@@ -22318,8 +22343,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     "slug": "virtual-assistant-salary-philippines",
     "title": "Virtual Assistant Salary in the Philippines: 2026 Guide",
-    "metaTitle": "Virtual Assistant Salary Philippines: 2026 Pay Guide",
-    "description": "Understand Virtual Assistant salary in the Philippines without mixing employee pay, freelance rates, and contractor budgets. Compare scope, hours, seniority.",
+    "metaTitle": "Virtual Assistant Salary Philippines 2026 | Pay Guide",
+    "description": "See Virtual Assistant salary in the Philippines for 2026, plus how monthly pay varies by experience, role scope, hours, and employment setup.",
     "excerpt": "A clearer way to interpret Philippine Virtual Assistant salary data without mixing local employee pay, freelance rates, and specialist pricing into one number.",
     "topic": "pricing",
     "clusterLabel": "Pricing",

@@ -88,7 +88,7 @@ const industrySlugs = slugsFrom(industryPath);
 const blogRoutes = new Set(posts.map(routeForPost));
 const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}`));
 const knownStatic = new Set([
-  '/', '/blog', '/services', '/industries', '/hire',
+  '/', '/blog', '/services', '/industries', '/hire', '/pricing', '/virtual-assistant-companies-philippines',
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need'
 ]);

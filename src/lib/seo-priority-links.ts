@@ -4,6 +4,36 @@ export type SeoPriorityLink = {
   description: string;
 };
 
+const SERVICES_HUB: SeoPriorityLink = {
+  href: "/services",
+  label: "Virtual Assistant services",
+  description: "Compare role categories and move from a broad workload to the service page that owns the specific hiring intent."
+};
+
+const HIRE_HUB: SeoPriorityLink = {
+  href: "/hire",
+  label: "Hire a Virtual Assistant",
+  description: "Turn the workload into a clear hiring brief and start a structured match with vetted Filipino Virtual Assistant candidates."
+};
+
+const PRICING_HUB: SeoPriorityLink = {
+  href: "/pricing",
+  label: "Virtual Assistant pricing",
+  description: "Compare direct-hire and managed-service pricing, what is included, and how role scope and hours affect the budget."
+};
+
+const COMPANIES_GUIDE: SeoPriorityLink = {
+  href: "/virtual-assistant-companies-philippines",
+  label: "Virtual Assistant companies in the Philippines",
+  description: "Compare agencies, recruiters, marketplaces, and managed providers by hiring model, screening, support, and pricing structure."
+};
+
+const OUTSOURCING_GUIDE: SeoPriorityLink = {
+  href: "/outsourcing-philippines-virtual-assistant",
+  label: "Outsourcing Virtual Assistant work to the Philippines",
+  description: "Plan the operating model, role scope, screening, handoff, and management approach before outsourcing recurring work."
+};
+
 const RATE_REPORT: SeoPriorityLink = {
   href: "/research/virtual-assistant-rates-philippines-2026",
   label: "2026 Virtual Assistant Rate & Skills Report",
@@ -126,27 +156,34 @@ const COLD_CALLING_COST: SeoPriorityLink = {
 
 export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT],
-  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE],
-  "dental-virtual-assistant-interview-questions": [DENTAL_COST, DENTAL_SERVICE],
-  "medical-virtual-assistant-interview-questions": [MEDICAL_COST, MEDICAL_SERVICE],
-  "what-does-a-cold-calling-virtual-assistant-do": [COLD_CALLING_SERVICE, COLD_CALLING_COST],
-  "medical-virtual-assistant-cost-philippines": [RATE_REPORT, MEDICAL_SERVICE],
-  "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, DIRECT_PAYMENT],
-  "hire-virtual-assistant-philippines": [RATE_GUIDE, GENERAL_VS_EXECUTIVE],
-  "outsourcing-philippines-virtual-assistant": [SSS_GUIDE, DIRECT_PAYMENT],
-  "philippines-vs-india-virtual-assistants": [SSS_GUIDE, RATE_GUIDE],
-  "virtual-assistant-vs-employee": [SSS_GUIDE, GENERAL_VS_EXECUTIVE],
-  "executive-virtual-assistant-cost-philippines": [GENERAL_VS_EXECUTIVE, RATE_GUIDE]
+  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE, PRICING_HUB],
+  "dental-virtual-assistant-interview-questions": [DENTAL_COST, DENTAL_SERVICE, HIRE_HUB],
+  "medical-virtual-assistant-interview-questions": [MEDICAL_COST, MEDICAL_SERVICE, HIRE_HUB],
+  "what-does-a-cold-calling-virtual-assistant-do": [COLD_CALLING_SERVICE, COLD_CALLING_COST, HIRE_HUB],
+  "medical-virtual-assistant-cost-philippines": [RATE_REPORT, MEDICAL_SERVICE, PRICING_HUB],
+  "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, PRICING_HUB],
+  "hire-virtual-assistant-philippines": [RATE_GUIDE, GENERAL_VS_EXECUTIVE, COMPANIES_GUIDE, OUTSOURCING_GUIDE],
+  "outsourcing-philippines-virtual-assistant": [SSS_GUIDE, DIRECT_PAYMENT, COMPANIES_GUIDE, HIRE_HUB],
+  "philippines-vs-india-virtual-assistants": [SSS_GUIDE, RATE_GUIDE, COMPANIES_GUIDE],
+  "virtual-assistant-vs-employee": [SSS_GUIDE, GENERAL_VS_EXECUTIVE, PRICING_HUB],
+  "executive-virtual-assistant-cost-philippines": [GENERAL_VS_EXECUTIVE, RATE_GUIDE, PRICING_HUB],
+  "what-does-a-real-estate-virtual-assistant-do": [SERVICES_HUB, HIRE_HUB],
+  "what-is-a-virtual-medical-assistant": [MEDICAL_SERVICE, HIRE_HUB],
+  "what-does-a-shopify-virtual-assistant-do": [SERVICES_HUB, HIRE_HUB],
+  "how-to-hire-a-medical-virtual-assistant": [MEDICAL_SERVICE, HIRE_HUB, PRICING_HUB],
+  "virtual-assistant-agency-vs-freelancer": [COMPANIES_GUIDE, HIRE_HUB, PRICING_HUB],
+  "onlinejobs-ph-vs-virtual-assistant-agency": [COMPANIES_GUIDE, HIRE_HUB],
+  "what-does-an-appointment-setter-virtual-assistant-do": [SERVICES_HUB, HIRE_HUB]
 };
 
 export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "become-virtual-assistant-no-experience": [GET_PAID_GUIDE],
   "how-to-become-bookkeeping-virtual-assistant": [GET_PAID_GUIDE],
   "get-paid-virtual-assistant-philippines": [RATE_GUIDE, SSS_GUIDE],
-  "ecommerce-va-vs-in-house-assistant": [RATE_GUIDE],
-  "hourly-rates-for-filipino-virtual-project-manager": [RATE_GUIDE, RATE_REPORT],
-  "how-to-pay-a-filipino-virtual-assistant-directly": [RATE_GUIDE, SSS_GUIDE],
-  "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines": [RATE_GUIDE]
+  "ecommerce-va-vs-in-house-assistant": [RATE_GUIDE, COMPANIES_GUIDE, HIRE_HUB],
+  "hourly-rates-for-filipino-virtual-project-manager": [RATE_GUIDE, RATE_REPORT, PRICING_HUB, HIRE_HUB],
+  "how-to-pay-a-filipino-virtual-assistant-directly": [RATE_GUIDE, SSS_GUIDE, PRICING_HUB, OUTSOURCING_GUIDE],
+  "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines": [RATE_GUIDE, SERVICES_HUB, HIRE_HUB, PRICING_HUB]
 };
 
 export const SERVICE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {

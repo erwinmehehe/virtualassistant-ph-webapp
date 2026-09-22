@@ -32,7 +32,7 @@ test("priority structured posts have clean query-focused metadata", () => {
   const posts = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
   const expected = new Map([
     ["average-hourly-rate-virtual-assistants-philippines", "Virtual Assistant Hourly Rate Philippines: 2026 Guide"],
-    ["virtual-assistant-salary-philippines", "Virtual Assistant Salary Philippines: 2026 Pay Guide"],
+    ["virtual-assistant-salary-philippines", "Virtual Assistant Salary Philippines 2026 | Pay Guide"],
     ["dental-virtual-assistant-interview-questions", "Dental Virtual Assistant Interview Questions | Philippines"],
     ["medical-virtual-assistant-interview-questions", "Medical Virtual Assistant Interview Questions | Philippines"],
     ["what-does-a-cold-calling-virtual-assistant-do", "What Does a Cold Calling Virtual Assistant Do? | Philippines"]

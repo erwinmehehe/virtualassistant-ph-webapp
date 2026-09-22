@@ -1290,7 +1290,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "IT Virtual Assistant",
     "group": "Technology & Web",
     "directoryCategory": "Web & WordPress",
-    "primaryKeyword": "it virtual assistant",
+    "primaryKeyword": "it support virtual assistant",
     "metaTitle": "IT & Technical Virtual Assistant Philippines",
     "metaDescription": "Hire an IT or Technical Virtual Assistant in the Philippines for helpdesk triage, user administration, documentation, SaaS access, and technical coordination.",
     "intro": "Hire an IT or Technical Virtual Assistant in the Philippines to handle user account administration, helpdesk triage, SaaS access tracking, technical documentation, and first-line coordination. Tech Virtual Assistant searches usually describe this same operational role, so use one canonical page rather than splitting the synonyms. Use a ticketed backlog, controlled access, testing notes, and explicit approval for production changes.",
@@ -4688,7 +4688,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Video Editing & Creative",
     "primaryKeyword": "creative virtual assistant",
     "metaTitle": "Creative Virtual Assistant Philippines",
-    "metaDescription": "Hire a Creative Virtual Assistant in the Philippines for recurring design, content production, asset coordination, presentations, social graphics, and campaign support.",
+    "metaDescription": "Hire a Creative Virtual Assistant in the Philippines for design production, presentations, social graphics, asset coordination, and campaign support.",
     "intro": "Hire a Creative Virtual Assistant in the Philippines to handle repeatable creative production across social assets, presentations, content formatting, campaign variations, and brand-file organization. Keep creative direction and final brand approval with the client team while the Virtual Assistant owns the production queue.",
     "focus": "repeatable creative production and marketing asset coordination",
     "tasks": [

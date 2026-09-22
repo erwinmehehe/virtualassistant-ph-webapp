@@ -1,9 +1,10 @@
 import { BLOG_POSTS as RAW_BLOG_POSTS } from "@/lib/blog-content";
+import { SEO_EXPANSION_BLOG_POSTS } from "@/lib/seo-expansion-blog";
 import type { BlogPost, BlogTopic } from "@/lib/blog-types";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
-export const BLOG_POSTS: BlogPost[] = RAW_BLOG_POSTS;
+export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...SEO_EXPANSION_BLOG_POSTS];
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

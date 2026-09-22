@@ -26,8 +26,8 @@ test("Stalled work is consolidated into Roles needs-intervention queue",async()=
   assert.match(stalled,/redirect\("\/workspace\/recruiter\/roles\?view=intervention&sort=urgent"\)/);
   assert.match(roles,/Needs intervention/);
   assert.match(roles,/clientOverdue/);
-  assert.match(roles,/interviewOverdue/);
-  assert.match(roles,/offerOverdue/);
+  assert.match(roles,/job\.interview_overdue/);
+  assert.match(roles,/job\.offer_overdue/);
   assert.match(roles,/noCandidates/);
 });
 

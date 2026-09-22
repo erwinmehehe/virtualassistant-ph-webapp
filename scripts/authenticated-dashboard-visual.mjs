@@ -20,6 +20,12 @@ const roles = [
   { role: "va", tokenHash: process.env.SMOKE_VA_TOKEN_HASH, email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?", actionSelector: ".dashboard-next-action" }
 ];
 
+const recruiterOpsPages = [
+  { name: "roles", path: "/workspace/recruiter/roles?view=intervention&sort=urgent", heading: "Roles", actionSelector: 'a[href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"]' },
+  { name: "work-readiness", path: "/workspace/recruiter/work-readiness", heading: "Work readiness", actionSelector: ".recruiter-readiness-summary > a.is-ready" },
+  { name: "funnel", path: "/workspace/recruiter/funnel", heading: "Sales funnel", actionSelector: ".agency-funnel-flow" },
+];
+
 const accountTabs = ["profile", "security", "notifications", "preferences", "privacy"];
 
 const viewports = [
@@ -116,6 +122,33 @@ try {
   }
 
   const recruiterSession = await signIn(roles.find((role) => role.role === "recruiter"));
+  for (const surface of recruiterOpsPages) {
+    for (const viewport of viewports) {
+      const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+      await context.addCookies(sessionCookies(recruiterSession, baseUrl));
+      const page = await context.newPage();
+      const consoleErrors = [];
+      page.on("console", (message) => {
+        if (message.type() === "error") consoleErrors.push(message.text());
+      });
+      const response = await page.goto(`${baseUrl}${surface.path}`, { waitUntil: "networkidle", timeout: 90000 });
+      if (!response?.ok()) throw new Error(`recruiter ${surface.name} ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
+      await page.getByRole("heading", { name: surface.heading, exact: true }).first().waitFor({ state: "visible", timeout: 30000 });
+      const firstAction = page.locator(surface.actionSelector).first();
+      await firstAction.waitFor({ state: "visible", timeout: 30000 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+      if (overflow) throw new Error(`recruiter ${surface.name} ${viewport.name} has horizontal page overflow.`);
+      if (viewport.name === "mobile") {
+        const box = await firstAction.boundingBox();
+        if (!box || box.y >= viewport.height) throw new Error(`recruiter ${surface.name} mobile first action starts below the first viewport.`);
+      }
+      await page.screenshot({ path: path.join(outputDir, `recruiter-${surface.name}-${viewport.name}.png`), fullPage: true });
+      if (consoleErrors.length) throw new Error(`recruiter ${surface.name} ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
+      await context.close();
+      console.log(`Captured recruiter ${surface.name} at ${viewport.width}x${viewport.height}`);
+    }
+  }
+
   for (const tab of accountTabs) {
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });

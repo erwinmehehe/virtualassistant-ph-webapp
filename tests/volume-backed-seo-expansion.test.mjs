@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 function source(path) {
@@ -58,11 +59,19 @@ test("SEO expansion checker validates all eight September 22 resource families",
 });
 
 test("volume-backed expansion leaves the homepage source untouched", () => {
-  const changed = execFileSync("git", ["diff", "--name-only", "origin/main...HEAD", "--", "src/app/page.tsx"], {
-    cwd: new URL("..", import.meta.url),
-    encoding: "utf8",
-  }).trim();
-  assert.equal(changed, "");
+  const baseRef = process.env.SEO_HOMEPAGE_BASE_REF || "origin/main";
+  try {
+    const changed = execFileSync("git", ["diff", "--name-only", `${baseRef}...HEAD`, "--", "src/app/page.tsx"], {
+      cwd: new URL("..", import.meta.url),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    assert.equal(changed, "");
+  } catch (error) {
+    if (error instanceof assert.AssertionError) throw error;
+    const digest = createHash("sha256").update(source("src/app/page.tsx")).digest("hex");
+    assert.equal(digest, "709fc8cbc738b228ae4c9ee928549e1d781d185ab1565487731e70713ec961b3");
+  }
 });
 
 test("distinct email management and event planning demand has canonical service owners", () => {

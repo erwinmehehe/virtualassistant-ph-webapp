@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
 import { PublicAvatar } from "@/components/public-avatar";
@@ -99,6 +99,23 @@ export default async function RecruiterTalentDirectory({
   ]);
   if (error) throw error;
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { data: onboardingData, error: onboardingError } = await admin
+    .from("recruiter_va_directory")
+    .select("user_id,full_name,email_verified,account_created_at,last_activity_at,completion_score,stage,account_status")
+    .eq("account_status", "active")
+    .gte("account_created_at", sevenDaysAgo)
+    .order("account_created_at", { ascending: false })
+    .limit(100);
+  if (onboardingError) throw onboardingError;
+  const newAccounts = (onboardingData || []) as RecruiterVaDirectoryRow[];
+  const recentZeroProfiles = newAccounts.filter((row) => Number(row.completion_score || 0) === 0);
+  const verifiedRecentZero = recentZeroProfiles.filter((row) => Boolean(row.email_verified));
+  const stalled = [...recentZeroProfiles].sort((a,b) =>
+    Number(b.email_verified) - Number(a.email_verified) ||
+    new Date(b.account_created_at || 0).getTime() - new Date(a.account_created_at || 0).getTime()
+  ).slice(0, 6);
+
   const rows = (rowData || []) as RecruiterVaDirectoryRow[];
   const ids = rows.map((row) => row.user_id);
   const [{ data: reminders }, { data: publicRows }, { data: visibilityRows }] = ids.length
@@ -189,6 +206,26 @@ export default async function RecruiterTalentDirectory({
       </div>
     ) : null}
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}
+
+    <section className="talent-onboarding-rescue">
+      <div className="talent-onboarding-head">
+        <div><div className="kicker">New VA onboarding</div><h2>Signup → profile rescue</h2><p>New accounts that are still at 0% belong here in Talent, not in a separate Categories dashboard. Email-verified accounts are prioritized first.</p></div>
+        <Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all 0% profiles</Link>
+      </div>
+      <div className="talent-onboarding-stats">
+        <div><span>New accounts · 7 days</span><strong>{newAccounts.length}</strong><small>Recent VA signups</small></div>
+        <div><span>Recent 0% profiles · 7 days</span><strong>{recentZeroProfiles.length}</strong><small>Setup has not started</small></div>
+        <div><span>Verified recent 0%</span><strong>{verifiedRecentZero.length}</strong><small>Highest-priority rescue queue</small></div>
+      </div>
+      {stalled.length ? <div className="talent-onboarding-list">{stalled.map((row) => {
+        const lastActiveDays = row.last_activity_at ? Math.max(0, Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000)) : null;
+        return <Link href={"/workspace/recruiter/candidates/" + row.user_id} key={row.user_id}>
+          <span className={row.email_verified ? "talent-onboarding-state verified" : "talent-onboarding-state"}>{row.email_verified ? <CheckCircle2 size={14}/> : <AlertCircle size={14}/>}</span>
+          <span><strong>{row.full_name || "VA account"}</strong><small>{row.email_verified ? "Email verified" : "Email not verified"} · {vettingStatusLabel(row.stage || "profile")}</small></span>
+          <span>{lastActiveDays == null ? "Never active" : String(lastActiveDays) + "d ago"}</span>
+        </Link>;
+      })}</div> : <div className="talent-onboarding-clear"><CheckCircle2 size={16}/><span>No recent 0% VA accounts need onboarding rescue.</span></div>}
+    </section>
 
     <div className="recruiter-saved-views" aria-label="Saved talent views">
       <div className="saved-view-head"><strong>Saved views</strong><span>One-click recruiter queues</span></div>

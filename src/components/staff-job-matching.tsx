@@ -13,7 +13,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const admin=createAdminClient();
   const [{data:vettingRows},{data:shortlistRows},{data:interestRows},{data:commercial}]=await Promise.all([
     admin.from("va_vetting").select("va_id,stage").in("stage",["approved","bench"]),
-    admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at,created_by").eq("job_id",job.id),
+    admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,shortlist_order,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at,created_by").eq("job_id",job.id).order("shortlist_order",{ascending:true,nullsFirst:false}),
     admin.from("applications").select("id,va_id,status,cover_note,match_score,applied_at").eq("job_id",job.id).not("status","in",'(withdrawn,rejected)'),
     admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle()
   ]);

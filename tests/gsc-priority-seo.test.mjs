@@ -53,6 +53,29 @@ test("priority structured posts have clean query-focused metadata", () => {
   assert.doesNotMatch(JSON.stringify(salary), /For pricing decisions|For this pricing decision|Pricing pricing|For Pricing, the useful pricing question/);
 });
 
+test("General and Executive service owners answer the GSC query intent directly", () => {
+  const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
+  const general = services.find((item) => item.slug === "general-virtual-assistant");
+  const executive = services.find((item) => item.slug === "executive-virtual-assistant");
+
+  assert.ok(general, "general virtual assistant service missing");
+  assert.ok(executive, "executive virtual assistant service missing");
+
+  assert.match(general.intro, /^A General Virtual Assistant is /);
+  assert.match(general.intro, /hiring a General Virtual Assistant in the Philippines/i);
+  assert.match(executive.intro, /^An Executive Virtual Assistant is /);
+  assert.match(executive.intro, /judgment, confidentiality, and proactive coordination/);
+
+  assert.ok(general.metaDescription.length >= 150 && general.metaDescription.length <= 160, `general meta description length ${general.metaDescription.length}`);
+  assert.ok(executive.metaDescription.length >= 150 && executive.metaDescription.length <= 160, `executive meta description length ${executive.metaDescription.length}`);
+
+  const comparison = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ")
+    .find((item) => item.slug === "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines");
+  assert.ok(comparison, "General vs Executive comparison missing");
+  assert.ok(comparison.html.includes('href="/service/general-virtual-assistant"'));
+  assert.ok(comparison.html.includes('href="/service/executive-virtual-assistant"'));
+});
+
 test("priority retained guides can optimize SERP metadata without changing their H1", () => {
   const posts = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
   const slugs = [

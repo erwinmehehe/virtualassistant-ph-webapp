@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Bell, CalendarDays, CheckCircle2, Clock3, ExternalLink, ListTodo, MessageSquare, UserRound } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ImageOff, ListTodo, MessageSquare, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
+import { PublicAvatar } from "@/components/public-avatar";
+import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
@@ -10,6 +12,52 @@ import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
+const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
+
+type ApprovalReadyVa = {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  primary_category: string | null;
+  completion_score: number | null;
+  stage: string | null;
+  availability_status: string | null;
+};
+
+type DailyActionRow = {
+  priority: string | null;
+  action_type: string | null;
+  title: string | null;
+  description: string | null;
+  href: string | null;
+  subject_type: string | null;
+  subject_id: string | null;
+  age_hours: number | null;
+};
+
+type ActiveRoleRow = {
+  id: string;
+  title: string | null;
+  company_name: string | null;
+  status: string | null;
+  hiring_stage: string | null;
+  hiring_stage_entered_at: string | null;
+  updated_at: string | null;
+  created_at: string;
+};
+
+function ageLabel(hours: number | null | undefined) {
+  const value = Math.max(0, Number(hours || 0));
+  if (value < 24) return `${Math.max(1, Math.round(value))}h`;
+  return `${Math.max(1, Math.floor(value / 24))}d`;
+}
+
+function stageAge(value?: string | null) {
+  if (!value) return null;
+  const diff = Date.now() - new Date(value).getTime();
+  if (!Number.isFinite(diff) || diff <= 0) return null;
+  return Math.max(1, Math.floor(diff / 86400000));
+}
 
 function manilaTime(value?: string | null) {
   if (!value) return "No due time";
@@ -73,16 +121,78 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const [{ data, error }, { data:cleanupData, error:cleanupError }, { count: unreadNotifications }, { count: openTasks }] = await Promise.all([
+  const [
+    { data, error },
+    { data:cleanupData, error:cleanupError },
+    { count: unreadNotifications },
+    { count: openTasks },
+    { data: dailyActionData, error: dailyActionError },
+    { data: approvalReadyData, count: approvalReadyCount, error: approvalReadyError },
+    { count: missingPhotoCount, error: missingPhotoError },
+    { data: activeRoleData, error: activeRoleError }
+  ] = await Promise.all([
     admin.rpc("recruiter_today_queue", { p_user_id:userId, p_limit:20 }),
     admin.rpc("recruiter_lead_cleanup_queue", { p_user_id:userId, p_limit:40 }),
     admin.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",userId).is("read_at",null).is("done_at",null).or(`snoozed_until.is.null,snoozed_until.lte.${new Date().toISOString()}`),
-    admin.from("recruiter_tasks").select("id",{count:"exact",head:true}).eq("assignee_id",userId).eq("status","todo")
+    admin.from("recruiter_tasks").select("id",{count:"exact",head:true}).eq("assignee_id",userId).eq("status","todo"),
+    admin.rpc("recruiter_daily_action_queue", { p_user_id:userId }),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id,full_name,avatar_url,primary_category,completion_score,stage,availability_status",{count:"exact"})
+      .eq("account_status","active")
+      .gte("completion_score",APPROVAL_MIN_COMPLETION)
+      .neq("stage","approved")
+      .neq("stage","bench")
+      .neq("stage","rejected")
+      .order("completion_score",{ascending:false})
+      .order("last_activity_at",{ascending:false,nullsFirst:false})
+      .limit(5),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id",{count:"exact",head:true})
+      .eq("account_status","active")
+      .gte("completion_score",APPROVAL_MIN_COMPLETION)
+      .is("avatar_url",null)
+      .neq("stage","approved")
+      .neq("stage","bench")
+      .neq("stage","rejected"),
+    admin
+      .from("jobs")
+      .select("id,title,company_name,status,hiring_stage,hiring_stage_entered_at,updated_at,created_at")
+      .eq("recruiter_id",userId)
+      .in("status",["pending","published"])
+      .order("updated_at",{ascending:true})
+      .limit(100)
   ]);
   if (error) throw error;
   if (cleanupError) throw cleanupError;
-  const queue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
+  if (dailyActionError) throw dailyActionError;
+  if (approvalReadyError) throw approvalReadyError;
+  if (missingPhotoError) throw missingPhotoError;
+  if (activeRoleError) throw activeRoleError;
+
+  const nonLeadQueue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
+  const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
   const cleanupQueue = Array.isArray(cleanupData) ? cleanupData as any[] : [];
+  const dailyActions = (Array.isArray(dailyActionData) ? dailyActionData : []) as DailyActionRow[];
+  const clientWaitByJob = new Map<string,DailyActionRow>();
+  for (const item of dailyActions) {
+    if (!["client_shortlist_waiting","client_response_overdue"].includes(String(item.action_type)) || !item.subject_id) continue;
+    const current = clientWaitByJob.get(item.subject_id);
+    if (!current || item.action_type === "client_response_overdue") clientWaitByJob.set(item.subject_id,item);
+  }
+  const clientWaits = [...clientWaitByJob.values()].sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
+  const approvalReady = (Array.isArray(approvalReadyData) ? approvalReadyData : []) as ApprovalReadyVa[];
+  const waitingJobIds = new Set(clientWaits.map((item)=>String(item.subject_id || "")).filter(Boolean));
+  const staleRoleCutoff = Date.now() - 72 * 60 * 60 * 1000;
+  const staleRoles = ((Array.isArray(activeRoleData) ? activeRoleData : []) as ActiveRoleRow[])
+    .filter((role)=>{
+      if (waitingJobIds.has(role.id)) return false;
+      const activityAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
+      return new Date(activityAt).getTime() <= staleRoleCutoff;
+    })
+    .sort((a,b)=>new Date(a.hiring_stage_entered_at || a.updated_at || a.created_at).getTime()-new Date(b.hiring_stage_entered_at || b.updated_at || b.created_at).getTime());
+  const staleRolePreview = staleRoles.slice(0,5);
 
   return <div className="dash-page">
     {params.contact_sent ? <div className="success-banner">Email sent and the next follow-up was scheduled.</div> : null}
@@ -103,7 +213,22 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
     </div>
 
-    <section className={`card dashboard-section-card ${styles.queueCard}`}>
+    <div className={styles.priorityStrip} aria-label="Recruiter today summary">
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup">
+        <span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Needs attention" : "Clear"}</small>
+      </Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/talent?readiness=approval_ready">
+        <span>Approval-ready</span><strong>{Number(approvalReadyCount || 0)}</strong><small>{APPROVAL_MIN_COMPLETION}%+ profiles</small>
+      </Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#role-follow-through">
+        <span>Waiting on client</span><strong>{clientWaits.length}</strong><small>Shortlist decisions</small>
+      </Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#role-follow-through">
+        <span>Stale roles</span><strong>{staleRoles.length}</strong><small>72h+ in same stage</small>
+      </Link>
+    </div>
+
+    <section id="sales-cleanup" className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head"><div><h2>Sales cleanup</h2><p>Missed responses, overdue follow-ups, leads without a next step, stale leads, and records ready for a close decision.</p></div><span className={`badge ${cleanupQueue.length ? "badge-warning" : "badge-success"}`}>{cleanupQueue.length} to clean up</span></div>
       {cleanupQueue.length ? <>
         {cleanupQueue.length > 3 ? <div className={styles.scrollHint}>Resolve the oldest and highest-risk items first. Closed leads leave this queue automatically.</div> : null}
@@ -171,5 +296,77 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         </div>
       </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current Recruitment or Client Success work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/roles">Open roles</Link></div>}
     </section>
+
+    <div className={styles.operationsGrid}>
+      <section className="card dashboard-section-card">
+        <div className="dashboard-section-head">
+          <div><h2>Talent operations</h2><p>Profiles that are far enough along for a recruiter decision.</p></div>
+          <Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=approval_ready">Open talent <ArrowRight size={13}/></Link>
+        </div>
+
+        <div className={styles.signalRow}>
+          <Link href="/workspace/recruiter/talent?readiness=approval_ready"><UserRoundCheck size={16}/><span><strong>{Number(approvalReadyCount || 0)}</strong> approval-ready</span></Link>
+          <Link href="/workspace/recruiter/talent?readiness=approval_ready&photo=no"><ImageOff size={16}/><span><strong>{Number(missingPhotoCount || 0)}</strong> need a photo</span></Link>
+        </div>
+
+        {approvalReady.length ? <div className={styles.compactPeople}>
+          {approvalReady.map((va)=>(
+            <Link className={styles.personRow} href={`/workspace/recruiter/candidates/${va.user_id}`} key={va.user_id}>
+              <PublicAvatar name={va.full_name || "VA"} src={va.avatar_url} size="sm"/>
+              <span className={styles.personCopy}>
+                <strong>{va.full_name || "VA candidate"}</strong>
+                <small>{va.primary_category || "Category not set"} · {va.completion_score || 0}% complete</small>
+                <small>{va.avatar_url ? (va.availability_status || "Availability not set") : "Photo missing"}</small>
+              </span>
+              <ArrowRight size={15}/>
+            </Link>
+          ))}
+        </div> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>No approval-ready profiles waiting.</strong><p>The current talent queue is caught up.</p></div></div>}
+      </section>
+
+      <section id="role-follow-through" className="card dashboard-section-card">
+        <div className="dashboard-section-head">
+          <div><h2>Role follow-through</h2><p>Client decisions and roles that have stopped moving.</p></div>
+          <Link className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
+        </div>
+
+        {clientWaits.length ? <div className={styles.followList}>
+          <div className={styles.groupLabel}>Waiting on client</div>
+          {clientWaits.slice(0,5).map((item)=>(
+            <div className={styles.followRow} key={`wait-${item.action_type}-${item.subject_id}`}>
+              <span className={styles.followIcon}><MessageSquare size={15}/></span>
+              <span className={styles.followCopy}>
+                <strong>{item.title || "Client decision pending"}</strong>
+                <small>{item.description || "Shortlist feedback is still pending."}</small>
+                <small>{ageLabel(item.age_hours)} waiting</small>
+              </span>
+              <div className={styles.followActions}>
+                {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
+                {item.subject_id ? <Link className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
+              </div>
+            </div>
+          ))}
+        </div> : null}
+
+        {staleRolePreview.length ? <div className={styles.followList}>
+          <div className={styles.groupLabel}>No recent movement</div>
+          {staleRolePreview.map((role)=>{
+            const lastStageAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
+            return <Link className={styles.followRow} href={`/workspace/recruiter/roles/${role.id}`} key={`stale-${role.id}`}>
+              <span className={styles.followIcon}><BriefcaseBusiness size={15}/></span>
+              <span className={styles.followCopy}>
+                <strong>{role.title || "Client role"}</strong>
+                <small>{role.company_name || "Client"} · {role.hiring_stage || role.status || "Open"}</small>
+                <small>{stageAge(lastStageAt)}d in the same stage</small>
+              </span>
+              <ArrowRight size={15}/>
+            </Link>;
+          })}
+          {staleRoles.length > staleRolePreview.length ? <Link className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRoles.length - staleRolePreview.length} more stale roles</Link> : null}
+        </div> : null}
+
+        {!clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
+      </section>
+    </div>
   </div>;
 }

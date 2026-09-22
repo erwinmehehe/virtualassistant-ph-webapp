@@ -19,16 +19,29 @@ test("Roles talent coverage drills into exact primary specialties",async()=>{
   assert.match(action,/category: filterValue\(formData, "filter_category"\)/);
 });
 
-test("Work Readiness exposes overdue and evidence-specific recruiter queues",async()=>{
-  const page=await read("src/app/workspace/recruiter/work-readiness/page.tsx");
+test("Work Readiness prioritizes ready incomplete and overdue queues with one simple evidence filter",async()=>{
+  const [page,loader,migration]=await Promise.all([
+    read("src/app/workspace/recruiter/work-readiness/page.tsx"),
+    read("src/lib/work-readiness-queue.ts"),
+    read("supabase/migrations/20260922230014_workspace_ops_readiness_funnel.sql"),
+  ]);
+  assert.match(page,/Ready to verify/);
+  assert.match(page,/Incomplete/);
   assert.match(page,/Overdue 5d\+/);
   assert.match(page,/overdueCutoff/);
+  assert.match(page,/getWorkReadinessQueue\(userId\)/);
+  assert.match(page,/requireAnyRoleFast\(\["recruiter", "admin"\]\)/);
+  assert.match(page,/PublicAvatar/);
   assert.match(page,/missingFilter === "internet"/);
   assert.match(page,/missingFilter === "power"/);
   assert.match(page,/missingFilter === "equipment"/);
-  assert.match(page,/Waiting age/);
-  assert.match(page,/3\+ days/);
-  assert.match(page,/14\+ days/);
+  assert.doesNotMatch(page,/Waiting age/);
+  assert.doesNotMatch(page,/name="age"/);
+  assert.match(loader,/withServerTiming\("recruiter\.work_readiness"/);
+  assert.match(loader,/admin\.rpc\("work_readiness_queue"/);
+  assert.match(migration,/security invoker/i);
+  assert.match(migration,/p\.role::text in \('recruiter','admin'\)/);
+  assert.match(migration,/grant execute on function public\.work_readiness_queue\(uuid,integer\) to service_role/);
 });
 
 test("Work Readiness bulk verify and reminders are guarded",async()=>{
@@ -42,7 +55,7 @@ test("Work Readiness bulk verify and reminders are guarded",async()=>{
   assert.match(page,/Send in-app reminder to incomplete selected/);
   assert.match(page,/form="work-readiness-bulk" name="va_id"/);
   assert.match(select,/Select visible/);
-  assert.match(action,/ids\.length > 100/);
+  assert.match(action,/requireAnyRoleFast\(\["recruiter", "admin"\]\)/);\n  assert.match(action,/ids\.length > 100/);
   assert.match(action,/workSetupComplete\(row\)/);
   assert.match(action,/type: "work_setup_incomplete"/);
   assert.match(action,/Date\.now\(\) - 7 \* 86400000/);

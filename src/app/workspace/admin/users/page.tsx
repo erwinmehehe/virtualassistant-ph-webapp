@@ -1,11 +1,11 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { setIdentityVerificationAction, setInternalUserRoleAction } from "@/app/actions/vetting";
 import { setClientCompanyVerificationAction } from "@/app/actions/admin";
 
 export default async function AdminUsersPage() {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin = createAdminClient();
   const [{ data: profiles }, { data: authUsers }] = await Promise.all([
     admin.from("profiles").select("id,role,full_name,created_at,email_verified,identity_verified_at,last_active_at,client_profiles(company_name,verified_at)").order("created_at", { ascending: false }).limit(200),

@@ -9,8 +9,8 @@ import { canonicalPath } from "@/lib/seo-url";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Services Philippines",
-  description: "Browse Filipino virtual assistant services by workload, including admin, sales, marketing, healthcare, ecommerce, finance, legal, real estate, creative work, and more.",
+  title: "Virtual Assistant Services Philippines | VA Roles",
+  description: "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.",
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
   alternates: { canonical: canonicalPath("/services") }
 };
@@ -45,8 +45,8 @@ export default async function ServicesPage() {
     <main id="main-content" className="premium-services-directory">
       <CompactPageHeader
         eyebrow={<span><Briefcase size={14}/> {SERVICE_PAGES.length} role hiring guides</span>}
-        title={<h1>Find the Virtual Assistant role that matches the work you need done.</h1>}
-        description={<p>Browse responsibilities, tools, interview guidance, and approved talent by workload instead of guessing at a generic job title.</p>}
+        title={<h1>Virtual Assistant services for the work your business needs done.</h1>}
+        description={<p>Compare Filipino Virtual Assistant services by role, workload, tools, industry context, interview evidence, and approved talent. Use one canonical service page per specialty, then go deeper with role-specific resources.</p>}
         actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
       />
 
@@ -54,6 +54,13 @@ export default async function ServicesPage() {
         <div className="container">
           <nav className="service-category-nav" aria-label="Service categories">
             {SERVICE_CATEGORIES.map((category) => <a href={`#${category.id}`} key={category.id}>{category.label}</a>)}
+          </nav>
+          <nav className="service-category-nav" aria-label="Virtual Assistant guides">
+            <Link href="/what-is-a-virtual-assistant">What is a VA?</Link>
+            <Link href="/types-of-virtual-assistants">Types of VAs</Link>
+            <Link href="/virtual-assistant-companies-philippines">VA companies</Link>
+            <Link href="/virtual-assistant-australia">Australia</Link>
+            <Link href="/resources">Hiring resources</Link>
           </nav>
           <div className="premium-services-help">
             <div><Search size={21} /><span><strong>Not sure which role fits?</strong><small>Describe what is falling behind and our recruiting team will help narrow the role.</small></span></div>

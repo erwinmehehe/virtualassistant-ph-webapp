@@ -27,6 +27,7 @@ import { HiringHero } from "@/components/hiring-hero";
 import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { SERVICE_PAGES, serviceMetaDescription, serviceMetaTitle, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
+import { serviceSeoResources } from "@/lib/seo-resource-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
@@ -368,6 +369,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const related = s.relatedSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4);
   const guides = serviceBlogPosts(s.slug, 6);
+  const seoResources = serviceSeoResources(s.slug).slice(0, 5);
   const priorityGuides = seoPriorityLinksForService(s.slug);
   const talent = await getTalent(s);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
@@ -631,6 +633,18 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         {priorityGuides.length ? <Band tone="soft">
           <SectionHead kicker="Research and comparisons" title="Use the closest supporting research before you set the scope." lede="These guides connect the role to compensation, adjacent responsibilities, or Philippines-specific hiring questions that can change how you write the brief."/>
           <LinkTiles items={priorityGuides.map((guide) => ({ href: guide.href, label: guide.label, sub: guide.description, icon: <BookOpen size={16}/> }))}/>
+        </Band> : null}
+
+        {seoResources.length ? <Band>
+          <SectionHead kicker="Expanded role cluster" title="Cover the role from definition through cost." lede="These keyword-led resources answer distinct hiring questions without creating another commercial service page. Each one points back to this canonical role page."/>
+          <div className="sp-guides">
+            {seoResources.map((resource) => <Link className="sp-guide" href={"/resources/" + resource.slug} key={resource.slug} data-track="service_seo_resource">
+              <span className="sp-guide-type"><BookOpen size={14} aria-hidden="true"/>{resource.intent === "cost" ? "Cost guide" : resource.intent === "interview" ? "Interview guide" : resource.intent === "hiring" ? "Hiring guide" : resource.intent === "tasks" ? "Task guide" : "Role guide"}</span>
+              <h3>{resource.title}</h3>
+              <p>{resource.metaDescription}</p>
+              <span className="hs-link">Read resource <ArrowRight size={14}/></span>
+            </Link>)}
+          </div>
         </Band> : null}
 
         {guides.length ? <Band>

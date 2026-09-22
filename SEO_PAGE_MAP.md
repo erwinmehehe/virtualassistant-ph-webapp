@@ -1,6 +1,6 @@
 # Current service, industry, and content-cluster note
 
-The live programmatic architecture now contains 74 canonical service pages and 33 canonical industry pages, plus the structured blog/resource layer. `src/lib/service-pages.ts` and `src/lib/industries.ts` are the source of truth for the current URL set. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
+The live programmatic architecture now contains 76 canonical service pages and 34 industry/industry-authority pages, plus the structured blog layer, software guides, broad authority pages, and the dedicated `/resources/` SEO support layer. `src/lib/service-pages.ts` and `src/lib/industries.ts` are the source of truth for the current URL set. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
 
 ---
 
@@ -8,7 +8,7 @@ The live programmatic architecture now contains 74 canonical service pages and 3
 
 Canonical domain: `https://virtualassistant.com.ph`
 
-## Service pages (74)
+## Service pages (76)
 
 | URL | Primary keyword | SEO title |
 |---|---|---|
@@ -86,6 +86,8 @@ Canonical domain: `https://virtualassistant.com.ph`
 | `/service/bim-revit-production-virtual-assistant/` | bim production virtual assistant | BIM Production Virtual Assistant \| Revit Documentation |
 | `/service/recruitment-candidate-sourcing-virtual-assistant/` | recruitment sourcing virtual assistant | Recruitment Candidate Sourcing Virtual Assistant Philippines |
 | `/service/insurance-broker-renewal-virtual-assistant/` | insurance broker virtual assistant | Insurance Broker Renewal Virtual Assistant Philippines |
+| `/service/creative-virtual-assistant/` | creative virtual assistant | Creative Virtual Assistant Philippines |
+| `/service/logistics-virtual-assistant/` | logistics virtual assistant | Logistics Virtual Assistant Philippines |
 
 ## Industry pages (33)
 
@@ -124,6 +126,24 @@ Canonical domain: `https://virtualassistant.com.ph`
 | `/industries/bim-revit-production/` | bim revit outsourcing | BIM & Revit Production Support \| Philippines |
 | `/industries/recruitment-candidate-sourcing/` | recruitment candidate sourcing outsourcing | Candidate Sourcing Outsourcing \| Philippines |
 | `/industries/insurance-broker-renewal-desk/` | insurance broker renewal outsourcing | Insurance Renewal Desk Support \| Philippines |
+
+## Broad authority and market pages
+
+| URL | Primary cluster |
+|---|---|
+| `/virtual-assistant-companies-philippines/` | virtual assistant companies, agencies, firms, providers, staffing |
+| `/virtual-assistant-australia/` | virtual assistant Australia and Australian city modifiers |
+| `/what-is-a-virtual-assistant/` | what is a virtual assistant, duties, roles, tasks |
+| `/types-of-virtual-assistants/` | types of virtual assistants, niches, specialties |
+| `/industries/nonprofits/` | virtual assistant for nonprofits |
+
+## SEO resource layer
+
+- `/resources/` is the index for intent-distinct supporting guides.
+- Seventeen commercial role clusters each have definition, tasks, hiring, interview, and Philippines cost resources.
+- Manually defined generic/candidate resources cover job descriptions, applications, resumes, portfolios, skills, requirements, tools, training, certification, freelance work, no-experience intent, non-voice work, part-time work, work-from-home work, interview preparation, and starting a VA side business.
+- Supporting resources link back to one canonical service money page for the commercial role intent.
+- Candidate resources point primarily to `/for-virtual-assistants/`, `/jobs/`, and profile creation instead of the client hiring funnel.
 
 ## Notes
 

@@ -10,7 +10,7 @@ import { canonicalPath } from "@/lib/seo-url";
 export const metadata: Metadata = {
   title: "Managed Virtual Assistant vs. Direct Hire",
   description: "Compare Managed Virtual Assistant service and Direct Hire placement so you know exactly who handles recruiting, onboarding, ongoing support, and replacement.",
-  keywords: ["managed virtual assistant vs direct hire", "managed virtual assistant service philippines", "direct hire virtual assistant"],
+  keywords: ["managed virtual assistant vs direct hire", "managed virtual assistant service philippines", "direct hire virtual assistant", "dedicated virtual assistant", "dedicated virtual assistant services"],
   alternates: { canonical: canonicalPath("/managed-vs-direct-hire") }
 };
 
@@ -56,6 +56,14 @@ export default function ManagedVsDirectHirePage() {
         <div className="process-step"><div className="process-number">Weeks 3-4</div><h3>Expanding scope</h3><p className="muted">Responsibilities grow as the working relationship and trust build.</p></div>
       </div>
       <p className="small muted" style={{ marginTop: 16 }}>Day 30: a check-in to confirm fit -- this is also when the replacement window closes. Exact pacing depends on the role and how quickly access and information are provided on your side.</p>
+    </div></section>
+
+    <section className="section section-white"><div className="container">
+      <div className="section-head"><h2>What does dedicated Virtual Assistant mean?</h2><p>A dedicated Virtual Assistant is one person assigned to a defined recurring role rather than a shared task pool. The assistant can still be hired through a managed service or direct-hire model. Dedicated describes role ownership; managed versus direct hire describes the support structure around the placement.</p></div>
+      <div className="public-content-grid">
+        <div className="card stack"><h3>Dedicated + managed</h3><p className="muted">One Virtual Assistant owns the agreed role while recruiting, onboarding support, placement monitoring, and replacement support remain part of the service.</p></div>
+        <div className="card stack"><h3>Dedicated + direct hire</h3><p className="muted">One Virtual Assistant owns the agreed role, but your team takes over the ongoing management relationship after placement.</p></div>
+      </div>
     </div></section>
 
     <section className="section"><div className="container public-content-grid">

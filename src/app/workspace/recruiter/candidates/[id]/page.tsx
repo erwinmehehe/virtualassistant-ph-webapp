@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, FileText, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, FileText, Globe2, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { submitScorecardAction } from "@/app/actions/vetting";
@@ -10,6 +10,8 @@ import { dateShort } from "@/lib/format";
 import { vettingStatusLabel } from "@/lib/vetting";
 import { uniqueStrings } from "@/lib/collections";
 import { PublicAvatar } from "@/components/public-avatar";
+import { publicVisibilityRequirements } from "@/lib/public-visibility";
+import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
 
 const Rating=({name,label}:{name:string;label:string})=><div className="field"><label>{label}</label><select name={name} defaultValue="3" required><option value="1">1 - weak</option><option value="2">2 - below standard</option><option value="3">3 - meets standard</option><option value="4">4 - strong</option><option value="5">5 - excellent</option></select></div>;
 
@@ -28,6 +30,13 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
     admin.from("public_va_directory").select("slug").eq("user_id",id).maybeSingle()
   ]);
   if(!profile)notFound();const candidateVa=va||{};const stage=vetting?.stage||"profile";const vaEmail=authUser.user?.email||null;const questions=Array.isArray(attempt?.skills_tests?.questions)?attempt.skills_tests.questions:[];const answers=attempt?.answers||{};const completionData=getVaCompletion(va,profile.avatar_url);const missing=completionData.items.filter(x=>!x.done).map(x=>x.label);const reviewable=stage==="recruiter_review";
+  const approved=["approved","bench"].includes(stage);
+  const consentActive=Boolean(candidateVa.public_profile_consent&&candidateVa.public_profile_consent_at&&!candidateVa.public_profile_consent_withdrawn_at&&candidateVa.public_profile_consent_version===PUBLIC_PROFILE_CONSENT_VERSION);
+  const visibilityRequirements=publicVisibilityRequirements(candidateVa,profile.avatar_url);
+  const publicMissing=visibilityRequirements.filter((item)=>!item.done);
+  const publicLive=Boolean(publicListing?.slug);
+  const publicState=publicLive?"Public now":!approved?"Awaiting approval":!consentActive?"Consent required":!candidateVa.directory_visible?"Visibility off":publicMissing.length?"Blocked":"Eligible";
+  const consentDate=candidateVa.public_profile_consent_at?dateShort(candidateVa.public_profile_consent_at):null;
   return <div className="recruiter-candidate-page">
     {query.assigned?<div className="success-banner">VA assigned to the selected role.</div>:null}{query.note_saved?<div className="success-banner">Private recruiter note saved.</div>:null}
     <div className="internal-view-banner"><ShieldCheck size={18}/><div><strong>Internal Recruiter View</strong><span>Full identity, account email, resume, notes, and operational history are private and never shown on the public VA profile.</span></div></div>

@@ -1,6 +1,6 @@
 .market-signal-strip {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   background: var(--surface);
 }
 
@@ -18,7 +18,7 @@
 }
 
 .market-signal-grid > div + div {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--line);
 }
 
 .market-signal-grid svg {
@@ -78,7 +78,7 @@
 }
 
 .market-authority-root .section-soft {
-  background-image: radial-gradient(circle at 10% 0%, rgba(68, 76, 231, 0.07), transparent 34%);
+  background: var(--brand-soft);
 }
 
 @media (max-width: 900px) {
@@ -88,11 +88,11 @@
 
   .market-signal-grid > div:nth-child(3) {
     border-left: 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--line);
   }
 
   .market-signal-grid > div:nth-child(4) {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--line);
   }
 }
 
@@ -108,7 +108,7 @@
   .market-signal-grid > div + div,
   .market-signal-grid > div:nth-child(3) {
     border-left: 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--line);
   }
 
   .market-authority-root .section {

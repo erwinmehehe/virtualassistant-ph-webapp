@@ -42,25 +42,32 @@ test("admin hiring oversight can search an exact lead and send tracked follow-up
 test("authenticated sidebar removes the redundant current workspace card",async()=>{
   const shell=await read("src/components/app-shell.tsx");
   assert.match(shell,/workspaceHome/);
-  assert.match(shell,/recruiter:\s*"\/workspace\/recruiter"/);
+  assert.match(shell,/recruiter:\s*"\/workspace\/recruiter\/today"/);
   assert.match(shell,/admin:\s*"\/workspace\/admin\/today"/);
   assert.doesNotMatch(shell,/className="app-workspace-card"/);
   assert.doesNotMatch(shell,/Current workspace/);
 });
 
-test("recruiter overview and owner today are discoverable from navigation",async()=>{
-  const nav=await read("src/components/app-nav-links.tsx");
-  assert.match(nav,/\["Overview", "\/workspace\/recruiter", LayoutDashboard\]/);
+test("recruiter My Day and owner Today are the canonical workspace homes",async()=>{
+  const [nav,recruiterRoot,shell]=await Promise.all([
+    read("src/components/app-nav-links.tsx"),
+    read("src/app/workspace/recruiter/page.tsx"),
+    read("src/components/app-shell.tsx")
+  ]);
+  assert.doesNotMatch(nav,/\["Overview", "\/workspace\/recruiter"/);
+  assert.match(nav,/\["My Day", "\/workspace\/recruiter\/today", ListTodo\]/);
   assert.match(nav,/\["Today", "\/workspace\/admin\/today", ListTodo\]/);
+  assert.match(recruiterRoot,/redirect\("\/workspace\/recruiter\/today"\)/);
+  assert.match(shell,/recruiter:\s*"\/workspace\/recruiter\/today"/);
 });
 
 
-test("owner command center filters stale closed-role signals",async()=>{
+test("owner command center uses the compact summary RPC instead of bulk dashboard loads",async()=>{
   const page=await read("src/app/workspace/admin/today/page.tsx");
-  assert.match(page,/jobs!inner\(title,company_name,status\)/);
-  assert.match(page,/\.in\("jobs\.status",\["pending","published"\]\)/);
-  assert.match(page,/\["closed","draft"\]\.includes\(jobStatus\)/);
-  assert.match(page,/shortlist\|client response/);
+  assert.match(page,/admin_today_summary/);
+  assert.doesNotMatch(page,/\.limit\(250\)/);
+  assert.doesNotMatch(page,/admin\.from\("lead_intake"\)/);
+  assert.doesNotMatch(page,/admin\.from\("payments"\)/);
 });
 
 test("closed hiring leads never show follow-up actions",async()=>{

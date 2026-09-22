@@ -60,3 +60,16 @@ test("client rebooking reopens discovery after a no-show", async () => {
   assert.match(block, /discovery_reminder_24h_sent_at: null/);
   assert.match(block, /discovery_reminder_1h_sent_at: null/);
 });
+
+
+test("no-show booking manager focuses the client on choosing another time", async () => {
+  const [page, form] = await Promise.all([
+    read("src/app/book-client-call/manage/page.tsx"),
+    read("src/components/manage-booking-form.tsx")
+  ]);
+  assert.match(page, /discovery_outcome/);
+  assert.match(page, /rebookOnly=\{lead\.discovery_outcome === "no_show"\}/);
+  assert.match(page, /Choose another time/);
+  assert.match(form, /rebookOnly \? "Rebook call" : "Reschedule call"/);
+  assert.match(form, /!rebookOnly \? <section/);
+});

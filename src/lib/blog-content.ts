@@ -22305,7 +22305,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "slug": "virtual-assistant-salary-philippines",
     "title": "Virtual Assistant Salary in the Philippines: 2026 Guide",
     "metaTitle": "Virtual Assistant Salary Philippines: 2026 Pay Guide",
-    "description": "Understand Virtual Assistant salary in the Philippines without mixing employee pay, freelance rates, and contractor budgets. Compare scope, hours, and role level.",
+    "description": "Understand Virtual Assistant salary in the Philippines without mixing employee pay, freelance rates, and contractor budgets. Compare scope, hours, seniority.",
     "excerpt": "A clearer way to interpret Philippine Virtual Assistant salary data without mixing local employee pay, freelance rates, and specialist pricing into one number.",
     "topic": "pricing",
     "clusterLabel": "Pricing",

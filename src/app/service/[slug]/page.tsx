@@ -34,6 +34,7 @@ import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
 import { preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
+import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 
 export const revalidate = 3600;
 
@@ -363,6 +364,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const related = s.relatedSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4);
   const guides = serviceBlogPosts(s.slug, 6);
+  const priorityGuides = seoPriorityLinksForService(s.slug);
   const talent = await getTalent(s);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/service/${s.slug}`;
@@ -621,6 +623,11 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <Band tone="soft" id="faqs">
           <FaqBlock kicker="Frequently asked questions" title={`Hiring ${s.name} talent in the Philippines`} lede="Common questions to resolve before you start interviewing." faqs={faqs}/>
         </Band>
+
+        {priorityGuides.length ? <Band tone="soft">
+          <SectionHead kicker="Research and comparisons" title="Use the closest supporting research before you set the scope." lede="These guides connect the role to compensation, adjacent responsibilities, or Philippines-specific hiring questions that can change how you write the brief."/>
+          <LinkTiles items={priorityGuides.map((guide) => ({ href: guide.href, label: guide.label, sub: guide.description, icon: <BookOpen size={16}/> }))}/>
+        </Band> : null}
 
         {guides.length ? <Band>
           <SectionHead kicker="Hiring guides" title="Research the role before you interview." lede="Use these supporting guides for task scope, cost planning, interview questions, job descriptions, tools, and onboarding. Each guide links back to this hiring page when you are ready to compare talent."/>

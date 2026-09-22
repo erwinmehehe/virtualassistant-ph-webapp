@@ -19,7 +19,7 @@ import {
   Settings,
   ShieldCheck,
   UsersRound,
-  Wrench,
+  Wrench
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
@@ -54,6 +54,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Opportunities", "/workspace/va/jobs", Search],
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
+        ["Free Training", "/workspace/va/training", GraduationCap],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],

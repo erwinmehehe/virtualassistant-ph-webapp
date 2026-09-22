@@ -116,6 +116,31 @@ try {
   }
 
   const recruiterSession = await signIn(roles.find((role) => role.role === "recruiter"));
+  for (const viewport of viewports) {
+    const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+    await context.addCookies(sessionCookies(recruiterSession, baseUrl));
+    const page = await context.newPage();
+    const consoleErrors = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") consoleErrors.push(message.text());
+    });
+    const response = await page.goto(`${baseUrl}/workspace/recruiter/roles?view=intervention&sort=urgent`, { waitUntil: "networkidle", timeout: 90000 });
+    if (!response?.ok()) throw new Error(`recruiter roles ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
+    await page.getByRole("heading", { name: "Roles", exact: true }).waitFor({ state: "visible", timeout: 30000 });
+    const firstAction = page.locator('a[href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"]').first();
+    await firstAction.waitFor({ state: "visible", timeout: 30000 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    if (overflow) throw new Error(`recruiter roles ${viewport.name} has horizontal page overflow.`);
+    if (viewport.name === "mobile") {
+      const box = await firstAction.boundingBox();
+      if (!box || box.y >= viewport.height) throw new Error("recruiter roles mobile first action starts below the first viewport.");
+    }
+    await page.screenshot({ path: path.join(outputDir, `recruiter-roles-${viewport.name}.png`), fullPage: true });
+    if (consoleErrors.length) throw new Error(`recruiter roles ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
+    await context.close();
+    console.log(`Captured recruiter roles at ${viewport.width}x${viewport.height}`);
+  }
+
   for (const tab of accountTabs) {
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });

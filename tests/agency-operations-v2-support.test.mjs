@@ -45,8 +45,8 @@ test("client VA and Client Success surfaces complete the support loop",()=>{
   assert.match(csSupport,/Support queue/);
   assert.match(csSupport,/resolvePlacementSupportRequestAction/);
   assert.match(supportActions,/workspace\/client-success\/support\?request=/);
-  assert.ok(!nav.includes('["Support", "/workspace/client/support"'));
-  assert.ok(!nav.includes('["Schedule & support", "/workspace/va/support"'));
+  assert.ok(nav.includes('["Support", "/workspace/client/support", LifeBuoy]'));
+  assert.ok(nav.includes('["Support", "/workspace/va/support", LifeBuoy]'));
   assert.ok(!nav.includes('["Support queue", "/workspace/client-success/support"'));
 });
 

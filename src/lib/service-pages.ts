@@ -155,7 +155,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
   },
   {
     "slug": "research-data",
-    "name": "Research & Data Entry Virtual Assistant",
+    "name": "Data Entry & Research Virtual Assistant",
     "group": "Admin & Operations",
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "data entry virtual assistant",
@@ -218,7 +218,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
   },
   {
     "slug": "project-coordination",
-    "name": "Project Coordination Virtual Assistant",
+    "name": "Project Management Virtual Assistant",
     "group": "Admin & Operations",
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "project management virtual assistant",
@@ -1541,7 +1541,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
   },
   {
     "slug": "operations",
-    "name": "Operations & Process Virtual Assistant",
+    "name": "Operations Virtual Assistant",
     "group": "Admin & Operations",
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "operations virtual assistant",
@@ -1667,7 +1667,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
   },
   {
     "slug": "personal-assistant",
-    "name": "Personal Assistant",
+    "name": "Virtual Personal Assistant",
     "group": "Executive Support",
     "directoryCategory": "Executive Assistance",
     "primaryKeyword": "virtual personal assistant",

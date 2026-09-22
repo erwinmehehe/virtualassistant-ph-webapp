@@ -50,7 +50,7 @@ test("client shortlist remains account-scoped, released-only, access-gated, and 
   assert.match(clientActions, /\.eq\("shortlist_status", "released"\)/);
   assert.match(clientActions, /client_decision: decision/);
   assert.match(clientActions, /Client requested an interview|Client marked a VA interested/);
-  assert.match(clientActions, /href: `\/workspace\/recruiter\/matching\/\$\{jobId\}`/);
+  assert.match(clientActions, /href: `\/workspace\/recruiter\/roles\/\$\{jobId\}`/);
 });
 
 test("preview controls cannot accidentally submit client decisions", () => {

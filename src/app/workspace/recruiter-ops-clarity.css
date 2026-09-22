@@ -17,7 +17,7 @@
 
 .recruiter-readiness-summary {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -44,6 +44,10 @@
   border-color: #a5b4fc;
   background: linear-gradient(145deg,#fff 42%,#f5f6ff);
 }
+
+.recruiter-readiness-summary > a.is-ready { border-top: 3px solid #818cf8; }
+.recruiter-readiness-summary > a.is-incomplete { border-top: 3px solid #fdb022; }
+.recruiter-readiness-summary > a.is-overdue { border-top: 3px solid #f97066; }
 
 .recruiter-readiness-summary span {
   color: #667085;
@@ -241,6 +245,22 @@
 .recruiter-readiness-status.is-incomplete {
   background: #fff6ed;
   color: #b54708;
+}
+
+.recruiter-readiness-status.is-overdue {
+  background: #fff1f3;
+  color: #c01048;
+}
+
+.recruiter-readiness-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.recruiter-readiness-identity > div {
+  min-width: 0;
 }
 
 .recruiter-readiness-next {
@@ -684,6 +704,53 @@
   font-size: 9.5px;
 }
 
+.agency-funnel-step.is-dropoff {
+  border-color: #fdb022;
+  background: #fffcf5;
+  box-shadow: inset 0 0 0 1px rgba(253,176,34,.12);
+}
+
+.agency-sales-summary {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.agency-sales-summary > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.agency-sales-summary > div.is-warning {
+  border-color: #fedf89;
+  background: #fffcf5;
+}
+
+.agency-sales-summary span {
+  color: #667085;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.agency-sales-summary strong {
+  color: #101828;
+  font-size: 18px;
+}
+
+.agency-sales-summary small {
+  color: #98a2b3;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
 .agency-speed-strip {
   display: grid;
   grid-template-columns: repeat(2,minmax(0,1fr));
@@ -1092,6 +1159,7 @@
   .role-coverage-summary,
   .agency-retention-grid,
   .agency-attention-grid,
+  .agency-sales-summary,
   .sales-health-strip {
     grid-template-columns: 1fr;
   }
@@ -1103,6 +1171,23 @@
 
   .recruiter-readiness-summary > a small {
     grid-column: 1 / -1;
+  }
+
+  .recruiter-readiness-tabs {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recruiter-readiness-tabs a {
+    flex: 0 0 auto;
+    min-height: 40px;
+  }
+
+  .recruiter-readiness-identity {
+    align-items: flex-start;
   }
 
   .recruiter-readiness-toolbar,

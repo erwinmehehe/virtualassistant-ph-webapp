@@ -71,7 +71,7 @@ test("sales analytics keep responsive trend and source charts while funnels expl
   assert.match(charts,/<svg/);
   assert.match(charts,/role="img"/);
   assert.match(funnel,/agency-funnel-flow/);
-  assert.match(funnel,/moved forward/);
+  assert.match(funnel,/move forward/);
 });
 
 test("CRM database function keeps canonical terms_sent leads visible and service-role only", async()=>{

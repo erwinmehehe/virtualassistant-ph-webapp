@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateLeadStatusAction } from "@/app/actions/recruiter";
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
@@ -12,7 +12,7 @@ const CLOSED_HIRING_STAGES=new Set(["won","lost"]);
 
 export default async function AdminLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const showHiring=params.view==="hiring";
   const q=String(params.q||"").trim();

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock3, Gauge, TimerReset, TrendingUp, UserRoundCheck, UsersRound } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { parseSalesRange } from "@/lib/sales-analytics";
 import { SalesAnalyticsDashboard } from "@/components/sales-analytics-dashboard";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,7 +11,7 @@ function MetricCard({label,value,note,icon}:{label:string;value:string;note:stri
 
 export default async function RecruiterAnalyticsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const query=await searchParams;
-  const {user}=await requireRole("recruiter");
+  const {userId}=await requireRoleFast("recruiter");
   const days=parseSalesRange(query.days);
   const scope=query.scope==="mine"?"mine":"team";
   const admin=createAdminClient();
@@ -82,7 +82,7 @@ export default async function RecruiterAnalyticsPage({searchParams}:{searchParam
       <div className="analytics-sales-head">
         <div><div className="kicker">Client acquisition</div><h2>Website & sales analytics</h2><p>Use this section to understand where hiring enquiries come from, how quickly we respond, and whether proposals become clients.</p></div>
       </div>
-      <SalesAnalyticsDashboard days={days} basePath="/workspace/recruiter/analytics" scope={scope} recruiterId={user.id} allowScopeToggle/>
+      <SalesAnalyticsDashboard days={days} basePath="/workspace/recruiter/analytics" scope={scope} recruiterId={userId} allowScopeToggle/>
     </section>
   </div>;
 }

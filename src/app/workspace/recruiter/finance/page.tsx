@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculatePlacementFinance, financeStatusLabel } from "@/lib/agency-finance";
 import { requestMarginExceptionAction } from "@/app/actions/agency-finance";
@@ -8,10 +8,10 @@ type MarginWorkroomRow = { id: string; job_id: string; placement_stage: string |
 type MarginProfileRow = Omit<PlacementFinanceProfileRow, "reconciled_at" | "updated_at"> & { exception_reason: string | null; exception_review_note: string | null };
 
 export default async function RecruiterFinancePage(){
-  const {user}=await requireRole("recruiter");
+  const {userId}=await requireRoleFast("recruiter");
   const admin=createAdminClient();
   const [{data:jobs},{data:settings}]=await Promise.all([
-    admin.from("jobs").select("id,title").eq("recruiter_id",user.id).order("created_at",{ascending:false}),
+    admin.from("jobs").select("id,title").eq("recruiter_id",userId).order("created_at",{ascending:false}),
     admin.from("admin_settings").select("finance_min_margin_percent,finance_target_margin_percent").eq("id",1).single()
   ]);
   const jobRows=(jobs||[]) as {id:string;title:string|null}[];

@@ -1,10 +1,10 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { banUserAction, dismissFlagAction, unbanUserAction } from "@/app/actions/moderation";
 import { dateShort } from "@/lib/format";
 
 export default async function ModerationPage() {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin = createAdminClient();
 
   const { data: flags } = await admin

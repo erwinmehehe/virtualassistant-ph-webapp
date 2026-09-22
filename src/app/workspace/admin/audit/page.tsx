@@ -1,9 +1,9 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 
 export default async function AdminAuditPage() {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin = createAdminClient();
   const { data: rows } = await admin.from("admin_audit_log").select("id,actor_id,action,target_type,target_id,metadata,created_at").order("created_at", { ascending: false }).limit(250);
   const actorIds = [...new Set((rows || []).map((r: any) => r.actor_id).filter(Boolean))];

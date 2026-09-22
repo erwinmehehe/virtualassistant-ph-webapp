@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Database, GitCommitHorizontal, ShieldCheck, Wrench } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { archiveStaleRolesAction, hideIncompletePublicProfilesAction, repairVaRecordsAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
@@ -9,7 +9,7 @@ type FailedEmailRow = { id: string; event_type: string | null; recipient: string
 import { getRuntimeSetupStatus } from "@/lib/env-status";
 
 export default async function AdminHealthPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const params = await searchParams;
   const admin = createAdminClient();
   const runtime = getRuntimeSetupStatus();

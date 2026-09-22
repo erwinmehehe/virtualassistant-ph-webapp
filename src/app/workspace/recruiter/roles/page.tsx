@@ -9,7 +9,6 @@ import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { autoCategorizeUncategorizedVasAction } from "@/app/actions/va-categories";
 
 type RoleListRow = { id: string; title: string | null; company_name: string | null; status: string; hiring_stage: string; hiring_stage_entered_at: string | null; target_start_date: string | null; recruiter_id: string | null; client_id: string | null; created_at: string; summary: string | null; responsibilities: string[] | null; required_skills: string[] | null; categories: string[] | null; hours_per_week: number | null; timezone: string | null; min_hourly_rate: number | null; start_timing: string | null };
-type JobStatusRef = { job_id: string; status: string };
 type ShortlistOpsRow = { job_id: string; shortlist_status: string; client_decision: string | null; released_at: string | null; created_at: string };
 type InterviewOpsRow = { job_id: string; status: string; created_at: string; updated_at: string; scheduled_at: string | null; completed_at: string | null; client_feedback_at: string | null };
 type OfferOpsRow = { job_id: string; status: string; created_at: string; updated_at: string };

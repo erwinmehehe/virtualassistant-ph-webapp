@@ -12,6 +12,12 @@ function availabilityLabel(value?: string | null) {
   return String(value).replaceAll("_", " ");
 }
 
+function availabilityIsCurrent(va: any) {
+  if (va?.availability_status !== "available" || !va?.availability_confirmed_at) return false;
+  const confirmedAt = new Date(va.availability_confirmed_at).getTime();
+  return Number.isFinite(confirmedAt) && confirmedAt >= Date.now() - 14 * 24 * 60 * 60 * 1000;
+}
+
 type Row = {
   va: any;
   account: any;
@@ -72,7 +78,7 @@ export function MatchingCandidateTable({
   const [showClientPreview, setShowClientPreview] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<string[]>(
     () => pool
-      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by))
+      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by) && availabilityIsCurrent(row.va))
       .sort((a, b) => Number(a.shortlist?.shortlist_order ?? 999) - Number(b.shortlist?.shortlist_order ?? 999))
       .map((row) => String(row.va.user_id))
   );
@@ -196,10 +202,11 @@ export function MatchingCandidateTable({
         const decision = decisionLabel(row.shortlist?.client_decision);
         const hasConflict = Boolean(row.otherClientReviews || row.activeProcessCount || row.potentialCommittedHours);
         const hardBlocked = row.eligible === false;
+        const availabilityBlocked = !alreadyReleased && !availabilityIsCurrent(row.va);
         const vaId = String(row.va.user_id);
         const checked = alreadyReleased || selected.has(vaId);
         return <tr key={vaId} className={alreadyReleased ? "released-match-row" : undefined}>
-          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
+          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || availabilityBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
             {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
@@ -208,7 +215,12 @@ export function MatchingCandidateTable({
             <div style={{marginTop:8}}><Link className="text-link small" href={`/workspace/recruiter/candidates/${vaId}/screening`}>Open recruiter scorecard</Link></div>
           </td>
           <td data-label="Match">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></>}</td>
-          <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span><div className="small muted">From the VA&apos;s current profile</div></td>
+          <td data-label="Availability">
+            <span className={`badge ${availabilityBlocked ? "badge-warning" : row.va.availability_status === "available" ? "badge-success" : ""}`}>
+              {availabilityBlocked ? "Confirmation required" : availabilityLabel(row.va.availability_status)}
+            </span>
+            <div className="small muted">{availabilityBlocked ? "VA must reconfirm availability before client release." : "Confirmed within the last 14 days."}</div>
+          </td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>
           <td data-label="Client recommendation">

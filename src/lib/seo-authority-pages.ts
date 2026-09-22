@@ -34,7 +34,9 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
       "best virtual assistant companies",
       "virtual assistant agencies",
       "virtual assistant firms",
-      "virtual assistant providers",\n      "virtual assistant staffing",\n      "virtual assistant staffing agency"
+      "virtual assistant providers",
+      "virtual assistant staffing",
+      "virtual assistant staffing agency"
     ],
     eyebrow: "Provider comparison guide",
     h1: "Virtual Assistant companies in the Philippines: how to compare providers",

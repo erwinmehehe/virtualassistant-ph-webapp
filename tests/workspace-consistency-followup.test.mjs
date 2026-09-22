@@ -58,3 +58,12 @@ test("primary recruiter navigation stays consolidated",async()=>{
     assert.match(nav,new RegExp(`\\["${label}",`));
   }
 });
+
+
+test("content security policy permits the existing GA4 integration",async()=>{
+  const config=await read("next.config.ts");
+  assert.match(config,/script-src[^"]*https:\/\/www\.googletagmanager\.com/);
+  assert.match(config,/connect-src[^"]*https:\/\/www\.google-analytics\.com/);
+  assert.match(config,/connect-src[^"]*https:\/\/\*\.google-analytics\.com/);
+  assert.match(config,/https:\/\/challenges\.cloudflare\.com/);
+});

@@ -296,6 +296,9 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     return { status: "error", message: label ? `Please fill in: ${label}` : "Please complete the required fields so we can match the role accurately." };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
+  if (!(await verifyTurnstile(formData))) return { status: "error", message: "Please complete the security check." };
+  try { await enforceActionRateLimit("public_service_match", parsed.data.email, 5, 60); }
+  catch { return { status: "error", message: "Too many requests. Please try again later." }; }
 
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
@@ -442,6 +445,9 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     return { status: "error", message };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
+  if (!(await verifyTurnstile(formData))) return { status: "error", message: "Please complete the security check." };
+  try { await enforceActionRateLimit("public_industry_match", parsed.data.email, 5, 60); }
+  catch { return { status: "error", message: "Too many requests. Please try again later." }; }
 
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: `Industry: ${parsed.data.slug}`, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });

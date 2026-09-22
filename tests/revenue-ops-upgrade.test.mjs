@@ -55,7 +55,7 @@ test("My Day shows how stale or overdue cleanup items are", async()=>{
   assert.match(today,/overdue/);
 });
 
-test("sales analytics render responsive trend, source, and funnel charts", async()=>{
+test("sales analytics keep responsive trend and source charts while funnels explain stage-to-stage conversion", async()=>{
   const [analytics,charts,lib,funnel]=await Promise.all([
     read("src/components/sales-analytics-dashboard.tsx"),
     read("src/components/revenue-charts.tsx"),
@@ -66,10 +66,12 @@ test("sales analytics render responsive trend, source, and funnel charts", async
   assert.match(lib,/timeline,/);
   assert.match(analytics,/RevenueTrendChart/);
   assert.match(analytics,/RevenueBarChart/);
-  assert.match(analytics,/RevenueFunnelChart/);
+  assert.match(analytics,/Website → client funnel/);
+  assert.match(analytics,/from previous step/);
   assert.match(charts,/<svg/);
   assert.match(charts,/role="img"/);
-  assert.match(funnel,/RevenueFunnelChart/);
+  assert.match(funnel,/agency-funnel-flow/);
+  assert.match(funnel,/moved forward/);
 });
 
 test("CRM database function keeps canonical terms_sent leads visible and service-role only", async()=>{

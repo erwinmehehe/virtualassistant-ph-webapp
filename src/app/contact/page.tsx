@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { submitContactAction } from "@/app/actions/leads";
 import { canonicalPath } from "@/lib/seo-url";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export const metadata:Metadata={title:"Contact VirtualAssistant.com.ph",description:"Contact VirtualAssistant.com.ph about hiring a Virtual Assistant, account support, partnerships, privacy, or general questions.",keywords:["contact virtualassistant.com.ph","virtual assistant support"],alternates:{canonical:canonicalPath("/contact")}};
 
@@ -34,6 +35,7 @@ export default async function ContactPage({searchParams}:{searchParams:Promise<R
           </div>
           <div className="hb-field"><label htmlFor="contact-topic">Topic</label><select id="contact-topic" name="topic" required defaultValue=""><option value="" disabled>Select a topic</option><option>Client account support</option><option>Virtual Assistant account or application</option><option>Partnership</option><option>Privacy or data request</option><option>General enquiry</option></select></div>
           <div className="hb-field"><label htmlFor="contact-message">Message</label><textarea id="contact-message" name="message" rows={4} required minLength={20} placeholder="Share the relevant account, role, or situation and what you need help with."/></div>
+          <TurnstileWidget />
           <button className="hb-submit" type="submit">Send message <ArrowRight size={16}/></button>
           <p className="hb-foot"><LockKeyhole size={13}/>We only use your details to reply to this message.</p>
         </form>

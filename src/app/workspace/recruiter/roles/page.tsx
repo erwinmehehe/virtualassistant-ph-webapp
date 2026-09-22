@@ -10,12 +10,16 @@ import { autoCategorizeUncategorizedVasAction } from "@/app/actions/va-categorie
 
 type RoleListRow = { id: string; title: string | null; company_name: string | null; status: string; hiring_stage: string; hiring_stage_entered_at: string | null; target_start_date: string | null; recruiter_id: string | null; client_id: string | null; created_at: string; summary: string | null; responsibilities: string[] | null; required_skills: string[] | null; categories: string[] | null; hours_per_week: number | null; timezone: string | null; min_hourly_rate: number | null; start_timing: string | null };
 type JobStatusRef = { job_id: string; status: string };
+type ShortlistOpsRow = { job_id: string; shortlist_status: string; client_decision: string | null; released_at: string | null; created_at: string };
+type InterviewOpsRow = { job_id: string; status: string; created_at: string; updated_at: string; scheduled_at: string | null; completed_at: string | null; client_feedback_at: string | null };
+type OfferOpsRow = { job_id: string; status: string; created_at: string; updated_at: string };
 
 const ROLE_VIEWS = [
   ["active", "All active"],
   ["needs_candidates", "Needs candidates"],
   ["waiting_client", "Waiting on client"],
   ["interviewing", "Interviewing"],
+  ["intervention", "Needs intervention"],
   ["stale", "Stale 72h+"],
   ["replacement", "Needs replacements"],
   ["ready_offer", "Ready for offer"],
@@ -41,15 +45,15 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   const jobs=(jobData||[]) as RoleListRow[];
   const jobIds=jobs.map((j)=>j.id);
   const [{data:shortlistData},{data:interviewData},{data:offerData},{data:roomData},{data:commercialData}]=await Promise.all([
-    jobIds.length?admin.from("job_shortlist_candidates").select("job_id,shortlist_status,client_decision").in("job_id",jobIds):Promise.resolve({data:[]}),
-    jobIds.length?admin.from("candidate_interviews").select("job_id,status").in("job_id",jobIds):Promise.resolve({data:[]}),
-    jobIds.length?admin.from("placement_offers").select("job_id,status").in("job_id",jobIds):Promise.resolve({data:[]}),
+    jobIds.length?admin.from("job_shortlist_candidates").select("job_id,shortlist_status,client_decision,released_at,created_at").in("job_id",jobIds):Promise.resolve({data:[]}),
+    jobIds.length?admin.from("candidate_interviews").select("job_id,status,created_at,updated_at,scheduled_at,completed_at,client_feedback_at").in("job_id",jobIds):Promise.resolve({data:[]}),
+    jobIds.length?admin.from("placement_offers").select("job_id,status,created_at,updated_at").in("job_id",jobIds):Promise.resolve({data:[]}),
     jobIds.length?admin.from("workrooms").select("id,job_id,placement_stage").in("job_id",jobIds):Promise.resolve({data:[]}),
     jobIds.length?admin.from("job_commercials").select("job_id,commercial_status").in("job_id",jobIds):Promise.resolve({data:[]})
   ]);
-  const shortlist=(shortlistData||[]) as {job_id:string;shortlist_status:string;client_decision:string|null}[];
-  const interviews=(interviewData||[]) as JobStatusRef[];
-  const offers=(offerData||[]) as JobStatusRef[];
+  const shortlist=(shortlistData||[]) as ShortlistOpsRow[];
+  const interviews=(interviewData||[]) as InterviewOpsRow[];
+  const offers=(offerData||[]) as OfferOpsRow[];
   const rooms=(roomData||[]) as {id:string;job_id:string;placement_stage:string|null}[];
   const commercialMap=new Map(((commercialData||[]) as {job_id:string;commercial_status:string|null}[]).map((row)=>[row.job_id,row]));
   const open=jobs.filter((j)=>!["filled","closed"].includes(j.hiring_stage));
@@ -63,10 +67,28 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     const activeOffers=offers.filter((x)=>x.job_id===job.id&&!["declined","cancelled"].includes(x.status));
     const stageStarted=job.hiring_stage_entered_at?new Date(job.hiring_stage_entered_at).getTime():new Date(job.created_at).getTime();
     const stale=Date.now()-stageStarted>=72*3600000;
+    const cutoff=Date.now()-72*3600000;
+    const jobOldEnough=new Date(job.created_at).getTime()<=cutoff;
+    const noCandidates=jobOldEnough
+      && !s.some((x)=>["proposed","released"].includes(x.shortlist_status))
+      && activeInterviews.length===0
+      && activeOffers.length===0;
+    const unansweredReleased=released.filter((x)=>!x.client_decision||x.client_decision==="hold");
+    const oldestReleased=unansweredReleased.map((x)=>x.released_at).filter(Boolean).map((x)=>new Date(String(x)).getTime()).sort((a,b)=>a-b)[0];
+    const clientOverdue=Boolean(oldestReleased&&oldestReleased<=cutoff);
+    const interviewOverdue=activeInterviews.some((row)=>{
+      if(row.status==="requested")return new Date(row.created_at).getTime()<=cutoff;
+      if(row.status==="scheduled")return Boolean(row.scheduled_at&&new Date(row.scheduled_at).getTime()<=cutoff);
+      if(row.status==="completed")return !row.client_feedback_at&&new Date(row.completed_at||row.updated_at).getTime()<=cutoff;
+      return false;
+    });
+    const offerOverdue=activeOffers.some((row)=>["pending_va","pending_client"].includes(row.status)&&new Date(row.updated_at).getTime()<=cutoff);
+    const intervention=noCandidates||clientOverdue||interviewOverdue||offerOverdue;
     return {
       needs_candidates:["ready_to_recruit","sourcing","internal_review"].includes(job.hiring_stage)&&s.filter((x)=>["proposed","released"].includes(x.shortlist_status)).length===0,
       waiting_client:released.some((x)=>!x.client_decision||x.client_decision==="hold"),
       interviewing:job.hiring_stage==="interviewing"||activeInterviews.length>0,
+      intervention,
       stale,
       replacement:released.length>0&&released.every((x)=>x.client_decision==="pass"),
       ready_offer:job.hiring_stage==="selected"&&activeOffers.length===0
@@ -75,7 +97,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   const viewCounts=new Map<string,number>([
     ["active",open.length],
     ["history",history.length],
-    ...(["needs_candidates","waiting_client","interviewing","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
+    ...(["needs_candidates","waiting_client","interviewing","intervention","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
   ]);
   const visibleJobs=requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
   visibleJobs.sort((a,b)=>{

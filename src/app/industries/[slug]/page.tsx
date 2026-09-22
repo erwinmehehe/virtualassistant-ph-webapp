@@ -122,7 +122,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
 
     <div className="hs-root sp-root">
       <Band id="industry-workflows">
-        <SectionHead kicker="Common workflows" title={`What a Virtual Assistant can handle for ${page.audience}`} lede="Delegate recurring execution without blurring decision ownership. Each workflow should have a clear source of truth, expected output, review rule and escalation path."/>
+        <SectionHead kicker="Common workflows" title={`What a Virtual Assistant can handle for ${page.audience}`} lede={`For ${page.audience}, start with recurring work that is easy to document and review. Give each workflow a clear source of truth, expected output, review rule, and escalation path.`}/>
         <div className="sp-cards-4">
           {page.workflows.map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}>
             <span className="sp-card-icon" aria-hidden="true"><CheckCircle2 size={18}/></span>
@@ -140,18 +140,18 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       <Band tone={spokes.length ? "white" : "soft"}>
         <div className="sp-related">
           <div>
-            <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede="Use the role pages below when you know the kind of specialist you need. Use this industry guide when the problem starts with the workflow rather than a job title."/>
+            <SectionHead kicker="Roles that fit" title={`Which Virtual Assistant roles fit ${page.audience}?`} lede={`Use the role pages below when ${page.audience} need a specific specialist. Stay with this industry guide when the problem starts with the workflow rather than a job title.`}/>
             <LinkTiles items={services.filter(Boolean).map((service) => ({ href: `/service/${service!.slug}`, label: `Hire ${service!.name}`, sub: `Role focus: ${service!.focus}. See responsibilities, tools, interview guidance and approved talent.`, icon: <Search size={16}/> }))}/>
           </div>
           {guides.length ? <div>
-            <SectionHead kicker="Hiring guides" title="Go deeper on the roles behind this workflow." lede="These guides cover screening, cost, responsibilities, tools and hiring decisions for roles connected to this industry."/>
+            <SectionHead kicker="Hiring guides" title="Go deeper on the roles behind this workflow." lede={`These guides go deeper on screening, cost, responsibilities, tools, and hiring decisions for roles commonly used by ${page.audience}.`}/>
             <LinkTiles items={guides.map((post) => ({ href: blogHref(post), label: post.title, sub: post.excerpt }))}/>
           </div> : null}
         </div>
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
-        <SectionHead kicker="Tools" title="Hire for workflow fluency, not a software checklist." lede="A candidate does not need every tool your team uses. Prioritize the systems that matter in the first 30 days and ask what the candidate actually did inside them."/>
+        <SectionHead kicker="Tools" title="Hire for workflow fluency, not a software checklist." lede={`A candidate does not need every tool used by ${page.audience}. Prioritize the systems that matter in the first 30 days and ask what the candidate actually changed, checked, or owned inside them.`}/>
         <div className="sp-cards-4">
           {page.tools.map((tool, index) => <article className="sp-card" key={`${String(tool)}-${index}`}>
             <span className="sp-card-icon" aria-hidden="true"><Wrench size={18}/></span>
@@ -164,7 +164,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       <Band tone={spokes.length ? "white" : "soft"}>
         <div className="sp-split">
           <div>
-            <SectionHead kicker="Operating boundaries" title="Decide what the Virtual Assistant owns and what stays internal." lede="A useful role has clear decision boundaries. Give recurring administrative work an owner, then document what must be reviewed or escalated."/>
+            <SectionHead kicker="Operating boundaries" title="Decide what the Virtual Assistant owns and what stays internal." lede={`Give ${page.workflows[0]} and ${page.workflows[1]} a clear owner, then document what the Virtual Assistant may finish independently and what must be reviewed or escalated.`}/>
             <CheckList items={page.hiringNotes}/>
           </div>
           <aside className="sp-panel">
@@ -176,7 +176,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
-        <SectionHead kicker="Structure the role" title={`How to structure Virtual Assistant services for ${page.audience}`} lede="Start narrow enough that success can be measured. Expand the role only after the initial workflows are stable."/>
+        <SectionHead kicker="Structure the role" title={`How to structure Virtual Assistant services for ${page.audience}`} lede={`Start with ${page.workflows[0]} and ${page.workflows[1]} so success is easy to measure. Add more scope only after those workflows are stable and the handoffs are working.`}/>
         <div className="sp-cards-4">
           <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><ClipboardList size={18}/></span><h3>Pick recurring workflows</h3><p>Choose the tasks that happen every day or week and currently consume owner, manager, or specialist time.</p></article>
           <article className="sp-card"><span className="sp-card-icon" aria-hidden="true"><KeyRound size={18}/></span><h3>Define access</h3><p>List the systems, records, permissions, customer data, and approval boundaries the role needs.</p></article>
@@ -188,7 +188,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       <Band tone={spokes.length ? "white" : "soft"}>
         <div className="sp-split">
           <div>
-            <SectionHead kicker="First 30 days" title="Start with supervised ownership, then expand." lede="A good first month makes the workflow measurable before the role gets broader."/>
+            <SectionHead kicker="First 30 days" title="Start with supervised ownership, then expand." lede={`Use the first month to prove that ${page.workflows[0]} can be completed accurately, documented clearly, and escalated at the right time before the role gets broader.`}/>
             <div className="sp-qa">
               {first30Days.map((step) => <article className="sp-qa-item" key={step}>
                 <span className="sp-qa-icon" aria-hidden="true"><CheckCircle2 size={17}/></span>
@@ -209,7 +209,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       <Band tone={spokes.length ? "soft" : "white"}>
         <div className="sp-split">
           <div>
-            <SectionHead kicker="Interview scenarios" title="Use real workflow scenarios in the interview." lede="Generic interview questions are easy to rehearse. Ask candidates to explain how they would handle the same work, systems, and exceptions they will face after hiring."/>
+            <SectionHead kicker="Interview scenarios" title="Use real workflow scenarios in the interview." lede={`Generic questions are easy to rehearse. Ask candidates to work through ${page.workflows[0]}, ${page.workflows[1]}, and the exceptions they are likely to face after hiring.`}/>
             <div className="sp-qa">
               {interviewScenarios.map((scenario) => <article className="sp-qa-item" key={scenario}>
                 <span className="sp-qa-icon" aria-hidden="true"><MessageSquareText size={17}/></span>
@@ -230,7 +230,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "white" : "soft"}>
-        <SectionHead center kicker="Hiring process" title={`How to hire a Virtual Assistant for ${page.audience}`} lede="Use the workflow to drive the interview and candidate comparison."/>
+        <SectionHead center kicker="Hiring process" title={`How to hire a Virtual Assistant for ${page.audience}`} lede={`Build the interview around the workflows, tools, and escalation rules ${page.audience} actually use.`}/>
         <Steps items={[
           { title: "Document the role", copy: "Tasks, tools, hours, budget, coverage, quality standards, and decision boundaries." },
           { title: "Review relevant talent", copy: "Compare industry familiarity, role skills, communication, tools, and schedule." },
@@ -241,12 +241,12 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
-        <FaqBlock kicker="Frequently asked questions" title={`Virtual Assistant services for ${page.audience}`} lede="Questions to resolve before you shortlist and interview." faqs={faqs}/>
+        <FaqBlock kicker="Frequently asked questions" title={`Virtual Assistant services for ${page.audience}`} lede={`Use these questions to clarify scope, systems, coverage, and decision boundaries before you shortlist candidates for ${page.audience}.`} faqs={faqs}/>
       </Band>
 
       <CtaBand
         title={`Build Virtual Assistant support around the workflows that matter to ${page.audience}.`}
-        body="Tell us the workflows, tools, hours and access rules. Our recruiters use the brief to find approved Virtual Assistants whose experience fits how your team actually works."
+        body={`Tell us how your team handles ${page.workflows.slice(0, 3).join(", ")}, which tools matter, the hours you need covered, and what must stay internal. Our recruiters use that brief to find approved Virtual Assistants whose experience fits the workflow.`}
         primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
         secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}
       />

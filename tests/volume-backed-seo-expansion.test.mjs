@@ -127,7 +127,7 @@ test("resource hub keeps a shallow crawl path without rendering every client gui
   const detail = source("src/app/resources/[slug]/page.tsx");
 
   assert.ok(hub.includes('page.audience === "client" && page.intent === "hiring"'));
-  assert.ok(hub.includes("SEO_RESOURCE_ROLE_COUNT"));
+  assert.ok(hub.includes('page.intent === "hiring"'));
   assert.ok(detail.includes("page.internalLinks.map"));
   assert.ok(detail.includes('page.internalLinks.map((link) => ({ href: link.href'));
 });

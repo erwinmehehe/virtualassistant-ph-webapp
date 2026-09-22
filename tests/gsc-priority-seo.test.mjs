@@ -76,6 +76,24 @@ test("General and Executive service owners answer the GSC query intent directly"
   assert.ok(comparison.html.includes('href="/service/executive-virtual-assistant"'));
 });
 
+test("agency query strengthens the consolidated companies blog canonical", () => {
+  const gsc = JSON.parse(source("data/seo-gsc-ownership-2026-09-21.json"));
+  const query = gsc.queryThemesAtPositions4To20.find((item) => item.query === "agency for virtual assistants philippines");
+  assert.ok(query, "agency query missing from GSC opportunity map");
+  assert.ok(query.position >= 4 && query.position <= 20);
+
+  const authority = source("src/lib/seo-authority-pages.ts");
+  const editorial = source("src/lib/editorial-seo-guides.ts");
+  const config = source("next.config.ts");
+
+  assert.ok(authority.includes('metaTitle: "Virtual Assistant Companies & Agencies Philippines | 2026"'));
+  assert.ok(authority.includes('"agency for virtual assistants philippines"'));
+  assert.ok(authority.includes('h1: "Virtual Assistant companies and agencies in the Philippines: how to compare providers"'));
+  assert.ok(authority.includes('How do I choose a Virtual Assistant agency in the Philippines?'));
+  assert.ok(editorial.includes('{ key: "companies" as const, slug: "virtual-assistant-companies-philippines"'));
+  assert.ok(config.includes('source: "/virtual-assistant-companies-philippines", destination: "/blog/virtual-assistant-companies-philippines", permanent: true'));
+});
+
 test("priority retained guides can optimize SERP metadata without changing their H1", () => {
   const posts = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
   const slugs = [

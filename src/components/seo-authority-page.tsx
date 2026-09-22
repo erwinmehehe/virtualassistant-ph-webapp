@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Globe2, ShieldCheck, UsersRound } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
@@ -10,6 +10,7 @@ import type { SeoAuthorityPage } from "@/lib/seo-authority-pages";
 import "@/app/homepage-sections.css";
 import "@/app/hiring-pages.css";
 import "@/app/info-pages.css";
+import "@/app/market-authority.css";
 
 export function authorityMetadata(page: SeoAuthorityPage): Metadata {
   const canonical = canonicalPath(page.path);
@@ -28,6 +29,9 @@ function safeJson(value: unknown) {
 }
 
 export function SeoAuthorityPageView({ page }: { page: SeoAuthorityPage }) {
+  const isMarketPage = page.path === "/virtual-assistant-australia" || page.path === "/virtual-assistant-usa";
+  const marketName = page.path === "/virtual-assistant-australia" ? "Australia" : "United States";
+  const coverageLabel = page.path === "/virtual-assistant-australia" ? "Australian business-hour coverage" : "US time-zone coverage";
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const url = base + page.path;
   const schema = [
@@ -75,9 +79,16 @@ export function SeoAuthorityPageView({ page }: { page: SeoAuthorityPage }) {
         </>}
       />
 
-      <div className="hs-root sp-root">
+      {isMarketPage ? <section className="market-signal-strip" aria-label={marketName + " hiring overview"}><div className="container market-signal-grid">
+        <div><Globe2 size={20}/><span><strong>Philippines-based talent</strong><small>Remote support for {marketName} businesses</small></span></div>
+        <div><Clock3 size={20}/><span><strong>{coverageLabel}</strong><small>Define live overlap before matching</small></span></div>
+        <div><UsersRound size={20}/><span><strong>Role-specific matching</strong><small>Generalists and specialist workflows</small></span></div>
+        <div><ShieldCheck size={20}/><span><strong>Vetted before shortlist</strong><small>Experience, communication, tools and fit</small></span></div>
+      </div></section> : null}
+
+      <div className={"hs-root sp-root" + (isMarketPage ? " market-authority-root" : "")}>
         {page.sections.map((section, index) => <Band key={section.heading} tone={index % 2 ? "soft" : "white"}>
-          <SectionHead kicker={index === 0 ? "Start here" : "Go deeper"} title={section.heading} lede={section.intro}/>
+          <SectionHead kicker={isMarketPage ? String(index + 1).padStart(2, "0") + " / " + (index === 0 ? "Scope the role" : "Market guide") : index === 0 ? "Start here" : "Go deeper"} title={section.heading} lede={section.intro}/>
           {section.bullets?.length ? <div className="sp-cards-4">
             {section.bullets.map((bullet) => <article className="sp-card" key={bullet}>
               <span className="sp-card-icon" aria-hidden="true"><CheckCircle2 size={18}/></span>

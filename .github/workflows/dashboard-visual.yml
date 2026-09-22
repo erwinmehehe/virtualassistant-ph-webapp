@@ -11,12 +11,15 @@ on:
       - "src/components/sales-analytics-dashboard.tsx"
       - "src/lib/sales-analytics.ts"
       - "scripts/authenticated-dashboard-visual.mjs"
+      - "scripts/bootstrap-github-smoke.mjs"
+      - "src/app/api/internal/github-smoke-auth/route.ts"
       - ".github/workflows/dashboard-visual.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
   deployments: read
+  id-token: write
 
 concurrency:
   group: dashboard-visual-${{ github.sha }}
@@ -26,41 +29,15 @@ jobs:
   screenshots:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
-      SMOKE_SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
-      SMOKE_CLIENT_EMAIL: ${{ secrets.SMOKE_CLIENT_EMAIL }}
-      SMOKE_CLIENT_PASSWORD: ${{ secrets.SMOKE_CLIENT_PASSWORD }}
-      SMOKE_VA_EMAIL: ${{ secrets.SMOKE_VA_EMAIL }}
-      SMOKE_VA_PASSWORD: ${{ secrets.SMOKE_VA_PASSWORD }}
-      SMOKE_RECRUITER_EMAIL: ${{ secrets.SMOKE_RECRUITER_EMAIL }}
-      SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
-      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
-      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
-      SMOKE_JOB_ID: ${{ vars.SMOKE_JOB_ID }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-      - name: Check visual test credentials
-        id: credentials
-        shell: bash
-        run: |
-          if [[ -n "$SMOKE_SUPABASE_URL" && -n "$SMOKE_SUPABASE_ANON_KEY" && -n "$SMOKE_CLIENT_EMAIL" && -n "$SMOKE_CLIENT_PASSWORD" && -n "$SMOKE_VA_EMAIL" && -n "$SMOKE_VA_PASSWORD" && -n "$SMOKE_RECRUITER_EMAIL" && -n "$SMOKE_RECRUITER_PASSWORD" && -n "$SMOKE_ADMIN_EMAIL" && -n "$SMOKE_ADMIN_PASSWORD" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::error::Authenticated dashboard QA is required. Configure the SMOKE_* account credentials."
-            exit 1
-          fi
-      - if: steps.credentials.outputs.enabled == 'true'
-        run: npm ci
-      - if: steps.credentials.outputs.enabled == 'true'
-        run: npx playwright install --with-deps chromium
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - name: Wait for this main commit to reach production
-        if: steps.credentials.outputs.enabled == 'true'
         id: production
         uses: actions/github-script@v7
         with:
@@ -92,13 +69,16 @@ jobs:
               await new Promise((resolve) => setTimeout(resolve, 15000));
             }
             core.setFailed("No successful production deployment was found for this main commit.");
+      - name: Bootstrap passwordless smoke sessions
+        env:
+          SMOKE_BASE_URL: ${{ steps.production.outputs.url }}
+        run: node scripts/bootstrap-github-smoke.mjs
       - name: Capture authenticated dashboards
-        if: steps.credentials.outputs.enabled == 'true'
         env:
           VISUAL_BASE_URL: ${{ steps.production.outputs.url }}
         run: node scripts/authenticated-dashboard-visual.mjs
       - name: Upload dashboard screenshots
-        if: always() && steps.credentials.outputs.enabled == 'true'
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: dashboard-visual-${{ github.sha }}

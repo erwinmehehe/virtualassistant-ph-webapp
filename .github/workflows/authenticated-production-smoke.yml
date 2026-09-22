@@ -5,24 +5,12 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      SMOKE_BASE_URL: https://virtualassistant.com.ph
-      SMOKE_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
-      SMOKE_SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
-      SMOKE_CLIENT_EMAIL: ${{ secrets.SMOKE_CLIENT_EMAIL }}
-      SMOKE_CLIENT_PASSWORD: ${{ secrets.SMOKE_CLIENT_PASSWORD }}
-      SMOKE_VA_EMAIL: ${{ secrets.SMOKE_VA_EMAIL }}
-      SMOKE_VA_PASSWORD: ${{ secrets.SMOKE_VA_PASSWORD }}
-      SMOKE_RECRUITER_EMAIL: ${{ secrets.SMOKE_RECRUITER_EMAIL }}
-      SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
-      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
-      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
-      SMOKE_JOB_ID: ${{ vars.SMOKE_JOB_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -30,5 +18,11 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Bootstrap passwordless smoke sessions
+        env:
+          SMOKE_BASE_URL: https://virtualassistant.com.ph
+        run: node scripts/bootstrap-github-smoke.mjs
       - name: Run authenticated production smoke
+        env:
+          SMOKE_BASE_URL: https://virtualassistant.com.ph
         run: node scripts/authenticated-production-smoke.mjs

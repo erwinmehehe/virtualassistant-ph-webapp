@@ -13,6 +13,7 @@ if (!projectRef) throw new Error("Could not derive the Supabase project ref from
 const roles = [
   {
     role: "client",
+    tokenHash: process.env.SMOKE_CLIENT_TOKEN_HASH,
     email: process.env.SMOKE_CLIENT_EMAIL,
     password: process.env.SMOKE_CLIENT_PASSWORD,
     path: "/workspace/client",
@@ -21,6 +22,7 @@ const roles = [
   },
   {
     role: "va",
+    tokenHash: process.env.SMOKE_VA_TOKEN_HASH,
     email: process.env.SMOKE_VA_EMAIL,
     password: process.env.SMOKE_VA_PASSWORD,
     path: "/workspace/va",
@@ -29,6 +31,7 @@ const roles = [
   },
   {
     role: "recruiter",
+    tokenHash: process.env.SMOKE_RECRUITER_TOKEN_HASH,
     email: process.env.SMOKE_RECRUITER_EMAIL,
     password: process.env.SMOKE_RECRUITER_PASSWORD,
     path: "/workspace/recruiter",
@@ -37,6 +40,7 @@ const roles = [
   },
   {
     role: "admin",
+    tokenHash: process.env.SMOKE_ADMIN_TOKEN_HASH,
     email: process.env.SMOKE_ADMIN_EMAIL,
     password: process.env.SMOKE_ADMIN_PASSWORD,
     path: "/workspace/admin/today",
@@ -65,20 +69,28 @@ function sessionCookieHeader(session) {
   return chunks.join("; ");
 }
 
-async function signIn(email, password) {
-  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+async function signIn(config) {
+  const usingTokenHash = Boolean(config.tokenHash);
+  assert(usingTokenHash || (config.email && config.password), `Missing smoke session for ${config.role}.`);
+
+  const endpoint = usingTokenHash ? `${supabaseUrl}/auth/v1/verify` : `${supabaseUrl}/auth/v1/token?grant_type=password`;
+  const body = usingTokenHash
+    ? { token_hash: config.tokenHash, type: "email" }
+    : { email: config.email, password: config.password };
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       apikey: anonKey,
       ...(anonKey.startsWith("eyJ") ? { authorization: `Bearer ${anonKey}` } : {}),
       "content-type": "application/json"
     },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify(body)
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.access_token || !data.refresh_token) {
     const reason = data?.msg || data?.message || data?.error_description || `HTTP ${response.status}`;
-    throw new Error(`Supabase sign-in failed: ${reason}`);
+    throw new Error(`Supabase ${usingTokenHash ? "passwordless" : "password"} sign-in failed for ${config.role}: ${reason}`);
   }
   return data;
 }
@@ -137,8 +149,8 @@ async function smokeClientHandoff(role, cookie) {
 }
 
 async function smokeRole(config) {
-  assert(config.email && config.password, `Missing smoke credentials for ${config.role}.`);
-  const session = await signIn(config.email, config.password);
+  assert(config.tokenHash || (config.email && config.password), `Missing smoke session for ${config.role}.`);
+  const session = await signIn(config);
   const cookie = sessionCookieHeader(session);
 
   const workspace = await appRequest(config.path, cookie);

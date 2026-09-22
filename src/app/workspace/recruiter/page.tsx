@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AlertCircle, ArrowRight, BriefcaseBusiness, CalendarClock, CheckCircle2, CirclePlay, CircleX, Clock3, Eye, Mail, MessageSquare, Sparkles, Star, TrendingUp, UserRoundCheck } from "lucide-react";
-import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
+import { bulkRecruiterVaAction, sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import { BarChart, DashHeader, Empty, Notice, Panel, Pill, ProgressRing, SignalList, StatCard, type Tone } from "@/components/dash-ui";
 import { requireRoleFast } from "@/lib/auth";
 import { getVaCompletion } from "@/lib/profile-completeness";
@@ -269,6 +269,31 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
   if (discoveryError) throw discoveryError;
   if (approvalReadyError) throw approvalReadyError;
 
+  const { data: noShowData, error: noShowError } = await admin
+    .from("lead_intake")
+    .select("id,name,email,company,discovery_outcome,owner_id,discovery_scheduled_at")
+    .eq("lead_type", "client_hiring")
+    .eq("discovery_outcome", "no_show")
+    .or(`owner_id.eq.${userId},owner_id.is.null`)
+    .order("discovery_scheduled_at", { ascending: false })
+    .limit(8);
+  if (noShowError) throw noShowError;
+
+  const noShows = Array.isArray(noShowData) ? noShowData : [];
+  const noShowKeys = noShows.map((lead: any) => `discovery-no-show-rebook-${lead.id}`);
+  const { data: rebookEvents, error: rebookEventError } = noShowKeys.length
+    ? await admin
+        .from("outbound_email_events")
+        .select("idempotency_key,status")
+        .eq("event_type", "discovery_no_show_rebook")
+        .eq("status", "sent")
+        .in("idempotency_key", noShowKeys)
+    : { data: [], error: null };
+  if (rebookEventError) throw rebookEventError;
+  const rebookSentIds = new Set((rebookEvents || []).map((row: any) =>
+    String(row.idempotency_key || "").replace(/^discovery-no-show-rebook-/, "")
+  ));
+
   const overview = (data || {}) as RecruiterDashboardOverview;
   const metrics = overview.metrics || {};
   const queueRows = Array.isArray(overview.vetting_queue) ? overview.vetting_queue : [];
@@ -306,6 +331,38 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
             </div>;
           })}
         </div> : <Empty title="No upcoming discovery calls" desc="There are no active discovery bookings in the next 7 days." />}
+      </Panel>
+
+      <Panel
+        title="Call rebooking"
+        subtitle="No-show discovery calls stay here until the client chooses another time"
+        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/today#call-rebooking">Open full rebooking queue <ArrowRight size={14} aria-hidden="true" /></Link>}
+      >
+        {noShows.length ? <div className="dash-list">
+          {noShows.map((lead: any) => {
+            const sent = rebookSentIds.has(lead.id);
+            const leadHref = lead.email
+              ? `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`
+              : "/workspace/recruiter/leads?view=discovery";
+            return <div className="dash-list-row" key={lead.id}>
+              <Link prefetch={false} href={leadHref} style={{minWidth:0,flex:1}}>
+                <span>
+                  <strong>{lead.company || lead.name || lead.email || "Client discovery"}</strong>
+                  <small>{lead.email || "No email on file"} · {sent ? "Rebooking link sent, waiting for a new time" : "No-show recorded, rebooking link not sent"}</small>
+                </span>
+              </Link>
+              <div className="row wrap">
+                {sent
+                  ? <Pill tone="emerald">Link sent</Pill>
+                  : <form action={sendDiscoveryNoShowRebookAction}>
+                      <input type="hidden" name="lead_id" value={lead.id} />
+                      <input type="hidden" name="return_to" value="/workspace/recruiter" />
+                      <button className="dash-btn dash-btn-dark" type="submit"><MessageSquare size={14} aria-hidden="true" /> Send rebooking link</button>
+                    </form>}
+              </div>
+            </div>;
+          })}
+        </div> : <Empty title="No clients waiting to rebook" desc="No discovery-call no-shows currently need a new time." />}
       </Panel>
 
       <div className="dash-grid recruiter-priority-grid">
@@ -370,6 +427,9 @@ export default async function RecruiterDashboard({ searchParams }: { searchParam
       {params.bulk_done ? <Notice tone="success">{RESULT_WORD[params.bulk_done] ? `${params.affected || 0} ${RESULT_WORD[params.bulk_done]}` : "Done"}{params.published !== undefined ? ` · ${params.published} now live in the public directory` : ""}.</Notice> : null}
       {params.skipped ? <Notice tone="warn">Skipped, too little profile to judge: {params.skipped}. Approval needs a profile at {APPROVAL_MIN_COMPLETION}% or better. Approved VAs stay off the public directory until they add a photo, reach {PUBLIC_VA_MIN_COMPLETION}% and opt in.</Notice> : null}
       {params.bulk_error ? <Notice tone="error">{params.bulk_error}</Notice> : null}
+      {params.rebook_email_sent ? <Notice tone="success">Rebooking link sent to the client.</Notice> : null}
+      {params.rebook_email_already_sent ? <Notice tone="warn">A rebooking link was already sent. No duplicate email was sent.</Notice> : null}
+      {params.rebook_email_error ? <Notice tone="error">{params.rebook_email_error}</Notice> : null}
 
       <Suspense fallback={<RecruiterDashboardFallback />}>
         <RecruiterDashboardContent userId={userId} />

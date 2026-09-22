@@ -306,6 +306,132 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
     ctaTitle: "Choose the role from the workload, not from a generic title.",
     ctaBody: "If you can describe the recurring tasks, tools, schedule, and outcomes, the right Virtual Assistant specialty becomes much easier to identify."
   },
+  websites: {
+    path: "/virtual-assistant-websites",
+    title: "Best Virtual Assistant Websites and Platforms",
+    metaTitle: "Best Virtual Assistant Websites & Platforms | 2026",
+    metaDescription: "Compare Virtual Assistant websites and platforms by hiring model, vetting, fees, candidate access, management support, and fit for Filipino VA hiring.",
+    keywords: [
+      "virtual assistant websites",
+      "virtual assistant sites",
+      "virtual assistant platforms",
+      "best virtual assistant websites",
+      "websites for virtual assistants",
+      "best place to hire a virtual assistant"
+    ],
+    eyebrow: "Hiring platform comparison",
+    h1: "Virtual Assistant websites: how to choose the right hiring platform",
+    lede: "Virtual Assistant websites do not all solve the same hiring problem. Some are open freelance marketplaces, some are job boards, some are directories, and others are recruiting or managed-service providers. Compare the operating model before comparing the names on a list.",
+    sections: [
+      {
+        heading: "Start with the type of website",
+        intro: "The best Virtual Assistant website depends on how much sourcing, screening, hiring administration, and post-placement support your team wants to own.",
+        bullets: [
+          "Freelance marketplace: broad talent access for hourly or project work, with the client doing most screening.",
+          "Job board: employers publish a role and manage applications, interviews, hiring, and day-to-day management.",
+          "Talent directory: employers browse profiles and contact or shortlist people who appear relevant.",
+          "Recruiting or placement service: a recruiter sources and screens candidates against a hiring brief.",
+          "Managed Virtual Assistant provider: recruiting is combined with onboarding, monitoring, support, and replacement processes."
+        ]
+      },
+      {
+        heading: "Compare screening before candidate volume",
+        intro: "A large database is useful only if your team has time to filter it. Ask what evidence is available before the interview and who verifies experience, communication, tools, schedule, compensation expectations, and role fit.",
+        links: [
+          { href: "/how-vetting-works", label: "How our vetting works", description: "See the screening and recruiter review process used before client presentation." },
+          { href: "/find-talent", label: "Browse approved talent", description: "Review public examples of role, skill, tool, and availability information." }
+        ]
+      },
+      {
+        heading: "Understand the total hiring cost",
+        intro: "Website pricing can include subscriptions, marketplace fees, recruiting fees, placement fees, managed-service margins, or combinations of these. Compare the total operating cost, including the time your team spends sourcing, interviewing, onboarding, managing, and replacing a poor fit.",
+        links: [
+          { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare compensation, direct-hire placement, and managed-service pricing on VirtualAssistant.com.ph." },
+          { href: "/managed-vs-direct-hire", label: "Managed vs direct hire", description: "Choose how much of the post-placement relationship your team wants to own." }
+        ]
+      },
+      {
+        heading: "Use the same role brief across every platform",
+        intro: "A consistent brief makes websites easier to compare. Define the recurring work, weekly hours, timezone, required tools, budget, must-have experience, success measures, and the decisions that stay with your team.",
+        links: [
+          { href: "/services", label: "Browse VA role guides", description: "Choose a role from the workload instead of using a generic assistant title." },
+          { href: "/tools/virtual-assistant-job-description-generator", label: "Job description generator", description: "Turn role inputs into a structured hiring brief." },
+          { href: "/hire", label: "Send a private hiring brief", description: "Have the recruiting team screen against your actual workload." }
+        ]
+      }
+    ],
+    faqs: [
+      { q: "What are Virtual Assistant websites?", a: "They are websites used to find, compare, recruit, or hire Virtual Assistants. The category includes freelance marketplaces, job boards, talent directories, recruiting services, and managed Virtual Assistant providers." },
+      { q: "What is the best website to hire a Virtual Assistant?", a: "The best fit depends on how much sourcing and management you want to handle. Marketplaces and job boards give you more direct control, while recruiting and managed services can reduce the screening and placement work your team performs." },
+      { q: "Should I use a Virtual Assistant marketplace or agency?", a: "Use a marketplace when you are comfortable sourcing, screening, interviewing, and managing candidates. Consider a recruiting or managed provider when you want more support around matching, vetting, onboarding, monitoring, or replacement." },
+      { q: "How should I compare Virtual Assistant platforms?", a: "Compare talent focus, screening evidence, fees, candidate access, hiring speed, management responsibilities, payment model, replacement process, and whether the platform supports the role and schedule you need." }
+    ],
+    primary: { href: "/find-talent", label: "Browse approved talent" },
+    secondary: { href: "/virtual-assistant-companies-philippines", label: "Compare VA companies" },
+    ctaTitle: "Choose the hiring model before choosing the website.",
+    ctaBody: "Define the role, schedule, tools, budget, and support level first. Then compare platforms on how much work they remove from your hiring process."
+  },
+  usa: {
+    path: "/virtual-assistant-usa",
+    title: "Virtual Assistants for US Businesses",
+    metaTitle: "Virtual Assistant USA | Filipino VAs for US Businesses",
+    metaDescription: "Hire Filipino Virtual Assistants for US businesses. Compare roles, US time-zone coverage, hiring models, costs, tools, and specialist remote support.",
+    keywords: [
+      "virtual assistant usa",
+      "virtual assistants usa",
+      "us virtual assistant",
+      "virtual assistant united states",
+      "hire virtual assistant usa",
+      "virtual assistant services usa"
+    ],
+    eyebrow: "United States market guide",
+    h1: "Hire Filipino Virtual Assistants for US business workflows",
+    lede: "US businesses can build remote support around Eastern, Central, Mountain, or Pacific time while hiring from the Philippines. The important distinction is location: this page is about Filipino Virtual Assistants supporting US companies, not assistants physically based in the United States.",
+    sections: [
+      {
+        heading: "Match the role to the US workload",
+        intro: "Start with the recurring work, live coverage window, systems, budget, and decision boundaries. US businesses commonly hire Filipino Virtual Assistants across administration, executive support, sales, customer service, marketing, ecommerce, finance, real estate, healthcare administration, legal operations, and technical support.",
+        links: [
+          { href: "/services", label: "Browse Virtual Assistant services", description: "Compare role-specific responsibilities, tools, hiring guidance, and supporting resources." },
+          { href: "/tools/what-type-of-va-do-i-need", label: "Use the VA role finder", description: "Map a workload to the most relevant Virtual Assistant specialty." }
+        ]
+      },
+      {
+        heading: "Plan US time-zone coverage explicitly",
+        intro: "A Philippines-based Virtual Assistant can work full or partial overlap with US business hours when the candidate and role support that schedule. State the required time zone and live-response window before recruiting.",
+        bullets: [
+          "Eastern Time for New York, Atlanta, Miami, and other East Coast teams.",
+          "Central Time for Chicago, Dallas, Houston, and other Central teams.",
+          "Mountain Time for businesses that require Mountain-region coverage.",
+          "Pacific Time for Los Angeles, San Francisco, Seattle, and other West Coast teams.",
+          "Asynchronous schedules for research, production, reporting, and back-office work that does not require live response."
+        ]
+      },
+      {
+        heading: "US-based and Philippines-based are different hiring intents",
+        intro: "If you specifically need a worker physically located in the United States, verify location before hiring. VirtualAssistant.com.ph focuses on Filipino remote talent. That model can fit businesses prioritizing role fit, English communication, specialist experience, and planned US-hour coverage, but it should not be described as US-based talent."
+      },
+      {
+        heading: "Compare the full hiring model and cost",
+        intro: "A lower hourly rate does not remove the need for screening, onboarding, management, security, software access, documentation, and replacement planning. Compare the complete operating model before choosing between direct hire, freelance marketplaces, recruiting services, or managed support.",
+        links: [
+          { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare compensation, placement, managed-service terms, and cost-planning resources." },
+          { href: "/virtual-assistant-websites", label: "Virtual Assistant websites", description: "Compare marketplaces, job boards, directories, recruiters, and managed providers." },
+          { href: "/outsourcing-philippines-virtual-assistant", label: "Philippines outsourcing guide", description: "Plan management, handoffs, access, coverage, and operating responsibilities." }
+        ]
+      }
+    ],
+    faqs: [
+      { q: "Can a Filipino Virtual Assistant work US hours?", a: "Yes, depending on candidate availability and the role. Define the US time zone, live overlap, weekly hours, and response expectations before sourcing begins." },
+      { q: "Are the Virtual Assistants on this site US-based?", a: "No. VirtualAssistant.com.ph focuses on Filipino Virtual Assistants. Candidates can support US businesses and US-hour schedules, but their physical location should not be represented as United States based." },
+      { q: "What US businesses hire Filipino Virtual Assistants?", a: "Common use cases include small businesses, startups, agencies, ecommerce companies, real estate teams, professional services, healthcare administration, finance operations, legal support, home services, and other teams with repeatable remote workflows." },
+      { q: "How should a US business choose between direct hire and managed support?", a: "Choose based on how much recruiting, onboarding, monitoring, billing administration, replacement support, and day-to-day management your team wants to own after the hire." }
+    ],
+    primary: { href: "/hire", label: "Hire for a US workflow" },
+    secondary: { href: "/services", label: "Browse services" },
+    ctaTitle: "Build a US-ready Virtual Assistant brief.",
+    ctaBody: "Share the role, US time zone, live coverage, weekly hours, tools, budget, and required experience so candidates can be screened against the real operating need."
+  },
   nonprofits: {
     path: "/industries/nonprofits",
     title: "Virtual Assistant for Nonprofits",

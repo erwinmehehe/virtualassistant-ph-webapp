@@ -55,7 +55,7 @@ export function isPubliclyEligible(
  * Approving also protects the account: the abandoned-account cleanup skips
  * anyone at stage approved or bench.
  */
-export const APPROVAL_MIN_COMPLETION = 45;
+export const APPROVAL_MIN_COMPLETION = 60;
 
 /**
  * Approval is a recruiter quality decision, not consent to public processing,

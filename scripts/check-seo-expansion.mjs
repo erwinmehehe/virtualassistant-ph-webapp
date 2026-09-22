@@ -9,6 +9,7 @@ const files = {
   services: fs.readFileSync("src/app/services/page.tsx", "utf8"),
   publicRoutes: fs.readFileSync("src/lib/public-seo-routes.ts", "utf8"),
   software: fs.readFileSync("src/lib/software-pages.ts", "utf8"),
+  blog: fs.readFileSync("src/lib/blog-content.ts", "utf8"),
   servicePages: fs.readFileSync("src/lib/service-pages.ts", "utf8"),
 };
 
@@ -112,6 +113,12 @@ assert(files.services.includes('href="/virtual-assistant-australia"'), "services
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 
+
+// Post-expansion internal-link targets: verify the editorial corpus can pass authority
+// into the core commercial hubs before expanding with more weak URLs.
+for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines"]) {
+  assert(files.blog.includes(`"href": "${path}"`), `blog corpus missing contextual authority link to ${path}`);
+}
 
 for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant", "email-management-virtual-assistant", "event-planning-virtual-assistant"]) {
   const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");

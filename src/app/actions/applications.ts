@@ -29,10 +29,7 @@ function snapshot(profile: any, va: any, vettingStage?: string | null) {
     overlap_hours: va.overlap_hours,
     hourly_rate: va.hourly_rate,
     availability_status: va.availability_status,
-    portfolio_url: va.portfolio_url,
-    linkedin_url: va.linkedin_url,
     slug: va.slug,
-    resume_path: va.resume_path,
     vetting_stage: vettingStage
   };
 }
@@ -55,7 +52,7 @@ export async function applyToJobAction(formData: FormData) {
   const admin = createAdminClient();
   const [{ data: va }, { data: job }, { data: vetting }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", user.id).single(),
-    supabase.from("jobs").select("*").eq("id", jobId).eq("status", "published").single(),
+    admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null).single(),
     admin.from("va_vetting").select("stage").eq("va_id",user.id).single()
   ]);
   if (!va || !job) throw new Error("Job or VA profile was not found.");
@@ -210,7 +207,7 @@ export async function respondToInviteAction(formData: FormData) {
     const { data: existing } = await supabase.from("applications").select("id").eq("job_id",invite.job_id).eq("va_id",user.id).maybeSingle();
     if (!existing) {
       const [{ data: profile }, { data: va }, { data: job }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id",user.id).single(), supabase.from("va_profiles").select("*").eq("user_id",user.id).single(), supabase.from("jobs").select("*").eq("id",invite.job_id).single()
+        supabase.from("profiles").select("full_name").eq("id",user.id).single(), supabase.from("va_profiles").select("*").eq("user_id",user.id).single(), admin.from("jobs").select("*").eq("id",invite.job_id).eq("status","published").single()
       ]);
       if (va && job) {
         const { data: app } = await admin.from("applications").insert({ job_id: invite.job_id, va_id: user.id, status: "new", cover_note: "Accepted client invitation.", match_score: matchScore(job, va), profile_snapshot: snapshot(profile, va, vetting?.stage) }).select("id").single();

@@ -61,7 +61,9 @@ test("authenticated dashboard visual QA covers current routes, overflow, and fir
   ]){
     assert.ok(visual.includes(fragment),`visual QA is missing: ${fragment}`);
   }
-  assert.match(visual,/getByRole\("heading", \{ name: role\.marker, exact: true \}\)/);\n  assert.doesNotMatch(visual,/getByText\(role\.marker/);\n  assert.match(visual,/document\.documentElement\.scrollWidth > document\.documentElement\.clientWidth/);
+  assert.match(visual,/getByRole\("heading", \{ name: role\.marker, exact: true \}\)/);
+  assert.doesNotMatch(visual,/getByText\(role\.marker/);
+  assert.match(visual,/document\.documentElement\.scrollWidth > document\.documentElement\.clientWidth/);
   assert.match(visual,/viewport\.name === "mobile"/);
   assert.match(visual,/mobile primary action starts below the first viewport/);
   assert.match(visual,/width: 390, height: 844/);

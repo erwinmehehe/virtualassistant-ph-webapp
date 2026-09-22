@@ -32,3 +32,12 @@ test("VA interview copy does not promise Zoom specifically", async()=>{
   assert.doesNotMatch(page,/Zoom link/);
   assert.match(page,/schedule, meeting link, and role details/);
 });
+
+
+test("client and VA mobile primary support destinations actually exist in navigation", async()=>{
+  const nav=await read("src/components/app-nav-links.tsx");
+  assert.match(nav,/\["Support", "\/workspace\/client\/support", LifeBuoy\]/);
+  assert.match(nav,/\["Support", "\/workspace\/va\/support", LifeBuoy\]/);
+  assert.match(nav,/client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/team", "\/workspace\/client\/support"\]/);
+  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/workroom", "\/workspace\/va\/support"\]/);
+});

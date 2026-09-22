@@ -1326,6 +1326,46 @@ export const INDUSTRIES: IndustryPage[] = [
       "The licensed or authorised local insurance broker retains final coverage decisions, recommendations, advice, approvals and compliance responsibility; the Virtual Assistant performs renewal production and administration."
     ]
   }
+  {
+    "slug": "nonprofits",
+    "label": "Nonprofits",
+    "h1": "Virtual Assistants for Nonprofits",
+    "primaryKeyword": "virtual assistant for nonprofits",
+    "metaTitle": "Virtual Assistant for Nonprofits | Philippines",
+    "metaDescription": "Hire Virtual Assistant support for nonprofits. Delegate donor CRM updates, volunteer coordination, event admin, research, newsletters and recurring operations.",
+    "intro": "Build a remote support role around the recurring administrative and outreach workflows that keep nonprofit programs moving. Delegate repeatable operations while fundraising strategy, governance, financial authority and sensitive beneficiary decisions remain with accountable staff.",
+    "audience": "nonprofits, charities, foundations, and membership organizations",
+    "workflows": [
+      "donor CRM updates",
+      "volunteer coordination",
+      "event administration",
+      "newsletter preparation",
+      "research",
+      "calendar and inbox support",
+      "document organization",
+      "report preparation"
+    ],
+    "serviceSlugs": [
+      "admin-inbox",
+      "crm",
+      "email-marketing",
+      "research-data",
+      "project-coordination"
+    ],
+    "tools": [
+      "Google Workspace",
+      "Microsoft 365",
+      "Salesforce",
+      "HubSpot",
+      "Mailchimp",
+      "Canva"
+    ],
+    "hiringNotes": [
+      "Define access rules for donor, volunteer, beneficiary, and financial information.",
+      "Keep fundraising strategy, governance decisions, and financial approvals with accountable staff.",
+      "Prioritize communication, documentation, and accurate CRM records over raw task volume."
+    ]
+  },
 ];
 
 export function industryBySlug(slug: string) { return INDUSTRIES.find((industry) => industry.slug === slug); }

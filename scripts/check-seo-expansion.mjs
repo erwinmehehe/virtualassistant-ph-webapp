@@ -7,6 +7,8 @@ const files = {
   serviceRoute: fs.readFileSync("src/app/service/[slug]/page.tsx", "utf8"),
   sitemap: fs.readFileSync("src/app/sitemap.ts", "utf8"),
   services: fs.readFileSync("src/app/services/page.tsx", "utf8"),
+  pricing: fs.readFileSync("src/app/pricing/page.tsx", "utf8"),
+  managed: fs.readFileSync("src/app/managed-vs-direct-hire/page.tsx", "utf8"),
   publicRoutes: fs.readFileSync("src/lib/public-seo-routes.ts", "utf8"),
   software: fs.readFileSync("src/lib/software-pages.ts", "utf8"),
   blog: fs.readFileSync("src/lib/blog-content.ts", "utf8"),
@@ -106,7 +108,7 @@ for (const unsafe of [
 ]) {
   assert(!files.resources.includes(unsafe), `unsafe generated article grammar remains: ${unsafe}`);
 }
-assert(candidateSlugs.length === 17, `expected 17 manually defined resource pages, found ${candidateSlugs.length}`);
+assert(candidateSlugs.length === 20, `expected 20 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
 const vowelSoundResourceBases = [
   "administrative-virtual-assistant",
@@ -135,6 +137,8 @@ for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", 
 
 const expectedAuthorityPaths = [
   "/virtual-assistant-companies-philippines",
+  "/virtual-assistant-websites",
+  "/virtual-assistant-usa",
   "/virtual-assistant-australia",
   "/what-is-a-virtual-assistant",
   "/types-of-virtual-assistants",
@@ -161,6 +165,16 @@ assert(files.hiringCss.includes(".sp-cards-4,"), "resource card grid missing res
 assert(files.hiringCss.includes("grid-template-columns: minmax(0, 1fr)"), "resource cards do not collapse to one column on mobile");
 assert(files.services.includes('href="/virtual-assistant-companies-philippines"'), "services hub missing companies guide link");
 assert(files.services.includes('href="/virtual-assistant-australia"'), "services hub missing Australia guide link");
+assert(files.services.includes('href="/virtual-assistant-websites"'), "services hub missing Virtual Assistant websites link");
+assert(files.services.includes('href="/virtual-assistant-usa"'), "services hub missing USA guide link");
+assert(files.pricing.includes("affordable virtual assistant"), "pricing page missing affordable Virtual Assistant ownership");
+assert(files.pricing.includes("cheap virtual assistant"), "pricing page missing cheap Virtual Assistant ownership");
+assert(files.managed.includes("employee virtual assistant"), "managed/direct page missing employee Virtual Assistant ownership");
+assert(files.managed.includes("bpo virtual assistant"), "managed/direct page missing BPO Virtual Assistant ownership");
+for (const slug of ["virtual-assistant-cover-letter", "best-laptop-for-virtual-assistant", "freelance-platforms-for-virtual-assistants", "how-to-start-a-virtual-assistant-business"]) {
+  assert(files.resources.includes(`slug: "${slug}"`), `missing remaining volume-backed candidate resource: ${slug}`);
+}
+assert(files.redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true'), "old VA side-hustle resource must redirect to the broader business canonical");
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 

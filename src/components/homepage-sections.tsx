@@ -196,6 +196,7 @@ export function WhyPhilippinesSection() {
               <p>The Philippines has become a global hub for experienced virtual assistants. Filipino professionals have built a strong reputation for supporting international businesses, and the advantage is more than cost: communication, adaptability, service mindset, and remote-work experience all matter when you are trusting someone with important day-to-day work.</p>
               <p>Whether you run an ecommerce store, manage a growing client base, handle a busy sales pipeline, or simply need help keeping daily operations under control, a <strong>Filipino virtual assistant</strong> can take ownership of recurring work so you have more time to focus on the business itself.</p>
               <p>The Philippines has developed a strong reputation for <strong>virtual assistant services</strong> because of its large English-speaking workforce, established outsourcing industry, and professionals with experience supporting companies in Australia, the United States, the United Kingdom, and other international markets.</p>
+            <p>For current first-party data, see our <Link href="/research/virtual-assistant-rates-philippines-2026">2026 Virtual Assistant Rate &amp; Skills Report</Link>, which aggregates preferred USD hourly rates, experience, skills, and tools from VirtualAssistant.com.ph candidate profiles.</p>
             </div>
           </div>
 

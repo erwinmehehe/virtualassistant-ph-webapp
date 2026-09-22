@@ -9,7 +9,7 @@
     "lint": "eslint src",
     "format": "prettier --write",
     "format:check": "prettier --check",
-    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
+    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs && node scripts/check-seo-expansion.mjs",
     "typecheck": "tsc --noEmit",
     "content:check": "node scripts/check-blog-quality.mjs",
     "setup:check": "node scripts/check-runtime-config.mjs",
@@ -19,7 +19,8 @@
     "service:check": "node scripts/check-service-seo.mjs",
     "cluster:check": "node scripts/check-content-clusters.mjs",
     "archive:check": "node scripts/check-archive-editorial-status.mjs",
-    "content:intent-audit": "node scripts/audit-content-intent-overlap.mjs"
+    "content:intent-audit": "node scripts/audit-content-intent-overlap.mjs",
+    "seo:expansion-check": "node scripts/check-seo-expansion.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarClock, CheckCircle2, Clock3, UsersRound } from "lucide-react";
+import { ArrowRight, CalendarClock, CheckCircle2, Clock3, Eye, MessageSquare, UsersRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
 import { prepareStandardPlacementTermsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
+import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
+import { StaffJobMatching } from "@/components/staff-job-matching";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -66,7 +68,7 @@ export default async function RoleControlCenter({
   const admin = createAdminClient();
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
-  if (!job || job.recruiter_id !== userId) notFound();
+  if (!job) notFound();
   const [
     { data: lead },
     { data: commercial },
@@ -98,7 +100,7 @@ export default async function RoleControlCenter({
       .eq("subject_type", "job")
       .eq("subject_id", id)
       .order("created_at", { ascending: false })
-      .limit(12),
+      .limit(40),
   ]);
   const shortlist = (shortlistData || []) as ShortlistCandidateRow[];
   const interviews = (interviewData || []) as CandidateInterviewRow[];
@@ -131,6 +133,20 @@ export default async function RoleControlCenter({
     (job.required_industries?.length || 0) +
     (job.dealbreakers?.length || 0);
   const publication = publicationBlocker(job, commercial);
+  const clientViewedAt = activity.find((row) => row.action === "client_shortlist_viewed")?.created_at || null;
+  const lastClientFollowupAt = activity.find((row) => row.action === "client_shortlist_followup")?.created_at || null;
+  const oldestReleasedAt = released.map((row) => row.released_at).filter(Boolean).sort()[0] || null;
+  const hoursWaiting = oldestReleasedAt ? Math.max(0, (Date.now() - new Date(oldestReleasedAt).getTime()) / 3600000) : 0;
+  const followupRecent = Boolean(lastClientFollowupAt && Date.now() - new Date(lastClientFollowupAt).getTime() < 20 * 3600000);
+  const feedbackCount = released.filter((row) => row.client_decision && row.client_decision !== "hold").length;
+  const heldCount = released.filter((row) => row.client_decision === "hold").length;
+  const clientStatus = !released.length
+    ? "Not sent"
+    : feedbackCount === released.length
+      ? "Feedback complete"
+      : clientViewedAt
+        ? "Viewed, waiting on decisions"
+        : "Sent, not viewed";
 
   return (
     <>
@@ -142,6 +158,12 @@ export default async function RoleControlCenter({
       {query.client_already_linked ? (
         <div className="success-banner" role="status">The client account is already linked to this role.</div>
       ) : null}
+      {query.shortlist_saved ? <div className="success-banner">Internal shortlist saved.</div> : null}
+      {query.shortlist_released ? <div className="success-banner">Shortlist released to the client.</div> : null}
+      {query.client_invited ? <div className="success-banner">Shortlist saved and the client account invitation was sent.</div> : null}
+      {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
+      {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
+      {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
       <div className="page-head">
         <div>
           <div className="kicker">Role Control Center</div>
@@ -152,9 +174,9 @@ export default async function RoleControlCenter({
           </p>
         </div>
         <div className="row wrap">
-          <Link className="btn btn-primary" href={`/workspace/recruiter/matching/${id}`}>
-            Open matching workspace
-          </Link>
+          <a className="btn btn-primary" href="#matching">
+            Match & shortlist
+          </a>
           {room ? (
             <Link className="btn" href={`/workspace/recruiter/placements/${room.id}`}>
               Open placement
@@ -166,7 +188,14 @@ export default async function RoleControlCenter({
         </div>
       </div>
 
-      <div className="grid-4">
+      <nav className="role-workflow-nav" aria-label="Role workflow">
+        <a href="#overview">1. Role overview</a>
+        <a href="#matching">2. Match & shortlist</a>
+        <a href="#client-handoff">3. Client handoff</a>
+        <a href="#interviews">4. Interview & offer</a>
+      </nav>
+
+      <div id="overview" className="grid-4">
         <div className="card">
           <span className="small muted">Sales</span>
           <strong style={{ display: "block", marginTop: 5 }}>{lead ? leadStageLabel(lead.crm_stage) : "Client account"}</strong>
@@ -218,7 +247,7 @@ export default async function RoleControlCenter({
             </form>
           ) : null}
           {publication.key === "needs_role_details" || publication.key === "needs_role_review" ? (
-            <Link className="btn btn-primary" href={`/workspace/recruiter/matching/${job.id}`}>Complete role review</Link>
+            <a className="btn btn-primary" href="#matching">Complete role review</a>
           ) : null}
           {publication.key === "waiting_client_approval" ? (
             <Link className="btn" href={lead?.email ? `/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/leads"}>
@@ -267,9 +296,9 @@ export default async function RoleControlCenter({
             </p>
           ) : null}
           {job.summary ? <p className="small muted">{job.summary}</p> : null}
-          <Link className="btn btn-sm" href={`/workspace/recruiter/matching/${id}`}>
+          <a className="btn btn-sm" href="#matching">
             Review requirements and candidates
-          </Link>
+          </a>
         </section>
         <section className="card">
           <h2 style={{ marginTop: 0 }}>Ownership & commercial</h2>
@@ -305,6 +334,71 @@ export default async function RoleControlCenter({
         </section>
       </div>
 
+      <section id="matching" className="role-workspace-section">
+        <div className="role-workspace-section-head">
+          <div>
+            <span className="small muted">Step 2</span>
+            <h2>Match, shortlist & preview</h2>
+            <p>Review fit, choose the candidates you will stand behind, preview the client experience, then release from this page.</p>
+          </div>
+          <ArrowRight size={20} />
+        </div>
+        <StaffJobMatching job={job} viewerRole="recruiter" returnTo={`/workspace/recruiter/roles/${id}`} />
+      </section>
+
+      <section id="client-handoff" className="card role-client-handoff" style={{ marginTop: 18 }}>
+        <div className="row-between wrap">
+          <div>
+            <span className="small muted">Step 3</span>
+            <h2 style={{ margin: "3px 0 0" }}>Client handoff</h2>
+            <p className="small muted" style={{ margin: "5px 0 0" }}>Track whether the shortlist was viewed, what the client decided, and whether follow-up is due.</p>
+          </div>
+          <span className={`badge ${clientStatus === "Feedback complete" ? "badge-success" : released.length && hoursWaiting >= 24 ? "badge-warning" : ""}`}>{clientStatus}</span>
+        </div>
+
+        <div className="role-handoff-stats">
+          <div><span>Sent</span><strong>{released.length}</strong></div>
+          <div><span>Waiting</span><strong>{waiting.length}</strong></div>
+          <div><span>On hold</span><strong>{heldCount}</strong></div>
+          <div><span>Decided</span><strong>{feedbackCount}</strong></div>
+        </div>
+
+        {released.length ? (
+          <>
+            <div className="role-client-state-line">
+              <span><Eye size={14}/> {clientViewedAt ? `Viewed ${ageLabel(clientViewedAt)}` : "Client has not viewed the shortlist yet"}</span>
+              <span><Clock3 size={14}/> {oldestReleasedAt ? `Sent ${ageLabel(oldestReleasedAt)}` : "Send time not recorded"}</span>
+              {lastClientFollowupAt ? <span><MessageSquare size={14}/> Followed up {ageLabel(lastClientFollowupAt)}</span> : null}
+            </div>
+            <div className="stack" style={{ marginTop: 14 }}>
+              {released.map((x) => (
+                <div className="role-client-candidate" key={x.id}>
+                  <div>
+                    <strong>{vaMap.get(x.va_id) || "VA"}</strong>
+                    <div className="small muted">{x.client_recommendation || "Recruiter-curated candidate"}</div>
+                  </div>
+                  <span className={`badge ${x.client_decision === "pass" || x.client_decision === "hold" ? "badge-warning" : x.client_decision ? "badge-success" : ""}`}>
+                    {x.client_decision ? x.client_decision.replaceAll("_", " ") : "Waiting"}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {waiting.length ? (
+              <form action={sendClientShortlistFollowupAction} className="role-client-followup">
+                <input type="hidden" name="job_id" value={job.id}/>
+                <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}#client-handoff`}/>
+                <button className={`btn ${hoursWaiting >= 24 && !followupRecent ? "btn-primary" : ""}`} type="submit" disabled={followupRecent}>
+                  <MessageSquare size={14}/>
+                  {followupRecent ? "Follow-up sent recently" : hoursWaiting >= 24 ? "Send client follow-up" : "Follow up with client"}
+                </button>
+              </form>
+            ) : null}
+          </>
+        ) : (
+          <div className="empty">No shortlist has been released yet. Build and preview it above.</div>
+        )}
+      </section>
+
       <section className="card" style={{ marginTop: 18 }}>
         <div className="row-between wrap">
           <div>
@@ -333,32 +427,13 @@ export default async function RoleControlCenter({
             <strong style={{ display: "block", fontSize: 22 }}>{activeInterviews.length}</strong>
           </div>
         </div>
-        {released.length ? (
-          <div className="stack" style={{ marginTop: 14 }}>
-            {released.map((x) => (
-              <div className="row-between card" key={x.id}>
-                <div>
-                  <strong>{vaMap.get(x.va_id) || "VA"}</strong>
-                  <div className="small muted">{x.client_recommendation || "Recruiter-curated candidate"}</div>
-                </div>
-                <span className="badge">{x.client_decision ? x.client_decision.replaceAll("_", " ") : "Waiting"}</span>
-              </div>
-            ))}
-          </div>
-        ) : null}
         <div className="row wrap" style={{ marginTop: 14 }}>
-          <Link className="btn btn-primary" href={`/workspace/recruiter/matching/${id}`}>
-            Work this role
-          </Link>
-          {released.length ? (
-            <Link className="btn" href="/workspace/recruiter/client-review">
-              Client review queue
-            </Link>
-          ) : null}
+          <a className="btn btn-primary" href="#matching">Manage shortlist</a>
+          {released.length ? <a className="btn" href="#client-handoff">Review client status</a> : null}
         </div>
       </section>
 
-      <div className="grid-2" style={{ marginTop: 18 }}>
+      <div id="interviews" className="grid-2" style={{ marginTop: 18 }}>
         <section className="card">
           <h2 style={{ marginTop: 0 }}>Interviews</h2>
           {activeInterviews.length ? (

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { CircleUserRound, LifeBuoy, LogOut, Sparkles } from "lucide-react";
+import { CircleUserRound, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
 import { getWorkspaceBadges, type WorkspaceBadges } from "@/lib/workspace-badges";
@@ -25,7 +25,7 @@ async function WorkspaceNavWithBadges({ role, userId }: { role: Role; userId: st
   return <AppNavLinks role={role} badges={badges}/>;
 }
 
-export function AppShell({ role, name, title, children, badges, userId }: { role: Role; name?: string | null; title: string; children: React.ReactNode; badges?: WorkspaceBadges; userId?: string | null }) {
+export function AppShell({ role, name, avatarUrl, title, children, badges, userId }: { role: Role; name?: string | null; avatarUrl?: string | null; title: string; children: React.ReactNode; badges?: WorkspaceBadges; userId?: string | null }) {
   const roleLabel = roleLabels[role];
   const nav = badges
     ? <AppNavLinks role={role} badges={badges}/>
@@ -47,14 +47,13 @@ export function AppShell({ role, name, title, children, badges, userId }: { role
         {nav}
 
         <div className="sidebar-footer">
-          <Link className="app-support-link" href="/contact"><LifeBuoy size={15}/><span>Help and support</span></Link>
           <Link
             className="app-account-card"
             href="/workspace/account"
             aria-label="Open account settings"
             title="Account settings"
           >
-            <span className="app-account-avatar"><CircleUserRound size={18}/></span>
+            <span className="app-account-avatar" aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : <CircleUserRound size={18}/>}</span>
             <div className="user-copy"><strong>{name || "Account"}</strong><span>{roleLabel}</span></div>
           </Link>
           <form action={logoutAction}>

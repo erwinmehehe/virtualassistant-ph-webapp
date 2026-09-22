@@ -48,6 +48,7 @@ test("Client Success keeps link prefetch disabled",()=>{
 test("Client Success secondary screens use one scoped summary RPC instead of query fan-out",()=>{
   assert.match(support,/getClientSuccessSupportSummary\(userId\)/);
   assert.match(retention,/getClientSuccessRetentionSummary\(userId\)/);
+  assert.match(retention,/name="workroom_id" value=\{request\.workroom_id\}/);
   assert.match(detail,/getClientSuccessPlacementDetail\(userId,id\)/);
   for(const source of [support,retention,detail]){
     assert.match(source,/requireAnyRoleFast/);

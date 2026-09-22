@@ -7,7 +7,7 @@ const migration=readFileSync("supabase/migrations/20260916033305_client_success_
 
 test("Client Success loads its operational queue through one scoped RPC",()=>{
   assert.match(page,/\.rpc\("client_success_today_queue"/);
-  assert.match(page,/p_actor_id:user\.id/);
+  assert.match(page,/p_actor_id:userId/);
   assert.doesNotMatch(page,/\.from\("workrooms"\)/);
   assert.doesNotMatch(page,/\.from\("jobs"\)/);
   assert.doesNotMatch(page,/\.from\("profiles"\)/);

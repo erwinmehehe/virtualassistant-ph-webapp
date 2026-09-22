@@ -13,6 +13,8 @@ import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-appli
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -598,6 +600,9 @@ export async function submitRoleBriefAction(formData: FormData) {
     redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
+  if (!(await verifyTurnstile(formData))) redirect(`${returnTo}?error=${encodeURIComponent("Please complete the security check.")}`);
+  try { await enforceActionRateLimit("public_role_brief", parsed.data.email, 5, 60); }
+  catch { redirect(`${returnTo}?error=${encodeURIComponent("Too many requests. Please try again later.")}`); }
 
   if (looksLikeVaApplication(parsed.data.message, parsed.data.company)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: returnTo, sessionId: parsed.data.session_id });
@@ -746,6 +751,9 @@ export async function submitContactAction(formData: FormData) {
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/contact?error=Please%20complete%20the%20required%20fields");
   if (parsed.data.website) redirect("/contact?sent=1");
+  if (!(await verifyTurnstile(formData))) redirect("/contact?error=Please%20complete%20the%20security%20check");
+  try { await enforceActionRateLimit("public_contact", parsed.data.email, 5, 60); }
+  catch { redirect("/contact?error=Too%20many%20requests.%20Please%20try%20again%20later."); }
   const admin = createAdminClient();
   const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/contact`;
   const { data: lead, error } = await admin.from("lead_intake").insert({
@@ -824,6 +832,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete all required client questions.")}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
+  if (!(await verifyTurnstile(formData))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");
+  try { await enforceActionRateLimit("public_discovery_booking", parsed.data.email, 3, 60); }
+  catch { redirect("/book-client-call?error=Too%20many%20booking%20attempts.%20Please%20try%20again%20later."); }
   if (!isAllowedDiscoverySlot(parsed.data.scheduled_at)) {
     redirect(`/book-client-call?error=${encodeURIComponent("That time is no longer available. Please choose another slot.")}`);
   }

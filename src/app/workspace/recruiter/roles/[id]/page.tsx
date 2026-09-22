@@ -50,6 +50,7 @@ const SLA: Record<string, number> = {
 };
 const ageHours = hoursSince;
 const ageLabel = (value?: string | null) => elapsedLabel(value, { empty: "0h in stage", suffix: " in stage" });
+const eventAgeLabel = (value?: string | null) => elapsedLabel(value, { empty: "Not recorded", underHour: "less than 1 hour ago" });
 function slaLabel(stage: string, entered?: string | null) {
   const target = SLA[stage];
   if (!target || !entered) return null;
@@ -64,7 +65,8 @@ export default async function RoleControlCenter({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const [{ id }, query, { userId }] = await Promise.all([params, searchParams, requireRoleFast("recruiter")]);
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  await requireRoleFast("recruiter");
   const admin = createAdminClient();
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
@@ -366,9 +368,9 @@ export default async function RoleControlCenter({
         {released.length ? (
           <>
             <div className="role-client-state-line">
-              <span><Eye size={14}/> {clientViewedAt ? `Viewed ${ageLabel(clientViewedAt)}` : "Client has not viewed the shortlist yet"}</span>
-              <span><Clock3 size={14}/> {oldestReleasedAt ? `Sent ${ageLabel(oldestReleasedAt)}` : "Send time not recorded"}</span>
-              {lastClientFollowupAt ? <span><MessageSquare size={14}/> Followed up {ageLabel(lastClientFollowupAt)}</span> : null}
+              <span><Eye size={14}/> {clientViewedAt ? `Viewed ${eventAgeLabel(clientViewedAt)}` : "Client has not viewed the shortlist yet"}</span>
+              <span><Clock3 size={14}/> {oldestReleasedAt ? `Sent ${eventAgeLabel(oldestReleasedAt)}` : "Send time not recorded"}</span>
+              {lastClientFollowupAt ? <span><MessageSquare size={14}/> Followed up {eventAgeLabel(lastClientFollowupAt)}</span> : null}
             </div>
             <div className="stack" style={{ marginTop: 14 }}>
               {released.map((x) => (
@@ -386,7 +388,7 @@ export default async function RoleControlCenter({
             {waiting.length ? (
               <form action={sendClientShortlistFollowupAction} className="role-client-followup">
                 <input type="hidden" name="job_id" value={job.id}/>
-                <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}#client-handoff`}/>
+                <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}`}/>
                 <button className={`btn ${hoursWaiting >= 24 && !followupRecent ? "btn-primary" : ""}`} type="submit" disabled={followupRecent}>
                   <MessageSquare size={14}/>
                   {followupRecent ? "Follow-up sent recently" : hoursWaiting >= 24 ? "Send client follow-up" : "Follow up with client"}

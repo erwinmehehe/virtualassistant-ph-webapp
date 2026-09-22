@@ -67,8 +67,11 @@ export type ShortlistCandidateRow = {
   job_id: string;
   va_id: string;
   shortlist_status: string;
+  shortlist_order: number | null;
+  match_score?: number | null;
   client_decision: string | null;
   client_recommendation: string | null;
+  released_at: string | null;
   created_at: string;
 };
 

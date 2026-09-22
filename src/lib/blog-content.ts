@@ -676,15 +676,30 @@ export const BLOG_POSTS: BlogPost[] = [
     "legacyPath": "/average-hourly-rate-virtual-assistants-philippines/",
     "title": "Average Hourly Rate for Virtual Assistants in the Philippines: 2026 Guide",
     "metaTitle": "Virtual Assistant Hourly Rate Philippines: 2026 Guide",
-    "description": "Compare 2026 Virtual Assistant hourly rates in the Philippines, including beginner rates, monthly cost examples, experience, hours, and role scope.",
+    "description": "Compare 2026 Virtual Assistant hourly rates in the Philippines. Our September 22 sample of 93 profiles had a $5 median and $6.61 average preferred USD rate.",
     "excerpt": "Use hourly-rate benchmarks as context, then budget for the responsibility and evidence of skill your role actually needs.",
     "topic": "pricing",
-    "clusterLabel": "Pricing",
+    "clusterLabel": "VA Rates & Costs",
     "intent": "informational",
     "publishedAt": "2026-03-01",
     "updatedAt": "2026-09-22",
     "author": "Christ Hemsworthy",
     "sections": [
+      {
+        "heading": "2026 Virtual Assistant hourly rate snapshot",
+        "paragraphs": [
+          "In VirtualAssistant.com.ph's September 22, 2026 first-party snapshot, 93 profiles reporting a preferred USD hourly rate had a median of $5 per hour and an average of $6.61 per hour. The middle 50% were between $5 and $7 per hour. These are profile preferences from our platform, not a government wage floor or a market-wide quote.",
+          "The platform's current profile minimum is $6 per hour, so historical rate-reporting profiles can include values below the current minimum. Use the sample as context, then set the budget from the actual responsibilities, weekly hours, schedule overlap, tool depth, and level of independent judgment."
+        ],
+        "bullets": [
+          "93 profiles in the rate-reporting sample",
+          "$5 per hour median preferred rate",
+          "$6.61 per hour average preferred rate",
+          "$5 to $7 per hour middle 50% range",
+          "$6 per hour current profile minimum"
+        ],
+        "numbered": []
+      },
       {
         "heading": "What you are really paying for in a virtual assistant role",
         "paragraphs": [
@@ -766,7 +781,7 @@ export const BLOG_POSTS: BlogPost[] = [
         "heading": "A practical budget check before you publish",
         "paragraphs": [
           "Read the job post once as if you were the candidate. If the role asks for several specialties, round-the-clock responsiveness, senior judgment, and extensive tool experience but the rate is sitting at the marketplace minimum, the scope and budget are out of alignment. Fix that before sourcing. Better candidates are more likely to engage when the responsibility and compensation make sense together.",
-          "Write down the decisions the Virtual Assistant may make alone and the decisions that need approval. For Pricing, keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
+          "Write down the decisions the Virtual Assistant may make alone and the decisions that need approval. Keep budget approval, contract terms, sensitive-access permissions, and material scope changes with the client or hiring manager."
         ],
         "bullets": [],
         "numbered": []
@@ -775,10 +790,10 @@ export const BLOG_POSTS: BlogPost[] = [
     "faqs": [
       {
         "question": "How much should I budget for a Virtual Assistant?",
-        "answer": "A realistic Pricing budget should reflect scope, complexity, and accountability. Consider whether the assistant is following a checklist, managing recurring workflows, communicating with customers or stakeholders, handling sensitive access, or solving exceptions independently. Those differences matter more than a single marketplace-wide rate anchor."
+        "answer": "A realistic Virtual Assistant budget should reflect scope, complexity, and accountability. Consider whether the assistant is following a checklist, managing recurring workflows, communicating with customers or stakeholders, handling sensitive access, or solving exceptions independently. Those differences matter more than a single marketplace-wide rate anchor."
       },
       {
-        "question": "What hourly rate should I budget for Pricing?",
+        "question": "What hourly rate should I budget for a Virtual Assistant?",
         "answer": "A Virtual Assistant budget should be based on the actual workload, weekly hours, experience level, time-zone overlap, software requirements, communication demands, and how independently the assistant will work. A role that owns sensitive, specialist, or client-facing work should be budgeted differently from a tightly supervised task list, so use the scope and responsibility rather than anchoring on one hourly figure."
       },
       {
@@ -799,9 +814,9 @@ export const BLOG_POSTS: BlogPost[] = [
       }
     ],
     "keyTakeaways": [
-      "Build the Pricing budget from the work itself. Compare the number of recurring hours, required experience, live coverage, tool depth, quality expectations, access level, and the cost of errors. A more independent role with specialist knowledge or direct client communication usually warrants a higher budget than basic execution under close review.",
+      "Build the Virtual Assistant budget from the work itself. Compare recurring hours, required experience, live coverage, tool depth, quality expectations, access level, and the cost of errors. A more independent role with specialist knowledge or direct client communication usually warrants a higher budget than basic execution under close review.",
       "Budget for scope, hours, schedule, experience, and decision ownership.",
-      "For pricing hiring, a focused scope at a fair rate is more realistic than squeezing senior expectations into the minimum budget.",
+      "For a Virtual Assistant hire, a focused scope at a fair rate is more realistic than squeezing senior expectations into the minimum budget.",
       "Compare total management and rework cost, not only the candidate's hourly quote."
     ],
     "internalLinks": [

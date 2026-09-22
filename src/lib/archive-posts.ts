@@ -39,6 +39,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
     "title": "General Virtual Assistant vs. Executive Virtual Assistant: Which Should You Hire in the Philippines?",
+    "metaTitle": "General Virtual Assistant vs Executive Virtual Assistant",
+    "metaDescription": "Compare General and Executive Virtual Assistant roles in the Philippines by tasks, judgment, confidentiality, workflow ownership, and hiring fit.",
     "date": "July 12, 2026",
     "tag": "Hiring Guide",
     "excerpt": "Choose between a General Virtual Assistant and an Executive Virtual Assistant by judgment level, proximity to leadership, confidentiality, workflow ownership, and escalation responsibility.",
@@ -54,6 +56,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "get-paid-virtual-assistant-philippines",
     "title": "How to Get Paid as a Virtual Assistant in the Philippines by International Clients",
+    "metaTitle": "How Filipino Virtual Assistants Get Paid by Global Clients",
+    "metaDescription": "See how Filipino Virtual Assistants receive international client payments, choose currency and payment methods, invoice clearly, compare fees, and avoid scams.",
     "date": "July 5, 2026",
     "tag": "Rates & Payments",
     "excerpt": "A candidate-focused guide to getting paid by international clients: agree on currency and schedule, invoice clearly, compare transfer fees, keep records, and avoid payment scams.",
@@ -69,6 +73,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "hourly-rates-for-filipino-virtual-project-manager",
     "title": "Filipino Virtual Project Manager Rates in 2026: Scope and Hiring Guide",
+    "metaTitle": "Filipino Virtual Project Manager Rates: 2026 Guide",
+    "metaDescription": "Plan a Filipino virtual project manager budget by scope, ownership, schedule, complexity, stakeholder load, tools, reporting, and decision authority.",
     "date": "March 3, 2026",
     "tag": "Rates & Payments",
     "excerpt": "Budget a Filipino virtual project manager by scope, ownership, complexity, schedule, and decision authority. Separate project coordination from true project-management responsibility before comparing rates.",
@@ -99,6 +105,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "how-to-become-bookkeeping-virtual-assistant",
     "title": "How to Become a Bookkeeping Virtual Assistant in the Philippines",
+    "metaTitle": "How to Become a Bookkeeping Virtual Assistant Philippines",
+    "metaDescription": "Learn how to become a bookkeeping Virtual Assistant in the Philippines, build practical evidence, understand core workflows, and prepare for legitimate roles.",
     "date": "February 17, 2026",
     "tag": "Bookkeeping",
     "excerpt": "A practical Philippines-focused path into bookkeeping VA work: learn bookkeeping fundamentals, practice real workflows, build proof, protect financial data, and stay inside your scope.",
@@ -114,6 +122,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "how-to-pay-a-filipino-virtual-assistant-directly",
     "title": "How to Pay a Filipino Virtual Assistant Directly",
+    "metaTitle": "How to Pay a Filipino Virtual Assistant: Methods & Fees",
+    "metaDescription": "Pay a Filipino Virtual Assistant directly with clear rates, currency, invoices, transfer methods, fee checks, payment security, and classification guidance.",
     "date": "July 13, 2026",
     "tag": "Rates & Payments",
     "excerpt": "Pay a Filipino Virtual Assistant directly with clear written terms, a deliberate currency choice, transparent transfer fees, reliable records, and correct worker-classification advice for your situation.",

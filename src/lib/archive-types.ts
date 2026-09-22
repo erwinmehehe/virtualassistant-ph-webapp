@@ -3,6 +3,8 @@ export type ArchivePost = {
   // Set when the old site served the post at the site root rather than /blog/.
   legacyPath?: string;
   title: string;
+  metaTitle?: string;
+  metaDescription?: string;
   date: string;
   updatedDate?: string;
   tag: string;

@@ -13,7 +13,7 @@ const ROLE_RESOURCE_CONSOLIDATIONS = [
   { service: "personal-assistant", base: "personal-virtual-assistant", article: "a" },
   { service: "phone-receptionist", base: "virtual-receptionist", article: "a" },
   { service: "property-management-virtual-assistant", base: "property-management-virtual-assistant", article: "a" },
-  { service: "crm", base: "crm-virtual-assistant", article: "an" },
+  { service: "crm", base: "crm-virtual-assistant", article: "a" },
   { service: "email-marketing", base: "email-marketing-virtual-assistant", article: "an" },
   { service: "wordpress", base: "wordpress-virtual-assistant", article: "a" },
   { service: "creative-virtual-assistant", base: "creative-virtual-assistant", article: "a" },

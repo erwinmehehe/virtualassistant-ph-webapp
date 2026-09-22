@@ -142,9 +142,12 @@ export default async function RoleControlCenter({
   const followupRecent = Boolean(lastClientFollowupAt && Date.now() - new Date(lastClientFollowupAt).getTime() < 20 * 3600000);
   const feedbackCount = released.filter((row) => row.client_decision && row.client_decision !== "hold").length;
   const heldCount = released.filter((row) => row.client_decision === "hold").length;
+  const allPassed = Boolean(released.length && released.every((row) => row.client_decision === "pass"));
   const clientStatus = !released.length
     ? "Not sent"
-    : feedbackCount === released.length
+    : allPassed
+      ? "Needs replacement matches"
+      : feedbackCount === released.length
       ? "Feedback complete"
       : clientViewedAt
         ? "Viewed, waiting on decisions"

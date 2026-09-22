@@ -7,7 +7,7 @@ import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { ARCHIVE_POSTS, archiveUpdatedIso } from "@/lib/archive";
 import { PUBLIC_SEO_ROUTES } from "@/lib/public-seo-routes";
 import { SEO_RESOURCE_PAGES } from "@/lib/seo-resource-pages";
-import { EDITORIAL_RESOURCE_SLUGS, EDITORIAL_SEO_POSTS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
+import { EDITORIAL_RESOURCE_SLUGS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
@@ -36,12 +36,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: "2026-09-22",
       changeFrequency: "monthly" as const,
       priority: page.audience === "client" ? 0.72 : 0.66,
-    })),
-    ...EDITORIAL_SEO_POSTS.map((post) => ({
-      url: `${base}/blog/${post.slug}`,
-      lastModified: post.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.68,
     })),
     ...blogTopicRoutes.map((path) => ({
       url: `${base}${path}`,

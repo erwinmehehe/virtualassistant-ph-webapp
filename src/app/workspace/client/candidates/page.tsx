@@ -8,7 +8,7 @@ import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
 
 type ClientJobRow = { id: string; title: string | null; status: string; created_at: string };
-type ReleasedCandidateRow = { id: string; job_id: string; va_id: string; match_score: number | null; released_at: string | null; client_recommendation: string | null; client_decision: string | null; client_decision_note: string | null; client_decision_at: string | null };
+type ReleasedCandidateRow = { id: string; job_id: string; va_id: string; match_score: number | null; shortlist_order: number | null; released_at: string | null; client_recommendation: string | null; client_decision: string | null; client_decision_note: string | null; client_decision_at: string | null };
 type ShortlistVaRow = { user_id: string; slug: string | null; headline: string | null; primary_category: string | null; weekly_hours: number | null; hourly_rate: number | null; skills: string[] | null; tools: string[] | null; years_experience: number | null; schedule: string | null; overlap_hours: number | null };
 
 export default async function ClientCandidatesPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
@@ -19,7 +19,7 @@ export default async function ClientCandidatesPage({searchParams}:{searchParams:
 
   const activeJobs=jobRows.filter((job)=>job.status!=="closed");const selectedJob=activeJobs.find((job)=>job.id===query.role)||activeJobs[0]||null;
   const [{data:releasedData},{data:accessRows},{data:interviewData},{data:offerData}]=await Promise.all([
-    admin.from("job_shortlist_candidates").select("id,job_id,va_id,match_score,released_at,client_recommendation,client_decision,client_decision_note,client_decision_at").in("job_id",jobIds).eq("shortlist_status","released").order("released_at",{ascending:false}),
+    admin.from("job_shortlist_candidates").select("id,job_id,va_id,match_score,shortlist_order,released_at,client_recommendation,client_decision,client_decision_note,client_decision_at").in("job_id",jobIds).eq("shortlist_status","released").order("shortlist_order",{ascending:true,nullsFirst:false}).order("released_at",{ascending:false}),
     admin.from("job_candidate_access").select("job_id,access_status").in("job_id",jobIds),
     admin.from("candidate_interviews").select("id,job_id,va_id,status,client_decision").in("job_id",jobIds).neq("status","cancelled"),
     admin.from("placement_offers").select("id,job_id,va_id,status").in("job_id",jobIds)

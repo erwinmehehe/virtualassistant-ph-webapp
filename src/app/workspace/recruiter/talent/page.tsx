@@ -50,7 +50,7 @@ export default async function RecruiterTalentDirectory({
   const page = Math.max(1, num(params.page) || 1);
   const savedView = SAVED_VIEWS.find((item) => item.key === params.view);
   const sort = String(params.sort || "recent");
-  const effective = {
+  const effective: Record<string, string | undefined> = {
     ...params,
     ...(savedView?.filters || {})
   };

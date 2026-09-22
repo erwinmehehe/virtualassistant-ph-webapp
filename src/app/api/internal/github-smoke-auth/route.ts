@@ -194,6 +194,8 @@ async function provisionSmokeFixture() {
           hourly_rate: 8,
           directory_visible: false,
           availability_status: "available",
+          availability_confirmed_at: now,
+          availability_last_prompted_at: null,
         },
         { onConflict: "user_id" },
       );

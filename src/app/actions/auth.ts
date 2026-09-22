@@ -261,13 +261,15 @@ export async function joinAction(formData: FormData) {
   });
 
   if (error || !data.user) {
-    console.error("[auth_join] generate_link_failed", {
-      role: parsed.data.role,
-      code: (error as { code?: string } | null)?.code || null,
-      status: (error as { status?: number } | null)?.status || null,
-    });
     const errorCode = String((error as { code?: string } | null)?.code || "");
     const accountMayExist = errorCode === "email_exists" || /already|registered|exists/i.test(error?.message || "");
+    const logContext = {
+      role: parsed.data.role,
+      code: errorCode || null,
+      status: (error as { status?: number } | null)?.status || null,
+    };
+    if (accountMayExist) console.info("[auth_join] account_exists", logContext);
+    else console.error("[auth_join] generate_link_failed", logContext);
     if (accountMayExist) {
       const loginParams = new URLSearchParams({
         message: "An account may already exist for this email. Log in to continue.",

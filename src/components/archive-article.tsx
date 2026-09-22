@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, CalendarDays } from "lucide-react";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import type { ArchivePost } from "@/lib/archive-types";
+import { SeoPriorityLinks } from "@/components/seo-priority-links";
+import { seoPriorityLinksForArchive } from "@/lib/seo-priority-links";
 
 /**
  * Renders a retained article recovered from the previous site.
@@ -14,6 +16,7 @@ import type { ArchivePost } from "@/lib/archive-types";
 export function ArchiveArticle({ post }: { post: ArchivePost }) {
   const label = post.tag || "Editorial guide";
   const candidate = post.audience === "candidate";
+  const priorityLinks = seoPriorityLinksForArchive(post.slug);
 
   return <div className="blog-editorial-page archive-editorial-page">
     <header className="blog-editorial-hero archive-editorial-hero">
@@ -52,6 +55,7 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
             <h2>{candidate ? "What makes the next step easier" : "What we would verify before shortlisting"}</h2>
             <ul>{post.fieldNotes.map((item, index) => <li key={`${item}-${index}`}><BadgeCheck size={17} aria-hidden="true"/><span>{item}</span></li>)}</ul>
           </aside> : null}
+          <SeoPriorityLinks links={priorityLinks} title={candidate ? "Useful career and payment guides" : "Related Philippines VA research"} />
           <div dangerouslySetInnerHTML={{ __html: post.html }} />
         </article>
 

@@ -17,6 +17,8 @@ import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { INDUSTRIES } from "@/lib/industries";
 import { marketplaceEvidenceForPost } from "@/lib/editorial-evidence";
+import { SeoPriorityLinks } from "@/components/seo-priority-links";
+import { seoPriorityLinksForBlog } from "@/lib/seo-priority-links";
 
 function idFor(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -56,6 +58,7 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
 
 export function BlogArticle({ post }: { post: BlogPost }) {
   const related = relatedBlogPosts(post, 4);
+  const priorityLinks = seoPriorityLinksForBlog(post.slug);
   const marketplaceEvidence = post.fieldNotes?.length ? marketplaceEvidenceForPost(post) : null;
   const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
   const topic = BLOG_TOPICS[post.topic];
@@ -132,6 +135,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <h2 id="key-takeaways-heading">What matters most</h2>
             <ul>{post.keyTakeaways.map((item, index) => <li key={`${String(item)}-${index}`}><CheckCircle2 size={18} aria-hidden="true"/><span>{item}</span></li>)}</ul>
           </section>
+
+          <SeoPriorityLinks links={priorityLinks} />
 
           {post.fieldNotes?.length ? <aside className="blog-field-notes" aria-label="Recruiter field notes">
             <div className="kicker">Recruiter field notes</div>

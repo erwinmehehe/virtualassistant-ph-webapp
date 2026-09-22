@@ -120,7 +120,7 @@ export default async function RecruiterTalentDirectory({
     params.resume ? { key: "resume", label: params.resume === "yes" ? "Has resume" : "Missing resume" } : null,
     params.skill ? { key: "skill", label: `Skill: ${params.skill}` } : null,
     params.min_experience ? { key: "min_experience", label: `${params.min_experience}+ yrs` } : null,
-    params.max_rate ? { key: "max_rate", label: `Up to ${params.max_rate}/hr` } : null,
+    params.max_rate ? { key: "max_rate", label: `Up to USD ${params.max_rate}/hr` } : null,
     params.availability ? { key: "availability", label: params.availability === "available" ? "Available" : "Unavailable" } : null,
     params.stale ? { key: "stale", label: `Inactive ${params.stale}+ days` } : null
   ].filter(Boolean) as { key: string; label: string }[];

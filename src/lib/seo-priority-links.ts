@@ -161,7 +161,7 @@ const COLD_CALLING_COST: SeoPriorityLink = {
 };
 
 export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
-  "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT, SALARY_GUIDE, PRICING_HUB, HIRE_HUB],
+  "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT],
   "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE, SALARY_GUIDE, PRICING_HUB],
   "dental-virtual-assistant-interview-questions": [DENTAL_COST, DENTAL_SERVICE, HIRE_HUB],
   "medical-virtual-assistant-interview-questions": [MEDICAL_COST, MEDICAL_SERVICE, HIRE_HUB],

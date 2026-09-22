@@ -1406,3 +1406,15 @@
     justify-content: center;
   }
 }
+
+
+.dashboard-shell .workspace-person-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dashboard-shell .workspace-person-cell > span:last-child {
+  min-width: 0;
+}

@@ -839,6 +839,11 @@ export const BLOG_POSTS: BlogPost[] = [
             "label": "Virtual Assistant pricing",
             "href": "/pricing",
             "description": "Compare the hiring model, what the service includes, and how pricing relates to the scope and hours you need."
+      },
+      {
+            "label": "Hire a Virtual Assistant",
+            "href": "/hire",
+            "description": "Turn the workload, hours, schedule, and budget into a hiring brief before comparing candidates."
       }
     ]
   },

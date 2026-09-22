@@ -282,3 +282,49 @@ test("remaining AU US PH volume gaps have one canonical owner", () => {
   assert.match(managed, /bpo virtual assistant/);
   assert.ok(redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true'));
 });
+
+
+test("covered role pages use the strongest volume-backed canonical phrase", () => {
+  const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
+  const expected = new Map([
+    ["admin-inbox", "administrative virtual assistant"],
+    ["digital-marketing-virtual-assistant", "virtual marketing assistant"],
+    ["social-media", "social media virtual assistant"],
+    ["accounting-virtual-assistant", "accounting virtual assistant"],
+    ["it-virtual-assistant", "it virtual assistant"],
+    ["research-data", "data entry virtual assistant"],
+    ["graphic-design", "graphic design virtual assistant"],
+    ["recruitment-hr", "hr virtual assistant"],
+    ["project-coordination", "project management virtual assistant"],
+    ["personal-assistant", "virtual personal assistant"],
+    ["phone-receptionist", "virtual receptionist"],
+    ["property-management-virtual-assistant", "property management virtual assistant"],
+    ["crm", "crm virtual assistant"],
+    ["email-marketing", "email marketing virtual assistant"],
+    ["wordpress", "wordpress virtual assistant"],
+    ["video-editing", "video editing virtual assistant"],
+    ["operations", "operations virtual assistant"],
+  ]);
+
+  for (const [slug, keyword] of expected) {
+    const page = services.find((item) => item.slug === slug);
+    assert.ok(page, `missing service ${slug}`);
+    assert.equal(page.primaryKeyword, keyword, `${slug} has the wrong canonical keyword owner`);
+    assert.ok(page.metaTitle.length <= 60, `${slug} meta title is too long`);
+    assert.ok(page.metaDescription.length >= 120 && page.metaDescription.length <= 160, `${slug} meta description must be 120-160 chars`);
+    const publicCopy = `${page.name} ${page.metaTitle} ${page.metaDescription} ${page.intro}`.toLowerCase();
+    for (const phrase of keyword.split(" ")) {
+      if (phrase.length >= 3) assert.ok(publicCopy.includes(phrase), `${slug} public copy misses ${phrase}`);
+    }
+  }
+});
+
+test("role-page copy does not leak SEO implementation language", () => {
+  const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
+  for (const page of services) {
+    const copy = `${page.metaDescription} ${page.intro}`.toLowerCase();
+    for (const phrase of ["canonical page", "search intent", "keyword demand", "this page owns"]) {
+      assert.ok(!copy.includes(phrase), `${page.slug} leaks internal SEO language: ${phrase}`);
+    }
+  }
+});

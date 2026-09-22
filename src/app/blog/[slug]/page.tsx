@@ -8,17 +8,19 @@ import { canonicalPath } from "@/lib/seo-url";
 import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso, archiveUpdatedIso } from "@/lib/archive";
 import { ArchiveArticle } from "@/components/archive-article";
 import { organizationRef } from "@/lib/organization";
+import { EDITORIAL_SEO_POSTS, editorialSeoPostBySlug } from "@/lib/editorial-seo-guides";
 
 export function generateStaticParams() {
   return [
     ...BLOG_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug })),
-    ...ARCHIVE_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug }))
+    ...ARCHIVE_POSTS.filter((post) => !post.legacyPath).map((post) => ({ slug: post.slug })),
+    ...EDITORIAL_SEO_POSTS.map((post) => ({ slug: post.slug }))
   ];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = blogPostBySlug(slug);
+  const post = blogPostBySlug(slug) || editorialSeoPostBySlug(slug);
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) return {};
@@ -53,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = blogPostBySlug(slug);
+  const post = blogPostBySlug(slug) || editorialSeoPostBySlug(slug);
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) notFound();

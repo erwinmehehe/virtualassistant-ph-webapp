@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { scorecardTotal } from "@/lib/vetting";
 import { VETTING_PROFILE_MIN, VETTING_SCORECARD_PASS, VETTING_TEST_PASS } from "@/lib/constants";
-import { APPROVAL_MIN_COMPLETION, assertApprovalCompletion } from "@/lib/public-visibility";
+import { assertApprovalCompletion } from "@/lib/public-visibility";
 
 function cleanUrl(value: FormDataEntryValue | null) {
   const raw = String(value ?? "").trim();

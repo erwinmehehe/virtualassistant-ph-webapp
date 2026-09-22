@@ -28,43 +28,7 @@ function normalizeMetaTask(task: string) {
 }
 
 export function serviceMetaDescription(page: ServiceSeoPage) {
-  const shortRole = page.name
-    .replace(/\s+Virtual Assistant for\s+/i, " VA for ")
-    .replace(/\s+Virtual Assistant\b/i, " VA")
-    .replace(/^Virtual\s+/i, "")
-    .trim();
-  const prefix = `Hire a vetted ${shortRole} in the Philippines for `;
-  const tasks = page.tasks.slice(0, 3).map(normalizeMetaTask);
-  const suffixes = [
-    ". Compare experience, tools, availability, and role fit.",
-    ". Compare role experience, tools, availability, and fit.",
-    ". Compare skills, tools, schedule, and role fit."
-  ];
-
-  for (const suffix of suffixes) {
-    for (let count = tasks.length; count >= 1; count -= 1) {
-      const selected = tasks.slice(0, count);
-      const taskText = selected.length === 1
-        ? selected[0]
-        : selected.length === 2
-          ? `${selected[0]} and ${selected[1]}`
-          : `${selected[0]}, ${selected[1]}, and ${selected[2]}`;
-      const candidate = `${prefix}${taskText}${suffix}`;
-      if (candidate.length <= 160) {
-        if (candidate.length >= 145) return candidate;
-        const expanded = `${candidate.slice(0, -1)} before you interview.`;
-        return expanded.length <= 160 ? expanded : candidate;
-      }
-    }
-  }
-
-  const fallback = `Hire a vetted ${shortRole} in the Philippines. Compare relevant experience, tools, availability, communication, and role fit before you interview.`;
-  if (fallback.length <= 160) return fallback;
-
-  const concise = `Hire a vetted ${shortRole} in the Philippines. Compare experience, tools, availability, and role fit.`;
-  if (concise.length >= 140) return concise;
-  const expanded = `${concise.slice(0, -1)} before you interview.`;
-  return expanded.length <= 160 ? expanded : concise;
+  return page.metaDescription.replace(/\s+/g, " ").trim();
 }
 
 export const SERVICE_PAGES: ServiceSeoPage[] = [
@@ -1017,7 +981,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Phone & Reception",
     "primaryKeyword": "hire virtual receptionist philippines",
     "metaTitle": "Virtual Receptionist Philippines",
-    "metaDescription": "Hire a vetted Virtual Receptionist in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
+    "metaDescription": "Hire a vetted Virtual Receptionist in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview candidates.",
     "intro": "Hire a Virtual Receptionist in the Philippines to handle inbound call answering, appointment booking, and message taking. Document response standards and escalation rules so customers get consistent answers without unnecessary handoffs.",
     "focus": "live phone, scheduling, and front-desk support for remote teams",
     "tasks": [
@@ -1332,7 +1296,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Web & WordPress",
     "primaryKeyword": "it support virtual assistant",
     "metaTitle": "IT Support Virtual Assistant | Philippines",
-    "metaDescription": "Hire a vetted IT Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
+    "metaDescription": "Hire a vetted IT Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview candidates.",
     "intro": "Hire an IT Virtual Assistant in the Philippines to handle user account administration, helpdesk triage, and SaaS access tracking. Use a ticketed backlog, controlled access, testing notes, and explicit approval for production changes.",
     "focus": "remote technical administration and first-line IT coordination",
     "tasks": [
@@ -1458,7 +1422,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Lead Generation & Sales",
     "primaryKeyword": "hire crm virtual assistant philippines",
     "metaTitle": "CRM Virtual Assistant Philippines",
-    "metaDescription": "Hire CRM Virtual Assistant Philippines. Compare vetted candidates by experience, tools, availability, and role fit.",
+    "metaDescription": "Hire a vetted CRM Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview candidates.",
     "intro": "Hire a CRM Virtual Assistant in the Philippines to handle contact cleanup, pipeline updates, and lead assignment. Define pipeline stages and handoff rules first so activity in the CRM stays useful to the sales team.",
     "focus": "CRM hygiene, pipeline administration, and sales-operations support",
     "tasks": [
@@ -1710,7 +1674,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Executive Assistance",
     "primaryKeyword": "hire personal assistant philippines",
     "metaTitle": "Personal Assistant Philippines",
-    "metaDescription": "Hire a vetted Personal Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
+    "metaDescription": "Hire a vetted Personal Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview candidates.",
     "intro": "Hire a Personal Assistant in the Philippines to handle personal calendar management, travel planning, and appointment booking. Write down calendar, inbox, meeting, and decision rules so the Virtual Assistant can act consistently without asking the same preference questions every day.",
     "focus": "personal scheduling, research, coordination, and administrative support",
     "tasks": [
@@ -2655,7 +2619,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "hire law firm virtual assistant philippines",
     "metaTitle": "Law Firm Virtual Assistant Philippines",
-    "metaDescription": "Hire Law Firm Virtual Assistant Philippines. Compare vetted candidates by experience, tools, availability, and role fit.",
+    "metaDescription": "Hire a vetted Law Firm Virtual Assistant in the Philippines. Compare legal workflow experience, tools, availability, communication, and role fit.",
     "intro": "Hire a Law Firm Virtual Assistant in the Philippines to handle client intake, matter setup, and deadline and calendar support. Use the role for supervised administrative support while legal advice and attorney judgment stay with qualified counsel.",
     "focus": "law-firm administration, intake, scheduling, and case-support workflows",
     "tasks": [
@@ -4162,7 +4126,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Real Estate",
     "primaryKeyword": "mortgage loan processing virtual assistant",
     "metaTitle": "Mortgage Loan Processing Virtual Assistant Philippines",
-    "metaDescription": "Hire Mortgage Loan Processing Virtual Assistant Philippines. Compare vetted candidates by experience, tools, availability, and role fit.",
+    "metaDescription": "Hire a vetted Mortgage Loan Processing Virtual Assistant in the Philippines. Compare processing experience, tools, availability, and role fit.",
     "intro": "Hire a Mortgage Loan Processing Virtual Assistant in the Philippines to handle collecting and indexing borrower documents, preparing loan application files, and entering application data into applyonline. Build the role around complete files, visible exceptions, and prompt follow-up while lending decisions stay with authorized staff.",
     "focus": "loan file preparation and settlement support",
     "tasks": [
@@ -4665,7 +4629,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Bookkeeping & Finance",
     "primaryKeyword": "insurance broker virtual assistant",
     "metaTitle": "Insurance Broker Renewal Virtual Assistant Philippines",
-    "metaDescription": "Hire Insurance Broker Renewal Virtual Assistant Philippines. Compare vetted candidates by experience, tools, availability, and role fit.",
+    "metaDescription": "Hire a vetted Insurance Broker Renewal Virtual Assistant in the Philippines. Compare renewal experience, tools, availability, and role fit before you interview.",
     "intro": "Hire an Insurance Broker Renewal Virtual Assistant in the Philippines to handle preparing upcoming renewal worklists, updating client and policy records, and requesting approved renewal information. Use checklists and role-based access, with licensed advice and regulated decisions kept with authorized staff.",
     "focus": "insurance renewal file preparation",
     "tasks": [

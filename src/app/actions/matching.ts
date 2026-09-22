@@ -155,10 +155,12 @@ export async function saveJobShortlistAction(formData: FormData) {
 
   const [{ data: vas }, { data: existing }] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", selected),
-    admin.from("job_shortlist_candidates").select("va_id,shortlist_status").eq("job_id", jobId)
+    admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
+  const existingOrderMap = new Map((existing || []).map((row: any) => [row.va_id, Number(row.shortlist_order || 0)]));
+  const releasedMaxOrder = (existing || []).filter((row: any) => row.shortlist_status === "released").reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
   const now = new Date().toISOString();
   if (mode !== "release") {
     const deselectedProposed = (existing || []).filter((row: any) => row.shortlist_status === "proposed" && !selected.includes(row.va_id)).map((row: any) => row.va_id);
@@ -176,7 +178,7 @@ export async function saveJobShortlistAction(formData: FormData) {
       match_score: assessment.score,
       match_confidence: assessment.confidence,
       shortlist_status: status,
-      shortlist_order: index + 1,
+      shortlist_order: status === "released" ? (prior === "released" ? existingOrderMap.get(vaId) || index + 1 : releasedMaxOrder + index + 1) : index + 1,
       client_recommendation: cleanClientRecommendation(formData.get(`recommendation_${vaId}`)),
       created_by: user.id,
       released_at: status === "released" ? now : null

@@ -8,6 +8,7 @@ const vaNotifications = read("src/app/workspace/va/notifications/page.tsx");
 const notificationOpen = read("src/app/actions/notification-open.ts");
 const today = read("src/app/workspace/recruiter/today/page.tsx");
 const stalled = read("src/app/workspace/recruiter/roles/page.tsx");
+const roleSummaryMigration = read("supabase/migrations/20260922222848_recruiter_roles_summary.sql");
 const exactActionsMigration = read("supabase/migrations/20260915090000_recruiter_today_exact_actions.sql");
 const clientShortlist = read("src/app/actions/client-shortlist.ts");
 const clientInterviews = read("src/app/workspace/client/interviews/page.tsx");
@@ -50,14 +51,14 @@ test("post-hire work has one shared Client Success workspace", () => {
 });
 
 test("Roles intervention queue uses canonical shortlist interview and offer state", () => {
-  assert.match(stalled, /candidate_interviews/);
-  assert.match(stalled, /placement_offers/);
-  assert.match(stalled, /job_shortlist_candidates/);
-  assert.doesNotMatch(stalled, /from\("applications"\)/);
-  assert.match(stalled, /\.eq\("recruiter_id",userId\)/);
+  assert.match(roleSummaryMigration, /candidate_interviews/);
+  assert.match(roleSummaryMigration, /placement_offers/);
+  assert.match(roleSummaryMigration, /job_shortlist_candidates/);
+  assert.doesNotMatch(roleSummaryMigration, /from public\.applications/);
+  assert.match(roleSummaryMigration, /j\.recruiter_id = p_recruiter_id/);
   assert.match(stalled, /clientOverdue/);
-  assert.match(stalled, /interviewOverdue/);
-  assert.match(stalled, /offerOverdue/);
+  assert.match(stalled, /job\.interview_overdue/);
+  assert.match(stalled, /job\.offer_overdue/);
   assert.match(stalled, /Needs intervention/);
 });
 

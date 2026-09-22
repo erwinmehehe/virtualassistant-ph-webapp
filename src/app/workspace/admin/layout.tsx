@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { userId, profile } = await requireRoleFast("admin");
   return (
-    <AppShell userId={userId} role="admin" name={profile.full_name} title="Admin workspace">
+    <AppShell userId={userId} role="admin" name={profile.full_name} avatarUrl={profile.avatar_url} title="Admin workspace">
       {children}
     </AppShell>
   );

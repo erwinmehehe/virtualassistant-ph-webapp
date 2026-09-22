@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const { id } = await params;
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job" };
-  const company=await getPublicCompany(job.client_id);
+  const company = publicCompanyFromJob(job);
   return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${company?.company_name ? ` with ${company.company_name}` : " through VirtualAssistant.com.ph"}.`, alternates: { canonical: canonicalPath(jobPublicHref(job)) } };
 }
 
@@ -58,7 +58,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   if (isUuid(id) && job.slug) redirect(canonicalHref);
 
   const { user, profile } = await getSessionProfile();
-  const company=await getPublicCompany(job.client_id);
+  const company = publicCompanyFromJob(job);
   const companyName = company?.company_name || null;
   const companyWebsite = company?.website || null;
   const companyHiresCount = Number(company?.hires_count || 0);

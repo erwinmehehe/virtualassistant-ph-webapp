@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dateShort } from "@/lib/format";
 import { matchLabel } from "@/lib/matching";
@@ -10,10 +10,10 @@ import { jobPublicHref } from "@/lib/public-routing";
 function stageLabel(status:string){const labels:Record<string,string>={new:"Recruiter review",reviewing:"Recruiter review",shortlisted:"Presented to client",interview:"Interview",offered:"Offer",hired:"Placed",rejected:"Not selected",withdrawn:"Withdrawn"};return labels[status]||String(status).replaceAll("_"," ");}
 
 export default async function VaApplicationsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const params=await searchParams;const {user}=await requireRole("va");const supabase=await createClient();
+  const params=await searchParams;const {userId}=await requireRoleFast("va");const supabase=await createClient();
   const [{data:apps},{data:invites}]=await Promise.all([
-    supabase.from("applications").select("*,jobs(id,slug,title,company_name,status)").eq("va_id",user.id).order("applied_at",{ascending:false}),
-    supabase.from("job_invites").select("*,jobs(id,slug,title,company_name,hours_per_week,min_hourly_rate)").eq("va_id",user.id).order("created_at",{ascending:false})
+    supabase.from("applications").select("*,jobs(id,slug,title,company_name,status)").eq("va_id",userId).order("applied_at",{ascending:false}),
+    supabase.from("job_invites").select("*,jobs(id,slug,title,company_name,hours_per_week,min_hourly_rate)").eq("va_id",userId).order("created_at",{ascending:false})
   ]);
   return <>
     {params.interest==="1"?<div className="success-banner" role="status"><CheckCircle2 size={17}/> Interest sent to the recruiting team. A recruiter will review your fit before anything is shown to the client.</div>:null}

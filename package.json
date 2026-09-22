@@ -9,7 +9,7 @@
     "lint": "eslint src",
     "format": "prettier --write",
     "format:check": "prettier --check",
-    "test": "node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
+    "test": "node --check scripts/bootstrap-github-smoke.mjs && node --check scripts/authenticated-production-smoke.mjs && node --check scripts/authenticated-dashboard-visual.mjs && node --check scripts/public-booking-visual.mjs && node --check scripts/website-growth-visual.mjs && node --check scripts/vercel-ignore-build.mjs && node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "content:check": "node scripts/check-blog-quality.mjs",
     "setup:check": "node scripts/check-runtime-config.mjs",

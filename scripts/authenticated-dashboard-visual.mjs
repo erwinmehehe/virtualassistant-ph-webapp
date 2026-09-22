@@ -14,10 +14,10 @@ if (!baseUrl || !supabaseUrl || !anonKey) {
 const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
 const outputDir = path.resolve("artifacts/dashboard-visual");
 const roles = [
-  { role: "admin", email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin/today", marker: "Owner Command Center" },
-  { role: "recruiter", email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter", marker: "Today’s work" },
-  { role: "client", email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
-  { role: "va", email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }
+  { role: "admin", tokenHash: process.env.SMOKE_ADMIN_TOKEN_HASH, email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin/today", marker: "Owner Command Center" },
+  { role: "recruiter", tokenHash: process.env.SMOKE_RECRUITER_TOKEN_HASH, email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter", marker: "Today’s work" },
+  { role: "client", tokenHash: process.env.SMOKE_CLIENT_TOKEN_HASH, email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
+  { role: "va", tokenHash: process.env.SMOKE_VA_TOKEN_HASH, email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }
 ];
 
 const accountTabs = ["profile", "security", "notifications", "preferences", "privacy"];
@@ -28,17 +28,31 @@ const viewports = [
   { name: "desktop", width: 1440, height: 1000 }
 ];
 
-async function signIn(email, password) {
-  if (!email || !password) throw new Error("A dashboard visual test account is missing credentials.");
-  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+const sessionCache = new Map();
+
+async function signIn(config) {
+  if (sessionCache.has(config.role)) return sessionCache.get(config.role);
+
+  const usingTokenHash = Boolean(config.tokenHash);
+  if (!usingTokenHash && (!config.email || !config.password)) {
+    throw new Error(`A dashboard visual test session is missing for ${config.role}.`);
+  }
+
+  const endpoint = usingTokenHash ? `${supabaseUrl}/auth/v1/verify` : `${supabaseUrl}/auth/v1/token?grant_type=password`;
+  const body = usingTokenHash
+    ? { token_hash: config.tokenHash, type: "email" }
+    : { email: config.email, password: config.password };
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: { apikey: anonKey, ...(anonKey.startsWith("eyJ") ? { authorization: `Bearer ${anonKey}` } : {}), "content-type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify(body)
   });
   const session = await response.json().catch(() => ({}));
   if (!response.ok || !session.access_token || !session.refresh_token) {
-    throw new Error(`Supabase sign-in failed with HTTP ${response.status}.`);
+    throw new Error(`Supabase ${usingTokenHash ? "passwordless" : "password"} sign-in failed for ${config.role} with HTTP ${response.status}.`);
   }
+  sessionCache.set(config.role, session);
   return session;
 }
 
@@ -70,7 +84,7 @@ await fs.mkdir(outputDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 try {
   for (const role of roles) {
-    const session = await signIn(role.email, role.password);
+    const session = await signIn(role);
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
       await context.addCookies(sessionCookies(session, baseUrl));
@@ -89,7 +103,7 @@ try {
     }
   }
 
-  const recruiterSession = await signIn(process.env.SMOKE_RECRUITER_EMAIL, process.env.SMOKE_RECRUITER_PASSWORD);
+  const recruiterSession = await signIn(roles.find((role) => role.role === "recruiter"));
   for (const tab of accountTabs) {
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
@@ -165,7 +179,7 @@ try {
     await recruiterPage.getByText("Shortlist released to the client.", { exact: true }).waitFor({ state: "visible", timeout: 30000 });
     await recruiterContext.close();
 
-    const clientSession = await signIn(process.env.SMOKE_CLIENT_EMAIL, process.env.SMOKE_CLIENT_PASSWORD);
+    const clientSession = await signIn(roles.find((role) => role.role === "client"));
     const clientContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
     await clientContext.addCookies(sessionCookies(clientSession, baseUrl));
     const clientPage = await clientContext.newPage();

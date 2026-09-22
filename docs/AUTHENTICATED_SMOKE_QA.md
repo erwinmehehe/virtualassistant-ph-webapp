@@ -1,8 +1,10 @@
 # Authenticated production smoke QA
 
-This workflow uses dedicated non-production identities against the production application. Never use an owner, employee, client, or real Virtual Assistant account.
+The production QA flow uses dedicated non-production identities and a single protected QA role. It does not store smoke passwords or Supabase admin credentials in GitHub.
 
 ## Dedicated identities
+
+The server-side bootstrap route creates or repairs these users when an approved GitHub Actions workflow runs on `main`:
 
 - `smoke-admin@virtualassistant.com.ph` -> Admin
 - `smoke-recruiter@virtualassistant.com.ph` -> Recruiter
@@ -11,45 +13,50 @@ This workflow uses dedicated non-production identities against the production ap
 - `smoke-va-2@virtualassistant.com.ph` -> hidden shortlist fixture
 - `smoke-va-3@virtualassistant.com.ph` -> hidden shortlist fixture
 
-The three VA fixtures must remain `directory_visible = false`. The QA role must be titled exactly `[SMOKE QA] Admin Support`, use `status = published` for authenticated client-flow testing, and `moderation_status = blocked` so it cannot appear on the public jobs marketplace.
+The accounts are passwordless. Each workflow run receives fresh one-time magic-link token hashes and exchanges them for short-lived Supabase sessions.
 
-## GitHub Actions configuration
+## Authentication boundary
 
-Repository Actions secrets:
+`/api/internal/github-smoke-auth` accepts only a valid GitHub Actions OIDC token with all of these properties:
 
-- `SMOKE_SUPABASE_URL`
-- `SMOKE_SUPABASE_ANON_KEY` (legacy anon or current publishable key)
-- `SMOKE_ADMIN_EMAIL`
-- `SMOKE_ADMIN_PASSWORD`
-- `SMOKE_RECRUITER_EMAIL`
-- `SMOKE_RECRUITER_PASSWORD`
-- `SMOKE_CLIENT_EMAIL`
-- `SMOKE_CLIENT_PASSWORD`
-- `SMOKE_VA_EMAIL`
-- `SMOKE_VA_PASSWORD`
+- audience `virtualassistant-smoke`
+- repository `erwinmehehe/virtualassistant-ph-webapp`
+- ref `refs/heads/main`
+- workflow is either `dashboard-visual.yml` or `authenticated-production-smoke.yml`
+- event is `push` or `workflow_dispatch`
 
-Repository Actions variable:
+The endpoint uses the existing server-only Supabase admin client. The service-role key never leaves Vercel and is never written to GitHub Actions.
 
-- `SMOKE_JOB_ID` -> UUID of the protected smoke QA role
+## Protected fixture
 
-Never add the Supabase service-role/secret key to the dashboard visual workflow.
+The QA role has the fixed ID `00000000-0000-4000-8000-000000000240` and title `[SMOKE QA] Admin Support`.
+
+It is deliberately:
+
+- `status = published` so the authenticated client handoff can exercise production logic
+- `moderation_status = blocked` so it cannot appear in the public jobs marketplace
+- linked only to the smoke Client and smoke Recruiter
+- reset before each workflow run
+- paired only with the three smoke VA fixtures
+
+All three smoke VAs remain `directory_visible = false`.
 
 ## What the visual workflow verifies
 
 For Admin, Recruiter, Client, and VA it authenticates and captures desktop, tablet, and mobile dashboards. It also captures every Account Center tab with a recruiter session.
 
-When `SMOKE_JOB_ID` is configured, it additionally verifies the protected end-to-end hiring path:
+The protected end-to-end hiring path then:
 
-1. open the exact recruiter Role Control Center;
-2. select the three named smoke VAs;
-3. preview the client shortlist;
-4. reorder the shortlist to VA Three, VA One, VA Two;
-5. send exactly three candidates to the smoke client;
-6. verify the client sees the same order and no recruiter-only match scoring;
-7. request an interview for Smoke VA Three;
-8. verify the recruiter Role Control Center records that interview request.
+1. opens the exact recruiter Role Control Center;
+2. selects the three named smoke VAs;
+3. previews the client shortlist;
+4. reorders the shortlist to VA Three, VA One, VA Two;
+5. sends exactly three candidates to the smoke client;
+6. verifies the client sees the same order and no recruiter-only match scoring;
+7. requests an interview for Smoke VA Three;
+8. verifies the recruiter Role Control Center records that interview request.
 
-The script refuses to run these mutations unless the target role H1 contains the exact smoke-role title.
+The browser script refuses to perform mutations unless the target role H1 contains the exact smoke-role title.
 
 ## Public safety rule
 

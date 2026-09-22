@@ -6,7 +6,7 @@ const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 
 test("recruiter work readiness is a filtered verification queue",async()=>{
   const page=await read("src/app/workspace/recruiter/work-readiness/page.tsx");
-  assert.match(page,/Needs action/);
+  assert.match(page,/Overdue 5d\+/);
   assert.match(page,/Ready to verify/);
   assert.match(page,/Incomplete/);
   assert.match(page,/Verified/);
@@ -31,13 +31,14 @@ test("categories are consolidated into Roles talent coverage",async()=>{
   assert.match(action,/workspace\/recruiter\/roles\?categorized=/);
 });
 
-test("agency funnel explains stage-to-stage conversion",async()=>{
+test("agency funnel explains stage-to-stage sales conversion and separates operations",async()=>{
   const component=await read("src/components/agency-funnel-dashboard.tsx");
-  assert.match(component,/Each percentage compares one stage with the stage immediately before it/);
-  assert.match(component,/moved forward/);
-  assert.match(component,/Lead → active role/);
-  assert.match(component,/Role → placement/);
-  assert.match(component,/Needs attention/);
+  assert.match(component,/Every percentage compares the stage with the one immediately before it/);
+  assert.match(component,/did not move forward/);
+  for(const stage of ["Leads","Calls booked","Qualified","Proposals","Clients won"]) assert.match(component,new RegExp(stage));
+  assert.match(component,/Biggest drop-off/);
+  assert.match(component,/Delivery operations/);
+  assert.match(component,/Retention operations/);
 });
 
 test("recruiter analytics prioritizes operating health before diagnostics",async()=>{

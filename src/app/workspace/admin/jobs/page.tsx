@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type AdminJobRow = { id: string; title: string | null; company_name: string | null; status: string; service_model: string | null; client_id: string | null; recruiter_id: string | null; hours_per_week: number | null; min_hourly_rate: number | null; created_at: string; summary: string | null; responsibilities: string[] | null; required_skills: string[] | null; timezone: string | null; start_timing: string | null };
@@ -9,7 +9,7 @@ import { publicationBlocker } from "@/lib/job-publication";
 
 export default async function AdminJobsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const showAll=params.view==="all";
   const [{data:jobs},{data:commercials},{data:recruiters}]=await Promise.all([

@@ -23,13 +23,15 @@ test("legacy recruiter detail routes point at the canonical workflow", async () 
     read("src/app/workspace/recruiter/client-review/page.tsx")
   ]);
   assert.ok(matchingDetail.includes("/workspace/recruiter/roles/"));
-  assert.ok(clientReview.includes("/workspace/recruiter/matching?view=waiting_client"));
+  assert.ok(clientReview.includes("/workspace/recruiter/roles?view=waiting_client&sort=urgent"));
 });
 
-test("role board opens canonical role workspace", async () => {
+test("legacy role board redirects into canonical Roles views", async () => {
   const page = await read("src/app/workspace/recruiter/matching/page.tsx");
-  assert.ok(page.includes("/workspace/recruiter/roles/"));
-  assert.ok(!page.includes("href={\`/workspace/recruiter/matching/"));
+  assert.match(page,/LEGACY_VIEW_MAP/);
+  assert.match(page,/waiting_client: "waiting_client"/);
+  assert.match(page,/redirect\(\`\/workspace\/recruiter\/roles\?view=\$\{view\}&sort=\$\{sort\}\`\)/);
+  assert.doesNotMatch(page,/createAdminClient|job_shortlist_candidates|\.from\("applications"\)/);
 });
 
 test("client shortlist is capped, ordered, and persisted", async () => {

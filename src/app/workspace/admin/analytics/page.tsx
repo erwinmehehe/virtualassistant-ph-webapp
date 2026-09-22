@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
@@ -54,7 +54,7 @@ const EMPTY_SUMMARY: AnalyticsSummary = { event_counts: [], sessions: 0, client_
 const FUNNEL_EVENTS = "event_name.eq.blog_service_click,event_name.eq.blog_cta_match,event_name.eq.lead_submit,event_name.eq.qualified_lead,event_name.like.service_*";
 
 export default async function AdminAnalyticsPage() {
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin = createAdminClient();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }] = await Promise.all([

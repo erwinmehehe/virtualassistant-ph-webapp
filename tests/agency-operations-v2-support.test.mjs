@@ -61,7 +61,7 @@ test("work readiness is private VA evidence with recruiter verification",()=>{
   assert.match(vaReadiness,/Save work readiness/);
   assert.match(vaReadiness,/These details stay private with the recruiting team/);
   assert.doesNotMatch(vaProfile,/id="work-readiness"/);
-  assert.match(recruiterReadiness,/Verification queue/);
+  assert.match(recruiterReadiness,/Ready to verify/);
   assert.match(recruiterReadiness,/Verify work setup/);
   assert.match(clientTeam,/Work setup verified/);
   assert.doesNotMatch(clientTeam,/primary_internet|backup_internet|work_setup_computer/);

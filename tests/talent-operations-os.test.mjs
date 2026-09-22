@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(path, "utf8");
-const page = read("src/app/workspace/recruiter/bench/page.tsx");
+const page = read("src/components/recruiter-talent-operations-panel.tsx");
 const model = read("src/lib/talent-operations.ts");
 const nav = read("src/components/app-nav-links.tsx");
 
@@ -45,5 +45,5 @@ test("Talent OS answers sourcing, coverage, client-ready and development questio
 
 test("record-heavy Talent OS links remain click-to-load", () => {
   assert.match(page, /<Link prefetch=\{false\} href=\{`\/workspace\/recruiter\/candidates\/\$\{candidate\.vaId\}`\}/);
-  assert.match(page, /<Link prefetch=\{false\} className="btn" href="\/workspace\/recruiter\/talent">/);
+  assert.match(page, /<Link prefetch=\{false\} className="btn" href="\/workspace\/recruiter\/queue">/);
 });

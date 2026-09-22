@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { Band, SectionHead } from "@/components/hiring-page-sections";
-import { candidateSeoResources, SEO_RESOURCE_PAGES, SEO_RESOURCE_ROLE_COUNT } from "@/lib/seo-resource-pages";
+import { candidateSeoResources, SEO_RESOURCE_PAGES } from "@/lib/seo-resource-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { EDITORIAL_RESOURCE_SLUGS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
 import "../homepage-sections.css";

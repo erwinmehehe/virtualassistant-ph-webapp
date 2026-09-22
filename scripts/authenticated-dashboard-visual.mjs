@@ -130,7 +130,7 @@ try {
   if (smokeJobId) {
     const smokeTitle = "[SMOKE QA] Admin Support";
     const smokeNames = ["Smoke VA One", "Smoke VA Two", "Smoke VA Three"];
-    const recruiterSession = await signIn(process.env.SMOKE_RECRUITER_EMAIL, process.env.SMOKE_RECRUITER_PASSWORD);
+    const recruiterSession = await signIn(roles.find((role) => role.role === "recruiter"));
     const recruiterContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
     await recruiterContext.addCookies(sessionCookies(recruiterSession, baseUrl));
     const recruiterPage = await recruiterContext.newPage();

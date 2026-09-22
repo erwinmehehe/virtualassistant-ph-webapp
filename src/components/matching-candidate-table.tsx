@@ -219,7 +219,7 @@ export function MatchingCandidateTable({
             <span className={`badge ${availabilityBlocked ? "badge-warning" : row.va.availability_status === "available" ? "badge-success" : ""}`}>
               {availabilityBlocked ? "Confirmation required" : availabilityLabel(row.va.availability_status)}
             </span>
-            <div className="small muted">{availabilityBlocked ? "VA must reconfirm availability before client release." : "Confirmed within the last 14 days."}</div>
+            <div className="small muted">{availabilityBlocked ? "VA must reconfirm availability before client release." : "From the VA&apos;s current profile · confirmed within the last 14 days."}</div>
           </td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>

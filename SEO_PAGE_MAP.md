@@ -14,38 +14,38 @@ Canonical domain: `https://virtualassistant.com.ph`
 |---|---|---|
 | `/service/seo/` | hire seo virtual assistant philippines | SEO Virtual Assistant Philippines |
 | `/service/dental-virtual-assistant/` | hire dental virtual assistant philippines | Dental Virtual Assistant Philippines |
-| `/service/research-data/` | hire research & data entry virtual assistant philippines | Research & Data Entry Virtual Assistant Philippines |
-| `/service/project-coordination/` | hire project coordination virtual assistant philippines | Project Coordination Virtual Assistant Philippines |
+| `/service/research-data/` | data entry virtual assistant | Data Entry Virtual Assistant Philippines \| Research VA |
+| `/service/project-coordination/` | project management virtual assistant | Project Management Virtual Assistant Philippines |
 | `/service/real-estate/` | hire real estate virtual assistant philippines | Real Estate Virtual Assistant Philippines |
 | `/service/medical-virtual-assistant/` | hire medical virtual assistant philippines | Medical Virtual Assistant Philippines |
-| `/service/property-management-virtual-assistant/` | hire property management virtual assistant philippines | Property Management Virtual Assistant Philippines |
+| `/service/property-management-virtual-assistant/` | property management virtual assistant | Property Management Virtual Assistant Philippines |
 | `/service/executive-virtual-assistant/` | hire executive virtual assistant philippines | Executive Virtual Assistant Philippines |
 | `/service/fulfilment/` | hire order & fulfilment virtual assistant philippines | Order & Fulfilment Virtual Assistant Philippines |
-| `/service/social-media/` | hire social media virtual assistant philippines | Social Media Virtual Assistant Philippines |
+| `/service/social-media/` | social media virtual assistant | Social Media Virtual Assistant Philippines |
 | `/service/ecommerce/` | hire ecommerce virtual assistant philippines | Ecommerce Virtual Assistant Philippines |
-| `/service/admin-inbox/` | hire admin & inbox virtual assistant philippines | Admin & Inbox Virtual Assistant Philippines |
+| `/service/admin-inbox/` | administrative virtual assistant | Administrative Virtual Assistant Philippines |
 | `/service/legal-virtual-assistant/` | hire legal virtual assistant philippines | Legal Virtual Assistant Philippines |
-| `/service/recruitment-hr/` | hire recruitment & hr virtual assistant philippines | Recruitment & HR Virtual Assistant Philippines |
-| `/service/wordpress/` | hire wordpress virtual assistant philippines | WordPress Virtual Assistant Philippines |
-| `/service/phone-receptionist/` | hire virtual receptionist philippines | Virtual Receptionist Philippines |
-| `/service/email-marketing/` | hire email marketing virtual assistant philippines | Email Marketing Virtual Assistant Philippines |
+| `/service/recruitment-hr/` | hr virtual assistant | HR Virtual Assistant Philippines \| Recruitment Support |
+| `/service/wordpress/` | wordpress virtual assistant | WordPress Virtual Assistant Philippines |
+| `/service/phone-receptionist/` | virtual receptionist | Virtual Receptionist Philippines \| Phone Support |
+| `/service/email-marketing/` | email marketing virtual assistant | Email Marketing Virtual Assistant Philippines |
 | `/service/pinterest-virtual-assistant/` | hire pinterest virtual assistant philippines | Pinterest Virtual Assistant Philippines |
 | `/service/amazon-virtual-assistant/` | hire amazon virtual assistant philippines | Amazon Virtual Assistant Philippines |
 | `/service/general-virtual-assistant/` | hire general virtual assistant philippines | General Virtual Assistant Philippines |
-| `/service/it-virtual-assistant/` | it support virtual assistant | IT Support Virtual Assistant \| Philippines |
+| `/service/it-virtual-assistant/` | it support virtual assistant | IT Virtual Assistant Philippines \| Remote IT Support |
 | `/service/airbnb-virtual-assistant/` | hire airbnb virtual assistant philippines | Airbnb Virtual Assistant Philippines |
-| `/service/crm/` | hire crm virtual assistant philippines | CRM Virtual Assistant Philippines |
+| `/service/crm/` | crm virtual assistant | CRM Virtual Assistant Philippines \| Sales Operations |
 | `/service/calendar/` | hire calendar management virtual assistant philippines | Calendar Management Virtual Assistant Philippines |
-| `/service/operations/` | hire operations & process virtual assistant philippines | Operations & Process Virtual Assistant Philippines |
+| `/service/operations/` | operations virtual assistant | Operations Virtual Assistant Philippines |
 | `/service/lead-generation/` | hire lead generation virtual assistant philippines | Lead Generation Virtual Assistant Philippines |
-| `/service/personal-assistant/` | hire personal assistant philippines | Personal Assistant Philippines |
-| `/service/graphic-design/` | hire graphic design virtual assistant philippines | Graphic Design Virtual Assistant Philippines |
+| `/service/personal-assistant/` | virtual personal assistant | Virtual Personal Assistant Philippines |
+| `/service/graphic-design/` | graphic design virtual assistant | Graphic Design Virtual Assistant Philippines |
 | `/service/shopify-virtual-assistant/` | hire shopify virtual assistant philippines | Shopify Virtual Assistant Philippines |
 | `/service/transcription/` | hire transcription virtual assistant philippines | Transcription Virtual Assistant Philippines |
-| `/service/video-editing/` | hire video editing virtual assistant philippines | Video Editing Virtual Assistant Philippines |
-| `/service/digital-marketing-virtual-assistant/` | hire digital marketing virtual assistant philippines | Digital Marketing Virtual Assistant Philippines |
+| `/service/video-editing/` | video editing virtual assistant | Video Editing Virtual Assistant Philippines |
+| `/service/digital-marketing-virtual-assistant/` | virtual marketing assistant | Virtual Marketing Assistant Philippines |
 | `/service/customer-service/` | hire customer service virtual assistant philippines | Customer Service Virtual Assistant Philippines |
-| `/service/accounting-virtual-assistant/` | hire accounting virtual assistant philippines | Accounting Virtual Assistant Philippines |
+| `/service/accounting-virtual-assistant/` | accounting virtual assistant | Accounting Virtual Assistant Philippines |
 | `/service/small-business-virtual-assistant/` | hire small business virtual assistant philippines | Small Business Virtual Assistant Philippines |
 | `/service/content-writing/` | hire content writing virtual assistant philippines | Content Writing Virtual Assistant Philippines |
 | `/service/travel-lifestyle/` | hire travel & lifestyle virtual assistant philippines | Travel & Lifestyle Virtual Assistant Philippines |

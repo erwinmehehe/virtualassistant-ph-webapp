@@ -16,7 +16,7 @@ const roleLabels: Record<Role, string> = {
 const workspaceHome: Record<Role, string> = {
   client: "/workspace/client",
   va: "/workspace/va",
-  recruiter: "/workspace/recruiter",
+  recruiter: "/workspace/recruiter/today",
   admin: "/workspace/admin/today",
 };
 

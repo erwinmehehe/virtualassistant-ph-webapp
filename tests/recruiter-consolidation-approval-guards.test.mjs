@@ -37,10 +37,10 @@ test("filtered Talent bulk actions hard-stop above 500 results",async()=>{
     read("src/app/workspace/recruiter/talent/page.tsx")
   ]);
   assert.match(action,/count: "exact", head: true/);
-  assert.match(action,/Number\(filteredCount \|\| 0\) > 500/);
-  assert.match(action,/Filtered bulk actions are limited to 500 VAs/);
+  assert.match(action,/Number\(filteredCount \|\| 0\) > RECRUITER_BULK_LIMIT/);
+  assert.match(action,/Filtered bulk actions are limited to \$\{RECRUITER_BULK_LIMIT\} VAs/);
   assert.match(page,/Filtered bulk unavailable/);
-  assert.match(page,/disabled=\{total > 500\}/);
+  assert.match(page,/disabled=\{total > RECRUITER_BULK_LIMIT\}/);
   assert.doesNotMatch(page,/Select first 500 filtered VAs/);
 });
 
@@ -54,5 +54,5 @@ test("all VA approval actions enforce the shared 60 percent completion floor",as
   assert.match(visibility,/APPROVAL_MIN_COMPLETION = 60/);
   assert.match(recruiter,/rows\.filter\(isRowApprovable\)/);
   assert.match(admin,/gte\("completion_score", APPROVAL_MIN_COMPLETION\)/);
-  assert.match(vetting,/completion < APPROVAL_MIN_COMPLETION/);
+  assert.match(vetting,/assertApprovalCompletion\(completion\)/);
 });

@@ -14,7 +14,7 @@ import "../info-pages.css";
 import "./pricing-page.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "How Virtual Assistant Pricing Works", description: "Estimate Virtual Assistant compensation and understand curated placement and managed service pricing before you make a hiring commitment.", keywords: ["virtual assistant pricing philippines", "how much does a virtual assistant cost", "virtual assistant rates"] , alternates: { canonical: canonicalPath("/pricing") }};
+export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates"] , alternates: { canonical: canonicalPath("/pricing") }};
 
 const FEE_INCLUSIONS = [
   { icon: ClipboardList, label: "Role review and hiring brief" },
@@ -80,6 +80,16 @@ export default async function PricingPage(){
           </article>
         </div>
         <p className="ip-plan-note">Managed-service client pricing is confirmed during role review based on the role, hours, schedule, and required experience. <Link className="hs-link" href="/managed-vs-direct-hire">See Managed Virtual Assistant vs. Direct Hire <ArrowRight size={14}/></Link></p>
+      </Band>
+
+      <Band tone="soft">
+        <SectionHead center kicker="Cost and market data" title="Use the right page for the pricing question you are asking." lede="Service pricing, candidate compensation, market rates, and monthly cost modeling are related but different intents. Keep them separated so each guide can answer one question well."/>
+        <div className="sp-tiles">
+          <Link className="sp-tile" href="/how-much-virtual-assistant-philippines"><span className="sp-tile-copy"><strong>How much does a Virtual Assistant cost?</strong><small>Role scope, hours, experience, and cost factors for Filipino VA hiring.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/average-hourly-rate-virtual-assistants-philippines"><span className="sp-tile-copy"><strong>Average VA hourly rates</strong><small>Dedicated hourly-rate intent and rate-planning guidance.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/research/virtual-assistant-rates-philippines-2026"><span className="sp-tile-copy"><strong>2026 Rate and Skills Report</strong><small>First-party aggregate profile data for rates, experience, specialties, skills, and tools.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/tools/virtual-assistant-cost-calculator"><span className="sp-tile-copy"><strong>VA cost calculator</strong><small>Model a monthly compensation estimate from hours and hourly rate.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+        </div>
       </Band>
 
       <Band tone="soft">

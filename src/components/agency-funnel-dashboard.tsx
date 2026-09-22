@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, BriefcaseBusiness, Clock3, ShieldCheck, TrendingUp } from "lucide-react";
+import { AlertTriangle, BriefcaseBusiness, ShieldCheck, TrendingUp } from "lucide-react";
 import { getAgencyFunnelMetrics } from "@/lib/agency-funnel-metrics";
 
 function count(value: unknown) {

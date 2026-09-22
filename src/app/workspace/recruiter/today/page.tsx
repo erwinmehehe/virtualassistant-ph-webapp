@@ -122,98 +122,15 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const [
-    { data, error },
-    { data:cleanupData, error:cleanupError },
-    { count: unreadNotifications },
-    { count: openTasks },
-    { data: dailyActionData, error: dailyActionError },
-    { data: approvalReadyData, count: approvalReadyCount, error: approvalReadyError },
-    { count: missingPhotoCount, error: missingPhotoError },
-    { data: activeRoleData, error: activeRoleError },
-    { count: approvalCleanupCount, error: approvalCleanupError },
-    { count: workSetupReadyCount, error: workSetupReadyError },
-    { count: recentZeroCount, error: recentZeroError },
-    { data: noShowData, error: noShowError }
-  ] = await Promise.all([
-    admin.rpc("recruiter_today_queue", { p_user_id:userId, p_limit:20 }),
-    admin.rpc("recruiter_lead_cleanup_queue", { p_user_id:userId, p_limit:40 }),
-    admin.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",userId).is("read_at",null).is("done_at",null).or(`snoozed_until.is.null,snoozed_until.lte.${new Date().toISOString()}`),
-    admin.from("recruiter_tasks").select("id",{count:"exact",head:true}).eq("assignee_id",userId).eq("status","todo"),
-    admin.rpc("recruiter_daily_action_queue", { p_user_id:userId }),
-    admin
-      .from("recruiter_va_directory")
-      .select("user_id,full_name,avatar_url,primary_category,completion_score,stage,availability_status",{count:"exact"})
-      .eq("account_status","active")
-      .gte("completion_score",APPROVAL_MIN_COMPLETION)
-      .or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)")
-      .order("completion_score",{ascending:false})
-      .order("last_activity_at",{ascending:false,nullsFirst:false})
-      .limit(5),
-    admin
-      .from("recruiter_va_directory")
-      .select("user_id",{count:"exact",head:true})
-      .eq("account_status","active")
-      .gte("completion_score",APPROVAL_MIN_COMPLETION)
-      .is("avatar_url",null)
-      .or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)"),
-    admin
-      .from("jobs")
-      .select("id,title,company_name,status,hiring_stage,hiring_stage_entered_at,updated_at,created_at")
-      .eq("recruiter_id",userId)
-      .in("status",["pending","published"])
-      .order("updated_at",{ascending:true})
-      .limit(100),
-    admin
-      .from("recruiter_va_directory")
-      .select("user_id",{count:"exact",head:true})
-      .eq("account_status","active")
-      .in("stage",["approved","bench"])
-      .lt("completion_score",APPROVAL_MIN_COMPLETION),
-    admin
-      .from("va_profiles")
-      .select("user_id",{count:"exact",head:true})
-      .not("work_setup_submitted_at","is",null)
-      .is("work_setup_verified_at",null)
-      .not("work_setup_computer","is",null)
-      .not("work_setup_os","is",null)
-      .not("work_setup_ram_gb","is",null)
-      .not("primary_internet","is",null)
-      .not("backup_internet","is",null)
-      .not("backup_power","is",null)
-      .eq("headset_ready",true)
-      .eq("webcam_ready",true)
-      .eq("quiet_workspace",true),
-    admin
-      .from("recruiter_va_directory")
-      .select("user_id",{count:"exact",head:true})
-      .eq("account_status","active")
-      .eq("completion_score",0)
-      .gte("account_created_at",new Date(Date.now()-7*86400000).toISOString()),
-    admin
-      .from("lead_intake")
-      .select("id,name,email,discovery_outcome,owner_id,discovery_rescheduled_at")
-      .eq("lead_type","client_hiring")
-      .eq("discovery_outcome","no_show")
-      .or(`owner_id.eq.${userId},owner_id.is.null`)
-      .order("discovery_scheduled_at",{ascending:false})
-      .limit(100)
-  ]);
-  if (error) throw error;
-  if (cleanupError) throw cleanupError;
-  if (dailyActionError) throw dailyActionError;
-  if (approvalReadyError) throw approvalReadyError;
-  if (missingPhotoError) throw missingPhotoError;
-  if (activeRoleError) throw activeRoleError;
-  if (approvalCleanupError) throw approvalCleanupError;
-  if (workSetupReadyError) throw workSetupReadyError;
-  if (recentZeroError) throw recentZeroError;
-  if (noShowError) throw noShowError;
+  const { data: summaryData, error: summaryError } = await admin.rpc("recruiter_today_summary", { p_user_id:userId });
+  if (summaryError) throw summaryError;
 
-  const nonLeadQueue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
+  const summary = (summaryData || {}) as Record<string,any>;
+  const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
+  const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
   const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
-  const cleanupQueue = Array.isArray(cleanupData) ? cleanupData as any[] : [];
-  const dailyActions = (Array.isArray(dailyActionData) ? dailyActionData : []) as DailyActionRow[];
+  const cleanupQueue = Array.isArray(summary.cleanup_queue) ? summary.cleanup_queue as any[] : [];
+  const dailyActions = (Array.isArray(summary.daily_actions) ? summary.daily_actions : []) as DailyActionRow[];
   const clientWaitByJob = new Map<string,DailyActionRow>();
   for (const item of dailyActions) {
     if (!["client_shortlist_waiting","client_response_overdue"].includes(String(item.action_type)) || !item.subject_id) continue;
@@ -221,43 +138,31 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     if (!current || item.action_type === "client_response_overdue") clientWaitByJob.set(item.subject_id,item);
   }
   const clientWaits = [...clientWaitByJob.values()].sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
-  const approvalReady = (Array.isArray(approvalReadyData) ? approvalReadyData : []) as ApprovalReadyVa[];
-  const waitingJobIds = new Set(clientWaits.map((item)=>String(item.subject_id || "")).filter(Boolean));
-  const staleRoleCutoff = Date.now() - 72 * 60 * 60 * 1000;
-  const staleRoles = ((Array.isArray(activeRoleData) ? activeRoleData : []) as ActiveRoleRow[])
-    .filter((role)=>{
-      if (waitingJobIds.has(role.id)) return false;
-      const activityAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
-      return new Date(activityAt).getTime() <= staleRoleCutoff;
-    })
-    .sort((a,b)=>new Date(a.hiring_stage_entered_at || a.updated_at || a.created_at).getTime()-new Date(b.hiring_stage_entered_at || b.updated_at || b.created_at).getTime());
-  const staleRolePreview = staleRoles.slice(0,5);
-  const noShows = Array.isArray(noShowData) ? noShowData as Array<{id:string;name?:string|null;email?:string|null;discovery_outcome?:string|null;discovery_rescheduled_at?:string|null}> : [];
-  const noShowKeys = noShows.map((lead)=>`discovery-no-show-rebook-${lead.id}`);
-  const { data: noShowEmailEvents, error: noShowEmailError } = noShowKeys.length
-    ? await admin.from("outbound_email_events")
-        .select("idempotency_key,status")
-        .eq("event_type","discovery_no_show_rebook")
-        .eq("status","sent")
-        .in("idempotency_key",noShowKeys)
-    : { data: [], error: null };
-  if (noShowEmailError) throw noShowEmailError;
-  const rebookSentIds = new Set((noShowEmailEvents || []).map((row:any)=>String(row.idempotency_key||"").replace(/^discovery-no-show-rebook-/,"")));
-  const noShowNeedsEmail = noShows.filter((lead)=>!rebookSentIds.has(lead.id)).length;
-  const noShowWaitingRebook = noShows.filter((lead)=>rebookSentIds.has(lead.id)).length;
-
-  const actionCount=(...types:string[])=>dailyActions.filter((item)=>types.includes(String(item.action_type))).length;
-  const roleNoCandidates = actionCount("role_without_shortlist");
-  const replacementNeeded = actionCount("all_candidates_passed");
-  const clientResponseOverdue = actionCount("client_response_overdue");
-  const interviewsDue = actionCount("interview_today","interview_feedback_missing");
-  const offersWaiting = actionCount("offer_waiting_va","offer_waiting_client");
+  const approvalReady = (Array.isArray(summary.approval_ready_preview) ? summary.approval_ready_preview : []) as ApprovalReadyVa[];
+  const staleRolePreview = (Array.isArray(summary.stale_roles_preview) ? summary.stale_roles_preview : []) as ActiveRoleRow[];
+  const staleRolesCount = Number(summary.stale_roles_count || 0);
+  const unreadNotifications = Number(summary.unread_notifications || 0);
+  const openTasks = Number(summary.open_tasks || 0);
+  const approvalReadyCount = Number(summary.approval_ready_count || 0);
+  const missingPhotoCount = Number(summary.missing_photo_count || 0);
+  const approvalCleanupCount = Number(summary.approval_cleanup_count || 0);
+  const workSetupReadyCount = Number(summary.work_setup_ready_count || 0);
+  const recentZeroCount = Number(summary.recent_zero_count || 0);
+  const noShowNeedsEmail = Number(summary.no_show_needs_email || 0);
+  const noShowWaitingRebook = Number(summary.no_show_waiting_rebook || 0);
+  const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
+  const rebookSentIds = new Set(noShows.filter((lead)=>lead.sent).map((lead)=>lead.id));
+  const roleNoCandidates = Number(summary.role_no_candidates || 0);
+  const replacementNeeded = Number(summary.replacement_needed || 0);
+  const clientResponseOverdue = Number(summary.client_response_overdue || 0);
+  const interviewsDue = Number(summary.interviews_due || 0);
+  const offersWaiting = Number(summary.offers_waiting || 0);
 
   const actionLanes = [
-    {label:"Approval-ready",count:Number(approvalReadyCount||0),hint:"Recruiter decision",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",icon:<UserRoundCheck size={16}/>},
-    {label:"Approval cleanup",count:Number(approvalCleanupCount||0),hint:"Approved below 60%",href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion",icon:<AlertTriangle size={16}/>},
-    {label:"Work setup ready",count:Number(workSetupReadyCount||0),hint:"Ready to verify",href:"/workspace/recruiter/work-readiness?view=ready",icon:<ShieldCheck size={16}/>},
-    {label:"0% profiles",count:Number(recentZeroCount||0),hint:"New VA rescue · 7d",href:"/workspace/recruiter/talent?readiness=zero",icon:<UserRound size={16}/>},
+    {label:"Approval-ready",count:approvalReadyCount,hint:"Recruiter decision",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",icon:<UserRoundCheck size={16}/>},
+    {label:"Approval cleanup",count:approvalCleanupCount,hint:"Approved below 60%",href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion",icon:<AlertTriangle size={16}/>},
+    {label:"Work setup ready",count:workSetupReadyCount,hint:"Ready to verify",href:"/workspace/recruiter/work-readiness?view=ready",icon:<ShieldCheck size={16}/>},
+    {label:"0% profiles",count:recentZeroCount,hint:"New VA rescue · 7d",href:"/workspace/recruiter/talent?readiness=zero",icon:<UserRound size={16}/>},
     {label:"No-show email",count:noShowNeedsEmail,hint:"Rebooking email not sent",href:"/workspace/recruiter/leads?view=discovery",icon:<MessageSquare size={16}/>},
     {label:"Waiting to rebook",count:noShowWaitingRebook,hint:"Email sent, no new time",href:"/workspace/recruiter/leads?view=discovery",icon:<RefreshCw size={16}/>},
     {label:"Roles need candidates",count:roleNoCandidates,hint:"No usable shortlist",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",icon:<BriefcaseBusiness size={16}/>},
@@ -265,7 +170,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {label:"Interview action",count:interviewsDue,hint:"Today or feedback due",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",icon:<CalendarDays size={16}/>},
     {label:"Offers waiting",count:offersWaiting,hint:"VA or client decision",href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent",icon:<CheckCircle2 size={16}/>},
     {label:"Need replacements",count:replacementNeeded,hint:"All released VAs passed",href:"/workspace/recruiter/roles?view=replacement&sort=urgent",icon:<RefreshCw size={16}/>},
-    {label:"Stale roles",count:staleRoles.length,hint:"72h+ no movement",href:"/workspace/recruiter/roles?view=stale&sort=oldest",icon:<Clock3 size={16}/>}
+    {label:"Stale roles",count:staleRolesCount,hint:"72h+ no movement",href:"/workspace/recruiter/roles?view=stale&sort=oldest",icon:<Clock3 size={16}/>}
   ];
 
   return <div className="dash-page">
@@ -284,23 +189,23 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <div className="dash-header">
       <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>This is the recruiter operating screen. Clear non-zero action lanes first, then work the detailed queue below.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
       <div className="row wrap">
-        <Link className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
-        <Link className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
-        <Link className="btn" href="/workspace/recruiter/notifications"><Bell size={16}/> Inbox {unreadNotifications ? `(${unreadNotifications})` : ""}</Link>
+        <Link prefetch={false} className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
+        <Link prefetch={false} className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
+        <Link prefetch={false} className="btn" href="/workspace/recruiter/notifications"><Bell size={16}/> Inbox {unreadNotifications ? `(${unreadNotifications})` : ""}</Link>
       </div>
     </div>
 
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRoles.length}</strong><small>Roles that need movement</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
     <section id="action-lanes" className={`card dashboard-section-card ${styles.actionLanesCard}`}>
       <div className="dashboard-section-head"><div><h2>Action lanes</h2><p>Every recurring recruiter queue in one place. Start with non-zero lanes and work left to right.</p></div><span className="badge">{actionLanes.reduce((sum,lane)=>sum+lane.count,0)} open signals</span></div>
       <div className={styles.actionLaneGrid}>
-        {actionLanes.map((lane)=><Link className={`${styles.actionLane} ${lane.count ? styles.actionLaneOpen : styles.actionLaneClear}`} href={lane.href} key={lane.label}>
+        {actionLanes.map((lane)=><Link prefetch={false} className={`${styles.actionLane} ${lane.count ? styles.actionLaneOpen : styles.actionLaneClear}`} href={lane.href} key={lane.label}>
           <span className={styles.actionLaneIcon}>{lane.icon}</span>
           <span className={styles.actionLaneCopy}><strong>{lane.label}</strong><small>{lane.hint}</small></span>
           <b>{lane.count}</b>
@@ -329,12 +234,12 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
                 <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
               </form>:<span className="badge badge-success">Link sent</span>}
-              <Link className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
+              <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
             </div>
           </div>;
         })}
       </div>
-      {noShows.length>8?<Link className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
+      {noShows.length>8?<Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
     </section>:null}
 
     <section id="sales-cleanup" className={`card dashboard-section-card ${styles.queueCard}`}>
@@ -358,7 +263,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <div className="row wrap" style={{marginTop:8}}>
                   <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="send_followup"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send follow-up</button></form>
                   <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Follow up in 3 days</button></form>
-                  <Link className="btn btn-sm" href={cleanupLeadHref(item)}>Open lead</Link>
+                  <Link prefetch={false} className="btn btn-sm" href={cleanupLeadHref(item)}>Open lead</Link>
                 </div>
                 <div className="row wrap" style={{marginTop:6}}>
                   <span className="small muted">Close:</span>
@@ -370,7 +275,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             </article>;
           })}
         </div>
-      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Sales pipeline is clean.</strong><p>No active client-hiring lead currently needs cleanup.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
+      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Sales pipeline is clean.</strong><p>No active client-hiring lead currently needs cleanup.</p></div><Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
     </section>
 
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
@@ -393,7 +298,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <div className="row wrap" style={{marginTop:8}}>
                   {isDiscovery && item.action_url ? <a className="btn btn-sm btn-primary" href={item.action_url} target="_blank" rel="noreferrer">{meetingActionLabel(item.action_url)} <ExternalLink size={13}/></a> : null}
                   {isClientFollowup&&item.id?<form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send client follow-up</button></form>:null}
-                  {actionHref ? <Link className="btn btn-sm" href={actionHref}>{actionLabel(item)}</Link> : null}
+                  {actionHref ? <Link prefetch={false} className="btn btn-sm" href={actionHref}>{actionLabel(item)}</Link> : null}
                   {isTask ? <>
                     <form action={completeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><CheckCircle2 size={13}/> Done</button></form>
                     <form action={snoozeRecruiterTaskAction}><input type="hidden" name="task_id" value={item.id}/><input type="hidden" name="minutes" value="1440"/><button className="btn btn-sm" type="submit">Snooze 1 day</button></form>
@@ -403,14 +308,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             </article>;
           })}
         </div>
-      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current Recruitment or Client Success work is waiting right now.</p></div><Link className="btn btn-sm" href="/workspace/recruiter/roles">Open roles</Link></div>}
+      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current Recruitment or Client Success work is waiting right now.</p></div><Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles</Link></div>}
     </section>
 
     <div className={styles.operationsGrid}>
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head">
           <div><h2>Talent operations</h2><p>Profiles that are far enough along for a recruiter decision.</p></div>
-          <Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=approval_ready">Open talent <ArrowRight size={13}/></Link>
+          <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/talent?readiness=approval_ready">Open talent <ArrowRight size={13}/></Link>
         </div>
 
         <div className={styles.signalRow}>
@@ -420,7 +325,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
         {approvalReady.length ? <div className={styles.compactPeople}>
           {approvalReady.map((va)=>(
-            <Link className={styles.personRow} href={`/workspace/recruiter/candidates/${va.user_id}`} key={va.user_id}>
+            <Link prefetch={false} className={styles.personRow} href={`/workspace/recruiter/candidates/${va.user_id}`} key={va.user_id}>
               <PublicAvatar name={va.full_name || "VA"} src={va.avatar_url} size="sm"/>
               <span className={styles.personCopy}>
                 <strong>{va.full_name || "VA candidate"}</strong>
@@ -436,7 +341,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <section id="role-follow-through" className="card dashboard-section-card">
         <div className="dashboard-section-head">
           <div><h2>Role follow-through</h2><p>Client decisions and roles that have stopped moving.</p></div>
-          <Link className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
+          <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
         </div>
 
         {clientWaits.length ? <div className={styles.followList}>
@@ -451,7 +356,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               </span>
               <div className={styles.followActions}>
                 {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
-                {item.subject_id ? <Link className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
+                {item.subject_id ? <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
               </div>
             </div>
           ))}
@@ -461,7 +366,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           <div className={styles.groupLabel}>No recent movement</div>
           {staleRolePreview.map((role)=>{
             const lastStageAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
-            return <Link className={styles.followRow} href={`/workspace/recruiter/roles/${role.id}`} key={`stale-${role.id}`}>
+            return <Link prefetch={false} className={styles.followRow} href={`/workspace/recruiter/roles/${role.id}`} key={`stale-${role.id}`}>
               <span className={styles.followIcon}><BriefcaseBusiness size={15}/></span>
               <span className={styles.followCopy}>
                 <strong>{role.title || "Client role"}</strong>
@@ -471,7 +376,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               <ArrowRight size={15}/>
             </Link>;
           })}
-          {staleRoles.length > staleRolePreview.length ? <Link className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRoles.length - staleRolePreview.length} more stale roles</Link> : null}
+          {staleRolesCount > staleRolePreview.length ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRolesCount - staleRolePreview.length} more stale roles</Link> : null}
         </div> : null}
 
         {!clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}

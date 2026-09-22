@@ -155,6 +155,25 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
           { href: "/how-vetting-works", label: "How vetting works", description: "See how candidates are reviewed before client presentation." },
           { href: "/pricing", label: "Pricing and hiring models", description: "Compare managed support and direct-hire pricing structures." }
         ]
+      },
+      {
+        heading: "Build the first 30 days around one measurable handoff",
+        intro: "A good Australian placement should not begin with a giant task list. Choose two or three recurring workflows, define the source of truth, show examples of completed work, and agree on the quality check. Expand the role only after accuracy, communication, and turnaround are consistent.",
+        bullets: [
+          "Week 1: systems, access, examples, communication rules, and shadowing.",
+          "Week 2: supervised ownership of the first recurring workflow.",
+          "Week 3: add a second workflow and document common exceptions.",
+          "Week 4: review quality, turnaround, blockers, capacity, and the next handoff."
+        ]
+      },
+      {
+        heading: "Choose the hiring model that matches your management capacity",
+        intro: "Direct hire can suit teams that already know how to recruit, onboard, pay, and manage remote staff. Managed support can suit businesses that want more help with sourcing, screening, matching, onboarding, placement monitoring, and replacement support. Compare the total operating burden, not only the headline rate.",
+        links: [
+          { href: "/managed-vs-direct-hire", label: "Managed vs direct hire", description: "Compare responsibility before and after placement." },
+          { href: "/blog/virtual-assistant-companies-philippines", label: "Compare VA companies", description: "Understand marketplaces, recruiters, managed providers, and other hiring models." },
+          { href: "/research/virtual-assistant-rates-philippines-2026", label: "2026 rate and skills report", description: "Review first-party aggregate data from current VirtualAssistant.com.ph candidate profiles." }
+        ]
       }
     ],
     faqs: [
@@ -418,6 +437,35 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
           { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare compensation, placement, managed-service terms, and cost-planning resources." },
           { href: "/blog/virtual-assistant-websites", label: "Virtual Assistant websites", description: "Compare marketplaces, job boards, directories, recruiters, and managed providers." },
           { href: "/outsourcing-philippines-virtual-assistant", label: "Philippines outsourcing guide", description: "Plan management, handoffs, access, coverage, and operating responsibilities." }
+        ]
+      },
+      {
+        heading: "Start with workflows that are easy to measure",
+        intro: "The strongest US briefs give one person a visible recurring outcome. Administrative support can own inbox and calendar workflows. Sales support can own CRM hygiene and follow-up administration. Ecommerce and customer support can own defined queues. Specialist roles should be scoped around the systems, outputs, and escalation points that matter to the business.",
+        links: [
+          { href: "/service/admin-inbox", label: "Administrative Virtual Assistant", description: "Inbox, calendar, records, research, and recurring coordination." },
+          { href: "/service/customer-service", label: "Customer Service Virtual Assistant", description: "Tickets, customer communication, follow-up, and service administration." },
+          { href: "/service/sales-virtual-assistant", label: "Sales Virtual Assistant", description: "CRM, pipeline support, research, follow-up, and sales coordination." },
+          { href: "/service/ecommerce", label: "Ecommerce Virtual Assistant", description: "Store operations, orders, products, support, marketplaces, and reporting." }
+        ]
+      },
+      {
+        heading: "Use a controlled 30-day handoff instead of delegating everything at once",
+        intro: "Give the Virtual Assistant the context, examples, permissions, and quality checks needed for the first workflow. Review work closely at the start, document the exceptions that appear, and increase ownership only after the process is stable.",
+        bullets: [
+          "Define the first two or three outcomes before sourcing.",
+          "Use least-privilege access and separate approval from preparation where risk is higher.",
+          "Set a response window for live work and a handoff rule for asynchronous work.",
+          "Review accuracy, turnaround, communication, and unresolved exceptions after 30 days."
+        ]
+      },
+      {
+        heading: "Decide how much of recruiting and management you want to own",
+        intro: "A direct hire, freelance marketplace, recruiting service, and managed provider can all produce a good result, but they place different amounts of work on the client. Compare sourcing, screening, contracting, onboarding, payroll or invoicing, ongoing support, and replacement responsibility before choosing.",
+        links: [
+          { href: "/managed-vs-direct-hire", label: "Managed vs direct hire", description: "Compare the support structure around a dedicated Virtual Assistant." },
+          { href: "/blog/virtual-assistant-companies-philippines", label: "Virtual Assistant companies", description: "Compare provider models before choosing where to hire." },
+          { href: "/research/virtual-assistant-rates-philippines-2026", label: "2026 rate and skills report", description: "Use current first-party candidate data to inform role and budget planning." }
         ]
       }
     ],

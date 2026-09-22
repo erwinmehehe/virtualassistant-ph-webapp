@@ -148,14 +148,20 @@ test("recruiter agenda shows all active discovery bookings, not only the assigne
 });
 
 
-test("recruiter dashboard shows all upcoming discovery calls for the next seven days", async () => {
-  const dashboard = await read("src/app/workspace/recruiter/page.tsx");
-  assert.match(dashboard, /Upcoming discovery calls/);
-  assert.match(dashboard, /All active client discovery bookings in the next 7 days, across recruiters/);
-  assert.match(dashboard, /\.from\("lead_intake"\)/);
-  assert.match(dashboard, /\.gte\("discovery_scheduled_at", nowIso\)/);
-  assert.match(dashboard, /\.lt\("discovery_scheduled_at", nextWeekIso\)/);
-  assert.doesNotMatch(dashboard.match(/\.from\("lead_intake"\)[\s\S]*?\.limit\(8\)/)?.[0] || "", /owner_id/);
+test("Recruiter My Day preserves the all-recruiter seven-day discovery signal", async () => {
+  const [dashboard, migration] = await Promise.all([
+    read("src/app/workspace/recruiter/today/page.tsx"),
+    read("supabase/migrations/20260922092208_dashboard_summary_discovery_count.sql")
+  ]);
+  assert.match(dashboard, /Discovery next 7d/);
+  assert.match(dashboard, /All active bookings/);
+  assert.match(dashboard, /href:"\/workspace\/recruiter\/agenda"/);
+  assert.match(migration, /discovery_scheduled_at>=now\(\)/);
+  assert.match(migration, /discovery_scheduled_at<now\(\)\+interval '7 days'/);
+  assert.match(migration, /discovery_completed_at is null/);
+  assert.match(migration, /discovery_cancelled_at is null/);
+  const sevenDayBlock=migration.slice(migration.indexOf("'discovery_next_7_days'"),migration.indexOf("'stale_roles'"));
+  assert.doesNotMatch(sevenDayBlock,/owner_id/);
 });
 
 

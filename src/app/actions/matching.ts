@@ -104,13 +104,20 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
   const mode = String(formData.get("mode") || "save");
-  const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
+  const selectedRaw = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
+  const requestedOrder = String(formData.get("shortlist_order") || "").split(",").map((value) => value.trim()).filter(Boolean);
+  const selectedSet = new Set(selectedRaw);
+  const selected = [
+    ...requestedOrder.filter((id, index) => selectedSet.has(id) && requestedOrder.indexOf(id) === index),
+    ...selectedRaw.filter((id) => !requestedOrder.includes(id))
+  ];
   const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
 
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
 
   if (!jobId) return fail("Job is required.");
   if (!selected.length) return fail("Select at least one VA before saving or sending a shortlist.");
+  if (["release", "invite"].includes(mode) && selected.length > 5) return fail("Client shortlists are limited to five VAs. Narrow the selection before sending.");
   if (!["save", "release", "invite"].includes(mode)) return fail("Invalid shortlist action.");
 
   const admin = createAdminClient();
@@ -157,7 +164,7 @@ export async function saveJobShortlistAction(formData: FormData) {
     const deselectedProposed = (existing || []).filter((row: any) => row.shortlist_status === "proposed" && !selected.includes(row.va_id)).map((row: any) => row.va_id);
     if (deselectedProposed.length) await admin.from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).in("va_id", deselectedProposed);
   }
-  const rows = selected.map((vaId) => {
+  const rows = selected.map((vaId, index) => {
     const va = vaMap.get(vaId) as any;
     if (!va) return fail("A selected VA profile could not be loaded. Refresh and try again.");
     const assessment = matchAssessment(job, va);
@@ -169,6 +176,7 @@ export async function saveJobShortlistAction(formData: FormData) {
       match_score: assessment.score,
       match_confidence: assessment.confidence,
       shortlist_status: status,
+      shortlist_order: index + 1,
       client_recommendation: cleanClientRecommendation(formData.get(`recommendation_${vaId}`)),
       created_by: user.id,
       released_at: status === "released" ? now : null

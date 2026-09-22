@@ -10666,7 +10666,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
             "label": "Outsourcing virtual assistant work to the Philippines",
-            "href": "/blog/outsourcing-philippines-virtual-assistant",
+            "href": "/outsourcing-philippines-virtual-assistant",
             "description": "Use the outsourcing guide to compare role scope, operating model, screening, and handoff considerations before you hire."
       }
     ],

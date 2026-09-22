@@ -1197,15 +1197,147 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: [
       "bim-revit-production"
     ]
+  },
+  {
+    slug: "canva-virtual-assistant",
+    name: "Canva Virtual Assistant",
+    software: "Canva",
+    category: "Marketing & Creative",
+    directoryCategory: "Video Editing & Creative",
+    primaryKeyword: "canva virtual assistant",
+    metaTitle: "Hire Canva Virtual Assistant Philippines",
+    metaDescription: "Hire a Canva Virtual Assistant for branded social graphics, presentations, templates, resizing, asset organization and recurring design production.",
+    h1: "Add Reliable Canva Production Without Turning Every Request Into a Design Project",
+    intro: "A Canva Virtual Assistant can turn approved brand rules and repeatable creative briefs into consistent social assets, presentations, lead magnets and campaign variations. Brand direction and final creative approval stay with the client team.",
+    focus: "repeatable canva design production",
+    workflows: [
+      "receive the approved brief and source assets",
+      "select the correct brand template",
+      "produce the requested asset or variation",
+      "check copy, sizing and brand consistency",
+      "prepare alternate platform dimensions",
+      "name and organize final files",
+      "route the asset for approval",
+      "record requested revisions",
+      "export approved formats"
+    ],
+    tasks: [
+      "social graphic production",
+      "presentation formatting",
+      "template updates",
+      "ad and banner resizing",
+      "lead magnet formatting",
+      "brand asset organization",
+      "thumbnail production"
+    ],
+    bestFor: ["marketing teams", "agencies", "ecommerce brands", "content-led businesses"],
+    outcomes: [
+      "Recurring design requests move through a consistent production queue.",
+      "Approved brand templates are reused correctly across channels.",
+      "Marketing teams spend less time on routine resizing and formatting work."
+    ],
+    hiringNotes: [
+      "Provide brand guidelines, approved templates and file naming rules.",
+      "Test the candidate on a representative brief rather than a generic design exercise.",
+      "Keep final brand direction, sensitive claims and campaign approval with the client team."
+    ],
+    relatedServiceSlugs: ["graphic-design", "social-media", "digital-marketing-virtual-assistant"],
+    relatedIndustrySlugs: ["ecommerce-stores", "professional-services-growth"]
+  },
+  {
+    slug: "gohighlevel-virtual-assistant",
+    name: "GoHighLevel Virtual Assistant",
+    software: "GoHighLevel",
+    category: "CRM & Sales",
+    directoryCategory: "Lead Generation & Sales",
+    primaryKeyword: "gohighlevel virtual assistant",
+    metaTitle: "Hire GoHighLevel Virtual Assistant Philippines",
+    metaDescription: "Hire a GoHighLevel Virtual Assistant for CRM updates, pipeline administration, contact cleanup, campaign setup support, tasks, and reporting.",
+    h1: "Keep GoHighLevel Pipelines and CRM Workflows Current",
+    intro: "A GoHighLevel Virtual Assistant can maintain contacts, opportunities, tasks, calendars, approved campaign assets and recurring CRM administration. Strategy, offer decisions and high-risk automation changes remain with the accountable client team.",
+    focus: "gohighlevel crm and pipeline administration",
+    workflows: [
+      "review new contacts and opportunities",
+      "clean and tag records to the agreed rules",
+      "update pipeline stages from approved evidence",
+      "maintain tasks and follow-up dates",
+      "prepare approved campaign assets",
+      "check forms and calendar routing",
+      "record exceptions and failed automations",
+      "prepare pipeline reports",
+      "escalate configuration changes outside the runbook"
+    ],
+    tasks: [
+      "crm updates",
+      "pipeline maintenance",
+      "contact tagging",
+      "task administration",
+      "calendar administration",
+      "campaign setup support",
+      "report preparation"
+    ],
+    bestFor: ["marketing agencies", "local-service businesses", "sales teams", "lead-generation businesses"],
+    outcomes: [
+      "Pipeline records reflect the actual state of leads and opportunities.",
+      "Follow-up tasks and contact data stay easier to trust.",
+      "Teams spend less time cleaning routine CRM administration."
+    ],
+    hiringNotes: [
+      "Document pipeline stages, tags and approved automation boundaries before delegation.",
+      "Use controlled permissions and test automation changes outside live workflows when possible.",
+      "Keep offer strategy, messaging approvals and material automation decisions with the client team."
+    ],
+    relatedServiceSlugs: ["crm", "lead-generation", "appointment-setter-virtual-assistant"],
+    relatedIndustrySlugs: ["professional-services-growth", "home-local-services"]
+  },
+  {
+    slug: "salesforce-virtual-assistant",
+    name: "Salesforce Virtual Assistant",
+    software: "Salesforce",
+    category: "CRM & Sales",
+    directoryCategory: "Lead Generation & Sales",
+    primaryKeyword: "salesforce virtual assistant",
+    metaTitle: "Hire Salesforce Virtual Assistant Philippines",
+    metaDescription: "Hire a Salesforce Virtual Assistant for CRM data entry, contact and opportunity updates, task administration, cleanup, reporting and sales support.",
+    h1: "Keep Salesforce Records Clean Enough for the Sales Team to Trust",
+    intro: "A Salesforce Virtual Assistant can own recurring CRM administration such as contact updates, opportunity hygiene, task follow-up, duplicate checks and report preparation. Sales strategy, forecasting judgment and sensitive configuration decisions remain with the client.",
+    focus: "salesforce crm administration",
+    workflows: [
+      "review assigned CRM update requests",
+      "check source information before editing records",
+      "create or update contacts and accounts",
+      "maintain opportunity fields and stages from approved evidence",
+      "log activities and next steps",
+      "identify duplicate or incomplete records",
+      "prepare recurring reports",
+      "document uncertain changes",
+      "escalate configuration or permission issues"
+    ],
+    tasks: [
+      "salesforce data entry",
+      "contact and account updates",
+      "opportunity administration",
+      "task maintenance",
+      "duplicate cleanup",
+      "activity logging",
+      "report preparation"
+    ],
+    bestFor: ["B2B sales teams", "SaaS companies", "agencies", "professional services firms"],
+    outcomes: [
+      "Salesforce records stay more accurate and complete.",
+      "Open tasks and opportunity updates remain visible.",
+      "Sales managers spend less time correcting routine CRM administration."
+    ],
+    hiringNotes: [
+      "Define required fields, stage rules and duplicate handling before bulk updates.",
+      "Restrict permissions to the records and actions the role actually needs.",
+      "Keep forecasting, sales strategy, admin configuration and destructive bulk changes with authorized staff."
+    ],
+    relatedServiceSlugs: ["crm", "sales-virtual-assistant", "lead-generation"],
+    relatedIndustrySlugs: ["professional-services-growth", "small-business"]
   }
-];
-
-export const softwarePagesBySlug = Object.fromEntries(
-  softwarePages.map((page) => [page.slug, page])
-) as Record<string, SoftwareSeoPage>;
-
-export function getSoftwarePage(slug: string): SoftwareSeoPage | undefined {
-  return softwarePagesBySlug[slug  {
+,
+  {
     slug: "hubspot-virtual-assistant",
     name: "HubSpot Virtual Assistant",
     software: "HubSpot",
@@ -1346,4 +1478,11 @@ export function getSoftwarePage(slug: string): SoftwareSeoPage | undefined {
     relatedIndustrySlugs: ["small-business","accountants-cpas","accounting-firms-month-end"]
   },
 ];
+
+export const softwarePagesBySlug = Object.fromEntries(
+  softwarePages.map((page) => [page.slug, page])
+) as Record<string, SoftwareSeoPage>;
+
+export function getSoftwarePage(slug: string): SoftwareSeoPage | undefined {
+  return softwarePagesBySlug[slug];
 }

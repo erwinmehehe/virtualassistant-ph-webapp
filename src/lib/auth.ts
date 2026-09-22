@@ -16,6 +16,17 @@ function roleHome(role: Role) {
   return ROLE_HOME[role];
 }
 
+const ROLE_HOME: Record<Role,string> = {
+  client: "/workspace/client",
+  va: "/workspace/va",
+  recruiter: "/workspace/recruiter/today",
+  admin: "/workspace/admin/today",
+};
+
+function roleHome(role: Role) {
+  return ROLE_HOME[role];
+}
+
 // Deduped per request: a workspace route resolves this in its layout AND its
 // page, and without cache() that is two auth.getUser() round trips, two profile
 // selects, and a duplicated last_active_at write on every navigation.

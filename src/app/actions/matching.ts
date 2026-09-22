@@ -167,7 +167,7 @@ export async function saveJobShortlistAction(formData: FormData) {
       return va.availability_status !== "available" || !confirmedAt || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;
     });
     if (stale.length) {
-      return fail(`${stale.length} selected VA${stale.length === 1 ? " must" : "s must"} reconfirm availability before client release. Send an availability reminder, then try again after they confirm.`);
+      return fail(`${stale.length} selected VA${stale.length === 1 ? " must" : "s must"} reconfirm availability before client release. A fresh availability confirmation before client release is required. Send an availability reminder, then try again after they confirm.`);
     }
   }
 

@@ -43,3 +43,10 @@ test("Recruiter Today exposes an actionable call rebooking queue",()=>{
   assert.match(today,/Link sent/);
   assert.match(today,/Waiting for the client to choose a new time/);
 });
+
+test("cancellation email points directly back to rebooking",()=>{
+  const booking=read("src/app/actions/booking.ts");
+  assert.match(booking,/heading: "Your discovery call is cancelled"/);
+  assert.match(booking,/hrefLabel: "Rebook your call"/);
+  assert.match(booking,/choose another available time/);
+});

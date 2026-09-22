@@ -249,6 +249,34 @@ const ROLE_CLUSTERS: RoleCluster[] = [
     costFactors: ["site complexity", "publishing volume", "builder or plugin requirements", "technical depth", "change-risk level"],
     mistakes: ["giving administrator access when editor access is enough", "updating plugins or production configuration without a rollback plan", "confusing routine WordPress administration with full-stack development"],
     bestFor: ["content sites", "agencies", "small businesses", "marketing teams"]
+  },
+  {
+    serviceSlug: "creative-virtual-assistant",
+    slugBase: "creative-virtual-assistant",
+    role: "Creative Virtual Assistant",
+    shortRole: "creative production",
+    primaryKeyword: "creative virtual assistant",
+    focus: "repeatable creative production, campaign assets, presentation formatting, template work, and brand-file organization",
+    tasks: ["social graphic production", "presentation formatting", "campaign asset resizing", "lead magnet formatting", "thumbnail production", "brand asset organization", "simple image cleanup", "approved template updates"],
+    tools: ["Canva", "Adobe Photoshop", "Adobe Illustrator", "Figma", "Google Drive", "Dropbox", "PowerPoint", "Adobe Express"],
+    evidence: ["a portfolio showing repeatable production work", "how they follow a brand system", "how they manage versions and exports", "how they respond to specific revision feedback"],
+    costFactors: ["creative volume", "design complexity", "number of output formats", "software depth", "original-design responsibility"],
+    mistakes: ["using one vague creative role to cover unrelated strategy and production work", "failing to provide brand rules and approved examples", "expecting senior creative direction from a production-focused role"],
+    bestFor: ["marketing teams", "creative agencies", "ecommerce brands", "content-led businesses"]
+  },
+  {
+    serviceSlug: "logistics-virtual-assistant",
+    slugBase: "logistics-virtual-assistant",
+    role: "Logistics Virtual Assistant",
+    shortRole: "logistics administration",
+    primaryKeyword: "logistics virtual assistant",
+    focus: "shipment tracking, carrier coordination, freight administration, shipping documents, delivery updates, and logistics records",
+    tasks: ["shipment tracking", "carrier and forwarder follow-up", "freight booking administration", "shipping document preparation", "bill of lading administration", "delivery updates", "supplier and warehouse coordination", "exception tracking"],
+    tools: ["FedEx", "UPS", "DHL", "ShipStation", "Google Sheets", "Excel", "Google Workspace", "Microsoft 365"],
+    evidence: ["a shipment tracker they maintained", "how they document delays and exceptions", "shipping paperwork they can explain safely", "how they coordinate carriers without making unauthorized commercial decisions"],
+    costFactors: ["shipment volume", "international freight complexity", "live coverage", "documentation depth", "number of carriers and systems"],
+    mistakes: ["leaving shipment exceptions in private email", "giving authority for customs or commercial decisions outside the role", "measuring only shipment volume without documentation accuracy"],
+    bestFor: ["ecommerce businesses", "importers and exporters", "freight teams", "wholesale and distribution businesses"]
   }
 ];
 

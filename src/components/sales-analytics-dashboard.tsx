@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock3, DollarSign, TrendingUp, UsersRound } from "lucide-react";
+import { AlertTriangle, CheckCircle2, DollarSign, TrendingUp, UsersRound } from "lucide-react";
 import { getSalesAnalytics, type SalesRangeDays } from "@/lib/sales-analytics";
 import { RevenueBarChart, RevenueTrendChart } from "@/components/revenue-charts";
 

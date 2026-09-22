@@ -10,7 +10,7 @@ import { canonicalPath } from "@/lib/seo-url";
 export const metadata: Metadata = {
   title: "Managed Virtual Assistant vs. Direct Hire",
   description: "Compare Managed Virtual Assistant service and Direct Hire placement so you know exactly who handles recruiting, onboarding, ongoing support, and replacement.",
-  keywords: ["managed virtual assistant vs direct hire", "managed virtual assistant service philippines", "direct hire virtual assistant", "dedicated virtual assistant", "dedicated virtual assistant services"],
+  keywords: ["managed virtual assistant vs direct hire", "managed virtual assistant service philippines", "direct hire virtual assistant", "dedicated virtual assistant", "dedicated virtual assistant services", "employee virtual assistant", "bpo virtual assistant"],
   alternates: { canonical: canonicalPath("/managed-vs-direct-hire") }
 };
 
@@ -63,6 +63,15 @@ export default function ManagedVsDirectHirePage() {
       <div className="public-content-grid">
         <div className="card stack"><h3>Dedicated + managed</h3><p className="muted">One Virtual Assistant owns the agreed role while recruiting, onboarding support, placement monitoring, and replacement support remain part of the service.</p></div>
         <div className="card stack"><h3>Dedicated + direct hire</h3><p className="muted">One Virtual Assistant owns the agreed role, but your team takes over the ongoing management relationship after placement.</p></div>
+      </div>
+    </div></section>
+
+    <section className="section"><div className="container">
+      <div className="section-head"><h2>Employee, contractor, dedicated VA, and BPO are not the same model.</h2><p>Search terms often mix worker classification with service structure. Employee or contractor describes the legal working relationship, which depends on the actual arrangement and applicable law. Dedicated describes one person owning a recurring role. BPO usually describes a provider taking responsibility for a broader outsourced process or team.</p></div>
+      <div className="public-content-grid">
+        <div className="card stack"><h3>Employee or contractor</h3><p className="muted">This is a classification and compliance question, not a marketing label. Confirm the actual working relationship, local requirements, payroll or invoicing setup, and professional advice where needed.</p></div>
+        <div className="card stack"><h3>Dedicated Virtual Assistant</h3><p className="muted">One named person owns the agreed recurring role. That person can sit inside a managed or direct-hire structure.</p></div>
+        <div className="card stack"><h3>BPO or outsourced team</h3><p className="muted">The provider may own a process, service level, team structure, or queue rather than placing one individual into your operating team.</p></div>
       </div>
     </div></section>
 

@@ -1,6 +1,6 @@
 # Current service, industry, and content-cluster note
 
-The live programmatic architecture now contains 76 canonical service pages and 34 industry/industry-authority pages, plus the structured blog layer, software guides, broad authority pages, and the dedicated `/resources/` SEO support layer. `src/lib/service-pages.ts` and `src/lib/industries.ts` are the source of truth for the current URL set. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
+The live programmatic architecture now contains 78 canonical service pages and 34 industry/industry-authority pages, plus the structured blog layer, software guides, broad authority pages, and the dedicated `/resources/` SEO support layer. `src/lib/service-pages.ts` and `src/lib/industries.ts` are the source of truth for the current URL set. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
 
 ---
 
@@ -8,7 +8,7 @@ The live programmatic architecture now contains 76 canonical service pages and 3
 
 Canonical domain: `https://virtualassistant.com.ph`
 
-## Service pages (76)
+## Service pages (78)
 
 | URL | Primary keyword | SEO title |
 |---|---|---|
@@ -132,6 +132,8 @@ Canonical domain: `https://virtualassistant.com.ph`
 | URL | Primary cluster |
 |---|---|
 | `/virtual-assistant-companies-philippines/` | virtual assistant companies, agencies, firms, providers, staffing |
+| `/virtual-assistant-websites/` | virtual assistant websites, sites, platforms, best hiring websites |
+| `/virtual-assistant-usa/` | virtual assistant USA, US virtual assistant, US business support |
 | `/virtual-assistant-australia/` | virtual assistant Australia and Australian city modifiers |
 | `/what-is-a-virtual-assistant/` | what is a virtual assistant, duties, roles, tasks |
 | `/types-of-virtual-assistants/` | types of virtual assistants, niches, specialties |
@@ -140,8 +142,8 @@ Canonical domain: `https://virtualassistant.com.ph`
 ## SEO resource layer
 
 - `/resources/` is the index for intent-distinct supporting guides.
-- Seventeen commercial role clusters each have definition, tasks, hiring, interview, Philippines cost, and role-specific tools resources.
-- Manually defined generic/candidate resources cover job descriptions, applications, resumes, portfolios, skills, requirements, tools, training, certification, freelance work, no-experience intent, non-voice work, part-time work, work-from-home work, interview preparation, and starting a VA side business.
+- Twenty-five commercial role clusters each have definition, tasks, hiring, interview, Philippines cost, and role-specific tools resources.
+- Twenty manually defined generic/candidate resources cover job descriptions, applications, resumes, portfolios, cover letters, skills, requirements, laptops, tools, training, certification, freelance work, job platforms, no-experience intent, non-voice work, part-time work, work-from-home work, interview preparation, and starting a VA business.
 - Supporting resources link back to one canonical service money page for the commercial role intent.
 - Candidate resources point primarily to `/for-virtual-assistants/`, `/jobs/`, and profile creation instead of the client hiring funnel.
 

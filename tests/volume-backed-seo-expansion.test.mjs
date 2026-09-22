@@ -248,3 +248,37 @@ test("secondary service demand deepens existing canonical pages", () => {
     assert.ok(JSON.stringify(page).toLowerCase().includes(phrase), `${slug} does not cover ${phrase}`);
   }
 });
+
+
+test("remaining AU US PH volume gaps have one canonical owner", () => {
+  const authority = source("src/lib/seo-authority-pages.ts");
+  const resources = source("src/lib/seo-resource-pages.ts");
+  const pricing = source("src/app/pricing/page.tsx");
+  const managed = source("src/app/managed-vs-direct-hire/page.tsx");
+  const publicRoutes = source("src/lib/public-seo-routes.ts");
+  const redirects = source("next.config.ts");
+
+  for (const [path, phrase] of [
+    ["/virtual-assistant-websites", "virtual assistant websites"],
+    ["/virtual-assistant-usa", "virtual assistant usa"],
+  ]) {
+    assert.ok(authority.includes(`path: "${path}"`), `missing authority owner ${path}`);
+    assert.ok(authority.toLowerCase().includes(phrase), `missing keyword family ${phrase}`);
+    assert.ok(publicRoutes.includes(`path: "${path}"`), `missing public SEO route ${path}`);
+  }
+
+  for (const slug of [
+    "virtual-assistant-cover-letter",
+    "best-laptop-for-virtual-assistant",
+    "freelance-platforms-for-virtual-assistants",
+    "how-to-start-a-virtual-assistant-business",
+  ]) {
+    assert.ok(resources.includes(`slug: "${slug}"`), `missing candidate resource ${slug}`);
+  }
+
+  assert.match(pricing, /affordable virtual assistant/);
+  assert.match(pricing, /cheap virtual assistant/);
+  assert.match(managed, /employee virtual assistant/);
+  assert.match(managed, /bpo virtual assistant/);
+  assert.ok(redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true'));
+});

@@ -10,6 +10,42 @@ export type PublicSeoRoute = {
 
 export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
   {
+    path: "/virtual-assistant-companies-philippines",
+    label: "Virtual Assistant Companies Philippines",
+    description: "Comparison guide for evaluating Virtual Assistant companies, agencies, firms and provider models in the Philippines.",
+    changeFrequency: "monthly",
+    priority: 0.86,
+    lastModified: "2026-09-22",
+    llmsSection: "Hiring and Vetting",
+  },
+  {
+    path: "/virtual-assistant-australia",
+    label: "Virtual Assistant Australia",
+    description: "Market hub for Australian businesses hiring Philippines-based Virtual Assistants, including Australian specialist workflows.",
+    changeFrequency: "monthly",
+    priority: 0.86,
+    lastModified: "2026-09-22",
+    llmsSection: "Hiring and Vetting",
+  },
+  {
+    path: "/what-is-a-virtual-assistant",
+    label: "What Is a Virtual Assistant?",
+    description: "Definition, roles, tasks, skills, tools and cost context for Virtual Assistants.",
+    changeFrequency: "monthly",
+    priority: 0.82,
+    lastModified: "2026-09-22",
+    llmsSection: "Editorial Resources",
+  },
+  {
+    path: "/types-of-virtual-assistants",
+    label: "Types of Virtual Assistants",
+    description: "Guide to common Virtual Assistant roles, niches and specialties.",
+    changeFrequency: "monthly",
+    priority: 0.82,
+    lastModified: "2026-09-22",
+    llmsSection: "Services and Role Discovery",
+  },
+  {
     path: "",
     label: "Home",
     description: "Overview of the platform and its approach to hiring vetted Filipino virtual assistants.",

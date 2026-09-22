@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, ShieldAlert } from "lucide-react";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { matchLabel } from "@/lib/matching";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
@@ -70,13 +70,13 @@ export function MatchingCandidateTable({
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [showClientPreview, setShowClientPreview] = useState(false);
-  const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(
-      pool
-        .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by))
-        .map((row) => String(row.va.user_id))
-    )
+  const [selectedOrder, setSelectedOrder] = useState<string[]>(
+    () => pool
+      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by))
+      .sort((a, b) => Number(a.shortlist?.shortlist_order ?? 999) - Number(b.shortlist?.shortlist_order ?? 999))
+      .map((row) => String(row.va.user_id))
   );
+  const selected = useMemo(() => new Set(selectedOrder), [selectedOrder]);
   const [recommendations, setRecommendations] = useState<Record<string, string>>(
     () => Object.fromEntries(pool.map((row) => [row.va.user_id, row.shortlist?.client_recommendation || ""]))
   );
@@ -91,23 +91,36 @@ export function MatchingCandidateTable({
   }, [pool, query]);
 
   const visible = query || showAll ? filtered : filtered.slice(0, 20);
-  const selectedRows = pool.filter((row) => selected.has(String(row.va.user_id)));
-  const selectedCount = selected.size;
+  const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];
+  const selectedCount = selectedOrder.length;
 
   function toggleSelected(vaId: string, checked: boolean) {
-    setSelected((current) => {
-      const next = new Set(current);
-      if (checked) next.add(vaId);
-      else next.delete(vaId);
+    setSelectedOrder((current) => {
+      if (checked) {
+        if (current.includes(vaId) || current.length >= 5) return current;
+        return [...current, vaId];
+      }
+      return current.filter((id) => id !== vaId);
+    });
+  }
+
+  function moveSelected(vaId: string, direction: -1 | 1) {
+    setSelectedOrder((current) => {
+      const index = current.indexOf(vaId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
       return next;
     });
   }
 
   return <>
+    <input type="hidden" name="shortlist_order" value={selectedOrder.join(",")} />
     <div className="row-between wrap" style={{margin:"12px 0",gap:10}}>
       <div>
         <strong>{selectedCount} selected</strong>
-        <div className="small muted">Only checked candidates are included in Save or Send. Previously released candidates stay with the client and are not re-sent.</div>
+        <div className="small muted">Aim for 3–5 client-ready candidates. Five is the maximum. Previously released candidates stay with the client and are not re-sent.</div>
       </div>
       <div className="row wrap">
         <button className="btn" type="button" disabled={!selectedCount} aria-expanded={showClientPreview} onClick={() => setShowClientPreview((value) => !value)}>
@@ -115,9 +128,9 @@ export function MatchingCandidateTable({
         </button>
         <button className="btn" type="submit" name="mode" value="save" disabled={!selectedCount}>Save {selectedCount || ""} internally</button>
         {canSendClient
-          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount}>Send {selectedCount || 0} to client</button>
+          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5}>Send {selectedCount || 0} to client</button>
           : canInviteClient
-            ? <button className="btn btn-primary" type="submit" name="mode" value="invite" disabled={!selectedCount}>Save {selectedCount || 0} + invite client</button>
+            ? <button className="btn btn-primary" type="submit" name="mode" value="invite" disabled={!selectedCount || selectedCount > 5}>Save {selectedCount || 0} + invite client</button>
             : null}
       </div>
     </div>
@@ -132,10 +145,17 @@ export function MatchingCandidateTable({
         <span className="badge">Preview only</span>
       </div>
       <div className="grid-3 browse-va-grid">
-        {selectedRows.map((row) => {
+        {selectedRows.map((row, selectedIndex) => {
           const vaId = String(row.va.user_id);
-          return <ClientShortlistCandidateCard
-            key={vaId}
+          return <div className="shortlist-preview-item" key={vaId}>
+            <div className="shortlist-preview-order">
+              <span>Client position #{selectedIndex + 1}</span>
+              <div className="row">
+                <button className="btn btn-sm" type="button" onClick={() => moveSelected(vaId, -1)} disabled={selectedIndex === 0} aria-label={`Move ${row.account?.full_name || "candidate"} up`}><ArrowUp size={13}/></button>
+                <button className="btn btn-sm" type="button" onClick={() => moveSelected(vaId, 1)} disabled={selectedIndex === selectedRows.length - 1} aria-label={`Move ${row.account?.full_name || "candidate"} down`}><ArrowDown size={13}/></button>
+              </div>
+            </div>
+            <ClientShortlistCandidateCard
             fullName={row.account?.full_name}
             headline={row.va.headline}
             primaryCategory={row.va.primary_category}
@@ -154,7 +174,8 @@ export function MatchingCandidateTable({
                 <button className="btn btn-sm" type="button" disabled>Pass</button>
               </div>
             </div>}
-          />;
+          />
+          </div>;
         })}
       </div>
     </section> : null}
@@ -178,7 +199,7 @@ export function MatchingCandidateTable({
         const vaId = String(row.va.user_id);
         const checked = alreadyReleased || selected.has(vaId);
         return <tr key={vaId} className={alreadyReleased ? "released-match-row" : undefined}>
-          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
+          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
             {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}

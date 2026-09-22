@@ -76,6 +76,13 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
     query = excludeTerminalVettingStages(query);
   }
 
+  if (readiness === "approval_cleanup") {
+    query = query
+      .in("stage", ["approved", "bench"])
+      .lt("completion_score", APPROVAL_MIN_COMPLETION)
+      .eq("account_status", "active");
+  }
+
   if (readiness === "zero") {
     query = query
       .eq("completion_score", 0)

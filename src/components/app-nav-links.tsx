@@ -64,7 +64,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Workspace",
       items: [
-        ["Overview", "/workspace/recruiter", LayoutDashboard],
         ["My Day", "/workspace/recruiter/today", ListTodo],
         ["Leads", "/workspace/recruiter/leads", BriefcaseBusiness],
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],

@@ -22,7 +22,7 @@ test("workspace loads shared mobile-first dashboard rules after existing safegua
 
 test("primary role dashboards share the responsive dash-page foundation", async()=>{
   const paths=[
-    "src/app/workspace/recruiter/page.tsx",
+    "src/app/workspace/recruiter/today/page.tsx",
     "src/app/workspace/client/page.tsx",
     "src/app/workspace/va/page.tsx",
     "src/app/workspace/admin/today/page.tsx",

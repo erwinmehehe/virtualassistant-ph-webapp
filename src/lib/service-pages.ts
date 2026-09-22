@@ -1292,7 +1292,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "IT Virtual Assistant",
     "group": "Technology & Web",
     "directoryCategory": "Web & WordPress",
-    "primaryKeyword": "it virtual assistant",
+    "primaryKeyword": "it support virtual assistant",
     "metaTitle": "IT Virtual Assistant Philippines | Remote IT Support",
     "metaDescription": "Hire an IT Virtual Assistant in the Philippines for help-desk admin, account setup, documentation, ticket triage, SaaS support, and remote technical workflows.",
     "intro": "Hire an IT Virtual Assistant in the Philippines for help-desk administration, account setup, documentation, ticket triage, SaaS support, and recurring remote IT workflows. Define access, permissions, escalation, and what requires a senior technician before the role starts.",

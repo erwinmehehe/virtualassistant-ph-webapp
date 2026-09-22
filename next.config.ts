@@ -5,6 +5,20 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }
+        ]
+      }
+    ];
+  },
+  async redirects() {
+    return [
       // Editorial topics belong in the blog. Preserve today's temporary URLs with one-hop permanent redirects.
       { source: "/virtual-assistant-companies-philippines", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },
       { source: "/virtual-assistant-companies-philippines/", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },
@@ -42,20 +56,6 @@ const nextConfig: NextConfig = {
       { source: "/resources/how-to-start-a-virtual-assistant-business/", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
       { source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
       { source: "/resources/virtual-assistant-side-hustle-business-guide/", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
-      {
-        source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }
-        ]
-      }
-    ];
-  },
-  async redirects() {
-    return [
       // In-app client/VA messaging was removed; coordination runs through the
       // recruiter. Old notification links and bookmarks land on support.
       { source: "/workspace/client/messages", destination: "/workspace/client/support", permanent: false },

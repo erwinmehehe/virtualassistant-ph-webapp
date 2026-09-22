@@ -58,6 +58,17 @@ test("SEO expansion checker validates all eight September 22 resource families",
   assert.equal(result.invalidSeptember22ServiceMappings, 0);
 });
 
+test("generated resource meta descriptions end on clean word boundaries", () => {
+  const resources = source("src/lib/seo-resource-pages.ts");
+  assert.match(resources, /function fitMetaDescription\(value: string\)/);
+  assert.match(resources, /normalized\.length <= 160/);
+  assert.match(resources, /candidate\.lastIndexOf\(" "\)/);
+  assert.doesNotMatch(resources, /\.slice\(0,\s*160\)/);
+
+  const generatedMetaCalls = [...resources.matchAll(/metaDescription:\s*fitMetaDescription\(/g)];
+  assert.equal(generatedMetaCalls.length, 6);
+});
+
 test("generated resource URLs use correct a/an grammar and preserve legacy slugs", () => {
   const resources = source("src/lib/seo-resource-pages.ts");
   const redirects = source("next.config.ts");

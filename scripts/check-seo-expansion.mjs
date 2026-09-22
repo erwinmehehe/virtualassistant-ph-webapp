@@ -92,6 +92,8 @@ assert(files.resources.includes('definition: "what-does-" + article + "-" + clus
 assert(files.resources.includes('hiring: "how-to-hire-" + article + "-" + cluster.slugBase'), "hiring slugs must use the role article");
 assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
 assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
+assert(files.resources.includes("function fitMetaDescription(value: string)"), "generated role pages must normalize meta descriptions");
+assert(!files.resources.includes(".slice(0, 160)"), "generated meta descriptions must not hard-cut words at 160 characters");
 for (const unsafe of [
   '"Hire a " + cluster.role',
   '"What Does a " + cluster.role',

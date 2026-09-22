@@ -9,7 +9,8 @@ import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileC
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
-import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
+import { isRowApprovable } from "@/lib/public-visibility";
+import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
@@ -19,50 +20,66 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }
 
-function numberParam(value: FormDataEntryValue | null) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+function talentFiltersFromFormData(formData: FormData): RecruiterTalentFilters {
+  return {
+    q: String(formData.get("filter_q") || ""),
+    category: String(formData.get("filter_category") || ""),
+    stage: String(formData.get("filter_stage") || ""),
+    readiness: String(formData.get("filter_readiness") || ""),
+    photo: String(formData.get("filter_photo") || ""),
+    resume: String(formData.get("filter_resume") || ""),
+    availability: String(formData.get("filter_availability") || ""),
+    skill: String(formData.get("filter_skill") || ""),
+    min_experience: String(formData.get("filter_min_experience") || ""),
+    max_rate: String(formData.get("filter_max_rate") || ""),
+    stale: String(formData.get("filter_stale") || "")
+  };
 }
 
-async function filteredVaIds(formData: FormData) {
-  const admin = createAdminClient();
-  let query: any = admin.from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at").limit(500);
-  const stage = String(formData.get("filter_stage") || "");
-  const readiness = String(formData.get("filter_readiness") || "");
-  const photo = String(formData.get("filter_photo") || "");
-  const resume = String(formData.get("filter_resume") || "");
-  const availability = String(formData.get("filter_availability") || "");
-  const skill = String(formData.get("filter_skill") || "").trim();
-  const minExp = numberParam(formData.get("filter_min_experience"));
-  const maxRate = numberParam(formData.get("filter_max_rate"));
-  const stale = numberParam(formData.get("filter_stale"));
-  const q = String(formData.get("filter_q") || "").trim().replace(/[,%()]/g, " ");
+function bulkErrorRedirect(returnTo: string, message: string): never {
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent(message)}`);
+}
 
-  if (stage) query = query.eq("stage", stage);
-  if (availability) query = query.eq("availability_status", availability);
-  if (skill) query = query.contains("skills", [skill]);
-  if (minExp != null) query = query.gte("years_experience", minExp);
-  if (maxRate != null) query = query.lte("hourly_rate", maxRate);
-  if (readiness === "ready") query = query.gte("completion_score", PUBLIC_VA_MIN_COMPLETION).not("avatar_url", "is", null);
-  if (readiness === "incomplete") query = query.lt("completion_score", 100).neq("stage", "rejected").eq("account_status", "active");
-  if (readiness === "zero") query = query.eq("completion_score", 0).neq("stage", "rejected").eq("account_status", "active");
-  if (photo === "yes") query = query.not("avatar_url", "is", null);
-  if (photo === "no") query = query.is("avatar_url", null);
-  if (resume === "yes") query = query.not("resume_path", "is", null);
-  if (resume === "no") query = query.is("resume_path", null);
-  if (stale != null && stale > 0) query = query.lt("last_activity_at", new Date(Date.now() - stale * 86400000).toISOString());
-  if (q) query = query.or(`full_name.ilike.%${q}%,headline.ilike.%${q}%,primary_category.ilike.%${q}%`);
+async function filteredVaRows(formData: FormData, returnTo: string) {
+  const admin = createAdminClient();
+  const filters = talentFiltersFromFormData(formData);
+
+  let countQuery: any = admin
+    .from("recruiter_va_directory")
+    .select("user_id", { count: "exact", head: true });
+  countQuery = applyRecruiterTalentFilters(countQuery, filters);
+  const { count, error: countError } = await countQuery;
+  if (countError) throw countError;
+  if (Number(count || 0) > RECRUITER_BULK_LIMIT) {
+    bulkErrorRedirect(returnTo, `Bulk actions are limited to ${RECRUITER_BULK_LIMIT} VAs. Narrow the filters before running the action.`);
+  }
+
+  let query: any = admin
+    .from("recruiter_va_directory")
+    .select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at")
+    .limit(RECRUITER_BULK_LIMIT);
+  query = applyRecruiterTalentFilters(query, filters);
 
   const { data, error } = await query;
   if (error) throw error;
   return data || [];
 }
 
-async function resolveBulkRows(formData: FormData) {
-  const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 500);
-  if (String(formData.get("selection_scope") || "selected") === "filtered") return filteredVaIds(formData);
+async function resolveBulkRows(formData: FormData, returnTo: string) {
+  if (String(formData.get("selection_scope") || "selected") === "filtered") {
+    return filteredVaRows(formData, returnTo);
+  }
+
+  const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))];
+  if (selected.length > RECRUITER_BULK_LIMIT) {
+    bulkErrorRedirect(returnTo, `Bulk actions are limited to ${RECRUITER_BULK_LIMIT} selected VAs. Narrow the selection before running the action.`);
+  }
   if (!selected.length) return [];
-  const { data, error } = await createAdminClient().from("recruiter_va_directory").select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at").in("user_id", selected);
+
+  const { data, error } = await createAdminClient()
+    .from("recruiter_va_directory")
+    .select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at")
+    .in("user_id", selected);
   if (error) throw error;
   return data || [];
 }
@@ -73,7 +90,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/talent");
   if (!allowedBulkActions.has(action)) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=Choose%20a%20bulk%20action`);
 
-  const rows: any[] = await resolveBulkRows(formData);
+  const rows: any[] = await resolveBulkRows(formData, returnTo);
   const ids = rows.map((row) => String(row.user_id));
   if (!ids.length) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=No%20VAs%20matched%20that%20selection`);
   const admin = createAdminClient();

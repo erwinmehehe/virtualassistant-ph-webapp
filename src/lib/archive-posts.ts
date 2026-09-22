@@ -51,7 +51,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "We would not shortlist an Executive VA only because they have calendar experience. We would probe prioritization, executive communication, confidentiality and escalation judgment.",
       "If one job brief mixes basic data entry with board-level coordination, split the scope before hiring. The role title should match the real responsibility level."
     ],
-    "updatedDate": "September 22, 2026"
+    "updatedDate": "September 20, 2026"
   },
   {
     "slug": "get-paid-virtual-assistant-philippines",
@@ -68,7 +68,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Compare payment methods by the amount that actually reaches you in PHP, not by the advertised transfer fee alone.",
       "A legitimate client should not require you to send money, buy gift cards or pay a large “processing fee” before you can receive wages or contractor payments."
     ],
-    "updatedDate": "September 22, 2026"
+    "updatedDate": "September 20, 2026"
   },
   {
     "slug": "hourly-rates-for-filipino-virtual-project-manager",
@@ -85,7 +85,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "A candidate who can update ClickUp is not automatically a project manager. We look for evidence of planning, dependency management, risk escalation and stakeholder follow-through.",
       "Current first-party project-role pricing data on our platform is too small to publish as a reliable market rate, so this guide uses a budgeting framework instead of pretending one sample is a benchmark."
     ],
-    "updatedDate": "September 22, 2026"
+    "updatedDate": "September 20, 2026"
   },
   {
     "slug": "how-a-filipino-va-can-manage-your-ai-workflow",
@@ -117,7 +117,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Do not claim accountant, tax adviser or licensed-professional work unless you are qualified and authorized to perform it.",
       "A small clean practice file with source documents, reconciliations and notes is more useful than a portfolio full of generic Canva certificates."
     ],
-    "updatedDate": "September 22, 2026"
+    "updatedDate": "September 20, 2026"
   },
   {
     "slug": "how-to-pay-a-filipino-virtual-assistant-directly",
@@ -134,7 +134,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Direct payment does not automatically decide whether someone is an employee or contractor. Classification depends on the real working relationship and applicable law.",
       "Avoid building retention around surprise bonuses or vague promises. Put the normal rate, schedule, currency and review process in writing first."
     ],
-    "updatedDate": "September 22, 2026"
+    "updatedDate": "September 20, 2026"
   },
   {
     "slug": "how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",

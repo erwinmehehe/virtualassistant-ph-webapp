@@ -87,6 +87,7 @@ export default async function PublicJobsPage({
         { count: "exact" },
       )
       .eq("status", "published")
+      .eq("moderation_status", "clear")
       .not("client_id", "is", null);
 
     if (q) query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);

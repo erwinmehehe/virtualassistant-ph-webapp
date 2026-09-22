@@ -13,9 +13,9 @@ import "../hiring-pages.css";
 import "../info-pages.css";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistants by Software & Platform",
-  description: "Hire a Filipino virtual assistant already trained on your software -- ApplyOnline, PropertyMe, ServiceM8, Cliniko, Xero, Revit, and more.",
-  keywords: ["virtual assistant by software", "software-specific virtual assistant philippines", "hire virtual assistant for my platform"],
+  title: "Virtual Assistant Software & Platform Experience",
+  description: "Browse Virtual Assistant software and platform experience for human VAs across CRM, property, accounting, healthcare, trades, recruitment, design, and more.",
+  keywords: ["virtual assistant software", "virtual assistant tools", "virtual assistant by software", "software-specific virtual assistant philippines", "hire virtual assistant for my platform"],
   alternates: { canonical: canonicalPath("/software") }
 };
 
@@ -32,8 +32,8 @@ export default function SoftwareIndexPage() {
     <MarketingHero
       className="mh-tight"
       eyebrow="Software-specific Virtual Assistant hiring"
-      title={<h1 className="public-page-title">Hire a virtual assistant who already knows your software.</h1>}
-      intro={<p className="public-lede">Platform familiarity shortens onboarding. Use the guide closest to the systems your team actually runs to decide what to delegate, which decisions stay local, and what to test in an interview.</p>}
+      title={<h1 className="public-page-title">Virtual Assistant software experience by platform.</h1>}
+      intro={<p className="public-lede">Looking for a human Virtual Assistant who already knows the software your business uses? Browse platform-specific workflow guides to decide what to delegate, which decisions stay with your team, and what to test in an interview.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></>}
       trust={<><span><CheckCircle2 size={15}/>Platform-aware matching</span><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span></>}
       form={<DiscoveryCallCard />}

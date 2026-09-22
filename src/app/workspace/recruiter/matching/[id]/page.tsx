@@ -8,6 +8,7 @@ export default async function LegacyRecruiterMatchingDetail({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
+  // Preserve workflow flags such as client_invited, shortlist_saved, and shortlist_released.
   const out = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     if (value) out.set(key, value);

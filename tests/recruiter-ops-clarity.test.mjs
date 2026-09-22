@@ -12,7 +12,7 @@ test("recruiter work readiness is a filtered verification queue",async()=>{
   assert.match(page,/Verified/);
   assert.match(page,/missingEvidence/);
   assert.match(page,/recruiter-readiness-evidence/);
-  assert.match(page,/Verify setup/);
+  assert.match(page,/Verify work setup/);
 });
 
 test("categories are consolidated into Roles talent coverage",async()=>{

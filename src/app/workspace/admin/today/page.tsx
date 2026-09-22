@@ -15,7 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { DashHeader, Empty, Panel, Pill, SignalList, type Tone } from "@/components/dash-ui";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { money } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
@@ -78,7 +78,7 @@ function actionIcon(item:OwnerActionRow){
 }
 
 export default async function AdminTodayPage(){
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const {data,error}=await withServerTiming("admin.today_summary", () => admin.rpc("admin_today_summary"));
   if(error)throw error;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
+import { PublicAvatar } from "@/components/public-avatar";
 import { requireRole } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { applyRecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
@@ -257,9 +258,14 @@ export default async function RecruiterTalentDirectory({
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
                 <td data-label="Candidate">
-                  <strong>{row.full_name || "VA account"}</strong>
-                  <div className="small muted">{row.headline || row.primary_category || "Profile setup not started"}</div>
-                  <div className="candidate-meta-line">{row.availability_status || "Availability not set"}</div>
+                  <div className="candidate-identity-cell">
+                    <PublicAvatar name={row.full_name || "VA"} src={row.avatar_url} size="sm" />
+                    <div className="candidate-identity-copy">
+                      <strong>{row.full_name || "VA account"}</strong>
+                      <div className="small muted">{row.headline || row.primary_category || "Profile setup not started"}</div>
+                      <div className="candidate-meta-line">{row.availability_status || "Availability not set"}{row.primary_category && row.headline ? ` · ${row.primary_category}` : ""}</div>
+                    </div>
+                  </div>
                 </td>
                 <td data-label="Status">
                   <div className="status-stack">

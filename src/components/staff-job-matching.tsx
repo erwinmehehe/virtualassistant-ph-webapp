@@ -62,8 +62,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   if(!job.start_timing)missing.push("start timing");
   const roleReady=!missing.length;
 
-  return <section className="card staff-matching-card">
-    <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Recruit this role</h2></div><p className="muted">Qualify the role, review recruiter-only match suggestions and VA interest, then present only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"?<Link className="btn btn-sm" href="/workspace/recruiter/client-review">Waiting for client{awaitingClientCount?` · ${awaitingClientCount}`:""}</Link>:null}</div></div>
+  return <section className="card staff-matching-card unified-role-matching">
+    <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Matching & shortlist builder</h2></div><p className="muted">Review recruiter-only match suggestions and VA interest, build the shortlist, preview the client experience, then release only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"&&awaitingClientCount?<a className="btn btn-sm" href="#client-handoff">Client feedback · {awaitingClientCount} waiting</a>:null}</div></div>
 
     <div className="matching-workflow-steps"><span className={roleReady?"done":"current"}>1. Qualify role</span><span className={roleReady?"current":""}>2. Recruiter review</span><span>3. Client shortlist</span><span>4. Interview & offer</span></div>
 

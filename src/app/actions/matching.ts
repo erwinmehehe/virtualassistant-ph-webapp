@@ -202,7 +202,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
     const message = String(error.message || "");
-    if (message.includes("availability is stale")) {
+    if (message.includes("VA availability is stale")) {
       return fail("A selected VA's availability changed while you were reviewing the shortlist. Send an availability reminder and try again after they confirm.");
     }
     if (message.includes("Agency Certified")) {

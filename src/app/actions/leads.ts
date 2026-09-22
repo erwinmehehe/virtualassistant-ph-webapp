@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +14,8 @@ import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-appli
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -25,6 +28,32 @@ export type ServiceMatchState = {
 };
 
 const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30;
+
+async function publicRequestIp() {
+  const requestHeaders = await headers();
+  const forwarded = requestHeaders.get("x-forwarded-for") || requestHeaders.get("x-real-ip") || "unknown";
+  return forwarded.split(",")[0]?.trim().slice(0, 128) || "unknown";
+}
+
+async function protectPublicSubmission(args: {
+  actionKey: string;
+  email: string;
+  maxPerEmail: number;
+  maxPerIp: number;
+  windowMinutes: number;
+  formData?: FormData;
+  requireTurnstile?: boolean;
+}) {
+  const email = args.email.trim().toLowerCase();
+  const ip = await publicRequestIp();
+
+  await enforceActionRateLimit(`${args.actionKey}:email`, email, args.maxPerEmail, args.windowMinutes);
+  await enforceActionRateLimit(`${args.actionKey}:ip`, ip, args.maxPerIp, args.windowMinutes);
+
+  if (args.requireTurnstile && args.formData && !(await verifyTurnstile(args.formData))) {
+    throw new Error("Please complete the security check and try again.");
+  }
+}
 
 /**
  * Stores a hiring-form submission that reads like a VA applying for work as a
@@ -295,6 +324,18 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
 
+  try {
+    await protectPublicSubmission({
+      actionKey: "public_service_match",
+      email: parsed.data.email,
+      maxPerEmail: 4,
+      maxPerIp: 12,
+      windowMinutes: 60,
+    });
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "Too many requests. Please try again later." };
+  }
+
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
     return { status: "success", vaApplicant: true };
@@ -440,6 +481,18 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     return { status: "error", message };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
+
+  try {
+    await protectPublicSubmission({
+      actionKey: "public_industry_match",
+      email: parsed.data.email,
+      maxPerEmail: 4,
+      maxPerIp: 12,
+      windowMinutes: 60,
+    });
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "Too many requests. Please try again later." };
+  }
 
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: `Industry: ${parsed.data.slug}`, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
@@ -599,6 +652,21 @@ export async function submitRoleBriefAction(formData: FormData) {
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
 
+  try {
+    await protectPublicSubmission({
+      actionKey: "public_role_brief",
+      email: parsed.data.email,
+      maxPerEmail: 4,
+      maxPerIp: 10,
+      windowMinutes: 60,
+      formData,
+      requireTurnstile: true,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Too many requests. Please try again later.";
+    redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
+  }
+
   if (looksLikeVaApplication(parsed.data.message, parsed.data.company)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: returnTo, sessionId: parsed.data.session_id });
     redirect(`${returnTo}?sent=1&va=1`);
@@ -746,6 +814,20 @@ export async function submitContactAction(formData: FormData) {
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/contact?error=Please%20complete%20the%20required%20fields");
   if (parsed.data.website) redirect("/contact?sent=1");
+  try {
+    await protectPublicSubmission({
+      actionKey: "public_contact",
+      email: parsed.data.email,
+      maxPerEmail: 3,
+      maxPerIp: 8,
+      windowMinutes: 60,
+      formData,
+      requireTurnstile: true,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Too many requests. Please try again later.";
+    redirect(`/contact?error=${encodeURIComponent(message)}`);
+  }
   const admin = createAdminClient();
   const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/contact`;
   const { data: lead, error } = await admin.from("lead_intake").insert({
@@ -824,6 +906,20 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete all required client questions.")}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
+  try {
+    await protectPublicSubmission({
+      actionKey: "public_discovery_booking",
+      email: parsed.data.email,
+      maxPerEmail: 3,
+      maxPerIp: 6,
+      windowMinutes: 60,
+      formData,
+      requireTurnstile: true,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Too many requests. Please try again later.";
+    redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
+  }
   if (!isAllowedDiscoverySlot(parsed.data.scheduled_at)) {
     redirect(`/book-client-call?error=${encodeURIComponent("That time is no longer available. Please choose another slot.")}`);
   }

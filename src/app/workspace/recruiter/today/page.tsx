@@ -12,7 +12,7 @@ import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
-const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue", "role_without_shortlist"]);
+const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
 
 type ApprovalReadyVa = {
   user_id: string;
@@ -174,7 +174,13 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const queue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)) && !FOLLOW_THROUGH_KINDS.has(String(item.kind)));
   const cleanupQueue = Array.isArray(cleanupData) ? cleanupData as any[] : [];
   const dailyActions = (Array.isArray(dailyActionData) ? dailyActionData : []) as DailyActionRow[];
-  const clientWaits = dailyActions.filter((item)=>["client_shortlist_waiting","client_response_overdue"].includes(String(item.action_type)));
+  const clientWaitByJob = new Map<string,DailyActionRow>();
+  for (const item of dailyActions) {
+    if (!["client_shortlist_waiting","client_response_overdue"].includes(String(item.action_type)) || !item.subject_id) continue;
+    const current = clientWaitByJob.get(item.subject_id);
+    if (!current || item.action_type === "client_response_overdue") clientWaitByJob.set(item.subject_id,item);
+  }
+  const clientWaits = [...clientWaitByJob.values()].sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
   const approvalReady = (Array.isArray(approvalReadyData) ? approvalReadyData : []) as ApprovalReadyVa[];
   const waitingJobIds = new Set(clientWaits.map((item)=>String(item.subject_id || "")).filter(Boolean));
   const staleRoleCutoff = Date.now() - 72 * 60 * 60 * 1000;

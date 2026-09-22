@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { scorecardTotal } from "@/lib/vetting";
 import { VETTING_PROFILE_MIN, VETTING_SCORECARD_PASS, VETTING_TEST_PASS } from "@/lib/constants";
-import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
+import { APPROVAL_MIN_COMPLETION, assertApprovalCompletion } from "@/lib/public-visibility";
 
 function cleanUrl(value: FormDataEntryValue | null) {
   const raw = String(value ?? "").trim();
@@ -177,7 +177,7 @@ export async function reviewFinalistAction(formData: FormData) {
   if (!vetting.recruiter_interview_at || !scorecard || scorecard.recommendation !== "finalist" || scorecard.total_score < VETTING_SCORECARD_PASS) throw new Error("This finalist has not completed the required recruiter interview and score threshold.");
   if (decision === "approve") {
     const completion = getVaCompletion(vaProfile, accountProfile?.avatar_url).score;
-    if (completion < APPROVAL_MIN_COMPLETION) throw new Error(`Complete at least ${APPROVAL_MIN_COMPLETION}% of the VA profile before approval.`);
+    assertApprovalCompletion(completion);
     await admin.from("va_vetting").update({stage:"approved",approved_at:new Date().toISOString(),rejected_at:null,admin_notes:notes}).eq("va_id",vaId);
   } else if (decision === "reject") {
     await admin.from("va_vetting").update({stage:"rejected",rejected_at:new Date().toISOString(),admin_notes:notes}).eq("va_id",vaId);

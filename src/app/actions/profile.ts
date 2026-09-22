@@ -149,7 +149,7 @@ export async function updateVaProfileAction(formData: FormData) {
     admin.from("va_profiles").update(updates).eq("user_id", user.id)
   ]);
   if (nameError) throw nameError;
-  if (profileError) throw profileError;
+  if (profileError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your account details. Please try again.")}`);
 
   const resume = formData.get("resume");
   if (resume instanceof File && resume.size > 0) {
@@ -264,7 +264,7 @@ export async function updateClientProfileAction(formData: FormData) {
     hiring_needs: String(formData.get("hiring_needs") ?? "").trim() || null,
     hiring_notes: String(formData.get("hiring_notes") ?? "").trim() || null
   }).eq("user_id", user.id);
-  if (companyError) throw companyError;
+  if (companyError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your company details. Please try again.")}`);
   const logo = formData.get("logo");
   if (logo instanceof File && logo.size > 0) {
     if (logo.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
@@ -291,8 +291,12 @@ export async function completeClientOnboardingAction(formData: FormData) {
   const location = String(formData.get("location") ?? "").trim();
   const budgetMin = Number(formData.get("budget_min") ?? 0);
   const budgetMax = Number(formData.get("budget_max") ?? 0);
-  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) throw new Error("Complete the required onboarding details.");
-  if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) throw new Error("Enter a valid hiring budget range.");
+  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) {
+    redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Complete the required onboarding details.")}`);
+  }
+  if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) {
+    redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Enter a valid hiring budget range. Make sure the maximum is not lower than the minimum.")}`);
+  }
   const admin = createAdminClient();
   const { error: profileError } = await admin.from("profiles").update({ full_name: fullName }).eq("id", user.id);
   if (profileError) throw profileError;

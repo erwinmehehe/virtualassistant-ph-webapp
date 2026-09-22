@@ -4,7 +4,7 @@ import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
-import { ARCHIVE_POSTS } from "@/lib/archive";
+import { ARCHIVE_POSTS, archiveUpdatedIso } from "@/lib/archive";
 import { PUBLIC_SEO_ROUTES } from "@/lib/public-seo-routes";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}${route.path}`,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
+      ...(route.lastModified ? { lastModified: route.lastModified } : {}),
     })),
     ...blogTopicRoutes.map((path) => ({
       url: `${base}${path}`,
@@ -41,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...ARCHIVE_POSTS.map((post) => ({
       url: `${base}${post.legacyPath ? post.legacyPath.replace(/\/$/, "") : `/blog/${post.slug}`}`,
+      ...(archiveUpdatedIso(post) ? { lastModified: archiveUpdatedIso(post) } : {}),
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),

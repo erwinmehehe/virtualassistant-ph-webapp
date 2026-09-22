@@ -27,7 +27,7 @@ export function SiteFooter() {
             <p>Vetted Filipino virtual assistants for businesses that want a clearer path from workload to shortlist to hire.</p>
           </div>
           <div className="footer-links"><strong>Hire</strong><Link href="/hire">Hire a Virtual Assistant</Link><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/services">Services</Link><Link href="/pricing">Pricing</Link><Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>
-          <div className="footer-links"><strong>Resources</strong><Link href="/industries">Industries</Link><Link href="/software">Software guides</Link><Link href="/how-vetting-works">How vetting works</Link><Link href="/blog">Blog</Link><Link href="/tools">Free tools</Link></div>
+          <div className="footer-links"><strong>Resources</strong><Link href="/industries">Industries</Link><Link href="/software">Software guides</Link><Link href="/how-vetting-works">How vetting works</Link><Link href="/blog">Blog</Link><Link href="/research/virtual-assistant-rates-philippines-2026">2026 Rate &amp; Skills Report</Link><Link href="/tools">Free tools</Link></div>
           <div className="footer-links"><strong>Company</strong><Link href="/about">About</Link><Link href="/faq">FAQ</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
           <div className="footer-links"><strong>For Virtual Assistants</strong><Link href="/jobs">Browse Virtual Assistant jobs</Link><Link href="/auth/join/va">Apply as a Virtual Assistant</Link><Link href="/auth/login">Log in</Link></div>
         </div>

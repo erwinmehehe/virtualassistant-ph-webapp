@@ -33,3 +33,18 @@ test("server-only operational tables have explicit deny policies", async()=>{
   ]) assert.match(sql,new RegExp(table));
   assert.match(sql,/as restrictive for all to anon, authenticated using \(false\) with check \(false\)/);
 });
+
+
+test("authenticated dashboard visual QA runs locally and covers admin", async()=>{
+  const [workflow,visual]=await Promise.all([
+    read(".github/workflows/dashboard-visual.yml"),
+    read("scripts/authenticated-dashboard-visual.mjs"),
+  ]);
+  assert.match(workflow,/Build authenticated dashboard test app/);
+  assert.match(workflow,/VISUAL_BASE_URL: http:\/\/127\.0\.0\.1:3000/);
+  assert.match(workflow,/SMOKE_SUPABASE_SERVICE_ROLE_KEY/);
+  assert.doesNotMatch(workflow,/Wait for the Vercel PR preview|VERCEL_AUTOMATION_BYPASS_SECRET/);
+  assert.match(visual,/role: "admin"/);
+  assert.match(visual,/SMOKE_ADMIN_EMAIL/);
+  assert.match(visual,/secure = parsedBaseUrl\.protocol === "https:"/);
+});

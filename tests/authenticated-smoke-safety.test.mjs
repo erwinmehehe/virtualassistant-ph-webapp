@@ -20,6 +20,8 @@ test("authenticated visual QA mutates only the exact protected smoke role",()=>{
   assert.match(script,/Move Smoke VA Three up/);
   assert.match(script,/Request interview/);
   assert.match(script,/Client shortlist order did not match recruiter order/);
+  assert.match(script,/signIn\(roles\.find\(\(role\) => role\.role === "recruiter"\)\)/);
+  assert.doesNotMatch(script,/signIn\(process\.env\.SMOKE_RECRUITER_EMAIL/);
   assert.doesNotMatch(script,/workspace\/recruiter\/matching\/\$\{/);
 });
 

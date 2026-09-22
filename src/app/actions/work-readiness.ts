@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAnyRole, requireRole } from "@/lib/auth";
+import { requireAnyRoleFast, requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
@@ -24,7 +24,7 @@ function workSetupComplete(va: any) {
 }
 
 export async function saveVaWorkSetupAction(formData: FormData) {
-  const { user } = await requireRole("va");
+  const { userId } = await requireRoleFast("va");
   const admin = createAdminClient();
   const ram = Number(formData.get("work_setup_ram_gb") || 0);
   const computer = text(formData.get("work_setup_computer"));
@@ -53,15 +53,15 @@ export async function saveVaWorkSetupAction(formData: FormData) {
     work_setup_verified_at: null,
     work_setup_verified_by: null,
     work_setup_verification_notes: null
-  }).eq("user_id", user.id);
+  }).eq("user_id", userId);
   if (error) throw error;
 
   await writeRecruiterActivity({
     subjectType: "va",
-    subjectId: user.id,
+    subjectId: userId,
     action: "work_setup_submitted",
     description: "VA updated private work-readiness evidence for recruiter verification",
-    actorId: user.id
+    actorId: userId
   });
   revalidatePath("/workspace/va/profile");
   revalidatePath("/workspace/va/work-readiness");
@@ -70,7 +70,7 @@ export async function saveVaWorkSetupAction(formData: FormData) {
 }
 
 export async function verifyVaWorkSetupAction(formData: FormData) {
-  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const { userId } = await requireAnyRoleFast(["recruiter", "admin"]);
   const vaId = String(formData.get("va_id") || "");
   const safeReturn = safeRecruiterReturn(formData.get("return_to"));
   if (!vaId) throw new Error("VA is required.");
@@ -85,7 +85,7 @@ export async function verifyVaWorkSetupAction(formData: FormData) {
   const notes = text(formData.get("verification_notes"), 2000);
   const { error } = await admin.from("va_profiles").update({
     work_setup_verified_at: now,
-    work_setup_verified_by: user.id,
+    work_setup_verified_by: userId,
     work_setup_verification_notes: notes
   }).eq("user_id", vaId);
   if (error) throw error;
@@ -95,7 +95,7 @@ export async function verifyVaWorkSetupAction(formData: FormData) {
     subjectId: vaId,
     action: "work_setup_verified",
     description: "Recruiter verified the VA work setup",
-    actorId: user.id
+    actorId: userId
   });
   revalidatePath("/workspace/recruiter/work-readiness");
   revalidatePath("/workspace/recruiter/talent");
@@ -105,7 +105,7 @@ export async function verifyVaWorkSetupAction(formData: FormData) {
 
 
 export async function bulkWorkReadinessAction(formData: FormData) {
-  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const { userId } = await requireAnyRoleFast(["recruiter", "admin"]);
   const action = String(formData.get("bulk_action") || "");
   const returnTo = safeRecruiterReturn(formData.get("return_to"));
   const ids = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))];
@@ -136,7 +136,7 @@ export async function bulkWorkReadinessAction(formData: FormData) {
     if (eligible.length) {
       const { error: updateError } = await admin.from("va_profiles").update({
         work_setup_verified_at: now,
-        work_setup_verified_by: user.id,
+        work_setup_verified_by: userId,
         work_setup_verification_notes: "Bulk verified from recruiter Work Readiness queue."
       }).in("user_id", eligible);
       if (updateError) throw updateError;
@@ -146,7 +146,7 @@ export async function bulkWorkReadinessAction(formData: FormData) {
         subjectId: vaId,
         action: "work_setup_verified",
         description: "Recruiter bulk-verified the VA work setup",
-        actorId: user.id
+        actorId: userId
       })));
     }
   } else {
@@ -173,7 +173,7 @@ export async function bulkWorkReadinessAction(formData: FormData) {
         subjectId: vaId,
         action: "work_setup_reminder_sent",
         description: "Recruiter sent an in-app work-readiness reminder",
-        actorId: user.id
+        actorId: userId
       })));
     }
   }

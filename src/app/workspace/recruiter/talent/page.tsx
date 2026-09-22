@@ -18,6 +18,7 @@ const PAGE_SIZE = 25;
 const SAVED_VIEWS = [
   { key: "all", label: "All VAs", filters: {} },
   { key: "approval_ready", label: "Approval-ready", filters: { readiness: "approval_ready" } },
+  { key: "approval_cleanup", label: "Approval cleanup", filters: { readiness: "approval_cleanup" } },
   { key: "missing_photo", label: "Missing photo", filters: { photo: "no" } },
   { key: "approved_hidden", label: "Approved but hidden", filters: { readiness: "vetted_hidden" } },
   { key: "bench", label: "Bench / active pool", filters: { stage: "bench" } },
@@ -165,6 +166,7 @@ export default async function RecruiterTalentDirectory({
     zero: "Not started",
     incomplete: `Below ${APPROVAL_MIN_COMPLETION}%`,
     approval_ready: `Approval-ready (${APPROVAL_MIN_COMPLETION}%+)`,
+    approval_cleanup: `Approved below ${APPROVAL_MIN_COMPLETION}%`,
     ready: `${PUBLIC_VA_MIN_COMPLETION}%+ with photo`,
     vetted_hidden: "Approved, not public"
   };
@@ -266,6 +268,7 @@ export default async function RecruiterTalentDirectory({
             <option value="zero">Not started</option>
             <option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option>
             <option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option>
+            <option value="approval_cleanup">Approved below {APPROVAL_MIN_COMPLETION}%</option>
             <option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option>
             <option value="vetted_hidden">Approved, not public</option>
           </select>

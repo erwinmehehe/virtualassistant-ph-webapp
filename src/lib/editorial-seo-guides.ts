@@ -70,7 +70,7 @@ function resourceToBlog(slug: string): BlogPost {
     excerpt: page.lede,
     topic,
     clusterLabel: page.clusterLabel,
-    intent: page.intent === "comparison" ? "comparison" : "informational",
+    intent: "informational",
     publishedAt: "2026-09-22",
     updatedAt: "2026-09-22",
     author: "VirtualAssistant.com.ph Editorial Team",

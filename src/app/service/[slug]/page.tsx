@@ -79,9 +79,10 @@ function taskGroups(tasks: string[], name: string) {
 
   return chunks.filter((chunk) => chunk.length).map((chunk, index) => {
     const pair = chunk.slice(0, 2).join(" and ");
+    const movementVerb = chunk.length === 1 ? "moves" : "move";
     const intros = [
       `Start by giving ${pair} one owner, one source of truth, and a clear definition of done.`,
-      `Document how ${pair} move between people and tools so handoffs do not disappear into chat.`,
+      `Document how ${pair} ${movementVerb} between people and tools so handoffs do not disappear into chat.`,
       `Use ${pair} to keep completed work, exceptions, and next actions visible to the team.`
     ];
     return { title: titles[index], intro: intros[index], tasks: chunk };
@@ -98,7 +99,6 @@ function complianceNote(slug: string, group: string) {
 
 function experienceCopy(s: ServiceSeoPage) {
   const role = s.name;
-  const focus = roleName(s.name);
   const defaults = {
     hero: s.intro,
     panelTitle: `Give ${s.tasks[0]} and ${s.tasks[1]} a dependable owner.`,

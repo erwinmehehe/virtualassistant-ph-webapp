@@ -136,3 +136,145 @@
   .recruiter-talent-table .readiness-cell { min-width:0; max-width:none; }
   .recruiter-talent-table .status-stack { display:flex; flex-wrap:wrap; gap:6px; }
 }
+
+
+/* Recruiter saved views and sorting */
+.recruiter-saved-views {
+  display:grid;
+  gap:10px;
+  margin:0 0 14px;
+}
+.saved-view-head {
+  display:flex;
+  gap:10px;
+  align-items:baseline;
+}
+.saved-view-head strong {
+  color:#101828;
+  font-size:13px;
+}
+.saved-view-head span {
+  color:#98a2b3;
+  font-size:11px;
+}
+.saved-view-list {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.saved-view {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:34px;
+  padding:6px 9px 6px 11px;
+  border:1px solid #e4e7ec;
+  border-radius:10px;
+  background:#fff;
+  color:#475467;
+  font-size:12px;
+  font-weight:650;
+}
+.saved-view strong {
+  display:grid;
+  place-items:center;
+  min-width:22px;
+  min-height:20px;
+  padding:0 5px;
+  border-radius:999px;
+  background:#f2f4f7;
+  color:#667085;
+  font-size:10px;
+}
+.saved-view:hover {
+  border-color:#c7d2fe;
+  background:#fafaff;
+}
+.saved-view.active {
+  border-color:#a5b4fc;
+  background:#f5f6ff;
+  color:#3538cd;
+}
+.saved-view.active strong {
+  background:#e0e7ff;
+  color:#3538cd;
+}
+.talent-sort-field {
+  min-width:160px;
+}
+.public-blocker-copy {
+  max-width:190px;
+  color:#98a2b3;
+  font-size:10px;
+  line-height:1.35;
+}
+.visibility-consent-needed,
+.visibility-publish-switch-off {
+  background:#fff4e5;
+  color:#b54708;
+}
+.recruiter-role-viewbar {
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-end;
+  margin-top:14px;
+}
+.role-sort-form {
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  flex:none;
+}
+.role-sort-form label {
+  display:grid;
+  gap:4px;
+  min-width:170px;
+}
+.role-sort-form label > span {
+  color:#667085;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.role-sort-form select {
+  min-height:36px;
+  border:1px solid #d0d5dd;
+  border-radius:9px;
+  background:#fff;
+  padding:6px 9px;
+}
+@media (max-width: 920px) {
+  .recruiter-role-viewbar {
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .role-sort-form {
+    width:100%;
+  }
+  .role-sort-form label {
+    flex:1;
+  }
+}
+@media (max-width: 680px) {
+  .saved-view-list {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .saved-view {
+    justify-content:space-between;
+  }
+  .role-sort-form {
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .role-sort-form label {
+    width:100%;
+  }
+}
+@media (max-width: 420px) {
+  .saved-view-list {
+    grid-template-columns:1fr;
+  }
+}

@@ -291,7 +291,7 @@ test("covered role pages use the strongest volume-backed canonical phrase", () =
     ["digital-marketing-virtual-assistant", "virtual marketing assistant"],
     ["social-media", "social media virtual assistant"],
     ["accounting-virtual-assistant", "accounting virtual assistant"],
-    ["it-virtual-assistant", "it virtual assistant"],
+    ["it-virtual-assistant", "it support virtual assistant"],
     ["research-data", "data entry virtual assistant"],
     ["graphic-design", "graphic design virtual assistant"],
     ["recruitment-hr", "hr virtual assistant"],

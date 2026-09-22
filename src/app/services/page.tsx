@@ -62,6 +62,27 @@ export default async function ServicesPage() {
         </div>
       </section>
 
+      <section className="section section-white">
+        <div className="container grid-2">
+          <article className="card">
+            <span className="kicker">Role discovery</span>
+            <h2>Not sure which type of Virtual Assistant you need?</h2>
+            <p className="muted">Compare administrative, executive, marketing, sales, ecommerce, finance, healthcare, legal, technical and specialist VA roles before choosing a job title.</p>
+            <Link className="text-link" href="/types-of-virtual-assistants">Compare types of Virtual Assistants <ArrowRight size={14}/></Link>
+          </article>
+          <article className="card">
+            <span className="kicker">Buyer research</span>
+            <h2>Compare hiring models and markets.</h2>
+            <p className="muted">Understand what a Virtual Assistant does, compare Philippines VA companies, or explore specialist support for Australian businesses.</p>
+            <div className="stack-sm">
+              <Link className="text-link" href="/what-is-a-virtual-assistant">What is a Virtual Assistant? <ArrowRight size={14}/></Link>
+              <Link className="text-link" href="/virtual-assistant-companies-philippines">Compare Virtual Assistant companies <ArrowRight size={14}/></Link>
+              <Link className="text-link" href="/virtual-assistant-australia">Virtual Assistants for Australia <ArrowRight size={14}/></Link>
+            </div>
+          </article>
+        </div>
+      </section>
+
       {SERVICE_CATEGORIES.map((category) => {
         const pages = SERVICE_PAGES.filter((page) => category.groups.some((group) => group === page.group));
         if (!pages.length) return null;

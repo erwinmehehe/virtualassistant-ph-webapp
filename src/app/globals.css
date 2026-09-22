@@ -2182,10 +2182,29 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .compact-list strong,.compact-static strong { display:block; }
 .compact-list small,.compact-static small { display:block; margin-top:2px; color:var(--muted); }
 
-.recruiter-filter-panel { display:grid; grid-template-columns:minmax(250px,1.5fr) repeat(4,minmax(130px,.7fr)); gap:10px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#f8fafc; }
+.recruiter-filter-panel { padding:16px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 4px 18px rgba(16,24,40,.035); }
 .recruiter-filter-panel input,.recruiter-filter-panel select,.bulk-action-bar select { min-height:42px; width:100%; border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 10px; color:var(--text); }
-.directory-filter-search { display:flex; align-items:center; gap:8px; min-height:42px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:0 10px; }
-.directory-filter-search input { min-width:0; border:0 !important; outline:0; padding-left:0; }
+.filter-primary-row { display:grid; grid-template-columns:minmax(260px,1.6fr) minmax(150px,.65fr) minmax(170px,.75fr) auto auto; gap:10px; align-items:end; }
+.directory-filter-search { display:flex; align-items:center; gap:9px; min-height:44px; border:1px solid #d0d5dd; border-radius:11px; background:#fff; padding:0 12px; transition:border-color .15s ease,box-shadow .15s ease; }
+.directory-filter-search:focus-within { border-color:#84adf5; box-shadow:0 0 0 3px #eef4ff; }
+.directory-filter-search svg { flex:none; color:#667085; }
+.directory-filter-search input { min-width:0; min-height:40px; border:0 !important; outline:0; padding:0; }
+.filter-field { display:grid; gap:5px; min-width:0; }
+.filter-field > span { color:#475467; font-size:11px; font-weight:700; letter-spacing:.02em; }
+.filter-field input,.filter-field select { min-height:44px; border-color:#d0d5dd; }
+.filter-apply { min-height:44px; gap:7px; }
+.filter-reset { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:44px; padding:0 6px; color:#667085; font-size:13px; font-weight:650; }
+.filter-reset:hover { color:var(--text); }
+.filter-more { margin-top:12px; padding-top:12px; border-top:1px solid #eaecf0; }
+.filter-more summary { display:inline-flex; align-items:center; gap:7px; color:#475467; font-size:13px; font-weight:650; cursor:pointer; list-style:none; user-select:none; }
+.filter-more summary::-webkit-details-marker { display:none; }
+.filter-more-chevron { transition:transform .15s ease; }
+.filter-more[open] .filter-more-chevron { transform:rotate(180deg); }
+.filter-more-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:14px; padding:14px; border-radius:12px; background:#f8fafc; }
+.filter-field-wide { grid-column:span 2; }
+.filter-context-note { margin-top:12px; color:#667085; font-size:12px; line-height:1.45; }
+@media (max-width: 1050px) { .filter-primary-row { grid-template-columns:minmax(240px,1fr) 1fr 1fr; } .filter-apply,.filter-reset { width:100%; } .filter-more-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 680px) { .recruiter-filter-panel { padding:12px; border-radius:14px; } .filter-primary-row { grid-template-columns:1fr 1fr; } .directory-filter-search { grid-column:1 / -1; } .filter-primary-row .filter-field { min-width:0; } .filter-apply { grid-column:1 / 2; } .filter-reset { grid-column:2 / 3; } .filter-more-grid { grid-template-columns:1fr; padding:12px; } .filter-field-wide { grid-column:auto; } }
 .bulk-action-bar { position:sticky; top:74px; z-index:20; display:grid; grid-template-columns:minmax(230px,1fr) minmax(180px,.75fr) minmax(230px,1fr) auto; gap:10px; align-items:center; padding:12px; border:1px solid #cbdaf0; border-radius:14px; background:rgba(247,250,255,.97); box-shadow:0 10px 30px rgba(16,24,40,.08); backdrop-filter:blur(10px); }
 /* The vetting queue's bar has no role picker, so it needs three columns
    rather than the directory's four. */

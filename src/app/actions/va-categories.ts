@@ -29,7 +29,7 @@ export async function autoCategorizeUncategorizedVasAction() {
 
   const rows = (data || []) as VaCategoryRepairRow[];
   if (!rows.length) {
-    redirect("/workspace/recruiter/categories?categorized=0&skipped=0");
+    redirect("/workspace/recruiter/roles?categorized=0&skipped=0#talent-coverage");
   }
 
   const ids = rows.map((row) => row.user_id);
@@ -86,7 +86,7 @@ export async function autoCategorizeUncategorizedVasAction() {
     else skipped += 1;
   }
 
-  revalidatePath("/workspace/recruiter/categories");
+  revalidatePath("/workspace/recruiter/roles");
   revalidatePath("/workspace/recruiter/talent");
-  redirect(`/workspace/recruiter/categories?categorized=${categorized}&skipped=${skipped}`);
+  redirect(`/workspace/recruiter/roles?categorized=${categorized}&skipped=${skipped}#talent-coverage`);
 }

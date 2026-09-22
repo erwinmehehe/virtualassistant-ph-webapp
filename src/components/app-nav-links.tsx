@@ -17,7 +17,6 @@ import {
   Search,
   Settings,
   ShieldCheck,
-  SlidersHorizontal,
   UsersRound,
   Wrench,
 } from "lucide-react";
@@ -79,14 +78,13 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Bench", "/workspace/recruiter/bench", UsersRound],
         ["Stalled", "/workspace/recruiter/stalled", Activity],
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
-        ["Categories", "/workspace/recruiter/categories", SlidersHorizontal],
       ],
     },
     {
       label: "Performance",
       items: [
         ["Agency Funnel", "/workspace/recruiter/funnel", Activity],
-        ["Analytics", "/workspace/recruiter/analytics", BarChart3],
+        ["Recruiting Analytics", "/workspace/recruiter/analytics", BarChart3],
         ["Finance", "/workspace/recruiter/finance", CircleDollarSign],
       ],
     },

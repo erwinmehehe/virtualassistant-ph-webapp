@@ -6,6 +6,7 @@ import "./account-center.css";
 import "./recruiter-talent.css";
 import "./recruiter-role-workspace.css";
 import "./recruiter-candidate.css";
+import "./recruiter-ops-clarity.css";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   return children;

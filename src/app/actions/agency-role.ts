@@ -17,7 +17,7 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
     admin.from("job_commercials").select("job_id,commercial_status").eq("job_id",jobId).maybeSingle()
   ]);
   if(!job)throw new Error("Role not found.");
-  if(job.recruiter_id&&job.recruiter_id!==user.id)throw new Error("This role is assigned to another recruiter.");
+  if(job.recruiter_id&&job.recruiter_id!==user.id)redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
   if(job.status!=="pending")throw new Error("Only pending roles can receive standard terms.");
   if(job.service_model==="managed_service")throw new Error("Managed-service pricing is an admin exception and must be reviewed by Admin.");
   if(!job.client_id)throw new Error("Link the client account before preparing service terms.");
@@ -62,7 +62,7 @@ export async function sendClientAccountClaimAction(formData: FormData) {
     .maybeSingle();
 
   if (!job) throw new Error("Role not found.");
-  if (job.recruiter_id && job.recruiter_id !== user.id) throw new Error("This role is assigned to another recruiter.");
+  if (job.recruiter_id && job.recruiter_id !== user.id) redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
   if (job.client_id) redirect(`/workspace/recruiter/roles/${jobId}?client_already_linked=1`);
   if (!job.lead_id) throw new Error("This role does not have a lead to claim.");
 

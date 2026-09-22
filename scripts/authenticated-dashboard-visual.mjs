@@ -14,10 +14,10 @@ if (!baseUrl || !supabaseUrl || !anonKey) {
 const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
 const outputDir = path.resolve("artifacts/dashboard-visual");
 const roles = [
-  { role: "admin", tokenHash: process.env.SMOKE_ADMIN_TOKEN_HASH, email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin/today", marker: "Owner Command Center" },
-  { role: "recruiter", tokenHash: process.env.SMOKE_RECRUITER_TOKEN_HASH, email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter", marker: "Today’s work" },
-  { role: "client", tokenHash: process.env.SMOKE_CLIENT_TOKEN_HASH, email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress" },
-  { role: "va", tokenHash: process.env.SMOKE_VA_TOKEN_HASH, email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?" }
+  { role: "admin", tokenHash: process.env.SMOKE_ADMIN_TOKEN_HASH, email: process.env.SMOKE_ADMIN_EMAIL, password: process.env.SMOKE_ADMIN_PASSWORD, path: "/workspace/admin/today", marker: "Owner Command Center", actionSelector: "#owner-actions" },
+  { role: "recruiter", tokenHash: process.env.SMOKE_RECRUITER_TOKEN_HASH, email: process.env.SMOKE_RECRUITER_EMAIL, password: process.env.SMOKE_RECRUITER_PASSWORD, path: "/workspace/recruiter/today", marker: "My Day", actionSelector: "#recruiter-next-action" },
+  { role: "client", tokenHash: process.env.SMOKE_CLIENT_TOKEN_HASH, email: process.env.SMOKE_CLIENT_EMAIL, password: process.env.SMOKE_CLIENT_PASSWORD, path: "/workspace/client", marker: "Your hiring progress", actionSelector: ".workflow-current" },
+  { role: "va", tokenHash: process.env.SMOKE_VA_TOKEN_HASH, email: process.env.SMOKE_VA_EMAIL, password: process.env.SMOKE_VA_PASSWORD, path: "/workspace/va", marker: "What should you do next?", actionSelector: ".dashboard-next-action" }
 ];
 
 const accountTabs = ["profile", "security", "notifications", "preferences", "privacy"];
@@ -96,6 +96,18 @@ try {
       const response = await page.goto(`${baseUrl}${role.path}`, { waitUntil: "networkidle", timeout: 90000 });
       if (!response?.ok()) throw new Error(`${role.role} ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
       await page.getByText(role.marker, { exact: false }).first().waitFor({ state: "visible", timeout: 30000 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+      if (overflow) throw new Error(`${role.role} ${viewport.name} has horizontal page overflow.`);
+
+      const primaryAction = page.locator(role.actionSelector).first();
+      await primaryAction.waitFor({ state: "visible", timeout: 30000 });
+      if (viewport.name === "mobile") {
+        const box = await primaryAction.boundingBox();
+        if (!box || box.y >= viewport.height) {
+          throw new Error(`${role.role} mobile primary action starts below the first viewport.`);
+        }
+      }
+
       await page.screenshot({ path: path.join(outputDir, `${role.role}-${viewport.name}.png`), fullPage: true });
       if (consoleErrors.length) throw new Error(`${role.role} ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
       await context.close();

@@ -139,7 +139,7 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
         ]
       },
       {
-        heading: "Australian cities and remote coverage"
+        heading: "Australian cities and remote coverage",
         intro: "Businesses searching for a Virtual Assistant in Sydney, Melbourne, Brisbane, Perth, Adelaide, the Gold Coast, Geelong, Newcastle, or Darwin usually need Australian-timezone support rather than a worker physically located in that city. Philippine-based Virtual Assistants can work Australian business-hour overlap, fixed shifts, or asynchronous schedules depending on the role. Live customer, phone, dispatch, and coordination work needs clearer overlap than research, production, reporting, or back-office tasks.",
         bullets: [
           "State the Australian timezone and exact hours that require live coverage.",

@@ -23,10 +23,6 @@ export function serviceMetaTitle(page: ServiceSeoPage) {
   return base.length < 40 && expanded.length <= 60 ? expanded : base;
 }
 
-function normalizeMetaTask(task: string) {
-  return task.replace(/\s+/g, " ").trim().replace(/[.]$/, "");
-}
-
 export function serviceMetaDescription(page: ServiceSeoPage) {
   return page.metaDescription.replace(/\s+/g, " ").trim();
 }

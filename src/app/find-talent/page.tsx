@@ -110,5 +110,14 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
         </article>;
       })}</div>{totalPages > 1 ? <nav className="pagination" aria-label="Talent results pages"><Link className={`btn btn-sm ${page <= 1 ? "disabled" : ""}`} aria-disabled={page <= 1} href={talentPageHref(params, Math.max(1,page-1))}>Previous</Link><span className="small muted">Page {page} of {totalPages}</span><Link className={`btn btn-sm ${page >= totalPages ? "disabled" : ""}`} aria-disabled={page >= totalPages} href={talentPageHref(params, Math.min(totalPages,page+1))}>Next</Link></nav> : null}</> : <div className="card empty"><h3>No profiles match those filters.</h3><p>Try a broader specialty or availability range, or send us the role and we can match the approved pool directly.</p><div className="row wrap" style={{justifyContent:"center"}}><Link className="btn" href="/find-talent">Clear filters</Link><Link className="btn btn-primary" href="/hire">Get a vetted shortlist</Link></div></div>}
     </div></section>
+
+    <section className="section" aria-labelledby="talent-directory-guide"><div className="container">
+      <div className="directory-result-head"><div><h2 id="talent-directory-guide">How to use the Virtual Assistant directory</h2><span className="small muted">Profiles are examples, not an unreviewed marketplace. A recruiter confirms role fit, interest, availability, schedule, and compensation before client presentation.</span></div></div>
+      <div className="grid grid-3">
+        <article className="card"><h3>Start with the work</h3><p>Use <Link href="/services">Virtual Assistant services</Link> to compare responsibilities and choose the closest role before filtering profiles.</p></article>
+        <article className="card"><h3>Check the hiring model</h3><p>Review <Link href="/pricing">pricing and service models</Link> so candidate compensation, recruiting support, and ongoing management are not treated as the same cost.</p></article>
+        <article className="card"><h3>Compare provider support</h3><p>Use the <Link href="/virtual-assistant-companies-philippines">Virtual Assistant companies guide</Link> to compare marketplaces, recruitment, direct hire, and managed service.</p></article>
+      </div>
+    </div></section>
   </main><SiteFooter/></>;
 }

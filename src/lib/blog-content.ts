@@ -18098,6 +18098,20 @@ export const BLOG_POSTS: BlogPost[] = [
         "numbered": []
       },
       {
+        "heading": "Choose the provider model before comparing rates",
+        "paragraphs": [
+          "People often search for phrases such as outsource Virtual Assistant, offshore Virtual Assistant, and BPO as if they describe one service. They do not. A freelance marketplace gives you profiles to assess. Direct hire adds recruiting support but leaves day-to-day management with your team. A managed provider stays involved after placement. A BPO may own a staffed process instead of placing one named assistant.",
+          "Coverage is a separate decision. If you need 24/7 coverage, define the actual response windows, handoff rules, queue ownership, and escalation contact. One person should not be expected to provide continuous coverage. Choose the provider model and staffing pattern that can support the documented schedule without hiding the handoffs."
+        ],
+        "bullets": [
+          "Marketplace: you source, screen, hire, and manage.",
+          "Direct hire: a recruiter helps you find the person, then you manage the role.",
+          "Managed service: the provider supports recruiting, launch, monitoring, and recovery.",
+          "BPO or outsourced team: the provider may own a broader queue, process, or coverage plan."
+        ],
+        "numbered": []
+      },
+      {
         "heading": "Build a scorecard you can use on every candidate",
         "paragraphs": [
           "For the actual hiring decision, a scorecard prevents the interview from turning into a personality contest. Give the most weight to evidence that predicts the actual job: similar workflows, clear communication, reliability, tool depth, schedule fit, and judgment around exceptions.",

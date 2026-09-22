@@ -131,7 +131,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     { count: missingPhotoCount, error: missingPhotoError },
     { data: activeRoleData, error: activeRoleError }
   ] = await Promise.all([
-    admin.rpc("recruiter_today_queue", { p_user_id:userId, p_limit:30 }),
+    admin.rpc("recruiter_today_queue", { p_user_id:userId, p_limit:20 }),
     admin.rpc("recruiter_lead_cleanup_queue", { p_user_id:userId, p_limit:40 }),
     admin.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",userId).is("read_at",null).is("done_at",null).or(`snoozed_until.is.null,snoozed_until.lte.${new Date().toISOString()}`),
     admin.from("recruiter_tasks").select("id",{count:"exact",head:true}).eq("assignee_id",userId).eq("status","todo"),
@@ -171,7 +171,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   if (missingPhotoError) throw missingPhotoError;
   if (activeRoleError) throw activeRoleError;
 
-  const queue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)) && !FOLLOW_THROUGH_KINDS.has(String(item.kind)));
+  const nonLeadQueue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
+  const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
   const cleanupQueue = Array.isArray(cleanupData) ? cleanupData as any[] : [];
   const dailyActions = (Array.isArray(dailyActionData) ? dailyActionData : []) as DailyActionRow[];
   const clientWaitByJob = new Map<string,DailyActionRow>();

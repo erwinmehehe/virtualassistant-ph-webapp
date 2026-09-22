@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}${route.path}`,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
+      ...(route.lastModified ? { lastModified: route.lastModified } : {}),
     })),
     ...blogTopicRoutes.map((path) => ({
       url: `${base}${path}`,

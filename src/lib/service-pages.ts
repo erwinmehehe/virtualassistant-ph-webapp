@@ -4754,7 +4754,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "logistics virtual assistant",
     "metaTitle": "Logistics Virtual Assistant Philippines",
-    "metaDescription": "Hire a Logistics Virtual Assistant in the Philippines for shipment tracking, freight coordination, shipping documents, carrier follow-up, records, and logistics admin.",
+    "metaDescription": "Hire a Logistics Virtual Assistant in the Philippines for shipment tracking, freight coordination, shipping documents, carrier follow-up, and logistics admin.",
     "intro": "Hire a Logistics Virtual Assistant in the Philippines to coordinate shipment tracking, carrier and supplier follow-up, shipping documents, freight bookings, delivery updates, and recurring logistics administration. Keep commercial commitments, customs decisions, regulated declarations, and exception approvals with authorized staff.",
     "focus": "shipment, freight, carrier, and logistics administration",
     "tasks": [

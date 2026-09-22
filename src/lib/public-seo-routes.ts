@@ -51,7 +51,7 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
   {
     path: "/resources",
     label: "Virtual Assistant Resources",
-    description: "Role-specific hiring resources plus candidate application, resume, portfolio, skills, requirements, and career guides.",
+    description: "Role-specific Virtual Assistant hiring resources for tasks, interviews, costs, tools, and hiring workflows.",
     changeFrequency: "monthly",
     priority: 0.76,
     lastModified: "2026-09-22",

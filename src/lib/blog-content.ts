@@ -10663,6 +10663,11 @@ export const BLOG_POSTS: BlogPost[] = [
             "label": "Hire a Virtual Assistant",
             "href": "/hire",
             "description": "Start with a structured hiring brief and get matched with vetted Virtual Assistant candidates for the work you need covered."
+      },
+      {
+            "label": "Outsourcing virtual assistant work to the Philippines",
+            "href": "/blog/outsourcing-philippines-virtual-assistant",
+            "description": "Use the outsourcing guide to compare role scope, operating model, screening, and handoff considerations before you hire."
       }
     ],
     "fieldNotes": [

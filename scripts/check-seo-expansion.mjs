@@ -116,7 +116,7 @@ assert(files.services.includes('href="/types-of-virtual-assistants"'), "services
 
 // Post-expansion internal-link targets: verify the editorial corpus can pass authority
 // into the core commercial hubs before expanding with more weak URLs.
-for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines"]) {
+for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/blog/outsourcing-philippines-virtual-assistant"]) {
   assert(files.blog.includes(`"href": "${path}"`), `blog corpus missing contextual authority link to ${path}`);
 }
 

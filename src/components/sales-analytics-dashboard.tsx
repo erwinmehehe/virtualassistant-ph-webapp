@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock3, DollarSign, TrendingUp, UsersRound } from "lucide-react";
 import { getSalesAnalytics, type SalesRangeDays } from "@/lib/sales-analytics";
-import { RevenueBarChart, RevenueFunnelChart, RevenueTrendChart } from "@/components/revenue-charts";
+import { RevenueBarChart, RevenueTrendChart } from "@/components/revenue-charts";
 
 function usd(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
@@ -37,13 +37,10 @@ export async function SalesAnalyticsDashboard({
   const queryHref = (nextDays: number, nextScope = scope) => `${basePath}?days=${nextDays}${allowScopeToggle ? `&scope=${nextScope}` : ""}`;
 
   const metrics = [
-    ["Homepage visits", data.totals.homepageVisits, `${data.totals.trackedSessions} tracked sessions`, UsersRound],
-    ["Form starts", data.totals.formStarts, `Last ${days} days`, TrendingUp],
-    ["Form submissions", data.totals.leads, `${data.totals.discoveryBooked} calls booked`, UsersRound],
-    ["Clients won", data.totals.won, `${data.totals.leadToWinRate}% submission-to-win`, CheckCircle2],
-    ["First response", duration(data.totals.medianFirstResponseMinutes), `${data.totals.firstResponseWithinThirtyRate}% within 30 min`, Clock3],
-    ["Open pipeline", usd(data.totals.openPipelineValue), "Estimated agency value", DollarSign],
-    ["Won value", usd(data.totals.wonValue), data.totals.medianDaysToWin == null ? "Close time not measurable yet" : `${data.totals.medianDaysToWin} median days to win`, DollarSign]
+    ["Hiring enquiries", data.totals.leads, String(data.totals.discoveryBooked) + " discovery calls booked", UsersRound],
+    ["Discovery booked", data.totals.discoveryBooked, String(data.totals.qualified) + " qualified opportunities", TrendingUp],
+    ["Clients won", data.totals.won, String(data.totals.leadToWinRate) + "% enquiry-to-win", CheckCircle2],
+    ["Open pipeline", usd(data.totals.openPipelineValue), "Estimated value still in play", DollarSign]
   ] as const;
 
   return <>
@@ -61,6 +58,12 @@ export async function SalesAnalyticsDashboard({
 
     <div className="sales-kpi-grid">
       {metrics.map(([label, value, copy, Icon]) => <div className="card sales-kpi-card" key={label}><Icon size={18}/><span>{label}</span><strong>{value}</strong><small>{copy}</small></div>)}
+    </div>
+
+    <div className="sales-health-strip">
+      <div><span>Median first response</span><strong>{duration(data.totals.medianFirstResponseMinutes)}</strong><small>{data.totals.firstResponseWithinThirtyRate}% within 30 min</small></div>
+      <div><span>Proposal acceptance</span><strong>{data.totals.proposalAcceptanceRate}%</strong><small>{data.totals.won} wins from {data.totals.proposalsSent} sent proposals</small></div>
+      <div><span>Won value</span><strong>{usd(data.totals.wonValue)}</strong><small>{data.totals.medianDaysToWin == null ? "Close time not measurable yet" : String(data.totals.medianDaysToWin) + " median days to win"}</small></div>
     </div>
 
     <div className="grid-2 sales-analysis-grid">
@@ -82,14 +85,17 @@ export async function SalesAnalyticsDashboard({
     </div>
 
     <section className="card sales-funnel-card">
-      <div className="dashboard-section-head"><div><h2>Homepage-to-client funnel</h2><p>Track the complete journey from a homepage visit to a won client. Percentages use homepage visits as the baseline.</p></div><span className="badge">{days} day window</span></div>
-      <RevenueFunnelChart stages={data.funnel.map((stage) => ({ label: stage.label, value: stage.count }))} ariaLabel="Homepage to won-client conversion funnel"/>
-      <div className="sales-funnel-list" style={{marginTop:18}}>
-        {data.funnel.map((stage) => <div className="sales-funnel-row" key={stage.key}>
-          <div><strong>{stage.label}</strong><span>{stage.count}</span></div>
-          <div className="sales-funnel-track"><span style={{ width: `${Math.max(stage.count ? 3 : 0, Math.min(100, stage.rate))}%` }}/></div>
-          <small>{stage.rate}% of homepage visits</small>
-        </div>)}
+      <div className="dashboard-section-head"><div><h2>Website → client funnel</h2><p>Read each row against the step immediately before it. This shows where potential clients are actually dropping out.</p></div><span className="badge">{days} day window</span></div>
+      <div className="sales-funnel-list">
+        {data.funnel.map((stage, index) => {
+          const previous = index ? data.funnel[index - 1] : null;
+          const stepRate = previous && previous.count ? Math.round((stage.count / previous.count) * 1000) / 10 : null;
+          return <div className="sales-funnel-row" key={stage.key}>
+            <div><strong>{stage.label}</strong><span>{stage.count}</span></div>
+            <div className="sales-funnel-track"><span style={{ width: String(Math.max(stage.count ? 3 : 0, Math.min(100, previous && previous.count ? (stage.count / previous.count) * 100 : 100))) + "%" }}/></div>
+            <small>{index === 0 ? "Starting traffic" : stepRate == null ? "No prior-step baseline" : String(stepRate) + "% from previous step"}</small>
+          </div>;
+        })}
       </div>
       {data.dataQuality.legacyQualifiedWithoutTimeline ? <div className="sales-data-note"><AlertTriangle size={16}/><span><strong>{data.dataQuality.legacyQualifiedWithoutTimeline} historical qualified lead{data.dataQuality.legacyQualifiedWithoutTimeline === 1 ? "" : "s"}</strong> do not have earlier contact/discovery timestamps. New leads will produce a clean sequential funnel automatically.</span></div> : null}
     </section>

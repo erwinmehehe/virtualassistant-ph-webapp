@@ -7,8 +7,12 @@ const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 test("public job surfaces exclude moderated roles",()=>{
   const listing=read("src/app/jobs/page.tsx");
   const detail=read("src/app/jobs/[id]/page.tsx");
-  assert.match(listing,/\.eq\("status", "published"\)[\s\S]{0,120}\.eq\("moderation_status", "clear"\)/);
-  assert.match(detail,/\.eq\("status", "published"\)\.eq\("moderation_status", "clear"\)/);
+  const migration=read("supabase/migrations/20260922223206_add_safe_public_jobs_and_atomic_rate_limit.sql");
+  assert.match(listing,/\.from\("public_jobs"\)/);
+  assert.match(detail,/\.from\("public_jobs"\)/);
+  assert.doesNotMatch(listing,/\.from\("jobs"\)/);
+  assert.doesNotMatch(detail,/\.from\("jobs"\)/);
+  assert.match(migration,/where j\.status = 'published'[\s\S]{0,120}j\.moderation_status = 'clear'[\s\S]{0,120}j\.client_id is not null/);
 });
 
 test("authenticated visual QA mutates only the exact protected smoke role",()=>{

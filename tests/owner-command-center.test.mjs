@@ -17,7 +17,8 @@ test("owner command center is a real admin today route",async()=>{
   assert.match(page,/Placements/);
   assert.match(page,/Collections/);
   assert.match(page,/Retention risks/);
-  assert.match(page,/Hiring Rooms waiting/);
+  assert.match(page,/Owner exceptions/);
+  assert.match(page,/Watchlist/);
   assert.match(page,/Renewals in 30 days/);
 });
 

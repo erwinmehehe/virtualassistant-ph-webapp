@@ -63,6 +63,27 @@ export const APPROVAL_MIN_COMPLETION = 60;
  * so this checks only that there is enough profile to judge. The photo stays a
  * public-listing requirement, not an approval one.
  */
+export function isApprovalCompletionEligible(completionScore: number | null | undefined) {
+  return Number(completionScore || 0) >= APPROVAL_MIN_COMPLETION;
+}
+
+export function approvalEligibility(row: { completion_score?: number | null; missing_items?: unknown }) {
+  const completion = Number(row.completion_score || 0);
+  return {
+    eligible: isApprovalCompletionEligible(completion),
+    completion,
+    reason: completion >= APPROVAL_MIN_COMPLETION
+      ? null
+      : `Profile completion is ${completion}%. Approval requires at least ${APPROVAL_MIN_COMPLETION}%.`
+  };
+}
+
+export function assertApprovalCompletion(completionScore: number | null | undefined) {
+  const result = approvalEligibility({ completion_score: completionScore });
+  if (!result.eligible) throw new Error(result.reason || `Approval requires at least ${APPROVAL_MIN_COMPLETION}% profile completion.`);
+  return result;
+}
+
 export function isRowApprovable(row: { completion_score?: number | null; missing_items?: unknown }) {
-  return Number(row.completion_score || 0) >= APPROVAL_MIN_COMPLETION;
+  return approvalEligibility(row).eligible;
 }

@@ -9,6 +9,7 @@ const files = {
   services: fs.readFileSync("src/app/services/page.tsx", "utf8"),
   publicRoutes: fs.readFileSync("src/lib/public-seo-routes.ts", "utf8"),
   software: fs.readFileSync("src/lib/software-pages.ts", "utf8"),
+  servicePages: fs.readFileSync("src/lib/service-pages.ts", "utf8"),
 };
 
 const failures = [];
@@ -36,9 +37,35 @@ const roleServiceSlugs = matches(roleBlock, /serviceSlug:\s*"([^"]+)"/g);
 const roleSlugBases = matches(roleBlock, /slugBase:\s*"([^"]+)"/g);
 const candidateSlugs = matches(candidateBlock, /slug:\s*"([^"]+)"/g);
 
-assert(roleServiceSlugs.length === 17, `expected 17 role clusters, found ${roleServiceSlugs.length}`);
+const september22Clusters = [
+  ["general-virtual-assistant", "general-virtual-assistant"],
+  ["small-business-virtual-assistant", "small-business-virtual-assistant"],
+  ["payroll-virtual-assistant", "payroll-virtual-assistant"],
+  ["operations", "operations-virtual-assistant"],
+  ["calendar", "calendar-management-virtual-assistant"],
+  ["airbnb-virtual-assistant", "airbnb-virtual-assistant"],
+  ["pinterest-virtual-assistant", "pinterest-virtual-assistant"],
+  ["content-writing", "content-writing-virtual-assistant"],
+];
+const september22Slugs = new Set(september22Clusters.map(([serviceSlug]) => serviceSlug));
+let invalidSeptember22ServiceMappings = 0;
+
+for (const [serviceSlug, slugBase] of september22Clusters) {
+  const rolePattern = new RegExp(`serviceSlug:\\s*"${serviceSlug}"[\\s\\S]{0,160}slugBase:\\s*"${slugBase}"`);
+  if (!rolePattern.test(roleBlock)) {
+    invalidSeptember22ServiceMappings += 1;
+    failures.push(`September 22 cluster mapping is invalid: ${serviceSlug} -> ${slugBase}`);
+  }
+  if (!files.servicePages.includes(`"slug": "${serviceSlug}"`)) {
+    invalidSeptember22ServiceMappings += 1;
+    failures.push(`September 22 cluster has no canonical service page: ${serviceSlug}`);
+  }
+}
+
+assert(roleServiceSlugs.length === 25, `expected 25 role clusters, found ${roleServiceSlugs.length}`);
 assert(new Set(roleServiceSlugs).size === roleServiceSlugs.length, "duplicate serviceSlug in SEO role clusters");
 assert(new Set(roleSlugBases).size === roleSlugBases.length, "duplicate slugBase in SEO role clusters");
+assert([...september22Slugs].every((slug) => roleServiceSlugs.includes(slug)), "one or more September 22 role clusters are missing");
 assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
 assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
 for (const unsafe of [
@@ -85,7 +112,7 @@ assert(files.services.includes('href="/virtual-assistant-australia"'), "services
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 
-for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant"]) {
+for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant", "email-management-virtual-assistant", "event-planning-virtual-assistant"]) {
   const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");
   assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);
 }
@@ -117,6 +144,9 @@ for (const desc of descValues) {
 console.log(JSON.stringify({
   roleClusters: roleServiceSlugs.length,
   generatedClientResources: roleServiceSlugs.length * 6,
+  september22Clusters: september22Clusters.length,
+  september22Resources: september22Clusters.length * 6,
+  invalidSeptember22ServiceMappings,
   manualResources: candidateSlugs.length,
   totalResources: roleServiceSlugs.length * 6 + candidateSlugs.length,
   authorityPages: expectedAuthorityPaths.length,

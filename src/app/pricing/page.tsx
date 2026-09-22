@@ -89,6 +89,9 @@ export default async function PricingPage(){
           <Link className="sp-tile" href="/average-hourly-rate-virtual-assistants-philippines"><span className="sp-tile-copy"><strong>Average VA hourly rates</strong><small>Dedicated hourly-rate intent and rate-planning guidance.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
           <Link className="sp-tile" href="/research/virtual-assistant-rates-philippines-2026"><span className="sp-tile-copy"><strong>2026 Rate and Skills Report</strong><small>First-party aggregate profile data for rates, experience, specialties, skills, and tools.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
           <Link className="sp-tile" href="/tools/virtual-assistant-cost-calculator"><span className="sp-tile-copy"><strong>VA cost calculator</strong><small>Model a monthly compensation estimate from hours and hourly rate.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/services"><span className="sp-tile-copy"><strong>Compare Virtual Assistant services</strong><small>Match the budget to the responsibilities, tools, and experience the role requires.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/find-talent"><span className="sp-tile-copy"><strong>Browse approved talent</strong><small>Review public examples, then let the recruiting team confirm fit and availability.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/outsourcing-philippines-virtual-assistant"><span className="sp-tile-copy"><strong>Plan the outsourcing model</strong><small>Include management time, software, coverage, handoffs, and rework in the total decision.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
         </div>
       </Band>
 

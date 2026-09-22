@@ -45,7 +45,7 @@ export default async function ServicesPage() {
     <main id="main-content" className="premium-services-directory">
       <CompactPageHeader
         eyebrow={<span><Briefcase size={14}/> {SERVICE_PAGES.length} role hiring guides</span>}
-        title={<h1>Find the Virtual Assistant role that matches your workload.</h1>}
+        title={<h1>Virtual Assistant services for the work your business needs done.</h1>}
         description={<p>Compare Filipino Virtual Assistant services by role, workload, tools, industry context, interview evidence, and approved talent. Use one canonical service page per specialty, then go deeper with role-specific resources.</p>}
         actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
       />
@@ -60,6 +60,8 @@ export default async function ServicesPage() {
             <Link href="/types-of-virtual-assistants">Types of VAs</Link>
             <Link href="/virtual-assistant-companies-philippines">VA companies</Link>
             <Link href="/virtual-assistant-australia">Australia</Link>
+            <Link href="/outsourcing-philippines-virtual-assistant">Outsourcing guide</Link>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/resources">Hiring resources</Link>
           </nav>
           <div className="premium-services-help">

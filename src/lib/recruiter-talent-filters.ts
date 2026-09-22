@@ -2,6 +2,8 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
+export const RECRUITER_BULK_LIMIT = 500;
+
 export type RecruiterTalentFilters = {
   q?: string | null;
   category?: string | null;
@@ -20,6 +22,14 @@ function numberValue(value: string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function excludeTerminalVettingStages(query: any) {
+  return query.or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)");
+}
+
+function excludeRejectedStage(query: any) {
+  return query.or("stage.is.null,stage.neq.rejected");
 }
 
 /**
@@ -47,34 +57,37 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
     query = query
       .gte("completion_score", PUBLIC_VA_MIN_COMPLETION)
       .not("avatar_url", "is", null)
-      .neq("stage", "approved")
-      .neq("stage", "bench")
-      .neq("stage", "rejected")
       .eq("account_status", "active");
+    query = excludeTerminalVettingStages(query);
   }
 
   if (readiness === "incomplete") {
     query = query
       .gt("completion_score", 0)
       .lt("completion_score", APPROVAL_MIN_COMPLETION)
-      .neq("stage", "rejected")
       .eq("account_status", "active");
+    query = excludeRejectedStage(query);
   }
 
   if (readiness === "approval_ready") {
     query = query
       .gte("completion_score", APPROVAL_MIN_COMPLETION)
-      .neq("stage", "approved")
-      .neq("stage", "bench")
-      .neq("stage", "rejected")
+      .eq("account_status", "active");
+    query = excludeTerminalVettingStages(query);
+  }
+
+  if (readiness === "approval_cleanup") {
+    query = query
+      .in("stage", ["approved", "bench"])
+      .lt("completion_score", APPROVAL_MIN_COMPLETION)
       .eq("account_status", "active");
   }
 
   if (readiness === "zero") {
     query = query
       .eq("completion_score", 0)
-      .neq("stage", "rejected")
       .eq("account_status", "active");
+    query = excludeRejectedStage(query);
   }
 
   if (readiness === "vetted_hidden") {

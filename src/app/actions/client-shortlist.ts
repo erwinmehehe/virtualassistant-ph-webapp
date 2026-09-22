@@ -7,6 +7,7 @@ import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { matchAssessment } from "@/lib/matching";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isRowApprovable } from "@/lib/public-visibility";
 
 const CLIENT_DECISIONS = new Set(["interested", "interview", "hold", "pass"]);
 const HOLD_REASONS = new Set(["need_more_information", "comparing_candidates", "rate_concern", "schedule_timezone_concern", "team_approval", "other"]);
@@ -32,8 +33,14 @@ function reasonLabel(value: string) {
 
 async function requireApprovedVa(vaId: string) {
   const admin = createAdminClient();
-  const { data: vetting } = await admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle();
-  if (!vetting || !["approved", "bench"].includes(vetting.stage)) throw new Error("This VA is no longer approved for client matching.");
+  const { data: vetting } = await admin
+    .from("recruiter_va_directory")
+    .select("user_id,stage,completion_score")
+    .eq("user_id", vaId)
+    .maybeSingle();
+  if (!vetting || !["approved", "bench"].includes(String(vetting.stage || "")) || !isRowApprovable(vetting)) {
+    throw new Error("This VA is no longer eligible for client matching. Approved VAs must still have at least 60% profile completion.");
+  }
   return admin;
 }
 

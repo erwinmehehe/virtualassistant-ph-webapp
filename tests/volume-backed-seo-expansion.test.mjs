@@ -258,14 +258,12 @@ test("remaining AU US PH volume gaps have one canonical owner", () => {
   const publicRoutes = source("src/lib/public-seo-routes.ts");
   const redirects = source("next.config.ts");
 
-  for (const [path, phrase] of [
-    ["/virtual-assistant-websites", "virtual assistant websites"],
-    ["/virtual-assistant-usa", "virtual assistant usa"],
-  ]) {
-    assert.ok(authority.includes(`path: "${path}"`), `missing authority owner ${path}`);
-    assert.ok(authority.toLowerCase().includes(phrase), `missing keyword family ${phrase}`);
-    assert.ok(publicRoutes.includes(`path: "${path}"`), `missing public SEO route ${path}`);
-  }
+  assert.ok(authority.includes('path: "/virtual-assistant-websites"'), "missing websites editorial source data");
+  assert.ok(authority.toLowerCase().includes("virtual assistant websites"), "missing websites keyword family");
+  assert.ok(!publicRoutes.includes('path: "/virtual-assistant-websites"'), "websites guide should not remain a standalone landing page");
+  assert.ok(authority.includes('path: "/virtual-assistant-usa"'), "missing USA authority owner");
+  assert.ok(authority.toLowerCase().includes("virtual assistant usa"), "missing USA keyword family");
+  assert.ok(publicRoutes.includes('path: "/virtual-assistant-usa"'), "USA market page must remain public");
 
   for (const slug of [
     "virtual-assistant-cover-letter",
@@ -280,7 +278,7 @@ test("remaining AU US PH volume gaps have one canonical owner", () => {
   assert.match(pricing, /cheap virtual assistant/);
   assert.match(managed, /employee virtual assistant/);
   assert.match(managed, /bpo virtual assistant/);
-  assert.ok(redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true'));
+  assert.ok(redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true'));
 });
 
 
@@ -327,4 +325,47 @@ test("role-page copy does not leak SEO implementation language", () => {
       assert.ok(!copy.includes(phrase), `${page.slug} leaks internal SEO language: ${phrase}`);
     }
   }
+});
+
+
+test("informational September 22 topics consolidate into the blog", () => {
+  const editorial = source("src/lib/editorial-seo-guides.ts");
+  const redirects = source("next.config.ts");
+  const publicRoutes = source("src/lib/public-seo-routes.ts");
+  for (const slug of [
+    "virtual-assistant-companies-philippines",
+    "virtual-assistant-websites",
+    "what-is-a-virtual-assistant",
+    "virtual-assistant-for-nonprofits",
+    "how-to-apply-as-a-virtual-assistant",
+    "virtual-assistant-resume-sample",
+    "virtual-assistant-portfolio-examples",
+    "virtual-assistant-skills",
+    "virtual-assistant-requirements-philippines",
+    "how-to-become-a-virtual-assistant-philippines",
+    "virtual-assistant-training-guide",
+    "virtual-assistant-certification-guide",
+    "virtual-assistant-cover-letter",
+    "best-laptop-for-virtual-assistant",
+    "freelance-platforms-for-virtual-assistants",
+    "how-to-start-a-virtual-assistant-business",
+  ]) {
+    assert.ok(editorial.includes(slug), `missing editorial blog registration for ${slug}`);
+  }
+  assert.ok(redirects.includes('source: "/resources/virtual-assistant-no-experience", destination: "/blog/become-virtual-assistant-no-experience", permanent: true'));
+  for (const oldPath of ["/virtual-assistant-companies-philippines", "/virtual-assistant-websites", "/what-is-a-virtual-assistant", "/industries/nonprofits"]) {
+    assert.ok(!publicRoutes.includes(`path: "${oldPath}"`), `old editorial landing page remains public: ${oldPath}`);
+  }
+});
+
+test("Australia and USA remain market landing pages with deeper content", () => {
+  const authority = source("src/lib/seo-authority-pages.ts");
+  const component = source("src/components/seo-authority-page.tsx");
+  const css = source("src/app/market-authority.css");
+  assert.match(authority, /Build the first 30 days around one measurable handoff/);
+  assert.match(authority, /Use a controlled 30-day handoff instead of delegating everything at once/);
+  assert.match(component, /market-signal-strip/);
+  assert.match(component, /isMarketPage/);
+  assert.match(css, /market-signal-grid/);
+  assert.match(css, /@media \(max-width: 560px\)/);
 });

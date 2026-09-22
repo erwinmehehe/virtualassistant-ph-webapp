@@ -1,14 +1,14 @@
 import { ArrowRight } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dateShort } from "@/lib/format";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/app/actions/notifications";
 import { openWorkspaceNotificationAction } from "@/app/actions/notification-open";
 
 export default async function ClientNotificationsPage(){
-  const {user}=await requireRole("client");
+  const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
-  const {data:notifications}=await supabase.from("notifications").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);
+  const {data:notifications}=await supabase.from("notifications").select("*").eq("user_id",userId).order("created_at",{ascending:false}).limit(100);
   const unread=(notifications||[]).filter((x:any)=>!x.read_at).length;
   return <>
     <div className="page-head"><div><h1>Notifications</h1><p>Hiring updates and actions that need your attention. Click an update to go straight to the next step.</p></div>{unread?<form action={markAllNotificationsReadAction}><button className="btn" type="submit">Mark all read</button></form>:null}</div>

@@ -1,5 +1,5 @@
 import { MIN_HOURLY_RATE } from "@/lib/constants";
-import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
+import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
 export type RecruiterTalentFilters = {
@@ -53,7 +53,16 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   if (readiness === "incomplete") {
     query = query
       .gt("completion_score", 0)
-      .lt("completion_score", PUBLIC_VA_MIN_COMPLETION)
+      .lt("completion_score", APPROVAL_MIN_COMPLETION)
+      .neq("stage", "rejected")
+      .eq("account_status", "active");
+  }
+
+  if (readiness === "approval_ready") {
+    query = query
+      .gte("completion_score", APPROVAL_MIN_COMPLETION)
+      .neq("stage", "approved")
+      .neq("stage", "bench")
       .neq("stage", "rejected")
       .eq("account_status", "active");
   }

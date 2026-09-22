@@ -4,6 +4,12 @@ export type SeoPriorityLink = {
   description: string;
 };
 
+const RATE_REPORT: SeoPriorityLink = {
+  href: "/research/virtual-assistant-rates-philippines-2026",
+  label: "2026 Virtual Assistant Rate & Skills Report",
+  description: "See anonymized first-party platform data on preferred USD hourly rates, experience, specialties, skills, and tools."
+};
+
 const RATE_GUIDE: SeoPriorityLink = {
   href: "/average-hourly-rate-virtual-assistants-philippines",
   label: "Virtual Assistant hourly rates in the Philippines",
@@ -53,7 +59,8 @@ const CONTENT_MARKETING_GUIDE: SeoPriorityLink = {
 };
 
 export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
-  "virtual-assistant-salary-philippines": [RATE_GUIDE, DIRECT_PAYMENT],
+  "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT],
+  "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, DIRECT_PAYMENT],
   "hire-virtual-assistant-philippines": [RATE_GUIDE, GENERAL_VS_EXECUTIVE],
   "outsourcing-philippines-virtual-assistant": [SSS_GUIDE, DIRECT_PAYMENT],
   "philippines-vs-india-virtual-assistants": [SSS_GUIDE, RATE_GUIDE],

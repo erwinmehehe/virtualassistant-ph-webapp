@@ -1,5 +1,5 @@
 export type ResourceAudience = "client" | "candidate";
-export type ResourceIntent = "definition" | "tasks" | "hiring" | "interview" | "cost" | "candidate";
+export type ResourceIntent = "definition" | "tasks" | "hiring" | "interview" | "cost" | "tools" | "candidate";
 
 export type SeoResourceSection = {
   heading: string;
@@ -308,7 +308,8 @@ function siblingSlugs(cluster: RoleCluster) {
     tasks: cluster.slugBase + "-tasks",
     hiring: "how-to-hire-a-" + cluster.slugBase,
     interview: cluster.slugBase + "-interview-questions",
-    cost: cluster.slugBase + "-cost-philippines"
+    cost: cluster.slugBase + "-cost-philippines",
+    tools: "best-tools-for-" + cluster.slugBase
   };
 }
 
@@ -323,7 +324,8 @@ function commonLinks(cluster: RoleCluster, current: ResourceIntent) {
     tasks: "Tasks to delegate",
     hiring: "How to hire",
     interview: "Interview questions",
-    cost: "Cost guide"
+    cost: "Cost guide",
+    tools: "Best tools"
   };
   for (const [intent, slug] of Object.entries(slugs)) {
     if (intent === current) continue;
@@ -582,12 +584,60 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
   };
 }
 
+
+function toolsPage(cluster: RoleCluster): SeoResourcePage {
+  const slugs = siblingSlugs(cluster);
+  return {
+    slug: slugs.tools,
+    title: "Best Tools for " + withArticle(cluster.role),
+    metaTitle: fitMetaTitle("Best Tools for " + withArticle(cluster.role), cluster.role + " Tools"),
+    metaDescription: ("Compare useful tools for " + withArticle(cluster.role) + ", what each system supports, how to screen software experience, and how to manage access securely.").slice(0, 160),
+    keywords: [cluster.primaryKeyword + " tools", "best tools for " + cluster.primaryKeyword, cluster.primaryKeyword + " software"],
+    audience: "client",
+    intent: "tools",
+    serviceSlug: cluster.serviceSlug,
+    role: cluster.role,
+    clusterLabel: cluster.role,
+    lede: "The best tool stack is the one that makes " + cluster.focus + " visible, repeatable, and safe to hand off. Hire for workflow fluency first, then confirm the candidate can work comfortably in the systems your team actually uses.",
+    sections: [
+      {
+        heading: "Core tools for the role",
+        paragraphs: ["Common systems for this role include " + cluster.tools.slice(0, 6).join(", ") + ". A candidate does not need every tool on the list, but they should be able to explain what they created, updated, checked, and handed off inside the platforms they claim to know."],
+        bullets: cluster.tools
+      },
+      {
+        heading: "Screen software experience in context",
+        paragraphs: ["Do not ask only whether a candidate has used a platform. Ask them to describe a real workflow, the source data, the steps they completed, the checks they performed, and what happened next. That separates surface familiarity from practical operating experience."],
+        bullets: cluster.evidence
+      },
+      {
+        heading: "Keep access proportional to the work",
+        paragraphs: ["Provision named accounts where practical and grant only the permissions required for the documented workflow. Broader access should follow demonstrated reliability, not arrive automatically on day one."],
+        bullets: ["Use named company-controlled accounts", "Enable multi-factor authentication where available", "Avoid sharing owner credentials", "Limit export, deletion, billing, and admin permissions", "Document which actions require approval", "Remove access promptly when responsibilities change"]
+      },
+      {
+        heading: "Do not let software replace a clear process",
+        paragraphs: ["A new platform will not fix unclear ownership, missing inputs, conflicting instructions, or weak approval rules. Define the workflow first, then use the simplest combination of tools that keeps status, quality, and exceptions visible."],
+        bullets: cluster.mistakes.map((item) => "Avoid " + item + ".")
+      }
+    ],
+    faqs: [
+      { q: "What tools should a " + cluster.role + " know?", a: "Common tools include " + cluster.tools.slice(0, 6).join(", ") + ". The required stack should follow the work your business actually needs completed." },
+      { q: "Should I reject someone who has not used our exact software?", a: "Not automatically. Strong experience in the underlying workflow and similar systems can transfer. Ask how the candidate learned adjacent tools and how they would verify their work during onboarding." },
+      { q: "How should I test tool knowledge?", a: "Use a short workflow scenario or ask the candidate to explain a real task they completed in the platform. Focus on sequence, checks, records, and escalation rather than memorized feature names." },
+      { q: "How much access should a Virtual Assistant receive?", a: "Start with the minimum access needed for the assigned workflows. Expand permissions only when the responsibility genuinely requires it and the approval rules are documented." }
+    ],
+    internalLinks: commonLinks(cluster, "tools")
+  };
+}
+
 const ROLE_RESOURCE_PAGES = ROLE_CLUSTERS.flatMap((cluster) => [
   definitionPage(cluster),
   tasksPage(cluster),
   hiringPage(cluster),
   interviewPage(cluster),
-  costPage(cluster)
+  costPage(cluster),
+  toolsPage(cluster)
 ]);
 
 const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [

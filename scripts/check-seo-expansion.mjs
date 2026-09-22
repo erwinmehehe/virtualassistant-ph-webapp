@@ -138,7 +138,7 @@ for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", 
 }
 
 const expectedAuthorityPaths = [
-  "/blog/virtual-assistant-companies-philippines",
+  "/virtual-assistant-companies-philippines",
   "/virtual-assistant-websites",
   "/virtual-assistant-usa",
   "/virtual-assistant-australia",
@@ -152,7 +152,7 @@ for (const path of expectedAuthorityPaths) {
 for (const path of ["/virtual-assistant-usa", "/virtual-assistant-australia", "/types-of-virtual-assistants"]) {
   assert(files.publicRoutes.includes(`path: "${path}"`), `missing public route entry for retained landing page ${path}`);
 }
-for (const path of ["/blog/virtual-assistant-companies-philippines", "/virtual-assistant-websites", "/what-is-a-virtual-assistant", "/industries/nonprofits"]) {
+for (const path of ["/virtual-assistant-companies-philippines", "/virtual-assistant-websites", "/what-is-a-virtual-assistant", "/industries/nonprofits"]) {
   assert(!files.publicRoutes.includes(`path: "${path}"`), `redirected editorial route still exposed as a public landing page: ${path}`);
 }
 
@@ -188,7 +188,7 @@ assert(files.services.includes('href="/types-of-virtual-assistants"'), "services
 
 // Post-expansion internal-link targets: verify the editorial corpus can pass authority
 // into the core commercial hubs before expanding with more weak URLs.
-for (const path of ["/services", "/hire", "/pricing", "/blog/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
+for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
   assert(files.blog.includes(`"href": "${path}"`), `blog corpus missing contextual authority link to ${path}`);
 }
 

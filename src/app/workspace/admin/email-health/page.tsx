@@ -98,6 +98,8 @@ export default async function AdminEmailHealthPage() {
     .filter((event) => Boolean(event.provider_id) && quotaConsumedStatuses.includes(event.status))
     .reduce((total, event) => total + eventRecipientCount(event), 0);
   const remaining = Math.max(0, DAILY_RECIPIENT_LIMIT - deliveriesToday);
+  const quotaPercent = Math.min(100, Math.round((deliveriesToday / DAILY_RECIPIENT_LIMIT) * 100));
+  const quotaPressure = remaining <= 20 ? "High" : quotaPercent >= 60 ? "Elevated" : "Normal";
   const duplicatePrevented = events.filter((event) => event.status === "duplicate_prevented").length;
   const suppressedSends = events.filter((event) => event.status === "suppressed").length;
   const lowPrioritySkipped = events.filter((event) => event.status === "skipped_quota" && event.priority === "low").length;
@@ -142,7 +144,7 @@ export default async function AdminEmailHealthPage() {
           <div>
             <span>Remaining daily allowance</span>
             <strong>{remaining}</strong>
-            <small>Configured limit: {DAILY_RECIPIENT_LIMIT}</small>
+            <small>Configured limit: {DAILY_RECIPIENT_LIMIT} · {quotaPercent}% used · {quotaPressure} pressure</small>
           </div>
         </div>
         <div className="health-card ok">

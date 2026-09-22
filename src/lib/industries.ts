@@ -1325,7 +1325,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "Quote comparisons prepared by the Virtual Assistant should present factual information without recommending coverage, insurers or policy terms.",
       "The licensed or authorised local insurance broker retains final coverage decisions, recommendations, advice, approvals and compliance responsibility; the Virtual Assistant performs renewal production and administration."
     ]
-  }
+  },
   {
     "slug": "nonprofits",
     "label": "Nonprofits",

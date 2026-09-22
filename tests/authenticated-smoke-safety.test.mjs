@@ -68,3 +68,11 @@ test("authenticated visual shortlist flow reuses the recruiter role config for p
   assert.match(script,/const recruiterSession = await signIn\(roles\.find\(\(role\) => role\.role === "recruiter"\)\)/);
   assert.doesNotMatch(script,/signIn\(process\.env\.SMOKE_RECRUITER_EMAIL/);
 });
+
+
+test("smoke VA fixtures refresh availability without weakening production rules",()=>{
+  const route=read("src/app/api/internal/github-smoke-auth/route.ts");
+  assert.match(route,/availability_status: "available"/);
+  assert.match(route,/availability_confirmed_at: now/);
+  assert.match(route,/availability_last_prompted_at: null/);
+});

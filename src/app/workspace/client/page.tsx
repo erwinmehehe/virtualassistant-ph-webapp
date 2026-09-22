@@ -7,7 +7,6 @@ import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { openClientDiscoveryBookingAction } from "@/app/actions/booking";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof Sparkles};
@@ -16,27 +15,20 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const params=await searchParams;
   const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
-  const admin=createAdminClient();
-  const discoveryPromise=admin.from("lead_intake")
-    .select("id,created_at,discovery_scheduled_at,discovery_outcome,discovery_cancelled_at,discovery_meeting_url")
-    .eq("client_id",userId)
-    .eq("lead_type","client_hiring")
-    .order("created_at",{ascending:false})
-    .limit(20);
   const requestedPromise=params.talent
     ? supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle()
     : Promise.resolve({data:null,error:null} as any);
 
-  const [dashboardResult,{data:requested,error:requestedError},{data:discoveryRows,error:discoveryError}]=await Promise.all([getClientDashboardSummary(userId),requestedPromise,discoveryPromise]);
-  const discoveryBooking=(discoveryRows||[]).find((row:any)=>Boolean(row.discovery_scheduled_at)||["no_show","cancelled","rescheduled"].includes(String(row.discovery_outcome||"")))||null;
+  const [dashboardResult,{data:requested,error:requestedError}]=await Promise.all([getClientDashboardSummary(userId),requestedPromise]);
   const dashboard=dashboardResult.data;
+  const discoveryBooking=dashboard?.discovery_booking||null;
   const company=dashboard?.company||{};
   const hiringOwner=dashboard?.hiring_owner||null;
   const jobRows=dashboard?.jobs||[];
   const jobCount=Number(dashboard?.job_count||0);
   if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent&&!discoveryBooking)redirect("/workspace/client/onboarding");
 
-  const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null,"your discovery call":discoveryError});
+  const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null});
   const hires=Number(dashboard?.hire_count||0);
   const shortlistCount=Number(dashboard?.application_count||0);
   const pipeline=dashboard?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};

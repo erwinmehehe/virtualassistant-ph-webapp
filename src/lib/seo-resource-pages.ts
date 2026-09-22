@@ -862,6 +862,164 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { href: "/resources/virtual-assistant-requirements-philippines", label: "VA requirements", description: "Check equipment, connectivity, and application readiness." },
       { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Use a focused application process for remote roles." }
     ]
+  },
+  {
+    slug: "virtual-assistant-job-description",
+    title: "Virtual Assistant Job Description Template and Hiring Guide",
+    metaTitle: "Virtual Assistant Job Description | 2026 Template",
+    metaDescription: "Write a clear Virtual Assistant job description with role scope, responsibilities, tools, schedule, pay, success measures, screening criteria, and a usable template.",
+    keywords: ["virtual assistant job description", "virtual assistant job description template", "general virtual assistant job description", "virtual assistant duties and responsibilities"],
+    audience: "client", intent: "hiring", clusterLabel: "Virtual Assistant Job Description",
+    lede: "A useful Virtual Assistant job description should describe one real operating role, not every task your business might ever outsource. Define the outcome, recurring responsibilities, systems, schedule, pay range, and decision boundaries before you post the role.",
+    sections: [
+      { heading: "Start with a specific role outcome", paragraphs: ["Use a title that tells candidates what kind of work they will own. Administrative Virtual Assistant, Ecommerce Virtual Assistant, Real Estate Virtual Assistant, or Marketing Virtual Assistant gives much more signal than a generic request for someone who can do everything."], bullets: ["Role title", "Business context", "Primary outcome", "Reporting line", "Full-time or part-time structure"] },
+      { heading: "List the recurring responsibilities", paragraphs: ["Prioritize the work that will happen every week and separate must-have responsibilities from occasional tasks. Candidates should be able to picture an ordinary workday from the description."], bullets: ["Three to six core responsibilities", "Recurring deadlines", "Customer or client exposure", "Required documentation", "Escalation responsibilities"] },
+      { heading: "State tools, hours, pay, and working expectations", paragraphs: ["Be explicit about timezone overlap, weekly hours, required software, equipment expectations, compensation, and whether the role is managed, directly hired, or otherwise structured. Ambiguity here creates poor-fit applications."], bullets: ["Timezone and live overlap", "Weekly hours", "Required tools", "Compensation range", "Start timing", "Communication rhythm"] },
+      { heading: "Use screening criteria tied to the work", paragraphs: ["Ask for evidence that resembles the job instead of generic claims about being hardworking. Interview scenarios, relevant work samples, and clear process explanations make candidates easier to compare."], bullets: ["Relevant experience", "Practical tool evidence", "Workflow scenario", "Communication quality", "Availability and schedule fit"] }
+    ],
+    faqs: [
+      { q: "What should a Virtual Assistant job description include?", a: "Include the role outcome, recurring responsibilities, required tools, weekly hours, timezone, compensation range, reporting line, must-have experience, success measures, and the decisions the person may or may not make." },
+      { q: "Should I list every possible task?", a: "No. Focus on the core recurring work. A job description that combines unrelated specialist roles often attracts weaker-fit candidates and creates unrealistic expectations." },
+      { q: "Should I publish the pay range?", a: "Publishing a realistic range helps candidates judge fit before applying and makes the process more transparent. Also explain whether the amount is hourly, monthly, full-time, part-time, or tied to another structure." },
+      { q: "What title should I use?", a: "Use the most specific role title that matches the work, such as Administrative Virtual Assistant, Bookkeeping Virtual Assistant, or Social Media Virtual Assistant, rather than relying only on the generic VA label." }
+    ],
+    internalLinks: [
+      { href: "/types-of-virtual-assistants", label: "Types of Virtual Assistants", description: "Choose the right role before writing the description." },
+      { href: "/services", label: "VA service and role guides", description: "Use role-specific responsibilities, tools, and screening guidance." },
+      { href: "/tools/virtual-assistant-job-description-generator", label: "Job description generator", description: "Turn the role inputs into a structured draft." },
+      { href: "/hire", label: "Send a hiring brief", description: "Have the recruiting team screen candidates against the actual workload." }
+    ]
+  },
+  {
+    slug: "virtual-assistant-training-guide",
+    title: "Virtual Assistant Training: What to Learn Before You Apply",
+    metaTitle: "Virtual Assistant Training Guide | Skills to Learn",
+    metaDescription: "Plan Virtual Assistant training around real job skills, workflows, tools, practice projects, and a target specialty instead of collecting generic certificates.",
+    keywords: ["virtual assistant training", "virtual assistant training philippines", "virtual assistant training course", "free virtual assistant training"],
+    audience: "candidate", intent: "candidate", clusterLabel: "Virtual Assistant Training",
+    lede: "Useful Virtual Assistant training is role-specific. Start with the work you want to do, learn the workflow and tools employers actually request, then build practice evidence you can explain in an interview.",
+    sections: [
+      { heading: "Choose a specialty before choosing training", paragraphs: ["Administrative, bookkeeping, social media, real estate, medical administration, ecommerce, and technical roles require different knowledge. A general course can introduce remote work, but it cannot replace role-specific practice."], bullets: ["Choose a target role", "Read current job requirements", "List repeated tasks", "Identify common tools"] },
+      { heading: "Practice complete workflows", paragraphs: ["Learn what triggers the task, what information is required, which system is updated, how the result is checked, and when the issue should be escalated. That is more job-ready than memorizing software menus."], bullets: ["Input", "Process", "System of record", "Quality check", "Escalation rule", "Final output"] },
+      { heading: "Use free and paid learning carefully", paragraphs: ["Free tutorials, product academies, documentation, practice projects, and paid training can all be useful. Judge a program by whether it teaches current workflows and produces evidence you can use, not by whether it promises guaranteed employment."], bullets: ["Official product documentation", "Practice projects", "Role-specific tutorials", "Structured courses where useful", "No guaranteed-job assumptions"] },
+      { heading: "Turn training into evidence", paragraphs: ["Create privacy-safe samples with dummy data and explain the process behind them. Label training projects honestly so recruiters can distinguish practice from paid client experience."], bullets: ["Portfolio sample", "Checklist or SOP", "Example tracker", "Role-specific mock workflow", "Clear training label"] }
+    ],
+    faqs: [
+      { q: "Do I need Virtual Assistant training before applying?", a: "You need the skills required by the role, but there is no single mandatory VA training program for all jobs. Some applicants already have transferable experience from office, customer service, sales, finance, marketing, or technical work." },
+      { q: "Can I learn Virtual Assistant skills for free?", a: "Yes. Official software documentation, free tutorials, practice projects, and public learning resources can build useful skills. Paid training can also help when it is structured and specific to your target role." },
+      { q: "Does training guarantee a VA job?", a: "No. Employers still evaluate experience, work evidence, communication, schedule, tools, and role fit." },
+      { q: "What should beginners learn first?", a: "Start with communication, documents, spreadsheets, task management, remote-work habits, and the specific workflows and software used in your chosen VA specialty." }
+    ],
+    internalLinks: [
+      { href: "/types-of-virtual-assistants", label: "Choose a VA specialty", description: "Pick the target role before choosing what to learn." },
+      { href: "/resources/virtual-assistant-skills", label: "VA skills guide", description: "See the operating and role-specific skills employers look for." },
+      { href: "/resources/best-tools-for-virtual-assistants", label: "VA tools guide", description: "Map software learning to the work you want to do." },
+      { href: "/resources/virtual-assistant-portfolio-examples", label: "Build a portfolio", description: "Turn practice into honest work evidence." }
+    ]
+  },
+  {
+    slug: "virtual-assistant-certification-guide",
+    title: "Virtual Assistant Certification: Do You Need One?",
+    metaTitle: "Virtual Assistant Certification | Do You Need One?",
+    metaDescription: "Learn when Virtual Assistant certification can help, what employers usually value more, how to evaluate training credentials, and how to prove job-ready skills.",
+    keywords: ["virtual assistant certification", "virtual assistant certification online", "best virtual assistant certification", "free virtual assistant certification"],
+    audience: "candidate", intent: "candidate", clusterLabel: "Virtual Assistant Certification",
+    lede: "There is no universal certification required for all Virtual Assistant jobs. A certificate can document learning, but employers still need evidence that you can perform the role, use the required tools, communicate clearly, and work the agreed schedule.",
+    sections: [
+      { heading: "Separate a certificate from job readiness", paragraphs: ["A certificate can show that you completed a program. It does not automatically prove that you can manage an inbox, reconcile records, run an ecommerce workflow, support a CRM, or handle another real VA responsibility."], bullets: ["Course completion", "Practical workflow ability", "Work samples", "Communication", "Role-specific knowledge"] },
+      { heading: "Evaluate certification programs carefully", paragraphs: ["Check who created the program, whether the curriculum is current, whether exercises resemble real work, and whether claims about jobs or income are realistic."], bullets: ["Current curriculum", "Named instructors or organization", "Practical exercises", "Transparent pricing", "No guaranteed income claims"] },
+      { heading: "Some specialist roles may value formal credentials", paragraphs: ["Accounting software, marketing platforms, IT systems, and other specialist tools sometimes offer official credentials that can support an application. They still work best when combined with practical experience or realistic work samples."], bullets: ["Official software credentials", "Industry training", "Platform academies", "Continuing education"] },
+      { heading: "Build proof beyond the certificate", paragraphs: ["Use a focused resume, portfolio, process examples, and strong interview answers. Recruiters should be able to see what you can do, not only what course you completed."], bullets: ["Resume evidence", "Portfolio samples", "Tool context", "Workflow explanations", "Interview scenarios"] }
+    ],
+    faqs: [
+      { q: "Do I need a certificate to become a Virtual Assistant?", a: "No universal VA certificate is required for every role. Employers may value specific training or credentials, but practical skills and relevant evidence remain essential." },
+      { q: "Are free Virtual Assistant certificates useful?", a: "They can support learning if the material is credible and current. Do not assume a free or paid certificate by itself will qualify you for a role." },
+      { q: "Which certifications are best?", a: "The most useful credential is usually tied to the specialty or software you want to work with, such as an official platform course, rather than a generic badge with little practical assessment." },
+      { q: "Should I put certifications on my resume?", a: "Yes when they are relevant and legitimate. Include the issuing organization and completion date, and keep the section secondary to relevant work experience and skills." }
+    ],
+    internalLinks: [
+      { href: "/resources/virtual-assistant-training-guide", label: "VA training guide", description: "Build a practical learning plan before choosing credentials." },
+      { href: "/resources/virtual-assistant-skills", label: "VA skills", description: "See what employers evaluate beyond certificates." },
+      { href: "/resources/virtual-assistant-resume-sample", label: "VA resume guide", description: "Present relevant certifications without overclaiming them." }
+    ]
+  },
+  {
+    slug: "freelance-virtual-assistant-guide",
+    title: "Freelance Virtual Assistant: How the Work Model Operates",
+    metaTitle: "Freelance Virtual Assistant Guide | How It Works",
+    metaDescription: "Learn how freelance Virtual Assistant work operates, including clients, scope, rates, contracts, time tracking, portfolio evidence, taxes, and finding legitimate work.",
+    keywords: ["freelance virtual assistant", "freelance virtual assistant jobs", "how to become a freelance virtual assistant", "freelance virtual assistant work"],
+    audience: "candidate", intent: "candidate", clusterLabel: "Freelance Virtual Assistant",
+    lede: "A freelance Virtual Assistant works with clients under a freelance or contractor-style arrangement rather than relying on one traditional employer relationship. The exact legal and tax treatment depends on the parties and jurisdiction, so the practical focus should be clear scope, transparent pay, records, and professional client management.",
+    sections: [
+      { heading: "Define the service you are selling", paragraphs: ["Freelancing is easier when you offer a clear specialty or set of compatible workflows. A vague promise to do anything makes pricing, marketing, delivery, and client expectations harder."], bullets: ["Target client", "Core service", "Typical deliverables", "Working hours", "Tools", "Boundaries"] },
+      { heading: "Use written scope and payment terms", paragraphs: ["Agree on responsibilities, rate, payment schedule, hours or deliverables, communication expectations, confidentiality, ownership, and how additional work is approved before starting."], bullets: ["Scope of work", "Rate and currency", "Invoice schedule", "Change requests", "Confidentiality", "Termination terms"] },
+      { heading: "Build repeatable client operations", paragraphs: ["Freelancers need a system for onboarding, task intake, status updates, files, invoicing, and offboarding. Good client operations protect both your time and the client's information."], bullets: ["Client intake", "Task system", "Time or output tracking", "Secure access", "Invoices", "Handover"] },
+      { heading: "Find work without paying for fake opportunities", paragraphs: ["Use legitimate freelance platforms, professional networks, direct outreach where appropriate, and verified job marketplaces. Avoid opportunities that require upfront payment, gift cards, crypto, or suspicious equipment purchases."], bullets: ["Established platforms", "Referrals", "Professional network", "Portfolio-led outreach", "Verified job boards"] }
+    ],
+    faqs: [
+      { q: "What is a freelance Virtual Assistant?", a: "A freelance Virtual Assistant provides remote services to one or more clients under a freelance or contractor-style arrangement. The person typically manages their own client relationships, scope, invoicing, and work systems." },
+      { q: "Can a beginner become a freelance VA?", a: "Yes, but beginners still need a useful service, honest evidence, clear communication, and a realistic way to deliver the work. Start with a narrow offer connected to skills you already have." },
+      { q: "How are freelance Virtual Assistants paid?", a: "Common structures include hourly, fixed monthly retainers, project fees, or other agreed arrangements. The contract should define the rate, currency, payment timing, and approval for extra work." },
+      { q: "Can I freelance and apply for VA jobs?", a: "Yes when your existing commitments do not conflict with the schedule, confidentiality, exclusivity, or other terms of the role you are considering." }
+    ],
+    internalLinks: [
+      { href: "/resources/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Build the underlying skills and evidence first." },
+      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio", description: "Create proof that helps clients understand your service." },
+      { href: "/blog/virtual-assistant-agency-vs-freelancer", label: "Agency vs freelancer", description: "See the buyer-side differences between hiring models." }
+    ]
+  },
+  {
+    slug: "non-voice-virtual-assistant-guide",
+    title: "Non-Voice Virtual Assistant Work: Roles and Tasks",
+    metaTitle: "Non-Voice Virtual Assistant Work | Role Guide",
+    metaDescription: "Explore non-voice Virtual Assistant work, including admin, data entry, research, CRM, email, ecommerce, content, bookkeeping, and other text-based remote tasks.",
+    keywords: ["non voice virtual assistant", "virtual assistant non voice", "non voice virtual assistant jobs"],
+    audience: "candidate", intent: "candidate", clusterLabel: "Non-Voice Virtual Assistant",
+    lede: "Non-voice Virtual Assistant work emphasizes written communication and system-based tasks rather than continuous phone calls. Many roles still include meetings or occasional calls, so always check the actual job requirements instead of assuming the role is completely voice-free.",
+    sections: [
+      { heading: "Common non-voice VA work", paragraphs: ["Many administrative and specialist workflows can be handled primarily through email, chat, documents, spreadsheets, or business software."], bullets: ["Data entry", "Web research", "CRM updates", "Email administration", "Content scheduling", "Ecommerce listings", "Bookkeeping administration", "Document formatting"] },
+      { heading: "Written communication still matters", paragraphs: ["A non-voice role is not a no-communication role. Clients still expect clear updates, accurate notes, professional messages, and timely questions when information is missing."], bullets: ["Status updates", "Email writing", "Task notes", "Escalation messages", "Documentation"] },
+      { heading: "Check whether occasional calls are required", paragraphs: ["Some employers describe a role as non-voice because customers are not called, while internal meetings or onboarding calls still occur. Read the schedule and communication expectations carefully."], bullets: ["Team meetings", "Training calls", "Client check-ins", "No customer calls", "Asynchronous work"] },
+      { heading: "Choose a specialty instead of only searching non-voice", paragraphs: ["You will usually find better-fit work by combining non-voice preference with a real role such as data entry, research, bookkeeping, ecommerce, content, or CRM administration."], bullets: ["Research and data", "Administrative support", "Bookkeeping", "Ecommerce", "Marketing operations", "CRM"] }
+    ],
+    faqs: [
+      { q: "What is a non-voice Virtual Assistant?", a: "It is a VA role where most work is completed through written communication, documents, spreadsheets, and software rather than customer phone calls." },
+      { q: "Does non-voice mean there are no calls at all?", a: "Not necessarily. A role may have no customer calls but still require internal meetings, onboarding calls, or occasional client check-ins." },
+      { q: "What non-voice VA jobs are common?", a: "Common examples include data entry, research, CRM administration, email support, ecommerce listings, content operations, bookkeeping administration, and document work." },
+      { q: "How can I find non-voice work?", a: "Search by both the role and communication model. For example, look for data-entry, research, ecommerce, or bookkeeping VA roles and then verify whether the job requires phone coverage." }
+    ],
+    internalLinks: [
+      { href: "/service/research-data", label: "Research and data VA", description: "A common non-voice work category." },
+      { href: "/service/admin-inbox", label: "Administrative VA", description: "See admin workflows that can be primarily written and system-based." },
+      { href: "/jobs", label: "Browse VA jobs", description: "Check each role's actual communication requirements." }
+    ]
+  },
+  {
+    slug: "virtual-assistant-side-hustle-business-guide",
+    title: "Virtual Assistant Side Hustle: How to Start a VA Business",
+    metaTitle: "Virtual Assistant Side Hustle | Start a VA Business",
+    metaDescription: "Start a Virtual Assistant side hustle by choosing a service, building proof, setting scope and rates, finding legitimate clients, and creating simple freelance systems.",
+    keywords: ["virtual assistant side hustle", "how to start a virtual assistant business", "start a virtual assistant business", "virtual assistant business from home"],
+    audience: "candidate", intent: "candidate", clusterLabel: "VA Business and Side Hustle",
+    lede: "A Virtual Assistant side hustle works best when it starts as a small service business with one clear offer. Choose work you can already deliver, define who needs it, build evidence, and create a simple process for scope, payment, communication, and client data.",
+    sections: [
+      { heading: "Choose one useful service first", paragraphs: ["Start with a problem you can solve repeatedly, such as inbox administration, bookkeeping support, CRM cleanup, social scheduling, research, ecommerce administration, or another skill you already know."], bullets: ["Target client", "Specific problem", "Deliverable", "Tools", "Availability"] },
+      { heading: "Create proof before chasing scale", paragraphs: ["Use past transferable work or privacy-safe practice examples. A small portfolio and a clear explanation of your process are more useful than a large website with no evidence."], bullets: ["Resume", "Portfolio", "Sample workflow", "Simple service description", "Professional contact channel"] },
+      { heading: "Set scope and rates clearly", paragraphs: ["Choose an hourly, retainer, or project structure that matches the work. Write down what is included, the schedule, payment timing, communication expectations, and how additional requests are handled."], bullets: ["Scope", "Rate", "Payment terms", "Hours", "Revisions", "Extra work approval"] },
+      { heading: "Find legitimate clients and protect the relationship", paragraphs: ["Use referrals, professional networks, established freelance marketplaces, verified job platforms, or relevant direct outreach. Protect client data, keep records, invoice professionally, and avoid opportunities that ask you to pay money to get work."], bullets: ["Referrals", "Networks", "Freelance platforms", "Verified job boards", "Secure client operations"] }
+    ],
+    faqs: [
+      { q: "Can Virtual Assistant work be a side hustle?", a: "Yes when the client workload fits your real availability and does not conflict with another employer or client agreement. Be transparent about the hours you can reliably commit." },
+      { q: "How much money do I need to start?", a: "Costs can be relatively low if you already have a reliable computer and internet connection. You may still need software, payment processing, accounting, or business-registration expenses depending on how you operate." },
+      { q: "What service should I offer first?", a: "Start with work you already know how to perform and can show evidence for. A narrow reliable service is easier to sell and deliver than a long list of unrelated tasks." },
+      { q: "Do I need a website?", a: "Not necessarily. A clear profile, resume, portfolio, and professional contact method can be enough to start. Add a website when it materially helps your acquisition process." }
+    ],
+    internalLinks: [
+      { href: "/resources/freelance-virtual-assistant-guide", label: "Freelance VA guide", description: "Understand the client-service model and operating basics." },
+      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Create evidence for the service you want to sell." },
+      { href: "/resources/virtual-assistant-skills", label: "VA skills", description: "Choose a service that matches your current capability." }
+    ]
   }
 ];
 

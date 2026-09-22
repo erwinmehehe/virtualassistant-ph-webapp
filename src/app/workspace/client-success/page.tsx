@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CalendarClock, CheckCircle2, CircleDot, HeartPulse, ShieldCheck, UsersRound } from "lucide-react";
 import { DashHeader, Panel, Pill, StatCard } from "@/components/dash-ui";
-import { requireAnyRole } from "@/lib/auth";
+import { requireAnyRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const STAGE_LABELS: Record<string,string> = { pre_start:"Pre-start",launch:"Launch",active:"Active",recovery:"Recovery",replacement:"Replacement",ended:"Ended" };
@@ -63,9 +63,9 @@ function placementClass(row:QueueRow){
 }
 
 export default async function ClientSuccessTodayPage(){
-  const {user}=await requireAnyRole(["admin","recruiter"]);
+  const {userId}=await requireAnyRoleFast(["admin","recruiter"]);
   const admin=createAdminClient();
-  const {data,error}=await admin.rpc("client_success_today_queue",{p_actor_id:user.id,p_limit:200,p_offset:0});
+  const {data,error}=await admin.rpc("client_success_today_queue",{p_actor_id:userId,p_limit:200,p_offset:0});
   if(error)throw error;
 
   const now=Date.now();

@@ -278,6 +278,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.role_close_warning ? <div className="alert" role="alert">The lead closed, but its linked role could not be closed automatically. Review the role before continuing.</div> : null}
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
+    {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
+    {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
+    {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
     <div className="dash-header">
       <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>This is the recruiter operating screen. Clear non-zero action lanes first, then work the detailed queue below.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
       <div className="row wrap">
@@ -323,7 +326,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             <div className={styles.followActions}>
               {!sent?<form action={sendDiscoveryNoShowRebookAction}>
                 <input type="hidden" name="lead_id" value={lead.id}/>
-                <input type="hidden" name="return_to" value="/workspace/recruiter/today#call-rebooking"/>
+                <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
                 <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
               </form>:<span className="badge badge-success">Link sent</span>}
               <Link className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>

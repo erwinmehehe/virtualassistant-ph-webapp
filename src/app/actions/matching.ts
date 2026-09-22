@@ -161,7 +161,7 @@ export async function saveJobShortlistAction(formData: FormData) {
     admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
   if (mode === "release") {
-    const availabilityCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+    const availabilityCutoff = Date.now() - AVAILABILITY_FRESH_DAYS * 24 * 60 * 60 * 1000;
     const stale = (vas || []).filter((va: any) => {
       const confirmedAt = va.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : 0;
       return va.availability_status !== "available" || !confirmedAt || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;

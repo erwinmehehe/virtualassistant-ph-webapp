@@ -161,7 +161,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "data entry virtual assistant",
     "metaTitle": "Data Entry Virtual Assistant Philippines | Research VA",
     "metaDescription": "Hire a Data Entry Virtual Assistant in the Philippines for research, spreadsheets, database updates, validation, list building, cleanup, and record maintenance.",
-    "intro": "Hire a Data Entry Virtual Assistant in the Philippines for web research, spreadsheet work, database updates, validation, list building, cleanup, and record maintenance. This page also covers research Virtual Assistant demand when the work centers on accurate data collection and structured records.",
+    "intro": "Hire a Data Entry Virtual Assistant in the Philippines for web research, spreadsheet work, database updates, validation, list building, cleanup, and record maintenance. The same role can support research workflows when the work centers on accurate data collection and structured records.",
     "focus": "accurate research, data collection, cleanup, and record maintenance",
     "tasks": [
       "web research",
@@ -727,7 +727,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "administrative virtual assistant",
     "metaTitle": "Administrative Virtual Assistant Philippines",
     "metaDescription": "Hire an Administrative Virtual Assistant in the Philippines for inbox, calendar, records, research, data entry, coordination, and recurring admin support.",
-    "intro": "Hire an Administrative Virtual Assistant in the Philippines for inbox management, calendar support, records, research, data entry, document preparation, and recurring coordination. This page owns the administrative VA and virtual admin assistant hiring intent; use the general VA page when the workload spans several unrelated functions.",
+    "intro": "Hire an Administrative Virtual Assistant in the Philippines for inbox management, calendar support, records, research, data entry, document preparation, and recurring coordination. Use this role for focused administrative support; choose a General Virtual Assistant when the workload spans several unrelated functions.",
     "focus": "inbox, calendar, scheduling, and recurring administrative support",
     "tasks": [
       "inbox triage",
@@ -854,7 +854,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "hr virtual assistant",
     "metaTitle": "HR Virtual Assistant Philippines | Recruitment Support",
     "metaDescription": "Hire an HR Virtual Assistant in the Philippines for sourcing support, interview scheduling, ATS updates, onboarding coordination, and people operations.",
-    "intro": "Hire an HR Virtual Assistant in the Philippines for candidate sourcing support, interview scheduling, ATS updates, onboarding coordination, and people-operations administration. Recruitment Virtual Assistant and Human Resources Virtual Assistant are closely related intents, so this canonical page covers both without creating duplicate role pages.",
+    "intro": "Hire an HR Virtual Assistant in the Philippines for candidate sourcing support, interview scheduling, ATS updates, onboarding coordination, and people-operations administration. The same role is often called a Recruitment Virtual Assistant or Human Resources Virtual Assistant when sourcing and people-operations work share one workflow.",
     "focus": "recruiting coordination and people-operations administration",
     "tasks": [
       "candidate sourcing support",
@@ -1673,7 +1673,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "virtual personal assistant",
     "metaTitle": "Virtual Personal Assistant Philippines",
     "metaDescription": "Hire a Virtual Personal Assistant in the Philippines for calendars, travel, appointments, research, reminders, inbox support, and personal administration.",
-    "intro": "Hire a Virtual Personal Assistant in the Philippines for calendar management, travel planning, appointments, research, reminders, inbox support, and personal administration. Virtual secretary and personal assistant searches can overlap, but this page is for one recurring assistant relationship rather than a shared receptionist service.",
+    "intro": "Hire a Virtual Personal Assistant in the Philippines for calendar management, travel planning, appointments, research, reminders, inbox support, and personal administration. A virtual secretary can have similar duties, but this role is for one recurring assistant relationship rather than a shared receptionist service.",
     "focus": "personal scheduling, research, coordination, and administrative support",
     "tasks": [
       "personal calendar management",
@@ -1735,7 +1735,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Video Editing & Creative",
     "primaryKeyword": "graphic design virtual assistant",
     "metaTitle": "Graphic Design Virtual Assistant Philippines",
-    "metaDescription": "Hire a Graphic Design Virtual Assistant in the Philippines for Canva, social graphics, presentation assets, resizing, production design, and creative operations.",
+    "metaDescription": "Hire a Graphic Design Virtual Assistant in the Philippines for Canva, social graphics, presentations, resizing, production design, and creative operations.",
     "intro": "Hire a Graphic Design Virtual Assistant in the Philippines for Canva production, social graphics, presentation assets, resizing, template updates, and recurring creative operations. Keep brand direction and final creative approval with the accountable owner while the VA handles repeatable production.",
     "focus": "repeatable design production and brand-asset support",
     "tasks": [
@@ -1988,7 +1988,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "virtual marketing assistant",
     "metaTitle": "Virtual Marketing Assistant Philippines",
     "metaDescription": "Hire a Virtual Marketing Assistant in the Philippines for campaigns, content operations, reporting, research, CRM updates, and digital marketing execution.",
-    "intro": "Hire a Virtual Marketing Assistant in the Philippines for campaign production, digital marketing operations, reporting, research, CRM updates, and content coordination. This role also covers marketing Virtual Assistant and digital marketing Virtual Assistant demand when the work is execution-focused rather than strategy ownership.",
+    "intro": "Hire a Virtual Marketing Assistant in the Philippines for campaign production, digital marketing operations, reporting, research, CRM updates, and content coordination. This role fits teams that need a marketing Virtual Assistant or digital marketing Virtual Assistant for steady execution rather than strategy ownership.",
     "focus": "cross-channel marketing execution and campaign operations",
     "tasks": [
       "campaign coordination",

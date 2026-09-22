@@ -1,5 +1,59 @@
 import type { NextConfig } from "next";
 
+const ROLE_RESOURCE_CONSOLIDATIONS = [
+  { service: "admin-inbox", base: "administrative-virtual-assistant", article: "an" },
+  { service: "digital-marketing-virtual-assistant", base: "digital-marketing-virtual-assistant", article: "a" },
+  { service: "social-media", base: "social-media-virtual-assistant", article: "a" },
+  { service: "accounting-virtual-assistant", base: "accounting-virtual-assistant", article: "an" },
+  { service: "it-virtual-assistant", base: "it-virtual-assistant", article: "an" },
+  { service: "research-data", base: "data-entry-research-virtual-assistant", article: "a" },
+  { service: "graphic-design", base: "graphic-design-virtual-assistant", article: "a" },
+  { service: "recruitment-hr", base: "recruitment-hr-virtual-assistant", article: "a" },
+  { service: "project-coordination", base: "project-coordination-virtual-assistant", article: "a" },
+  { service: "personal-assistant", base: "personal-virtual-assistant", article: "a" },
+  { service: "phone-receptionist", base: "virtual-receptionist", article: "a" },
+  { service: "property-management-virtual-assistant", base: "property-management-virtual-assistant", article: "a" },
+  { service: "crm", base: "crm-virtual-assistant", article: "a" },
+  { service: "email-marketing", base: "email-marketing-virtual-assistant", article: "an" },
+  { service: "wordpress", base: "wordpress-virtual-assistant", article: "a" },
+  { service: "creative-virtual-assistant", base: "creative-virtual-assistant", article: "a" },
+  { service: "logistics-virtual-assistant", base: "logistics-virtual-assistant", article: "a" },
+  { service: "general-virtual-assistant", base: "general-virtual-assistant", article: "a" },
+  { service: "small-business-virtual-assistant", base: "small-business-virtual-assistant", article: "a" },
+  { service: "payroll-virtual-assistant", base: "payroll-virtual-assistant", article: "a" },
+  { service: "operations", base: "operations-virtual-assistant", article: "an" },
+  { service: "calendar", base: "calendar-management-virtual-assistant", article: "a" },
+  { service: "airbnb-virtual-assistant", base: "airbnb-virtual-assistant", article: "an" },
+  { service: "pinterest-virtual-assistant", base: "pinterest-virtual-assistant", article: "a" },
+  { service: "content-writing", base: "content-writing-virtual-assistant", article: "a" }
+] as const;
+
+const roleResourceConsolidationRedirects = ROLE_RESOURCE_CONSOLIDATIONS.flatMap(({ service, base, article }) => {
+  const servicePath = "/service/" + service;
+  const definition = "/resources/what-does-" + article + "-" + base + "-do";
+  const tasks = "/resources/" + base + "-tasks";
+  const hiring = "/resources/how-to-hire-" + article + "-" + base;
+  const interview = "/resources/" + base + "-interview-questions";
+  const cost = "/resources/" + base + "-cost-philippines";
+  const tools = "/resources/best-tools-for-" + base;
+  const core = service === "payroll-virtual-assistant"
+    ? [
+        { source: definition, destination: "/blog/what-does-a-payroll-virtual-assistant-do", permanent: true },
+        { source: tasks, destination: "/blog/what-does-a-payroll-virtual-assistant-do", permanent: true },
+        { source: hiring, destination: "/blog/how-to-hire-a-payroll-virtual-assistant", permanent: true },
+        { source: interview, destination: "/blog/how-to-hire-a-payroll-virtual-assistant", permanent: true },
+        { source: cost, destination: "/blog/payroll-virtual-assistant-cost-philippines", permanent: true },
+        { source: tools, destination: servicePath, permanent: true },
+      ]
+    : [
+        { source: definition, destination: servicePath, permanent: true },
+        { source: tasks, destination: servicePath, permanent: true },
+        { source: interview, destination: hiring, permanent: true },
+        { source: tools, destination: servicePath, permanent: true },
+      ];
+  return core.flatMap((redirect) => [redirect, { ...redirect, source: redirect.source + "/" }]);
+});
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -19,6 +73,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      ...roleResourceConsolidationRedirects,
       // Editorial topics belong in the blog. Preserve today's temporary URLs with one-hop permanent redirects.
       { source: "/virtual-assistant-companies-philippines", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },
       { source: "/virtual-assistant-companies-philippines/", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },
@@ -61,28 +116,28 @@ const nextConfig: NextConfig = {
       { source: "/workspace/client/messages", destination: "/workspace/client/support", permanent: false },
       { source: "/workspace/va/messages", destination: "/workspace/va/support", permanent: false },
       // Correct newly generated resource slugs that used "a" before vowel-sound roles.
-      { source: "/resources/what-does-a-administrative-virtual-assistant-do", destination: "/resources/what-does-an-administrative-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-administrative-virtual-assistant-do/", destination: "/resources/what-does-an-administrative-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-administrative-virtual-assistant-do", destination: "/service/admin-inbox", permanent: true },
+      { source: "/resources/what-does-a-administrative-virtual-assistant-do/", destination: "/service/admin-inbox", permanent: true },
       { source: "/resources/how-to-hire-a-administrative-virtual-assistant", destination: "/resources/how-to-hire-an-administrative-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-administrative-virtual-assistant/", destination: "/resources/how-to-hire-an-administrative-virtual-assistant", permanent: true },
-      { source: "/resources/what-does-a-accounting-virtual-assistant-do", destination: "/resources/what-does-an-accounting-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-accounting-virtual-assistant-do/", destination: "/resources/what-does-an-accounting-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-accounting-virtual-assistant-do", destination: "/service/accounting-virtual-assistant", permanent: true },
+      { source: "/resources/what-does-a-accounting-virtual-assistant-do/", destination: "/service/accounting-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-accounting-virtual-assistant", destination: "/resources/how-to-hire-an-accounting-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-accounting-virtual-assistant/", destination: "/resources/how-to-hire-an-accounting-virtual-assistant", permanent: true },
-      { source: "/resources/what-does-a-it-virtual-assistant-do", destination: "/resources/what-does-an-it-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-it-virtual-assistant-do/", destination: "/resources/what-does-an-it-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-it-virtual-assistant-do", destination: "/service/it-virtual-assistant", permanent: true },
+      { source: "/resources/what-does-a-it-virtual-assistant-do/", destination: "/service/it-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-it-virtual-assistant", destination: "/resources/how-to-hire-an-it-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-it-virtual-assistant/", destination: "/resources/how-to-hire-an-it-virtual-assistant", permanent: true },
-      { source: "/resources/what-does-a-email-marketing-virtual-assistant-do", destination: "/resources/what-does-an-email-marketing-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-email-marketing-virtual-assistant-do/", destination: "/resources/what-does-an-email-marketing-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-email-marketing-virtual-assistant-do", destination: "/service/email-marketing", permanent: true },
+      { source: "/resources/what-does-a-email-marketing-virtual-assistant-do/", destination: "/service/email-marketing", permanent: true },
       { source: "/resources/how-to-hire-a-email-marketing-virtual-assistant", destination: "/resources/how-to-hire-an-email-marketing-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-email-marketing-virtual-assistant/", destination: "/resources/how-to-hire-an-email-marketing-virtual-assistant", permanent: true },
-      { source: "/resources/what-does-a-operations-virtual-assistant-do", destination: "/resources/what-does-an-operations-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-operations-virtual-assistant-do/", destination: "/resources/what-does-an-operations-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-operations-virtual-assistant-do", destination: "/service/operations", permanent: true },
+      { source: "/resources/what-does-a-operations-virtual-assistant-do/", destination: "/service/operations", permanent: true },
       { source: "/resources/how-to-hire-a-operations-virtual-assistant", destination: "/resources/how-to-hire-an-operations-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-operations-virtual-assistant/", destination: "/resources/how-to-hire-an-operations-virtual-assistant", permanent: true },
-      { source: "/resources/what-does-a-airbnb-virtual-assistant-do", destination: "/resources/what-does-an-airbnb-virtual-assistant-do", permanent: true },
-      { source: "/resources/what-does-a-airbnb-virtual-assistant-do/", destination: "/resources/what-does-an-airbnb-virtual-assistant-do", permanent: true },
+      { source: "/resources/what-does-a-airbnb-virtual-assistant-do", destination: "/service/airbnb-virtual-assistant", permanent: true },
+      { source: "/resources/what-does-a-airbnb-virtual-assistant-do/", destination: "/service/airbnb-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-airbnb-virtual-assistant", destination: "/resources/how-to-hire-an-airbnb-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-airbnb-virtual-assistant/", destination: "/resources/how-to-hire-an-airbnb-virtual-assistant", permanent: true },
       // Consolidate the earlier side-hustle resource into the broader high-volume VA business guide.

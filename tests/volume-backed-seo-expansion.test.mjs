@@ -47,14 +47,14 @@ test("SEO expansion release checker accepts the current canonical map", () => {
   assert.doesNotThrow(() => execFileSync(process.execPath, ["scripts/check-seo-expansion.mjs"], { cwd: new URL("..", import.meta.url), stdio: "pipe" }));
 });
 
-test("SEO expansion checker validates all eight September 22 resource families", () => {
+test("SEO expansion checker validates the consolidated September 22 role resources", () => {
   const output = execFileSync(process.execPath, ["scripts/check-seo-expansion.mjs"], {
     cwd: new URL("..", import.meta.url),
     encoding: "utf8",
   });
   const result = JSON.parse(output);
   assert.equal(result.september22Clusters, 8);
-  assert.equal(result.september22Resources, 48);
+  assert.equal(result.september22Resources, 14);
   assert.equal(result.invalidSeptember22ServiceMappings, 0);
 });
 
@@ -67,35 +67,36 @@ test("generated resource meta descriptions are complete 120-160 character senten
   assert.doesNotMatch(resources, /\.slice\(0,\s*160\)/);
 
   const generatedMetaCalls = [...resources.matchAll(/metaDescription:\s*fitMetaDescription\(/g)];
-  assert.equal(generatedMetaCalls.length, 6);
+  assert.equal(generatedMetaCalls.length, 2);
 });
 
-test("generated resource URLs use correct a/an grammar and preserve legacy slugs", () => {
+test("consolidated resource URLs preserve grammar and avoid redirect chains", () => {
   const resources = source("src/lib/seo-resource-pages.ts");
   const redirects = source("next.config.ts");
 
   assert.match(resources, /function articleWord\(value: string\)/);
   assert.match(resources, /\^\[A-Z\]\{2,\}\$/);
-  assert.ok(resources.includes('definition: "what-does-" + article + "-" + cluster.slugBase + "-do"'));
   assert.ok(resources.includes('hiring: "how-to-hire-" + article + "-" + cluster.slugBase'));
+  assert.ok(resources.includes('cost: cluster.slugBase + "-cost-philippines"'));
 
-  for (const slugBase of [
-    "administrative-virtual-assistant",
-    "accounting-virtual-assistant",
-    "it-virtual-assistant",
-    "email-marketing-virtual-assistant",
-    "operations-virtual-assistant",
-    "airbnb-virtual-assistant",
-  ]) {
-    for (const [legacy, canonical] of [
-      [`what-does-a-${slugBase}-do`, `what-does-an-${slugBase}-do`],
-      [`how-to-hire-a-${slugBase}`, `how-to-hire-an-${slugBase}`],
-    ]) {
-      assert.ok(
-        redirects.includes(`source: "/resources/${legacy}", destination: "/resources/${canonical}", permanent: true`),
-        `missing redirect for ${legacy}`,
-      );
-    }
+  const legacyDefinitions = new Map([
+    ["administrative-virtual-assistant", "admin-inbox"],
+    ["accounting-virtual-assistant", "accounting-virtual-assistant"],
+    ["it-virtual-assistant", "it-virtual-assistant"],
+    ["email-marketing-virtual-assistant", "email-marketing"],
+    ["operations-virtual-assistant", "operations"],
+    ["airbnb-virtual-assistant", "airbnb-virtual-assistant"],
+  ]);
+
+  for (const [slugBase, serviceSlug] of legacyDefinitions) {
+    assert.ok(
+      redirects.includes(`source: "/resources/what-does-a-${slugBase}-do", destination: "/service/${serviceSlug}", permanent: true`),
+      `legacy definition redirect does not land on the final service canonical: ${slugBase}`,
+    );
+    assert.ok(
+      redirects.includes(`source: "/resources/how-to-hire-a-${slugBase}", destination: "/resources/how-to-hire-an-${slugBase}", permanent: true`),
+      `legacy hiring grammar redirect missing: ${slugBase}`,
+    );
   }
 });
 
@@ -125,8 +126,8 @@ test("resource hub keeps a shallow crawl path without rendering every client gui
   const hub = source("src/app/resources/page.tsx");
   const detail = source("src/app/resources/[slug]/page.tsx");
 
-  assert.ok(hub.includes('page.audience === "client" && page.intent === "definition"'));
-  assert.ok(hub.includes("SEO_RESOURCE_ROLE_COUNT"));
+  assert.ok(hub.includes('page.audience === "client" && page.intent === "hiring"'));
+  assert.ok(hub.includes('page.intent === "hiring"'));
   assert.ok(detail.includes("page.internalLinks.map"));
   assert.ok(detail.includes('page.internalLinks.map((link) => ({ href: link.href'));
 });
@@ -368,4 +369,36 @@ test("Australia and USA remain market landing pages with deeper content", () => 
   assert.match(component, /isMarketPage/);
   assert.match(css, /market-signal-grid/);
   assert.match(css, /@media \(max-width: 560px\)/);
+});
+
+
+test("role resource architecture keeps only deep hiring and cost guides", () => {
+  const resources = source("src/lib/seo-resource-pages.ts");
+  const redirects = source("next.config.ts");
+
+  assert.ok(resources.includes('const BLOG_OWNED_ROLE_SERVICES = new Set(["payroll-virtual-assistant"])'));
+  assert.ok(resources.includes("Use a practical interview scorecard"));
+  assert.ok(resources.includes("Set access and decision boundaries before day one"));
+  assert.ok(resources.includes("Budget the first month for learning and correction"));
+  assert.ok(!resources.includes("function definitionPage"));
+  assert.ok(!resources.includes("function tasksPage"));
+  assert.ok(!resources.includes("function interviewPage"));
+  assert.ok(!resources.includes("function toolsPage"));
+
+  for (const marker of [
+    'destination: "/blog/what-does-a-payroll-virtual-assistant-do"',
+    'destination: "/blog/how-to-hire-a-payroll-virtual-assistant"',
+    'destination: "/blog/payroll-virtual-assistant-cost-philippines"',
+  ]) {
+    assert.ok(redirects.includes(marker), `missing Payroll consolidation target: ${marker}`);
+  }
+});
+
+test("redundant role resource families redirect to stronger canonicals", () => {
+  const redirects = source("next.config.ts");
+  assert.ok(redirects.includes("roleResourceConsolidationRedirects"));
+  assert.ok(redirects.includes("{ source: definition, destination: servicePath, permanent: true }"));
+  assert.ok(redirects.includes("{ source: tasks, destination: servicePath, permanent: true }"));
+  assert.ok(redirects.includes("{ source: interview, destination: hiring, permanent: true }"));
+  assert.ok(redirects.includes("{ source: tools, destination: servicePath, permanent: true }"));
 });

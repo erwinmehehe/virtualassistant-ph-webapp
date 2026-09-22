@@ -409,11 +409,6 @@ function withArticle(value: string) {
   return articleWord(value) + " " + value;
 }
 
-function sentenceArticle(value: string) {
-  const phrase = withArticle(value);
-  return phrase.charAt(0).toUpperCase() + phrase.slice(1);
-}
-
 function fitMetaTitle(primary: string, fallback: string) {
   return primary.length <= 60 ? primary : fallback;
 }
@@ -433,126 +428,24 @@ function serviceHref(cluster: RoleCluster) {
 function siblingSlugs(cluster: RoleCluster) {
   const article = articleWord(cluster.role);
   return {
-    definition: "what-does-" + article + "-" + cluster.slugBase + "-do",
-    tasks: cluster.slugBase + "-tasks",
     hiring: "how-to-hire-" + article + "-" + cluster.slugBase,
-    interview: cluster.slugBase + "-interview-questions",
-    cost: cluster.slugBase + "-cost-philippines",
-    tools: "best-tools-for-" + cluster.slugBase
+    cost: cluster.slugBase + "-cost-philippines"
   };
 }
 
-function commonLinks(cluster: RoleCluster, current: ResourceIntent) {
+function commonLinks(cluster: RoleCluster, current: "hiring" | "cost") {
   const slugs = siblingSlugs(cluster);
   const links = [
-    { href: serviceHref(cluster), label: "Hire " + withArticle(cluster.role), description: "Review the canonical role page, responsibilities, tools, screening guidance, and approved talent." },
+    { href: serviceHref(cluster), label: "Explore " + cluster.role, description: "Review responsibilities, tools, screening guidance, and approved talent on the main role page." },
     { href: "/services", label: "Browse all Virtual Assistant services", description: "Compare this role with other specialties before finalizing the brief." }
   ];
-  const labels: Record<string, string> = {
-    definition: "What the role does",
-    tasks: "Tasks to delegate",
-    hiring: "How to hire",
-    interview: "Interview questions",
-    cost: "Cost guide",
-    tools: "Best tools"
-  };
-  for (const [intent, slug] of Object.entries(slugs)) {
-    if (intent === current) continue;
-    links.push({ href: "/resources/" + slug, label: labels[intent], description: "Continue the " + cluster.role + " hiring cluster." });
+  if (current !== "hiring") {
+    links.push({ href: "/resources/" + slugs.hiring, label: "Hiring guide", description: "Build the role brief, screening process, interview scorecard, and first-month plan." });
+  }
+  if (current !== "cost") {
+    links.push({ href: "/resources/" + slugs.cost, label: "Cost guide", description: "Plan weekly hours, scope, experience, coverage, and the total operating budget." });
   }
   return links;
-}
-
-function definitionPage(cluster: RoleCluster): SeoResourcePage {
-  const slugs = siblingSlugs(cluster);
-  return {
-    slug: slugs.definition,
-    title: "What Does " + withArticle(cluster.role) + " Do?",
-    metaTitle: fitMetaTitle("What Does " + withArticle(cluster.role) + " Do?", cluster.role + " Role Guide"),
-    metaDescription: fitMetaDescription("Learn what " + withArticle(cluster.role) + " does, which tasks to delegate, which tools matter, what to screen for, and when to escalate."),
-    keywords: [cluster.primaryKeyword, "what does " + withArticle(cluster.primaryKeyword) + " do", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
-    audience: "client",
-    intent: "definition",
-    serviceSlug: cluster.serviceSlug,
-    role: cluster.role,
-    clusterLabel: cluster.role,
-    lede: sentenceArticle(cluster.role) + " can own " + cluster.focus + ". The useful question is not whether the person can do random tasks. It is whether they can run a defined recurring workflow accurately, document the result, and escalate the exceptions that still need your judgment.",
-    sections: [
-      {
-        heading: "Where this role creates leverage",
-        paragraphs: ["This role fits when " + cluster.tasks.slice(0, 3).join(", ") + " are recurring enough to deserve one owner. " + cluster.bestFor.join(", ") + " can use the role to move routine work away from managers without losing visibility into status, quality, or open exceptions."],
-        bullets: cluster.tasks.slice(0, 6)
-      },
-      {
-        heading: "The core systems behind the work",
-        paragraphs: ["Software familiarity matters when it shortens onboarding, but the candidate should be able to explain the workflow around the tool. For this role, common systems include " + cluster.tools.slice(0, 6).join(", ") + ". Ask what they changed inside the system, how they checked their work, and what they left for the next person."],
-        bullets: cluster.tools.slice(0, 6)
-      },
-      {
-        heading: "What good ownership looks like",
-        paragraphs: ["A reliable " + cluster.role + " keeps the source of truth current, follows the documented process, surfaces blockers early, and leaves enough context for another person to understand what happened. The role should reduce follow-up debt rather than create another inbox the manager has to monitor."],
-        bullets: cluster.evidence
-      },
-      {
-        heading: "What should stay with the manager",
-        paragraphs: ["The assistant can execute the documented recurring layer, but policy exceptions, high-risk approvals, professional judgment, sensitive access changes, and decisions outside the agreed scope stay with the accountable client-side owner. Write those boundaries before onboarding."],
-        bullets: cluster.mistakes.map((item) => "Avoid " + item + ".")
-      }
-    ],
-    faqs: [
-      { q: "What does " + withArticle(cluster.role) + " do?", a: "The role typically owns " + cluster.focus + ". Exact responsibilities should be defined from your actual workflow rather than copied from a generic job description." },
-      { q: "What tools should a " + cluster.role + " know?", a: "Common tools include " + cluster.tools.slice(0, 5).join(", ") + ". Practical workflow fluency matters more than claiming familiarity with every platform." },
-      { q: "How do I know whether I need this role?", a: "You likely have a fit when " + cluster.tasks.slice(0, 3).join(", ") + " happen every week, consume manager time, and can be documented with a clear definition of done." },
-      { q: "Can one person cover related tasks too?", a: "Yes when the responsibilities are compatible and the person has relevant evidence. Do not use one Virtual Assistant as a catch-all for unrelated specialist work with conflicting priorities." }
-    ],
-    internalLinks: commonLinks(cluster, "definition")
-  };
-}
-
-function tasksPage(cluster: RoleCluster): SeoResourcePage {
-  const slugs = siblingSlugs(cluster);
-  return {
-    slug: slugs.tasks,
-    title: cluster.role + " Tasks: What to Delegate",
-    metaTitle: fitMetaTitle(cluster.role + " Tasks | Delegation Guide", cluster.role + " Tasks"),
-    metaDescription: fitMetaDescription("See " + cluster.role + " tasks to delegate, the inputs and quality checks to define, and which exceptions should stay with your team."),
-    keywords: [cluster.primaryKeyword + " tasks", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
-    audience: "client",
-    intent: "tasks",
-    serviceSlug: cluster.serviceSlug,
-    role: cluster.role,
-    clusterLabel: cluster.role,
-    lede: "Delegation works when a task has a clear input, owner, output, deadline, quality check, and escalation path. Use the list below to build a real " + cluster.role + " workload rather than a loose collection of requests.",
-    sections: [
-      {
-        heading: "Start with recurring work that is easy to verify",
-        paragraphs: ["The best first tasks are frequent enough to build rhythm and objective enough that you can tell whether they were completed correctly. For this role, start with " + cluster.tasks.slice(0, 3).join(", ") + " before adding higher-risk or less structured responsibilities."],
-        bullets: cluster.tasks
-      },
-      {
-        heading: "Give each task a source of truth",
-        paragraphs: ["For every delegated task, document where the request arrives, which system should be updated, what a complete output looks like, and who owns the next decision. " + cluster.tools.slice(0, 4).join(", ") + " may be part of the workflow, but the process around the tools is what keeps work consistent."],
-        bullets: ["Input or trigger for the work", "System of record", "Definition of done", "Quality or review rule", "Escalation point", "Expected turnaround time"]
-      },
-      {
-        heading: "Separate execution from exceptions",
-        paragraphs: ["Routine work should not require the manager to approve every step. Exceptions should. Define which cases the assistant may finish independently and which cases must stop for review. That distinction is especially important when access, customer commitments, money, security, or professional judgment is involved."],
-        bullets: cluster.mistakes.map((item) => "Do not build the role around " + item + ".")
-      },
-      {
-        heading: "Measure task quality, not busyness",
-        paragraphs: ["A useful scorecard might sample accuracy, turnaround time, open exceptions, rework, and whether records are current enough for someone else to pick up the workflow. The goal is reliable ownership, not the highest possible activity count."],
-        bullets: ["Accuracy on a reviewed sample", "Turnaround time from complete input to usable output", "Open exceptions older than the agreed window", "Rework caused by missing or incorrect information", "Documentation quality and record freshness"]
-      }
-    ],
-    faqs: [
-      { q: "What tasks can I delegate to " + withArticle(cluster.role) + "?", a: "Common tasks include " + cluster.tasks.slice(0, 6).join(", ") + ". Add scope only when priorities, systems, quality standards, and escalation rules are clear." },
-      { q: "Which task should I delegate first?", a: "Start with a recurring task that consumes time, has a clear output, and can be checked objectively. " + titleCase(cluster.tasks[0]) + " is one example if it already has a repeatable process." },
-      { q: "Should I delegate every task at once?", a: "No. Start with two or three compatible workflows, review quality closely, and expand the role after the handoffs are stable." },
-      { q: "How should I document the work?", a: "Record the trigger, required inputs, system of record, steps, completion standard, examples, turnaround time, and escalation rules. A short checklist is often more useful than a long generic SOP." }
-    ],
-    internalLinks: commonLinks(cluster, "tasks")
-  };
 }
 
 function hiringPage(cluster: RoleCluster): SeoResourcePage {
@@ -561,104 +454,108 @@ function hiringPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.hiring,
     title: "How to Hire " + withArticle(cluster.role),
     metaTitle: fitMetaTitle("How to Hire " + withArticle(cluster.role) + " | Philippines", "How to Hire " + withArticle(cluster.role)),
-    metaDescription: fitMetaDescription("Hire " + withArticle(cluster.role) + " with a clear brief covering tasks, tools, hours, experience, interview scenarios, and first-month expectations."),
-    keywords: ["hire " + cluster.primaryKeyword, "how to hire " + cluster.primaryKeyword, cluster.primaryKeyword + " philippines"],
+    metaDescription: fitMetaDescription("Hire " + withArticle(cluster.role) + " with a clear role brief, practical screening, interview scorecard, access plan, and structured first 30 days."),
+    keywords: ["hire " + cluster.primaryKeyword, "how to hire " + cluster.primaryKeyword, cluster.primaryKeyword + " philippines", cluster.primaryKeyword + " interview questions"],
     audience: "client",
     intent: "hiring",
     serviceSlug: cluster.serviceSlug,
     role: cluster.role,
     clusterLabel: cluster.role,
-    lede: "A strong hiring process begins before interviews. Define the recurring workload, systems, hours, live overlap, required experience, and decisions the role may make. Then screen candidates against the same brief.",
+    lede: "A strong hire starts with a workload that can be explained, measured, and handed over. Define what the person will own each week, the systems involved, the live coverage required, the evidence you want to see, and the decisions that must stay with your team.",
     sections: [
       {
-        heading: "Write the role from the workload",
-        paragraphs: ["List the work that should move every week. For " + withArticle(cluster.role) + ", that may include " + cluster.tasks.slice(0, 5).join(", ") + ". Rank the responsibilities by importance so candidates can understand what the job is actually about."],
-        bullets: ["Weekly responsibilities", "Required live coverage", "Main systems", "Must-have experience", "Quality standard", "Decisions that require escalation"]
+        heading: "Start with the recurring outcome, not a generic VA title",
+        paragraphs: [
+          "Write the role around the work that should move without repeated manager chasing. For " + withArticle(cluster.role) + ", that usually means " + cluster.focus + ".",
+          "Separate must-own workflows from occasional projects. A focused role is easier to screen, easier to onboard, and much easier to evaluate after the first month."
+        ],
+        bullets: ["Primary weekly outcome", "Recurring responsibilities", "Required live coverage", "Main systems", "Quality standard", "Escalation owner"]
       },
       {
-        heading: "Screen for evidence that matches the role",
-        paragraphs: ["Do not rely on self-ratings or long tool lists. Ask for examples that show the candidate has already done similar work and can explain their quality checks. Strong evidence for this role includes " + cluster.evidence.join(", ") + "."],
+        heading: "Choose the first tasks the person should own",
+        paragraphs: [
+          "The first scope should be large enough to create meaningful leverage but narrow enough that quality can be checked. Start with work that has a clear source of truth, visible completion state, and repeatable exceptions."
+        ],
+        bullets: cluster.tasks
+      },
+      {
+        heading: "Screen tools through real workflow evidence",
+        paragraphs: [
+          "Tool familiarity matters only when it translates into reliable execution. Common systems for this role include " + cluster.tools.slice(0, 6).join(", ") + ". Do not stop at asking whether the candidate has used them.",
+          "Ask what they created, updated, checked, exported, reported, or handed off inside the tool. Strong candidates can explain the sequence, the quality check, and what would make them stop and escalate."
+        ],
+        bullets: cluster.tools.slice(0, 8)
+      },
+      {
+        heading: "Ask for evidence that matches the job",
+        paragraphs: [
+          "Use evidence that resembles the work you are actually hiring for. The goal is not a polished portfolio for its own sake. You want proof that the candidate has handled similar inputs, systems, quality checks, and exceptions."
+        ],
         bullets: cluster.evidence
       },
       {
-        heading: "Use workflow scenarios in the interview",
-        paragraphs: ["Give the candidate a realistic version of the work and ask them to talk through the sequence, source of truth, checks, and escalation points. Their reasoning is usually more useful than a polished answer to a generic interview question."],
+        heading: "Use a practical interview scorecard",
+        paragraphs: [
+          "Ask every shortlisted candidate the same core workflow questions so the comparison is fair. Score the answer on sequence, judgment, quality control, communication, and escalation instead of confidence alone."
+        ],
         bullets: [
-          "Ask how they would begin " + cluster.tasks[0] + ".",
-          "Ask what could go wrong during " + cluster.tasks[1] + ".",
-          "Ask what they would record after " + cluster.tasks[2] + ".",
-          "Ask which part of the workflow would make them stop and escalate."
+          "Walk me through how you would handle " + cluster.tasks[0] + " from request to completion.",
+          "What would you check before marking " + cluster.tasks[1] + " complete?",
+          "If " + cluster.tasks[0] + " and " + cluster.tasks[3] + " became urgent together, how would you prioritize them?",
+          "Show me how you have used " + cluster.tools[0] + " in a real workflow.",
+          "Which part of this role would you escalate instead of deciding yourself?",
+          "How would you document the work so another person could pick it up?"
         ]
       },
       {
-        heading: "Use the first month to prove the operating model",
-        paragraphs: ["Start with a narrow scope, review real outputs, and increase responsibility only after the process is stable. By the end of month one, the client should be able to see whether the assistant owns the recurring queue, keeps records current, asks better questions, and surfaces exceptions before they become problems."],
-        bullets: ["Week 1: systems, examples, access, and supervised repetition", "Week 2: independent ownership of the first workflows", "Weeks 3 to 4: score quality, fix handoffs, then add scope"]
+        heading: "Set access and decision boundaries before day one",
+        paragraphs: [
+          "A good role brief says what the assistant may do independently and what requires approval. Start with the minimum system access needed for the first workflows, use named accounts where practical, and expand permissions only when responsibility genuinely expands."
+        ],
+        bullets: [
+          "Company-controlled accounts where available",
+          "Multi-factor authentication",
+          "Minimum required permissions",
+          "Written approval thresholds",
+          "Sensitive-data handling rules",
+          "Named escalation contact"
+        ]
+      },
+      {
+        heading: "Use the first 30 days to prove the operating model",
+        paragraphs: [
+          "The first month should make ownership clearer, not simply add more tasks. Start with examples of completed work, review outputs closely, document recurring exceptions, and add scope only after the first workflows are stable.",
+          "By day 30, you should know whether the person can keep the source of truth current, meet the agreed turnaround, surface blockers early, and operate without constant manager correction."
+        ],
+        bullets: [
+          "Week 1: systems, examples, access, and supervised repetition",
+          "Week 2: independent ownership of the first recurring workflow",
+          "Week 3: add a second workflow and document common exceptions",
+          "Week 4: review quality, turnaround, capacity, and next-step scope"
+        ]
+      },
+      {
+        heading: "Avoid the hiring mistakes that make this role look harder than it is",
+        paragraphs: [
+          "Most failed handoffs are not caused by the job title. They come from mixed priorities, vague ownership, weak evidence, too much access too early, or an unrealistic combination of specialist responsibilities."
+        ],
+        bullets: cluster.mistakes.map((item) => "Avoid " + item + ".")
       }
     ],
     faqs: [
-      { q: "How do I hire a good " + cluster.role + "?", a: "Start with a written brief covering " + cluster.tasks.slice(0, 4).join(", ") + ", required tools, weekly hours, schedule overlap, and evidence from similar work. Interview against that same brief." },
-      { q: "What experience should I look for?", a: "Prioritize evidence relevant to " + cluster.focus + ". The candidate should be able to explain what they owned, how they checked quality, and where they escalated." },
+      { q: "How do I hire a good " + cluster.role + "?", a: "Start with a written brief covering " + cluster.tasks.slice(0, 4).join(", ") + ", required tools, weekly hours, schedule overlap, success measures, and evidence from similar work. Interview every candidate against that same brief." },
+      { q: "What experience should I look for?", a: "Prioritize evidence relevant to " + cluster.focus + ". The candidate should be able to explain what they owned, how they checked quality, which systems they used, and where they escalated." },
+      { q: "What interview questions should I ask?", a: "Use workflow scenarios based on the real job. Ask the candidate to explain the sequence, source of truth, checks, tradeoffs, and escalation points for tasks such as " + cluster.tasks.slice(0, 3).join(", ") + "." },
       { q: "Should I hire full-time or part-time?", a: "Base the schedule on recurring workload and required coverage. Track the work for a short period if you are unsure, then choose a weekly commitment that matches the real queue." },
+      { q: "What tools should the candidate know?", a: "Common tools include " + cluster.tools.slice(0, 6).join(", ") + ". Workflow fluency and evidence of real use matter more than a long software list." },
       { q: "What should happen in the first 30 days?", a: "Limit the initial scope, give examples of good completed work, confirm access rules, review outputs frequently, and document recurring questions. Expand responsibility only after the first workflows are reliable." }
     ],
-    internalLinks: commonLinks(cluster, "hiring")
-  };
-}
-
-function interviewPage(cluster: RoleCluster): SeoResourcePage {
-  const slugs = siblingSlugs(cluster);
-  const questions = [
-    "Walk me through how you would handle " + cluster.tasks[0] + " from request to completion.",
-    "What would you check before marking " + cluster.tasks[1] + " complete?",
-    "Tell me about a time " + cluster.tasks[2] + " went wrong. What did you do next?",
-    "How have you used " + cluster.tools[0] + " in a real workflow?",
-    "If " + cluster.tasks[0] + " and " + cluster.tasks[3] + " became urgent at the same time, how would you prioritize them?",
-    "Which part of this role would you escalate instead of deciding yourself?",
-    "How do you leave enough documentation for another person to pick up the work?",
-    "What metric would you use to show that " + cluster.tasks[1] + " is getting better?"
-  ];
-  return {
-    slug: slugs.interview,
-    title: cluster.role + " Interview Questions",
-    metaTitle: fitMetaTitle(cluster.role + " Interview Questions", cluster.role + " Interview"),
-    metaDescription: fitMetaDescription("Use " + cluster.role + " interview questions to test workflow judgment, tool experience, quality checks, communication, and escalation."),
-    keywords: [cluster.primaryKeyword + " interview questions", "interview questions for " + cluster.primaryKeyword],
-    audience: "client",
-    intent: "interview",
-    serviceSlug: cluster.serviceSlug,
-    role: cluster.role,
-    clusterLabel: cluster.role,
-    lede: "The best interview questions are tied to the work. Ask candidates to explain how they would handle a real workflow, which source they would trust, how they would check quality, and what would make them stop and escalate.",
-    sections: [
-      {
-        heading: "Ask questions that reveal the operating sequence",
-        paragraphs: ["A strong answer should include the source of truth, the order of operations, a quality check, documentation, and a clear escalation point. Listen for specific examples rather than broad claims about being organized or detail-oriented."],
-        bullets: questions.slice(0, 4)
-      },
-      {
-        heading: "Test prioritization and judgment",
-        paragraphs: ["The role will eventually face competing requests, incomplete information, and exceptions. Good candidates explain tradeoffs, ask for the missing context, and avoid inventing authority they do not have."],
-        bullets: questions.slice(4)
-      },
-      {
-        heading: "Score evidence, not confidence",
-        paragraphs: ["Use the same scorecard for every candidate. Review whether the answer shows relevant experience, process clarity, tool fluency, communication, quality control, and appropriate escalation. Confidence without a usable process should not outrank evidence."],
-        bullets: cluster.evidence
-      },
-      {
-        heading: "Watch for role-specific hiring risks",
-        paragraphs: ["Common problems in this hiring category include " + cluster.mistakes.join(", ") + ". Use follow-up questions to find out whether the candidate has worked inside clear boundaries before."],
-        bullets: cluster.mistakes.map((item) => titleCase(item))
-      }
-    ],
-    faqs: [
-      { q: "How many " + cluster.role + " interview questions should I ask?", a: "A focused set of six to ten workflow questions is usually more useful than a long generic questionnaire. Leave time for follow-up on the candidate's actual examples." },
-      { q: "Should I give a test task?", a: "A short job-related scenario can be useful when it reflects the real work, has clear instructions, does not require unpaid production work, and is evaluated consistently across candidates." },
-      { q: "What should a strong answer include?", a: "Look for a clear sequence, the source of truth, checks for accuracy, documentation, communication, and a sensible point where the candidate would escalate rather than guess." },
-      { q: "What matters more: tools or experience?", a: "Tool familiarity can shorten onboarding, but workflow evidence matters more. A candidate should be able to explain how they used the system and what they owned inside it." }
-    ],
-    internalLinks: commonLinks(cluster, "interview")
+    internalLinks: [
+      ...commonLinks(cluster, "hiring"),
+      { href: "/how-vetting-works", label: "How vetting works", description: "See the screening and recruiter-review process used before client presentation." },
+      { href: "/managed-vs-direct-hire", label: "Managed vs direct hire", description: "Compare how much recruiting and post-placement support your team wants to own." },
+      { href: "/hire", label: "Send a hiring brief", description: "Turn the workload, schedule, tools, and budget into a recruiter-reviewed role." }
+    ]
   };
 }
 
@@ -668,106 +565,109 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.cost,
     title: cluster.role + " Cost in the Philippines",
     metaTitle: fitMetaTitle(cluster.role + " Cost Philippines | 2026", cluster.role + " Cost"),
-    metaDescription: fitMetaDescription("Plan a " + cluster.role + " budget in the Philippines by scope, weekly hours, experience, tools, schedule overlap, and decision ownership."),
+    metaDescription: fitMetaDescription("Plan a " + cluster.role + " budget in the Philippines by scope, weekly hours, experience, live coverage, tools, and decision ownership."),
     keywords: [cluster.primaryKeyword + " cost", cluster.primaryKeyword + " rates", cluster.primaryKeyword + " salary philippines"],
     audience: "client",
     intent: "cost",
     serviceSlug: cluster.serviceSlug,
     role: cluster.role,
     clusterLabel: cluster.role,
-    lede: "Budget the role around the actual responsibility level. A tightly supervised task list and a role that independently owns recurring workflows should not be priced as if they were the same job.",
+    lede: "Budget the role around the responsibility you are transferring, not the cheapest hourly number you can find. Weekly hours matter, but so do experience, live coverage, system depth, quality expectations, and how independently the person must operate.",
     sections: [
       {
-        heading: "Start with the hours and workload",
-        paragraphs: ["Estimate how much time " + cluster.tasks.slice(0, 4).join(", ") + " currently consumes. Separate recurring weekly work from occasional projects so you do not overstate or understate the schedule."],
-        bullets: ["Recurring weekly hours", "Live coverage window", "Peak-volume periods", "One-off project work", "Expected response time"]
+        heading: "Estimate the real weekly workload first",
+        paragraphs: [
+          "Measure the recurring queue before choosing a monthly budget. For this role, track how much time " + cluster.tasks.slice(0, 4).join(", ") + " currently consumes and separate that work from occasional projects.",
+          "If the workload is still unclear, observe it for two weeks. A documented queue gives you a better starting point than choosing full-time or part-time from the job title alone."
+        ],
+        bullets: ["Recurring weekly hours", "Peak-volume periods", "Required response time", "Live coverage window", "One-off projects", "Manager review time"]
       },
       {
-        heading: "The biggest cost drivers",
-        paragraphs: ["For " + withArticle(cluster.role) + ", budget changes with " + cluster.costFactors.join(", ") + ". The more judgment, specialist knowledge, customer exposure, technical depth, or independent ownership you need, the more important it is to compare candidates on capability rather than a single hourly number."],
+        heading: "The biggest cost drivers for this role",
+        paragraphs: [
+          "For " + withArticle(cluster.role) + ", the budget changes with " + cluster.costFactors.join(", ") + ". Higher complexity is not only about doing more tasks. It can mean deeper judgment, specialist systems, more customer exposure, tighter deadlines, or greater independence."
+        ],
         bullets: cluster.costFactors.map((item) => titleCase(item))
       },
       {
-        heading: "Compare the total operating cost",
-        paragraphs: ["Hourly compensation is only one part of the decision. Consider manager review time, software access, provider fees where applicable, training, and the cost of rework when the role is under-scoped. A cheaper candidate is not cheaper if the workflow still depends on constant manager correction."],
-        bullets: ["VA compensation", "Provider or placement fees", "Software and seat costs", "Manager review time", "Training and onboarding", "Rework or error cost"]
+        heading: "Separate supervised execution from independent ownership",
+        paragraphs: [
+          "Two roles with the same title can require very different capability. A supervised executor follows a defined checklist and escalates most exceptions. An owner keeps the workflow moving, catches issues, prioritizes the queue, improves documentation, and needs less manager intervention.",
+          "Do not compare those two roles as if they should command the same rate."
+        ],
+        bullets: [
+          "Execution: clear inputs, checklist-driven work, frequent review",
+          "Experienced execution: broader tool fluency, better exception handling",
+          "Workflow ownership: prioritization, documentation, follow-up, fewer manager prompts",
+          "Specialist ownership: deeper domain knowledge, higher-risk systems, stronger judgment boundaries"
+        ]
       },
       {
-        heading: "Use current market data carefully",
-        paragraphs: ["Rates vary by specialty and candidate. Use market benchmarks as a planning range, then compare the actual people who meet your brief. VirtualAssistant.com.ph publishes a first-party rate and skills report and a cost calculator to make that process more concrete."],
-        bullets: ["Compare like-for-like responsibility", "Separate candidate compensation from provider pricing", "Revisit the budget when scope materially changes"]
+        heading: "Live coverage can change the budget",
+        paragraphs: [
+          "Define exactly what needs real-time availability. Customer-facing work, calls, urgent exceptions, scheduling, or live team coordination may require overlap. Research, production, reporting, cleanup, and many back-office workflows can often run asynchronously.",
+          "Write the required time zone, hours, response standard, and holiday expectations into the brief before candidates are compared."
+        ],
+        bullets: ["Client time zone", "Required overlap hours", "Response-time expectation", "Weekend or holiday coverage", "Asynchronous work that can be completed outside live hours"]
+      },
+      {
+        heading: "Include software, access, and security in the operating cost",
+        paragraphs: [
+          "The assistant may need paid seats, communication tools, password management, project systems, or specialist software. Security controls can also require setup time and account administration.",
+          "Use company-controlled accounts and least-privilege access where practical. A lower compensation number does not offset the risk of poorly controlled credentials or unclear approval rules."
+        ],
+        bullets: ["Software seats", "Password manager", "Communication tools", "Specialist platform access", "Account provisioning", "Offboarding and access removal"]
+      },
+      {
+        heading: "Compare total operating cost, not compensation alone",
+        paragraphs: [
+          "Candidate compensation is only one part of the decision. Add recruiting time, provider or placement fees where applicable, onboarding, manager review, software, and the cost of rework when the role is under-scoped.",
+          "A lower-rate hire is not cheaper if a manager still has to chase every task, repair inaccurate work, or repeatedly explain the same exceptions."
+        ],
+        bullets: ["VA compensation", "Provider or placement fees", "Recruiting and interview time", "Training and onboarding", "Software and seats", "Manager review", "Rework or error cost"]
+      },
+      {
+        heading: "Use market data as a benchmark, not a promise",
+        paragraphs: [
+          "Rates vary by specialty, experience, schedule, and candidate. Use current benchmarks to set a planning range, then compare the actual people who meet the brief. VirtualAssistant.com.ph publishes first-party aggregate profile data so the benchmark is tied to the current candidate pool.",
+          "Revisit the budget when the role materially changes. More hours, deeper systems, customer-facing responsibility, specialist work, or broader decision ownership should trigger a scope and compensation review."
+        ],
+        bullets: ["Compare like-for-like responsibility", "Separate candidate compensation from provider pricing", "Use current candidate data", "Review scope after the first month", "Reprice when responsibility materially expands"]
+      },
+      {
+        heading: "Budget the first month for learning and correction",
+        paragraphs: [
+          "The first weeks usually include access setup, examples, questions, documentation, and closer review. That is normal operating cost, not wasted time. Plan for the learning curve instead of assuming full output on day one.",
+          "At the end of the first month, compare actual weekly hours, quality, manager review time, unresolved exceptions, and whether the role is ready for more ownership."
+        ],
+        bullets: ["Access and setup time", "Initial training", "Output review", "Process documentation", "Exception log", "Day-30 scope review"]
       }
     ],
     faqs: [
-      { q: "How much does " + withArticle(cluster.role) + " cost in the Philippines?", a: "The budget depends on " + cluster.costFactors.join(", ") + ". Define the workload first, then compare candidates with the experience and schedule required for that scope." },
-      { q: "Should I pay hourly or monthly?", a: "Hourly arrangements can fit variable work or an early-stage scope. A stable monthly amount can fit a consistent weekly schedule. In either case, document the expected hours, responsibilities, and how additional work is approved." },
-      { q: "What makes this role more expensive?", a: "Higher complexity, specialist tools, live coverage, customer-facing responsibility, deeper experience, and independent decision ownership can all increase the rate required to attract the right candidate." },
+      { q: "How much does " + withArticle(cluster.role) + " cost in the Philippines?", a: "The budget depends on " + cluster.costFactors.join(", ") + ". Define the workload first, then compare candidates with the experience, systems knowledge, and schedule required for that scope." },
+      { q: "Should I pay hourly or monthly?", a: "Hourly arrangements can fit variable work or an early-stage scope. A stable monthly amount can fit a consistent weekly schedule. In either case, document expected hours, responsibilities, and how additional work is approved." },
+      { q: "What makes this role more expensive?", a: "Higher complexity, specialist tools, live coverage, customer-facing responsibility, deeper experience, and independent workflow ownership can all increase the rate required to attract the right candidate." },
+      { q: "Does full-time always cost less per hour?", a: "Not necessarily. Rate expectations depend on the candidate, responsibility level, schedule, specialization, and hiring model. Compare the total package and the actual scope rather than assuming a fixed full-time discount." },
+      { q: "Should software costs be included in the budget?", a: "Yes. Include paid seats, communication tools, password management, specialist platforms, and any provider or placement fees needed to operate the role safely." },
       { q: "Where can I compare Virtual Assistant rates?", a: "Use the VirtualAssistant.com.ph 2026 Rate and Skills Report for first-party profile data, then use the cost calculator to model weekly hours and a candidate rate." }
     ],
     internalLinks: [
       ...commonLinks(cluster, "cost"),
       { href: "/research/virtual-assistant-rates-philippines-2026", label: "2026 VA Rate and Skills Report", description: "Use first-party aggregate profile data as a market reference." },
       { href: "/tools/virtual-assistant-cost-calculator", label: "VA cost calculator", description: "Model weekly hours and hourly compensation." },
-      { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare direct-hire and managed-service pricing structures." }
+      { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare direct-hire and managed-service pricing structures." },
+      { href: "/managed-vs-direct-hire", label: "Managed vs direct hire", description: "Compare the operating cost and support structure around each hiring model." }
     ]
   };
 }
 
+const BLOG_OWNED_ROLE_SERVICES = new Set(["payroll-virtual-assistant"]);
 
-function toolsPage(cluster: RoleCluster): SeoResourcePage {
-  const slugs = siblingSlugs(cluster);
-  return {
-    slug: slugs.tools,
-    title: "Best Tools for " + withArticle(cluster.role),
-    metaTitle: fitMetaTitle("Best Tools for " + withArticle(cluster.role), cluster.role + " Tools"),
-    metaDescription: fitMetaDescription("Compare tools for " + withArticle(cluster.role) + ", what each system supports, how to verify software experience, and how to manage access securely."),
-    keywords: [cluster.primaryKeyword + " tools", "best tools for " + cluster.primaryKeyword, cluster.primaryKeyword + " software"],
-    audience: "client",
-    intent: "tools",
-    serviceSlug: cluster.serviceSlug,
-    role: cluster.role,
-    clusterLabel: cluster.role,
-    lede: "The best tool stack is the one that makes " + cluster.focus + " visible, repeatable, and safe to hand off. Hire for workflow fluency first, then confirm the candidate can work comfortably in the systems your team actually uses.",
-    sections: [
-      {
-        heading: "Core tools for the role",
-        paragraphs: ["Common systems for this role include " + cluster.tools.slice(0, 6).join(", ") + ". A candidate does not need every tool on the list, but they should be able to explain what they created, updated, checked, and handed off inside the platforms they claim to know."],
-        bullets: cluster.tools
-      },
-      {
-        heading: "Screen software experience in context",
-        paragraphs: ["Do not ask only whether a candidate has used a platform. Ask them to describe a real workflow, the source data, the steps they completed, the checks they performed, and what happened next. That separates surface familiarity from practical operating experience."],
-        bullets: cluster.evidence
-      },
-      {
-        heading: "Keep access proportional to the work",
-        paragraphs: ["Provision named accounts where practical and grant only the permissions required for the documented workflow. Broader access should follow demonstrated reliability, not arrive automatically on day one."],
-        bullets: ["Use named company-controlled accounts", "Enable multi-factor authentication where available", "Avoid sharing owner credentials", "Limit export, deletion, billing, and admin permissions", "Document which actions require approval", "Remove access promptly when responsibilities change"]
-      },
-      {
-        heading: "Do not let software replace a clear process",
-        paragraphs: ["A new platform will not fix unclear ownership, missing inputs, conflicting instructions, or weak approval rules. Define the workflow first, then use the simplest combination of tools that keeps status, quality, and exceptions visible."],
-        bullets: cluster.mistakes.map((item) => "Avoid " + item + ".")
-      }
-    ],
-    faqs: [
-      { q: "What tools should a " + cluster.role + " know?", a: "Common tools include " + cluster.tools.slice(0, 6).join(", ") + ". The required stack should follow the work your business actually needs completed." },
-      { q: "Should I reject someone who has not used our exact software?", a: "Not automatically. Strong experience in the underlying workflow and similar systems can transfer. Ask how the candidate learned adjacent tools and how they would verify their work during onboarding." },
-      { q: "How should I test tool knowledge?", a: "Use a short workflow scenario or ask the candidate to explain a real task they completed in the platform. Focus on sequence, checks, records, and escalation rather than memorized feature names." },
-      { q: "How much access should a Virtual Assistant receive?", a: "Start with the minimum access needed for the assigned workflows. Expand permissions only when the responsibility genuinely requires it and the approval rules are documented." }
-    ],
-    internalLinks: commonLinks(cluster, "tools")
-  };
-}
-
-const ROLE_RESOURCE_PAGES = ROLE_CLUSTERS.flatMap((cluster) => [
-  definitionPage(cluster),
-  tasksPage(cluster),
-  hiringPage(cluster),
-  interviewPage(cluster),
-  costPage(cluster),
-  toolsPage(cluster)
-]);
+const ROLE_RESOURCE_PAGES = ROLE_CLUSTERS.flatMap((cluster) =>
+  BLOG_OWNED_ROLE_SERVICES.has(cluster.serviceSlug)
+    ? []
+    : [hiringPage(cluster), costPage(cluster)]
+);
 
 const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
   {

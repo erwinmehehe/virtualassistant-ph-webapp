@@ -39,7 +39,8 @@ const INDUSTRY_TALENT_FILTERS: Record<IndustryPage["slug"], IndustryTalentFilter
   "trades-service-administration": { category: "Administrative Support", query: "trades service" },
   "bim-revit-production": { category: "Administrative Support", query: "BIM Revit" },
   "recruitment-candidate-sourcing": { category: "Lead Generation & Sales", query: "recruitment sourcing" },
-  "insurance-broker-renewal-desk": { category: "Customer Service", query: "insurance renewals" }
+  "insurance-broker-renewal-desk": { category: "Customer Service", query: "insurance renewals" },
+  "nonprofits": { category: "Administrative Support", query: "nonprofit charity" }
 };
 
 export function industryTalentFilters(slug: IndustryPage["slug"]): IndustryTalentFilter {

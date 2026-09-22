@@ -17,24 +17,8 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     priority: 1,
     llmsSection: "Hiring and Vetting",
   },
-  {
-    path: "/virtual-assistant-companies-philippines",
-    label: "Virtual Assistant Companies Philippines",
-    description: "Comparison guide for Virtual Assistant companies, agencies, firms, providers, and hiring models in the Philippines.",
-    changeFrequency: "monthly",
-    priority: 0.84,
-    lastModified: "2026-09-22",
-    llmsSection: "Hiring and Vetting",
-  },
-  {
-    path: "/virtual-assistant-websites",
-    label: "Virtual Assistant Websites",
-    description: "Comparison guide for Virtual Assistant marketplaces, job boards, directories, recruiting services, and managed hiring platforms.",
-    changeFrequency: "monthly",
-    priority: 0.84,
-    lastModified: "2026-09-22",
-    llmsSection: "Hiring and Vetting",
-  },
+
+
   {
     path: "/virtual-assistant-usa",
     label: "Virtual Assistant USA",
@@ -53,15 +37,7 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     lastModified: "2026-09-22",
     llmsSection: "Hiring and Vetting",
   },
-  {
-    path: "/what-is-a-virtual-assistant",
-    label: "What Is a Virtual Assistant",
-    description: "Definition, roles, tasks, responsibilities, costs, and hiring guidance for Virtual Assistants.",
-    changeFrequency: "monthly",
-    priority: 0.8,
-    lastModified: "2026-09-22",
-    llmsSection: "Editorial Resources",
-  },
+
   {
     path: "/types-of-virtual-assistants",
     label: "Types of Virtual Assistants",
@@ -71,15 +47,7 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     lastModified: "2026-09-22",
     llmsSection: "Services and Role Discovery",
   },
-  {
-    path: "/industries/nonprofits",
-    label: "Virtual Assistant for Nonprofits",
-    description: "Nonprofit Virtual Assistant guide for donor administration, volunteers, events, research, CRM, scheduling, and communications.",
-    changeFrequency: "monthly",
-    priority: 0.74,
-    lastModified: "2026-09-22",
-    llmsSection: "Services and Role Discovery",
-  },
+
   {
     path: "/resources",
     label: "Virtual Assistant Resources",

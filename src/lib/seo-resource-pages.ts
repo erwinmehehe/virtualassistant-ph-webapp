@@ -396,9 +396,17 @@ function titleCase(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function articleWord(value: string) {
+  const trimmed = value.trim();
+  const firstToken = trimmed.split(/\s+/)[0]?.replace(/[^A-Za-z]/g, "") || "";
+  if (/^[A-Z]{2,}$/.test(firstToken)) {
+    return /^[AEFHILMNORSX]/.test(firstToken) ? "an" : "a";
+  }
+  return /^[aeiou]/i.test(trimmed) ? "an" : "a";
+}
+
 function withArticle(value: string) {
-  const article = /^[aeiou]/i.test(value.trim()) ? "an" : "a";
-  return article + " " + value;
+  return articleWord(value) + " " + value;
 }
 
 function sentenceArticle(value: string) {
@@ -415,10 +423,11 @@ function serviceHref(cluster: RoleCluster) {
 }
 
 function siblingSlugs(cluster: RoleCluster) {
+  const article = articleWord(cluster.role);
   return {
-    definition: "what-does-a-" + cluster.slugBase + "-do",
+    definition: "what-does-" + article + "-" + cluster.slugBase + "-do",
     tasks: cluster.slugBase + "-tasks",
-    hiring: "how-to-hire-a-" + cluster.slugBase,
+    hiring: "how-to-hire-" + article + "-" + cluster.slugBase,
     interview: cluster.slugBase + "-interview-questions",
     cost: cluster.slugBase + "-cost-philippines",
     tools: "best-tools-for-" + cluster.slugBase

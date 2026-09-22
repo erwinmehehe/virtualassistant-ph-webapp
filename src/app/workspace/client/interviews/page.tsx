@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarClock, ExternalLink, Video } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import type { CandidateInterviewRow, JobSummaryRow } from "@/lib/workspace-rows";
@@ -10,8 +10,8 @@ import { maskVaName } from "@/lib/va-identity";
 function localLabel(value?:string|null,zone?:string|null){if(!value)return"Not scheduled";try{return new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short",timeZone:zone||undefined}).format(new Date(value));}catch{return new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short"}).format(new Date(value));}}
 
 export default async function ClientInterviewsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const query=await searchParams;const {user}=await requireRole("client");const admin=createAdminClient();
-  const {data:rowData,error}=await admin.from("candidate_interviews").select("*").eq("client_id",user.id).order("created_at",{ascending:false}).limit(100);
+  const query=await searchParams;const {userId}=await requireRoleFast("client");const admin=createAdminClient();
+  const {data:rowData,error}=await admin.from("candidate_interviews").select("*").eq("client_id",userId).order("created_at",{ascending:false}).limit(100);
   if(error)throw error;
   const rows=(rowData||[]) as CandidateInterviewRow[];
   const jobIds=[...new Set(rows.map((row)=>row.job_id))];const vaIds=[...new Set(rows.map((row)=>row.va_id))];

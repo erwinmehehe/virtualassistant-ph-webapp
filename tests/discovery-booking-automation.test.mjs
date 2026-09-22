@@ -30,9 +30,10 @@ test("rescheduling updates the existing Google Calendar event when one exists", 
 
   assert.match(action, /previousEventId/);
   assert.match(action, /updateGoogleMeetDiscoveryMeeting/);
-  assert.match(action, /discovery_meeting_url: meeting\?\.joinUrl \|\| previousMeetingUrl \|\| null/);
-  assert.match(action, /discovery_calendar_event_id: meeting\?\.eventId \|\| previousEventId \|\| null/);
-  assert.match(action, /discovery_meeting_provider: meeting \|\| previousEventId \? "google_meet" : null/);
+  assert.match(action, /const canReuseCalendarEvent = Boolean\(previousEventId && !lead\.discovery_cancelled_at && lead\.discovery_outcome !== "cancelled"\)/);
+  assert.match(action, /discovery_meeting_url: meeting\?\.joinUrl \|\| \(canReuseCalendarEvent \? previousMeetingUrl : null\)/);
+  assert.match(action, /discovery_calendar_event_id: meeting\?\.eventId \|\| \(canReuseCalendarEvent \? previousEventId : null\)/);
+  assert.match(action, /discovery_meeting_provider: meeting \|\| canReuseCalendarEvent \? "google_meet" : null/);
 
   const updateIndex = action.indexOf("updateGoogleMeetDiscoveryMeeting({");
   const saveIndex = action.indexOf('admin.from("lead_intake").update(update)');

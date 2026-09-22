@@ -418,6 +418,17 @@ function fitMetaTitle(primary: string, fallback: string) {
   return primary.length <= 60 ? primary : fallback;
 }
 
+function fitMetaDescription(value: string) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 160) return normalized;
+  const candidate = normalized.slice(0, 157);
+  const boundary = candidate.lastIndexOf(" ");
+  const trimmed = (boundary >= 120 ? candidate.slice(0, boundary) : candidate)
+    .replace(/[,:;\-]+$/, "")
+    .trim();
+  return trimmed.endsWith(".") ? trimmed : trimmed + ".";
+}
+
 function serviceHref(cluster: RoleCluster) {
   return "/service/" + cluster.serviceSlug;
 }
@@ -461,7 +472,7 @@ function definitionPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.definition,
     title: "What Does " + withArticle(cluster.role) + " Do?",
     metaTitle: fitMetaTitle("What Does " + withArticle(cluster.role) + " Do?", cluster.role + " Role Guide"),
-    metaDescription: ("Learn what " + withArticle(cluster.role) + " does, which tasks to delegate, the tools they use, what evidence to screen for, and where the role should escalate.").slice(0, 160),
+    metaDescription: fitMetaDescription("Learn what " + withArticle(cluster.role) + " does, which tasks to delegate, the tools they use, what evidence to screen for, and where the role should escalate."),
     keywords: [cluster.primaryKeyword, "what does " + withArticle(cluster.primaryKeyword) + " do", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
     audience: "client",
     intent: "definition",
@@ -507,7 +518,7 @@ function tasksPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.tasks,
     title: cluster.role + " Tasks: What to Delegate",
     metaTitle: fitMetaTitle(cluster.role + " Tasks | Delegation Guide", cluster.role + " Tasks"),
-    metaDescription: ("Use this " + cluster.role + " task list to decide what to delegate, what inputs are required, how to check quality, and which exceptions should stay with you.").slice(0, 160),
+    metaDescription: fitMetaDescription("Use this " + cluster.role + " task list to decide what to delegate, what inputs are required, how to check quality, and which exceptions should stay with you."),
     keywords: [cluster.primaryKeyword + " tasks", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
     audience: "client",
     intent: "tasks",
@@ -553,7 +564,7 @@ function hiringPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.hiring,
     title: "How to Hire " + withArticle(cluster.role),
     metaTitle: fitMetaTitle("How to Hire " + withArticle(cluster.role) + " | Philippines", "How to Hire " + withArticle(cluster.role)),
-    metaDescription: ("Hire " + withArticle(cluster.role) + " with a clearer brief. Define tasks, tools, hours, screening evidence, interview scenarios, and first-month expectations.").slice(0, 160),
+    metaDescription: fitMetaDescription("Hire " + withArticle(cluster.role) + " with a clearer brief. Define tasks, tools, hours, screening evidence, interview scenarios, and first-month expectations."),
     keywords: ["hire " + cluster.primaryKeyword, "how to hire " + cluster.primaryKeyword, cluster.primaryKeyword + " philippines"],
     audience: "client",
     intent: "hiring",
@@ -614,7 +625,7 @@ function interviewPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.interview,
     title: cluster.role + " Interview Questions",
     metaTitle: fitMetaTitle(cluster.role + " Interview Questions", cluster.role + " Interview"),
-    metaDescription: ("Use practical " + cluster.role + " interview questions to test workflow judgment, tool experience, quality checks, communication, and escalation decisions.").slice(0, 160),
+    metaDescription: fitMetaDescription("Use practical " + cluster.role + " interview questions to test workflow judgment, tool experience, quality checks, communication, and escalation decisions."),
     keywords: [cluster.primaryKeyword + " interview questions", "interview questions for " + cluster.primaryKeyword],
     audience: "client",
     intent: "interview",
@@ -660,7 +671,7 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.cost,
     title: cluster.role + " Cost in the Philippines",
     metaTitle: fitMetaTitle(cluster.role + " Cost Philippines | 2026", cluster.role + " Cost"),
-    metaDescription: ("Plan a " + cluster.role + " budget in the Philippines using role scope, weekly hours, experience, tools, schedule overlap, and decision ownership.").slice(0, 160),
+    metaDescription: fitMetaDescription("Plan a " + cluster.role + " budget in the Philippines using role scope, weekly hours, experience, tools, schedule overlap, and decision ownership."),
     keywords: [cluster.primaryKeyword + " cost", cluster.primaryKeyword + " rates", cluster.primaryKeyword + " salary philippines"],
     audience: "client",
     intent: "cost",
@@ -712,7 +723,7 @@ function toolsPage(cluster: RoleCluster): SeoResourcePage {
     slug: slugs.tools,
     title: "Best Tools for " + withArticle(cluster.role),
     metaTitle: fitMetaTitle("Best Tools for " + withArticle(cluster.role), cluster.role + " Tools"),
-    metaDescription: ("Compare useful tools for " + withArticle(cluster.role) + ", what each system supports, how to screen software experience, and how to manage access securely.").slice(0, 160),
+    metaDescription: fitMetaDescription("Compare useful tools for " + withArticle(cluster.role) + ", what each system supports, how to screen software experience, and how to manage access securely."),
     keywords: [cluster.primaryKeyword + " tools", "best tools for " + cluster.primaryKeyword, cluster.primaryKeyword + " software"],
     audience: "client",
     intent: "tools",

@@ -38,7 +38,7 @@
       "primaryIntent": "general VA versus executive VA role selection",
       "reason": "Distinct role-selection intent. Retain and sharpen shortlist criteria, judgment level, tool expectations, confidentiality, and escalation signals.",
       "status": "completed",
-      "completedAt": "2026-09-20"
+      "completedAt": "2026-09-22"
     },
     {
       "slug": "get-paid-virtual-assistant-philippines",
@@ -47,7 +47,7 @@
       "primaryIntent": "international payment options for Filipino VAs",
       "reason": "Distinct candidate-side payment intent. Keep indexed and connect it to VA jobs, applicant guidance, invoicing, fees, and tax-compliance caveats without turning it into employer pricing content.",
       "status": "completed",
-      "completedAt": "2026-09-20"
+      "completedAt": "2026-09-22"
     },
     {
       "slug": "hourly-rates-for-filipino-virtual-project-manager",
@@ -56,7 +56,7 @@
       "primaryIntent": "Filipino virtual project manager rate and scope guidance",
       "reason": "No modern project-manager cost page owns this exact role-rate intent. Keep, but qualify benchmarks, separate coordinator versus PM scope, and connect it to project-coordination hiring.",
       "status": "completed",
-      "completedAt": "2026-09-20"
+      "completedAt": "2026-09-22"
     },
     {
       "slug": "how-a-filipino-va-can-manage-your-ai-workflow",
@@ -83,7 +83,7 @@
       "primaryIntent": "paying a Filipino VA directly",
       "reason": "Distinct client-side payment intent. Retain, but remove broad agency-margin claims, compare payment rails using transparent fee variables, and link to compensation and engagement-model guidance.",
       "status": "completed",
-      "completedAt": "2026-09-20"
+      "completedAt": "2026-09-22"
     },
     {
       "slug": "how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",
@@ -103,5 +103,6 @@
       "reason": "The broad hiring-guide intent overlaps the current recruiter-grade Philippines hiring guide plus agency-versus-freelancer comparisons. Consolidate rather than maintain another broad guide."
     }
   ],
-  "retainedUpgradeCompletedAt": "2026-09-20"
+  "retainedUpgradeCompletedAt": "2026-09-20",
+  "lastReviewedAt": "2026-09-22"
 }

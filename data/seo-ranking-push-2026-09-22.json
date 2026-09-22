@@ -1,0 +1,106 @@
+{
+  "source": "data/seo-gsc-ownership-2026-09-21.json",
+  "generated": "2026-09-22",
+  "strategy": "Strengthen existing canonical owners already earning impressions in positions 4-20 before creating additional URLs.",
+  "targets": [
+    {
+      "canonical": "/average-hourly-rate-virtual-assistants-philippines",
+      "impressions": 1684,
+      "clicks": 2,
+      "position": 10.61,
+      "intent": "Virtual Assistant hourly rate Philippines",
+      "status": "strengthen-existing",
+      "actions": [
+        "internal-authority",
+        "content-depth",
+        "serp-monitoring",
+        "external-links"
+      ]
+    },
+    {
+      "canonical": "/blog/virtual-assistant-salary-philippines",
+      "impressions": 1290,
+      "clicks": 1,
+      "position": 11.73,
+      "intent": "Virtual Assistant salary Philippines",
+      "status": "strengthen-existing",
+      "actions": [
+        "internal-authority",
+        "canonical-consolidation",
+        "serp-monitoring",
+        "external-links"
+      ],
+      "note": "Impressions/position reflect the legacy salary URL now consolidated to this canonical owner."
+    },
+    {
+      "canonical": "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
+      "impressions": 323,
+      "clicks": 7,
+      "position": 9.02,
+      "intent": "Filipino VA benefits and statutory contribution questions",
+      "status": "strengthen-existing",
+      "actions": [
+        "internal-authority",
+        "content-maintenance",
+        "serp-monitoring"
+      ]
+    },
+    {
+      "canonical": "/blog/get-paid-virtual-assistant-philippines",
+      "impressions": 263,
+      "clicks": 1,
+      "position": 6.35,
+      "intent": "How Filipino Virtual Assistants get paid",
+      "status": "strengthen-existing",
+      "actions": [
+        "answer-first-content",
+        "internal-authority",
+        "serp-monitoring"
+      ]
+    },
+    {
+      "canonical": "/blog/general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
+      "impressions": 248,
+      "clicks": 0,
+      "position": 9.01,
+      "intent": "General Virtual Assistant vs Executive Virtual Assistant",
+      "status": "strengthen-existing",
+      "actions": [
+        "comparison-table",
+        "answer-first-content",
+        "internal-authority",
+        "serp-monitoring"
+      ]
+    },
+    {
+      "canonical": "/blog/hourly-rates-for-filipino-virtual-project-manager",
+      "impressions": 105,
+      "clicks": 2,
+      "position": 7.22,
+      "intent": "Virtual Project Manager rates Philippines",
+      "status": "strengthen-existing",
+      "actions": [
+        "answer-first-content",
+        "internal-authority",
+        "serp-monitoring"
+      ]
+    },
+    {
+      "canonical": "/blog/how-to-pay-a-filipino-virtual-assistant-directly",
+      "impressions": 155,
+      "clicks": 2,
+      "position": 13.55,
+      "intent": "How to pay a Filipino Virtual Assistant directly",
+      "status": "strengthen-existing",
+      "actions": [
+        "answer-first-content",
+        "internal-authority",
+        "serp-monitoring"
+      ]
+    }
+  ],
+  "newUrlPolicy": {
+    "action": "defer-unverified-gaps",
+    "reason": "Do not create a new canonical URL unless the September 22 AU, US, or PH keyword exports show distinct demand not already owned by the current service, industry, software, comparison, or resource architecture."
+  }
+}

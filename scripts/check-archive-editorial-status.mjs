@@ -54,8 +54,23 @@ const forbiddenLegacyClaims = [
   /solely responsible for handling their own Bureau of Internal Revenue/i
 ];
 
+function displayDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || "")) return "";
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC"
+  });
+}
+
 for (const post of archive) {
-  if (post.updatedDate !== "September 20, 2026") failures.push(`${post.slug}: missing current substantive update date`);
+  const decision = decisions.get(post.slug);
+  const expectedUpdateDate = displayDate(decision?.completedAt);
+  if (!expectedUpdateDate || post.updatedDate !== expectedUpdateDate) {
+    failures.push(`${post.slug}: substantive update date must match editorial completion date`);
+  }
   if (!["client", "candidate"].includes(post.audience)) failures.push(`${post.slug}: audience must be client or candidate`);
   if (!Array.isArray(post.fieldNotes) || post.fieldNotes.length < 3) failures.push(`${post.slug}: needs at least three current field notes`);
 
@@ -78,8 +93,8 @@ for (const slug of activeSlugs) {
   if (decision && decision.status !== "completed") {
     failures.push(`${slug}: retained editorial decision is not marked completed`);
   }
-  if (decision && decision.completedAt !== "2026-09-20") {
-    failures.push(`${slug}: retained editorial completion date is missing or stale`);
+  if (decision && !/^\d{4}-\d{2}-\d{2}$/.test(decision.completedAt || "")) {
+    failures.push(`${slug}: retained editorial completion date is missing or invalid`);
   }
 }
 for (const [slug, decision] of decisions) {
@@ -97,7 +112,10 @@ console.log(JSON.stringify({
   auditedPosts: decisions.size,
   activeArchivePosts: activeSlugs.size,
   consolidatedThisPass: [...decisions.values()].filter((item) => ["merge", "redirect"].includes(item.action)).length,
-  upgradedRetainedPosts: archive.filter((post) => post.updatedDate === "September 20, 2026").length,
+  upgradedRetainedPosts: archive.filter((post) => {
+    const decision = decisions.get(post.slug);
+    return post.updatedDate === displayDate(decision?.completedAt);
+  }).length,
   failures: failures.length
 }, null, 2));
 

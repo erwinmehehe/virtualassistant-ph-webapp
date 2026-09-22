@@ -46,6 +46,12 @@ const RATE_GUIDE: SeoPriorityLink = {
   description: "Compare first-party rate context, scope factors, and the difference between a headline rate and the work the role actually owns."
 };
 
+const SALARY_GUIDE: SeoPriorityLink = {
+  href: "/blog/virtual-assistant-salary-philippines",
+  label: "Virtual Assistant salary in the Philippines",
+  description: "Compare salary and compensation context separately from hourly pricing so the working arrangement and responsibility level stay clear."
+};
+
 const SSS_GUIDE: SeoPriorityLink = {
   href: "/blog/do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
   label: "SSS, PhilHealth, and Pag-IBIG for Filipino Virtual Assistants",
@@ -156,12 +162,12 @@ const COLD_CALLING_COST: SeoPriorityLink = {
 
 export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "average-hourly-rate-virtual-assistants-philippines": [RATE_REPORT],
-  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE, PRICING_HUB],
+  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va": [DIRECT_PAYMENT, RATE_GUIDE, SALARY_GUIDE, PRICING_HUB],
   "dental-virtual-assistant-interview-questions": [DENTAL_COST, DENTAL_SERVICE, HIRE_HUB],
   "medical-virtual-assistant-interview-questions": [MEDICAL_COST, MEDICAL_SERVICE, HIRE_HUB],
   "what-does-a-cold-calling-virtual-assistant-do": [COLD_CALLING_SERVICE, COLD_CALLING_COST, HIRE_HUB],
   "medical-virtual-assistant-cost-philippines": [RATE_REPORT, MEDICAL_SERVICE, PRICING_HUB],
-  "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, PRICING_HUB],
+  "virtual-assistant-salary-philippines": [RATE_GUIDE, RATE_REPORT, PRICING_HUB, HIRE_HUB],
   "hire-virtual-assistant-philippines": [RATE_GUIDE, GENERAL_VS_EXECUTIVE, COMPANIES_GUIDE, OUTSOURCING_GUIDE],
   "outsourcing-philippines-virtual-assistant": [SSS_GUIDE, DIRECT_PAYMENT, COMPANIES_GUIDE, HIRE_HUB],
   "philippines-vs-india-virtual-assistants": [SSS_GUIDE, RATE_GUIDE, COMPANIES_GUIDE],
@@ -179,7 +185,7 @@ export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
 export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "become-virtual-assistant-no-experience": [GET_PAID_GUIDE],
   "how-to-become-bookkeeping-virtual-assistant": [GET_PAID_GUIDE],
-  "get-paid-virtual-assistant-philippines": [RATE_GUIDE, SSS_GUIDE],
+  "get-paid-virtual-assistant-philippines": [SALARY_GUIDE, RATE_GUIDE, SSS_GUIDE],
   "ecommerce-va-vs-in-house-assistant": [RATE_GUIDE, COMPANIES_GUIDE, HIRE_HUB],
   "hourly-rates-for-filipino-virtual-project-manager": [RATE_GUIDE, RATE_REPORT, PRICING_HUB, HIRE_HUB],
   "how-to-pay-a-filipino-virtual-assistant-directly": [RATE_GUIDE, SSS_GUIDE, PRICING_HUB, OUTSOURCING_GUIDE],
@@ -187,10 +193,10 @@ export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
 };
 
 export const SERVICE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
-  "project-coordination": [PROJECT_MANAGER_RATES, RATE_GUIDE],
+  "project-coordination": [PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB],
   "operations": [PROJECT_MANAGER_RATES, RATE_GUIDE],
-  "general-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE],
-  "executive-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE],
+  "general-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE],
+  "executive-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE],
   "fulfilment": [ECOMMERCE_TASKS],
   "dental-virtual-assistant": [DENTAL_INTERVIEW, DENTAL_COST],
   "hvac-virtual-assistant": [HVAC_HIRING, HVAC_COST],

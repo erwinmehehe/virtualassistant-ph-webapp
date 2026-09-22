@@ -4,17 +4,13 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("recruiter dashboard keeps approval separate from public publishing", async()=>{
-  const page=await read("src/app/workspace/recruiter/page.tsx");
-  const queueBlock=page.slice(page.indexOf("function RecruiterVettingQueue"),page.indexOf("function RecruiterRolesNeedingMatching"));
-  assert.match(queueBlock,/name="bulk_action" value="approve"/);
-  assert.doesNotMatch(queueBlock,/name="bulk_action" value="approve_publish"/);
-  assert.match(queueBlock,/APPROVAL_MIN_COMPLETION/);
-  assert.match(queueBlock,/approval-ready/);
-  assert.match(page,/readiness=approval_ready/);
-  assert.match(page,/Approval-ready profiles/);
-  assert.match(page,/Public-ready profiles/);
-  assert.match(page,/photo not required for recruiter approval/);
+test("recruiter Talent keeps approval separate from public publishing", async()=>{
+  const page=await read("src/app/workspace/recruiter/talent/page.tsx");
+  assert.match(page,/value="approve">Approve eligible \(60%\+\)/);
+  assert.match(page,/value="approve_publish">Approve \+ publish if public-ready/);
+  assert.match(page,/APPROVAL_MIN_COMPLETION/);
+  assert.match(page,/Approval-ready/);
+  assert.match(page,/publicVisibilityRequirements/);
 });
 
 test("admin workspace has one canonical home", async()=>{

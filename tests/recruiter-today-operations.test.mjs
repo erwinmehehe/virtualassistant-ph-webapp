@@ -10,12 +10,12 @@ test("Recruiter My Day surfaces the daily talent and role operations queues", as
   assert.match(page, /Talent operations/);
   assert.match(page, /Role follow-through/);
   assert.match(page, /readiness=approval_ready/);
-  assert.match(page, /is\("avatar_url",null\)/);
-  assert.match(page, /recruiter_daily_action_queue/);
+  assert.match(page, /missing_photo_count/);
+  assert.match(page, /daily_actions/);
   assert.match(page, /client_shortlist_waiting/);
   assert.match(page, /client_response_overdue/);
-  assert.match(page, /72 \* 60 \* 60 \* 1000/);
-  assert.match(page, /hiring_stage_entered_at \|\| role\.updated_at \|\| role\.created_at/);
+  assert.match(page, /stale_roles_count/);
+  assert.match(page, /stale_roles_preview/);
 });
 
 test("Recruiter My Day keeps client waits out of the generic work queue once promoted", async () => {

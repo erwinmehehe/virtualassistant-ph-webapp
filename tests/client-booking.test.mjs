@@ -148,14 +148,17 @@ test("recruiter agenda shows all active discovery bookings, not only the assigne
 });
 
 
-test("recruiter dashboard shows all upcoming discovery calls for the next seven days", async () => {
-  const dashboard = await read("src/app/workspace/recruiter/page.tsx");
-  assert.match(dashboard, /Upcoming discovery calls/);
-  assert.match(dashboard, /All active client discovery bookings in the next 7 days, across recruiters/);
-  assert.match(dashboard, /\.from\("lead_intake"\)/);
-  assert.match(dashboard, /\.gte\("discovery_scheduled_at", nowIso\)/);
-  assert.match(dashboard, /\.lt\("discovery_scheduled_at", nextWeekIso\)/);
-  assert.doesNotMatch(dashboard.match(/\.from\("lead_intake"\)[\s\S]*?\.limit\(8\)/)?.[0] || "", /owner_id/);
+test("recruiter home consolidates into My Day while Agenda owns the all-recruiter discovery calendar", async () => {
+  const [root,today,agenda] = await Promise.all([
+    read("src/app/workspace/recruiter/page.tsx"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
+    read("src/app/workspace/recruiter/agenda/page.tsx")
+  ]);
+  assert.match(root,/redirect\("\/workspace\/recruiter\/today"\)/);
+  assert.match(today,/recruiter_today_summary/);
+  assert.match(agenda,/All active discovery calls/);
+  assert.match(agenda,/\.from\("lead_intake"\)/);
+  assert.doesNotMatch(agenda.match(/admin\.from\("lead_intake"\)[\s\S]*?\.order\("discovery_scheduled_at"\)/)?.[0] || "", /\.eq\("owner_id"/);
 });
 
 

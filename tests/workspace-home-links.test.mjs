@@ -13,9 +13,9 @@ test("workspace shell keeps two intentional home affordances",async()=>{
   assert.doesNotMatch(shell,/className="app-workspace-card"/);
 });
 
-test("recruiter workspace home resolves to recruiter dashboard",async()=>{
+test("recruiter workspace home resolves to My Day",async()=>{
   const shell=await read("src/components/app-shell.tsx");
-  assert.match(shell,/recruiter:\s*"\/workspace\/recruiter"/);
+  assert.match(shell,/recruiter:\s*"\/workspace\/recruiter\/today"/);
 });
 
 test("topbar workspace link keeps workspace styling and hides on mobile",async()=>{

@@ -19,14 +19,16 @@ test("Recruiter My Day exposes the full operating queue",async()=>{
   assert.match(page,/Offers waiting/);
   assert.match(page,/Need replacements/);
   assert.match(page,/Stale roles/);
-  assert.match(page,/discovery_no_show_rebook/);
-  assert.match(page,/role_without_shortlist/);
-  assert.match(page,/all_candidates_passed/);
+  assert.match(page,/no_show_needs_email/);
+  assert.match(page,/role_no_candidates/);
+  assert.match(page,/replacement_needed/);
 });
 
-test("Recruiter My Day approval counts are null-stage safe",async()=>{
+test("Recruiter My Day uses the compact summary RPC instead of repeated dashboard queries",async()=>{
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(page,/stage\.is\.null,and\(stage\.neq\.approved,stage\.neq\.bench,stage\.neq\.rejected\)/);
+  assert.match(page,/recruiter_today_summary/);
+  assert.doesNotMatch(page,/admin\.from\("recruiter_va_directory"\)/);
+  assert.doesNotMatch(page,/\.limit\(100\)/);
 });
 
 test("Owner Today reads like a business pipeline with direct queues",async()=>{
@@ -41,7 +43,7 @@ test("Owner Today reads like a business pipeline with direct queues",async()=>{
   assert.match(page,/Collections/);
   assert.match(page,/Retention risks/);
   assert.match(page,/Every number opens the operating queue behind it/);
-  assert.match(page,/openRoleCount/);
+  assert.match(page,/summary\.open_roles/);
 });
 
 test("Today dashboards retain action-first mobile responsive styles",async()=>{

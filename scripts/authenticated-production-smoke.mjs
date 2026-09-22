@@ -34,8 +34,8 @@ const roles = [
     tokenHash: process.env.SMOKE_RECRUITER_TOKEN_HASH,
     email: process.env.SMOKE_RECRUITER_EMAIL,
     password: process.env.SMOKE_RECRUITER_PASSWORD,
-    path: "/workspace/recruiter",
-    marker: "Today’s work",
+    path: "/workspace/recruiter/today",
+    marker: "My Day",
     forbiddenPath: "/workspace/admin"
   },
   {

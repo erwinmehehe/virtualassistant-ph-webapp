@@ -9,7 +9,7 @@ const closeAction = read("src/app/actions/close-lead.ts");
 const migration = read("supabase/migrations/20260917004500_recruiter_cleanup_queue.sql");
 
 test("My Day has a dedicated sales cleanup queue without duplicate lead work items", () => {
-  assert.match(page, /recruiter_lead_cleanup_queue/);
+  assert.match(page, /recruiter_today_summary/);
   assert.match(page, /Sales cleanup/);
   assert.match(page, /LEAD_QUEUE_KINDS = new Set\(\["lead_first_contact", "lead_followup"\]\)/);
   assert.match(page, /\.filter\(\(item:any\)=>!LEAD_QUEUE_KINDS\.has\(String\(item\.kind\)\)\)/);

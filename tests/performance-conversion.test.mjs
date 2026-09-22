@@ -38,9 +38,9 @@ test("dashboard overview payloads use consolidated RPC fast paths", async () => 
     read("src/app/workspace/client/layout.tsx"),
     read("src/app/workspace/va/page.tsx"),
     read("src/app/workspace/va/layout.tsx"),
-    read("src/app/workspace/recruiter/page.tsx"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
     read("src/app/workspace/recruiter/leads/page.tsx"),
-    read("supabase/migrations/20260913233750_dashboard_speed_consolidation.sql")
+    read("supabase/migrations/20260922101500_dashboard_command_center_summaries.sql")
   ]);
 
   assert.match(client, /getClientDashboardSummary\(userId\)/);
@@ -49,15 +49,14 @@ test("dashboard overview payloads use consolidated RPC fast paths", async () => 
   assert.match(va, /getVaDashboardSummary\(userId\)/);
   assert.match(vaLayout, /requireRoleFast\("va"\)/);
 
-  assert.match(recruiter, /recruiter_dashboard_overview/);
-  assert.match(recruiter, /recruiter_dashboard_signups/);
-  assert.doesNotMatch(recruiter, /recruiter_dashboard_vetting_queue|recruiter_dashboard_roles_needing_matching/);
+  assert.match(recruiter, /recruiter_today_summary/);
+  assert.doesNotMatch(recruiter, /admin\.from\(|\.limit\(100\)/);
 
   assert.match(leads, /recruiter_leads_page/);
   assert.match(leads, /PAGE_SIZE = 25/);
   assert.doesNotMatch(leads, /\.limit\(500\)|\.limit\(2000\)|\.limit\(1000\)/);
 
-  for (const fn of ["client_dashboard_summary", "recruiter_dashboard_overview", "recruiter_dashboard_signups", "recruiter_leads_page"]) {
+  for (const fn of ["recruiter_today_summary", "admin_today_summary"]) {
     assert.match(migration, new RegExp(fn));
   }
 });

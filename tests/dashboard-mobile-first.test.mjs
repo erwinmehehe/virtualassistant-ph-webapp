@@ -25,7 +25,7 @@ test("primary role dashboards share the responsive dash-page foundation", async(
     "src/app/workspace/recruiter/page.tsx",
     "src/app/workspace/client/page.tsx",
     "src/app/workspace/va/page.tsx",
-    "src/app/workspace/admin/page.tsx",
+    "src/app/workspace/admin/today/page.tsx",
     "src/app/workspace/client-success/page.tsx"
   ];
   const pages=await Promise.all(paths.map(read));

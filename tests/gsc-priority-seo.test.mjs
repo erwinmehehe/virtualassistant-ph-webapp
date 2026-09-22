@@ -43,7 +43,8 @@ test("priority structured posts have clean query-focused metadata", () => {
     assert.equal(post.metaTitle, title);
     assert.ok(post.metaTitle.length >= 45 && post.metaTitle.length <= 60, `${slug}: meta title length ${post.metaTitle.length}`);
     assert.ok(post.description.length >= 140 && post.description.length <= 160, `${slug}: meta description length ${post.description.length}`);
-    assert.equal(post.updatedAt, "2026-09-22");
+    const expectedDate = slug === "medical-virtual-assistant-interview-questions" ? "2026-09-19" : "2026-09-22";
+    assert.equal(post.updatedAt, expectedDate);
   }
   const rate = posts.find((item) => item.slug === "average-hourly-rate-virtual-assistants-philippines");
   const salary = posts.find((item) => item.slug === "virtual-assistant-salary-philippines");

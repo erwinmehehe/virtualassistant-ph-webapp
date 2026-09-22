@@ -61,3 +61,10 @@ test("smoke sign-in accepts current publishable keys without treating them as be
     assert.match(script,/anonKey\.startsWith\("eyJ"\)/);
   }
 });
+
+
+test("authenticated visual shortlist flow reuses the recruiter role config for passwordless sessions",()=>{
+  const script=read("scripts/authenticated-dashboard-visual.mjs");
+  assert.match(script,/const recruiterSession = await signIn\(roles\.find\(\(role\) => role\.role === "recruiter"\)\)/);
+  assert.doesNotMatch(script,/signIn\(process\.env\.SMOKE_RECRUITER_EMAIL/);
+});

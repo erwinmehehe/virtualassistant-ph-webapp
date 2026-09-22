@@ -41,9 +41,10 @@ test("owner dashboard puts exceptions before the business pipeline",async()=>{
 });
 
 test("client and VA dashboards keep their lean summary paths",async()=>{
-  const [client,va]=await Promise.all([
+  const [client,va,css]=await Promise.all([
     read("src/app/workspace/client/page.tsx"),
-    read("src/app/workspace/va/page.tsx")
+    read("src/app/workspace/va/page.tsx"),
+    read("src/app/dashboard-premium.css")
   ]);
 
   assert.match(client,/getClientDashboardSummary\(userId\)/);
@@ -52,4 +53,6 @@ test("client and VA dashboards keep their lean summary paths",async()=>{
   assert.match(va,/DashHeader kicker="Vetted VA workspace"/);
   assert.match(client,/Current action/);
   assert.match(va,/Next best action/);
+  assert.match(css,/@media \(max-width: 680px\)[\s\S]*\.dash-page\.role-overview \.dash-header-actions \{ width: 100%; \}/);
+  assert.match(css,/\.dash-page\.role-overview \.dash-header-actions > a \{ width: 100%; \}/);
 });

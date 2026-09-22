@@ -72,6 +72,7 @@ export default async function RecruiterTalentDirectory({
 
   query = applyRecruiterTalentFilters(query, {
     q: effective.q,
+    category: effective.category,
     stage: effective.stage,
     readiness: effective.readiness,
     photo: effective.photo,
@@ -145,6 +146,7 @@ export default async function RecruiterTalentDirectory({
   const filterHidden = <>
     {Object.entries({
       filter_q: effective.q,
+      filter_category: effective.category,
       filter_stage: effective.stage,
       filter_readiness: effective.readiness,
       filter_photo: effective.photo,
@@ -158,7 +160,7 @@ export default async function RecruiterTalentDirectory({
   </>;
 
   const stages = ["profile", "test", "video", "recruiter_review", "finalist", "approved", "bench", "rejected"];
-  const advancedFiltersActive = Boolean(effective.photo || effective.resume || effective.skill || effective.min_experience || effective.max_rate || effective.availability || effective.stale);
+  const advancedFiltersActive = Boolean(effective.category || effective.photo || effective.resume || effective.skill || effective.min_experience || effective.max_rate || effective.availability || effective.stale);
   const readinessLabels: Record<string, string> = {
     zero: "Not started",
     incomplete: `Below ${APPROVAL_MIN_COMPLETION}%`,
@@ -168,6 +170,7 @@ export default async function RecruiterTalentDirectory({
   };
   const activeFilters = [
     effective.q ? { key: "q", label: `Search: ${effective.q}` } : null,
+    effective.category ? { key: "category", label: `Specialty: ${effective.category}` } : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
     effective.readiness ? { key: "readiness", label: readinessLabels[effective.readiness] || effective.readiness } : null,
     effective.photo ? { key: "photo", label: effective.photo === "yes" ? "Has photo" : "Missing photo" } : null,
@@ -285,6 +288,7 @@ export default async function RecruiterTalentDirectory({
       <details className="filter-more" open={advancedFiltersActive}>
         <summary><SlidersHorizontal size={15} /><span>More filters</span><ChevronDown size={15} className="filter-more-chevron" /></summary>
         <div className="filter-more-grid">
+          <label className="filter-field filter-field-wide"><span>Specialty</span><input name="category" defaultValue={effective.category} placeholder="Exact primary specialty" /></label>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
           <label className="filter-field"><span>Availability</span><select name="availability" defaultValue={effective.availability || ""}><option value="">Any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>

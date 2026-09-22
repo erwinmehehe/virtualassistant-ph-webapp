@@ -21,7 +21,7 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* the CRM cancellation remains valid if Google Calendar is temporarily unavailable */ }
-  await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. You can contact our hiring team whenever you are ready to book again.", href: bookingManageUrl(token), hrefLabel: "View booking", priority: "critical", idempotencyKey: `booking-cancelled-${lead.id}` });
+  await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. When you are ready, use the link below to choose another available time.", href: bookingManageUrl(token), hrefLabel: "Rebook your call", priority: "critical", idempotencyKey: `booking-cancelled-${lead.id}` });
   redirect(managePath(token, "cancelled=1"));
 }
 

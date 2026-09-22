@@ -68,7 +68,8 @@ test("no-show booking manager focuses the client on choosing another time", asyn
     read("src/components/manage-booking-form.tsx")
   ]);
   assert.match(page, /discovery_outcome/);
-  assert.match(page, /rebookOnly=\{lead\.discovery_outcome === "no_show"\}/);
+  assert.match(page, /const rebookOnly = lead\.discovery_outcome === "no_show" \|\| Boolean\(lead\.discovery_cancelled_at\) \|\| lead\.discovery_outcome === "cancelled"/);
+  assert.match(page, /rebookOnly=\{rebookOnly\}/);
   assert.match(page, /Choose another time/);
   assert.match(form, /rebookOnly \? "Rebook call" : "Reschedule call"/);
   assert.match(form, /!rebookOnly \? <section/);

@@ -19,6 +19,11 @@ test("client onboarding validation redirects back to the form", async()=>{
   assert.doesNotMatch(action,/throw new Error\("Enter a valid hiring budget range\."\)/);
   assert.match(page,/role="alert"/);
   assert.match(page,/params\.error/);
+
+  const vaProfileBlock=action.slice(action.indexOf("export async function updateVaProfileAction"),action.indexOf("export async function updateClientProfileAction"));
+  const clientProfileBlock=action.slice(action.indexOf("export async function updateClientProfileAction"),action.indexOf("export async function completeClientOnboardingAction"));
+  assert.match(vaProfileBlock,/if \(profileError\) throw profileError/);
+  assert.match(clientProfileBlock,/if \(companyError\) throw companyError/);
 });
 
 test("server-only operational tables have explicit deny policies", async()=>{
@@ -47,4 +52,12 @@ test("authenticated dashboard visual QA runs locally and covers admin", async()=
   assert.match(visual,/role: "admin"/);
   assert.match(visual,/SMOKE_ADMIN_EMAIL/);
   assert.match(visual,/secure = parsedBaseUrl\.protocol === "https:"/);
+});
+
+
+test("pg_net migration refuses queued work and reinstalls outside public", async()=>{
+  const sql=await read("supabase/migrations/20260922090500_move_pg_net_out_of_public.sql");
+  assert.match(sql,/http_request_queue/);
+  assert.match(sql,/refusing to reinstall/);
+  assert.match(sql,/create extension pg_net with schema extensions/);
 });

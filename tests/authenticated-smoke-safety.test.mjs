@@ -34,6 +34,10 @@ test("GitHub workflows use OIDC and do not depend on stored smoke credentials",(
     assert.doesNotMatch(workflow,/SUPABASE_SERVICE_ROLE_KEY/);
   }
   assert.match(production,/SMOKE_BASE_URL: https:\/\/virtualassistant\.com\.ph/);
+  assert.match(visual,/SMOKE_BASE_URL: https:\/\/virtualassistant\.com\.ph/);
+  assert.match(visual,/VISUAL_BASE_URL: https:\/\/virtualassistant\.com\.ph/);
+  assert.match(visual,/Wait for this main commit to reach production/);
+  assert.doesNotMatch(visual,/SMOKE_BASE_URL: \$\{\{ steps\.production\.outputs\.url \}\}/);
   assert.doesNotMatch(production,/inputs\.base_url/);
 });
 

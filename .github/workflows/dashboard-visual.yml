@@ -71,11 +71,11 @@ jobs:
             core.setFailed("No successful production deployment was found for this main commit.");
       - name: Bootstrap passwordless smoke sessions
         env:
-          SMOKE_BASE_URL: ${{ steps.production.outputs.url }}
+          SMOKE_BASE_URL: https://virtualassistant.com.ph
         run: node scripts/bootstrap-github-smoke.mjs
       - name: Capture authenticated dashboards
         env:
-          VISUAL_BASE_URL: ${{ steps.production.outputs.url }}
+          VISUAL_BASE_URL: https://virtualassistant.com.ph
         run: node scripts/authenticated-dashboard-visual.mjs
       - name: Upload dashboard screenshots
         if: always()

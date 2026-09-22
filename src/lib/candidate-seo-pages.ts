@@ -100,6 +100,81 @@ export const CANDIDATE_SEO_PAGES: CandidateSeoPage[] = [
     ],
     ctaLabel: "Create your VA profile"
   }
+  {
+    slug: "virtual-assistant-tools",
+    title: "Best Virtual Assistant Tools for Remote Work",
+    metaTitle: "Best Virtual Assistant Tools for Remote Work",
+    description: "Compare useful Virtual Assistant tools for communication, project management, admin, CRM, marketing, files, security and specialist remote work.",
+    eyebrow: "Tools guide",
+    lede: "Virtual Assistant tools should make work visible, secure and repeatable. Learn the workflow first, then use the smallest tool stack that lets you communicate, document, complete and review the work reliably.",
+    sections: [
+      { heading: "Core remote-work tools", bullets: ["Google Workspace or Microsoft 365", "Slack or Microsoft Teams", "Zoom or Google Meet", "Asana, ClickUp, Trello or Monday.com", "Notion or a documented SOP system", "A password manager and multi-factor authentication"] },
+      { heading: "Role-specific tools", paragraphs: ["Marketing VAs may work in Canva, Meta Business Suite, GA4, WordPress or email platforms. Sales VAs may use HubSpot, Salesforce or GoHighLevel. Bookkeeping VAs may use QuickBooks or Xero. Choose tools that match your target role."] },
+      { heading: "Show workflow experience, not a software list", bullets: ["Explain what you create or update inside the tool", "Describe the checks you use before completion", "Show how you hand work to the next person", "Explain how you handle permissions and sensitive data"] },
+      { heading: "Keep the stack secure", bullets: ["Use named work accounts where possible", "Turn on MFA", "Do not store client passwords in notes or spreadsheets", "Use minimum necessary access", "Remove old access when work changes"] }
+    ],
+    ctaLabel: "Create your VA profile"
+  },
+  {
+    slug: "virtual-assistant-interview-questions",
+    title: "Virtual Assistant Interview Questions for Applicants",
+    metaTitle: "Virtual Assistant Interview Questions for Applicants",
+    description: "Prepare for common Virtual Assistant interview questions about experience, tools, quality checks, prioritization, communication and remote work.",
+    eyebrow: "Interview guide",
+    lede: "Strong VA interviews are specific. Prepare examples that show how you complete work, check quality, communicate status, solve problems and escalate instead of memorizing generic answers.",
+    sections: [
+      { heading: "Questions about your experience", bullets: ["Tell me about a recurring workflow you owned.", "What part of your previous role required the most follow-through?", "Describe a mistake you caught and how you fixed the process.", "Which type of VA work are you strongest at and why?"] },
+      { heading: "Questions about tools and quality", bullets: ["Which tools have you used in real work?", "How do you check your work before marking it complete?", "How do you document a process for another teammate?", "What do you do if information from two systems does not match?"] },
+      { heading: "Questions about remote work", bullets: ["How do you prioritize competing deadlines?", "What does a useful status update look like?", "What is your availability and preferred schedule?", "How do you protect client accounts and information?"] },
+      { heading: "How to answer well", paragraphs: ["Use one real example, explain the situation, what you personally did, the checks you used, and the outcome. If you have not done something before, say so and explain the closest relevant experience instead of inventing expertise."] }
+    ],
+    ctaLabel: "Create your VA profile"
+  },
+  {
+    slug: "virtual-assistant-no-experience",
+    title: "How to Become a Virtual Assistant With No Experience",
+    metaTitle: "Virtual Assistant With No Experience | Philippines",
+    description: "Learn how to start as a Virtual Assistant with no direct VA experience by using transferable skills, sample work, focused learning and honest applications.",
+    eyebrow: "Beginner guide",
+    lede: "No direct VA title does not mean no relevant experience. Customer service, office admin, sales, accounting, ecommerce, healthcare, education and other jobs can all contain workflows that transfer to remote support.",
+    sections: [
+      { heading: "Start from skills you already have", bullets: ["Customer communication", "Scheduling and coordination", "Data entry and spreadsheets", "Research", "Sales follow-up", "Bookkeeping administration", "Content or social media", "Industry-specific administration"] },
+      { heading: "Choose one starting role", paragraphs: ["Do not try to become an admin VA, designer, bookkeeper, SEO specialist and closer at the same time. Choose a role that is close to your existing evidence, then learn the tools used in that workflow."] },
+      { heading: "Create safe sample evidence", bullets: ["Use dummy data", "Build a sample tracker or SOP", "Create a mock content calendar", "Practice a CRM workflow in a demo account", "Document how you would check the work"] },
+      { heading: "Apply honestly", paragraphs: ["Do not relabel unrelated past jobs as VA experience. Show the transferable responsibility, explain what you can already do, and be clear about the skills you are still developing."] }
+    ],
+    ctaLabel: "Create your VA profile"
+  },
+  {
+    slug: "part-time-virtual-assistant-jobs",
+    title: "Part-Time Virtual Assistant Jobs in the Philippines",
+    metaTitle: "Part-Time Virtual Assistant Jobs Philippines",
+    description: "Learn how part-time Virtual Assistant jobs work in the Philippines, what employers expect, how to compare schedules and where to find reviewed openings.",
+    eyebrow: "Part-time VA jobs",
+    lede: "Part-time VA roles can be a good fit when a business has a defined recurring workload that does not require full-time coverage. Check the schedule, timezone, weekly hours, responsibilities and compensation before applying.",
+    sections: [
+      { heading: "What part-time usually means", paragraphs: ["Part-time roles may be fixed daily hours, a smaller number of weekly hours, or scheduled coverage on specific days. Confirm whether the client needs live overlap or allows asynchronous work."] },
+      { heading: "Check these details before applying", bullets: ["Hours per week", "Required working days", "Timezone and live overlap", "Hourly or monthly compensation", "Expected response time", "Whether hours can grow", "Whether outside clients or jobs are restricted"] },
+      { heading: "Roles that often work part-time", bullets: ["Administrative support", "Bookkeeping", "Social media", "Data entry and research", "Email marketing", "CRM cleanup", "Content publishing"] },
+      { heading: "Avoid schedule conflicts", paragraphs: ["If you already have another client or job, be realistic about overlap and deadlines. Do not accept two roles that both expect you to be continuously available during the same working hours."] }
+    ],
+    ctaLabel: "Create your VA profile"
+  },
+  {
+    slug: "work-from-home-virtual-assistant-jobs",
+    title: "Work From Home Virtual Assistant Jobs in the Philippines",
+    metaTitle: "Work From Home Virtual Assistant Jobs Philippines",
+    description: "Find out what to prepare for work-from-home Virtual Assistant jobs in the Philippines, including equipment, internet, schedules, security and applications.",
+    eyebrow: "Remote VA jobs",
+    lede: "Work-from-home VA jobs are remote professional roles, not just online side tasks. Employers expect reliable communication, a workable home setup, accurate work and clear availability.",
+    sections: [
+      { heading: "Prepare a reliable home-work setup", bullets: ["Computer suitable for the role", "Stable internet", "Headset and camera where required", "Quiet call environment for phone roles", "Backup connectivity plan where practical", "Secure work accounts and MFA"] },
+      { heading: "Remote employers look for evidence", paragraphs: ["Show that you can follow written instructions, communicate blockers early, keep records current and complete work without constant supervision. Remote reliability is a professional skill."] },
+      { heading: "Compare the actual job, not just the remote label", bullets: ["Responsibilities", "Schedule", "Timezone", "Compensation", "Employment or contractor structure", "Tools", "Performance expectations", "Client or agency support"] },
+      { heading: "Use reviewed opportunities", paragraphs: ["A useful job listing should give enough information to decide whether the role fits before you apply. Avoid opportunities that ask for payment, hide basic role details or request sensitive credentials before a legitimate hiring process."] }
+    ],
+    ctaLabel: "Create your VA profile"
+  },
 ];
 
 export function candidateSeoPageBySlug(slug: string) {

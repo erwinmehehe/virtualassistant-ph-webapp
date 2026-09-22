@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PublicAvatar } from "@/components/public-avatar";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { dateShort } from "@/lib/format";
@@ -12,7 +12,7 @@ type QueueAttemptRow = { va_id: string; final_score: number | null; auto_score: 
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 
 export default async function RecruiterQueue({ searchParams }:{ searchParams: Promise<Record<string,string|undefined>> }){
-  await requireRole("recruiter");const admin=createAdminClient();const params=await searchParams;
+  await requireRoleFast("recruiter");const admin=createAdminClient();const params=await searchParams;
   const {data:vettingData}=await admin.from("va_vetting").select("*").eq("stage","recruiter_review").order("updated_at",{ascending:true}).limit(200);
   const vetting=(vettingData||[]) as QueueVettingRow[];
   const ids=vetting.map((x)=>x.va_id);const [{data:profiles},{data:vas},{data:attempts}]=ids.length?await Promise.all([admin.from("profiles").select("id,full_name,avatar_url").in("id",ids),admin.from("va_profiles").select("*").in("user_id",ids),admin.from("va_test_attempts").select("va_id,final_score,auto_score,submitted_at").in("va_id",ids)]):[{data:[]},{data:[]},{data:[]}];

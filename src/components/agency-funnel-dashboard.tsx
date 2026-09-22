@@ -111,7 +111,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
       <div>
         <div className="kicker">Agency funnel</div>
         <h1>From hiring enquiry to retained placement</h1>
-        <p>{scopeLabel}. Read this left to right: client demand becomes a role, recruiting turns that role into a placement, then Client Success keeps the placement healthy.</p>
+        <p>{scopeLabel}. Read this left to right: client demand becomes a role, recruiting turns that role into a placement, then Client Success keeps the placement healthy. Sales, recruiting, and retention remain separate cohorts so unrelated records are never presented as one misleading funnel.</p>
       </div>
       <div className="role-filter-tabs agency-range-tabs" aria-label="Funnel date range">
         {[30, 90, 180].map((range) => <Link prefetch={false} key={range} className={days === range ? "active" : ""} href={basePath + "?days=" + range}>{range} days</Link>)}
@@ -164,7 +164,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="agency-attention-section">
       <div className="agency-funnel-section-head">
-        <div><span className="agency-section-icon"><UsersRound size={18}/></span><div><h2>Needs attention</h2><p>These are workflow gaps to inspect, not automatic explanations for why a record stopped.</p></div></div>
+        <div><span className="agency-section-icon"><UsersRound size={18}/></span><div><h2>Needs attention</h2><p>These are not attributed causes. They are workflow gaps to inspect before deciding why a record stopped.</p></div></div>
       </div>
       <div className="agency-attention-grid">
         <Link href={leadsPath}><strong>{salesUnconverted}</strong><span>Hiring leads have not reached an active role</span><small>{pctLabel(sales.active_job_orders, sales.leads)} reached recruiting <ArrowRight size={13}/></small></Link>

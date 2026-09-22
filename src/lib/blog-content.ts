@@ -834,6 +834,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant cost calculator",
         "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
+      },
+      {
+            "label": "Virtual Assistant pricing",
+            "href": "/pricing",
+            "description": "Compare the hiring model, what the service includes, and how pricing relates to the scope and hours you need."
       }
     ]
   },
@@ -10653,6 +10658,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant job description generator",
         "href": "/tools/virtual-assistant-job-description-generator",
         "description": "Turn your workload into a clearer first-draft role brief."
+      },
+      {
+            "label": "Hire a Virtual Assistant",
+            "href": "/hire",
+            "description": "Start with a structured hiring brief and get matched with vetted Virtual Assistant candidates for the work you need covered."
       }
     ],
     "fieldNotes": [
@@ -18071,6 +18081,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant cost calculator",
         "href": "/tools/virtual-assistant-cost-calculator",
         "description": "Model weekly hours and an hourly rate before you publish a role."
+      },
+      {
+            "label": "Virtual Assistant companies in the Philippines",
+            "href": "/virtual-assistant-companies-philippines",
+            "description": "Compare Philippine Virtual Assistant companies and the differences in recruiting, screening, support, and hiring models."
       }
     ]
   },

@@ -224,7 +224,7 @@ export default async function AccountSettingsPage({
   const displayName = profile.full_name || email.split("@")[0] || "Account";
 
   return (
-    <AppShell userId={user.id} role={role} name={profile.full_name} title="Account settings">
+    <AppShell userId={user.id} role={role} name={profile.full_name} avatarUrl={profile.avatar_url} title="Account settings">
       <div className="account-center">
         {params.saved ? <div className="success-banner" role="status">Personal profile updated.</div> : null}
         {params.message ? <div className="success-banner" role="status">{params.message}</div> : null}

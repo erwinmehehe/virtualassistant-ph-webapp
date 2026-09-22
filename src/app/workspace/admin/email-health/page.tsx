@@ -27,6 +27,17 @@ type SuppressionRow = {
 
 const problemStatuses = ["failed", "bounced", "complained", "suppressed", "suppression_unavailable", "skipped_quota"];
 const quotaConsumedStatuses = ["sent", "delivered", "bounced", "complained", "suppressed"];
+const realDeliveryProblemStatuses = ["failed", "bounced", "complained"];
+
+function isTestOrPlaceholderRecipient(value: string | null) {
+  const recipients = String(value || "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  if (!recipients.length) return false;
+  return recipients.every((recipient) => {
+    const email = recipient.match(/<([^<>]+)>$/)?.[1]?.trim() || recipient;
+    const domain = email.split("@")[1] || "";
+    return ["test.com", "example.com", "example.org", "example.net", "invalid"].includes(domain) || domain.endsWith(".invalid");
+  });
+}
 
 function eventRecipientCount(event: Pick<EmailRow, "recipient" | "recipient_count">) {
   const legacyCount = String(event.recipient || "").split(",").map((item) => item.trim()).filter(Boolean).length;
@@ -103,8 +114,10 @@ export default async function AdminEmailHealthPage() {
   const duplicatePrevented = events.filter((event) => event.status === "duplicate_prevented").length;
   const suppressedSends = events.filter((event) => event.status === "suppressed").length;
   const lowPrioritySkipped = events.filter((event) => event.status === "skipped_quota" && event.priority === "low").length;
-  const failed = events.filter((event) => event.status === "failed").length;
-  const bounced = events.filter((event) => event.status === "bounced").length;
+  const productionEvents = events.filter((event) => !isTestOrPlaceholderRecipient(event.recipient));
+  const failed = productionEvents.filter((event) => event.status === "failed").length;
+  const bounced = productionEvents.filter((event) => event.status === "bounced").length;
+  const testProblemsExcluded = events.filter((event) => isTestOrPlaceholderRecipient(event.recipient) && realDeliveryProblemStatuses.includes(event.status)).length;
 
   const byType = new Map<string, { messages: number; recipients: number; failed: number }>();
   for (const event of events) {
@@ -118,7 +131,7 @@ export default async function AdminEmailHealthPage() {
   }
 
   const types = [...byType.entries()].sort((a, b) => b[1].recipients - a[1].recipients).slice(0, 12);
-  const recentProblems = events.filter((event) => problemStatuses.includes(event.status)).slice(0, 50);
+  const recentProblems = productionEvents.filter((event) => problemStatuses.includes(event.status)).slice(0, 50);
 
   return (
     <>
@@ -176,7 +189,7 @@ export default async function AdminEmailHealthPage() {
           <div>
             <span>Failed / bounced</span>
             <strong>{failed + bounced}</strong>
-            <small>{failed} failed, {bounced} bounced</small>
+            <small>{failed} failed, {bounced} bounced{testProblemsExcluded ? ` · ${testProblemsExcluded} test/placeholder excluded` : ""}</small>
           </div>
         </div>
       </div>
@@ -242,7 +255,7 @@ export default async function AdminEmailHealthPage() {
             ))}
           </div>
         ) : (
-          <div className="empty">No delivery problems were recorded today.</div>
+          <div className="empty">No production delivery problems were recorded today{testProblemsExcluded ? `; ${testProblemsExcluded} test/placeholder event${testProblemsExcluded === 1 ? " was" : "s were"} excluded.` : "."}</div>
         )}
       </section>
     </>

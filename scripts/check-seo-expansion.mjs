@@ -17,6 +17,8 @@ const files = {
   archive: fs.readFileSync("src/lib/archive-posts.ts", "utf8"),
   servicePages: fs.readFileSync("src/lib/service-pages.ts", "utf8"),
   hiringCss: fs.readFileSync("src/app/hiring-pages.css", "utf8"),
+  editorial: fs.readFileSync("src/lib/editorial-seo-guides.ts", "utf8"),
+  blogRoute: fs.readFileSync("src/app/blog/[slug]/page.tsx", "utf8"),
 };
 
 const failures = [];
@@ -136,7 +138,7 @@ for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", 
 }
 
 const expectedAuthorityPaths = [
-  "/virtual-assistant-companies-philippines",
+  "/blog/virtual-assistant-companies-philippines",
   "/virtual-assistant-websites",
   "/virtual-assistant-usa",
   "/virtual-assistant-australia",
@@ -145,12 +147,17 @@ const expectedAuthorityPaths = [
   "/industries/nonprofits",
 ];
 for (const path of expectedAuthorityPaths) {
-  assert(files.authority.includes(`path: "${path}"`), `missing authority page data for ${path}`);
-  assert(files.publicRoutes.includes(`path: "${path}"`), `missing public route entry for ${path}`);
+  assert(files.authority.includes(`path: "${path}"`), `missing authority content data for ${path}`);
+}
+for (const path of ["/virtual-assistant-usa", "/virtual-assistant-australia", "/types-of-virtual-assistants"]) {
+  assert(files.publicRoutes.includes(`path: "${path}"`), `missing public route entry for retained landing page ${path}`);
+}
+for (const path of ["/blog/virtual-assistant-companies-philippines", "/virtual-assistant-websites", "/what-is-a-virtual-assistant", "/industries/nonprofits"]) {
+  assert(!files.publicRoutes.includes(`path: "${path}"`), `redirected editorial route still exposed as a public landing page: ${path}`);
 }
 
 for (const required of [
-  'SEO_RESOURCE_PAGES.map((page)',
+  'SEO_RESOURCE_PAGES.filter((page)',
   'url: `${base}/resources/${page.slug}`',
 ]) {
   assert(files.sitemap.includes(required), `sitemap missing resource integration: ${required}`);
@@ -163,9 +170,9 @@ assert(files.resourceRoute.includes('className="sp-cards-4"'), "resource templat
 assert(files.hiringCss.includes("@media (max-width: 760px)"), "resource shared styles missing mobile breakpoint");
 assert(files.hiringCss.includes(".sp-cards-4,"), "resource card grid missing responsive style coverage");
 assert(files.hiringCss.includes("grid-template-columns: minmax(0, 1fr)"), "resource cards do not collapse to one column on mobile");
-assert(files.services.includes('href="/virtual-assistant-companies-philippines"'), "services hub missing companies guide link");
+assert(files.services.includes('href="/blog/virtual-assistant-companies-philippines"'), "services hub missing companies blog link");
 assert(files.services.includes('href="/virtual-assistant-australia"'), "services hub missing Australia guide link");
-assert(files.services.includes('href="/virtual-assistant-websites"'), "services hub missing Virtual Assistant websites link");
+assert(files.services.includes('href="/blog/virtual-assistant-websites"'), "services hub missing Virtual Assistant websites blog link");
 assert(files.services.includes('href="/virtual-assistant-usa"'), "services hub missing USA guide link");
 assert(files.pricing.includes("affordable virtual assistant"), "pricing page missing affordable Virtual Assistant ownership");
 assert(files.pricing.includes("cheap virtual assistant"), "pricing page missing cheap Virtual Assistant ownership");
@@ -174,14 +181,14 @@ assert(files.managed.includes("bpo virtual assistant"), "managed/direct page mis
 for (const slug of ["virtual-assistant-cover-letter", "best-laptop-for-virtual-assistant", "freelance-platforms-for-virtual-assistants", "how-to-start-a-virtual-assistant-business"]) {
   assert(files.resources.includes(`slug: "${slug}"`), `missing remaining volume-backed candidate resource: ${slug}`);
 }
-assert(files.redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true'), "old VA side-hustle resource must redirect to the broader business canonical");
-assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
+assert(files.redirects.includes('source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true'), "old VA side-hustle resource must redirect to the editorial business canonical");
+assert(files.services.includes('href="/blog/what-is-a-virtual-assistant"'), "services hub missing definition blog link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 
 
 // Post-expansion internal-link targets: verify the editorial corpus can pass authority
 // into the core commercial hubs before expanding with more weak URLs.
-for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
+for (const path of ["/services", "/hire", "/pricing", "/blog/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
   assert(files.blog.includes(`"href": "${path}"`), `blog corpus missing contextual authority link to ${path}`);
 }
 
@@ -195,7 +202,7 @@ for (const source of ["/virtual-assistant-salary-philippines", "/virtual-assista
     `salary legacy route must consolidate into the salary canonical: ${source}`
   );
 }
-for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
+for (const path of ["/services", "/hire", "/pricing", "/blog/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
   assert(files.priorityLinks.includes(`href: "${path}"`), `priority authority links missing ${path}`);
 }
 
@@ -278,3 +285,21 @@ if (failures.length) {
   console.error("\nFailures:\n" + failures.join("\n"));
   process.exit(1);
 }
+
+
+const editorialRedirects = [
+  ["/virtual-assistant-companies-philippines", "/blog/virtual-assistant-companies-philippines"],
+  ["/virtual-assistant-websites", "/blog/virtual-assistant-websites"],
+  ["/what-is-a-virtual-assistant", "/blog/what-is-a-virtual-assistant"],
+  ["/industries/nonprofits", "/blog/virtual-assistant-for-nonprofits"],
+  ["/resources/virtual-assistant-no-experience", "/blog/become-virtual-assistant-no-experience"],
+  ["/resources/virtual-assistant-cover-letter", "/blog/virtual-assistant-cover-letter"],
+  ["/resources/best-laptop-for-virtual-assistant", "/blog/best-laptop-for-virtual-assistant"],
+  ["/resources/freelance-platforms-for-virtual-assistants", "/blog/freelance-platforms-for-virtual-assistants"],
+  ["/resources/how-to-start-a-virtual-assistant-business", "/blog/how-to-start-a-virtual-assistant-business"],
+];
+for (const [source, destination] of editorialRedirects) {
+  assert(files.redirects.includes(`source: "${source}", destination: "${destination}", permanent: true`), `missing editorial consolidation redirect: ${source}`);
+}
+assert(files.editorial.includes("EDITORIAL_SEO_POSTS"), "editorial SEO guides are not registered with the blog");
+assert(files.blogRoute.includes("blogPostBySlug(slug)"), "blog route must serve consolidated editorial guides through the unified blog library");

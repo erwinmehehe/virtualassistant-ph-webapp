@@ -73,7 +73,12 @@ assert(files.services.includes('href="/virtual-assistant-australia"'), "services
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 
-for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant"]) {\n  const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");\n  assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);\n}\n\nfor (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
+for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant"]) {
+  const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");
+  assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);
+}
+
+for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
   assert(files.software.includes(`slug: "${softwareSlug}"`), `missing software expansion page: ${softwareSlug}`);
 }
 

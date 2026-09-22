@@ -49,7 +49,8 @@ test("authenticated dashboard visual QA targets the shipped main commit without 
   assert.match(workflow,/branches: \[main\]/);
   assert.match(workflow,/const sha = context\.sha/);
   assert.match(workflow,/Wait for this main commit to reach production/);
-  assert.match(workflow,/VISUAL_BASE_URL: \${{ steps\.production\.outputs\.url }}/);
+  assert.match(workflow,/VISUAL_BASE_URL: https:\/\/virtualassistant\.com\.ph/);
+  assert.doesNotMatch(workflow,/VISUAL_BASE_URL: \${{ steps\.production\.outputs\.url }}/);
   assert.doesNotMatch(workflow,/SUPABASE_SERVICE_ROLE_KEY|VERCEL_AUTOMATION_BYPASS_SECRET|npm start|Build authenticated dashboard test app/);
   assert.match(visual,/role: "admin"/);
   assert.match(visual,/SMOKE_ADMIN_EMAIL/);

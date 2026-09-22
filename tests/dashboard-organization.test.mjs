@@ -9,11 +9,13 @@ const recruiter = read("src/app/workspace/recruiter/today/page.tsx");
 const client = read("src/app/workspace/client/page.tsx");
 const va = read("src/app/workspace/va/page.tsx");
 const css = read("src/app/dashboard-premium.css");
+const dashUi = read("src/components/dash-ui.tsx");
 
-test("workspace shell leaves the page-level h1 to route content", () => {
+test("workspace shell leaves the page heading to the shared dashboard header", () => {
   assert.equal((shell.match(/<h1/g) || []).length, 0);
-  for (const page of [client, va]) assert.equal((page.match(/<h1/g) || []).length, 1);
-  assert.match(recruiter, /<h1>My Day<\/h1>/);
+  assert.match(dashUi, /export function DashHeader/);
+  assert.match(dashUi, /<h1>\{title\}<\/h1>/);
+  for (const page of [client, va, recruiter]) assert.match(page, /<DashHeader/);
 });
 
 test("desktop and mobile navigation use simplified durable workspace groups", () => {
@@ -45,7 +47,8 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
 test("role dashboards share the organized dashboard surface", () => {
   assert.match(client, /dash-page role-overview client-overview/);
   assert.match(va, /dash-page role-overview va-overview/);
-  assert.match(recruiter, /Action lanes/);
+  assert.match(recruiter, /Four places to look/);
+  assert.match(recruiter, /recruiter-next-action/);
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Today’s work queue/);
   for (const page of [client, va]) assert.match(page, /refreshed when this page opened/);

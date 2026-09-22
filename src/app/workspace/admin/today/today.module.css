@@ -159,3 +159,133 @@
     border-bottom:0;
   }
 }
+
+
+.snapshotGrid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.snapshotItem {
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  min-width:0;
+  padding:13px 14px;
+  border:1px solid #e4e7ec;
+  border-radius:14px;
+  background:#fff;
+  color:inherit;
+  text-decoration:none;
+}
+
+.snapshotItem:hover {
+  border-color:#c7d2fe;
+  background:#fcfcff;
+}
+
+.snapshotUrgent {
+  border-color:#fecdca;
+  background:#fffafa;
+}
+
+.snapshotIcon {
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  background:#eef2ff;
+  color:#444ce7;
+}
+
+.snapshotUrgent .snapshotIcon {
+  background:#fee4e2;
+  color:#d92d20;
+}
+
+.snapshotCopy {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:1px 8px;
+  min-width:0;
+}
+
+.snapshotCopy small {
+  grid-column:1 / -1;
+  color:#667085;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+.snapshotCopy strong {
+  color:#101828;
+  font-size:22px;
+  line-height:1.05;
+  letter-spacing:-.04em;
+}
+
+.snapshotCopy span {
+  align-self:end;
+  overflow:hidden;
+  color:#98a2b3;
+  font-size:10.5px;
+  line-height:1.25;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.snapshotItem > svg {
+  color:#98a2b3;
+}
+
+.ownerActions {
+  margin-bottom:14px;
+}
+
+.pipelineActive {
+  background:#fff;
+}
+
+.pipelineQuiet {
+  background:#fcfcfd;
+}
+
+.pipelineQuiet .pipelineIcon {
+  background:#f2f4f7;
+  color:#98a2b3;
+}
+
+.pipelineQuiet .pipelineCopy strong,
+.pipelineQuiet b {
+  color:#667085;
+}
+
+.pipelineQuiet .pipelineCopy small {
+  color:#b0b7c3;
+}
+
+.watchlistPanel {
+  margin-top:0;
+}
+
+@media (max-width: 980px) {
+  .snapshotGrid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .snapshotGrid {
+    grid-template-columns:1fr;
+  }
+
+  .snapshotCopy span {
+    white-space:normal;
+  }
+}

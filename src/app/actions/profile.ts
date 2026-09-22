@@ -291,13 +291,17 @@ export async function completeClientOnboardingAction(formData: FormData) {
   const location = String(formData.get("location") ?? "").trim();
   const budgetMin = Number(formData.get("budget_min") ?? 0);
   const budgetMax = Number(formData.get("budget_max") ?? 0);
-  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) throw new Error("Complete the required onboarding details.");
-  if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) throw new Error("Enter a valid hiring budget range.");
+  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) {
+    redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Complete the required onboarding details.")}`);
+  }
+  if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) {
+    redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Enter a valid hiring budget range. Make sure the maximum is not lower than the minimum.")}`);
+  }
   const admin = createAdminClient();
   const { error: profileError } = await admin.from("profiles").update({ full_name: fullName }).eq("id", user.id);
-  if (profileError) throw profileError;
+  if (profileError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your account details. Please try again.")}`);
   const { error: companyError } = await admin.from("client_profiles").update({ company_name: companyName, timezone, hiring_needs: hiringNeeds, hiring_notes: hiringNeeds, location: location || null, budget_min: budgetMin, budget_max: budgetMax, onboarding_completed_at: new Date().toISOString() }).eq("user_id", user.id);
-  if (companyError) throw companyError;
+  if (companyError) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("We could not save your company details. Please try again.")}`);
   try { await admin.from("analytics_events").insert({ event_name: "client_onboarding_completed", path: "/workspace/client/onboarding", user_id: user.id, metadata: { budget_min: budgetMin, budget_max: budgetMax } }); } catch {}
   redirect("/workspace/client/jobs/new?onboarded=1");
 }

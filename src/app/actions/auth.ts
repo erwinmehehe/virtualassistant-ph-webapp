@@ -266,7 +266,8 @@ export async function joinAction(formData: FormData) {
       code: (error as { code?: string } | null)?.code || null,
       status: (error as { status?: number } | null)?.status || null,
     });
-    const accountMayExist = /already|registered|exists/i.test(error?.message || "");
+    const errorCode = String((error as { code?: string } | null)?.code || "");
+    const accountMayExist = errorCode === "email_exists" || /already|registered|exists/i.test(error?.message || "");
     if (accountMayExist) {
       const loginParams = new URLSearchParams({
         message: "An account may already exist for this email. Log in to continue.",

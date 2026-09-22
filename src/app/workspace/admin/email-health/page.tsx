@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Mail, ShieldCheck, ShieldX } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { DAILY_RECIPIENT_LIMIT } from "@/lib/email";
@@ -54,7 +54,7 @@ function utcDayStart() {
 }
 
 export default async function AdminEmailHealthPage() {
-  await requireRole("admin");
+  await requireRoleFast("admin");
 
   const admin = createAdminClient();
   const since = utcDayStart();

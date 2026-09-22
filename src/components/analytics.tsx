@@ -7,11 +7,58 @@ import { getBrowserSessionId } from "@/lib/browser-session";
 
 const endpoint = "/api/analytics";
 
+declare global {
+  interface Window {
+    gtag?: (command: string, ...args: unknown[]) => void;
+  }
+}
+
 function trackablePath(pathname: string) {
   return !pathname.startsWith("/workspace") && !pathname.startsWith("/api");
 }
 
+/**
+ * GA4 only ever received the base pageview, so every conversion we already
+ * track landed in our own store and nowhere Google could report on. These are
+ * the same events, forwarded, so key events can be defined against them and
+ * read by channel and country.
+ *
+ * page_view is left out: GA4's enhanced measurement already records it,
+ * including client-side navigation. web_vital is left out as noise.
+ */
+const GA4_SKIPPED_EVENTS = new Set(["page_view", "web_vital"]);
+
+/** GA4 accepts letters, digits and underscores, starting with a letter, max 40. */
+function ga4EventName(event: string) {
+  const cleaned = event.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+/, "");
+  return /^[a-z]/.test(cleaned) ? cleaned.slice(0, 40) : `event_${cleaned}`.slice(0, 40);
+}
+
+function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
+  if (GA4_SKIPPED_EVENTS.has(event)) return;
+  const gtag = typeof window !== "undefined" ? window.gtag : undefined;
+  if (typeof gtag !== "function") return;
+
+  // GA4 drops events carrying more than 25 parameters, and truncates values
+  // past 100 characters, so only scalars are passed and the rest is dropped.
+  const params: Record<string, string | number | boolean> = {};
+  for (const [key, value] of Object.entries(metadata ?? {})) {
+    if (value === null || value === undefined) continue;
+    if (typeof value === "string") params[key] = value.slice(0, 100);
+    else if (typeof value === "number" || typeof value === "boolean") params[key] = value;
+    if (Object.keys(params).length >= 24) break;
+  }
+  params.page_path = window.location.pathname.slice(0, 100);
+
+  try {
+    gtag("event", ga4EventName(event), params);
+  } catch {
+    // Reporting must never interrupt the user experience.
+  }
+}
+
 function send(event: string, metadata?: Record<string, unknown>) {
+  forwardToGa4(event, metadata);
   const payload = JSON.stringify({
     event,
     // Keep analytics acquisition-focused and avoid persisting query-string values.

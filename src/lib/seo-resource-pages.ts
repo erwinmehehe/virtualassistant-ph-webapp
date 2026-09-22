@@ -284,6 +284,20 @@ function titleCase(value: string) {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function withArticle(value: string) {
+  const article = /^[aeiou]/i.test(value.trim()) ? "an" : "a";
+  return article + " " + value;
+}
+
+function sentenceArticle(value: string) {
+  const phrase = withArticle(value);
+  return phrase.charAt(0).toUpperCase() + phrase.slice(1);
+}
+
+function fitMetaTitle(primary: string, fallback: string) {
+  return primary.length <= 60 ? primary : fallback;
+}
+
 function serviceHref(cluster: RoleCluster) {
   return "/service/" + cluster.serviceSlug;
 }
@@ -301,7 +315,7 @@ function siblingSlugs(cluster: RoleCluster) {
 function commonLinks(cluster: RoleCluster, current: ResourceIntent) {
   const slugs = siblingSlugs(cluster);
   const links = [
-    { href: serviceHref(cluster), label: "Hire a " + cluster.role, description: "Review the canonical role page, responsibilities, tools, screening guidance, and approved talent." },
+    { href: serviceHref(cluster), label: "Hire " + withArticle(cluster.role), description: "Review the canonical role page, responsibilities, tools, screening guidance, and approved talent." },
     { href: "/services", label: "Browse all Virtual Assistant services", description: "Compare this role with other specialties before finalizing the brief." }
   ];
   const labels: Record<string, string> = {
@@ -322,16 +336,16 @@ function definitionPage(cluster: RoleCluster): SeoResourcePage {
   const slugs = siblingSlugs(cluster);
   return {
     slug: slugs.definition,
-    title: "What Does a " + cluster.role + " Do?",
-    metaTitle: "What Does a " + cluster.role + " Do?",
-    metaDescription: ("Learn what a " + cluster.role + " does, which tasks to delegate, the tools they use, what evidence to screen for, and where the role should escalate.").slice(0, 160),
-    keywords: [cluster.primaryKeyword, "what does a " + cluster.primaryKeyword + " do", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
+    title: "What Does " + withArticle(cluster.role) + " Do?",
+    metaTitle: fitMetaTitle("What Does " + withArticle(cluster.role) + " Do?", cluster.role + " Role Guide"),
+    metaDescription: ("Learn what " + withArticle(cluster.role) + " does, which tasks to delegate, the tools they use, what evidence to screen for, and where the role should escalate.").slice(0, 160),
+    keywords: [cluster.primaryKeyword, "what does " + withArticle(cluster.primaryKeyword) + " do", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
     audience: "client",
     intent: "definition",
     serviceSlug: cluster.serviceSlug,
     role: cluster.role,
     clusterLabel: cluster.role,
-    lede: "A " + cluster.role + " can own " + cluster.focus + ". The useful question is not whether the person can do random tasks. It is whether they can run a defined recurring workflow accurately, document the result, and escalate the exceptions that still need your judgment.",
+    lede: sentenceArticle(cluster.role) + " can own " + cluster.focus + ". The useful question is not whether the person can do random tasks. It is whether they can run a defined recurring workflow accurately, document the result, and escalate the exceptions that still need your judgment.",
     sections: [
       {
         heading: "Where this role creates leverage",
@@ -355,7 +369,7 @@ function definitionPage(cluster: RoleCluster): SeoResourcePage {
       }
     ],
     faqs: [
-      { q: "What does a " + cluster.role + " do?", a: "The role typically owns " + cluster.focus + ". Exact responsibilities should be defined from your actual workflow rather than copied from a generic job description." },
+      { q: "What does " + withArticle(cluster.role) + " do?", a: "The role typically owns " + cluster.focus + ". Exact responsibilities should be defined from your actual workflow rather than copied from a generic job description." },
       { q: "What tools should a " + cluster.role + " know?", a: "Common tools include " + cluster.tools.slice(0, 5).join(", ") + ". Practical workflow fluency matters more than claiming familiarity with every platform." },
       { q: "How do I know whether I need this role?", a: "You likely have a fit when " + cluster.tasks.slice(0, 3).join(", ") + " happen every week, consume manager time, and can be documented with a clear definition of done." },
       { q: "Can one person cover related tasks too?", a: "Yes when the responsibilities are compatible and the person has relevant evidence. Do not use one Virtual Assistant as a catch-all for unrelated specialist work with conflicting priorities." }
@@ -369,7 +383,7 @@ function tasksPage(cluster: RoleCluster): SeoResourcePage {
   return {
     slug: slugs.tasks,
     title: cluster.role + " Tasks: What to Delegate",
-    metaTitle: cluster.role + " Tasks | Delegation Guide",
+    metaTitle: fitMetaTitle(cluster.role + " Tasks | Delegation Guide", cluster.role + " Tasks"),
     metaDescription: ("Use this " + cluster.role + " task list to decide what to delegate, what inputs are required, how to check quality, and which exceptions should stay with you.").slice(0, 160),
     keywords: [cluster.primaryKeyword + " tasks", cluster.primaryKeyword + " duties", cluster.primaryKeyword + " responsibilities"],
     audience: "client",
@@ -401,7 +415,7 @@ function tasksPage(cluster: RoleCluster): SeoResourcePage {
       }
     ],
     faqs: [
-      { q: "What tasks can I delegate to a " + cluster.role + "?", a: "Common tasks include " + cluster.tasks.slice(0, 6).join(", ") + ". Add scope only when priorities, systems, quality standards, and escalation rules are clear." },
+      { q: "What tasks can I delegate to " + withArticle(cluster.role) + "?", a: "Common tasks include " + cluster.tasks.slice(0, 6).join(", ") + ". Add scope only when priorities, systems, quality standards, and escalation rules are clear." },
       { q: "Which task should I delegate first?", a: "Start with a recurring task that consumes time, has a clear output, and can be checked objectively. " + titleCase(cluster.tasks[0]) + " is one example if it already has a repeatable process." },
       { q: "Should I delegate every task at once?", a: "No. Start with two or three compatible workflows, review quality closely, and expand the role after the handoffs are stable." },
       { q: "How should I document the work?", a: "Record the trigger, required inputs, system of record, steps, completion standard, examples, turnaround time, and escalation rules. A short checklist is often more useful than a long generic SOP." }
@@ -414,9 +428,9 @@ function hiringPage(cluster: RoleCluster): SeoResourcePage {
   const slugs = siblingSlugs(cluster);
   return {
     slug: slugs.hiring,
-    title: "How to Hire a " + cluster.role,
-    metaTitle: "How to Hire a " + cluster.role + " | Philippines",
-    metaDescription: ("Hire a " + cluster.role + " with a clearer brief. Define tasks, tools, hours, screening evidence, interview scenarios, and first-month expectations.").slice(0, 160),
+    title: "How to Hire " + withArticle(cluster.role),
+    metaTitle: fitMetaTitle("How to Hire " + withArticle(cluster.role) + " | Philippines", "How to Hire " + withArticle(cluster.role)),
+    metaDescription: ("Hire " + withArticle(cluster.role) + " with a clearer brief. Define tasks, tools, hours, screening evidence, interview scenarios, and first-month expectations.").slice(0, 160),
     keywords: ["hire " + cluster.primaryKeyword, "how to hire " + cluster.primaryKeyword, cluster.primaryKeyword + " philippines"],
     audience: "client",
     intent: "hiring",
@@ -427,7 +441,7 @@ function hiringPage(cluster: RoleCluster): SeoResourcePage {
     sections: [
       {
         heading: "Write the role from the workload",
-        paragraphs: ["List the work that should move every week. For a " + cluster.role + ", that may include " + cluster.tasks.slice(0, 5).join(", ") + ". Rank the responsibilities by importance so candidates can understand what the job is actually about."],
+        paragraphs: ["List the work that should move every week. For " + withArticle(cluster.role) + ", that may include " + cluster.tasks.slice(0, 5).join(", ") + ". Rank the responsibilities by importance so candidates can understand what the job is actually about."],
         bullets: ["Weekly responsibilities", "Required live coverage", "Main systems", "Must-have experience", "Quality standard", "Decisions that require escalation"]
       },
       {
@@ -476,7 +490,7 @@ function interviewPage(cluster: RoleCluster): SeoResourcePage {
   return {
     slug: slugs.interview,
     title: cluster.role + " Interview Questions",
-    metaTitle: cluster.role + " Interview Questions",
+    metaTitle: fitMetaTitle(cluster.role + " Interview Questions", cluster.role + " Interview"),
     metaDescription: ("Use practical " + cluster.role + " interview questions to test workflow judgment, tool experience, quality checks, communication, and escalation decisions.").slice(0, 160),
     keywords: [cluster.primaryKeyword + " interview questions", "interview questions for " + cluster.primaryKeyword],
     audience: "client",
@@ -522,7 +536,7 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
   return {
     slug: slugs.cost,
     title: cluster.role + " Cost in the Philippines",
-    metaTitle: cluster.role + " Cost Philippines | 2026",
+    metaTitle: fitMetaTitle(cluster.role + " Cost Philippines | 2026", cluster.role + " Cost"),
     metaDescription: ("Plan a " + cluster.role + " budget in the Philippines using role scope, weekly hours, experience, tools, schedule overlap, and decision ownership.").slice(0, 160),
     keywords: [cluster.primaryKeyword + " cost", cluster.primaryKeyword + " rates", cluster.primaryKeyword + " salary philippines"],
     audience: "client",
@@ -539,7 +553,7 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
       },
       {
         heading: "The biggest cost drivers",
-        paragraphs: ["For a " + cluster.role + ", budget changes with " + cluster.costFactors.join(", ") + ". The more judgment, specialist knowledge, customer exposure, technical depth, or independent ownership you need, the more important it is to compare candidates on capability rather than a single hourly number."],
+        paragraphs: ["For " + withArticle(cluster.role) + ", budget changes with " + cluster.costFactors.join(", ") + ". The more judgment, specialist knowledge, customer exposure, technical depth, or independent ownership you need, the more important it is to compare candidates on capability rather than a single hourly number."],
         bullets: cluster.costFactors.map((item) => titleCase(item))
       },
       {
@@ -554,7 +568,7 @@ function costPage(cluster: RoleCluster): SeoResourcePage {
       }
     ],
     faqs: [
-      { q: "How much does a " + cluster.role + " cost in the Philippines?", a: "The budget depends on " + cluster.costFactors.join(", ") + ". Define the workload first, then compare candidates with the experience and schedule required for that scope." },
+      { q: "How much does " + withArticle(cluster.role) + " cost in the Philippines?", a: "The budget depends on " + cluster.costFactors.join(", ") + ". Define the workload first, then compare candidates with the experience and schedule required for that scope." },
       { q: "Should I pay hourly or monthly?", a: "Hourly arrangements can fit variable work or an early-stage scope. A stable monthly amount can fit a consistent weekly schedule. In either case, document the expected hours, responsibilities, and how additional work is approved." },
       { q: "What makes this role more expensive?", a: "Higher complexity, specialist tools, live coverage, customer-facing responsibility, deeper experience, and independent decision ownership can all increase the rate required to attract the right candidate." },
       { q: "Where can I compare Virtual Assistant rates?", a: "Use the VirtualAssistant.com.ph 2026 Rate and Skills Report for first-party profile data, then use the cost calculator to model weekly hours and a candidate rate." }

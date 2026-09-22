@@ -159,6 +159,17 @@ export async function saveJobShortlistAction(formData: FormData) {
     admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
+  if (mode === "release") {
+    const availabilityCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+    const staleSelected = orderedSelected.filter((vaId) => {
+      const va = vaMap.get(vaId) as any;
+      const confirmedAt = va?.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : NaN;
+      return va?.availability_status !== "available" || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;
+    });
+    if (staleSelected.length) {
+      return fail(`${staleSelected.length} selected VA${staleSelected.length === 1 ? "" : "s"} must reconfirm availability before client release. Remove ${staleSelected.length === 1 ? "that candidate" : "those candidates"} or ask them to update availability first.`);
+    }
+  }
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
   const existingOrderMap = new Map((existing || []).map((row: any) => [row.va_id, Number(row.shortlist_order || 0)]));
   const releasedMaxOrder = (existing || []).filter((row: any) => row.shortlist_status === "released").reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
@@ -188,6 +199,9 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
+    if (String(error.message || "").includes("VA availability is stale")) {
+      return fail("A selected VA must reconfirm availability before client release. Refresh the role, remove the stale candidate, or ask them to update availability first.");
+    }
     return fail("Could not save the shortlist. Please try again.");
   }
 

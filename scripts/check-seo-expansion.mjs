@@ -54,14 +54,19 @@ const september22Clusters = [
 ];
 const september22Slugs = new Set(september22Clusters.map(([serviceSlug]) => serviceSlug));
 let invalidSeptember22ServiceMappings = 0;
-const september22ResourceSlugs = september22Clusters.flatMap(([, slugBase]) => [
-  `what-does-a-${slugBase}-do`,
-  `${slugBase}-tasks`,
-  `how-to-hire-a-${slugBase}`,
-  `${slugBase}-interview-questions`,
-  `${slugBase}-cost-philippines`,
-  `best-tools-for-${slugBase}`
-]);
+const vowelSoundSlugBases = new Set(["operations-virtual-assistant", "airbnb-virtual-assistant"]);
+const slugArticle = (slugBase) => vowelSoundSlugBases.has(slugBase) ? "an" : "a";
+const september22ResourceSlugs = september22Clusters.flatMap(([, slugBase]) => {
+  const article = slugArticle(slugBase);
+  return [
+    `what-does-${article}-${slugBase}-do`,
+    `${slugBase}-tasks`,
+    `how-to-hire-${article}-${slugBase}`,
+    `${slugBase}-interview-questions`,
+    `${slugBase}-cost-philippines`,
+    `best-tools-for-${slugBase}`
+  ];
+});
 
 for (const [serviceSlug, slugBase] of september22Clusters) {
   const rolePattern = new RegExp(`serviceSlug:\\s*"${serviceSlug}"[\\s\\S]{0,160}slugBase:\\s*"${slugBase}"`);
@@ -82,6 +87,9 @@ assert([...september22Slugs].every((slug) => roleServiceSlugs.includes(slug)), "
 assert(september22ResourceSlugs.length === 48, `expected 48 September 22 generated resource URLs, found ${september22ResourceSlugs.length}`);
 assert(new Set(september22ResourceSlugs).size === 48, "duplicate September 22 generated resource URL");
 assert(!september22ResourceSlugs.some((slug) => candidateSlugs.includes(slug)), "September 22 resource URL collides with a manual resource page");
+assert(files.resources.includes("function articleWord(value: string)"), "generated role pages must choose the article from the role phrase");
+assert(files.resources.includes('definition: "what-does-" + article + "-" + cluster.slugBase + "-do"'), "definition slugs must use the role article");
+assert(files.resources.includes('hiring: "how-to-hire-" + article + "-" + cluster.slugBase'), "hiring slugs must use the role article");
 assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
 assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
 for (const unsafe of [
@@ -96,6 +104,26 @@ for (const unsafe of [
 }
 assert(candidateSlugs.length === 17, `expected 17 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
+const vowelSoundResourceBases = [
+  "administrative-virtual-assistant",
+  "accounting-virtual-assistant",
+  "it-virtual-assistant",
+  "email-marketing-virtual-assistant",
+  "operations-virtual-assistant",
+  "airbnb-virtual-assistant"
+];
+for (const slugBase of vowelSoundResourceBases) {
+  for (const [legacy, canonical] of [
+    [`what-does-a-${slugBase}-do`, `what-does-an-${slugBase}-do`],
+    [`how-to-hire-a-${slugBase}`, `how-to-hire-an-${slugBase}`]
+  ]) {
+    assert(
+      files.redirects.includes(`source: "/resources/${legacy}", destination: "/resources/${canonical}", permanent: true`),
+      `missing permanent resource grammar redirect: ${legacy}`
+    );
+  }
+}
+
 assert(files.resources.includes("ROLE_CLUSTERS.flatMap"), "role resources must be generated from the role cluster map");
 for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", "costPage", "toolsPage"]) {
   assert(files.resources.includes(fn + "(cluster)"), `missing generated resource family: ${fn}`);

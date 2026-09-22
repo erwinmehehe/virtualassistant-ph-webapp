@@ -357,22 +357,39 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <div><CalendarClock size={16}/><span><strong>{lead.discovery_completed_at ? "Discovery completed" : "Discovery call"}</strong><small>{dateTimeLabel(lead.discovery_scheduled_at)} · {lead.discovery_duration_minutes || 30} min</small></span></div>
                   <div className="row wrap">
                     {lead.discovery_meeting_url && !lead.discovery_completed_at ? <a className="btn btn-sm" href={lead.discovery_meeting_url} target="_blank" rel="noreferrer">Join call <ExternalLink size={13}/></a> : null}
+                    {discoveryScheduled && lead.discovery_scheduled_at && new Date(lead.discovery_scheduled_at).getTime() <= now ? <form action={completeDiscoveryAction}>
+                      <input type="hidden" name="lead_id" value={lead.id}/>
+                      <input type="hidden" name="return_to" value={returnTo}/>
+                      <input type="hidden" name="outcome" value="no_show"/>
+                      <input type="hidden" name="discovery_notes" value={lead.discovery_notes || "Client did not attend the scheduled discovery call."}/>
+                      <button className="btn btn-sm" type="submit">Mark no-show</button>
+                    </form> : null}
                     {!lead.discovery_meeting_url && discoveryScheduled ? <form action={createDiscoveryGoogleMeetLinkAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-sm btn-primary" type="submit">Create Google Meet</button></form> : null}
                     {discoveryScheduled ? <form action={cancelRecruiterDiscoveryAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-sm" type="submit">Cancel discovery</button></form> : null}
                     {view === "discovery" && isOpenLeadStage(stage) ? <CloseLeadForm leadId={lead.id} returnTo={returnTo} hasLinkedRole={Boolean(lead.job_id)}/> : null}
                     {lead.discovery_outcome ? <span className="small muted">Outcome: {String(lead.discovery_outcome).replaceAll("_", " ")}</span> : lead.discovery_notes ? <span className="small muted">{lead.discovery_notes}</span> : null}
                   </div>
-                  {lead.discovery_outcome === "no_show" ? <div className="crm-no-show-rebook">
-                    <div>
-                      <strong>{noShowRebookSentAt ? "Rebooking email sent" : "Client did not attend"}</strong>
-                      <span>{noShowRebookSentAt ? `Sent ${dateShort(noShowRebookSentAt)}. Waiting for the client to choose another time.` : "Send one short email with a direct link to choose another time."}</span>
+                  {lead.discovery_outcome === "no_show" ? <section className="crm-no-show-rebook" aria-label="No-show recovery">
+                    <div className="crm-no-show-rebook-head">
+                      <div>
+                        <strong>{noShowRebookSentAt ? "Rebooking email sent" : "Client missed the call"}</strong>
+                        <span>{noShowRebookSentAt ? `Sent ${dateShort(noShowRebookSentAt)}. Waiting for the client to choose another time.` : "Review the email below, then send one rebooking link."}</span>
+                      </div>
+                      {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction}>
+                        <input type="hidden" name="lead_id" value={lead.id}/>
+                        <input type="hidden" name="return_to" value={returnTo}/>
+                        <button className="btn btn-sm btn-primary" type="submit"><Mail size={13}/> Send rebooking email</button>
+                      </form>}
                     </div>
-                    {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction}>
-                      <input type="hidden" name="lead_id" value={lead.id}/>
-                      <input type="hidden" name="return_to" value={returnTo}/>
-                      <button className="btn btn-sm btn-primary" type="submit"><Mail size={13}/> Send rebooking email</button>
-                    </form>}
-                  </div> : null}
+                    <div className="crm-rebook-email-preview">
+                      <div className="crm-rebook-email-meta"><span>Email preview</span><strong>Subject: Would you like to rebook your call?</strong></div>
+                      <p>Hi {firstName},</p>
+                      <p>We weren’t able to connect for your scheduled call today.</p>
+                      <p>If you’d still like to discuss hiring a virtual assistant, you can choose another time here:</p>
+                      <span className="crm-rebook-email-cta">Rebook your call</span>
+                      <p>If you’re no longer looking, just reply and let us know so we can close the request.</p>
+                    </div>
+                  </section> : null}
                   {noShowRebooked ? <div className="crm-no-show-rebook is-rebooked">
                     <div><strong>Rebooked</strong><span>The client chose a new discovery time from the no-show email.</span></div>
                     <span className="badge badge-success">Rebooked</span>
@@ -404,7 +421,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             </div>
 
             {isOpenLeadStage(stage) ? <div className="crm-close-tools">
-              <details className="crm-tool-panel" open={stage === "contacted" && !lead.discovery_scheduled_at}>
+              {lead.discovery_outcome !== "no_show" ? <details className="crm-tool-panel" open={stage === "contacted" && !lead.discovery_scheduled_at}>
                 <summary><CalendarClock size={16}/><span><strong>{lead.discovery_scheduled_at ? "Reschedule discovery" : "Book discovery"}</strong><small>Send the client a confirmed date, time, and meeting link.</small></span></summary>
                 <form action={scheduleDiscoveryAction} className="crm-tool-form">
                   <input type="hidden" name="lead_id" value={lead.id}/>
@@ -416,7 +433,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   </div>
                   <button className="btn btn-primary" type="submit">Book and email client</button>
                 </form>
-              </details>
+              </details> : null}
 
               {discoveryScheduled ? <details className="crm-tool-panel">
                 <summary><CheckCircle2 size={16}/><span><strong>Complete discovery</strong><small>Save what you learned and set the next sales stage.</small></span></summary>

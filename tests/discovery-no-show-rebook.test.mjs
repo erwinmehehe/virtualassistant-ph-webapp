@@ -47,6 +47,11 @@ test("marking no-show prompts recruiter to send the rebooking email", async () =
   assert.match(page, /No duplicate email was sent/);
   assert.match(page, /discovery_no_show_rebook/);
   assert.match(page, /Rebooked/);
+  assert.match(page, /Mark no-show/);
+  assert.match(page, /Subject: Would you like to rebook your call\?/);
+  assert.match(page, /Review the email below, then send one rebooking link\./);
+  assert.match(page, /crm-rebook-email-preview/);
+  assert.match(page, /lead\.discovery_outcome !== "no_show" \? <details className="crm-tool-panel"/);
 });
 
 test("client rebooking reopens discovery after a no-show", async () => {

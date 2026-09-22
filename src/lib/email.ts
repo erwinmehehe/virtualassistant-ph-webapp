@@ -50,9 +50,7 @@ function normalizeEmailList(value: unknown): string[] {
   return out;
 }
 
-const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList([
-  "bryanbatarina@gmail.com",
-]);
+const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList([]);
 const blockedEmailSet = new Set(BLOCKED_EMAIL_RECIPIENTS.map((email) => email.toLowerCase()));
 const isBlockedEmailRecipient = (email: string) => blockedEmailSet.has(email.toLowerCase());
 
@@ -66,14 +64,15 @@ function isNonDeliverableTestRecipient(value: string) {
 const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
   "erwinvalles20@gmail.com",
   "jrvsaccad@gmail.com",
+  "bryanbatarina@gmail.com",
 ]);
 const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
 const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
 
 const BOOKING_TEAM_EMAILS = normalizeEmailList([
-  process.env.BOOKING_TEAM_EMAILS,
   "jrvsaccad@gmail.com",
-]).filter((email) => !isBlockedEmailRecipient(email) && email.toLowerCase() !== "erwinvalles20@gmail.com");
+  "bryanbatarina@gmail.com",
+]);
 const staffClientFollowupBccRecipients = normalizeEmailList([
   "jrvsaccad@gmail.com",
   "erwinvalles20@gmail.com",
@@ -1277,10 +1276,9 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
 }) {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
-  const primary = "erwinvalles20@gmail.com";
   const delivery = await trackedSend(config, {
     from: config.from,
-    to: [primary],
+    to: BOOKING_TEAM_EMAILS,
     subject: `Action required: discovery call has no Google Meet link — ${args.company || args.clientName || args.clientEmail}`,
     html: `<h2>Automatic Google Meet setup failed</h2><p><strong>Client:</strong> ${escapeHtml(args.clientName || "Unknown")} (${escapeHtml(args.clientEmail)})</p><p><strong>Company:</strong> ${escapeHtml(args.company || "Not provided")}</p><p><strong>Scheduled:</strong> ${escapeHtml(args.scheduledLabel)}</p><p><strong>Error:</strong> ${escapeHtml(args.error)}</p><p>Open Recruiter CRM and use <strong>Create Google Meet</strong> after the Google Meet integration is available.</p>`
   }, "discovery_google_meet_setup_failed", { archive: false, priority: "critical" });

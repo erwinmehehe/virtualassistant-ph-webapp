@@ -179,7 +179,7 @@ async function provisionSmokeFixture() {
         {
           user_id: user.id,
           slug: `smoke-va-${spec.vaIndex}`,
-          headline: "QA Smoke Test Virtual Assistant",
+          headline: `QA Smoke Candidate ${spec.vaIndex}`,
           bio: "Dedicated non-public automated QA profile. Not a real candidate.",
           primary_category: "Administrative Support",
           categories: ["Administrative Support"],

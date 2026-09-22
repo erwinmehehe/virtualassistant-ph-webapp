@@ -270,7 +270,7 @@ export default async function HirePage({
             <div className="pvh-choice-grid">
               <Link className="pvh-choice" href="/services"><strong>Virtual Assistant services</strong><p>Compare role scope, tasks, tools, and hiring evidence by specialty.</p></Link>
               <Link className="pvh-choice" href="/pricing"><strong>Pricing and service models</strong><p>Review direct-hire and managed-service pricing before you commit.</p></Link>
-              <Link className="pvh-choice" href="/virtual-assistant-companies-philippines"><strong>Compare VA companies</strong><p>Understand marketplaces, recruiters, managed providers, and outsourced teams.</p></Link>
+              <Link className="pvh-choice" href="/blog/virtual-assistant-companies-philippines"><strong>Compare VA companies</strong><p>Understand marketplaces, recruiters, managed providers, and outsourced teams.</p></Link>
               <Link className="pvh-choice" href="/outsourcing-philippines-virtual-assistant"><strong>Outsourcing guide</strong><p>Plan the workflow, coverage, access, handoff, and first 30 days.</p></Link>
             </div>
           </div>

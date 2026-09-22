@@ -6,6 +6,7 @@ import { softwarePages } from "@/lib/software-pages";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { ARCHIVE_POSTS, archiveUpdatedIso } from "@/lib/archive";
 import { PUBLIC_SEO_ROUTES } from "@/lib/public-seo-routes";
+import { CANDIDATE_SEO_PAGES } from "@/lib/candidate-seo-pages";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
@@ -28,6 +29,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
       ...(route.lastModified ? { lastModified: route.lastModified } : {}),
+    })),
+    ...CANDIDATE_SEO_PAGES.map((page) => ({
+      url: `${base}/for-virtual-assistants/${page.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.72,
+      lastModified: "2026-09-22",
     })),
     ...blogTopicRoutes.map((path) => ({
       url: `${base}${path}`,

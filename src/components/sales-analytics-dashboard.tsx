@@ -85,7 +85,7 @@ export async function SalesAnalyticsDashboard({
     </div>
 
     <section className="card sales-funnel-card">
-      <div className="dashboard-section-head"><div><h2>Website → client funnel</h2><p>Read each row against the step immediately before it. This shows where potential clients are actually dropping out.</p></div><span className="badge">{days} day window</span></div>
+      <div className="dashboard-section-head"><div><h2>Website → client funnel</h2><p>This is the complete Homepage-to-client funnel. Read each row against the step immediately before it to see where potential clients are actually dropping out.</p></div><span className="badge">{days} day window</span></div>
       <div className="sales-funnel-list">
         {data.funnel.map((stage, index) => {
           const previous = index ? data.funnel[index - 1] : null;

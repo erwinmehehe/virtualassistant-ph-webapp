@@ -65,6 +65,24 @@ export default function ForVirtualAssistantsPage() {
     <section className="section">
       <div className="container">
         <div className="section-head">
+          <span className="kicker">Career resources</span>
+          <h2>Prepare a stronger Virtual Assistant application.</h2>
+          <p>Use these guides to improve the evidence recruiters and clients see before you apply.</p>
+        </div>
+        <div className="grid-3">
+          <article className="card service-card"><h3>How to apply as a VA</h3><p>Prepare your profile, evidence, schedule and role-specific application.</p><Link className="text-link" href="/for-virtual-assistants/how-to-apply-as-a-virtual-assistant">Read application guide <ArrowRight size={14}/></Link></article>
+          <article className="card service-card"><h3>VA resume sample</h3><p>Turn experience into clear workflow evidence, including transferable experience.</p><Link className="text-link" href="/for-virtual-assistants/virtual-assistant-resume-sample">Build a stronger resume <ArrowRight size={14}/></Link></article>
+          <article className="card service-card"><h3>VA portfolio examples</h3><p>Show useful work evidence without exposing confidential client information.</p><Link className="text-link" href="/for-virtual-assistants/virtual-assistant-portfolio-examples">See portfolio examples <ArrowRight size={14}/></Link></article>
+          <article className="card service-card"><h3>Virtual Assistant skills</h3><p>Focus on communication, workflow ownership, quality checks and specialist skills.</p><Link className="text-link" href="/for-virtual-assistants/virtual-assistant-skills">Review VA skills <ArrowRight size={14}/></Link></article>
+          <article className="card service-card"><h3>VA requirements</h3><p>Check work setup, internet, equipment, professional readiness and role-specific requirements.</p><Link className="text-link" href="/for-virtual-assistants/virtual-assistant-requirements-philippines">See VA requirements <ArrowRight size={14}/></Link></article>
+          <article className="card service-card"><h3>How to become a VA</h3><p>Choose a specialty, build role-specific proof and start applying strategically.</p><Link className="text-link" href="/for-virtual-assistants/how-to-become-a-virtual-assistant-philippines">Read career guide <ArrowRight size={14}/></Link></article>
+        </div>
+      </div>
+    </section>
+
+    <section className="section">
+      <div className="container">
+        <div className="section-head">
           <h2>How the Virtual Assistant process works.</h2>
           <p>Complete the evidence recruiters and clients need before you apply.</p>
         </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Sparkles } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs";
@@ -10,7 +10,7 @@ import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { candidateAccessLabel } from "@/lib/candidate-access";
 
 export default async function ClientJobDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
-  const {id}=await params;const query=await searchParams;const {user}=await requireRole("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",user.id).single();if(!job)notFound();
+  const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",userId).single();if(!job)notFound();
   const admin=createAdminClient();
   const [{data:commercial},{data:access},{data:releasedRows},{data:interviews},{data:offers},{data:workrooms}]=await Promise.all([
     supabase.from("job_commercials").select("*").eq("job_id",id).maybeSingle(),

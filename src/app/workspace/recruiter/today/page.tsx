@@ -8,6 +8,7 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
+import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
@@ -231,7 +232,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     })
     .sort((a,b)=>new Date(a.hiring_stage_entered_at || a.updated_at || a.created_at).getTime()-new Date(b.hiring_stage_entered_at || b.updated_at || b.created_at).getTime());
   const staleRolePreview = staleRoles.slice(0,5);
-  const noShows = Array.isArray(noShowData) ? noShowData as {id:string}[] : [];
+  const noShows = Array.isArray(noShowData) ? noShowData as Array<{id:string;name?:string|null;email?:string|null;discovery_outcome?:string|null;discovery_rescheduled_at?:string|null}> : [];
   const noShowKeys = noShows.map((lead)=>`discovery-no-show-rebook-${lead.id}`);
   const { data: noShowEmailEvents, error: noShowEmailError } = noShowKeys.length
     ? await admin.from("outbound_email_events")
@@ -303,6 +304,35 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         </Link>)}
       </div>
     </section>
+
+    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.queueCard}`}>
+      <div className="dashboard-section-head">
+        <div><h2>Call rebooking</h2><p>Clients who missed a discovery call stay here until they choose another time.</p></div>
+        <span className={`badge ${noShowNeedsEmail?"badge-warning":""}`}>{noShows.length} waiting</span>
+      </div>
+      <div className={styles.followList}>
+        {noShows.slice(0,8).map((lead)=>{
+          const sent=rebookSentIds.has(lead.id);
+          return <div className={styles.followRow} key={`rebook-${lead.id}`}>
+            <span className={styles.followIcon}><RefreshCw size={15}/></span>
+            <span className={styles.followCopy}>
+              <strong>{lead.name||lead.email||"Client discovery call"}</strong>
+              <small>{lead.email||"No email on file"}</small>
+              <small>{sent?"Rebooking link sent. Waiting for the client to choose a new time.":"No-show recorded. Send the client a secure link to choose another time."}</small>
+            </span>
+            <div className={styles.followActions}>
+              {!sent?<form action={sendDiscoveryNoShowRebookAction}>
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="return_to" value="/workspace/recruiter/today#call-rebooking"/>
+                <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
+              </form>:<span className="badge badge-success">Link sent</span>}
+              <Link className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
+            </div>
+          </div>;
+        })}
+      </div>
+      {noShows.length>8?<Link className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
+    </section>:null}
 
     <section id="sales-cleanup" className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head"><div><h2>Sales cleanup</h2><p>Missed responses, overdue follow-ups, leads without a next step, stale leads, and records ready for a close decision.</p></div><span className={`badge ${cleanupQueue.length ? "badge-warning" : "badge-success"}`}>{cleanupQueue.length} to clean up</span></div>

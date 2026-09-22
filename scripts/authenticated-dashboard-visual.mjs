@@ -95,7 +95,7 @@ try {
       });
       const response = await page.goto(`${baseUrl}${role.path}`, { waitUntil: "networkidle", timeout: 90000 });
       if (!response?.ok()) throw new Error(`${role.role} ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
-      await page.getByText(role.marker, { exact: false }).first().waitFor({ state: "visible", timeout: 30000 });
+      await page.getByRole("heading", { name: role.marker, exact: true }).first().waitFor({ state: "visible", timeout: 30000 });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
       if (overflow) throw new Error(`${role.role} ${viewport.name} has horizontal page overflow.`);
 

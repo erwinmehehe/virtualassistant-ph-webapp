@@ -51,6 +51,11 @@
 .visibility-public { background:#ecfdf3; color:#027a48; }
 .visibility-hidden,.visibility-public-blocked { background:#fff6ed; color:#b54708; }
 .candidate-meta-line { margin-top:4px; color:#667085; font-size:11px; text-transform:capitalize; }
+.candidate-identity-cell { display:flex; align-items:center; gap:11px; min-width:0; }
+.candidate-identity-cell .avatar { flex:none; border:1px solid #e4e7ec; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+.candidate-identity-copy { min-width:0; }
+.candidate-identity-copy > strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.candidate-identity-copy .small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .activity-stale { display:inline-flex; align-items:center; gap:4px; color:#b54708; font-size:12px; font-weight:650; }
 .activity-reminder { display:flex; align-items:center; gap:4px; margin-top:5px; color:#98a2b3; font-size:11px; }
 .recruiter-talent-table table { min-width:980px; }
@@ -61,3 +66,73 @@
 .recruiter-talent-table td:last-child { text-align:right; }
 .compact-pills { gap:5px; max-width:280px; }
 .compact-pills .badge { font-size:10px; padding:4px 6px; }
+
+/* Tablet list/card hybrid: preserve fast scanning without squeezing seven columns. */
+@media (max-width: 1180px) and (min-width: 681px) {
+  .recruiter-talent-table { overflow:visible; border:0; background:transparent; }
+  .recruiter-talent-table table,
+  .recruiter-talent-table tbody { display:block; min-width:0; width:100%; }
+  .recruiter-talent-table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+  .recruiter-talent-table tbody { display:grid; gap:12px; }
+  .recruiter-talent-table tr {
+    display:grid;
+    grid-template-columns:34px minmax(240px,1.35fr) minmax(150px,.7fr) auto;
+    grid-template-areas:
+      "select candidate status action"
+      "select health health action"
+      "select experience activity action";
+    gap:10px 16px;
+    align-items:center;
+    margin:0;
+    padding:16px;
+    border:1px solid #e4e7ec;
+    border-radius:15px;
+    background:#fff;
+    box-shadow:0 3px 12px rgba(16,24,40,.035);
+  }
+  .recruiter-talent-table tbody tr:hover { border-color:#d0d5dd; box-shadow:0 7px 18px rgba(16,24,40,.06); }
+  .recruiter-talent-table td { display:block; width:auto; padding:0; border:0; min-width:0; }
+  .recruiter-talent-table td::before { display:none; }
+  .recruiter-talent-table td:nth-child(1) { grid-area:select; align-self:start; padding-top:9px; }
+  .recruiter-talent-table td:nth-child(2) { grid-area:candidate; min-width:0; }
+  .recruiter-talent-table td:nth-child(3) { grid-area:status; }
+  .recruiter-talent-table td:nth-child(4) { grid-area:health; padding-top:10px; border-top:1px solid #f2f4f7; }
+  .recruiter-talent-table td:nth-child(5) { grid-area:experience; padding-top:4px; }
+  .recruiter-talent-table td:nth-child(6) { grid-area:activity; padding-top:4px; }
+  .recruiter-talent-table td:nth-child(7) { grid-area:action; align-self:stretch; display:flex; align-items:center; }
+  .recruiter-talent-table td:nth-child(7) .btn { white-space:nowrap; }
+  .recruiter-talent-table .readiness-cell { max-width:none; }
+}
+
+/* Mobile card layout: identity first, actions last, no faux spreadsheet labels. */
+@media (max-width: 680px) {
+  .recruiter-talent-table { overflow:visible !important; border:0; background:transparent; }
+  .recruiter-talent-table table,
+  .recruiter-talent-table tbody,
+  .recruiter-talent-table tr,
+  .recruiter-talent-table td { display:block; width:100%; min-width:0; }
+  .recruiter-talent-table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+  .recruiter-talent-table tbody { display:grid; gap:12px; }
+  .recruiter-talent-table tr { position:relative; margin:0; padding:14px; border:1px solid #e4e7ec; border-radius:15px; background:#fff; box-shadow:0 3px 12px rgba(16,24,40,.035); }
+  .recruiter-talent-table td { display:block; padding:10px 0; border:0; border-bottom:1px solid #f2f4f7; }
+  .recruiter-talent-table td::before { display:block; margin-bottom:5px; content:attr(data-label); color:#98a2b3; font-size:10px; font-weight:750; letter-spacing:.05em; text-transform:uppercase; }
+  .recruiter-talent-table td:nth-child(1) { position:absolute; top:18px; right:16px; width:auto; padding:0; border:0; z-index:1; }
+  .recruiter-talent-table td:nth-child(1)::before,
+  .recruiter-talent-table td:nth-child(2)::before,
+  .recruiter-talent-table td:nth-child(7)::before { display:none; }
+  .recruiter-talent-table td:nth-child(2) { padding:0 42px 12px 0; }
+  .recruiter-talent-table td:nth-child(3),
+  .recruiter-talent-table td:nth-child(5),
+  .recruiter-talent-table td:nth-child(6) { display:grid; grid-template-columns:92px minmax(0,1fr); gap:10px; align-items:start; }
+  .recruiter-talent-table td:nth-child(3)::before,
+  .recruiter-talent-table td:nth-child(5)::before,
+  .recruiter-talent-table td:nth-child(6)::before { margin:2px 0 0; }
+  .recruiter-talent-table td:nth-child(4) { padding-top:12px; }
+  .recruiter-talent-table td:nth-child(7) { padding:12px 0 0; border:0; text-align:left; }
+  .recruiter-talent-table td:nth-child(7) .btn { width:100%; min-height:42px; }
+  .recruiter-talent-table .candidate-identity-cell { align-items:flex-start; }
+  .recruiter-talent-table .candidate-identity-copy > strong,
+  .recruiter-talent-table .candidate-identity-copy .small { white-space:normal; }
+  .recruiter-talent-table .readiness-cell { min-width:0; max-width:none; }
+  .recruiter-talent-table .status-stack { display:flex; flex-wrap:wrap; gap:6px; }
+}

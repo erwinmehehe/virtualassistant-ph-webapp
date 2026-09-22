@@ -39,6 +39,18 @@ const candidateSlugs = matches(candidateBlock, /slug:\s*"([^"]+)"/g);
 assert(roleServiceSlugs.length === 17, `expected 17 role clusters, found ${roleServiceSlugs.length}`);
 assert(new Set(roleServiceSlugs).size === roleServiceSlugs.length, "duplicate serviceSlug in SEO role clusters");
 assert(new Set(roleSlugBases).size === roleSlugBases.length, "duplicate slugBase in SEO role clusters");
+assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
+assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
+for (const unsafe of [
+  '"Hire a " + cluster.role',
+  '"What Does a " + cluster.role',
+  '"Learn what a " + cluster.role',
+  '"For a " + cluster.role',
+  '"How much does a " + cluster.role',
+  '"What tasks can I delegate to a " + cluster.role',
+]) {
+  assert(!files.resources.includes(unsafe), `unsafe generated article grammar remains: ${unsafe}`);
+}
 assert(candidateSlugs.length === 17, `expected 17 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
 assert(files.resources.includes("ROLE_CLUSTERS.flatMap"), "role resources must be generated from the role cluster map");

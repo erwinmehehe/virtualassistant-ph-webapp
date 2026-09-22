@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candidate-access";
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
+import { isRowApprovable } from "@/lib/public-visibility";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
@@ -123,12 +124,12 @@ export async function saveJobShortlistAction(formData: FormData) {
   const admin = createAdminClient();
   const [{ data: job }, { data: vetting }, { data: commercial }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).single(),
-    admin.from("va_vetting").select("va_id,stage").in("va_id", selected).in("stage", ["approved", "bench"]),
+    admin.from("recruiter_va_directory").select("user_id,stage,completion_score").in("user_id", selected).in("stage", ["approved", "bench"]),
     admin.from("job_commercials").select("commercial_status").eq("job_id", jobId).maybeSingle()
   ]);
   if (!job) return fail("Job not found.");
-  const approvedIds = new Set((vetting || []).map((row: any) => row.va_id));
-  if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer approved for matching.");
+  const approvedIds = new Set((vetting || []).filter(isRowApprovable).map((row: any) => row.user_id));
+  if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer eligible for client matching. Approved VAs must still have at least 60% profile completion.");
   if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet. Use Save + invite client to review instead.");
   if (mode === "release" && job.status !== "published") return fail("Publish the role before sending candidates to the client.");
   if (mode === "release" && commercial?.commercial_status !== "accepted") return fail("Client-approved service terms are required before sending candidates.");

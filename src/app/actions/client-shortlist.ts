@@ -41,7 +41,7 @@ export async function saveClientRecommendationAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
   const vaId = String(formData.get("recommendation_va_id") || "");
-  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
   if (!jobId || !vaId) throw new Error("Role and VA are required.");
   const recommendation = cleanNote(formData.get(`recommendation_${vaId}`));
   const admin = await requireApprovedVa(vaId);
@@ -74,7 +74,7 @@ export async function requestVaAvailabilityConfirmationAction(formData: FormData
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
   const vaId = String(formData.get("availability_va_id") || "");
-  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
   if (!vaId) throw new Error("VA is required.");
   const admin = await requireApprovedVa(vaId);
   const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
@@ -91,7 +91,7 @@ export async function markVaAvailabilityConfirmedAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
   const vaId = String(formData.get("availability_va_id") || "");
-  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
   if (!vaId) throw new Error("VA is required.");
   const admin = await requireApprovedVa(vaId);
   const now = new Date().toISOString();
@@ -210,15 +210,15 @@ export async function clientShortlistDecisionAction(formData: FormData) {
         : decision === "hold"
           ? "Client placed a VA on hold"
           : "Client passed on a VA";
-    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: notificationTitle, body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/matching/${jobId}` })));
+    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: notificationTitle, body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/roles/${jobId}` })));
   }
 
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath("/workspace/client/candidates");
   revalidatePath("/workspace/client/interviews");
   revalidatePath("/workspace/va/interviews");
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
-  revalidatePath("/workspace/recruiter/client-review");
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath("/workspace/recruiter/matching");
   if (decision === "interview") redirect("/workspace/client/interviews?requested=1");
   redirectWithFlag(returnTo, "decision_saved");
 }
@@ -226,7 +226,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
 export async function sendClientShortlistFollowupAction(formData: FormData) {
   const { user } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
-  const returnTo = safeReturnTo(formData.get("return_to"), "/workspace/recruiter/client-review");
+  const returnTo = safeReturnTo(formData.get("return_to"), "/workspace/recruiter/matching?view=waiting_client");
   if (!jobId) throw new Error("Role is required.");
   const admin = createAdminClient();
   const [{ data: job }, { count: releasedCount }] = await Promise.all([

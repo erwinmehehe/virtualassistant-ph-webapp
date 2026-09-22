@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, CheckCircle2, CircleDot, HeartPulse, UserRoundCheck } from "lucide-react";
-import { requireAnyRole } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
-import type { PlacementCheckinRow, StaffProfileRow, WorkroomChecklistRow } from "@/lib/workspace-rows";
+import { requireAnyRoleFast } from "@/lib/auth";
 import { assignClientSuccessOwnerAction, completeRecruiterHandoffAction, recordPlacementCheckinAction, toggleAgencyChecklistAction, updatePlacementStageAction } from "@/app/actions/agency-operations-v2";
+import { getClientSuccessPlacementDetail } from "@/lib/client-success-dashboard";
 
 const STAGE_LABELS:Record<string,string>={pre_start:"Pre-start",launch:"Launch",active:"Active",recovery:"Recovery",replacement:"Replacement",ended:"Ended"};
 const HEALTH_LABELS:Record<string,string>={building:"Building",healthy:"Healthy",watch:"Watch",at_risk:"At Risk"};
@@ -16,24 +15,15 @@ function checkpointLabel(value:string){if(value.startsWith("day"))return value.r
 function signalLabel(value?:string|null){return value==="green"?"Great":value==="yellow"?"Some concerns":value==="red"?"Need help":"Not recorded";}
 
 export default async function PlacementControlCenter({params,searchParams}:{params:Promise<{id:string}>,searchParams:Promise<Record<string,string|undefined>>}){
-  const [{id},query,{user,profile}]=await Promise.all([params,searchParams,requireAnyRole(["admin","recruiter"])]);
-  const admin=createAdminClient();
-  const {data:room,error}=await admin.from("workrooms").select("*").eq("id",id).maybeSingle();
-  if(error)throw error;if(!room)notFound();
-  const [{data:job},{data:checklistData},{data:checkinData},{data:staffData}]=await Promise.all([
-    admin.from("jobs").select("*").eq("id",room.job_id).maybeSingle(),
-    admin.from("workroom_checklist").select("*").eq("workroom_id",id).order("sort_order"),
-    admin.from("placement_checkins").select("*").eq("workroom_id",id).order("due_at"),
-    admin.from("profiles").select("id,full_name,role,account_status").in("role",["recruiter","admin"]).eq("account_status","active").order("full_name")
-  ]);
-  if(!job)notFound();
-  const checklist=(checklistData||[]) as WorkroomChecklistRow[];
-  const checkins=(checkinData||[]) as PlacementCheckinRow[];
-  const staff=(staffData||[]) as StaffProfileRow[];
-  if(profile.role!=="admin"&&job.recruiter_id!==user.id&&room.client_success_owner_id!==user.id)notFound();
-  const ids=[job.client_id,room.va_id,job.recruiter_id,room.client_success_owner_id].filter(Boolean);
-  const {data:people}=ids.length?await admin.from("profiles").select("id,full_name,role").in("id",ids):{data:[]};
-  const names=new Map(((people||[]) as StaffProfileRow[]).map((p)=>[p.id,p.full_name||p.role]));
+  const [{id},query,{userId}]=await Promise.all([params,searchParams,requireAnyRoleFast(["admin","recruiter"])]);
+  const {data:detail,error}=await getClientSuccessPlacementDetail(userId,id);
+  if(error)throw error;
+  if(!detail)notFound();
+  const room=detail.room;
+  const job=detail.job;
+  const checklist=detail.checklist;
+  const checkins=detail.checkins;
+  const staff=detail.staff;
   const clientItems=checklist.filter((x)=>x.owner_role==="client");
   const vaItems=checklist.filter((x)=>x.owner_role==="va");
   const agencyItems=checklist.filter((x)=>x.owner_role==="agency");
@@ -48,7 +38,7 @@ export default async function PlacementControlCenter({params,searchParams}:{para
     {query.handoff_saved?<div className="success-banner">Recruiter handoff completed.</div>:null}
     {query.checkin_saved?<div className="success-banner">Placement check-in recorded.</div>:null}
     {query.stage_saved?<div className="success-banner">Placement stage updated.</div>:null}
-    <div className="page-head"><div><div className="kicker">Managed placement</div><h1>{job.title}</h1><p>{job.company_name||names.get(job.client_id)||"Client"} · {names.get(room.va_id)||"Virtual Assistant"}</p></div><div className="row wrap"><Link className="btn" href={`/workspace/recruiter/roles/${job.id}`}>Hiring history</Link><Link className="btn" href="/workspace/client-success">Client Success Today</Link></div></div>
+    <div className="page-head"><div><div className="kicker">Managed placement</div><h1>{job.title}</h1><p>{job.company_name||detail.client_name||"Client"} · {detail.va_name||"Virtual Assistant"}</p></div><div className="row wrap"><Link className="btn" href={`/workspace/recruiter/roles/${job.id}`}>Hiring history</Link><Link className="btn" href="/workspace/client-success">Client Success Today</Link></div></div>
 
     <div className="grid-4">
       <div className="card"><span className="small muted">Placement health</span><div style={{marginTop:8}}><span className={`badge ${healthBadge(room.health_status)}`}>{HEALTH_LABELS[room.health_status]||room.health_status}{room.health_score!=null?` · ${room.health_score}/100`:""}</span></div><span className="small muted" style={{display:"block",marginTop:6}}>{room.health_score==null?`Waiting for enough real signals · ${room.health_coverage||0}% evidence coverage`:`Calculated from structured placement signals · ${room.health_coverage||0}% evidence coverage`}</span></div>

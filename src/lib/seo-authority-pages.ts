@@ -34,7 +34,7 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
       "best virtual assistant companies",
       "virtual assistant agencies",
       "virtual assistant firms",
-      "virtual assistant providers"
+      "virtual assistant providers",\n      "virtual assistant staffing",\n      "virtual assistant staffing agency"
     ],
     eyebrow: "Provider comparison guide",
     h1: "Virtual Assistant companies in the Philippines: how to compare providers",
@@ -79,8 +79,8 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
         ]
       },
       {
-        heading: "Compare role depth and industry fit",
-        intro: "A provider that is strong at general administration may not be the right choice for mortgage processing, medical administration, SEO, bookkeeping, or property management. Look for role-specific screening, workflow knowledge, and a candidate pool that matches the actual work.",
+        heading: "Compare staffing, placement, and managed-service depth",
+        intro: "Searchers use virtual assistant company, agency, provider, staffing agency, and firm for overlapping needs. The label matters less than the operating model. A provider that is strong at general administration may not be the right choice for mortgage processing, medical administration, SEO, bookkeeping, or property management. Look for role-specific screening, workflow knowledge, and a candidate pool that matches the actual work.",
         links: [
           { href: "/services", label: "Browse Virtual Assistant services", description: "Compare role-specific hiring guides across admin, marketing, finance, healthcare, ecommerce, real estate, legal, and more." },
           { href: "/industries", label: "Browse by industry", description: "Start from your business workflow when the role title is not obvious." },
@@ -137,8 +137,8 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
         ]
       },
       {
-        heading: "Match the schedule to the work",
-        intro: "Philippine-based Virtual Assistants can work Australian business-hour overlap, fixed shifts, or asynchronous schedules depending on the role. Live customer, phone, dispatch, and coordination work needs clearer overlap than research, production, reporting, or back-office tasks.",
+        heading: "Australian cities and remote coverage"
+        intro: "Businesses searching for a Virtual Assistant in Sydney, Melbourne, Brisbane, Perth, Adelaide, the Gold Coast, Geelong, Newcastle, or Darwin usually need Australian-timezone support rather than a worker physically located in that city. Philippine-based Virtual Assistants can work Australian business-hour overlap, fixed shifts, or asynchronous schedules depending on the role. Live customer, phone, dispatch, and coordination work needs clearer overlap than research, production, reporting, or back-office tasks.",
         bullets: [
           "State the Australian timezone and exact hours that require live coverage.",
           "Separate live-response tasks from work that can be completed asynchronously.",

@@ -76,3 +76,13 @@ test("smoke VA fixtures refresh availability without weakening production rules"
   assert.match(route,/availability_confirmed_at: now/);
   assert.match(route,/availability_last_prompted_at: null/);
 });
+
+
+test("client smoke shortlist verifies privacy-safe unique fixture headlines",()=>{
+  const route=read("src/app/api/internal/github-smoke-auth/route.ts");
+  const script=read("scripts/authenticated-dashboard-visual.mjs");
+  assert.match(route,/headline: `QA Smoke Candidate \$\{spec\.vaIndex\}`/);
+  assert.match(script,/QA Smoke Candidate 3/);
+  assert.match(script,/Client shortlist exposed an unmasked smoke VA full name/);
+  assert.doesNotMatch(script,/const positions = \["Smoke VA Three"/);
+});

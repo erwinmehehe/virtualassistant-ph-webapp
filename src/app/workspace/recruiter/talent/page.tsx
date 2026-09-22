@@ -15,6 +15,7 @@ import type { JobOptionRow, RecruiterVaDirectoryRow, VaProfileReminderRow } from
 const PAGE_SIZE = 25;
 
 const SAVED_VIEWS = [
+  { key: "all", label: "All VAs", filters: {} },
   { key: "approval_ready", label: "Approval-ready", filters: { readiness: "approval_ready" } },
   { key: "missing_photo", label: "Missing photo", filters: { photo: "no" } },
   { key: "approved_hidden", label: "Approved but hidden", filters: { readiness: "vetted_hidden" } },
@@ -237,7 +238,7 @@ export default async function RecruiterTalentDirectory({
             <option value="name">Name A–Z</option>
           </select>
         </label>
-        <Link className="filter-reset" href="/workspace/recruiter/talent"><X size={14} /> Clear</Link>
+        <Link className="filter-reset" href="/workspace/recruiter/talent?view=all&sort=recent"><X size={14} /> Clear</Link>
       </div>
 
       <details className="filter-more" open={advancedFiltersActive}>
@@ -260,7 +261,7 @@ export default async function RecruiterTalentDirectory({
               {filter.label}<X size={12} />
             </Link>
           ))}
-          <Link className="active-filter-clear" href="/workspace/recruiter/talent">Clear all</Link>
+          <Link className="active-filter-clear" href="/workspace/recruiter/talent?view=all&sort=recent">Clear all</Link>
         </div>
       ) : null}
       <div className="filter-context-note"><strong>{APPROVAL_MIN_COMPLETION}%</strong> is enough for recruiter approval. A photo is only required for public visibility, together with the remaining public-directory requirements.</div>

@@ -367,7 +367,7 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
       { q: "How should I compare Virtual Assistant platforms?", a: "Compare talent focus, screening evidence, fees, candidate access, hiring speed, management responsibilities, payment model, replacement process, and whether the platform supports the role and schedule you need." }
     ],
     primary: { href: "/find-talent", label: "Browse approved talent" },
-    secondary: { href: "/virtual-assistant-companies-philippines", label: "Compare VA companies" },
+    secondary: { href: "/blog/virtual-assistant-companies-philippines", label: "Compare VA companies" },
     ctaTitle: "Choose the hiring model before choosing the website.",
     ctaBody: "Define the role, schedule, tools, budget, and support level first. Then compare platforms on how much work they remove from your hiring process."
   },
@@ -416,7 +416,7 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
         intro: "A lower hourly rate does not remove the need for screening, onboarding, management, security, software access, documentation, and replacement planning. Compare the complete operating model before choosing between direct hire, freelance marketplaces, recruiting services, or managed support.",
         links: [
           { href: "/pricing", label: "Virtual Assistant pricing", description: "Compare compensation, placement, managed-service terms, and cost-planning resources." },
-          { href: "/virtual-assistant-websites", label: "Virtual Assistant websites", description: "Compare marketplaces, job boards, directories, recruiters, and managed providers." },
+          { href: "/blog/virtual-assistant-websites", label: "Virtual Assistant websites", description: "Compare marketplaces, job boards, directories, recruiters, and managed providers." },
           { href: "/outsourcing-philippines-virtual-assistant", label: "Philippines outsourcing guide", description: "Plan management, handoffs, access, coverage, and operating responsibilities." }
         ]
       }

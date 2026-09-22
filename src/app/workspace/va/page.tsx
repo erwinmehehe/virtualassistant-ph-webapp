@@ -53,7 +53,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   }else if(pipeline.offered){
     nextAction={title:`You have ${pipeline.offered} placement offer${pipeline.offered===1?"":"s"}`,copy:"Review the final rate, hours, schedule, and start date before accepting.",href:"/workspace/va/offers",label:"Review offers",icon:Sparkles};
   }else if(pipeline.interview){
-    nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Open the interview workspace for the schedule, Zoom link, and role details.",href:"/workspace/va/interviews",label:"Open interviews",icon:BriefcaseBusiness};
+    nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Open the interview workspace for the schedule, meeting link, and role details.",href:"/workspace/va/interviews",label:"Open interviews",icon:BriefcaseBusiness};
   }else if(pendingInvites){
     nextAction={title:`You have ${pendingInvites} recruiter-approved opportunit${pendingInvites===1?"y":"ies"}`,copy:"Review the role and confirm whether you want to be considered.",href:"/workspace/va/applications",label:"Review opportunities",icon:BriefcaseBusiness};
     }else if(completion.score<100&&completion.next){

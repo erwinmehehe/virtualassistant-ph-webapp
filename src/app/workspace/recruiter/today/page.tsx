@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertTriangle, ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ImageOff, ListTodo, MessageSquare, RefreshCw, ShieldCheck, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { PublicAvatar } from "@/components/public-avatar";
+import { DashHeader } from "@/components/dash-ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
@@ -158,19 +159,74 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewsDue = Number(summary.interviews_due || 0);
   const offersWaiting = Number(summary.offers_waiting || 0);
 
-  const actionLanes = [
-    {label:"Approval-ready",count:approvalReadyCount,hint:"Recruiter decision",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",icon:<UserRoundCheck size={16}/>},
-    {label:"Approval cleanup",count:approvalCleanupCount,hint:"Approved below 60%",href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion",icon:<AlertTriangle size={16}/>},
-    {label:"Work setup ready",count:workSetupReadyCount,hint:"Ready to verify",href:"/workspace/recruiter/work-readiness?view=ready",icon:<ShieldCheck size={16}/>},
-    {label:"0% profiles",count:recentZeroCount,hint:"New VA rescue · 7d",href:"/workspace/recruiter/talent?readiness=zero",icon:<UserRound size={16}/>},
-    {label:"No-show email",count:noShowNeedsEmail,hint:"Rebooking email not sent",href:"/workspace/recruiter/leads?view=discovery",icon:<MessageSquare size={16}/>},
-    {label:"Waiting to rebook",count:noShowWaitingRebook,hint:"Email sent, no new time",href:"/workspace/recruiter/leads?view=discovery",icon:<RefreshCw size={16}/>},
-    {label:"Roles need candidates",count:roleNoCandidates,hint:"No usable shortlist",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",icon:<BriefcaseBusiness size={16}/>},
-    {label:"Client response overdue",count:clientResponseOverdue,hint:"Shortlist decision late",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",icon:<Clock3 size={16}/>},
-    {label:"Interview action",count:interviewsDue,hint:"Today or feedback due",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",icon:<CalendarDays size={16}/>},
-    {label:"Offers waiting",count:offersWaiting,hint:"VA or client decision",href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent",icon:<CheckCircle2 size={16}/>},
-    {label:"Need replacements",count:replacementNeeded,hint:"All released VAs passed",href:"/workspace/recruiter/roles?view=replacement&sort=urgent",icon:<RefreshCw size={16}/>},
-    {label:"Stale roles",count:staleRolesCount,hint:"72h+ no movement",href:"/workspace/recruiter/roles?view=stale&sort=oldest",icon:<Clock3 size={16}/>}
+  const talentActions = approvalReadyCount + approvalCleanupCount + workSetupReadyCount + recentZeroCount;
+  const clientActions = clientWaits.length + noShowNeedsEmail + noShowWaitingRebook;
+  const roleActions = roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
+  const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
+
+  const nextActionCandidates = [
+    {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
+    {count:noShowNeedsEmail,title:"Send no-show rebooking links",copy:"These clients missed discovery and have not received a secure link to choose another time.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open rebooking",icon:<RefreshCw size={20}/>},
+    {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
+    {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
+    {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
+    {count:interviewsDue,title:"Handle interview actions",copy:"Interviews or interview feedback need attention today.",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Open interviews",icon:<CalendarDays size={20}/>}
+  ];
+  const primaryAction = nextActionCandidates.find((item)=>item.count>0) || {
+    count:0,
+    title:"You are caught up",
+    copy:"No urgent recruiter queue needs attention right now. Use the workstreams below for routine review.",
+    href:"/workspace/recruiter/roles",
+    cta:"Review roles",
+    icon:<CheckCircle2 size={20}/>
+  };
+
+  const workstreams = [
+    {
+      label:"Sales",
+      count:cleanupQueue.length,
+      hint:"Lead follow-up and cleanup",
+      icon:<MessageSquare size={17}/>,
+      items:[
+        {label:"Lead cleanup",count:cleanupQueue.length,href:"/workspace/recruiter/today#sales-cleanup"}
+      ]
+    },
+    {
+      label:"Talent",
+      count:talentActions,
+      hint:"Approval, readiness, onboarding",
+      icon:<UserRoundCheck size={17}/>,
+      items:[
+        {label:"Approval-ready",count:approvalReadyCount,href:"/workspace/recruiter/talent?view=approval_ready&sort=completion"},
+        {label:"Approval cleanup",count:approvalCleanupCount,href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion"},
+        {label:"Work setup ready",count:workSetupReadyCount,href:"/workspace/recruiter/work-readiness?view=ready"},
+        {label:"0% profiles",count:recentZeroCount,href:"/workspace/recruiter/talent?readiness=zero"}
+      ]
+    },
+    {
+      label:"Clients",
+      count:clientActions,
+      hint:"Rebooking and decisions",
+      icon:<RefreshCw size={17}/>,
+      items:[
+        {label:"No-show email",count:noShowNeedsEmail,href:"/workspace/recruiter/today#call-rebooking"},
+        {label:"Waiting to rebook",count:noShowWaitingRebook,href:"/workspace/recruiter/today#call-rebooking"},
+        {label:"Client decisions",count:clientWaits.length,href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest"}
+      ]
+    },
+    {
+      label:"Hiring",
+      count:roleActions,
+      hint:"Roles, interviews, offers",
+      icon:<BriefcaseBusiness size={17}/>,
+      items:[
+        {label:"Need candidates",count:roleNoCandidates,href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent"},
+        {label:"Interview action",count:interviewsDue,href:"/workspace/recruiter/roles?view=interviewing&sort=urgent"},
+        {label:"Offers waiting",count:offersWaiting,href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent"},
+        {label:"Need replacements",count:replacementNeeded,href:"/workspace/recruiter/roles?view=replacement&sort=urgent"},
+        {label:"Stale roles",count:staleRolesCount,href:"/workspace/recruiter/roles?view=stale&sort=oldest"}
+      ]
+    }
   ];
 
   return <div className="dash-page">
@@ -186,30 +242,54 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
     {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
     {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
-    <div className="dash-header">
-      <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>This is the recruiter operating screen. Clear non-zero action lanes first, then work the detailed queue below.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
-      <div className="row wrap">
-        <Link prefetch={false} className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
-        <Link prefetch={false} className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
-        <Link prefetch={false} className="btn" href="/workspace/recruiter/notifications"><Bell size={16}/> Inbox {unreadNotifications ? `(${unreadNotifications})` : ""}</Link>
+    <DashHeader
+      kicker="Agency daily workflow"
+      title="My Day"
+      subtitle={<>Work the single highest-priority queue first, then scan the four operating workstreams below. <span className="dash-freshness">One owner · one next action · one due time</span></>}
+      actions={<>
+        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
+        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
+        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/notifications"><Bell size={16}/> Inbox {unreadNotifications ? `(${unreadNotifications})` : ""}</Link>
+      </>}
+    />
+
+    <section className={`${styles.nextAction} ${primaryAction.count ? styles.nextActionOpen : styles.nextActionClear}`} aria-labelledby="recruiter-next-action">
+      <span className={styles.nextActionIcon}>{primaryAction.icon}</span>
+      <div className={styles.nextActionCopy}>
+        <span>Next up{primaryAction.count ? ` · ${primaryAction.count} waiting` : ""}</span>
+        <h2 id="recruiter-next-action">{primaryAction.title}</h2>
+        <p>{primaryAction.copy}</p>
       </div>
-    </div>
+      <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
+    </section>
 
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
-    <section id="action-lanes" className={`card dashboard-section-card ${styles.actionLanesCard}`}>
-      <div className="dashboard-section-head"><div><h2>Action lanes</h2><p>Every recurring recruiter queue in one place. Start with non-zero lanes and work left to right.</p></div><span className="badge">{actionLanes.reduce((sum,lane)=>sum+lane.count,0)} open signals</span></div>
-      <div className={styles.actionLaneGrid}>
-        {actionLanes.map((lane)=><Link prefetch={false} className={`${styles.actionLane} ${lane.count ? styles.actionLaneOpen : styles.actionLaneClear}`} href={lane.href} key={lane.label}>
-          <span className={styles.actionLaneIcon}>{lane.icon}</span>
-          <span className={styles.actionLaneCopy}><strong>{lane.label}</strong><small>{lane.hint}</small></span>
-          <b>{lane.count}</b>
-        </Link>)}
+    <section id="workstreams" className={styles.workstreamSection} aria-labelledby="workstreams-title">
+      <div className={styles.workstreamHead}>
+        <div><div className="dash-kicker">Operating workstreams</div><h2 id="workstreams-title">Four places to look</h2><p>Healthy queues stay quiet. Only non-zero work is expanded.</p></div>
+        <span className={`badge ${totalSignals ? "badge-warning" : "badge-success"}`}>{totalSignals} open signal{totalSignals===1?"":"s"}</span>
+      </div>
+      <div className={styles.workstreamGrid}>
+        {workstreams.map((stream)=>{
+          const activeItems=stream.items.filter((item)=>item.count>0);
+          return <article className={`${styles.workstream} ${activeItems.length ? styles.workstreamOpen : styles.workstreamClear}`} key={stream.label}>
+            <div className={styles.workstreamTop}>
+              <span className={styles.workstreamIcon}>{stream.icon}</span>
+              <span className={styles.workstreamTitle}><strong>{stream.label}</strong><small>{stream.hint}</small></span>
+              <b>{stream.count}</b>
+            </div>
+            {activeItems.length?<div className={styles.workstreamLinks}>
+              {activeItems.slice(0,4).map((item)=><Link prefetch={false} href={item.href} key={item.label}><span>{item.label}</span><strong>{item.count}</strong><ArrowRight size={13}/></Link>)}
+              {activeItems.length>4?<Link prefetch={false} href="/workspace/recruiter/roles"><span>More hiring signals</span><strong>+{activeItems.length-4}</strong><ArrowRight size={13}/></Link>:null}
+            </div>:<div className={styles.workstreamEmpty}><CheckCircle2 size={15}/> Clear</div>}
+          </article>;
+        })}
       </div>
     </section>
 

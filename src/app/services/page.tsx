@@ -60,6 +60,8 @@ export default async function ServicesPage() {
             <Link href="/types-of-virtual-assistants">Types of VAs</Link>
             <Link href="/virtual-assistant-companies-philippines">VA companies</Link>
             <Link href="/virtual-assistant-australia">Australia</Link>
+            <Link href="/outsourcing-philippines-virtual-assistant">Outsourcing guide</Link>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/resources">Hiring resources</Link>
           </nav>
           <div className="premium-services-help">

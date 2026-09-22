@@ -277,8 +277,7 @@ const ROLE_CLUSTERS: RoleCluster[] = [
     costFactors: ["shipment volume", "international freight complexity", "live coverage", "documentation depth", "number of carriers and systems"],
     mistakes: ["leaving shipment exceptions in private email", "giving authority for customs or commercial decisions outside the role", "measuring only shipment volume without documentation accuracy"],
     bestFor: ["ecommerce businesses", "importers and exporters", "freight teams", "wholesale and distribution businesses"]
-  }
-,
+  },
   {
     serviceSlug: "general-virtual-assistant",
     slugBase: "general-virtual-assistant",

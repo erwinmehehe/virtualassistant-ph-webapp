@@ -224,7 +224,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "hire project coordination virtual assistant philippines",
     "metaTitle": "Project Coordination Virtual Assistant Philippines",
     "metaDescription": "Hire a vetted Project Coordination Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire a Project Coordination Virtual Assistant in the Philippines to handle task tracking, meeting coordination, and status updates. This is strongest when recurring work has a clear owner, source of truth, due date, and definition of done.",
+    "intro": "Hire a Project Coordination Virtual Assistant in the Philippines to handle task tracking, meeting coordination, and status updates. Searchers also call this a project management Virtual Assistant, but the role should coordinate the documented workflow rather than replace the accountable project manager.",
     "focus": "day-to-day coordination that keeps projects moving",
     "tasks": [
       "task tracking",
@@ -276,7 +276,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "operations",
       "admin-inbox",
       "executive-virtual-assistant",
-      "calendar"
+      "calendar",
+      "event-planning-virtual-assistant"
     ]
   },
   {
@@ -778,7 +779,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "general-virtual-assistant",
       "calendar",
       "executive-virtual-assistant",
-      "project-coordination"
+      "project-coordination",
+      "email-management-virtual-assistant"
     ]
   },
   {
@@ -852,7 +854,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "primaryKeyword": "hire recruitment & hr virtual assistant philippines",
     "metaTitle": "Recruitment & HR Virtual Assistant Philippines",
     "metaDescription": "Hire a vetted Recruitment & HR Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire a Recruitment & HR Virtual Assistant in the Philippines to handle candidate sourcing support, interview scheduling, and ATS updates. Keep candidate and employee records in the agreed system and reserve sensitive employment decisions for authorized client staff.",
+    "intro": "Hire a Recruitment & HR Virtual Assistant in the Philippines to handle candidate sourcing support, interview scheduling, ATS updates, onboarding coordination, and people-operations administration. A Human Resources Virtual Assistant can prepare and maintain the workflow, while hiring, compensation, investigations, and employment decisions stay with authorized client staff.",
     "focus": "recruiting coordination and people-operations administration",
     "tasks": [
       "candidate sourcing support",
@@ -4811,6 +4813,138 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "customer-service",
       "research-data",
       "admin-inbox"
+    ]
+  },
+  {
+    "slug": "email-management-virtual-assistant",
+    "name": "Email Management Virtual Assistant",
+    "group": "Admin & Operations",
+    "directoryCategory": "Administrative Support",
+    "primaryKeyword": "email management virtual assistant",
+    "metaTitle": "Email Management Virtual Assistant Philippines",
+    "metaDescription": "Hire an Email Management Virtual Assistant in the Philippines for inbox triage, follow-up tracking, calendar handoffs, records, and response coordination.",
+    "intro": "Hire an Email Management Virtual Assistant in the Philippines to organize shared and executive inboxes, route requests, track promised follow-ups, prepare draft responses, maintain labels, and keep unresolved messages visible. Approval rules should define which replies can be sent, which need review, and which sensitive requests must move to the account owner.",
+    "focus": "inbox triage, response coordination, and follow-up ownership",
+    "tasks": [
+      "inbox triage and prioritization",
+      "label and folder maintenance",
+      "draft response preparation",
+      "follow-up tracking",
+      "calendar and task handoffs",
+      "shared inbox assignment",
+      "newsletter and notification cleanup",
+      "contact and CRM updates",
+      "exception escalation"
+    ],
+    "tools": [
+      "Gmail",
+      "Microsoft Outlook",
+      "Google Workspace",
+      "Microsoft 365",
+      "Front",
+      "Help Scout",
+      "HubSpot",
+      "Slack"
+    ],
+    "skills": [
+      "written communication",
+      "inbox prioritization",
+      "follow-up discipline",
+      "record keeping",
+      "confidentiality",
+      "calendar coordination",
+      "escalation judgment"
+    ],
+    "bestFor": [
+      "founders and executives",
+      "consultants",
+      "sales and client-service teams",
+      "small businesses",
+      "shared support inboxes"
+    ],
+    "outcomes": [
+      "Important messages are assigned, answered, or escalated within the agreed window.",
+      "Promised follow-ups remain visible until the next action is complete.",
+      "The inbox becomes a controlled workflow instead of a private backlog."
+    ],
+    "costFactors": [
+      "Inbox and message volume.",
+      "Number of mailboxes and stakeholders.",
+      "Required live coverage and response windows.",
+      "Drafting versus send authority.",
+      "CRM, calendar, or support-desk responsibilities."
+    ],
+    "relatedSlugs": [
+      "admin-inbox",
+      "executive-virtual-assistant",
+      "calendar",
+      "customer-service"
+    ]
+  },
+  {
+    "slug": "event-planning-virtual-assistant",
+    "name": "Event Planning Virtual Assistant",
+    "group": "Admin & Operations",
+    "directoryCategory": "Administrative Support",
+    "primaryKeyword": "event planning virtual assistant",
+    "metaTitle": "Event Planning Virtual Assistant Philippines",
+    "metaDescription": "Hire an Event Planning Virtual Assistant in the Philippines for vendor follow-up, guest lists, schedules, registration, records, and logistics coordination.",
+    "intro": "Hire an Event Planning Virtual Assistant in the Philippines to maintain run sheets, guest and speaker records, registration updates, vendor follow-up, calendar deadlines, and event communications. Keep contract commitments, budget approval, venue decisions, safety responsibility, and final guest or sponsor promises with the authorized event owner.",
+    "focus": "event administration, vendor follow-up, and schedule coordination",
+    "tasks": [
+      "event timeline and run-sheet updates",
+      "guest and attendee list administration",
+      "speaker and sponsor coordination",
+      "vendor follow-up",
+      "registration support",
+      "calendar and deadline tracking",
+      "event inbox administration",
+      "document and asset organization",
+      "post-event follow-up"
+    ],
+    "tools": [
+      "Eventbrite",
+      "Cvent",
+      "Google Workspace",
+      "Microsoft 365",
+      "Asana",
+      "Trello",
+      "Canva",
+      "Zoom"
+    ],
+    "skills": [
+      "event coordination",
+      "vendor communication",
+      "schedule management",
+      "record accuracy",
+      "written communication",
+      "deadline control",
+      "exception escalation"
+    ],
+    "bestFor": [
+      "event planners",
+      "agencies",
+      "professional associations",
+      "coaches and educators",
+      "companies running webinars or conferences"
+    ],
+    "outcomes": [
+      "Event dates, owners, and open dependencies stay visible in one working plan.",
+      "Guests, vendors, speakers, and sponsors receive consistent administrative follow-up.",
+      "The event owner spends less time chasing routine updates and missing records."
+    ],
+    "costFactors": [
+      "Number and frequency of events.",
+      "Attendee, vendor, and speaker volume.",
+      "Live event coverage requirements.",
+      "Registration and communication complexity.",
+      "Number of systems, venues, and time zones involved."
+    ],
+    "relatedSlugs": [
+      "project-coordination",
+      "calendar",
+      "travel-lifestyle",
+      "content-writing"
     ]
   }
 

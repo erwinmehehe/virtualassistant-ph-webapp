@@ -260,6 +260,22 @@ export default async function HirePage({
           </div>
         </section>
 
+        <section className="pvh-section pvh-section-white" aria-labelledby="hire-decision-guides">
+          <div className="container">
+            <div className="pvh-section-head pvh-centered">
+              <span className="pvh-kicker">Compare before you submit</span>
+              <h2 id="hire-decision-guides">Use the guide that matches your next hiring decision.</h2>
+              <p>Start with the role when you know the workload. Compare service models and providers when you are still deciding how the hire should work.</p>
+            </div>
+            <div className="pvh-choice-grid">
+              <Link className="pvh-choice" href="/services"><strong>Virtual Assistant services</strong><p>Compare role scope, tasks, tools, and hiring evidence by specialty.</p></Link>
+              <Link className="pvh-choice" href="/pricing"><strong>Pricing and service models</strong><p>Review direct-hire and managed-service pricing before you commit.</p></Link>
+              <Link className="pvh-choice" href="/virtual-assistant-companies-philippines"><strong>Compare VA companies</strong><p>Understand marketplaces, recruiters, managed providers, and outsourced teams.</p></Link>
+              <Link className="pvh-choice" href="/outsourcing-philippines-virtual-assistant"><strong>Outsourcing guide</strong><p>Plan the workflow, coverage, access, handoff, and first 30 days.</p></Link>
+            </div>
+          </div>
+        </section>
+
         <section className="pvh-final">
           <div className="pvh-final-grid-pattern" aria-hidden="true" />
           <div className="container pvh-final-inner">

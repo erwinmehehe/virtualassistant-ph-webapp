@@ -1,5 +1,5 @@
 import { AgencyFunnelDashboard } from "@/components/agency-funnel-dashboard";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 
 function range(value?: string) {
   const parsed = Number(value || 90);
@@ -8,6 +8,6 @@ function range(value?: string) {
 
 export default async function AdminFunnelPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const query = await searchParams;
-  await requireRole("admin");
+  await requireRoleFast("admin");
   return <AgencyFunnelDashboard recruiterId={null} days={range(query.days)} basePath="/workspace/admin/funnel" scopeLabel="Agency-wide hiring pipeline" leadsPath="/workspace/admin/leads" rolesPath="/workspace/admin/jobs" />;
 }

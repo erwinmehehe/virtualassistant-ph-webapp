@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
@@ -12,8 +12,8 @@ type ReleasedCandidateRow = { id: string; job_id: string; va_id: string; match_s
 type ShortlistVaRow = { user_id: string; slug: string | null; headline: string | null; primary_category: string | null; weekly_hours: number | null; hourly_rate: number | null; skills: string[] | null; tools: string[] | null; years_experience: number | null; schedule: string | null; overlap_hours: number | null };
 
 export default async function ClientCandidatesPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const query=await searchParams;const {user}=await requireRole("client");const supabase=await createClient();const admin=createAdminClient();
-  const {data:jobs}=await supabase.from("jobs").select("id,title,status,created_at").eq("client_id",user.id).order("created_at",{ascending:false});
+  const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const admin=createAdminClient();
+  const {data:jobs}=await supabase.from("jobs").select("id,title,status,created_at").eq("client_id",userId).order("created_at",{ascending:false});
   const jobRows=(jobs||[]) as ClientJobRow[];const jobIds=jobRows.map((job)=>job.id);
   if(!jobIds.length)return <><div className="page-head"><div><h1>Hiring Room</h1><p>Review recruiter-selected candidates and keep every hiring decision in one place.</p></div></div><div className="card empty"><p>Start with a hiring request so we have a role to recruit against.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start a hiring request</Link></div></>;
 
@@ -30,7 +30,7 @@ export default async function ClientCandidatesPage({searchParams}:{searchParams:
   const accessMap=new Map(((accessRows||[]) as {job_id:string;access_status:string|null}[]).map((row)=>[row.job_id,row.access_status]));
   const selectedReleased=releasedRows.filter((row)=>row.job_id===selectedJob?.id);const selectedPublished=selectedJob?.status==="published";const selectedAccessUnlocked=selectedJob?candidateAccessUnlocked(accessMap.get(selectedJob.id)):false;
 
-  if(selectedJob&&selectedPublished&&selectedAccessUnlocked&&selectedReleased.length){try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","job").eq("subject_id",selectedJob.id).eq("action","client_shortlist_viewed").eq("actor_id",user.id).gte("created_at",cutoff);if(!count)await admin.from("recruiter_activity").insert({subject_type:"job",subject_id:selectedJob.id,action:"client_shortlist_viewed",description:"Client viewed the recruiter-curated shortlist",actor_id:user.id,metadata:{released_count:selectedReleased.length}});}catch{}}
+  if(selectedJob&&selectedPublished&&selectedAccessUnlocked&&selectedReleased.length){try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","job").eq("subject_id",selectedJob.id).eq("action","client_shortlist_viewed").eq("actor_id",userId).gte("created_at",cutoff);if(!count)await admin.from("recruiter_activity").insert({subject_type:"job",subject_id:selectedJob.id,action:"client_shortlist_viewed",description:"Client viewed the recruiter-curated shortlist",actor_id:userId,metadata:{released_count:selectedReleased.length}});}catch{}}
 
   const releasedVaIds=selectedPublished&&selectedAccessUnlocked?[...new Set(selectedReleased.map((row)=>row.va_id))]:[];
   const [{data:profiles},{data:vas}]=releasedVaIds.length?await Promise.all([

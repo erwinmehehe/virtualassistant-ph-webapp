@@ -4,7 +4,7 @@ import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
 import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-operations-panel";
 import { PublicAvatar } from "@/components/public-avatar";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -47,7 +47,7 @@ export default async function RecruiterTalentDirectory({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireRole("recruiter");
+  await requireRoleFast("recruiter");
   const params = await searchParams;
   const admin = createAdminClient();
   const page = Math.max(1, num(params.page) || 1);

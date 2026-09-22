@@ -43,7 +43,7 @@ test("invite handoff persists exactly the selected VA ids and releases only that
 });
 
 test("client shortlist remains account-scoped, released-only, access-gated, and feeds decisions back to recruiters", () => {
-  assert.match(clientCandidates, /\.eq\("client_id",user\.id\)/);
+  assert.match(clientCandidates, /\.eq\("client_id",userId\)/);
   assert.match(clientCandidates, /\.eq\("shortlist_status","released"\)/);
   assert.match(clientCandidates, /candidateAccessUnlocked/);
   assert.match(clientActions, /\.eq\("client_id", user\.id\)/);

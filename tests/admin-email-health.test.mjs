@@ -33,6 +33,6 @@ test("admin email health is an admin-only workspace destination", async () => {
   assert.ok(adminStart >= 0, "admin navigation group must exist");
   assert.ok(linkIndex > adminStart, "Email Health must be placed in the admin navigation group");
   assert.equal(nav.slice(0, adminStart).includes(emailHealth), false, "Email Health must not appear in non-admin navigation");
-  assert.match(adminLayout, /requireRole\("admin"\)/);
+  assert.match(adminLayout, /requireRoleFast\("admin"\)/);
   assert.match(page, /requireRole\("admin"\)/);
 });

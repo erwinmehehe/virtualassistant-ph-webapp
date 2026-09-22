@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculatePlacementFinance, financeStatusLabel } from "@/lib/agency-finance";
 import { money } from "@/lib/format";
@@ -20,7 +20,7 @@ type FinanceWorkroomRow = {
 const statusClass:Record<string,string>={healthy:"badge-success",watch:"badge-warning",approval_required:"badge-danger",approved_exception:"badge-warning",needs_setup:""};
 
 export default async function AdminFinancePage(){
-  await requireRole("admin");
+  await requireRoleFast("admin");
   const admin=createAdminClient();
   const [{data:settings},{data:roomData},{data:profileData},{data:paymentData}]=await Promise.all([
     admin.from("admin_settings").select("finance_min_margin_percent,finance_target_margin_percent,finance_default_payment_cost_percent,finance_default_ops_cost_monthly,finance_invoice_overdue_days").eq("id",1).single(),

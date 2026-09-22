@@ -23,19 +23,19 @@ export default function ResourcesPage() {
   return <><SiteHeader/><main id="main-content">
     <CompactPageHeader
       eyebrow="Virtual Assistant resource library"
-      title={<h1>Hiring and career resources organized by search intent.</h1>}
-      description={<p>{SEO_RESOURCE_ROLE_COUNT} underdeveloped commercial role clusters now have dedicated definition, task, hiring, interview, and cost guidance. Candidate resources stay in a separate path so job-seeker intent does not compete with client money pages.</p>}
+      title={<h1>Virtual Assistant hiring and career resources.</h1>}
+      description={<p>Practical guides for businesses hiring Filipino Virtual Assistants and candidates building a VA career. Compare roles, tasks, interview questions, costs, tools, applications, resumes, portfolios, and more.</p>}
       actions={<><Link className="btn btn-primary" href="/services">Browse VA services <ArrowRight size={16}/></Link><Link className="btn" href="/jobs">Browse VA jobs</Link></>}
     />
     <div className="hs-root sp-root">
       <Band>
-        <SectionHead kicker="For businesses" title="Role-specific hiring resources" lede="Each cluster supports one canonical service page instead of creating duplicate commercial money pages."/>
+        <SectionHead kicker="For businesses" title="Virtual Assistant hiring guides" lede={"Compare responsibilities, tasks, interview questions, costs, and tools across " + SEO_RESOURCE_ROLE_COUNT + " Virtual Assistant role families before you hire."}/>
         <div className="premium-service-grid">
           {client.map((page) => <Link className="premium-service-card" href={"/resources/" + page.slug} key={page.slug}><div><h3>{page.title}</h3><p>{page.metaDescription}</p></div><span className="premium-service-link">Read guide <ArrowRight size={14}/></span></Link>)}
         </div>
       </Band>
       <Band tone="soft">
-        <SectionHead kicker="For Virtual Assistants" title="Candidate search resources" lede="Application, resume, portfolio, skills, requirements, interview, part-time, and work-from-home guidance points job seekers toward the candidate funnel rather than the client hiring funnel."/>
+        <SectionHead kicker="For Virtual Assistants" title="Virtual Assistant career guides" lede="Build a stronger application with practical guidance on resumes, portfolios, skills, interviews, part-time work, work-from-home setup, and the hiring process."/>
         <div className="premium-service-grid">
           {candidate.map((page) => <Link className="premium-service-card" href={"/resources/" + page.slug} key={page.slug}><div><h3>{page.title}</h3><p>{page.metaDescription}</p></div><span className="premium-service-link">Read guide <ArrowRight size={14}/></span></Link>)}
         </div>

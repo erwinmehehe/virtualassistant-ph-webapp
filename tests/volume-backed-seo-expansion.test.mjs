@@ -98,6 +98,28 @@ test("generated resource URLs use correct a/an grammar and preserve legacy slugs
   }
 });
 
+test("public resource copy avoids internal SEO jargon", () => {
+  const hub = source("src/app/resources/page.tsx");
+  const detail = source("src/app/resources/[slug]/page.tsx");
+  const publicCopy = hub + "\n" + detail;
+
+  for (const phrase of [
+    "underdeveloped commercial role clusters",
+    "organized by search intent",
+    "Canonical role guide",
+    "duplicate intent",
+    "duplicate commercial money pages",
+    "candidate funnel",
+  ]) {
+    assert.ok(!publicCopy.includes(phrase), `public resource copy leaks internal SEO jargon: ${phrase}`);
+  }
+
+  assert.ok(hub.includes("Virtual Assistant hiring and career resources."));
+  assert.ok(hub.includes("Virtual Assistant hiring guides"));
+  assert.ok(hub.includes("Virtual Assistant career guides"));
+  assert.ok(detail.includes("Keep planning your next step."));
+});
+
 test("volume-backed expansion leaves the homepage source untouched", () => {
   const baseRef = process.env.SEO_HOMEPAGE_BASE_REF || "origin/main";
   try {

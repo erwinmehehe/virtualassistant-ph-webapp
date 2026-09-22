@@ -12,7 +12,7 @@ test("cancelled and no-show discovery calls keep a visible rebooking form",()=>{
   assert.match(page,/Boolean\(lead\.discovery_cancelled_at\)/);
   assert.match(page,/<ManageBookingForm token=\{token\} days=\{days\} rebookOnly=\{rebookOnly\}/);
   assert.doesNotMatch(page,/lead\.discovery_cancelled_at \? <p>This call is cancelled\.<\/p>/);
-  assert.match(form,/>Rebook call</);
+  assert.match(form,/rebookOnly \? "Rebook call" : "Reschedule call"/);
 });
 
 test("cancelled calls create a fresh Google Meet when rebooked",()=>{

@@ -81,6 +81,9 @@ test("authenticated dashboard visual QA covers current routes, overflow, and fir
   }
   assert.match(visual,/getByRole\("heading", \{ name: role\.marker, exact: true \}\)/);
   assert.doesNotMatch(visual,/getByText\(role\.marker/);
+  assert.match(visual,/\/workspace\/recruiter\/roles\?view=intervention&sort=urgent/);
+  assert.match(visual,/recruiter-roles-\$\{viewport\.name\}\.png/);
+  assert.match(visual,/recruiter roles mobile first action starts below the first viewport/);
   assert.match(visual,/document\.documentElement\.scrollWidth > document\.documentElement\.clientWidth/);
   assert.match(visual,/viewport\.name === "mobile"/);
   assert.match(visual,/mobile primary action starts below the first viewport/);

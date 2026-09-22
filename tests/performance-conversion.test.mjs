@@ -110,10 +110,13 @@ test("lead response SLA creates immediate and scheduled recruiter alerts", async
   assert.match(migration, /first_response_due_soon/);
   assert.match(migration, /first_response_overdue/);
   assert.match(migration, /'\*\/5 \* \* \* \*'/);
-  assert.match(workflow, /pull_request:/);
+  assert.match(workflow, /push:/);
+  assert.match(workflow, /branches: \[main\]/);
+  assert.match(workflow, /Wait for this main commit to reach production/);
   assert.match(workflow, /dashboard-visual/);
+  assert.doesNotMatch(workflow, /SUPABASE_SERVICE_ROLE_KEY/);
   for (const size of ["mobile", "tablet", "desktop"]) assert.match(visual, new RegExp(`name: "${size}"`));
-  for (const role of ["recruiter", "client", "va"]) assert.match(visual, new RegExp(`role: "${role}"`));
+  for (const role of ["admin", "recruiter", "client", "va"]) assert.match(visual, new RegExp(`role: "${role}"`));
   assert.match(vercel, /VERCEL_GIT_PULL_REQUEST_ID/);
   assert.match(vercel, /nonRuntimeOnly/);
   assert.match(vercel, /file\.startsWith\("tests\/"\)/);

@@ -17,7 +17,7 @@ import { organizationRef } from "@/lib/organization";
 async function getPublishedJob(key: string) {
   try {
     const supabase = await createClient();
-    const query = supabase.from("jobs").select("*").eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null);
+    const query = supabase.from("public_jobs").select("*");
     const { data } = isUuid(key) ? await query.eq("id", key).maybeSingle() : await query.eq("slug", key).maybeSingle();
     return data;
   } catch (err) {
@@ -26,21 +26,12 @@ async function getPublishedJob(key: string) {
   }
 }
 
-async function getPublicCompany(clientId?:string|null){
-  if(!clientId)return null;
-  try{
-    const supabase=await createClient();
-    const {data}=await supabase.from("public_company_profiles").select("company_name,logo_url,website,industry,location,team_size,company_description,verified_at,hires_count").eq("user_id",clientId).maybeSingle();
-    return data;
-  }catch{return null;}
-}
-
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
   const { id } = await params;
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job" };
-  const company=await getPublicCompany(job.client_id);
-  return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${company?.company_name ? ` with ${company.company_name}` : " through VirtualAssistant.com.ph"}.`, alternates: { canonical: canonicalPath(jobPublicHref(job)) } };
+  const companyName = job.company_name || null;
+  return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${companyName ? ` with ${companyName}` : " through VirtualAssistant.com.ph"}.`, alternates: { canonical: canonicalPath(jobPublicHref(job)) } };
 }
 
 export default async function JobPage({ params, searchParams }: { params: Promise<{id:string}>; searchParams: Promise<Record<string,string|undefined>> }) {
@@ -52,7 +43,17 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   if (isUuid(id) && job.slug) redirect(canonicalHref);
 
   const { user, profile } = await getSessionProfile();
-  const company=await getPublicCompany(job.client_id);
+  const company = job.company_name ? {
+    company_name: job.company_name,
+    logo_url: job.company_logo_url,
+    website: job.company_website,
+    industry: job.company_industry,
+    location: job.company_location,
+    team_size: job.company_team_size,
+    company_description: job.company_description,
+    verified_at: job.company_verified_at,
+    hires_count: job.company_hires_count,
+  } : null;
   const companyName = company?.company_name || null;
   const companyWebsite = company?.website || null;
   const companyHiresCount = Number(company?.hires_count || 0);

@@ -11,6 +11,8 @@ import { isRowApprovable } from "@/lib/public-visibility";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
+const AVAILABILITY_FRESH_DAYS = 14;
+const AVAILABILITY_REMINDER_COOLDOWN_HOURS = 20;
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -158,18 +160,18 @@ export async function saveJobShortlistAction(formData: FormData) {
     admin.from("va_profiles").select("*").in("user_id", selected),
     admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
-  const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   if (mode === "release") {
-    const availabilityCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
-    const staleSelected = orderedSelected.filter((vaId) => {
-      const va = vaMap.get(vaId) as any;
-      const confirmedAt = va?.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : NaN;
-      return va?.availability_status !== "available" || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;
+    const availabilityCutoff = Date.now() - AVAILABILITY_FRESH_DAYS * 24 * 60 * 60 * 1000;
+    const stale = (vas || []).filter((va: any) => {
+      const confirmedAt = va.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : 0;
+      return va.availability_status !== "available" || !confirmedAt || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;
     });
-    if (staleSelected.length) {
-      return fail(`${staleSelected.length} selected VA${staleSelected.length === 1 ? "" : "s"} must reconfirm availability before client release. Remove ${staleSelected.length === 1 ? "that candidate" : "those candidates"} or ask them to update availability first.`);
+    if (stale.length) {
+      return fail(`${stale.length} selected VA${stale.length === 1 ? " is" : "s are"} blocked. Selected VAs must reconfirm availability before client release. A fresh availability confirmation before client release is required. Send an availability reminder, then try again after they confirm.`);
     }
   }
+
+  const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
   const existingOrderMap = new Map((existing || []).map((row: any) => [row.va_id, Number(row.shortlist_order || 0)]));
   const releasedMaxOrder = (existing || []).filter((row: any) => row.shortlist_status === "released").reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
@@ -199,8 +201,15 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) {
     console.error("saveJobShortlistAction upsert failed:", error);
-    if (String(error.message || "").includes("VA availability is stale")) {
-      return fail("A selected VA must reconfirm availability before client release. Refresh the role, remove the stale candidate, or ask them to update availability first.");
+    const message = String(error.message || "");
+    if (message.includes("VA availability is stale")) {
+      return fail("A selected VA's availability changed while you were reviewing the shortlist. Send an availability reminder and try again after they confirm.");
+    }
+    if (message.includes("Agency Certified")) {
+      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership, fresh availability, and verified work setup first.");
+    }
+    if (message.includes("Client review is not ready yet")) {
+      return fail("Client review is not ready yet. Confirm the linked client, accepted service terms, and candidate access before sending.");
     }
     return fail("Could not save the shortlist. Please try again.");
   }
@@ -293,6 +302,65 @@ export async function saveJobShortlistAction(formData: FormData) {
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
+}
+
+export async function remindVaAvailabilityAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("availability_va_id") || "");
+  const returnTo = safeReturnTo(
+    formData.get("return_to"),
+    profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`,
+  );
+  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
+
+  if (!jobId || !vaId) return fail("Choose a VA before sending an availability reminder.");
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: vaProfile }] = await Promise.all([
+    admin.from("jobs").select("id,title,recruiter_id").eq("id", jobId).maybeSingle(),
+    admin.from("profiles").select("id,role,account_status").eq("id", vaId).maybeSingle(),
+  ]);
+  if (!job) return fail("Role not found.");
+  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
+    redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
+  }
+  if (!vaProfile || vaProfile.role !== "va" || vaProfile.account_status !== "active") {
+    return fail("This VA account is not active, so an availability reminder cannot be sent.");
+  }
+
+  const cutoff = new Date(Date.now() - AVAILABILITY_REMINDER_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
+  const { data: recent } = await admin
+    .from("notifications")
+    .select("id")
+    .eq("user_id", vaId)
+    .eq("title", "Confirm your current availability")
+    .gte("created_at", cutoff)
+    .limit(1)
+    .maybeSingle();
+
+  if (!recent) {
+    const { error } = await admin.from("notifications").insert({
+      user_id: vaId,
+      title: "Confirm your current availability",
+      body: `A recruiter is reviewing you for ${job.title || "a client role"}. Confirm your current hours, schedule, availability status, and rate before your profile can be released to the client.`,
+      href: "/workspace/va/profile#availability",
+    });
+    if (error) return fail("The availability reminder could not be sent. Please try again.");
+    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+    await writeRecruiterActivity({
+      subjectType: "va",
+      subjectId: vaId,
+      action: "availability_reminder_sent",
+      description: `Recruiter requested a fresh availability confirmation for ${job.title || "a client role"}`,
+      actorId: user.id,
+      metadata: { job_id: jobId },
+    });
+  }
+
+  revalidatePath(returnTo);
+  revalidatePath("/workspace/va/profile");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}availability_reminded=1`);
 }
 
 export async function hideShortlistCandidateAction(formData: FormData) {

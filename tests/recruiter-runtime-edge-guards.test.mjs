@@ -14,14 +14,16 @@ test("smoke VAs remain above the shared approval completion floor",()=>{
 test("stale VA availability is blocked before client shortlist release",()=>{
   const action=read("src/app/actions/matching.ts");
   const table=read("src/components/matching-candidate-table.tsx");
-  assert.match(action,/availabilityCutoff = Date\.now\(\) - 14 \* 24 \* 60 \* 60 \* 1000/);
+  assert.match(action,/const AVAILABILITY_FRESH_DAYS = 14/);
+  assert.match(action,/availabilityCutoff = Date\.now\(\) - AVAILABILITY_FRESH_DAYS \* 24 \* 60 \* 60 \* 1000/);
   assert.match(action,/must reconfirm availability before client release/);
   assert.match(action,/includes\("VA availability is stale"\)/);
-  assert.match(table,/function availabilityIsCurrent/);
-  assert.match(table,/availabilityBlocked/);
-  assert.match(table,/Confirmation required/);
-  assert.match(table,/VA must reconfirm availability before client release/);
-  assert.match(table,/disabled=\{alreadyReleased \|\| hardBlocked \|\| availabilityBlocked/);
+  assert.match(table,/releaseReady\?: boolean/);
+  assert.match(table,/selectedReleaseBlocked = selectedRows\.filter\(\(row\) => row\.releaseReady === false\)/);
+  assert.match(table,/selectedReleaseBlocked\.length > 0/);
+  assert.match(table,/Availability confirmation required before client release/);
+  assert.match(table,/Confirmation needed/);
+  assert.match(table,/Send availability reminder/);
 });
 
 test("recruiter commercial actions stay on the canonical role workspace",()=>{

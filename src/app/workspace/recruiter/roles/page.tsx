@@ -128,6 +128,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   }).sort((a,b)=>b.demand-a.demand||a.supply-b.supply||vaCategoryLabel(a.category).localeCompare(vaCategoryLabel(b.category)));
 
   return <>
+    {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
     <RecruiterViewPreference storageKey="recruiter-role-view-v1" view={params.view} sort={params.sort} />
     {params.categorized != null ? <div className="success-banner" role="status">Auto-categorized {Number(params.categorized) || 0} VA profile{Number(params.categorized) === 1 ? "" : "s"}.{Number(params.skipped) ? ` ${Number(params.skipped)} still need manual review.` : ""}</div> : null}
     <div className="page-head"><div><div className="kicker">Recruitment operations</div><h1>Roles</h1><p>Manage every hiring pipeline, then check whether your active roles have enough matching talent supply.</p></div><div className="row wrap"><Link className="btn" href="#talent-coverage"><Tags size={15}/> Talent coverage</Link></div></div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight, CalendarClock, CheckCircle2, Clock3, Eye, MessageSquare, UsersRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -66,11 +66,12 @@ export default async function RoleControlCenter({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  await requireRoleFast("recruiter");
+  const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
   if (!job) notFound();
+  if (job.recruiter_id && job.recruiter_id !== userId) redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
   const [
     { data: lead },
     { data: commercial },
@@ -168,6 +169,7 @@ export default async function RoleControlCenter({
       {query.client_invited ? <div className="success-banner">Shortlist saved and the client account invitation was sent.</div> : null}
       {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
       {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
+      {query.availability_reminded ? <div className="success-banner" role="status">Availability reminder sent. Client release will unlock after the VA reconfirms their current availability.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
       <div className="page-head">
         <div>

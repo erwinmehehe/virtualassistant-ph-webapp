@@ -12,12 +12,6 @@ function availabilityLabel(value?: string | null) {
   return String(value).replaceAll("_", " ");
 }
 
-function availabilityIsCurrent(va: any) {
-  if (va?.availability_status !== "available" || !va?.availability_confirmed_at) return false;
-  const confirmedAt = new Date(va.availability_confirmed_at).getTime();
-  return Number.isFinite(confirmedAt) && confirmedAt >= Date.now() - 14 * 24 * 60 * 60 * 1000;
-}
-
 type Row = {
   va: any;
   account: any;
@@ -31,6 +25,8 @@ type Row = {
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
+  releaseReady?: boolean;
+  releaseBlocker?: string | null;
 };
 
 type FormAction = (formData: FormData) => void | Promise<void>;
@@ -63,12 +59,14 @@ function decisionLabel(value?: string | null) {
 export function MatchingCandidateTable({
   pool,
   hideShortlistCandidateAction,
+  remindVaAvailabilityAction,
   saveClientRecommendationAction,
   canSendClient,
   canInviteClient
 }: {
   pool: Row[];
   hideShortlistCandidateAction: FormAction;
+  remindVaAvailabilityAction: FormAction;
   saveClientRecommendationAction: FormAction;
   canSendClient: boolean;
   canInviteClient: boolean;
@@ -78,7 +76,7 @@ export function MatchingCandidateTable({
   const [showClientPreview, setShowClientPreview] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<string[]>(
     () => pool
-      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by) && availabilityIsCurrent(row.va))
+      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by))
       .sort((a, b) => Number(a.shortlist?.shortlist_order ?? 999) - Number(b.shortlist?.shortlist_order ?? 999))
       .map((row) => String(row.va.user_id))
   );
@@ -99,6 +97,7 @@ export function MatchingCandidateTable({
   const visible = query || showAll ? filtered : filtered.slice(0, 20);
   const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];
   const selectedCount = selectedOrder.length;
+  const selectedReleaseBlocked = selectedRows.filter((row) => row.releaseReady === false);
 
   function toggleSelected(vaId: string, checked: boolean) {
     setSelectedOrder((current) => {
@@ -134,12 +133,17 @@ export function MatchingCandidateTable({
         </button>
         <button className="btn" type="submit" name="mode" value="save" disabled={!selectedCount}>Save {selectedCount || ""} internally</button>
         {canSendClient
-          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5}>Send {selectedCount || 0} to client</button>
+          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5 || selectedReleaseBlocked.length > 0}>Send {selectedCount || 0} to client</button>
           : canInviteClient
             ? <button className="btn btn-primary" type="submit" name="mode" value="invite" disabled={!selectedCount || selectedCount > 5}>Save {selectedCount || 0} + invite client</button>
             : null}
       </div>
     </div>
+
+    {canSendClient && selectedReleaseBlocked.length ? <div className="alert" role="alert" style={{margin:"0 0 14px"}}>
+      <div className="row"><AlertTriangle size={15}/><strong>Availability confirmation required before client release</strong></div>
+      <p className="small" style={{margin:"6px 0 0"}}>{selectedReleaseBlocked.length} selected VA{selectedReleaseBlocked.length===1?" needs":"s need"} to reconfirm current availability. You can still save the shortlist internally, but Send to client stays disabled until every selected VA is current.</p>
+    </div> : null}
 
     {showClientPreview && selectedRows.length ? <section className="card" style={{margin:"0 0 16px",background:"#f8fafc"}} aria-label="Client shortlist preview">
       <div className="row-between wrap" style={{marginBottom:12}}>
@@ -202,11 +206,10 @@ export function MatchingCandidateTable({
         const decision = decisionLabel(row.shortlist?.client_decision);
         const hasConflict = Boolean(row.otherClientReviews || row.activeProcessCount || row.potentialCommittedHours);
         const hardBlocked = row.eligible === false;
-        const availabilityBlocked = !alreadyReleased && !availabilityIsCurrent(row.va);
         const vaId = String(row.va.user_id);
         const checked = alreadyReleased || selected.has(vaId);
         return <tr key={vaId} className={alreadyReleased ? "released-match-row" : undefined}>
-          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || availabilityBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
+          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
             {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
@@ -216,10 +219,9 @@ export function MatchingCandidateTable({
           </td>
           <td data-label="Match">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></>}</td>
           <td data-label="Availability">
-            <span className={`badge ${availabilityBlocked ? "badge-warning" : row.va.availability_status === "available" ? "badge-success" : ""}`}>
-              {availabilityBlocked ? "Confirmation required" : availabilityLabel(row.va.availability_status)}
-            </span>
-            <div className="small muted">{availabilityBlocked ? "VA must reconfirm availability before client release." : "From the VA&apos;s current profile · confirmed within the last 14 days."}</div>
+            <span className={`badge ${row.releaseReady ? "badge-success" : "badge-warning"}`}>{row.releaseReady ? availabilityLabel(row.va.availability_status) : "Confirmation needed"}</span>
+            <div className="small muted">{row.releaseReady ? <>From the VA&apos;s current profile · confirmed within the last 14 days</> : row.releaseBlocker || "Fresh availability confirmation required"}</div>
+            {!row.releaseReady && !alreadyReleased ? <button className="text-button" type="submit" formAction={remindVaAvailabilityAction} name="availability_va_id" value={vaId}>Send availability reminder</button> : null}
           </td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>

@@ -14,8 +14,9 @@ test("VA profile save auto-infers specialty only when the VA leaves primary spec
 });
 
 test("recruiter bulk category repair only fills uncategorized pre-approval VAs",async()=>{
-  const [action,page]=await Promise.all([
+  const [action,roles,legacy]=await Promise.all([
     read("src/app/actions/va-categories.ts"),
+    read("src/app/workspace/recruiter/roles/page.tsx"),
     read("src/app/workspace/recruiter/categories/page.tsx"),
   ]);
   assert.match(action,/autoCategorizeUncategorizedVasAction/);
@@ -24,8 +25,9 @@ test("recruiter bulk category repair only fills uncategorized pre-approval VAs",
   assert.match(action,/approved/);
   assert.match(action,/bench/);
   assert.match(action,/primary_category: inferred\[0\]/);
-  assert.match(page,/Auto-categorize uncategorized/);
-  assert.match(page,/autoCategorizeUncategorizedVasAction/);
+  assert.match(roles,/Auto-categorize/);
+  assert.match(roles,/autoCategorizeUncategorizedVasAction/);
+  assert.match(legacy,/redirect\("\/workspace\/recruiter\/roles#talent-coverage"\)/);
 });
 
 test("category inference favors specific evidence instead of generic support/content words",async()=>{

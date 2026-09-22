@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 
 export default async function ClientJobsPage(){
-  const {user}=await requireRole("client");
+  const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
   const [{data:jobs},{data:clientProfile}]=await Promise.all([
     supabase
     .from("jobs")
     .select("id,title,status,hours_per_week,min_hourly_rate,created_at")
-    .eq("client_id",user.id)
+    .eq("client_id",userId)
     .order("created_at",{ascending:false}),
-    supabase.from("client_profiles").select("can_self_publish_jobs").eq("user_id",user.id).maybeSingle()
+    supabase.from("client_profiles").select("can_self_publish_jobs").eq("user_id",userId).maybeSingle()
   ]);
 
   const ids=(jobs||[]).map((job:any)=>job.id);

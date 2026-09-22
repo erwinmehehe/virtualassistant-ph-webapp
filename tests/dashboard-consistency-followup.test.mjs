@@ -4,17 +4,22 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("recruiter dashboard keeps approval separate from public publishing", async()=>{
-  const page=await read("src/app/workspace/recruiter/page.tsx");
-  const queueBlock=page.slice(page.indexOf("function RecruiterVettingQueue"),page.indexOf("function RecruiterRolesNeedingMatching"));
-  assert.match(queueBlock,/name="bulk_action" value="approve"/);
-  assert.doesNotMatch(queueBlock,/name="bulk_action" value="approve_publish"/);
-  assert.match(queueBlock,/APPROVAL_MIN_COMPLETION/);
-  assert.match(queueBlock,/approval-ready/);
-  assert.match(page,/readiness=approval_ready/);
-  assert.match(page,/Approval-ready profiles/);
-  assert.match(page,/Public-ready profiles/);
-  assert.match(page,/photo not required for recruiter approval/);
+test("recruiter approval remains separate from public publishing", async()=>{
+  const [talent,action,visibility]=await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/app/actions/recruiter.ts"),
+    read("src/lib/public-visibility.ts")
+  ]);
+  assert.match(talent,/Approval-ready/);
+  assert.match(talent,/APPROVAL_MIN_COMPLETION/);
+  assert.match(talent,/PUBLIC_VA_MIN_COMPLETION/);
+  assert.match(action,/action === "approve" \|\| action === "approve_publish"/);
+  assert.match(action,/rows\.filter\(isRowApprovable\)/);
+  assert.match(action,/action === "approve_publish"/);
+  assert.match(visibility,/APPROVAL_MIN_COMPLETION = 60/);
+  assert.match(visibility,/PUBLIC_VA_MIN_COMPLETION = 80/);
+  assert.match(visibility,/photo stays a[\s\S]*public-listing requirement, not an approval one/);
+  assert.match(visibility,/current public profile consent/);
 });
 
 test("admin workspace has one canonical home", async()=>{

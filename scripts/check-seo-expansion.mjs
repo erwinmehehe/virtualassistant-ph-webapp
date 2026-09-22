@@ -36,10 +36,10 @@ const roleServiceSlugs = matches(roleBlock, /serviceSlug:\s*"([^"]+)"/g);
 const roleSlugBases = matches(roleBlock, /slugBase:\s*"([^"]+)"/g);
 const candidateSlugs = matches(candidateBlock, /slug:\s*"([^"]+)"/g);
 
-assert(roleServiceSlugs.length === 15, `expected 15 role clusters, found ${roleServiceSlugs.length}`);
+assert(roleServiceSlugs.length === 17, `expected 17 role clusters, found ${roleServiceSlugs.length}`);
 assert(new Set(roleServiceSlugs).size === roleServiceSlugs.length, "duplicate serviceSlug in SEO role clusters");
 assert(new Set(roleSlugBases).size === roleSlugBases.length, "duplicate slugBase in SEO role clusters");
-assert(candidateSlugs.length === 11, `expected 11 candidate resource pages, found ${candidateSlugs.length}`);
+assert(candidateSlugs.length === 17, `expected 17 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
 assert(files.resources.includes("ROLE_CLUSTERS.flatMap"), "role resources must be generated from the role cluster map");
 for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", "costPage"]) {
@@ -73,7 +73,7 @@ assert(files.services.includes('href="/virtual-assistant-australia"'), "services
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");
 assert(files.services.includes('href="/types-of-virtual-assistants"'), "services hub missing types guide link");
 
-for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
+for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant"]) {\n  const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");\n  assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);\n}\n\nfor (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant"]) {
   assert(files.software.includes(`slug: "${softwareSlug}"`), `missing software expansion page: ${softwareSlug}`);
 }
 
@@ -100,7 +100,7 @@ for (const desc of descValues) {
 console.log(JSON.stringify({
   roleClusters: roleServiceSlugs.length,
   generatedClientResources: roleServiceSlugs.length * 5,
-  candidateResources: candidateSlugs.length,
+  manualResources: candidateSlugs.length,
   totalResources: roleServiceSlugs.length * 5 + candidateSlugs.length,
   authorityPages: expectedAuthorityPaths.length,
   softwarePagesAdded: 3,

@@ -104,12 +104,12 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
   const mode = String(formData.get("mode") || "save");
-  const selectedRaw = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
+  const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
   const requestedOrder = String(formData.get("shortlist_order") || "").split(",").map((value) => value.trim()).filter(Boolean);
-  const selectedSet = new Set(selectedRaw);
-  const selected = [
+  const selectedSet = new Set(selected);
+  const orderedSelected = [
     ...requestedOrder.filter((id, index) => selectedSet.has(id) && requestedOrder.indexOf(id) === index),
-    ...selectedRaw.filter((id) => !requestedOrder.includes(id))
+    ...selected.filter((id) => !requestedOrder.includes(id))
   ];
   const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
 
@@ -166,7 +166,7 @@ export async function saveJobShortlistAction(formData: FormData) {
     const deselectedProposed = (existing || []).filter((row: any) => row.shortlist_status === "proposed" && !selected.includes(row.va_id)).map((row: any) => row.va_id);
     if (deselectedProposed.length) await admin.from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).in("va_id", deselectedProposed);
   }
-  const rows = selected.map((vaId, index) => {
+  const rows = orderedSelected.map((vaId, index) => {
     const va = vaMap.get(vaId) as any;
     if (!va) return fail("A selected VA profile could not be loaded. Refresh and try again.");
     const assessment = matchAssessment(job, va);

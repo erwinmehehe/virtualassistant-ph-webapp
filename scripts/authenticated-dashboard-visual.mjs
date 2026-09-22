@@ -31,7 +31,7 @@ async function signIn(email, password) {
   if (!email || !password) throw new Error("A dashboard visual test account is missing credentials.");
   const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
     method: "POST",
-    headers: { apikey: anonKey, authorization: `Bearer ${anonKey}`, "content-type": "application/json" },
+    headers: { apikey: anonKey, ...(anonKey.startsWith("eyJ") ? { authorization: `Bearer ${anonKey}` } : {}), "content-type": "application/json" },
     body: JSON.stringify({ email, password })
   });
   const session = await response.json().catch(() => ({}));

@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowRight, Bell, BriefcaseBusiness, CalendarDays, Check
 import { requireRoleFast } from "@/lib/auth";
 import { PublicAvatar } from "@/components/public-avatar";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withServerTiming } from "@/lib/server-timing";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
@@ -121,7 +122,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const { data: summaryData, error: summaryError } = await admin.rpc("recruiter_today_summary", { p_user_id:userId });
+  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId }));
   if (summaryError) throw summaryError;
 
   const summary = (summaryData || {}) as Record<string,any>;

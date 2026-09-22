@@ -27,7 +27,7 @@ test("client onboarding validation redirects back to the form", async()=>{
 });
 
 test("server-only operational tables have explicit deny policies", async()=>{
-  const sql=await read("supabase/migrations/20260922085000_explicit_server_only_rls_followup.sql");
+  const sql=await read("supabase/migrations/20260922005433_explicit_server_only_rls_followup.sql");
   for (const table of [
     "candidate_interviews",
     "email_suppressions",
@@ -56,7 +56,7 @@ test("authenticated dashboard visual QA runs locally and covers admin", async()=
 
 
 test("pg_net migration refuses queued work and reinstalls outside public", async()=>{
-  const sql=await read("supabase/migrations/20260922090500_move_pg_net_out_of_public.sql");
+  const sql=await read("supabase/migrations/20260922005659_move_pg_net_extension_out_of_public.sql");
   assert.match(sql,/http_request_queue/);
   assert.match(sql,/refusing to reinstall/);
   assert.match(sql,/create extension pg_net with schema extensions/);

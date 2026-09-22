@@ -60,15 +60,12 @@ const september22Slugs = new Set(september22Clusters.map(([serviceSlug]) => serv
 let invalidSeptember22ServiceMappings = 0;
 const vowelSoundSlugBases = new Set(["operations-virtual-assistant", "airbnb-virtual-assistant"]);
 const slugArticle = (slugBase) => vowelSoundSlugBases.has(slugBase) ? "an" : "a";
-const september22ResourceSlugs = september22Clusters.flatMap(([, slugBase]) => {
+const september22ResourceSlugs = september22Clusters.flatMap(([serviceSlug, slugBase]) => {
+  if (serviceSlug === "payroll-virtual-assistant") return [];
   const article = slugArticle(slugBase);
   return [
-    `what-does-${article}-${slugBase}-do`,
-    `${slugBase}-tasks`,
     `how-to-hire-${article}-${slugBase}`,
-    `${slugBase}-interview-questions`,
-    `${slugBase}-cost-philippines`,
-    `best-tools-for-${slugBase}`
+    `${slugBase}-cost-philippines`
   ];
 });
 
@@ -88,11 +85,10 @@ assert(roleServiceSlugs.length === 25, `expected 25 role clusters, found ${roleS
 assert(new Set(roleServiceSlugs).size === roleServiceSlugs.length, "duplicate serviceSlug in SEO role clusters");
 assert(new Set(roleSlugBases).size === roleSlugBases.length, "duplicate slugBase in SEO role clusters");
 assert([...september22Slugs].every((slug) => roleServiceSlugs.includes(slug)), "one or more September 22 role clusters are missing");
-assert(september22ResourceSlugs.length === 48, `expected 48 September 22 generated resource URLs, found ${september22ResourceSlugs.length}`);
-assert(new Set(september22ResourceSlugs).size === 48, "duplicate September 22 generated resource URL");
+assert(september22ResourceSlugs.length === 14, `expected 14 September 22 generated resource URLs after consolidation, found ${september22ResourceSlugs.length}`);
+assert(new Set(september22ResourceSlugs).size === 14, "duplicate September 22 generated resource URL");
 assert(!september22ResourceSlugs.some((slug) => candidateSlugs.includes(slug)), "September 22 resource URL collides with a manual resource page");
 assert(files.resources.includes("function articleWord(value: string)"), "generated role pages must choose the article from the role phrase");
-assert(files.resources.includes('definition: "what-does-" + article + "-" + cluster.slugBase + "-do"'), "definition slugs must use the role article");
 assert(files.resources.includes('hiring: "how-to-hire-" + article + "-" + cluster.slugBase'), "hiring slugs must use the role article");
 assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
 assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
@@ -112,30 +108,38 @@ for (const unsafe of [
 }
 assert(candidateSlugs.length === 20, `expected 20 manually defined resource pages, found ${candidateSlugs.length}`);
 assert(new Set(candidateSlugs).size === candidateSlugs.length, "duplicate candidate resource slug");
-const vowelSoundResourceBases = [
-  "administrative-virtual-assistant",
-  "accounting-virtual-assistant",
-  "it-virtual-assistant",
-  "email-marketing-virtual-assistant",
-  "operations-virtual-assistant",
-  "airbnb-virtual-assistant"
+const vowelSoundResourceRoutes = [
+  ["administrative-virtual-assistant", "admin-inbox"],
+  ["accounting-virtual-assistant", "accounting-virtual-assistant"],
+  ["it-virtual-assistant", "it-virtual-assistant"],
+  ["email-marketing-virtual-assistant", "email-marketing"],
+  ["operations-virtual-assistant", "operations"],
+  ["airbnb-virtual-assistant", "airbnb-virtual-assistant"]
 ];
-for (const slugBase of vowelSoundResourceBases) {
-  for (const [legacy, canonical] of [
-    [`what-does-a-${slugBase}-do`, `what-does-an-${slugBase}-do`],
-    [`how-to-hire-a-${slugBase}`, `how-to-hire-an-${slugBase}`]
-  ]) {
-    assert(
-      files.redirects.includes(`source: "/resources/${legacy}", destination: "/resources/${canonical}", permanent: true`),
-      `missing permanent resource grammar redirect: ${legacy}`
-    );
-  }
+for (const [slugBase, serviceSlug] of vowelSoundResourceRoutes) {
+  assert(
+    files.redirects.includes(`source: "/resources/what-does-a-${slugBase}-do", destination: "/service/${serviceSlug}", permanent: true`),
+    `legacy definition URL must redirect directly to the service canonical: ${slugBase}`
+  );
+  assert(
+    files.redirects.includes(`source: "/resources/how-to-hire-a-${slugBase}", destination: "/resources/how-to-hire-an-${slugBase}", permanent: true`),
+    `legacy hiring grammar redirect missing: ${slugBase}`
+  );
 }
 
 assert(files.resources.includes("ROLE_CLUSTERS.flatMap"), "role resources must be generated from the role cluster map");
-for (const fn of ["definitionPage", "tasksPage", "hiringPage", "interviewPage", "costPage", "toolsPage"]) {
-  assert(files.resources.includes(fn + "(cluster)"), `missing generated resource family: ${fn}`);
+for (const fn of ["hiringPage", "costPage"]) {
+  assert(files.resources.includes(fn + "(cluster)"), `missing retained generated resource family: ${fn}`);
 }
+for (const fn of ["definitionPage", "tasksPage", "interviewPage", "toolsPage"]) {
+  assert(!files.resources.includes("function " + fn), `redundant generated resource family still exists: ${fn}`);
+}
+assert(files.resources.includes('const BLOG_OWNED_ROLE_SERVICES = new Set(["payroll-virtual-assistant"])'), "Payroll resources must defer to existing blog canonicals");
+assert(files.redirects.includes('destination: "/blog/how-to-hire-a-payroll-virtual-assistant"'), "Payroll hiring resource must consolidate into the existing blog");
+assert(files.redirects.includes('destination: "/blog/payroll-virtual-assistant-cost-philippines"'), "Payroll cost resource must consolidate into the existing blog");
+assert(files.resources.includes("Use a practical interview scorecard"), "deep hiring guide must include interview depth");
+assert(files.resources.includes("Set access and decision boundaries before day one"), "deep hiring guide must include access boundaries");
+assert(files.resources.includes("Budget the first month for learning and correction"), "deep cost guide must include first-month budgeting");
 
 const expectedAuthorityPaths = [
   "/virtual-assistant-companies-philippines",
@@ -268,12 +272,12 @@ for (const desc of descValues) {
 
 console.log(JSON.stringify({
   roleClusters: roleServiceSlugs.length,
-  generatedClientResources: roleServiceSlugs.length * 6,
+  generatedClientResources: (roleServiceSlugs.length - 1) * 2,
   september22Clusters: september22Clusters.length,
   september22Resources: september22Clusters.length * 6,
   invalidSeptember22ServiceMappings,
   manualResources: candidateSlugs.length,
-  totalResources: roleServiceSlugs.length * 6 + candidateSlugs.length,
+  totalResources: (roleServiceSlugs.length - 1) * 2 + candidateSlugs.length,
   authorityPages: expectedAuthorityPaths.length,
   softwarePagesAdded: 7,
   failures: failures.length,

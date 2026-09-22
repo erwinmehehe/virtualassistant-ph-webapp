@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, LifeBuoy, Plus, Sparkles, UserRoundCheck } fr
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
+import { DashHeader } from "@/components/dash-ui";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
@@ -60,7 +61,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create hiring request</Link></div>:null}
 
-    <div className="dash-header"><div><div className="dash-kicker">Managed VA hiring</div><h1>Your hiring progress</h1><p>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
+    <DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} actions={<Link className="dash-btn dash-btn-dark" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link>}/>
 
     <section className="client-concierge-strip"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/support"><LifeBuoy size={16}/> Contact your recruiter</Link></section>
 

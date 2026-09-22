@@ -128,7 +128,7 @@ test("resource hub keeps a shallow crawl path without rendering every client gui
   assert.ok(hub.includes('page.audience === "client" && page.intent === "definition"'));
   assert.ok(hub.includes("SEO_RESOURCE_ROLE_COUNT"));
   assert.ok(detail.includes("page.internalLinks.map"));
-  assert.ok(detail.includes('href={link.href}'));
+  assert.ok(detail.includes('page.internalLinks.map((link) => ({ href: link.href'));
 });
 
 test("volume-backed expansion leaves the homepage source untouched", () => {

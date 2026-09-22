@@ -2182,25 +2182,6 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
 .compact-list strong,.compact-static strong { display:block; }
 .compact-list small,.compact-static small { display:block; margin-top:2px; color:var(--muted); }
 
-.recruiter-filter-panel { display:grid; grid-template-columns:minmax(250px,1.5fr) repeat(4,minmax(130px,.7fr)); gap:10px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#f8fafc; }
-.recruiter-filter-panel input,.recruiter-filter-panel select,.bulk-action-bar select { min-height:42px; width:100%; border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 10px; color:var(--text); }
-.directory-filter-search { display:flex; align-items:center; gap:8px; min-height:42px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:0 10px; }
-.directory-filter-search input { min-width:0; border:0 !important; outline:0; padding-left:0; }
-.bulk-action-bar { position:sticky; top:74px; z-index:20; display:grid; grid-template-columns:minmax(230px,1fr) minmax(180px,.75fr) minmax(230px,1fr) auto; gap:10px; align-items:center; padding:12px; border:1px solid #cbdaf0; border-radius:14px; background:rgba(247,250,255,.97); box-shadow:0 10px 30px rgba(16,24,40,.08); backdrop-filter:blur(10px); }
-/* The vetting queue's bar has no role picker, so it needs three columns
-   rather than the directory's four. */
-.bulk-action-bar-compact { grid-template-columns:minmax(230px,1fr) minmax(230px,1fr) auto; }
-@media (max-width: 900px) { .bulk-action-bar-compact { grid-template-columns:1fr; } }
-.bulk-scope { display:flex; gap:9px; align-items:flex-start; cursor:pointer; }
-.bulk-scope input { margin-top:3px; }
-.bulk-scope strong,.bulk-scope small { display:block; }
-.bulk-scope small { color:var(--muted); margin-top:1px; }
-.readiness-cell { min-width:120px; }
-.readiness-cell strong { font-size:12px; }
-.progress.mini { height:7px; margin-top:7px; }
-.compact-pills { gap:5px; max-width:280px; }
-.compact-pills .badge { font-size:10px; padding:4px 6px; }
-
 .internal-view-banner { display:flex; gap:11px; align-items:flex-start; margin-bottom:18px; padding:13px 15px; border:1px solid #bcd2f3; border-radius:13px; background:#eef5ff; color:#194185; }
 .internal-view-banner strong,.internal-view-banner span { display:block; }
 .internal-view-banner span { margin-top:2px; color:#344054; font-size:12px; line-height:1.45; }

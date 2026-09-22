@@ -21,7 +21,7 @@ export default async function RecruiterQueue({ searchParams }:{ searchParams: Pr
   return <><div className="page-head"><div><h1>Vetting queue</h1><p>No claim step. Open any candidate that is ready for recruiter review, complete the scorecard, and move on. Or select candidates below and act on them together.</p></div><Link className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Open in master directory</Link></div>
 
     {params.bulk_done?<div className="success-banner">Bulk action complete: {String(params.bulk_done).replaceAll("_"," ")} &middot; {params.affected||0} {({reject:"rejected",request_changes:"sent back for changes",mark_reviewed:"marked reviewed"} as Record<string,string>)[String(params.bulk_done)]??"approved"}{params.published!==undefined?` · ${params.published} now live in the public directory`:""}.</div>:null}
-    {params.skipped?<div className="alert">Skipped as not directory-ready: {params.skipped}. Approval needs a photo and a profile at 80% or better — the same bar as the public directory.</div>:null}
+    {params.skipped?<div className="alert">Skipped: {params.skipped}. Recruiter approval requires 60% profile completion. A photo is not required for approval, but public listing still has stricter visibility requirements.</div>:null}
     {params.bulk_error?<div className="alert" role="alert">{params.bulk_error}</div>:null}
 
     <form action={bulkRecruiterVaAction} className="stack">
@@ -31,8 +31,8 @@ export default async function RecruiterQueue({ searchParams }:{ searchParams: Pr
         <label className="bulk-scope"><input type="checkbox" name="selection_scope" value="filtered"/><span><strong>Select all {total} in the queue</strong><small>Unchecked = only the rows you tick below</small></span></label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action&hellip;</option>
-          <option value="approve_publish">Approve and publish to directory</option>
-          <option value="approve">Approve only (stays hidden)</option>
+          <option value="approve_publish">Approve + publish when public-eligible</option>
+          <option value="approve">Approve only</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>
           <option value="request_changes">Request profile changes</option>
           <option value="reject">Reject</option>

@@ -25,10 +25,10 @@ function loadVisibility() {
 const { isRowApprovable, APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } = loadVisibility();
 
 test("a recruiter can approve a part-built profile into the bench", () => {
-  assert.equal(APPROVAL_MIN_COMPLETION, 45);
-  assert.equal(isRowApprovable({ completion_score: 45, missing_items: ["photo", "bio"] }), true);
-  assert.equal(isRowApprovable({ completion_score: 60, missing_items: ["photo"] }), true);
-  assert.equal(isRowApprovable({ completion_score: 44 }), false);
+  assert.equal(APPROVAL_MIN_COMPLETION, 60);
+  assert.equal(isRowApprovable({ completion_score: 60, missing_items: ["photo", "bio"] }), true);
+  assert.equal(isRowApprovable({ completion_score: 80, missing_items: ["photo"] }), true);
+  assert.equal(isRowApprovable({ completion_score: 59 }), false);
   assert.equal(isRowApprovable({ completion_score: null }), false);
 });
 

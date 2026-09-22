@@ -46,6 +46,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   const admin = createAdminClient();
   const filters = {
     q: filterValue(formData, "filter_q"),
+    category: filterValue(formData, "filter_category"),
     stage: filterValue(formData, "filter_stage"),
     readiness: filterValue(formData, "filter_readiness"),
     photo: filterValue(formData, "filter_photo"),

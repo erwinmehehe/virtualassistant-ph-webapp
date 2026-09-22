@@ -4,6 +4,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 
 export type RecruiterTalentFilters = {
   q?: string | null;
+  category?: string | null;
   stage?: string | null;
   readiness?: string | null;
   photo?: string | null;
@@ -27,6 +28,7 @@ function numberValue(value: string | number | null | undefined) {
  */
 export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalentFilters) {
   const q = String(filters.q || "").trim().replace(/[,%()]/g, " ");
+  const category = String(filters.category || "").trim();
   const stage = String(filters.stage || "");
   const readiness = String(filters.readiness || "");
   const photo = String(filters.photo || "");
@@ -37,6 +39,7 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   const maxRate = numberValue(filters.max_rate);
   const stale = numberValue(filters.stale);
 
+  if (category) query = query.eq("primary_category", category);
   if (stage) query = query.eq("stage", stage);
   if (availability) query = query.eq("availability_status", availability);
 

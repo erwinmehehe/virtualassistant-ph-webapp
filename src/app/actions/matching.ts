@@ -105,7 +105,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   const jobId = String(formData.get("job_id") || "");
   const mode = String(formData.get("mode") || "save");
   const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
-  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
 
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
 
@@ -264,7 +264,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
@@ -279,7 +279,7 @@ export async function hideShortlistCandidateAction(formData: FormData) {
   const { error } = await createAdminClient().from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).eq("va_id", vaId);
   if (error) throw error;
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   redirect(returnTo);
 }

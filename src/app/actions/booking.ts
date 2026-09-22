@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
-import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { sendTransactionalEventEmail } from "@/lib/email";
 

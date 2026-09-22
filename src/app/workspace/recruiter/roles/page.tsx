@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BriefcaseBusiness, Clock3 } from "lucide-react";
+import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { elapsedLabel } from "@/lib/format";
@@ -7,6 +8,17 @@ import { publicationBlocker } from "@/lib/job-publication";
 
 type RoleListRow = { id: string; title: string | null; company_name: string | null; status: string; hiring_stage: string; hiring_stage_entered_at: string | null; target_start_date: string | null; recruiter_id: string | null; client_id: string | null; created_at: string; summary: string | null; responsibilities: string[] | null; required_skills: string[] | null; hours_per_week: number | null; timezone: string | null; min_hourly_rate: number | null; start_timing: string | null };
 type JobStatusRef = { job_id: string; status: string };
+
+const ROLE_VIEWS = [
+  ["active", "All active"],
+  ["needs_candidates", "Needs candidates"],
+  ["waiting_client", "Waiting on client"],
+  ["interviewing", "Interviewing"],
+  ["stale", "Stale 72h+"],
+  ["replacement", "Needs replacements"],
+  ["ready_offer", "Ready for offer"],
+  ["history", "History"]
+] as const;
 
 const STAGES:Record<string,string>={intake:"Intake",ready_to_recruit:"Ready to Recruit",sourcing:"Sourcing",internal_review:"Internal Review",client_review:"Client Review",interviewing:"Interviewing",selected:"Selected",offer:"Offer",pre_start:"Pre-start",filled:"Filled",closed:"Closed"};
 const SLA:Record<string,number>={intake:8,ready_to_recruit:2,sourcing:24,internal_review:24,client_review:48,interviewing:72,selected:2,offer:24,pre_start:72};
@@ -35,18 +47,61 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   const commercialMap=new Map(((commercialData||[]) as {job_id:string;commercial_status:string|null}[]).map((row)=>[row.job_id,row]));
   const open=jobs.filter((j)=>!["filled","closed"].includes(j.hiring_stage));
   const history=jobs.filter((j)=>["filled","closed"].includes(j.hiring_stage));
-  const showHistory=params.view==="history";
-  const visibleJobs=showHistory?history:open;
-  const clientWaiting=open.filter((j)=>j.hiring_stage==="client_review").length;
-  const interviewing=open.filter((j)=>j.hiring_stage==="interviewing").length;
+  const requestedView=String(params.view||"active");
+  const sort=String(params.sort||"urgent");
+  const roleFlags=(job:RoleListRow)=>{
+    const s=shortlist.filter((x)=>x.job_id===job.id);
+    const released=s.filter((x)=>x.shortlist_status==="released");
+    const activeInterviews=interviews.filter((x)=>x.job_id===job.id&&x.status!=="cancelled");
+    const activeOffers=offers.filter((x)=>x.job_id===job.id&&!["declined","cancelled"].includes(x.status));
+    const stageStarted=job.hiring_stage_entered_at?new Date(job.hiring_stage_entered_at).getTime():new Date(job.created_at).getTime();
+    const stale=Date.now()-stageStarted>=72*3600000;
+    return {
+      needs_candidates:["ready_to_recruit","sourcing","internal_review"].includes(job.hiring_stage)&&s.filter((x)=>["proposed","released"].includes(x.shortlist_status)).length===0,
+      waiting_client:released.some((x)=>!x.client_decision||x.client_decision==="hold"),
+      interviewing:job.hiring_stage==="interviewing"||activeInterviews.length>0,
+      stale,
+      replacement:released.length>0&&released.every((x)=>x.client_decision==="pass"),
+      ready_offer:job.hiring_stage==="selected"&&activeOffers.length===0
+    };
+  };
+  const viewCounts=new Map<string,number>([
+    ["active",open.length],
+    ["history",history.length],
+    ...(["needs_candidates","waiting_client","interviewing","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
+  ]);
+  const visibleJobs=requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
+  visibleJobs.sort((a,b)=>{
+    const aTime=new Date(a.hiring_stage_entered_at||a.created_at).getTime();
+    const bTime=new Date(b.hiring_stage_entered_at||b.created_at).getTime();
+    if(sort==="oldest")return aTime-bTime;
+    if(sort==="newest")return bTime-aTime;
+    if(sort==="start")return String(a.target_start_date||"9999").localeCompare(String(b.target_start_date||"9999"));
+    if(sort==="stage")return String(a.hiring_stage).localeCompare(String(b.hiring_stage));
+    const aSla=slaState(a.hiring_stage,a.hiring_stage_entered_at);
+    const bSla=slaState(b.hiring_stage,b.hiring_stage_entered_at);
+    return Number(Boolean(bSla?.late))-Number(Boolean(aSla?.late))||aTime-bTime;
+  });
+  const clientWaiting=viewCounts.get("waiting_client")||0;
+  const interviewing=viewCounts.get("interviewing")||0;
   const recruiting=open.filter((j)=>["ready_to_recruit","sourcing","internal_review"].includes(j.hiring_stage)).length;
 
   return <>
+    <RecruiterViewPreference storageKey="recruiter-role-view-v1" view={params.view} sort={params.sort} />
     <div className="page-head"><div><div className="kicker">Recruitment operations</div><h1>Roles</h1><p>One hiring pipeline per role. Open the control center to see the brief, shortlist, interviews, offer, SLA and placement handoff together.</p></div></div>
     <div className="grid-4"><div className="card"><span className="small muted">Active roles</span><strong style={{display:"block",fontSize:28}}>{open.length}</strong></div><div className="card"><span className="small muted">Recruiting</span><strong style={{display:"block",fontSize:28}}>{recruiting}</strong></div><div className="card"><span className="small muted">Client review</span><strong style={{display:"block",fontSize:28}}>{clientWaiting}</strong></div><div className="card"><span className="small muted">Interviewing</span><strong style={{display:"block",fontSize:28}}>{interviewing}</strong></div></div>
-    <section className="card" style={{marginTop:18}}><div className="row-between wrap"><div><h2 style={{margin:0}}>Hiring pipeline</h2><p className="small muted" style={{margin:"5px 0 0"}}>Old records no longer compete with live recruiting work. Filled and closed roles remain available as history.</p></div><BriefcaseBusiness size={20}/></div>
-      <div className="row wrap" style={{marginTop:14}}><Link className={`badge ${!showHistory?"badge-success":""}`} href="/workspace/recruiter/roles">Active ({open.length})</Link><Link className={`badge ${showHistory?"badge-success":""}`} href="/workspace/recruiter/roles?view=history">History ({history.length})</Link></div>
-      {visibleJobs.length?<div className="stack" style={{marginTop:14}}>{visibleJobs.map((job)=>{const s=shortlist.filter((x)=>x.job_id===job.id);const i=interviews.filter((x)=>x.job_id===job.id);const o=offers.filter((x)=>x.job_id===job.id);const room=rooms.find((x)=>x.job_id===job.id);const sla=slaState(job.hiring_stage,job.hiring_stage_entered_at);const publication=publicationBlocker(job,commercialMap.get(job.id));return <Link href={`/workspace/recruiter/roles/${job.id}`} className="card" key={job.id}><div className="row-between wrap"><div><div className="row wrap"><span className="badge">{STAGES[job.hiring_stage]||job.hiring_stage}</span><span className={`badge ${publication.key==="published"?"badge-success":publication.key==="waiting_client_approval"?"badge-warning":""}`}>{publication.label}</span>{sla?<span className={`badge ${sla.late?"badge-danger":""}`}><Clock3 size={12}/>{sla.label}</span>:null}</div><h3 style={{margin:"8px 0 3px"}}>{job.title}</h3><p className="small muted" style={{margin:0}}>{job.company_name||"Client"} · {age(job.hiring_stage_entered_at)}</p></div><strong>Open control center →</strong></div><div className="row wrap" style={{marginTop:12}}><span className="small muted">{s.filter((x)=>x.shortlist_status==="proposed").length} internal</span><span className="small muted">{s.filter((x)=>x.shortlist_status==="released").length} client-visible</span><span className="small muted">{i.filter((x)=>x.status!=="cancelled").length} interviews</span><span className="small muted">{o.filter((x)=>!["declined","cancelled"].includes(x.status)).length} offers</span>{room?<span className="badge badge-success">Placement created</span>:null}</div></Link>})}</div>:<div className="empty">{showHistory?"No filled or closed roles yet.":"No active roles are assigned to you."}</div>}
+    <section className="card" style={{marginTop:18}}><div className="row-between wrap"><div><h2 style={{margin:0}}>Hiring pipeline</h2><p className="small muted" style={{margin:"5px 0 0"}}>Use saved queues to jump straight to the roles that need recruiter action.</p></div><BriefcaseBusiness size={20}/></div>
+      <div className="recruiter-role-viewbar">
+        <div className="saved-view-list">
+          {ROLE_VIEWS.map(([value,label])=><Link key={value} className={requestedView===value?"saved-view active":"saved-view"} href={`/workspace/recruiter/roles?view=${value}&sort=${sort}`}><span>{label}</span><strong>{viewCounts.get(value)||0}</strong></Link>)}
+        </div>
+        <form className="role-sort-form" method="get">
+          <input type="hidden" name="view" value={requestedView}/>
+          <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="urgent">Urgent first</option><option value="oldest">Oldest unresolved</option><option value="newest">Newest</option><option value="start">Target start</option><option value="stage">Hiring stage</option></select></label>
+          <button className="btn btn-sm" type="submit">Apply</button>
+        </form>
+      </div>
+      {visibleJobs.length?<div className="stack" style={{marginTop:14}}>{visibleJobs.map((job)=>{const s=shortlist.filter((x)=>x.job_id===job.id);const i=interviews.filter((x)=>x.job_id===job.id);const o=offers.filter((x)=>x.job_id===job.id);const room=rooms.find((x)=>x.job_id===job.id);const sla=slaState(job.hiring_stage,job.hiring_stage_entered_at);const publication=publicationBlocker(job,commercialMap.get(job.id));return <Link href={`/workspace/recruiter/roles/${job.id}`} className="card" key={job.id}><div className="row-between wrap"><div><div className="row wrap"><span className="badge">{STAGES[job.hiring_stage]||job.hiring_stage}</span><span className={`badge ${publication.key==="published"?"badge-success":publication.key==="waiting_client_approval"?"badge-warning":""}`}>{publication.label}</span>{sla?<span className={`badge ${sla.late?"badge-danger":""}`}><Clock3 size={12}/>{sla.label}</span>:null}</div><h3 style={{margin:"8px 0 3px"}}>{job.title}</h3><p className="small muted" style={{margin:0}}>{job.company_name||"Client"} · {age(job.hiring_stage_entered_at)}</p></div><strong>Open control center →</strong></div><div className="row wrap" style={{marginTop:12}}><span className="small muted">{s.filter((x)=>x.shortlist_status==="proposed").length} internal</span><span className="small muted">{s.filter((x)=>x.shortlist_status==="released").length} client-visible</span><span className="small muted">{i.filter((x)=>x.status!=="cancelled").length} interviews</span><span className="small muted">{o.filter((x)=>!["declined","cancelled"].includes(x.status)).length} offers</span>{room?<span className="badge badge-success">Placement created</span>:null}</div></Link>})}</div>:<div className="empty">{requestedView==="history"?"No filled or closed roles yet.":"No roles match this saved view."}</div>}
     </section>
   </>;
 }

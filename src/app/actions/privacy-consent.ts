@@ -10,6 +10,7 @@ export async function updateVaPublicProfileConsentAction(formData: FormData) {
   const { user } = await requireRole("va");
   const granted = formData.get("public_profile_consent") === "on";
   const admin = createAdminClient();
+  const { data: current } = await admin.from("va_profiles").select("public_profile_consent,directory_visible").eq("user_id", user.id).maybeSingle();
 
   const { error } = await admin.rpc("record_va_public_profile_consent", {
     p_va_id: user.id,
@@ -20,6 +21,12 @@ export async function updateVaPublicProfileConsentAction(formData: FormData) {
 
   if (error) {
     redirect(`/workspace/va/profile?error=${encodeURIComponent("We could not save your public profile privacy choice. Please try again.")}#visibility`);
+  }
+
+  if (!granted) {
+    await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
+  } else if (!current?.public_profile_consent) {
+    await admin.from("va_profiles").update({ directory_visible: true }).eq("user_id", user.id);
   }
 
   revalidatePath("/workspace/va");

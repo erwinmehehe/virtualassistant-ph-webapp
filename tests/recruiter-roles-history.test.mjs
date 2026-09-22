@@ -4,13 +4,14 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("recruiter roles keeps closed history out of the active pipeline",async()=>{
+test("recruiter roles keeps closed history out of active saved views",async()=>{
   const page=await read("src/app/workspace/recruiter/roles/page.tsx");
   assert.match(page,/const open=jobs\.filter/);
   assert.match(page,/const history=jobs\.filter/);
-  assert.match(page,/const visibleJobs=showHistory\?history:open/);
-  assert.match(page,/view=history/);
-  assert.match(page,/Active \(\{open\.length\}\)/);
-  assert.match(page,/History \(\{history\.length\}\)/);
+  assert.match(page,/requestedView==="history"/);
+  assert.match(page,/requestedView==="active"/);
+  assert.match(page,/ROLE_VIEWS/);
+  assert.match(page,/\["history", "History"\]/);
+  assert.match(page,/viewCounts/);
   assert.match(page,/visibleJobs\.map/);
 });

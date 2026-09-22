@@ -1,6 +1,7 @@
 import { MIN_HOURLY_RATE } from "./constants";
 import { getVaCompletion } from "./profile-completeness";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "./public-routing";
+import { PUBLIC_PROFILE_CONSENT_VERSION } from "./privacy-consent";
 import type { VaProfile } from "./types";
 
 export const PUBLIC_VA_MIN_COMPLETION = 80;
@@ -28,7 +29,7 @@ export function publicVisibilityRequirements(
 ): VisibilityRequirement[] {
   return [
     ...publicProfileContentRequirements(profile, avatarUrl),
-    { label: "public profile consent", done: profile?.public_profile_consent === true }
+    { label: "current public profile consent", done: profile?.public_profile_consent === true && Boolean(profile?.public_profile_consent_at) && !profile?.public_profile_consent_withdrawn_at && profile?.public_profile_consent_version === PUBLIC_PROFILE_CONSENT_VERSION }
   ];
 }
 

@@ -45,8 +45,8 @@ test("recruiter overview is consolidated into My Day",async()=>{
 
 test("workspace auth redirects use canonical role homes",async()=>{
   const auth=await read("src/lib/auth.ts");
-  assert.match(auth,/recruiter: "\\/workspace\\/recruiter\\/today"/);
-  assert.match(auth,/admin: "\\/workspace\\/admin\\/today"/);
+  assert.ok(auth.includes('recruiter: "/workspace/recruiter/today"'));
+  assert.ok(auth.includes('admin: "/workspace/admin/today"'));
   assert.match(auth,/redirect\(roleHome\(actual as Role\)\)/);
   assert.match(auth,/encodeURIComponent\(roleHome\(role\)\)/);
 });

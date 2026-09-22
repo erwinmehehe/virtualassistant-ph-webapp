@@ -10,6 +10,9 @@ const files = {
   publicRoutes: fs.readFileSync("src/lib/public-seo-routes.ts", "utf8"),
   software: fs.readFileSync("src/lib/software-pages.ts", "utf8"),
   blog: fs.readFileSync("src/lib/blog-content.ts", "utf8"),
+  redirects: fs.readFileSync("next.config.ts", "utf8"),
+  priorityLinks: fs.readFileSync("src/lib/seo-priority-links.ts", "utf8"),
+  archive: fs.readFileSync("src/lib/archive-posts.ts", "utf8"),
   servicePages: fs.readFileSync("src/lib/service-pages.ts", "utf8"),
 };
 
@@ -119,6 +122,51 @@ assert(files.services.includes('href="/types-of-virtual-assistants"'), "services
 for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
   assert(files.blog.includes(`"href": "${path}"`), `blog corpus missing contextual authority link to ${path}`);
 }
+
+
+// GSC query-to-canonical ownership guardrails. The September 21 export is
+// page- and query-aggregated rather than query/page paired, so only clear
+// intent ownership is asserted here.
+for (const source of ["/virtual-assistant-salary-philippines", "/virtual-assistant-salary-philippines/"]) {
+  assert(
+    files.redirects.includes(`source: "${source}", destination: "/blog/virtual-assistant-salary-philippines"`),
+    `salary legacy route must consolidate into the salary canonical: ${source}`
+  );
+}
+for (const path of ["/services", "/hire", "/pricing", "/virtual-assistant-companies-philippines", "/outsourcing-philippines-virtual-assistant"]) {
+  assert(files.priorityLinks.includes(`href: "${path}"`), `priority authority links missing ${path}`);
+}
+
+const gscAuthoritySources = [
+  "average-hourly-rate-virtual-assistants-philippines",
+  "do-i-need-to-pay-sss-philhealth-and-pag-ibig-for-my-filipino-va",
+  "dental-virtual-assistant-interview-questions",
+  "medical-virtual-assistant-interview-questions",
+  "what-does-a-cold-calling-virtual-assistant-do",
+  "medical-virtual-assistant-cost-philippines",
+  "virtual-assistant-salary-philippines",
+  "hire-virtual-assistant-philippines",
+  "outsourcing-philippines-virtual-assistant",
+  "philippines-vs-india-virtual-assistants",
+  "virtual-assistant-vs-employee",
+  "executive-virtual-assistant-cost-philippines",
+  "what-does-a-real-estate-virtual-assistant-do",
+  "what-is-a-virtual-medical-assistant",
+  "what-does-a-shopify-virtual-assistant-do",
+  "how-to-hire-a-medical-virtual-assistant",
+  "virtual-assistant-agency-vs-freelancer",
+  "onlinejobs-ph-vs-virtual-assistant-agency",
+  "what-does-an-appointment-setter-virtual-assistant-do",
+  "hourly-rates-for-filipino-virtual-project-manager",
+  "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines"
+];
+for (const slug of gscAuthoritySources) {
+  assert(files.priorityLinks.includes(`"${slug}"`), `GSC authority source missing priority-link mapping: ${slug}`);
+}
+
+assert(files.blog.includes('"metaTitle": "Virtual Assistant Salary Philippines 2026 | Pay Guide"'), "salary CTR title contract missing");
+assert(files.archive.includes('"metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines"'), "get-paid CTR title contract missing");
+assert(files.archive.includes('"metaTitle": "General vs Executive Virtual Assistant: Roles Compared"'), "general-vs-executive CTR title contract missing");
 
 for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assistant", "email-management-virtual-assistant", "event-planning-virtual-assistant"]) {
   const serviceSource = fs.readFileSync("src/lib/service-pages.ts", "utf8");

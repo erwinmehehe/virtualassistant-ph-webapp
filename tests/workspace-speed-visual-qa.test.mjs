@@ -10,6 +10,8 @@ test("workspace hot routes reuse the fast role session path",async()=>{
     "src/app/workspace/admin/today/page.tsx",
     "src/app/workspace/admin/funnel/page.tsx",
     "src/app/workspace/admin/finance/page.tsx",
+    "src/app/workspace/admin/sales/page.tsx",
+    "src/app/workspace/va/profile/page.tsx",
     "src/app/workspace/recruiter/candidates/[id]/page.tsx",
     "src/app/workspace/recruiter/candidates/[id]/screening/page.tsx",
     "src/app/workspace/recruiter/talent/page.tsx",
@@ -22,6 +24,18 @@ test("workspace hot routes reuse the fast role session path",async()=>{
     assert.match(source,/requireRoleFast/,`${path} should use requireRoleFast`);
     assert.doesNotMatch(source,/requireRole\("/,`${path} should not trigger the slower getUser auth path`);
   }
+});
+
+test("shared Client Success uses the fast multi-role guard",async()=>{
+  const [auth,page]=await Promise.all([
+    read("src/lib/auth.ts"),
+    read("src/app/workspace/client-success/page.tsx"),
+  ]);
+  assert.match(auth,/export async function requireAnyRoleFast\(roles: Role\[\]\)/);
+  assert.match(auth,/const session = await getFastRoleProfile\(\)/);
+  assert.match(page,/requireAnyRoleFast\(\["admin","recruiter"\]\)/);
+  assert.doesNotMatch(page,/requireAnyRole\(/);
+  assert.match(page,/p_actor_id:userId/);
 });
 
 test("admin navigation badges use one service-only RPC and stay non-blocking",async()=>{

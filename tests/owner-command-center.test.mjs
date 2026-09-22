@@ -8,9 +8,15 @@ test("owner command center is a real admin today route",async()=>{
   const page=await read("src/app/workspace/admin/today/page.tsx");
   assert.match(page,/Owner Command Center/);
   assert.match(page,/What needs you now/);
-  assert.match(page,/Discovery calls today/);
-  assert.match(page,/At-risk placements/);
-  assert.match(page,/Overdue collections/);
+  assert.match(page,/Lead → revenue → retention/);
+  assert.match(page,/New leads/);
+  assert.match(page,/Calls today/);
+  assert.match(page,/Proposals/);
+  assert.match(page,/Open roles/);
+  assert.match(page,/Shortlists/);
+  assert.match(page,/Placements/);
+  assert.match(page,/Collections/);
+  assert.match(page,/Retention risks/);
   assert.match(page,/Hiring Rooms waiting/);
   assert.match(page,/Renewals in 30 days/);
 });

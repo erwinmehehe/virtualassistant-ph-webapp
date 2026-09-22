@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ImageOff, ListTodo, MessageSquare, UserRound, UserRoundCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ImageOff, ListTodo, MessageSquare, RefreshCw, ShieldCheck, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { PublicAvatar } from "@/components/public-avatar";
 import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
@@ -129,7 +129,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     { data: dailyActionData, error: dailyActionError },
     { data: approvalReadyData, count: approvalReadyCount, error: approvalReadyError },
     { count: missingPhotoCount, error: missingPhotoError },
-    { data: activeRoleData, error: activeRoleError }
+    { data: activeRoleData, error: activeRoleError },
+    { count: approvalCleanupCount, error: approvalCleanupError },
+    { count: workSetupReadyCount, error: workSetupReadyError },
+    { count: recentZeroCount, error: recentZeroError },
+    { data: noShowData, error: noShowError }
   ] = await Promise.all([
     admin.rpc("recruiter_today_queue", { p_user_id:userId, p_limit:20 }),
     admin.rpc("recruiter_lead_cleanup_queue", { p_user_id:userId, p_limit:40 }),
@@ -141,9 +145,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       .select("user_id,full_name,avatar_url,primary_category,completion_score,stage,availability_status",{count:"exact"})
       .eq("account_status","active")
       .gte("completion_score",APPROVAL_MIN_COMPLETION)
-      .neq("stage","approved")
-      .neq("stage","bench")
-      .neq("stage","rejected")
+      .or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)")
       .order("completion_score",{ascending:false})
       .order("last_activity_at",{ascending:false,nullsFirst:false})
       .limit(5),
@@ -153,15 +155,47 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       .eq("account_status","active")
       .gte("completion_score",APPROVAL_MIN_COMPLETION)
       .is("avatar_url",null)
-      .neq("stage","approved")
-      .neq("stage","bench")
-      .neq("stage","rejected"),
+      .or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)"),
     admin
       .from("jobs")
       .select("id,title,company_name,status,hiring_stage,hiring_stage_entered_at,updated_at,created_at")
       .eq("recruiter_id",userId)
       .in("status",["pending","published"])
       .order("updated_at",{ascending:true})
+      .limit(100),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id",{count:"exact",head:true})
+      .eq("account_status","active")
+      .in("stage",["approved","bench"])
+      .lt("completion_score",APPROVAL_MIN_COMPLETION),
+    admin
+      .from("va_profiles")
+      .select("user_id",{count:"exact",head:true})
+      .not("work_setup_submitted_at","is",null)
+      .is("work_setup_verified_at",null)
+      .not("work_setup_computer","is",null)
+      .not("work_setup_os","is",null)
+      .not("work_setup_ram_gb","is",null)
+      .not("primary_internet","is",null)
+      .not("backup_internet","is",null)
+      .not("backup_power","is",null)
+      .eq("headset_ready",true)
+      .eq("webcam_ready",true)
+      .eq("quiet_workspace",true),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id",{count:"exact",head:true})
+      .eq("account_status","active")
+      .eq("completion_score",0)
+      .gte("account_created_at",new Date(Date.now()-7*86400000).toISOString()),
+    admin
+      .from("lead_intake")
+      .select("id,name,email,discovery_outcome,owner_id,discovery_rescheduled_at")
+      .eq("lead_type","client_hiring")
+      .eq("discovery_outcome","no_show")
+      .or(`owner_id.eq.${userId},owner_id.is.null`)
+      .order("discovery_scheduled_at",{ascending:false})
       .limit(100)
   ]);
   if (error) throw error;
@@ -170,6 +204,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   if (approvalReadyError) throw approvalReadyError;
   if (missingPhotoError) throw missingPhotoError;
   if (activeRoleError) throw activeRoleError;
+  if (approvalCleanupError) throw approvalCleanupError;
+  if (workSetupReadyError) throw workSetupReadyError;
+  if (recentZeroError) throw recentZeroError;
+  if (noShowError) throw noShowError;
 
   const nonLeadQueue = (Array.isArray(data) ? data as any[] : []).filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
   const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
@@ -193,6 +231,41 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     })
     .sort((a,b)=>new Date(a.hiring_stage_entered_at || a.updated_at || a.created_at).getTime()-new Date(b.hiring_stage_entered_at || b.updated_at || b.created_at).getTime());
   const staleRolePreview = staleRoles.slice(0,5);
+  const noShows = Array.isArray(noShowData) ? noShowData as {id:string}[] : [];
+  const noShowKeys = noShows.map((lead)=>`discovery-no-show-rebook-${lead.id}`);
+  const { data: noShowEmailEvents, error: noShowEmailError } = noShowKeys.length
+    ? await admin.from("outbound_email_events")
+        .select("idempotency_key,status")
+        .eq("event_type","discovery_no_show_rebook")
+        .eq("status","sent")
+        .in("idempotency_key",noShowKeys)
+    : { data: [], error: null };
+  if (noShowEmailError) throw noShowEmailError;
+  const rebookSentIds = new Set((noShowEmailEvents || []).map((row:any)=>String(row.idempotency_key||"").replace(/^discovery-no-show-rebook-/,"")));
+  const noShowNeedsEmail = noShows.filter((lead)=>!rebookSentIds.has(lead.id)).length;
+  const noShowWaitingRebook = noShows.filter((lead)=>rebookSentIds.has(lead.id)).length;
+
+  const actionCount=(...types:string[])=>dailyActions.filter((item)=>types.includes(String(item.action_type))).length;
+  const roleNoCandidates = actionCount("role_without_shortlist");
+  const replacementNeeded = actionCount("all_candidates_passed");
+  const clientResponseOverdue = actionCount("client_response_overdue");
+  const interviewsDue = actionCount("interview_today","interview_feedback_missing");
+  const offersWaiting = actionCount("offer_waiting_va","offer_waiting_client");
+
+  const actionLanes = [
+    {label:"Approval-ready",count:Number(approvalReadyCount||0),hint:"Recruiter decision",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",icon:<UserRoundCheck size={16}/>},
+    {label:"Approval cleanup",count:Number(approvalCleanupCount||0),hint:"Approved below 60%",href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion",icon:<AlertTriangle size={16}/>},
+    {label:"Work setup ready",count:Number(workSetupReadyCount||0),hint:"Ready to verify",href:"/workspace/recruiter/work-readiness?view=ready",icon:<ShieldCheck size={16}/>},
+    {label:"0% profiles",count:Number(recentZeroCount||0),hint:"New VA rescue · 7d",href:"/workspace/recruiter/talent?readiness=zero",icon:<UserRound size={16}/>},
+    {label:"No-show email",count:noShowNeedsEmail,hint:"Rebooking email not sent",href:"/workspace/recruiter/leads?view=discovery",icon:<MessageSquare size={16}/>},
+    {label:"Waiting to rebook",count:noShowWaitingRebook,hint:"Email sent, no new time",href:"/workspace/recruiter/leads?view=discovery",icon:<RefreshCw size={16}/>},
+    {label:"Roles need candidates",count:roleNoCandidates,hint:"No usable shortlist",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",icon:<BriefcaseBusiness size={16}/>},
+    {label:"Client response overdue",count:clientResponseOverdue,hint:"Shortlist decision late",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",icon:<Clock3 size={16}/>},
+    {label:"Interview action",count:interviewsDue,hint:"Today or feedback due",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",icon:<CalendarDays size={16}/>},
+    {label:"Offers waiting",count:offersWaiting,hint:"VA or client decision",href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent",icon:<CheckCircle2 size={16}/>},
+    {label:"Need replacements",count:replacementNeeded,hint:"All released VAs passed",href:"/workspace/recruiter/roles?view=replacement&sort=urgent",icon:<RefreshCw size={16}/>},
+    {label:"Stale roles",count:staleRoles.length,hint:"72h+ no movement",href:"/workspace/recruiter/roles?view=stale&sort=oldest",icon:<Clock3 size={16}/>}
+  ];
 
   return <div className="dash-page">
     {params.contact_sent ? <div className="success-banner">Email sent and the next follow-up was scheduled.</div> : null}
@@ -205,7 +278,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
     <div className="dash-header">
-      <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>Clear neglected leads first, then work the highest-priority Recruitment and Client Success actions.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
+      <div><div className="dash-kicker">Agency daily workflow</div><h1>My Day</h1><p>This is the recruiter operating screen. Clear non-zero action lanes first, then work the detailed queue below.</p><span className="dash-freshness">One owner · one next action · one due time</span></div>
       <div className="row wrap">
         <Link className="btn" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
         <Link className="btn" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
@@ -214,19 +287,22 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     </div>
 
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup">
-        <span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Needs attention" : "Clear"}</small>
-      </Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/talent?readiness=approval_ready">
-        <span>Approval-ready</span><strong>{Number(approvalReadyCount || 0)}</strong><small>{APPROVAL_MIN_COMPLETION}%+ profiles</small>
-      </Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#role-follow-through">
-        <span>Waiting on client</span><strong>{clientWaits.length}</strong><small>Shortlist decisions</small>
-      </Link>
-      <Link className={styles.priorityItem} href="/workspace/recruiter/today#role-follow-through">
-        <span>Stale roles</span><strong>{staleRoles.length}</strong><small>72h+ in same stage</small>
-      </Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link className={styles.priorityItem} href="/workspace/recruiter/today#action-lanes"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRoles.length}</strong><small>Roles that need movement</small></Link>
     </div>
+
+    <section id="action-lanes" className={`card dashboard-section-card ${styles.actionLanesCard}`}>
+      <div className="dashboard-section-head"><div><h2>Action lanes</h2><p>Every recurring recruiter queue in one place. Start with non-zero lanes and work left to right.</p></div><span className="badge">{actionLanes.reduce((sum,lane)=>sum+lane.count,0)} open signals</span></div>
+      <div className={styles.actionLaneGrid}>
+        {actionLanes.map((lane)=><Link className={`${styles.actionLane} ${lane.count ? styles.actionLaneOpen : styles.actionLaneClear}`} href={lane.href} key={lane.label}>
+          <span className={styles.actionLaneIcon}>{lane.icon}</span>
+          <span className={styles.actionLaneCopy}><strong>{lane.label}</strong><small>{lane.hint}</small></span>
+          <b>{lane.count}</b>
+        </Link>)}
+      </div>
+    </section>
 
     <section id="sales-cleanup" className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head"><div><h2>Sales cleanup</h2><p>Missed responses, overdue follow-ups, leads without a next step, stale leads, and records ready for a close decision.</p></div><span className={`badge ${cleanupQueue.length ? "badge-warning" : "badge-success"}`}>{cleanupQueue.length} to clean up</span></div>

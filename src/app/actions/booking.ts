@@ -56,6 +56,7 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
 
   const update: Record<string, unknown> = {
     discovery_scheduled_at: scheduledAt,
+    discovery_completed_at: null,
     discovery_cancelled_at: null,
     discovery_rescheduled_at: now,
     discovery_outcome: "rescheduled",

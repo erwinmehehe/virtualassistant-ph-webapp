@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendDiscoveryBookingEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
-import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { PUBLIC_VA_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
@@ -775,7 +775,85 @@ export async function completeDiscoveryAction(formData: FormData) {
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_completed=1`);
+  const suffix = outcome === "no_show" ? `discovery_completed=1&rebook_prompt=${encodeURIComponent(leadId)}` : "discovery_completed=1";
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${suffix}`);
+}
+
+export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const joiner = returnTo.includes("?") ? "&" : "?";
+  const fail = (message: string) => redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent(message)}`);
+  if (!leadId) return fail("Lead not found.");
+
+  const admin = createAdminClient();
+  const idempotencyKey = `discovery-no-show-rebook-${leadId}`;
+  const { data: existingSend } = await admin
+    .from("outbound_email_events")
+    .select("id,created_at,status")
+    .eq("idempotency_key", idempotencyKey)
+    .eq("status", "sent")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existingSend?.id) redirect(`${returnTo}${joiner}rebook_email_already_sent=1`);
+
+  const { data: lead, error: leadError } = await admin
+    .from("lead_intake")
+    .select("id,name,email,job_id,owner_id,first_contact_at,discovery_outcome,discovery_manage_token,discovery_manage_token_hash")
+    .eq("id", leadId)
+    .maybeSingle();
+  if (leadError || !lead) return fail("Lead not found.");
+  if (lead.discovery_outcome !== "no_show") return fail("Rebooking email is only available for a client marked No show.");
+  if (!lead.email) return fail("This lead has no client email address.");
+
+  let manageToken = String(lead.discovery_manage_token || "").trim();
+  if (!manageToken) {
+    const manage = createBookingManageToken();
+    manageToken = manage.token;
+    const { error: tokenError } = await admin.from("lead_intake").update({
+      discovery_manage_token: manage.token,
+      discovery_manage_token_hash: manage.hash,
+    }).eq("id", leadId);
+    if (tokenError) return fail("Could not create the client rebooking link.");
+  }
+
+  const recruiterName = profile.full_name?.trim() || "Hiring Team";
+  const emailResult = await sendDiscoveryNoShowRebookEmail({
+    leadId,
+    to: lead.email,
+    clientName: lead.name,
+    recruiterName,
+    rebookUrl: bookingManageUrl(manageToken),
+  });
+  if (!emailResult.sent) return fail("The rebooking email could not be sent. Check Email Health before trying again.");
+
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const { error: updateError } = await admin.from("lead_intake").update({
+    first_contact_at: lead.first_contact_at || nowIso,
+    last_contact_at: nowIso,
+    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
+  }).eq("id", leadId);
+  if (updateError) {
+    await writeRecruiterActivity({
+      subjectType: "lead", subjectId: leadId, action: "discovery_no_show_rebook_sent",
+      description: "Rebooking email sent; CRM follow-up timestamp update failed", actorId: user.id,
+      metadata: { job_id: lead.job_id || null, email_sent: true, crm_update_error: updateError.message }
+    });
+  } else {
+    await writeRecruiterActivity({
+      subjectType: "lead", subjectId: leadId, action: "discovery_no_show_rebook_sent",
+      description: "No-show rebooking email sent to client", actorId: user.id,
+      metadata: { job_id: lead.job_id || null, email_sent: true }
+    });
+  }
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/admin/leads");
+  redirect(`${returnTo}${joiner}rebook_email_sent=1`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {

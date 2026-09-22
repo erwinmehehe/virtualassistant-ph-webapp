@@ -1287,6 +1287,61 @@ export async function sendDiscoveryMeetingSetupFailureEmail(args: {
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 
+export async function sendDiscoveryNoShowRebookEmail(args: {
+  leadId: string;
+  to: string;
+  clientName?: string | null;
+  recruiterName?: string | null;
+  rebookUrl: string;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
+  const recruiterName = args.recruiterName?.trim() || "Hiring Team";
+  const bodyHtml = [
+    '<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We weren’t able to connect for your scheduled call today.</p>',
+    '<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">If you’d still like to discuss hiring a virtual assistant, you can choose another time here:</p>',
+    '<p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If you’re no longer looking, just reply and let us know so we can close the request.</p>',
+    `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Thanks,<br><strong>${escapeHtml(recruiterName)}</strong><br>VirtualAssistant.com.ph</p>`,
+  ].join("");
+
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    replyTo: configuredReplyTo(),
+    subject: "Would you like to rebook your call?",
+    text: `Hi ${firstName},
+
+We weren’t able to connect for your scheduled call today.
+
+If you’d still like to discuss hiring a virtual assistant, you can choose another time here:
+
+Rebook your call: ${args.rebookUrl}
+
+If you’re no longer looking, just reply and let us know so we can close the request.
+
+Thanks,
+${recruiterName}
+VirtualAssistant.com.ph`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: recruiterName,
+      ctaHref: args.rebookUrl,
+      ctaLabel: "Rebook your call",
+      appendSignature: false,
+    }),
+  }, "discovery_no_show_rebook", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: `discovery-no-show-rebook-${args.leadId}`,
+  });
+
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
 export async function sendDiscoveryReminderEmail(args: { leadId: string; to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);

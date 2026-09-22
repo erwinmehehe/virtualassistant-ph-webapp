@@ -1,0 +1,59 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+
+const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
+
+test("recruiter role page is the canonical matching and client handoff workspace", async () => {
+  const page = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
+  assert.match(page, /StaffJobMatching/);
+  assert.match(page, /id="matching"/);
+  assert.match(page, /id="client-handoff"/);
+  assert.match(page, /Client handoff/);
+  assert.match(page, /sendClientShortlistFollowupAction/);
+  assert.match(page, /client_shortlist_viewed/);
+  assert.match(page, /Client has not viewed the shortlist yet/);
+  assert.doesNotMatch(page, /job\.recruiter_id !== userId/);
+});
+
+test("legacy recruiter detail routes point at the canonical workflow", async () => {
+  const [matchingDetail, clientReview] = await Promise.all([
+    read("src/app/workspace/recruiter/matching/[id]/page.tsx"),
+    read("src/app/workspace/recruiter/client-review/page.tsx")
+  ]);
+  assert.ok(matchingDetail.includes("/workspace/recruiter/roles/"));
+  assert.ok(clientReview.includes("/workspace/recruiter/matching?view=waiting_client"));
+});
+
+test("role board opens canonical role workspace", async () => {
+  const page = await read("src/app/workspace/recruiter/matching/page.tsx");
+  assert.ok(page.includes("/workspace/recruiter/roles/"));
+  assert.ok(!page.includes("href={\`/workspace/recruiter/matching/"));
+});
+
+test("client shortlist is capped, ordered, and persisted", async () => {
+  const [table, actions, clientPage, migration] = await Promise.all([
+    read("src/components/matching-candidate-table.tsx"),
+    read("src/app/actions/matching.ts"),
+    read("src/app/workspace/client/candidates/page.tsx"),
+    read("supabase/migrations/20260922035431_add_shortlist_order.sql")
+  ]);
+  assert.match(table, /Aim for 3–5 client-ready candidates/);
+  assert.match(table, /moveSelected/);
+  assert.match(table, /shortlist_order/);
+  assert.match(actions, /selected\.length > 5/);
+  assert.match(actions, /shortlist_order:/);
+  assert.match(clientPage, /shortlist_order/);
+  assert.match(clientPage, /order\("shortlist_order",\{ascending:true,nullsFirst:false\}\)/);
+  assert.match(migration, /add column if not exists shortlist_order integer/);
+  assert.match(migration, /job_shortlist_candidates_job_order_idx/);
+});
+
+test("unified role workspace has responsive local navigation and preview ordering UI", async () => {
+  const css = await read("src/app/workspace/recruiter-role-workspace.css");
+  assert.match(css, /\.role-workflow-nav/);
+  assert.match(css, /\.role-handoff-stats/);
+  assert.match(css, /\.shortlist-preview-order/);
+  assert.match(css, /@media \(max-width: 800px\)/);
+  assert.match(css, /@media \(max-width: 520px\)/);
+});

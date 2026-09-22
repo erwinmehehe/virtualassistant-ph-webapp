@@ -23,7 +23,7 @@ const PRICING_HUB: SeoPriorityLink = {
 };
 
 const COMPANIES_GUIDE: SeoPriorityLink = {
-  href: "/virtual-assistant-companies-philippines",
+  href: "/blog/virtual-assistant-companies-philippines",
   label: "Virtual Assistant companies in the Philippines",
   description: "Compare agencies, recruiters, marketplaces, and managed providers by hiring model, screening, support, and pricing structure."
 };

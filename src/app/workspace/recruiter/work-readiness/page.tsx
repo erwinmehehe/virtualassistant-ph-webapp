@@ -135,7 +135,7 @@ export default async function WorkReadinessPage({ searchParams }: { searchParams
             <input type="hidden" name="va_id" value={setup.user_id}/>
             <input type="hidden" name="return_to" value={"/workspace/recruiter/work-readiness?view=" + view}/>
             <label><span>Verification note <em>optional</em></span><input name="verification_notes" maxLength={2000} placeholder="Example: reviewed during video interview; backup internet and power confirmed."/></label>
-            <button className="btn btn-primary" type="submit">Verify setup</button>
+            <button className="btn btn-primary" type="submit">Verify work setup</button>
           </form> : isVerified ? <div className="recruiter-readiness-verified-note"><CheckCircle2 size={14}/><span>Verified {dateLabel(setup.work_setup_verified_at)}{setup.work_setup_verification_notes ? " · " + setup.work_setup_verification_notes : ""}</span></div> : null}
         </article>;
       })}</div> : <div className="empty">Nothing needs attention in this view.</div>}

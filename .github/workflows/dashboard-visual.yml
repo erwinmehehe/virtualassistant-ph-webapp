@@ -84,4 +84,4 @@ jobs:
           name: dashboard-visual-${{ github.sha }}
           path: artifacts/dashboard-visual
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 2

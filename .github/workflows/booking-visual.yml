@@ -54,4 +54,4 @@ jobs:
           name: booking-visual-${{ github.event.pull_request.number }}
           path: artifacts/booking-visual
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 2

@@ -39,6 +39,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
     "title": "General Virtual Assistant vs. Executive Virtual Assistant: Which Should You Hire in the Philippines?",
+    "metaTitle": "General Virtual Assistant vs Executive Virtual Assistant",
+    "metaDescription": "Compare General and Executive Virtual Assistant roles in the Philippines by tasks, judgment, confidentiality, workflow ownership, and hiring fit.",
     "date": "July 12, 2026",
     "tag": "Hiring Guide",
     "excerpt": "Choose between a General Virtual Assistant and an Executive Virtual Assistant by judgment level, proximity to leadership, confidentiality, workflow ownership, and escalation responsibility.",
@@ -49,11 +51,13 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "We would not shortlist an Executive VA only because they have calendar experience. We would probe prioritization, executive communication, confidentiality and escalation judgment.",
       "If one job brief mixes basic data entry with board-level coordination, split the scope before hiring. The role title should match the real responsibility level."
     ],
-    "updatedDate": "September 20, 2026"
+    "updatedDate": "September 22, 2026"
   },
   {
     "slug": "get-paid-virtual-assistant-philippines",
     "title": "How to Get Paid as a Virtual Assistant in the Philippines by International Clients",
+    "metaTitle": "How Filipino Virtual Assistants Get Paid by Global Clients",
+    "metaDescription": "See how Filipino Virtual Assistants receive international client payments, choose currency and payment methods, invoice clearly, compare fees, and avoid scams.",
     "date": "July 5, 2026",
     "tag": "Rates & Payments",
     "excerpt": "A candidate-focused guide to getting paid by international clients: agree on currency and schedule, invoice clearly, compare transfer fees, keep records, and avoid payment scams.",
@@ -64,11 +68,13 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Compare payment methods by the amount that actually reaches you in PHP, not by the advertised transfer fee alone.",
       "A legitimate client should not require you to send money, buy gift cards or pay a large “processing fee” before you can receive wages or contractor payments."
     ],
-    "updatedDate": "September 20, 2026"
+    "updatedDate": "September 22, 2026"
   },
   {
     "slug": "hourly-rates-for-filipino-virtual-project-manager",
     "title": "Filipino Virtual Project Manager Rates in 2026: Scope and Hiring Guide",
+    "metaTitle": "Filipino Virtual Project Manager Rates: 2026 Guide",
+    "metaDescription": "Plan a Filipino virtual project manager budget by scope, ownership, schedule, complexity, stakeholder load, tools, reporting, and decision authority.",
     "date": "March 3, 2026",
     "tag": "Rates & Payments",
     "excerpt": "Budget a Filipino virtual project manager by scope, ownership, complexity, schedule, and decision authority. Separate project coordination from true project-management responsibility before comparing rates.",
@@ -79,7 +85,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "A candidate who can update ClickUp is not automatically a project manager. We look for evidence of planning, dependency management, risk escalation and stakeholder follow-through.",
       "Current first-party project-role pricing data on our platform is too small to publish as a reliable market rate, so this guide uses a budgeting framework instead of pretending one sample is a benchmark."
     ],
-    "updatedDate": "September 20, 2026"
+    "updatedDate": "September 22, 2026"
   },
   {
     "slug": "how-a-filipino-va-can-manage-your-ai-workflow",
@@ -99,6 +105,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "how-to-become-bookkeeping-virtual-assistant",
     "title": "How to Become a Bookkeeping Virtual Assistant in the Philippines",
+    "metaTitle": "How to Become a Bookkeeping Virtual Assistant Philippines",
+    "metaDescription": "Learn how to become a bookkeeping Virtual Assistant in the Philippines, build practical evidence, understand core workflows, and prepare for legitimate roles.",
     "date": "February 17, 2026",
     "tag": "Bookkeeping",
     "excerpt": "A practical Philippines-focused path into bookkeeping VA work: learn bookkeeping fundamentals, practice real workflows, build proof, protect financial data, and stay inside your scope.",
@@ -109,11 +117,13 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Do not claim accountant, tax adviser or licensed-professional work unless you are qualified and authorized to perform it.",
       "A small clean practice file with source documents, reconciliations and notes is more useful than a portfolio full of generic Canva certificates."
     ],
-    "updatedDate": "September 20, 2026"
+    "updatedDate": "September 22, 2026"
   },
   {
     "slug": "how-to-pay-a-filipino-virtual-assistant-directly",
     "title": "How to Pay a Filipino Virtual Assistant Directly",
+    "metaTitle": "How to Pay a Filipino Virtual Assistant: Methods & Fees",
+    "metaDescription": "Pay a Filipino Virtual Assistant directly with clear rates, currency, invoices, transfer methods, fee checks, payment security, and classification guidance.",
     "date": "July 13, 2026",
     "tag": "Rates & Payments",
     "excerpt": "Pay a Filipino Virtual Assistant directly with clear written terms, a deliberate currency choice, transparent transfer fees, reliable records, and correct worker-classification advice for your situation.",
@@ -124,7 +134,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
       "Direct payment does not automatically decide whether someone is an employee or contractor. Classification depends on the real working relationship and applicable law.",
       "Avoid building retention around surprise bonuses or vague promises. Put the normal rate, schedule, currency and review process in writing first."
     ],
-    "updatedDate": "September 20, 2026"
+    "updatedDate": "September 22, 2026"
   },
   {
     "slug": "how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",

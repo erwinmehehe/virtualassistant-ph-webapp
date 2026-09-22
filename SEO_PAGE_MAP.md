@@ -1,6 +1,6 @@
-# v4.7 service, industry, and content-cluster note
+# Current service, industry, and content-cluster note
 
-The 62 service pages and 21 industry pages from v4.4 remain canonical. v4.7 retains the 170-URL blog/resource layer and upgrades every article to explicit long-form editorial content with FAQs and stronger internal linking. See `BLOG_CONTENT_MAP.md` for the article-level map. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
+The live programmatic architecture now contains 74 canonical service pages and 33 canonical industry pages, plus the structured blog/resource layer. `src/lib/service-pages.ts` and `src/lib/industries.ts` are the source of truth for the current URL set. Service pages surface supporting guides, and service-linked articles point back to the canonical `/service/[slug]/` money page.
 
 ---
 
@@ -8,7 +8,7 @@ The 62 service pages and 21 industry pages from v4.4 remain canonical. v4.7 reta
 
 Canonical domain: `https://virtualassistant.com.ph`
 
-## Service pages (62)
+## Service pages (live count: 74)
 
 | URL | Primary keyword | SEO title |
 |---|---|---|
@@ -76,7 +76,7 @@ Canonical domain: `https://virtualassistant.com.ph`
 | `/service/content-marketing-virtual-assistant/` | hire content marketing virtual assistant philippines | Hire Content Marketing VA Philippines |
 
 
-## Industry pages (21)
+## Industry pages (live count: 33)
 
 | URL | Primary keyword | SEO title |
 |---|---|---|

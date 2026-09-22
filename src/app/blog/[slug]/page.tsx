@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     if (!archived || archived.legacyPath) return {};
     const archiveUpdated = archiveUpdatedIso(archived);
     return {
-      title: { absolute: archived.title },
-      description: archived.excerpt.slice(0, 160),
+      title: { absolute: archived.metaTitle || archived.title },
+      description: archived.metaDescription || archived.excerpt.slice(0, 160),
       alternates: { canonical: canonicalPath(`/blog/${archived.slug}`) },
       openGraph: {
         type: "article",
-        title: archived.title,
-        description: archived.excerpt.slice(0, 160),
+        title: archived.metaTitle || archived.title,
+        description: archived.metaDescription || archived.excerpt.slice(0, 160),
         publishedTime: archivePublishedIso(archived),
         ...(archiveUpdated ? { modifiedTime: archiveUpdated } : {})
       }

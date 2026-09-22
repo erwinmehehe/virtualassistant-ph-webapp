@@ -4680,7 +4680,140 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "customer-service",
       "executive-virtual-assistant"
     ]
+  },
+  {
+    "slug": "creative-virtual-assistant",
+    "name": "Creative Virtual Assistant",
+    "group": "Creative & Content",
+    "directoryCategory": "Video Editing & Creative",
+    "primaryKeyword": "creative virtual assistant",
+    "metaTitle": "Creative Virtual Assistant Philippines",
+    "metaDescription": "Hire a Creative Virtual Assistant in the Philippines for recurring design, content production, asset coordination, presentations, social graphics, and campaign support.",
+    "intro": "Hire a Creative Virtual Assistant in the Philippines to handle repeatable creative production across social assets, presentations, content formatting, campaign variations, and brand-file organization. Keep creative direction and final brand approval with the client team while the Virtual Assistant owns the production queue.",
+    "focus": "repeatable creative production and marketing asset coordination",
+    "tasks": [
+      "social graphic production",
+      "presentation formatting",
+      "content and campaign asset resizing",
+      "lead magnet formatting",
+      "thumbnail and cover production",
+      "brand asset organization",
+      "simple image cleanup",
+      "approved template updates",
+      "creative request tracking"
+    ],
+    "tools": [
+      "Canva",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Figma",
+      "Google Drive",
+      "Dropbox",
+      "PowerPoint",
+      "Adobe Express"
+    ],
+    "skills": [
+      "visual production",
+      "brand consistency",
+      "template-based design",
+      "asset organization",
+      "revision management",
+      "content formatting",
+      "attention to detail"
+    ],
+    "bestFor": [
+      "marketing teams",
+      "creative agencies",
+      "ecommerce brands",
+      "coaches and creators",
+      "content-led businesses"
+    ],
+    "outcomes": [
+      "Recurring creative requests move through one visible production queue.",
+      "Approved brand templates are reused more consistently across channels.",
+      "Senior marketers and designers spend less time on routine resizing, formatting, and asset preparation."
+    ],
+    "costFactors": [
+      "Volume and frequency of creative requests.",
+      "Complexity of the required design work.",
+      "Number of channels and output sizes.",
+      "Software and file-format requirements.",
+      "Whether the role includes original design or mainly template-based production."
+    ],
+    "relatedSlugs": [
+      "graphic-design",
+      "social-media",
+      "digital-marketing-virtual-assistant",
+      "content-writing"
+    ]
+  },
+  {
+    "slug": "logistics-virtual-assistant",
+    "name": "Logistics Virtual Assistant",
+    "group": "Admin & Operations",
+    "directoryCategory": "Administrative Support",
+    "primaryKeyword": "logistics virtual assistant",
+    "metaTitle": "Logistics Virtual Assistant Philippines",
+    "metaDescription": "Hire a Logistics Virtual Assistant in the Philippines for shipment tracking, freight coordination, shipping documents, carrier follow-up, records, and logistics admin.",
+    "intro": "Hire a Logistics Virtual Assistant in the Philippines to coordinate shipment tracking, carrier and supplier follow-up, shipping documents, freight bookings, delivery updates, and recurring logistics administration. Keep commercial commitments, customs decisions, regulated declarations, and exception approvals with authorized staff.",
+    "focus": "shipment, freight, carrier, and logistics administration",
+    "tasks": [
+      "shipment tracking",
+      "carrier and freight forwarder follow-up",
+      "freight booking administration",
+      "shipping document preparation",
+      "bill of lading administration",
+      "delivery status updates",
+      "supplier and warehouse coordination",
+      "logistics record maintenance",
+      "exception and delay tracking"
+    ],
+    "tools": [
+      "FedEx",
+      "UPS",
+      "DHL",
+      "ShipStation",
+      "Google Sheets",
+      "Excel",
+      "Google Workspace",
+      "Microsoft 365"
+    ],
+    "skills": [
+      "logistics coordination",
+      "shipment tracking",
+      "freight documentation",
+      "carrier communication",
+      "record accuracy",
+      "exception follow-up",
+      "time-sensitive coordination"
+    ],
+    "bestFor": [
+      "ecommerce businesses",
+      "importers and exporters",
+      "freight and logistics teams",
+      "manufacturers",
+      "wholesale and distribution businesses"
+    ],
+    "outcomes": [
+      "Shipment status and outstanding exceptions stay visible to the operating team.",
+      "Carrier, supplier, and warehouse follow-up has one accountable owner.",
+      "Shipping paperwork and recurring logistics records are prepared more consistently."
+    ],
+    "costFactors": [
+      "Shipment and order volume.",
+      "Domestic versus international freight complexity.",
+      "Required live coverage and response times.",
+      "Documentation and customs-administration depth.",
+      "Number of carriers, warehouses, suppliers, and systems involved."
+    ],
+    "relatedSlugs": [
+      "fulfilment",
+      "customer-service",
+      "research-data",
+      "admin-inbox"
+    ]
   }
+
 ];
 
 export function servicePageBySlug(slug: string) { return SERVICE_PAGES.find((page) => page.slug === slug); }

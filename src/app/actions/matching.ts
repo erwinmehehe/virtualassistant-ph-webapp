@@ -126,7 +126,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   const admin = createAdminClient();
   const [{ data: job }, { data: vetting }, { data: commercial }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).single(),
-    admin.from("va_vetting").select("va_id,user_id,stage,profile_completion").in("va_id", selected).in("stage", ["approved", "bench"]),
+    admin.from("recruiter_va_directory").select("user_id,stage,completion_score").in("user_id", selected).in("stage", ["approved", "bench"]),
     admin.from("job_commercials").select("commercial_status").eq("job_id", jobId).maybeSingle()
   ]);
   if (!job) return fail("Job not found.");

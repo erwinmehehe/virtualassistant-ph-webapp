@@ -48,3 +48,23 @@ test("all industry pages keep a custom hero intro", () => {
     assert.match(block, /heroIntro:/, `${industry.slug}: custom hero intro missing`);
   }
 });
+
+
+test("service pages avoid repeated generic hiring copy", () => {
+  const page = source("src/app/service/[slug]/page.tsx");
+  assert.doesNotMatch(page, /Give recurring work a clear owner so important tasks do not depend on spare time/);
+  assert.doesNotMatch(page, /Review relevant experience, tools, working hours, and profile evidence before you decide who to interview/);
+  assert.doesNotMatch(page, /The same title can cover very different work/);
+  assert.match(page, /Compare candidates on \$\{s\.skills\[0\]\}, \$\{s\.tools\[0\]\}, schedule fit/);
+  assert.match(page, /Tell us which parts of \$\{s\.tasks\.slice\(0, 3\)\.join\(", "\)\} you want delegated/);
+});
+
+test("industry sections use the actual audience and workflows", () => {
+  const page = source("src/app/industries/[slug]/page.tsx");
+  assert.doesNotMatch(page, /Delegate recurring execution without blurring decision ownership/);
+  assert.doesNotMatch(page, /A useful role has clear decision boundaries/);
+  assert.doesNotMatch(page, /Generic interview questions are easy to rehearse/);
+  assert.match(page, /For \$\{page\.audience\}, start with recurring work/);
+  assert.match(page, /Give \$\{page\.workflows\[0\]\} and \$\{page\.workflows\[1\]\} a clear owner/);
+  assert.match(page, /Tell us how your team handles \$\{page\.workflows\.slice\(0, 3\)\.join\(", "\)\}/);
+});

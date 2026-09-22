@@ -76,12 +76,17 @@ function taskGroups(tasks: string[], name: string) {
   const chunks = [tasks.slice(0, 3), tasks.slice(3, 6), tasks.slice(6)];
   const focus = roleName(name);
   const titles = [`Core ${focus} support`, "Workflow and coordination", "Follow-through and visibility"];
-  const intros = [
-    "Give recurring work a clear owner so important tasks do not depend on spare time.",
-    "Keep records, handoffs, people, and tools aligned around the process your team already uses.",
-    "Make completed work, exceptions, and next actions easier to see and easier to manage."
-  ];
-  return chunks.filter((chunk) => chunk.length).map((chunk, index) => ({ title: titles[index], intro: intros[index], tasks: chunk }));
+
+  return chunks.filter((chunk) => chunk.length).map((chunk, index) => {
+    const pair = chunk.slice(0, 2).join(" and ");
+    const movementVerb = chunk.length === 1 ? "moves" : "move";
+    const intros = [
+      `Start by giving ${pair} one owner, one source of truth, and a clear definition of done.`,
+      `Document how ${pair} ${movementVerb} between people and tools so handoffs do not disappear into chat.`,
+      `Use ${pair} to keep completed work, exceptions, and next actions visible to the team.`
+    ];
+    return { title: titles[index], intro: intros[index], tasks: chunk };
+  });
 }
 
 function complianceNote(slug: string, group: string) {
@@ -94,19 +99,18 @@ function complianceNote(slug: string, group: string) {
 
 function experienceCopy(s: ServiceSeoPage) {
   const role = s.name;
-  const focus = roleName(s.name);
   const defaults = {
     hero: s.intro,
-    panelTitle: `Give ${focus} work a clear owner.`,
+    panelTitle: `Give ${s.tasks[0]} and ${s.tasks[1]} a dependable owner.`,
     talentTitle: `Meet approved ${role} candidates`,
-    talentIntro: "Review relevant experience, tools, working hours, and profile evidence before you decide who to interview.",
+    talentIntro: `Compare candidates on ${s.skills[0]}, ${s.tools[0]}, schedule fit, and examples of work similar to ${s.tasks[0]} and ${s.tasks[1]}.`,
     responsibilityTitle: `What can ${articleFor(s.name)} ${role} take off your team’s plate?`,
-    responsibilityIntro: `Delegate repeatable ${s.focus} while keeping specialist decisions, approvals, and exceptions with the right person on your team.`,
+    responsibilityIntro: `Start with ${s.tasks[0]}, ${s.tasks[1]}, and ${s.tasks[2]}. Keep approvals, exceptions, and specialist judgment with the right internal owner while the ${role} handles the repeatable work.`,
     toolsTitle: "Hire for workflow fluency, not a software checklist.",
     fitTitle: `Where ${role} support can create leverage`,
-    fitIntro: "The same title can cover very different work. Define the business context, systems, hours, response expectations, and escalation rules before you compare candidates.",
+    fitIntro: `This role is most useful when ${s.bestFor.slice(0, 2).join(" or ")} need consistent ${s.focus}. Define the systems, hours, response expectations, and escalation rules before comparing candidates.`,
     finalTitle: `Build ${articleFor(s.name)} ${role} role around the work you need done.`,
-    finalBody: "Tell us the responsibilities, tools, hours, schedule, and level of independence you need. Your role brief is private and you can start without creating an account."
+    finalBody: `Tell us which parts of ${s.tasks.slice(0, 3).join(", ")} you want delegated, plus the tools, hours, overlap, and decisions that must stay with your team. Your role brief is private and you can start without creating an account.`
   };
 
   if (s.slug !== "law-firm-virtual-assistant") return defaults;

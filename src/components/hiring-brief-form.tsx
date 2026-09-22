@@ -18,6 +18,7 @@ import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { indefiniteArticleFor } from "@/lib/content-language";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 /**
  * The one hiring form used across the site's hiring pages (service, software,
@@ -249,6 +250,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         <input type="hidden" name="session_id" value={sessionId} />
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
+        <TurnstileWidget />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
           {pending ? "Matching..." : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
         </button>
@@ -292,6 +294,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
           </select>
         </div>
         <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+        <TurnstileWidget />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />

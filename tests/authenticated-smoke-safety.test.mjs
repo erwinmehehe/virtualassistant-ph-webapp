@@ -4,11 +4,13 @@ import { readFileSync } from "node:fs";
 
 const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("public job surfaces exclude moderated roles",()=>{
+test("public job surfaces use the sanitized public_jobs view",()=>{
   const listing=read("src/app/jobs/page.tsx");
   const detail=read("src/app/jobs/[id]/page.tsx");
-  assert.match(listing,/\.eq\("status", "published"\)[\s\S]{0,120}\.eq\("moderation_status", "clear"\)/);
-  assert.match(detail,/\.eq\("status", "published"\)\.eq\("moderation_status", "clear"\)/);
+  assert.match(listing,/\.from\("public_jobs"\)/);
+  assert.match(detail,/\.from\("public_jobs"\)/);
+  assert.doesNotMatch(listing,/\.from\("jobs"\)/);
+  assert.doesNotMatch(detail,/\.from\("jobs"\)/);
 });
 
 test("authenticated visual QA mutates only the exact protected smoke role",()=>{

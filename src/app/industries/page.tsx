@@ -85,13 +85,13 @@ export default function IndustriesPage() {
           <article className="ip-industry">
             <div className="ip-industry-head">
               <span className="sp-card-icon" aria-hidden="true"><BriefcaseBusiness size={18}/></span>
-              <h3><Link href="/industries/nonprofits">Virtual Assistant for Nonprofits</Link></h3>
+              <h3><Link href="/blog/virtual-assistant-for-nonprofits">Virtual Assistant for Nonprofits</Link></h3>
             </div>
             <p className="ip-industry-desc">Delegate donor CRM administration, volunteer coordination, event support, research, scheduling, communications, and recurring nonprofit operations.</p>
             <ul className="ip-bullets" aria-label="Common nonprofit workflows">
               <li>Donor and CRM administration</li><li>Volunteer and event coordination</li><li>Research and communications support</li>
             </ul>
-            <Link className="hs-link ip-industry-link" href="/industries/nonprofits">Explore nonprofit support <ArrowRight size={14}/></Link>
+            <Link className="hs-link ip-industry-link" href="/blog/virtual-assistant-for-nonprofits">Explore nonprofit support <ArrowRight size={14}/></Link>
           </article>
         </div>
       </Band>

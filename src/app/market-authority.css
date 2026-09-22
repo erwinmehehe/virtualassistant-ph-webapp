@@ -1,0 +1,122 @@
+.market-signal-strip {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.market-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.market-signal-grid > div {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 22px 20px;
+  min-width: 0;
+}
+
+.market-signal-grid > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.market-signal-grid svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.market-signal-grid span {
+  display: grid;
+  gap: 4px;
+}
+
+.market-signal-grid strong {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.market-signal-grid small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.market-authority-root .section {
+  padding-block: clamp(56px, 7vw, 92px);
+}
+
+.market-authority-root .section-head {
+  max-width: 820px;
+  margin-bottom: 30px;
+}
+
+.market-authority-root .section-head h2 {
+  max-width: 760px;
+  letter-spacing: -0.025em;
+}
+
+.market-authority-root .sp-cards-4 {
+  gap: 14px;
+}
+
+.market-authority-root .sp-card {
+  min-height: 132px;
+  padding: 22px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+.market-authority-root .sp-card p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.market-authority-root .link-tiles,
+.market-authority-root .hs-link-grid {
+  gap: 14px;
+}
+
+.market-authority-root .section-soft {
+  background: var(--brand-soft);
+}
+
+@media (max-width: 900px) {
+  .market-signal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .market-signal-grid > div:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .market-signal-grid > div:nth-child(4) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 560px) {
+  .market-signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .market-signal-grid > div {
+    padding: 16px 4px;
+  }
+
+  .market-signal-grid > div + div,
+  .market-signal-grid > div:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .market-authority-root .section {
+    padding-block: 48px;
+  }
+
+  .market-authority-root .sp-card {
+    min-height: 0;
+    padding: 18px;
+  }
+}

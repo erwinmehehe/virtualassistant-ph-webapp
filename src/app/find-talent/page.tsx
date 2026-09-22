@@ -116,7 +116,7 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
       <div className="grid grid-3">
         <article className="card"><h3>Start with the work</h3><p>Use <Link href="/services">Virtual Assistant services</Link> to compare responsibilities and choose the closest role before filtering profiles.</p></article>
         <article className="card"><h3>Check the hiring model</h3><p>Review <Link href="/pricing">pricing and service models</Link> so candidate compensation, recruiting support, and ongoing management are not treated as the same cost.</p></article>
-        <article className="card"><h3>Compare provider support</h3><p>Use the <Link href="/virtual-assistant-companies-philippines">Virtual Assistant companies guide</Link> to compare marketplaces, recruitment, direct hire, and managed service.</p></article>
+        <article className="card"><h3>Compare provider support</h3><p>Use the <Link href="/blog/virtual-assistant-companies-philippines">Virtual Assistant companies guide</Link> to compare marketplaces, recruitment, direct hire, and managed service.</p></article>
       </div>
     </div></section>
   </main><SiteFooter/></>;

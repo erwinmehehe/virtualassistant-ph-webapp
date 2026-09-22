@@ -127,25 +127,44 @@ Canonical domain: `https://virtualassistant.com.ph`
 | `/industries/recruitment-candidate-sourcing/` | recruitment candidate sourcing outsourcing | Candidate Sourcing Outsourcing \| Philippines |
 | `/industries/insurance-broker-renewal-desk/` | insurance broker renewal outsourcing | Insurance Renewal Desk Support \| Philippines |
 
-## Broad authority and market pages
+## Broad market and role-discovery pages
 
 | URL | Primary cluster |
 |---|---|
-| `/virtual-assistant-companies-philippines/` | virtual assistant companies, agencies, firms, providers, staffing |
-| `/virtual-assistant-websites/` | virtual assistant websites, sites, platforms, best hiring websites |
 | `/virtual-assistant-usa/` | virtual assistant USA, US virtual assistant, US business support |
 | `/virtual-assistant-australia/` | virtual assistant Australia and Australian city modifiers |
-| `/what-is-a-virtual-assistant/` | what is a virtual assistant, duties, roles, tasks |
 | `/types-of-virtual-assistants/` | types of virtual assistants, niches, specialties |
-| `/industries/nonprofits/` | virtual assistant for nonprofits |
+
+## Editorial blog canonicals
+
+Commercial-investigation, definition, career, and candidate-learning topics live in the blog instead of standalone SEO landing pages.
+
+| URL | Primary cluster |
+|---|---|
+| `/blog/virtual-assistant-companies-philippines/` | virtual assistant companies, agencies, firms, providers, staffing |
+| `/blog/virtual-assistant-websites/` | virtual assistant websites, sites, platforms, best hiring websites |
+| `/blog/what-is-a-virtual-assistant/` | what is a virtual assistant, duties, roles, tasks |
+| `/blog/virtual-assistant-for-nonprofits/` | virtual assistant for nonprofits |
+| `/blog/how-to-apply-as-a-virtual-assistant/` | how to apply as a virtual assistant |
+| `/blog/virtual-assistant-resume-sample/` | virtual assistant resume sample |
+| `/blog/virtual-assistant-portfolio-examples/` | virtual assistant portfolio examples |
+| `/blog/virtual-assistant-skills/` | virtual assistant skills |
+| `/blog/virtual-assistant-requirements-philippines/` | virtual assistant requirements Philippines |
+| `/blog/how-to-become-a-virtual-assistant-philippines/` | how to become a virtual assistant Philippines |
+| `/blog/become-virtual-assistant-no-experience/` | virtual assistant with no experience, existing article |
+| `/blog/virtual-assistant-training-guide/` | virtual assistant training |
+| `/blog/virtual-assistant-certification-guide/` | virtual assistant certification |
+| `/blog/virtual-assistant-cover-letter/` | virtual assistant cover letter |
+| `/blog/best-laptop-for-virtual-assistant/` | best laptop for virtual assistant |
+| `/blog/freelance-platforms-for-virtual-assistants/` | freelance platforms for virtual assistants |
+| `/blog/how-to-start-a-virtual-assistant-business/` | how to start a virtual assistant business |
 
 ## SEO resource layer
 
-- `/resources/` is the index for intent-distinct supporting guides.
+- `/resources/` remains the support layer for intent-distinct role hiring guides such as tasks, interviews, costs, tools, and hiring workflows.
 - Twenty-five commercial role clusters each have definition, tasks, hiring, interview, Philippines cost, and role-specific tools resources.
-- Twenty manually defined generic/candidate resources cover job descriptions, applications, resumes, portfolios, cover letters, skills, requirements, laptops, tools, training, certification, freelance work, job platforms, no-experience intent, non-voice work, part-time work, work-from-home work, interview preparation, and starting a VA business.
+- Candidate and broad informational topics are consolidated into the blog when they are editorial rather than transactional.
 - Supporting resources link back to one canonical service money page for the commercial role intent.
-- Candidate resources point primarily to `/for-virtual-assistants/`, `/jobs/`, and profile creation instead of the client hiring funnel.
 
 ## Notes
 

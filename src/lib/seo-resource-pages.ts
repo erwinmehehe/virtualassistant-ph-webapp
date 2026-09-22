@@ -817,8 +817,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I add a photo?", a: "A photo is not required for a strong resume unless a specific legitimate process asks for one. Prioritize clear experience, skills, tools, and contact information." }
     ],
     internalLinks: [
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Build work samples that support the claims on your resume." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the resume inside a better application process." },
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Build work samples that support the claims on your resume." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the resume inside a better application process." },
       { href: "/auth/join/va", label: "Create your VA profile", description: "Add your experience, skills, tools, resume, and work evidence." }
     ]
   },
@@ -843,8 +843,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Where should I host my portfolio?", a: "A clean PDF, Google Drive folder, Notion page, or simple website can work. Choose a format that opens reliably and is easy for a recruiter or client to review." }
     ],
     internalLinks: [
-      { href: "/resources/virtual-assistant-resume-sample", label: "VA resume guide", description: "Make the resume and portfolio support the same target role." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use work samples strategically in applications." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "VA resume guide", description: "Make the resume and portfolio support the same target role." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use work samples strategically in applications." },
       { href: "/for-virtual-assistants", label: "For Virtual Assistants", description: "See how profiles, screening, and job applications work." }
     ]
   },
@@ -895,8 +895,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Do I need paid VA training?", a: "No paid course automatically qualifies someone for a VA job. Learn the actual workflows and tools used by your target role and build evidence that you can perform them." }
     ],
     internalLinks: [
-      { href: "/resources/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Turn the requirements into a practical starting plan." },
-      { href: "/resources/virtual-assistant-resume-sample", label: "VA resume sample", description: "Prepare application evidence." },
+      { href: "/blog/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Turn the requirements into a practical starting plan." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "VA resume sample", description: "Prepare application evidence." },
       { href: "/auth/join/va", label: "Create your VA profile", description: "Add your equipment-ready availability, experience, skills, tools, and evidence." }
     ]
   },
@@ -923,7 +923,7 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     internalLinks: [
       { href: "/software", label: "Software experience directory", description: "Browse software-specific Virtual Assistant workflow pages." },
       { href: "/types-of-virtual-assistants", label: "Types of Virtual Assistants", description: "Choose a role before deciding which tools to learn." },
-      { href: "/resources/virtual-assistant-skills", label: "VA skills guide", description: "Connect software knowledge to broader job-ready skills." }
+      { href: "/blog/virtual-assistant-skills", label: "VA skills guide", description: "Connect software knowledge to broader job-ready skills." }
     ]
   },
   {
@@ -948,8 +948,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/types-of-virtual-assistants", label: "Types of Virtual Assistants", description: "Choose a realistic specialty." },
-      { href: "/resources/virtual-assistant-requirements-philippines", label: "VA requirements", description: "Check equipment, connectivity, evidence, and job-readiness basics." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Turn your preparation into focused applications." }
+      { href: "/blog/virtual-assistant-requirements-philippines", label: "VA requirements", description: "Check equipment, connectivity, evidence, and job-readiness basics." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Turn your preparation into focused applications." }
     ]
   },
   {
@@ -973,8 +973,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "How do I make my profile stronger?", a: "Choose a target role, use a focused headline, describe transferable responsibilities, list tools honestly, add work samples, and keep your availability and rate current." }
     ],
     internalLinks: [
-      { href: "/resources/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Build a step-by-step starting plan." },
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Create evidence without inventing client work." },
+      { href: "/blog/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Build a step-by-step starting plan." },
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Create evidence without inventing client work." },
       { href: "/jobs", label: "Browse VA jobs", description: "Look for roles that fit your actual experience." }
     ]
   },
@@ -999,8 +999,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "What questions should I ask the client?", a: "Ask about responsibilities, schedule, tools, manager, success measures, first-month priorities, compensation, and how the team communicates." }
     ],
     internalLinks: [
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Improve the process before the interview." },
-      { href: "/resources/virtual-assistant-resume-sample", label: "VA resume guide", description: "Make sure your interview examples match your resume claims." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Improve the process before the interview." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "VA resume guide", description: "Make sure your interview examples match your resume claims." },
       { href: "/jobs", label: "Browse VA jobs", description: "Use real job descriptions to practice role-specific interview scenarios." }
     ]
   },
@@ -1026,7 +1026,7 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/jobs", label: "Browse VA jobs", description: "Review published hours, pay, and role requirements." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Build a stronger profile and targeted application." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Build a stronger profile and targeted application." },
       { href: "/for-virtual-assistants", label: "For Virtual Assistants", description: "Understand the profile and screening process." }
     ]
   },
@@ -1052,8 +1052,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/jobs", label: "Virtual Assistant jobs", description: "Browse remote roles with published responsibilities and compensation." },
-      { href: "/resources/virtual-assistant-requirements-philippines", label: "VA requirements", description: "Check equipment, connectivity, and application readiness." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Use a focused application process for remote roles." }
+      { href: "/blog/virtual-assistant-requirements-philippines", label: "VA requirements", description: "Check equipment, connectivity, and application readiness." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply", description: "Use a focused application process for remote roles." }
     ]
   },
   {
@@ -1105,9 +1105,9 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/types-of-virtual-assistants", label: "Choose a VA specialty", description: "Pick the target role before choosing what to learn." },
-      { href: "/resources/virtual-assistant-skills", label: "VA skills guide", description: "See the operating and role-specific skills employers look for." },
+      { href: "/blog/virtual-assistant-skills", label: "VA skills guide", description: "See the operating and role-specific skills employers look for." },
       { href: "/resources/best-tools-for-virtual-assistants", label: "VA tools guide", description: "Map software learning to the work you want to do." },
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "Build a portfolio", description: "Turn practice into honest work evidence." }
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "Build a portfolio", description: "Turn practice into honest work evidence." }
     ]
   },
   {
@@ -1131,9 +1131,9 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I put certifications on my resume?", a: "Yes when they are relevant and legitimate. Include the issuing organization and completion date, and keep the section secondary to relevant work experience and skills." }
     ],
     internalLinks: [
-      { href: "/resources/virtual-assistant-training-guide", label: "VA training guide", description: "Build a practical learning plan before choosing credentials." },
-      { href: "/resources/virtual-assistant-skills", label: "VA skills", description: "See what employers evaluate beyond certificates." },
-      { href: "/resources/virtual-assistant-resume-sample", label: "VA resume guide", description: "Present relevant certifications without overclaiming them." }
+      { href: "/blog/virtual-assistant-training-guide", label: "VA training guide", description: "Build a practical learning plan before choosing credentials." },
+      { href: "/blog/virtual-assistant-skills", label: "VA skills", description: "See what employers evaluate beyond certificates." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "VA resume guide", description: "Present relevant certifications without overclaiming them." }
     ]
   },
   {
@@ -1157,8 +1157,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Can I freelance and apply for VA jobs?", a: "Yes when your existing commitments do not conflict with the schedule, confidentiality, exclusivity, or other terms of the role you are considering." }
     ],
     internalLinks: [
-      { href: "/resources/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Build the underlying skills and evidence first." },
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio", description: "Create proof that helps clients understand your service." },
+      { href: "/blog/how-to-become-a-virtual-assistant-philippines", label: "How to become a VA", description: "Build the underlying skills and evidence first." },
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "VA portfolio", description: "Create proof that helps clients understand your service." },
       { href: "/blog/virtual-assistant-agency-vs-freelancer", label: "Agency vs freelancer", description: "See the buyer-side differences between hiring models." }
     ]
   },
@@ -1209,9 +1209,9 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I include salary expectations in the cover letter?", a: "Only when the application asks for them. Follow the employer's instructions and keep compensation information clear and separate from the evidence of role fit." }
     ],
     internalLinks: [
-      { href: "/resources/virtual-assistant-resume-sample", label: "Virtual Assistant resume guide", description: "Build the resume that supports the claims in your cover letter." },
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "Virtual Assistant portfolio", description: "Show privacy-safe evidence of relevant work." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the cover letter inside a complete application process." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "Virtual Assistant resume guide", description: "Build the resume that supports the claims in your cover letter." },
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "Virtual Assistant portfolio", description: "Show privacy-safe evidence of relevant work." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the cover letter inside a complete application process." },
       { href: "/jobs", label: "Browse VA jobs", description: "Apply the structure to current roles that fit your experience." }
     ]
   },
@@ -1236,9 +1236,9 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I buy a laptop before applying?", a: "Only if you need one for the type of work you are pursuing. Do not make a major purchase based on a job offer that has not been verified or an employer asking you to send money for equipment." }
     ],
     internalLinks: [
-      { href: "/resources/virtual-assistant-requirements-philippines", label: "VA requirements in the Philippines", description: "Review equipment, internet, workspace, skills, and profile requirements together." },
+      { href: "/blog/virtual-assistant-requirements-philippines", label: "VA requirements in the Philippines", description: "Review equipment, internet, workspace, skills, and profile requirements together." },
       { href: "/resources/best-tools-for-virtual-assistants", label: "Virtual Assistant tools", description: "Match hardware decisions to the software used in your target role." },
-      { href: "/resources/virtual-assistant-no-experience", label: "Starting with no VA experience", description: "Build practical evidence before spending heavily on equipment." },
+      { href: "/blog/become-virtual-assistant-no-experience", label: "Starting with no VA experience", description: "Build practical evidence before spending heavily on equipment." },
       { href: "/jobs", label: "Browse VA jobs", description: "Check the real equipment and software expectations in current roles." }
     ]
   },
@@ -1265,8 +1265,8 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     internalLinks: [
       { href: "/jobs", label: "Virtual Assistant jobs", description: "Browse current opportunities published on VirtualAssistant.com.ph." },
       { href: "/for-virtual-assistants", label: "For Virtual Assistants", description: "Understand the candidate profile and screening process." },
-      { href: "/resources/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Build a focused application instead of mass applying." },
-      { href: "/resources/virtual-assistant-resume-sample", label: "Virtual Assistant resume", description: "Prepare a resume that works across job boards and recruiter review." }
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Build a focused application instead of mass applying." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "Virtual Assistant resume", description: "Prepare a resume that works across job boards and recruiter review." }
     ]
   },
   {
@@ -1291,9 +1291,9 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/resources/freelance-virtual-assistant-guide", label: "Freelance VA guide", description: "Understand the client-service model and operating basics." },
-      { href: "/resources/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Create evidence for the service you want to sell." },
-      { href: "/resources/virtual-assistant-skills", label: "VA skills", description: "Choose a service that matches your current capability." },
-      { href: "/resources/freelance-platforms-for-virtual-assistants", label: "Freelance platforms", description: "Compare channels for finding legitimate client and job opportunities." }
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Create evidence for the service you want to sell." },
+      { href: "/blog/virtual-assistant-skills", label: "VA skills", description: "Choose a service that matches your current capability." },
+      { href: "/blog/freelance-platforms-for-virtual-assistants", label: "Freelance platforms", description: "Compare channels for finding legitimate client and job opportunities." }
     ]
   }];
 

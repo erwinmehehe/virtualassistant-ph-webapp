@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, UserRoundSearch } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 type Audience = "client" | "va" | null;
 
@@ -143,6 +144,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <input type="hidden" name="phone" value="" />
           <input type="hidden" name="company_url" value="" />
           <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+          <TurnstileWidget />
 
           <div className="booking-section">
             <div className="booking-section-title">

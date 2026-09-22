@@ -45,6 +45,10 @@ test("admin navigation badges use one service-only RPC and stay non-blocking",as
     read("src/components/app-shell.tsx"),
   ]);
   assert.match(badges,/admin\.rpc\("admin_workspace_badges"\)/);
+  assert.match(badges,/unstable_cache/);
+  assert.match(badges,/\["admin-workspace-badges"\]/);
+  assert.match(badges,/revalidate: 15/);
+  assert.match(badges,/workspace\.badges\.admin", getCachedAdminBadges/);
   assert.doesNotMatch(badges,/marginApprovals/);
   assert.doesNotMatch(badges,/awaitingPayments/);
   assert.match(migration,/revoke all on function public\.admin_workspace_badges\(\) from public/);

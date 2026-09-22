@@ -120,6 +120,16 @@ test("public resource copy avoids internal SEO jargon", () => {
   assert.ok(detail.includes("Keep planning your next step."));
 });
 
+test("resource hub keeps a shallow crawl path without rendering every client guide", () => {
+  const hub = source("src/app/resources/page.tsx");
+  const detail = source("src/app/resources/[slug]/page.tsx");
+
+  assert.ok(hub.includes('page.audience === "client" && page.intent === "definition"'));
+  assert.ok(hub.includes("SEO_RESOURCE_ROLE_COUNT"));
+  assert.ok(detail.includes("page.internalLinks.map"));
+  assert.ok(detail.includes('page.internalLinks.map((link) => ({ href: link.href'));
+});
+
 test("volume-backed expansion leaves the homepage source untouched", () => {
   const baseRef = process.env.SEO_HOMEPAGE_BASE_REF || "origin/main";
   try {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, UserRoundSearch } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 type Audience = "client" | "va" | null;
 
@@ -205,6 +206,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                   <div className="field span-2"><label htmlFor="booking-responsibilities">What should this VA own? *</label><textarea id="booking-responsibilities" name="message" required minLength={15} maxLength={3000} placeholder="List the main responsibilities, workflows, tools, or outcomes you want this person to own." /></div>
                 </div>
 
+                <TurnstileWidget />
                 <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
                   Confirm this time
                 </button>

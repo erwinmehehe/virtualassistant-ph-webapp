@@ -30,10 +30,10 @@ test("My Day uses bounded operational queue RPCs", async () => {
     read("supabase/migrations/20260914012339_recruiter_ops_core.sql"),
     read("supabase/migrations/20260917004500_recruiter_cleanup_queue.sql")
   ]);
-  assert.match(page, /recruiter_today_queue/);
-  assert.match(page, /p_limit:20/);
-  assert.match(page, /recruiter_lead_cleanup_queue/);
-  assert.match(page, /p_limit:40/);
+  assert.match(page, /recruiter_today_summary/);
+  const summaryMigration=await read("supabase/migrations/20260922101500_dashboard_command_center_summaries.sql");
+  assert.match(summaryMigration,/recruiter_today_queue\(p_user_id, 20\)/);
+  assert.match(summaryMigration,/recruiter_lead_cleanup_queue\(p_user_id, 40\)/);
   assert.match(page, /completeRecruiterTaskAction/);
   assert.match(coreMigration, /create or replace function public\.recruiter_today_queue/);
   assert.match(coreMigration, /limit greatest\(coalesce\(p_limit,20\),1\)/);

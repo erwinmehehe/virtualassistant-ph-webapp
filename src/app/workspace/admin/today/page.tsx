@@ -99,37 +99,37 @@ export default async function AdminTodayPage(){
     {label:"Retention risks",value:Number(summary.at_risk||0),hint:"Needs intervention",href:"/workspace/client-success",icon:<HeartPulse size={16}/>}
   ];
 
+  const ownerSnapshot=[
+    {label:"Owner exceptions",value:ownerAttention,hint:ownerAttention?"Needs your decision":"Queue is clear",href:"/workspace/admin/today#owner-actions",icon:<AlertTriangle size={17}/>,urgent:Boolean(ownerAttention)},
+    {label:"New hiring leads",value:Number(summary.new_leads||0),hint:"New client enquiries",href:"/workspace/admin/leads?view=hiring",icon:<MessageSquare size={17}/>,urgent:false},
+    {label:"Active placements",value:Number(summary.active_placements||0),hint:"Client delivery",href:"/workspace/client-success",icon:<CheckCircle2 size={17}/>,urgent:false},
+    {label:"Overdue collections",value:Number(summary.overdue_invoice_count||0),hint:Number(summary.overdue_invoice_count||0)?`${money(Number(summary.overdue_total||0))} overdue`:"Nothing overdue",href:"/workspace/admin/payments",icon:<CircleDollarSign size={17}/>,urgent:Boolean(summary.overdue_invoice_count)}
+  ];
+
   return <div className="dash-page owner-command-center">
     <DashHeader
       kicker="Agency owner · Today"
       title="Owner Command Center"
-      subtitle={<>Read the business left to right, then work the owner exceptions below. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
+      subtitle={<>Work owner exceptions first, then scan the business flow for anything drifting off course. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
       actions={<>
         <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/admin/funnel">Agency Funnel</Link>
         <Link prefetch={false} className="dash-btn dash-btn-dark" href="/workspace/admin/leads?view=hiring">Hiring leads <ArrowRight size={14}/></Link>
       </>}
     />
 
-    <section className={styles.pipelineSection} aria-label="Agency operating pipeline">
-      <div className={styles.pipelineHeading}>
-        <div><div className="dash-kicker">Business flow</div><h2>Lead → revenue → retention</h2><p>Every number opens the operating queue behind it.</p></div>
-        <span className={`badge ${ownerAttention?"badge-warning":"badge-success"}`}>{ownerAttention} owner exception{ownerAttention===1?"":"s"}</span>
-      </div>
-      <div className={styles.pipelineGrid}>
-        {ownerPipeline.map((item,index)=><Link prefetch={false} className={styles.pipelineItem} href={item.href} key={item.label}>
-          <span className={styles.pipelineIcon}>{item.icon}</span>
-          <span className={styles.pipelineCopy}><strong>{item.label}</strong><small>{item.hint}</small></span>
-          <b>{item.value}</b>
-          {index<ownerPipeline.length-1?<ArrowRight className={styles.pipelineArrow} size={13}/>:null}
-        </Link>)}
-      </div>
+    <section className={styles.snapshotGrid} aria-label="Owner dashboard summary">
+      {ownerSnapshot.map((item)=><Link prefetch={false} className={`${styles.snapshotItem} ${item.urgent ? styles.snapshotUrgent : ""}`} href={item.href} key={item.label}>
+        <span className={styles.snapshotIcon}>{item.icon}</span>
+        <span className={styles.snapshotCopy}><small>{item.label}</small><strong>{item.value}</strong><span>{item.hint}</span></span>
+        <ArrowRight size={14} aria-hidden="true"/>
+      </Link>)}
     </section>
 
-    <div id="owner-actions">
+    <div id="owner-actions" className={styles.ownerActions}>
       <Panel
         title="What needs you now"
-        subtitle="Only owner-level exceptions. Routine recruiting stays in the recruiter workspace."
-        action={<span className="small muted">{ownerAttention} total signal{ownerAttention===1?"":"s"}</span>}
+        subtitle="Only owner-level exceptions. Routine recruiting stays with the recruiter workspace."
+        action={<span className={`badge ${ownerAttention?"badge-warning":"badge-success"}`}>{ownerAttention} exception{ownerAttention===1?"":"s"}</span>}
       >
         {ownerActions.length?<div className="dash-list">
           {ownerActions.map((item,index)=><Link prefetch={false} className="dash-list-row" href={item.href} key={`${item.kind}-${index}-${item.due_at||""}`}>
@@ -146,28 +146,29 @@ export default async function AdminTodayPage(){
       </Panel>
     </div>
 
-    <div className="dash-grid">
-      <div className="dash-col">
-        <Panel title="Revenue & hiring pulse" subtitle="Compact operating signals, not another analytics dashboard">
-          <SignalList items={[
-            {label:"Open hiring leads",count:Number(summary.open_leads||0),href:"/workspace/admin/leads?view=hiring",icon:<BriefcaseBusiness size={16}/>,hint:"Active client hiring pipeline"},
-            {label:"Proposals out",count:Number(summary.proposals_open||0),href:"/workspace/admin/leads?view=hiring",icon:<FileText size={16}/>,hint:"Sent, viewed or changes requested"},
-            {label:"Hiring Rooms waiting",count:Number(summary.hiring_rooms_waiting||0),href:"/workspace/admin/jobs?view=all",icon:<UsersRound size={16}/>,hint:"Client response outstanding 24h+"},
-            {label:"High-priority tasks",count:Number(summary.urgent_tasks||0),href:"/workspace/admin/today#owner-actions",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"}
-          ]}/>
-        </Panel>
+    <section className={styles.pipelineSection} aria-label="Agency operating pipeline">
+      <div className={styles.pipelineHeading}>
+        <div><div className="dash-kicker">Business flow</div><h2>Lead → revenue → retention</h2><p>Use this as a scan, not a second task list. Zero-value stages are intentionally quiet.</p></div>
+        <Link prefetch={false} className="btn btn-sm" href="/workspace/admin/funnel">Open full funnel</Link>
       </div>
-      <div className="dash-col">
-        <Panel title="Client & money pulse" subtitle="Only conditions that can affect retention or cash">
-          <SignalList items={[
-            {label:"At-risk placements",count:Number(summary.at_risk||0),href:"/workspace/client-success",icon:<HeartPulse size={16}/>,hint:"Recovery or replacement signal"},
-            {label:"Renewals in 30 days",count:Number(summary.renewals_30||0),href:"/workspace/client-success",icon:<RefreshCw size={16}/>,hint:"Upcoming client decision"},
-            {label:"Payout ready",count:Number(summary.payout_ready_count||0),href:"/workspace/admin/payments",icon:<CircleDollarSign size={16}/>,hint:Number(summary.payout_ready_count||0)?`${money(Number(summary.payout_ready_total||0))} collected / release pending`:"No payout waiting"},
-            {label:"Payment disputes",count:Number(summary.disputes||0),href:"/workspace/admin/payments",icon:<AlertTriangle size={16}/>,hint:"Frozen until reviewed"}
-          ]}/>
-        </Panel>
+      <div className={styles.pipelineGrid}>
+        {ownerPipeline.map((item,index)=><Link prefetch={false} className={`${styles.pipelineItem} ${item.value ? styles.pipelineActive : styles.pipelineQuiet}`} href={item.href} key={item.label}>
+          <span className={styles.pipelineIcon}>{item.icon}</span>
+          <span className={styles.pipelineCopy}><strong>{item.label}</strong><small>{item.hint}</small></span>
+          <b>{item.value}</b>
+          {index<ownerPipeline.length-1?<ArrowRight className={styles.pipelineArrow} size={13}/>:null}
+        </Link>)}
       </div>
-    </div>
+    </section>
+
+    <Panel title="Watchlist" subtitle="Secondary signals worth scanning after the owner queue is handled." className={styles.watchlistPanel}>
+      <SignalList items={[
+        {label:"Renewals in 30 days",count:Number(summary.renewals_30||0),href:"/workspace/client-success",icon:<RefreshCw size={16}/>,hint:"Upcoming client decision"},
+        {label:"Payout ready",count:Number(summary.payout_ready_count||0),href:"/workspace/admin/payments",icon:<CircleDollarSign size={16}/>,hint:Number(summary.payout_ready_count||0)?`${money(Number(summary.payout_ready_total||0))} collected / release pending`:"No payout waiting"},
+        {label:"Payment disputes",count:Number(summary.disputes||0),href:"/workspace/admin/payments",icon:<AlertTriangle size={16}/>,hint:"Frozen until reviewed"},
+        {label:"High-priority tasks",count:Number(summary.urgent_tasks||0),href:"/workspace/admin/today#owner-actions",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"}
+      ]}/>
+    </Panel>
 
     {!ownerAttention?<div className="dash-notice success"><CheckCircle2 size={16}/><strong>Owner queue is clear.</strong> Routine recruiting and Client Success work can stay with their normal workspaces.</div>:null}
 

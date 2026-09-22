@@ -720,13 +720,13 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
   },
   {
     "slug": "admin-inbox",
-    "name": "Admin & Inbox Virtual Assistant",
+    "name": "Administrative Virtual Assistant",
     "group": "Admin & Operations",
     "directoryCategory": "Administrative Support",
-    "primaryKeyword": "hire admin & inbox virtual assistant philippines",
-    "metaTitle": "Admin & Inbox Virtual Assistant Philippines",
-    "metaDescription": "Hire a vetted Admin & Inbox Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire an Admin & Inbox Virtual Assistant in the Philippines to handle inbox triage, email drafting, and calendar coordination. This is strongest when recurring work has a clear owner, source of truth, due date, and definition of done.",
+    "primaryKeyword": "administrative virtual assistant philippines",
+    "metaTitle": "Administrative Virtual Assistant Philippines",
+    "metaDescription": "Hire an Administrative Virtual Assistant in the Philippines for inbox, calendar, data entry, research, CRM updates and recurring admin support.",
+    "intro": "Hire an Administrative Virtual Assistant in the Philippines to handle inbox triage, email drafting, and calendar coordination. This is strongest when recurring work has a clear owner, source of truth, due date, and definition of done.",
     "focus": "inbox, calendar, scheduling, and recurring administrative support",
     "tasks": [
       "inbox triage",

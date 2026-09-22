@@ -7,7 +7,7 @@ const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8"
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
 const clientCandidateCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
-const recruiterQueue = fs.readFileSync("src/app/workspace/recruiter/client-review/page.tsx", "utf8");
+const recruiterRole = fs.readFileSync("src/app/workspace/recruiter/roles/[id]/page.tsx", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 const migration = fs.readFileSync("supabase/migrations/20260915005739_client_shortlist_feedback_and_availability.sql", "utf8");
 
@@ -39,9 +39,9 @@ test("client shortlist records viewed state and offers interested interview and 
   assert.match(clientCandidates, /ClientShortlistCandidateCard/);
 });
 
-test("recruiter client-review queue exposes follow-up and replacement states", () => {
-  assert.match(recruiterQueue, /Waiting for client/);
-  assert.match(recruiterQueue, /Send follow-up/);
-  assert.match(recruiterQueue, /Needs replacement matches/);
+test("canonical recruiter role workspace exposes client follow-up and replacement states", () => {
+  assert.match(recruiterRole, /Client handoff/);
+  assert.match(recruiterRole, /Send client follow-up/);
+  assert.match(recruiterRole, /Needs replacement matches/);
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
 });

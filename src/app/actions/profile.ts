@@ -155,11 +155,11 @@ export async function updateVaProfileAction(formData: FormData) {
   if (resume instanceof File && resume.size > 0) {
     if (resume.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
     const extension = resume.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
-    const allowedMime = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/octet-stream", ""]);
+    const allowedMime = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]);
     if (!extension || !allowedMime.has(resume.type)) throw new Error("Upload a PDF, DOC, or DOCX resume only.");
     const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "-");
     const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: resume.type || undefined });
+    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: resume.type });
     if (error) throw error;
     const { error: resumePathError } = await admin.from("va_profiles").update({ resume_path: path }).eq("user_id", user.id);
     if (resumePathError) {

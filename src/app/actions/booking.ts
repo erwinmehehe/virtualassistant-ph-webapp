@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireRoleFast } from "@/lib/auth";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { sendTransactionalEventEmail } from "@/lib/email";
@@ -80,4 +81,37 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const label = formatDiscoverySlot(scheduledAt, lead.timezone || "Asia/Manila");
   await sendTransactionalEventEmail({ to: lead.email, subject: `Discovery call rescheduled: ${label}`, heading: "Your discovery call was rescheduled", body: `Your new time is ${label}.`, href: bookingManageUrl(token), hrefLabel: "Manage booking", priority: "critical", idempotencyKey: `booking-rescheduled-${lead.id}-${scheduledAt}` });
   redirect(managePath(token, "rescheduled=1"));
+}
+
+
+export async function openClientDiscoveryBookingAction() {
+  const { userId } = await requireRoleFast("client");
+  const admin = createAdminClient();
+  const { data: leads, error } = await admin
+    .from("lead_intake")
+    .select("id,lead_type,client_id,created_at,discovery_scheduled_at,discovery_outcome,discovery_manage_token,discovery_manage_token_hash")
+    .eq("client_id", userId)
+    .eq("lead_type", "client_hiring")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) redirect("/workspace/client?booking_error=1");
+
+  const lead = (leads || []).find((row: any) =>
+    Boolean(row.discovery_scheduled_at) || ["no_show", "cancelled", "rescheduled"].includes(String(row.discovery_outcome || ""))
+  );
+  if (!lead?.id) redirect("/book-client-call");
+
+  let token = String(lead.discovery_manage_token || "").trim();
+  if (!token) {
+    const manage = createBookingManageToken();
+    token = manage.token;
+    const { error: tokenError } = await admin
+      .from("lead_intake")
+      .update({ discovery_manage_token: manage.token, discovery_manage_token_hash: manage.hash })
+      .eq("id", lead.id)
+      .eq("client_id", userId);
+    if (tokenError) redirect("/workspace/client?booking_error=1");
+  }
+
+  redirect(`/book-client-call/manage?token=${encodeURIComponent(token)}`);
 }

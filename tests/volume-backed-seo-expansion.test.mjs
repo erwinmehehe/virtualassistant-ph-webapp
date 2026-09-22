@@ -58,11 +58,12 @@ test("SEO expansion checker validates all eight September 22 resource families",
   assert.equal(result.invalidSeptember22ServiceMappings, 0);
 });
 
-test("generated resource meta descriptions end on clean word boundaries", () => {
+test("generated resource meta descriptions are complete 120-160 character sentences", () => {
   const resources = source("src/lib/seo-resource-pages.ts");
   assert.match(resources, /function fitMetaDescription\(value: string\)/);
-  assert.match(resources, /normalized\.length <= 160/);
-  assert.match(resources, /candidate\.lastIndexOf\(" "\)/);
+  assert.match(resources, /normalized\.length < 120 \|\| normalized\.length > 160/);
+  assert.match(resources, /throw new Error\("Generated meta description must be 120-160 characters:/);
+  assert.doesNotMatch(resources, /lastIndexOf\(" "\)/);
   assert.doesNotMatch(resources, /\.slice\(0,\s*160\)/);
 
   const generatedMetaCalls = [...resources.matchAll(/metaDescription:\s*fitMetaDescription\(/g)];

@@ -48,7 +48,8 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.match(recruiter, /Action lanes/);
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Today’s work queue/);
-  for (const page of [client, va]) assert.match(page, /refreshed when this page opened/);\n  assert.match(recruiter, /One owner · one next action · one due time/);
+  for (const page of [client, va]) assert.match(page, /refreshed when this page opened/);
+  assert.match(recruiter, /One owner · one next action · one due time/);
 });
 
 test("overview pages preserve useful loading and degraded states", () => {

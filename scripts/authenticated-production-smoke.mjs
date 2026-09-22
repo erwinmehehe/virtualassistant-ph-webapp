@@ -69,7 +69,7 @@ async function signIn(email, password) {
     method: "POST",
     headers: {
       apikey: anonKey,
-      authorization: `Bearer ${anonKey}`,
+      ...(anonKey.startsWith("eyJ") ? { authorization: `Bearer ${anonKey}` } : {}),
       "content-type": "application/json"
     },
     body: JSON.stringify({ email, password })

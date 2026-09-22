@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { scorecardTotal } from "@/lib/vetting";
 import { VETTING_PROFILE_MIN, VETTING_SCORECARD_PASS, VETTING_TEST_PASS } from "@/lib/constants";
+import { APPROVAL_MIN_COMPLETION } from "@/lib/public-visibility";
 
 function cleanUrl(value: FormDataEntryValue | null) {
   const raw = String(value ?? "").trim();
@@ -166,13 +167,17 @@ export async function reviewFinalistAction(formData: FormData) {
   if (!["approve","reject","return"].includes(decision)) throw new Error("Invalid final review decision.");
   if (!notes || notes.length < 20) throw new Error("Add a final review note of at least 20 characters before deciding.");
   const admin = createAdminClient();
-  const [{data:vetting},{data:scorecard}] = await Promise.all([
+  const [{data:vetting},{data:scorecard},{data:vaProfile},{data:accountProfile}] = await Promise.all([
     admin.from("va_vetting").select("stage,recruiter_interview_at").eq("va_id",vaId).single(),
-    admin.from("vetting_scorecards").select("total_score,recommendation").eq("va_id",vaId).order("created_at",{ascending:false}).limit(1).maybeSingle()
+    admin.from("vetting_scorecards").select("total_score,recommendation").eq("va_id",vaId).order("created_at",{ascending:false}).limit(1).maybeSingle(),
+    admin.from("va_profiles").select("*").eq("user_id",vaId).single(),
+    admin.from("profiles").select("avatar_url").eq("id",vaId).single()
   ]);
   if (!vetting || vetting.stage !== "finalist") throw new Error("Only recruiter finalists can enter final review.");
   if (!vetting.recruiter_interview_at || !scorecard || scorecard.recommendation !== "finalist" || scorecard.total_score < VETTING_SCORECARD_PASS) throw new Error("This finalist has not completed the required recruiter interview and score threshold.");
   if (decision === "approve") {
+    const completion = getVaCompletion(vaProfile, accountProfile?.avatar_url).score;
+    if (completion < APPROVAL_MIN_COMPLETION) throw new Error(`Complete at least ${APPROVAL_MIN_COMPLETION}% of the VA profile before approval.`);
     await admin.from("va_vetting").update({stage:"approved",approved_at:new Date().toISOString(),rejected_at:null,admin_notes:notes}).eq("va_id",vaId);
   } else if (decision === "reject") {
     await admin.from("va_vetting").update({stage:"rejected",rejected_at:new Date().toISOString(),admin_notes:notes}).eq("va_id",vaId);

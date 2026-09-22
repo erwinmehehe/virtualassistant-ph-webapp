@@ -1,0 +1,1325 @@
+/* Recruiter operations clarity pass.
+   Work Readiness, Roles talent coverage, Agency Funnel, and Analytics share one visual hierarchy. */
+
+.recruiter-readiness-page,
+.agency-funnel-page,
+.recruiter-analytics-page {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.recruiter-readiness-head,
+.agency-funnel-head,
+.recruiter-analytics-head {
+  margin-bottom: 0;
+}
+
+.recruiter-readiness-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.recruiter-readiness-summary > a {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: #fff;
+  color: inherit;
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.recruiter-readiness-summary > a:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 8px 22px rgba(16,24,40,.06);
+  transform: translateY(-1px);
+}
+
+.recruiter-readiness-summary > a.active {
+  border-color: #a5b4fc;
+  background: linear-gradient(145deg,#fff 42%,#f5f6ff);
+}
+
+.recruiter-readiness-summary span {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.recruiter-readiness-summary strong {
+  color: #101828;
+  font-size: 27px;
+  line-height: 1.05;
+}
+
+.recruiter-readiness-summary small {
+  color: #98a2b3;
+  font-size: 10.5px;
+}
+
+.recruiter-readiness-panel,
+.role-talent-coverage,
+.agency-funnel-section,
+.agency-attention-section,
+.analytics-story-card,
+.analytics-diagnostic-card,
+.analytics-sales-section {
+  min-width: 0;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(16,24,40,.035);
+}
+
+.recruiter-readiness-panel {
+  overflow: hidden;
+}
+
+.recruiter-readiness-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.recruiter-readiness-toolbar h2 {
+  margin: 0;
+  color: #101828;
+  font-size: 18px;
+}
+
+.recruiter-readiness-toolbar p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 12px;
+}
+
+.recruiter-readiness-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.recruiter-readiness-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 8px 5px 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 9px;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recruiter-readiness-tabs a span {
+  display: grid;
+  place-items: center;
+  min-width: 21px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 10px;
+}
+
+.recruiter-readiness-tabs a.active {
+  border-color: #a5b4fc;
+  background: #f5f6ff;
+  color: #3538cd;
+}
+
+.recruiter-readiness-tabs a.active span {
+  background: #e0e7ff;
+  color: #3538cd;
+}
+
+.recruiter-readiness-privacy,
+.analytics-explainer,
+.agency-funnel-explainer {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 13px;
+  background: #f8fafc;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.recruiter-readiness-privacy {
+  margin: 14px 20px 0;
+}
+
+.recruiter-readiness-privacy strong,
+.analytics-explainer strong,
+.agency-funnel-explainer strong {
+  color: #344054;
+}
+
+.analytics-explainer div,
+.agency-funnel-explainer div {
+  display: grid;
+  gap: 2px;
+}
+
+.recruiter-readiness-list {
+  display: grid;
+  margin-top: 14px;
+}
+
+.recruiter-readiness-item {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border-top: 1px solid #f2f4f7;
+}
+
+.recruiter-readiness-item:first-child {
+  border-top: 0;
+}
+
+.recruiter-readiness-item:hover {
+  background: #fcfcfd;
+}
+
+.recruiter-readiness-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recruiter-readiness-name {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.recruiter-readiness-submitted {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  color: #98a2b3;
+  font-size: 10.5px;
+}
+
+.recruiter-readiness-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 23px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.recruiter-readiness-status.is-verified {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.recruiter-readiness-status.is-ready {
+  background: #eef4ff;
+  color: #3538cd;
+}
+
+.recruiter-readiness-status.is-incomplete {
+  background: #fff6ed;
+  color: #b54708;
+}
+
+.recruiter-readiness-next {
+  flex: none;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recruiter-readiness-evidence {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+
+.recruiter-readiness-evidence > div {
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.recruiter-readiness-evidence-icon,
+.agency-section-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.recruiter-readiness-evidence > div > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.recruiter-readiness-evidence small {
+  color: #98a2b3;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.recruiter-readiness-evidence strong {
+  overflow: hidden;
+  color: #344054;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recruiter-readiness-evidence em {
+  color: #667085;
+  font-size: 10.5px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.recruiter-readiness-blockers,
+.recruiter-readiness-verified-note {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.recruiter-readiness-blockers {
+  background: #fff7ed;
+  color: #b54708;
+}
+
+.recruiter-readiness-verified-note {
+  background: #f0fdf4;
+  color: #067647;
+}
+
+.recruiter-readiness-verify {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding-top: 2px;
+}
+
+.recruiter-readiness-verify label {
+  display: grid;
+  gap: 5px;
+}
+
+.recruiter-readiness-verify label > span {
+  color: #475467;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.recruiter-readiness-verify label em {
+  color: #98a2b3;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.recruiter-readiness-verify input {
+  min-height: 42px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+/* Roles: demand and talent supply belong in one workflow. */
+.role-talent-coverage {
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.role-talent-coverage-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-end;
+  padding: 20px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.role-talent-coverage-head h2 {
+  margin: 3px 0 4px;
+  font-size: 19px;
+}
+
+.role-talent-coverage-head p {
+  max-width: 720px;
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.role-coverage-summary {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 0;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.role-coverage-summary > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 16px;
+  border-right: 1px solid #eaecf0;
+}
+
+.role-coverage-summary > div:last-child {
+  border-right: 0;
+}
+
+.role-coverage-summary svg {
+  color: #667085;
+}
+
+.role-coverage-summary span {
+  display: grid;
+}
+
+.role-coverage-summary strong {
+  color: #101828;
+  font-size: 18px;
+}
+
+.role-coverage-summary small {
+  color: #98a2b3;
+  font-size: 10px;
+}
+
+.role-coverage-table-wrap {
+  overflow-x: auto;
+}
+
+.role-coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.role-coverage-table th,
+.role-coverage-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f2f4f7;
+  text-align: left;
+}
+
+.role-coverage-table th {
+  color: #98a2b3;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.role-coverage-table td {
+  color: #475467;
+  font-size: 11.5px;
+}
+
+.role-coverage-table td:first-child strong,
+.role-coverage-table td:first-child small {
+  display: block;
+}
+
+.role-coverage-table td:first-child strong {
+  color: #344054;
+  font-size: 12px;
+}
+
+.role-coverage-table td:first-child small {
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+.coverage-state {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.coverage-state.healthy {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.coverage-state.thin {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.coverage-state.risk {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.coverage-state.quiet {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.role-coverage-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: #f9fafb;
+  color: #667085;
+  font-size: 11px;
+}
+
+/* Agency funnel: stage-to-stage first, diagnostics second. */
+.agency-funnel-page {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.agency-range-tabs {
+  flex: none;
+}
+
+.agency-health-grid,
+.analytics-primary-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 10px;
+}
+
+.agency-health-metric,
+.analytics-primary-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+}
+
+.agency-health-metric {
+  display: grid;
+  gap: 3px;
+  border-top-width: 3px;
+  border-top-color: #c7d2fe;
+}
+
+.agency-health-metric.good {
+  border-top-color: #6ce9a6;
+}
+
+.agency-health-metric.warn {
+  border-top-color: #fec84b;
+}
+
+.agency-health-metric span,
+.analytics-primary-card small {
+  color: #667085;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.agency-health-metric strong {
+  color: #101828;
+  font-size: 25px;
+}
+
+.agency-health-metric small {
+  color: #98a2b3;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.agency-funnel-section,
+.agency-attention-section {
+  padding: 20px;
+}
+
+.agency-funnel-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.agency-funnel-section-head > div:first-child {
+  display: flex;
+  gap: 11px;
+  min-width: 0;
+}
+
+.agency-funnel-section-head h2 {
+  margin: 0;
+  color: #101828;
+  font-size: 17px;
+}
+
+.agency-funnel-section-head p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.agency-funnel-flow {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 8px;
+}
+
+.agency-funnel-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.agency-funnel-step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: #98a2b3;
+  font-size: 10px;
+}
+
+.agency-funnel-step-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.agency-funnel-step-top span {
+  color: #475467;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.agency-funnel-step-top strong {
+  color: #101828;
+  font-size: 19px;
+}
+
+.agency-funnel-step p {
+  min-height: 30px;
+  margin: 0;
+  color: #98a2b3;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.agency-funnel-step-foot {
+  display: grid;
+  gap: 1px;
+  margin-top: 3px;
+  padding-top: 8px;
+  border-top: 1px solid #eaecf0;
+}
+
+.agency-funnel-step-foot span {
+  color: #3538cd;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.agency-funnel-step-foot small {
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+.agency-speed-strip {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agency-speed-strip > div {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: #f8fafc;
+  color: #667085;
+}
+
+.agency-speed-strip span {
+  display: grid;
+}
+
+.agency-speed-strip strong {
+  color: #344054;
+  font-size: 12px;
+}
+
+.agency-speed-strip small {
+  color: #98a2b3;
+  font-size: 10px;
+}
+
+.agency-retention-grid,
+.agency-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+
+.agency-retention-grid > div {
+  display: grid;
+  gap: 3px;
+  padding: 14px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.agency-retention-grid span {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.agency-retention-grid strong {
+  color: #101828;
+  font-size: 23px;
+}
+
+.agency-retention-grid small {
+  color: #98a2b3;
+  font-size: 10px;
+}
+
+.agency-attention-grid {
+  grid-template-columns: repeat(4,minmax(0,1fr));
+}
+
+.agency-attention-grid > a {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  color: inherit;
+  background: #fff;
+}
+
+.agency-attention-grid > a:hover {
+  border-color: #c7d2fe;
+  background: #fafaff;
+}
+
+.agency-attention-grid strong {
+  color: #101828;
+  font-size: 22px;
+}
+
+.agency-attention-grid span {
+  color: #475467;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.agency-attention-grid small {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: #667085;
+  font-size: 10px;
+}
+
+/* Analytics: high-level operating story before deeper diagnostics. */
+.recruiter-analytics-page {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.analytics-primary-card {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+}
+
+.analytics-primary-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 11px;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.analytics-primary-card > span:last-child {
+  display: grid;
+  min-width: 0;
+}
+
+.analytics-primary-card strong {
+  margin: 3px 0;
+  color: #101828;
+  font-size: 24px;
+}
+
+.analytics-primary-card em {
+  color: #98a2b3;
+  font-size: 10.5px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.analytics-story-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 12px;
+}
+
+.analytics-story-card,
+.analytics-diagnostic-card,
+.analytics-sales-section {
+  padding: 18px;
+}
+
+.analytics-story-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.analytics-story-head > div > span {
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.analytics-story-head h2 {
+  margin: 3px 0 0;
+  color: #101828;
+  font-size: 16px;
+}
+
+.analytics-story-head p {
+  margin: 5px 0 0;
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.analytics-story-head > svg {
+  color: #667085;
+}
+
+.analytics-conversion-flow {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.analytics-conversion-flow > div,
+.analytics-operations-list > div {
+  display: grid;
+  gap: 3px;
+  padding: 13px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.analytics-conversion-flow span,
+.analytics-operations-list span {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.analytics-conversion-flow strong,
+.analytics-operations-list strong {
+  color: #101828;
+  font-size: 23px;
+}
+
+.analytics-conversion-flow small,
+.analytics-operations-list small {
+  color: #98a2b3;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.analytics-operations-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.analytics-operations-list > div {
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+}
+
+.analytics-operations-list > div small {
+  grid-column: 1 / -1;
+}
+
+.analytics-detail-grid {
+  margin: 0;
+}
+
+.analytics-ranked-list {
+  display: grid;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.analytics-ranked-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.analytics-ranked-list span {
+  min-width: 0;
+}
+
+.analytics-ranked-list strong,
+.analytics-ranked-list small {
+  display: block;
+}
+
+.analytics-ranked-list strong {
+  overflow: hidden;
+  color: #344054;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-ranked-list small {
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+.analytics-ranked-list b {
+  min-width: 26px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 10.5px;
+  text-align: center;
+}
+
+.analytics-sales-section {
+  display: grid;
+  gap: 16px;
+}
+
+.analytics-sales-head h2 {
+  margin: 3px 0 4px;
+  color: #101828;
+  font-size: 18px;
+}
+
+.analytics-sales-head p {
+  max-width: 760px;
+  margin: 0;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.sales-health-strip {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+}
+
+.sales-health-strip > div {
+  display: grid;
+  gap: 2px;
+  padding: 11px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #f9fafb;
+}
+
+.sales-health-strip span {
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.sales-health-strip strong {
+  color: #101828;
+  font-size: 16px;
+}
+
+.sales-health-strip small {
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+@media (max-width: 1180px) {
+  .recruiter-readiness-summary,
+  .agency-health-grid,
+  .analytics-primary-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .agency-funnel-flow {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .agency-funnel-step::after {
+    display: none !important;
+  }
+
+  .agency-attention-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .recruiter-readiness-toolbar,
+  .role-talent-coverage-head,
+  .agency-funnel-section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recruiter-readiness-tabs {
+    justify-content: flex-start;
+  }
+
+  .recruiter-readiness-evidence {
+    grid-template-columns: 1fr;
+  }
+
+  .role-coverage-summary {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .role-coverage-summary > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .role-coverage-summary > div:nth-child(-n+2) {
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  .analytics-story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-funnel-flow {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .recruiter-readiness-summary,
+  .agency-health-grid,
+  .analytics-primary-grid,
+  .role-coverage-summary,
+  .agency-retention-grid,
+  .agency-attention-grid,
+  .sales-health-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-readiness-summary > a {
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+  }
+
+  .recruiter-readiness-summary > a small {
+    grid-column: 1 / -1;
+  }
+
+  .recruiter-readiness-toolbar,
+  .recruiter-readiness-item,
+  .role-talent-coverage-head,
+  .agency-funnel-section,
+  .agency-attention-section,
+  .analytics-story-card,
+  .analytics-diagnostic-card,
+  .analytics-sales-section {
+    padding: 14px;
+  }
+
+  .recruiter-readiness-privacy {
+    margin: 12px 14px 0;
+  }
+
+  .recruiter-readiness-item-head,
+  .role-coverage-note {
+    flex-direction: column;
+  }
+
+  .recruiter-readiness-next {
+    width: 100%;
+  }
+
+  .recruiter-readiness-verify {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-readiness-verify .btn {
+    width: 100%;
+  }
+
+  .role-coverage-table {
+    min-width: 680px;
+  }
+
+  .agency-funnel-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-speed-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-conversion-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-conversion-flow > svg {
+    display: none;
+  }
+}
+
+
+/* Talent onboarding rescue migrated from the retired Categories dashboard. */
+.talent-onboarding-rescue {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+}
+
+.talent-onboarding-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.talent-onboarding-head h2 {
+  margin: 3px 0 4px;
+  color: #101828;
+  font-size: 17px;
+}
+
+.talent-onboarding-head p {
+  max-width: 720px;
+  margin: 0;
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.talent-onboarding-stats {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  border-bottom: 1px solid #eaecf0;
+}
+
+.talent-onboarding-stats > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px;
+  border-right: 1px solid #eaecf0;
+}
+
+.talent-onboarding-stats > div:last-child {
+  border-right: 0;
+}
+
+.talent-onboarding-stats span {
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.talent-onboarding-stats strong {
+  color: #101828;
+  font-size: 21px;
+}
+
+.talent-onboarding-stats small {
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+.talent-onboarding-list {
+  display: grid;
+}
+
+.talent-onboarding-list > a {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f2f4f7;
+  color: inherit;
+}
+
+.talent-onboarding-list > a:last-child {
+  border-bottom: 0;
+}
+
+.talent-onboarding-list > a:hover {
+  background: #fcfcfd;
+}
+
+.talent-onboarding-state {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: #fff4e5;
+  color: #b54708;
+}
+
+.talent-onboarding-state.verified {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.talent-onboarding-list strong,
+.talent-onboarding-list small {
+  display: block;
+}
+
+.talent-onboarding-list strong {
+  color: #344054;
+  font-size: 11.5px;
+}
+
+.talent-onboarding-list small {
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 9.5px;
+}
+
+.talent-onboarding-list > a > span:last-child {
+  color: #667085;
+  font-size: 10px;
+}
+
+.talent-onboarding-clear {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 13px 16px;
+  color: #067647;
+  font-size: 11px;
+}
+
+@media (max-width: 680px) {
+  .talent-onboarding-head {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .talent-onboarding-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .talent-onboarding-stats > div {
+    border-right: 0;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  .talent-onboarding-stats > div:last-child {
+    border-bottom: 0;
+  }
+
+  .talent-onboarding-list > a {
+    grid-template-columns: 30px minmax(0,1fr);
+    padding: 10px 14px;
+  }
+
+  .talent-onboarding-list > a > span:last-child {
+    grid-column: 2;
+  }
+}

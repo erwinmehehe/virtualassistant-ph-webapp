@@ -14,6 +14,8 @@ const vaLayout = fs.readFileSync("src/app/workspace/va/layout.tsx", "utf8");
 const vaPage = fs.readFileSync("src/app/workspace/va/page.tsx", "utf8");
 const social = fs.readFileSync("src/lib/social-login.ts", "utf8");
 const envExample = fs.readFileSync(".env.example", "utf8");
+const roles = fs.readFileSync("src/app/workspace/recruiter/roles/page.tsx", "utf8");
+const talent = fs.readFileSync("src/app/workspace/recruiter/talent/page.tsx", "utf8");
 const categories = fs.readFileSync("src/app/workspace/recruiter/categories/page.tsx", "utf8");
 const constants = fs.readFileSync("src/lib/constants.ts", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
@@ -94,11 +96,12 @@ test("quick setup preserves existing VA identity and profile state", () => {
   assert.doesNotMatch(quickAction, /availability_status:\s*"available"/);
 });
 
-test("recruiter dashboard has canonical category labels including SMM", () => {
+test("recruiter Roles owns canonical category coverage including SMM", () => {
   assert.match(constants, /"Marketing & Social Media": "SMM \/ Social Media"/);
-  assert.match(categories, /VA categories & onboarding health/);
-  assert.match(categories, /Verified recent 0%/);
-  assert.doesNotMatch(nav, /\["VA categories", "\/workspace\/recruiter\/categories"/);
+  assert.match(roles, /Talent coverage/);
+  assert.match(roles, /vaCategoryLabel/);
+  assert.match(categories, /redirect\("\/workspace\/recruiter\/roles#talent-coverage"\)/);
+  assert.doesNotMatch(nav, /\["Categories", "\/workspace\/recruiter\/categories"/);
 });
 
 
@@ -109,11 +112,11 @@ test("quick setup returns VAs to a guided dashboard rather than dropping them in
   assert.match(vaPage, /OnboardingChecklist/);
 });
 
-test("recruiter onboarding rescue queue focuses on recent zero-completion VAs and prioritizes verified accounts", () => {
-  assert.match(categories, /recentZeroProfiles/);
-  assert.match(categories, /verifiedRecentZero/);
-  assert.match(categories, /Number\(b\.email_verified\) - Number\(a\.email_verified\)/);
-  assert.match(categories, /Recent 0% accounts · 7 days/);
+test("recruiter Talent onboarding rescue focuses on recent zero-completion VAs and prioritizes verified accounts", () => {
+  assert.match(talent, /recentZeroProfiles/);
+  assert.match(talent, /verifiedRecentZero/);
+  assert.match(talent, /Number\(b\.email_verified\) - Number\(a\.email_verified\)/);
+  assert.match(talent, /Recent 0% profiles · 7 days/);
 });
 
 

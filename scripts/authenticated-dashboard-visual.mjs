@@ -187,13 +187,14 @@ try {
     if (!clientResponse?.ok()) throw new Error(`Smoke client Hiring Room returned HTTP ${clientResponse?.status() || "unknown"}.`);
     await clientPage.getByText(`Recruiter shortlist for ${smokeTitle}`, { exact: false }).waitFor({ state: "visible", timeout: 30000 });
     const shortlistText = await clientPage.locator("#recruiter-shortlist .browse-va-grid").innerText();
-    const positions = ["Smoke VA Three", "Smoke VA One", "Smoke VA Two"].map((name) => shortlistText.indexOf(name));
+    const positions = ["QA Smoke Candidate 3", "QA Smoke Candidate 1", "QA Smoke Candidate 2"].map((name) => shortlistText.indexOf(name));
     if (positions.some((value) => value < 0) || !(positions[0] < positions[1] && positions[1] < positions[2])) {
       throw new Error(`Client shortlist order did not match recruiter order: ${positions.join(",")}`);
     }
     await clientPage.screenshot({ path: path.join(outputDir, "client-smoke-shortlist.png"), fullPage: true });
 
-    const firstCard = clientPage.locator("#recruiter-shortlist .browse-va-grid > *").filter({ hasText: "Smoke VA Three" }).first();
+    if (smokeNames.some((name) => shortlistText.includes(name))) throw new Error("Client shortlist exposed an unmasked smoke VA full name.");
+    const firstCard = clientPage.locator("#recruiter-shortlist .browse-va-grid > *").filter({ hasText: "QA Smoke Candidate 3" }).first();
     await firstCard.getByRole("button", { name: "Request interview" }).click();
     await clientPage.waitForURL(/\/workspace\/client\/interviews\?requested=1/, { timeout: 90000 });
     await clientContext.close();

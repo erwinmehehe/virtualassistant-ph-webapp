@@ -274,7 +274,7 @@ console.log(JSON.stringify({
   roleClusters: roleServiceSlugs.length,
   generatedClientResources: (roleServiceSlugs.length - 1) * 2,
   september22Clusters: september22Clusters.length,
-  september22Resources: september22Clusters.length * 6,
+  september22Resources: september22ResourceSlugs.length,
   invalidSeptember22ServiceMappings,
   manualResources: candidateSlugs.length,
   totalResources: (roleServiceSlugs.length - 1) * 2 + candidateSlugs.length,

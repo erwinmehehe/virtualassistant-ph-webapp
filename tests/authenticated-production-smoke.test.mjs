@@ -8,14 +8,14 @@ const smoke = read("scripts/authenticated-production-smoke.mjs");
 const dashboards = {
   client: read("src/app/workspace/client/page.tsx"),
   va: read("src/app/workspace/va/page.tsx"),
-  recruiter: read("src/app/workspace/recruiter/page.tsx"),
+  recruiter: read("src/app/workspace/recruiter/today/page.tsx"),
   admin: read("src/app/workspace/admin/today/page.tsx"),
 };
 
 const expected = {
   client: "Your hiring progress",
   va: "What should you do next?",
-  recruiter: "Today’s work",
+  recruiter: "My Day",
   admin: "Owner Command Center",
 };
 
@@ -27,7 +27,7 @@ test("authenticated production smoke uses markers rendered by each current dashb
 });
 
 test("authenticated production smoke verifies role isolation for every workspace", () => {
-  for (const path of ["/workspace/client", "/workspace/va", "/workspace/recruiter", "/workspace/admin/today"]) {
+  for (const path of ["/workspace/client", "/workspace/va", "/workspace/recruiter/today", "/workspace/admin/today"]) {
     assert.ok(smoke.includes(`path: \"${path}\"`), `smoke config is missing ${path}`);
   }
   assert.match(smoke, /cross-role request should redirect/);

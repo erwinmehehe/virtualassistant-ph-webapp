@@ -35,7 +35,13 @@ jobs:
       SMOKE_VA_PASSWORD: ${{ secrets.SMOKE_VA_PASSWORD }}
       SMOKE_RECRUITER_EMAIL: ${{ secrets.SMOKE_RECRUITER_EMAIL }}
       SMOKE_RECRUITER_PASSWORD: ${{ secrets.SMOKE_RECRUITER_PASSWORD }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
+      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
+      SMOKE_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SMOKE_SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SMOKE_SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -46,54 +52,49 @@ jobs:
         id: credentials
         shell: bash
         run: |
-          if [[ -n "$SMOKE_SUPABASE_URL" && -n "$SMOKE_SUPABASE_ANON_KEY" && -n "$SMOKE_CLIENT_EMAIL" && -n "$SMOKE_CLIENT_PASSWORD" && -n "$SMOKE_VA_EMAIL" && -n "$SMOKE_VA_PASSWORD" && -n "$SMOKE_RECRUITER_EMAIL" && -n "$SMOKE_RECRUITER_PASSWORD" && -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ]]; then
+          if [[ -n "$SMOKE_SUPABASE_URL" && -n "$SMOKE_SUPABASE_ANON_KEY" && -n "$SMOKE_SUPABASE_SERVICE_ROLE_KEY" && -n "$SMOKE_CLIENT_EMAIL" && -n "$SMOKE_CLIENT_PASSWORD" && -n "$SMOKE_VA_EMAIL" && -n "$SMOKE_VA_PASSWORD" && -n "$SMOKE_RECRUITER_EMAIL" && -n "$SMOKE_RECRUITER_PASSWORD" && -n "$SMOKE_ADMIN_EMAIL" && -n "$SMOKE_ADMIN_PASSWORD" ]]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::error::Authenticated dashboard QA is required. Configure the SMOKE_* and VERCEL_AUTOMATION_BYPASS_SECRET repository secrets."
+            echo "::error::Authenticated dashboard QA is required. Configure the SMOKE_* repository secrets, including SMOKE_SUPABASE_SERVICE_ROLE_KEY and the admin test account."
             exit 1
           fi
       - if: steps.credentials.outputs.enabled == 'true'
         run: npm ci
       - if: steps.credentials.outputs.enabled == 'true'
         run: npx playwright install --with-deps chromium
-      - name: Wait for the Vercel PR preview
-        if: steps.credentials.outputs.enabled == 'true'
-        id: preview
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const sha = context.payload.pull_request.head.sha;
-            for (let attempt = 0; attempt < 40; attempt += 1) {
-              const deployments = await github.rest.repos.listDeployments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                sha,
-                per_page: 20
-              });
-              for (const deployment of deployments.data) {
-                const statuses = await github.rest.repos.listDeploymentStatuses({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  deployment_id: deployment.id,
-                  per_page: 20
-                });
-                const ready = statuses.data.find((status) => status.state === "success" && status.environment_url);
-                if (ready) {
-                  core.setOutput("url", ready.environment_url);
-                  return;
-                }
-                const failed = statuses.data.find((status) => ["failure", "error"].includes(status.state));
-                if (failed) core.warning(`Preview deployment is currently ${failed.state}. Waiting for another status.`);
-              }
-              await new Promise((resolve) => setTimeout(resolve, 15000));
-            }
-            core.setFailed("No successful Vercel preview deployment was found for this PR within 10 minutes.");
+      - if: steps.credentials.outputs.enabled == 'true'
+        name: Build authenticated dashboard test app
+        run: npm run build
+      - if: steps.credentials.outputs.enabled == 'true'
+        name: Start local Next.js server
+        shell: bash
+        run: |
+          npm start -- -H 127.0.0.1 -p 3000 > /tmp/dashboard-visual-next.log 2>&1 &
+          echo $! > /tmp/dashboard-visual-next.pid
+          for attempt in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000/auth/login >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/dashboard-visual-next.log
+          exit 1
       - name: Capture authenticated dashboards
         if: steps.credentials.outputs.enabled == 'true'
         env:
-          VISUAL_BASE_URL: ${{ steps.preview.outputs.url }}
+          VISUAL_BASE_URL: http://127.0.0.1:3000
         run: node scripts/authenticated-dashboard-visual.mjs
+      - name: Stop local Next.js server
+        if: always() && steps.credentials.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          if [[ -f /tmp/dashboard-visual-next.pid ]]; then
+            kill "$(cat /tmp/dashboard-visual-next.pid)" || true
+          fi
+          if [[ -f /tmp/dashboard-visual-next.log ]]; then
+            tail -n 200 /tmp/dashboard-visual-next.log
+          fi
       - name: Upload dashboard screenshots
         if: always() && steps.credentials.outputs.enabled == 'true'
         uses: actions/upload-artifact@v6

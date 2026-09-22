@@ -24,6 +24,8 @@ test("rate report explains sample limitations and preferred-rate methodology", (
 
   assert.match(page, /Virtual Assistant Rate & Skills Report Philippines 2026/);
   assert.match(page, /"@type": "Dataset"/);
+  assert.match(page, /DataDownload/);
+  assert.match(page, /virtual-assistant-rates-philippines-2026\.csv/);
   assert.match(page, /not a statistically representative survey of all Filipino Virtual Assistants/);
   assert.match(page, /preferred profile rates are asking preferences/);
   assert.match(page, /current profile form requires at least USD/);

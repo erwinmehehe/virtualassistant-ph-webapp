@@ -323,7 +323,7 @@ export default async function RecruiterTalentDirectory({
       <div className="bulk-action-bar">
         <label className={`bulk-scope ${total > RECRUITER_BULK_LIMIT ? "bulk-scope-blocked" : ""}`}>
           <input type="checkbox" name="selection_scope" value="filtered" disabled={total > RECRUITER_BULK_LIMIT} />
-          <span><strong>{total > RECRUITER_BULK_LIMIT ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > RECRUITER_BULK_LIMIT ? "{`Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer before running a filtered bulk action.`}" : "Leave off to act only on checked rows."}</small></span>
+          <span><strong>{total > RECRUITER_BULK_LIMIT ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > RECRUITER_BULK_LIMIT ? `Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer before running a filtered bulk action.` : "Leave off to act only on checked rows."}</small></span>
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>

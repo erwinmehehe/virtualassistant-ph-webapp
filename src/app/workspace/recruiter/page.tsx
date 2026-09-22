@@ -174,38 +174,6 @@ function RecruiterDashboardFallback() {
         <div className="workspace-skeleton-card" />
         <div className="workspace-skeleton-card" />
       </div>
-      <Panel
-        title="Call rebooking"
-        subtitle="No-show discovery calls stay here until the client chooses another time"
-        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/today#call-rebooking">Open full rebooking queue <ArrowRight size={14} aria-hidden="true" /></Link>}
-      >
-        {noShows.length ? <div className="dash-list">
-          {noShows.map((lead: any) => {
-            const sent = rebookSentIds.has(lead.id);
-            const leadHref = lead.email
-              ? `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`
-              : "/workspace/recruiter/leads?view=discovery";
-            return <div className="dash-list-row" key={lead.id}>
-              <Link prefetch={false} href={leadHref} style={{minWidth:0,flex:1}}>
-                <span>
-                  <strong>{lead.company || lead.name || lead.email || "Client discovery"}</strong>
-                  <small>{lead.email || "No email on file"} · {sent ? "Rebooking link sent, waiting for a new time" : "No-show recorded, rebooking link not sent"}</small>
-                </span>
-              </Link>
-              <div className="row wrap">
-                {sent
-                  ? <Pill tone="emerald">Link sent</Pill>
-                  : <form action={sendDiscoveryNoShowRebookAction}>
-                      <input type="hidden" name="lead_id" value={lead.id} />
-                      <input type="hidden" name="return_to" value="/workspace/recruiter" />
-                      <button className="dash-btn dash-btn-dark" type="submit"><MessageSquare size={14} aria-hidden="true" /> Send rebooking link</button>
-                    </form>}
-              </div>
-            </div>;
-          })}
-        </div> : <Empty title="No clients waiting to rebook" desc="No discovery-call no-shows currently need a new time." />}
-      </Panel>
-
       <div className="dash-grid recruiter-priority-grid">
         <Panel title="Next actions" subtitle="Loading your exact current work">
           <div className="workspace-skeleton-card" />
@@ -363,6 +331,38 @@ async function RecruiterDashboardContent({ userId }: { userId: string }) {
             </div>;
           })}
         </div> : <Empty title="No upcoming discovery calls" desc="There are no active discovery bookings in the next 7 days." />}
+      </Panel>
+
+      <Panel
+        title="Call rebooking"
+        subtitle="No-show discovery calls stay here until the client chooses another time"
+        action={<Link prefetch={false} className="dash-link" href="/workspace/recruiter/today#call-rebooking">Open full rebooking queue <ArrowRight size={14} aria-hidden="true" /></Link>}
+      >
+        {noShows.length ? <div className="dash-list">
+          {noShows.map((lead: any) => {
+            const sent = rebookSentIds.has(lead.id);
+            const leadHref = lead.email
+              ? `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`
+              : "/workspace/recruiter/leads?view=discovery";
+            return <div className="dash-list-row" key={lead.id}>
+              <Link prefetch={false} href={leadHref} style={{minWidth:0,flex:1}}>
+                <span>
+                  <strong>{lead.company || lead.name || lead.email || "Client discovery"}</strong>
+                  <small>{lead.email || "No email on file"} · {sent ? "Rebooking link sent, waiting for a new time" : "No-show recorded, rebooking link not sent"}</small>
+                </span>
+              </Link>
+              <div className="row wrap">
+                {sent
+                  ? <Pill tone="emerald">Link sent</Pill>
+                  : <form action={sendDiscoveryNoShowRebookAction}>
+                      <input type="hidden" name="lead_id" value={lead.id} />
+                      <input type="hidden" name="return_to" value="/workspace/recruiter" />
+                      <button className="dash-btn dash-btn-dark" type="submit"><MessageSquare size={14} aria-hidden="true" /> Send rebooking link</button>
+                    </form>}
+              </div>
+            </div>;
+          })}
+        </div> : <Empty title="No clients waiting to rebook" desc="No discovery-call no-shows currently need a new time." />}
       </Panel>
 
       <div className="dash-grid recruiter-priority-grid">

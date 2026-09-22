@@ -42,7 +42,7 @@ export const VA_RATE_REPORT_2026 = {
   topTools: [
     { label: "Canva", n: 43 },
     { label: "Google Workspace", n: 38 },
-    { label: "Slack", n: 21 },
+    { label: "Slack", n: 20 },
     { label: "Zoom", n: 14 },
     { label: "Microsoft Office", n: 12 },
     { label: "CapCut", n: 11 },

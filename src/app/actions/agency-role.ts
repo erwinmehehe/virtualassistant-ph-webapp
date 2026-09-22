@@ -46,7 +46,7 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
   revalidatePath(`/workspace/recruiter/roles/${job.id}`);
   revalidatePath(`/workspace/client/jobs/${job.id}`);
   revalidatePath("/workspace/admin/jobs");
-  redirect(`/workspace/recruiter/matching/${job.id}?terms_prepared=1`);
+  redirect(`/workspace/recruiter/roles/${job.id}?terms_prepared=1`);
 }
 
 export async function sendClientAccountClaimAction(formData: FormData) {

@@ -62,6 +62,11 @@ export default function VirtualAssistantRatesReport2026() {
         temporalCoverage: "2026",
         spatialCoverage: { "@type": "Country", name: "Philippines" },
         measurementTechnique: "Aggregated self-reported VirtualAssistant.com.ph candidate profile fields",
+        distribution: {
+          "@type": "DataDownload",
+          encodingFormat: "text/csv",
+          contentUrl: base + "/data/virtual-assistant-rates-philippines-2026.csv"
+        },
         variableMeasured: [
           "Preferred hourly rate in USD",
           "Years of professional experience",
@@ -98,6 +103,7 @@ export default function VirtualAssistantRatesReport2026() {
           <div className={styles.meta}>
             <span><CalendarDays size={15} /> Snapshot date: September 22, 2026</span>
             <span><ShieldCheck size={15} /> Aggregated and anonymized</span>
+            <a href="/data/virtual-assistant-rates-philippines-2026.csv" download>Download aggregate CSV</a>
           </div>
 
           <div className={styles.stats}>

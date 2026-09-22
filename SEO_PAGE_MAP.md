@@ -140,7 +140,7 @@ Canonical domain: `https://virtualassistant.com.ph`
 ## SEO resource layer
 
 - `/resources/` is the index for intent-distinct supporting guides.
-- Seventeen commercial role clusters each have definition, tasks, hiring, interview, and Philippines cost resources.
+- Seventeen commercial role clusters each have definition, tasks, hiring, interview, Philippines cost, and role-specific tools resources.
 - Manually defined generic/candidate resources cover job descriptions, applications, resumes, portfolios, skills, requirements, tools, training, certification, freelance work, no-experience intent, non-voice work, part-time work, work-from-home work, interview preparation, and starting a VA side business.
 - Supporting resources link back to one canonical service money page for the commercial role intent.
 - Candidate resources point primarily to `/for-virtual-assistants/`, `/jobs/`, and profile creation instead of the client hiring funnel.

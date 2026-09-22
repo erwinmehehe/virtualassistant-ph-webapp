@@ -149,7 +149,7 @@ export default async function RecruiterMatchingPage({
 
             return <tr key={job.id}>
               <td data-label="Role">
-                <Link className="text-link" href={`/workspace/recruiter/matching/${job.id}`}><strong>{job.title}</strong></Link>
+                <Link className="text-link" href={`/workspace/recruiter/roles/${job.id}`}><strong>{job.title}</strong></Link>
                 <div className="small muted">{job.company_name || (job.client_id ? "Client role" : "Lead awaiting signup")}</div>
               </td>
               <td data-label="Queue"><span className={`badge ${label === "Needs candidates" ? "badge-warning" : label === "Filled" ? "badge-success" : ""}`}>{label}</span></td>
@@ -157,7 +157,7 @@ export default async function RecruiterMatchingPage({
               <td data-label="Applications"><strong>{total}</strong><div className="small muted">{applicationCounts.new || 0} new · {applicationCounts.interview || 0} interview · {applicationCounts.offered || 0} offered</div></td>
               <td data-label="Client access"><span className="small">{candidateAccessLabel(accessMap.get(job.id))}</span></td>
               <td data-label="Submitted">{dateShort(job.created_at)}</td>
-              <td data-label="Action"><div className="matching-row-actions"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/matching/${job.id}`}>{shortlistCounts.proposed + shortlistCounts.released + total ? "Manage role" : "Find Matching VAs"}</Link>{["pending", "published"].includes(job.status) ? <form action={closeRecruiterRoleAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/matching?view=${view}`}/><button className="btn btn-sm" type="submit">Close</button></form> : null}</div></td>
+              <td data-label="Action"><div className="matching-row-actions"><Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/roles/${job.id}`}>{shortlistCounts.proposed + shortlistCounts.released + total ? "Manage role" : "Find Matching VAs"}</Link>{["pending", "published"].includes(job.status) ? <form action={closeRecruiterRoleAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/matching?view=${view}`}/><button className="btn btn-sm" type="submit">Close</button></form> : null}</div></td>
             </tr>;
           }) : <tr><td colSpan={7}><div className="empty">No roles in this view.</div></td></tr>}
         </tbody>

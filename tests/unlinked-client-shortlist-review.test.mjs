@@ -6,7 +6,7 @@ const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const matchingUi = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
-const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/matching/[id]/page.tsx", "utf8");
+const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/roles/[id]/page.tsx", "utf8");
 
 test("unlinked lead roles offer an invite path instead of a dead client-release button", () => {
   assert.match(matchingTable, /name="mode" value="invite"/);

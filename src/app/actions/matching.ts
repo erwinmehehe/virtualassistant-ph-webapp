@@ -105,12 +105,19 @@ export async function saveJobShortlistAction(formData: FormData) {
   const jobId = String(formData.get("job_id") || "");
   const mode = String(formData.get("mode") || "save");
   const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))].slice(0, 50);
-  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/matching/${jobId}` : `/workspace/admin/jobs/${jobId}`);
+  const requestedOrder = String(formData.get("shortlist_order") || "").split(",").map((value) => value.trim()).filter(Boolean);
+  const selectedSet = new Set(selected);
+  const orderedSelected = [
+    ...requestedOrder.filter((id, index) => selectedSet.has(id) && requestedOrder.indexOf(id) === index),
+    ...selected.filter((id) => !requestedOrder.includes(id))
+  ];
+  const returnTo = safeReturnTo(formData.get("return_to"), profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`);
 
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
 
   if (!jobId) return fail("Job is required.");
   if (!selected.length) return fail("Select at least one VA before saving or sending a shortlist.");
+  if (["release", "invite"].includes(mode) && selected.length > 5) return fail("Client shortlists are limited to five VAs. Narrow the selection before sending.");
   if (!["save", "release", "invite"].includes(mode)) return fail("Invalid shortlist action.");
 
   const admin = createAdminClient();
@@ -148,16 +155,18 @@ export async function saveJobShortlistAction(formData: FormData) {
 
   const [{ data: vas }, { data: existing }] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", selected),
-    admin.from("job_shortlist_candidates").select("va_id,shortlist_status").eq("job_id", jobId)
+    admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
+  const existingOrderMap = new Map((existing || []).map((row: any) => [row.va_id, Number(row.shortlist_order || 0)]));
+  const releasedMaxOrder = (existing || []).filter((row: any) => row.shortlist_status === "released").reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
   const now = new Date().toISOString();
   if (mode !== "release") {
     const deselectedProposed = (existing || []).filter((row: any) => row.shortlist_status === "proposed" && !selected.includes(row.va_id)).map((row: any) => row.va_id);
     if (deselectedProposed.length) await admin.from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).in("va_id", deselectedProposed);
   }
-  const rows = selected.map((vaId) => {
+  const rows = orderedSelected.map((vaId, index) => {
     const va = vaMap.get(vaId) as any;
     if (!va) return fail("A selected VA profile could not be loaded. Refresh and try again.");
     const assessment = matchAssessment(job, va);
@@ -169,6 +178,7 @@ export async function saveJobShortlistAction(formData: FormData) {
       match_score: assessment.score,
       match_confidence: assessment.confidence,
       shortlist_status: status,
+      shortlist_order: status === "released" ? (prior === "released" ? existingOrderMap.get(vaId) || index + 1 : releasedMaxOrder + index + 1) : index + 1,
       client_recommendation: cleanClientRecommendation(formData.get(`recommendation_${vaId}`)),
       created_by: user.id,
       released_at: status === "released" ? now : null
@@ -264,7 +274,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
@@ -279,7 +289,7 @@ export async function hideShortlistCandidateAction(formData: FormData) {
   const { error } = await createAdminClient().from("job_shortlist_candidates").update({ shortlist_status: "hidden", released_at: null }).eq("job_id", jobId).eq("va_id", vaId);
   if (error) throw error;
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   redirect(returnTo);
 }

@@ -3,7 +3,7 @@
 
 .recruiter-filter-panel { padding:16px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 4px 18px rgba(16,24,40,.035); }
 .recruiter-filter-panel input,.recruiter-filter-panel select,.bulk-action-bar select { min-height:42px; width:100%; border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 10px; color:var(--text); }
-.filter-primary-row { display:grid; grid-template-columns:minmax(260px,1.6fr) minmax(150px,.65fr) minmax(170px,.75fr) auto auto; gap:10px; align-items:end; }
+.filter-primary-row { display:grid; grid-template-columns:minmax(250px,1.5fr) minmax(140px,.6fr) minmax(165px,.7fr) auto minmax(150px,.6fr) auto; gap:10px; align-items:end; }
 .directory-filter-search { display:flex; align-items:center; gap:9px; min-height:44px; border:1px solid #d0d5dd; border-radius:11px; background:#fff; padding:0 12px; transition:border-color .15s ease,box-shadow .15s ease; }
 .directory-filter-search:focus-within { border-color:#84adf5; box-shadow:0 0 0 3px #eef4ff; }
 .directory-filter-search svg { flex:none; color:#667085; }

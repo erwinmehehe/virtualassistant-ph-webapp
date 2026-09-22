@@ -18,6 +18,7 @@ import { DashHeader, Empty, Panel, Pill, SignalList, type Tone } from "@/compone
 import { requireRole } from "@/lib/auth";
 import { money } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withServerTiming } from "@/lib/server-timing";
 import styles from "./today.module.css";
 
 type OwnerActionRow = {
@@ -79,7 +80,7 @@ function actionIcon(item:OwnerActionRow){
 export default async function AdminTodayPage(){
   await requireRole("admin");
   const admin=createAdminClient();
-  const {data,error}=await admin.rpc("admin_today_summary");
+  const {data,error}=await withServerTiming("admin.today_summary", () => admin.rpc("admin_today_summary"));
   if(error)throw error;
 
   const summary=(data||{}) as AdminTodaySummary;

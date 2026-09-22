@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertCircle, CheckCircle2, ChevronDown, Clock3, Mail, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
+import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-operations-panel";
 import { PublicAvatar } from "@/components/public-avatar";
 import { requireRole } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
@@ -207,6 +208,8 @@ export default async function RecruiterTalentDirectory({
       </div>
     ) : null}
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}
+
+    {params.view === "bench" ? <RecruiterTalentOperationsPanel /> : null}
 
     <section className="talent-onboarding-rescue">
       <div className="talent-onboarding-head">

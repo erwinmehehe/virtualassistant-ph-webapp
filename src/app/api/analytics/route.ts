@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getSessionProfile } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 const fixedEvents = new Set([
   "page_view",
@@ -57,14 +57,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { user } = await getSessionProfile();
+    const supabase = await createClient();
+    const { data: claimsData } = await supabase.auth.getClaims();
+    const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
     await admin.from("analytics_events").insert({
       event_name: parsed.data.event,
       path: parsed.data.path,
       referrer: parsed.data.referrer ?? null,
       session_id: parsed.data.session_id ?? null,
-      user_id: user?.id ?? null,
+      user_id: userId,
       metadata: parsed.data.metadata ?? {}
     });
   } catch {

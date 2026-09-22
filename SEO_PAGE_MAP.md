@@ -161,10 +161,12 @@ Commercial-investigation, definition, career, and candidate-learning topics live
 
 ## SEO resource layer
 
-- `/resources/` remains the support layer for intent-distinct role hiring guides such as tasks, interviews, costs, tools, and hiring workflows.
-- Twenty-five commercial role clusters each have definition, tasks, hiring, interview, Philippines cost, and role-specific tools resources.
+- `/resources/` remains the support layer for role-specific commercial guidance that is meaningfully different from the main service page.
+- Twenty-four role families keep two deep supporting resources: one hiring guide and one Philippines cost guide.
+- Definition, tasks, and tools intent is consolidated into the canonical service page because those topics are already covered there.
+- Interview-question intent is folded into the deeper hiring guide instead of creating another thin URL.
+- Payroll Virtual Assistant resources defer to the existing Payroll blog canonicals rather than duplicating them.
 - Candidate and broad informational topics are consolidated into the blog when they are editorial rather than transactional.
-- Supporting resources link back to one canonical service money page for the commercial role intent.
 
 ## Notes
 

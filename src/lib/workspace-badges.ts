@@ -9,16 +9,13 @@ type QueryError = { message?: string; code?: string } | null;
 
 async function getAdminBadges(): Promise<WorkspaceBadges> {
   const admin = createAdminClient();
-  const [newLeads, marginApprovals, awaitingPayments, payoutReady] = await Promise.all([
-    admin.from("lead_intake").select("id", { count: "exact", head: true }).eq("crm_stage", "new").neq("status", "spam"),
-    admin.from("placement_finance_profiles").select("workroom_id", { count: "exact", head: true }).eq("exception_status", "pending"),
-    admin.from("payments").select("id", { count: "exact", head: true }).eq("status", "awaiting_payment"),
-    admin.from("payments").select("id", { count: "exact", head: true }).eq("status", "release_pending"),
-  ]);
+  const { data, error } = await admin.rpc("admin_workspace_badges");
+  if (error) throw error;
+  const raw = (data || {}) as Record<string, unknown>;
 
   return {
-    "/workspace/admin/sales": Number(newLeads.count || 0),
-    "/workspace/admin/finance": Number(marginApprovals.count || 0) + Number(awaitingPayments.count || 0) + Number(payoutReady.count || 0),
+    "/workspace/admin/sales": Number(raw.sales || 0),
+    "/workspace/admin/finance": Number(raw.finance || 0),
   };
 }
 

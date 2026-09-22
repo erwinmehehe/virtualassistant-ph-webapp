@@ -56,6 +56,13 @@ const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList([
 const blockedEmailSet = new Set(BLOCKED_EMAIL_RECIPIENTS.map((email) => email.toLowerCase()));
 const isBlockedEmailRecipient = (email: string) => blockedEmailSet.has(email.toLowerCase());
 
+const NON_DELIVERABLE_TEST_DOMAINS = new Set(["test.com", "example.com", "example.org", "example.net", "invalid"]);
+function isNonDeliverableTestRecipient(value: string) {
+  const email = bareEmailAddress(value).toLowerCase();
+  const domain = email.split("@")[1] || "";
+  return NON_DELIVERABLE_TEST_DOMAINS.has(domain) || domain.endsWith(".invalid");
+}
+
 const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
   "erwinvalles20@gmail.com",
   "jrvsaccad@gmail.com",
@@ -236,7 +243,9 @@ async function trackedSend(
   // Automated mail is recipient-only by default. Archive copies must be explicitly
   // requested by a human-written flow.
   const archiveBcc = options?.archive === true ? archiveExtraFor(payload) : undefined;
-  const rawTo = normalizeEmailList(payload.to).filter((email) => !isBlockedEmailRecipient(email));
+  const normalizedTo = normalizeEmailList(payload.to).filter((email) => !isBlockedEmailRecipient(email));
+  const testRecipients = normalizedTo.filter(isNonDeliverableTestRecipient);
+  const rawTo = normalizedTo.filter((email) => !isNonDeliverableTestRecipient(email));
   const hasExternalRecipient = rawTo.some((email) => !isPrivateInternalEmail(email));
   const to = hasExternalRecipient ? rawTo.filter((email) => !isPrivateInternalEmail(email)) : rawTo;
 
@@ -261,6 +270,14 @@ async function trackedSend(
     idempotencyKey: options?.idempotencyKey || null,
     automation: eventType
   };
+  if (testRecipients.length) {
+    await logEmailEvent(eventType, testRecipients, "suppressed", null, "Reserved test-domain recipient was not sent to the email provider.", {
+      ...eventMeta,
+      recipientCount: testRecipients.length,
+      skipReason: "non_deliverable_test_domain"
+    });
+  }
+
   const suppressionCheck = [...new Set([...to, ...cc, ...bcc].map((email) => email.toLowerCase()))];
   let suppressed = new Set<string>();
   let suppressionError: unknown = null;

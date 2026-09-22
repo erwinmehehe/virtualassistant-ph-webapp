@@ -526,7 +526,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
           <SectionHead center kicker="First 30 days" title={`A practical onboarding plan for ${article} ${s.name}`} lede="Keep the first month narrow enough to review properly. Add scope only after the original workflow is accurate and predictable."/>
           <Steps columns={3} items={[
             { label: "Week 1", title: "Learn the workflow", copy: editorial.weekOne },
-            { label: "Weeks 2–3", title: "Add ownership", copy: editorial.weekTwo },
+            { label: "Weeks 2-3", title: "Add ownership", copy: editorial.weekTwo },
             { label: "Week 4", title: "Review by outcomes", copy: editorial.monthOne }
           ]}/>
         </Band>

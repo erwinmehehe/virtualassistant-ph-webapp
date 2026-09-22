@@ -4,6 +4,7 @@ export type PublicSeoRoute = {
   description: string;
   changeFrequency: "weekly" | "monthly";
   priority: number;
+  lastModified?: string;
   llmsSection?: "Hiring and Vetting" | "Services and Role Discovery" | "Tools" | "For Virtual Assistants" | "Editorial Resources" | "Optional";
 };
 
@@ -134,6 +135,15 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     description: "Guides about hiring, managing, budgeting for, and working with Filipino virtual assistants.",
     changeFrequency: "monthly",
     priority: 0.8,
+    llmsSection: "Editorial Resources",
+  },
+  {
+    path: "/research/virtual-assistant-rates-philippines-2026",
+    label: "2026 Virtual Assistant Rate & Skills Report",
+    description: "First-party aggregate data on preferred USD hourly rates, experience, specialties, skills, and tools in VirtualAssistant.com.ph candidate profiles.",
+    changeFrequency: "monthly",
+    priority: 0.82,
+    lastModified: "2026-09-22",
     llmsSection: "Editorial Resources",
   },
   {

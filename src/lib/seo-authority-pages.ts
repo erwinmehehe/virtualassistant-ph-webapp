@@ -26,21 +26,23 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
   companies: {
     path: "/virtual-assistant-companies-philippines",
     title: "Virtual Assistant Companies in the Philippines",
-    metaTitle: "Virtual Assistant Companies Philippines | 2026 Guide",
-    metaDescription: "Compare Virtual Assistant companies in the Philippines by hiring model, vetting, management, pricing structure, support, and role coverage.",
+    metaTitle: "Virtual Assistant Companies & Agencies Philippines | 2026",
+    metaDescription: "Compare Virtual Assistant companies and agencies in the Philippines by hiring model, vetting, pricing, management, role coverage, and replacement support.",
     keywords: [
       "virtual assistant companies",
       "virtual assistant companies philippines",
       "best virtual assistant companies",
       "virtual assistant agencies",
+      "virtual assistant agency philippines",
+      "agency for virtual assistants philippines",
       "virtual assistant firms",
       "virtual assistant providers",
       "virtual assistant staffing",
       "virtual assistant staffing agency"
     ],
     eyebrow: "Provider comparison guide",
-    h1: "Virtual Assistant companies in the Philippines: how to compare providers",
-    lede: "The right provider depends on how much recruiting, screening, day-to-day management, replacement support, and operational help you want after the hire. Compare the operating model before comparing logos.",
+    h1: "Virtual Assistant companies and agencies in the Philippines: how to compare providers",
+    lede: "If you are comparing a Virtual Assistant agency or company in the Philippines, start with the operating model. The right provider depends on how much recruiting, screening, day-to-day management, replacement support, and operational help you want after the hire.",
     sections: [
       {
         heading: "Start with the hiring model",
@@ -94,7 +96,8 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
       { q: "What should I compare between Virtual Assistant companies?", a: "Compare the hiring model, candidate screening, role specialization, pricing structure, replacement or recovery support, management responsibilities, schedule coverage, and what happens after placement. The cheapest headline price is not enough to tell you which model fits your business." },
       { q: "Is a Virtual Assistant agency the same as a Virtual Assistant company?", a: "The terms are often used interchangeably in search. In practice, companies may operate as marketplaces, recruiters, managed service providers, or outsourced teams. Ask what the provider actually does before and after the hire." },
       { q: "Should I use a marketplace or a managed Virtual Assistant company?", a: "A marketplace can fit teams that want to source and manage candidates themselves. A managed service can fit businesses that want more help with recruiting, matching, onboarding, placement monitoring, and replacement support." },
-      { q: "How do I compare Virtual Assistant companies in the Philippines?", a: "Use the same written role brief for every provider. Compare who they present, what evidence supports the match, how pricing is structured, what support continues after placement, and whether the candidate can work your required schedule." }
+      { q: "How do I compare Virtual Assistant companies in the Philippines?", a: "Use the same written role brief for every provider. Compare who they present, what evidence supports the match, how pricing is structured, what support continues after placement, and whether the candidate can work your required schedule." },
+      { q: "How do I choose a Virtual Assistant agency in the Philippines?", a: "Define the role first, then compare how each agency sources and screens candidates, what you can review before interview, how fees are structured, who manages the placement, and what replacement or recovery support continues after hiring." }
     ],
     primary: { href: "/services", label: "Compare VA services" },
     secondary: { href: "/hire", label: "Send a hiring brief" },

@@ -109,6 +109,7 @@ export type RecruiterActivityRow = {
 export type RecruiterVaDirectoryRow = {
   user_id: string;
   full_name: string | null;
+  avatar_url: string | null;
   headline: string | null;
   primary_category: string | null;
   availability_status: string | null;

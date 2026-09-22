@@ -14,7 +14,8 @@ test("smoke VAs remain above the shared approval completion floor",()=>{
 test("stale VA availability is blocked before client shortlist release",()=>{
   const action=read("src/app/actions/matching.ts");
   const table=read("src/components/matching-candidate-table.tsx");
-  assert.match(action,/const AVAILABILITY_FRESH_DAYS = 14/);\n  assert.match(action,/availabilityCutoff = Date\.now\(\) - AVAILABILITY_FRESH_DAYS \* 24 \* 60 \* 60 \* 1000/);
+  assert.match(action,/const AVAILABILITY_FRESH_DAYS = 14/);
+  assert.match(action,/availabilityCutoff = Date\.now\(\) - AVAILABILITY_FRESH_DAYS \* 24 \* 60 \* 60 \* 1000/);
   assert.match(action,/must reconfirm availability before client release/);
   assert.match(action,/includes\("VA availability is stale"\)/);
   assert.match(table,/releaseReady\?: boolean/);

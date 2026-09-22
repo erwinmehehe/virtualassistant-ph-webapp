@@ -76,19 +76,15 @@ export default async function PublicJobsPage({
   const requestedPage = Math.max(1, Number(params.page || 1) || 1);
   let jobs: any[] = [];
   let total = 0;
-  let companyMap = new Map<string, any>();
 
   try {
     const supabase = await createClient();
     let query: any = supabase
-      .from("jobs")
+      .from("public_jobs")
       .select(
-        "id,slug,title,client_id,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at",
+        "id,slug,title,company_name,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at,company_logo_url,company_industry,company_location,company_verified_at,company_hires_count",
         { count: "exact" },
-      )
-      .eq("status", "published")
-      .eq("moderation_status", "clear")
-      .not("client_id", "is", null);
+      );
 
     if (q) query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);
     if (category) query = query.contains("categories", [category]);
@@ -104,14 +100,6 @@ export default async function PublicJobsPage({
     jobs = result.data || [];
     total = result.count || 0;
 
-    const clientIds = [...new Set(jobs.map((job: any) => job.client_id).filter(Boolean))];
-    if (clientIds.length) {
-      const { data: companies } = await supabase
-        .from("public_company_profiles")
-        .select("user_id,company_name,logo_url,industry,location,verified_at,hires_count")
-        .in("user_id", clientIds);
-      companyMap = new Map((companies || []).map((company: any) => [company.user_id, company]));
-    }
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.warn("[jobs] Supabase unavailable:", (err as Error).message);
@@ -247,7 +235,18 @@ export default async function PublicJobsPage({
 
             <div className="jobs-list">
               {jobs.length ? jobs.map((job) => (
-                <JobCard key={job.id} job={job} company={companyMap.get(job.client_id)} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  company={{
+                    company_name: job.company_name,
+                    logo_url: job.company_logo_url,
+                    industry: job.company_industry,
+                    location: job.company_location,
+                    verified_at: job.company_verified_at,
+                    hires_count: job.company_hires_count,
+                  }}
+                />
               )) : (
                 <div className="jobs-empty-market">
                   <div className="jobs-empty-icon"><BriefcaseBusiness size={25} /></div>

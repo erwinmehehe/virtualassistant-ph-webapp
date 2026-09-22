@@ -14,6 +14,7 @@ const files = {
   priorityLinks: fs.readFileSync("src/lib/seo-priority-links.ts", "utf8"),
   archive: fs.readFileSync("src/lib/archive-posts.ts", "utf8"),
   servicePages: fs.readFileSync("src/lib/service-pages.ts", "utf8"),
+  hiringCss: fs.readFileSync("src/app/hiring-pages.css", "utf8"),
 };
 
 const failures = [];
@@ -53,6 +54,14 @@ const september22Clusters = [
 ];
 const september22Slugs = new Set(september22Clusters.map(([serviceSlug]) => serviceSlug));
 let invalidSeptember22ServiceMappings = 0;
+const september22ResourceSlugs = september22Clusters.flatMap(([, slugBase]) => [
+  `what-does-a-${slugBase}-do`,
+  `${slugBase}-tasks`,
+  `how-to-hire-a-${slugBase}`,
+  `${slugBase}-interview-questions`,
+  `${slugBase}-cost-philippines`,
+  `best-tools-for-${slugBase}`
+]);
 
 for (const [serviceSlug, slugBase] of september22Clusters) {
   const rolePattern = new RegExp(`serviceSlug:\\s*"${serviceSlug}"[\\s\\S]{0,160}slugBase:\\s*"${slugBase}"`);
@@ -70,6 +79,9 @@ assert(roleServiceSlugs.length === 25, `expected 25 role clusters, found ${roleS
 assert(new Set(roleServiceSlugs).size === roleServiceSlugs.length, "duplicate serviceSlug in SEO role clusters");
 assert(new Set(roleSlugBases).size === roleSlugBases.length, "duplicate slugBase in SEO role clusters");
 assert([...september22Slugs].every((slug) => roleServiceSlugs.includes(slug)), "one or more September 22 role clusters are missing");
+assert(september22ResourceSlugs.length === 48, `expected 48 September 22 generated resource URLs, found ${september22ResourceSlugs.length}`);
+assert(new Set(september22ResourceSlugs).size === 48, "duplicate September 22 generated resource URL");
+assert(!september22ResourceSlugs.some((slug) => candidateSlugs.includes(slug)), "September 22 resource URL collides with a manual resource page");
 assert(files.resources.includes("function withArticle(value: string)"), "generated role pages must use a/an grammar helper");
 assert(files.resources.includes("function fitMetaTitle(primary: string, fallback: string)"), "generated role pages must enforce meta-title length");
 for (const unsafe of [
@@ -111,6 +123,10 @@ assert(files.serviceRoute.includes('serviceSeoResources(s.slug)'), "service page
 assert(files.serviceRoute.includes('href={"/resources/" + resource.slug}'), "service pages do not link expanded resources");
 assert(files.resourceRoute.includes('generateStaticParams()'), "resource route must statically enumerate pages");
 assert(files.resourceRoute.includes('canonicalPath("/resources/" + page.slug)'), "resource route missing canonical metadata");
+assert(files.resourceRoute.includes('className="sp-cards-4"'), "resource template missing responsive card grid");
+assert(files.hiringCss.includes("@media (max-width: 760px)"), "resource shared styles missing mobile breakpoint");
+assert(files.hiringCss.includes(".sp-cards-4,"), "resource card grid missing responsive style coverage");
+assert(files.hiringCss.includes("grid-template-columns: minmax(0, 1fr)"), "resource cards do not collapse to one column on mobile");
 assert(files.services.includes('href="/virtual-assistant-companies-philippines"'), "services hub missing companies guide link");
 assert(files.services.includes('href="/virtual-assistant-australia"'), "services hub missing Australia guide link");
 assert(files.services.includes('href="/what-is-a-virtual-assistant"'), "services hub missing definition guide link");

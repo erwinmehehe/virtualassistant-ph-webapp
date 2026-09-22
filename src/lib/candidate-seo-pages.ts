@@ -99,7 +99,7 @@ export const CANDIDATE_SEO_PAGES: CandidateSeoPage[] = [
       { heading: "Start applying strategically", paragraphs: ["Apply to roles where your evidence matches the responsibilities. Early in your VA career, a narrower role with clear expectations can be better than a broad position asking one person to do admin, sales, design, bookkeeping and technical work at once."] }
     ],
     ctaLabel: "Create your VA profile"
-  }
+  },
   {
     slug: "virtual-assistant-tools",
     title: "Best Virtual Assistant Tools for Remote Work",

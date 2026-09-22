@@ -25,6 +25,8 @@ type Row = {
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
+  releaseReady?: boolean;
+  releaseBlocker?: string | null;
 };
 
 type FormAction = (formData: FormData) => void | Promise<void>;
@@ -57,12 +59,14 @@ function decisionLabel(value?: string | null) {
 export function MatchingCandidateTable({
   pool,
   hideShortlistCandidateAction,
+  remindVaAvailabilityAction,
   saveClientRecommendationAction,
   canSendClient,
   canInviteClient
 }: {
   pool: Row[];
   hideShortlistCandidateAction: FormAction;
+  remindVaAvailabilityAction: FormAction;
   saveClientRecommendationAction: FormAction;
   canSendClient: boolean;
   canInviteClient: boolean;
@@ -93,6 +97,7 @@ export function MatchingCandidateTable({
   const visible = query || showAll ? filtered : filtered.slice(0, 20);
   const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];
   const selectedCount = selectedOrder.length;
+  const selectedReleaseBlocked = selectedRows.filter((row) => row.releaseReady === false);
 
   function toggleSelected(vaId: string, checked: boolean) {
     setSelectedOrder((current) => {
@@ -128,12 +133,17 @@ export function MatchingCandidateTable({
         </button>
         <button className="btn" type="submit" name="mode" value="save" disabled={!selectedCount}>Save {selectedCount || ""} internally</button>
         {canSendClient
-          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5}>Send {selectedCount || 0} to client</button>
+          ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5 || selectedReleaseBlocked.length > 0}>Send {selectedCount || 0} to client</button>
           : canInviteClient
             ? <button className="btn btn-primary" type="submit" name="mode" value="invite" disabled={!selectedCount || selectedCount > 5}>Save {selectedCount || 0} + invite client</button>
             : null}
       </div>
     </div>
+
+    {canSendClient && selectedReleaseBlocked.length ? <div className="alert" role="alert" style={{margin:"0 0 14px"}}>
+      <div className="row"><AlertTriangle size={15}/><strong>Availability confirmation required before client release</strong></div>
+      <p className="small" style={{margin:"6px 0 0"}}>{selectedReleaseBlocked.length} selected VA{selectedReleaseBlocked.length===1?" needs":"s need"} to reconfirm current availability. You can still save the shortlist internally, but Send to client stays disabled until every selected VA is current.</p>
+    </div> : null}
 
     {showClientPreview && selectedRows.length ? <section className="card" style={{margin:"0 0 16px",background:"#f8fafc"}} aria-label="Client shortlist preview">
       <div className="row-between wrap" style={{marginBottom:12}}>
@@ -208,7 +218,11 @@ export function MatchingCandidateTable({
             <div style={{marginTop:8}}><Link className="text-link small" href={`/workspace/recruiter/candidates/${vaId}/screening`}>Open recruiter scorecard</Link></div>
           </td>
           <td data-label="Match">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></>}</td>
-          <td data-label="Availability"><span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span><div className="small muted">From the VA&apos;s current profile</div></td>
+          <td data-label="Availability">
+            <span className={`badge ${row.releaseReady ? "badge-success" : "badge-warning"}`}>{row.releaseReady ? availabilityLabel(row.va.availability_status) : "Confirmation needed"}</span>
+            <div className="small muted">{row.releaseReady ? <>From the VA&apos;s current profile · confirmed within the last 14 days</> : row.releaseBlocker || "Fresh availability confirmation required"}</div>
+            {!row.releaseReady && !alreadyReleased ? <button className="text-button" type="submit" formAction={remindVaAvailabilityAction} name="availability_va_id" value={vaId}>Send availability reminder</button> : null}
+          </td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>
           <td data-label="Client recommendation">

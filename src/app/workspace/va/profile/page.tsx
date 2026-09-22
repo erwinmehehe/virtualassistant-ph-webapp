@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock3, Eye, ShieldCheck } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateVaProfileAction } from "@/app/actions/profile";
 import { confirmVaAvailabilityAction } from "@/app/actions/agency-operations-v2";
@@ -19,9 +19,9 @@ function availabilityAge(value?:string|null){
 
 export default async function VaProfilePage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
-  const [{ user, profile },settings] = await Promise.all([requireRole("va"),getBusinessSettings()]);
+  const [{ userId, profile },settings] = await Promise.all([requireRoleFast("va"),getBusinessSettings()]);
   const supabase = await createClient();
-  const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).single();
+  const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", userId).single();
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" }) : null;
   const freshness=availabilityAge(va?.availability_confirmed_at);

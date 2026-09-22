@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 import type { Role } from "@/lib/types";
@@ -19,10 +20,16 @@ async function getAdminBadges(): Promise<WorkspaceBadges> {
   };
 }
 
+const getCachedAdminBadges = unstable_cache(
+  getAdminBadges,
+  ["admin-workspace-badges"],
+  { revalidate: 15 },
+);
+
 export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeResult(role: Role, userId: string): Promise<{ badges: WorkspaceBadges; error: QueryError }> {
   try {
     if (role === "admin") {
-      return { badges: await withServerTiming("workspace.badges.admin", getAdminBadges), error: null };
+      return { badges: await withServerTiming("workspace.badges.admin", getCachedAdminBadges), error: null };
     }
 
     const admin = createAdminClient();

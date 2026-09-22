@@ -111,6 +111,18 @@ export async function requireRoleFast(role: Role) {
   return session as typeof session & { userId: string; profile: NonNullable<typeof session.profile> };
 }
 
+export async function requireAnyRoleFast(roles: Role[]) {
+  const session = await getFastRoleProfile();
+  if ("banned" in session && session.banned) redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");
+  if (!session.userId) redirect("/auth/login");
+  if (!session.profile || !roles.includes(session.profile.role as Role)) {
+    const actual = session.profile?.role;
+    if (actual) redirect(roleHome(actual as Role));
+    redirect("/auth/login?error=Your%20account%20is%20signed%20in%20but%20its%20workspace%20role%20is%20not%20configured");
+  }
+  return session as typeof session & { userId: string; profile: NonNullable<typeof session.profile> };
+}
+
 export async function requireRole(role: Role) {
   const session = await getSessionProfile();
   if ("banned" in session && session.banned) redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");

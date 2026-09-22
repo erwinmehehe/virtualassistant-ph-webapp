@@ -17,11 +17,12 @@ test("stale VA availability is blocked before client shortlist release",()=>{
   assert.match(action,/availabilityCutoff = Date\.now\(\) - 14 \* 24 \* 60 \* 60 \* 1000/);
   assert.match(action,/must reconfirm availability before client release/);
   assert.match(action,/includes\("VA availability is stale"\)/);
-  assert.match(table,/function availabilityIsCurrent/);
-  assert.match(table,/availabilityBlocked/);
-  assert.match(table,/Confirmation required/);
-  assert.match(table,/VA must reconfirm availability before client release/);
-  assert.match(table,/disabled=\{alreadyReleased \|\| hardBlocked \|\| availabilityBlocked/);
+  assert.match(table,/releaseReady\?: boolean/);
+  assert.match(table,/selectedReleaseBlocked = selectedRows\.filter\(\(row\) => row\.releaseReady === false\)/);
+  assert.match(table,/selectedReleaseBlocked\.length > 0/);
+  assert.match(table,/Availability confirmation required before client release/);
+  assert.match(table,/Confirmation needed/);
+  assert.match(table,/Send availability reminder/);
 });
 
 test("recruiter commercial actions stay on the canonical role workspace",()=>{

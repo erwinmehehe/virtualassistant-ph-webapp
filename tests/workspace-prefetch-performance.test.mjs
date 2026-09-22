@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(path, "utf8");
 const nav = read("src/components/app-nav-links.tsx");
 const dashUi = read("src/components/dash-ui.tsx");
-const recruiter = read("src/app/workspace/recruiter/page.tsx");
+const recruiter = read("src/app/workspace/recruiter/today/page.tsx");
 const clientSuccess = read("src/app/workspace/client-success/page.tsx");
 
 // Authenticated workspace links are intentionally click-to-load. The production
@@ -19,10 +19,9 @@ test("shared dashboard cards and signal links avoid background route prefetch", 
   assert.match(dashUi, /<Link prefetch=\{false\} className="dash-signal"/);
 });
 
-test("recruiter overview does not preload record-level action pages", () => {
-  assert.match(recruiter, /<Link prefetch=\{false\} key=\{`\$\{item\.kind\}-\$\{item\.id\}`\}/);
-  assert.match(recruiter, /<Link prefetch=\{false\} className="dash-list-row" href=\{`\/workspace\/recruiter\/matching\/\$\{job\.id\}`\}/);
-  assert.match(recruiter, /<Link prefetch=\{false\} className="dash-btn dash-btn-light" href=\{`\/workspace\/recruiter\/candidates\/\$\{row\.va_id\}`\}/);
+test("recruiter My Day does not preload dense action destinations", () => {
+  assert.match(recruiter, /<Link prefetch=\{false\} className=\{styles\.actionLane/);
+  assert.match(recruiter, /<Link prefetch=\{false\} className="btn"/);
 });
 
 test("Client Success queue does not prefetch every placement detail", () => {

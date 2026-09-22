@@ -48,6 +48,9 @@ const nextConfig: NextConfig = {
       { source: "/resources/what-does-a-airbnb-virtual-assistant-do/", destination: "/resources/what-does-an-airbnb-virtual-assistant-do", permanent: true },
       { source: "/resources/how-to-hire-a-airbnb-virtual-assistant", destination: "/resources/how-to-hire-an-airbnb-virtual-assistant", permanent: true },
       { source: "/resources/how-to-hire-a-airbnb-virtual-assistant/", destination: "/resources/how-to-hire-an-airbnb-virtual-assistant", permanent: true },
+      // Consolidate the earlier side-hustle resource into the broader high-volume VA business guide.
+      { source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true },
+      { source: "/resources/virtual-assistant-side-hustle-business-guide/", destination: "/resources/how-to-start-a-virtual-assistant-business", permanent: true },
       // Recovered from the previous WordPress site's 404 report.
       { source: "/blog-onboard-your-va", destination: "/blog", permanent: true },
       { source: "/blog-onboard-your-va/", destination: "/blog", permanent: true },

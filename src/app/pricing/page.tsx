@@ -14,7 +14,7 @@ import "../info-pages.css";
 import "./pricing-page.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates"] , alternates: { canonical: canonicalPath("/pricing") }};
+export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates", "affordable virtual assistant", "cheap virtual assistant"] , alternates: { canonical: canonicalPath("/pricing") }};
 
 const FEE_INCLUSIONS = [
   { icon: ClipboardList, label: "Role review and hiring brief" },
@@ -92,6 +92,15 @@ export default async function PricingPage(){
           <Link className="sp-tile" href="/services"><span className="sp-tile-copy"><strong>Compare Virtual Assistant services</strong><small>Match the budget to the responsibilities, tools, and experience the role requires.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
           <Link className="sp-tile" href="/find-talent"><span className="sp-tile-copy"><strong>Browse approved talent</strong><small>Review public examples, then let the recruiting team confirm fit and availability.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
           <Link className="sp-tile" href="/outsourcing-philippines-virtual-assistant"><span className="sp-tile-copy"><strong>Plan the outsourcing model</strong><small>Include management time, software, coverage, handoffs, and rework in the total decision.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+        </div>
+      </Band>
+
+      <Band>
+        <SectionHead center kicker="Affordable Virtual Assistant hiring" title="Affordable should mean the right scope at a sustainable cost." lede="Searches for a cheap or affordable Virtual Assistant often start with hourly price. Compare the full role, experience, schedule, management time, software, rework risk, and replacement process before deciding what is actually cost-effective."/>
+        <div className="sp-tiles">
+          <Link className="sp-tile" href="/services"><span className="sp-tile-copy"><strong>Reduce cost by narrowing the role</strong><small>Separate must-have recurring work from specialist tasks that need deeper experience.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/managed-vs-direct-hire"><span className="sp-tile-copy"><strong>Compare management models</strong><small>Direct hire can reduce ongoing service fees when your team is ready to own management and replacement risk.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
+          <Link className="sp-tile" href="/tools/virtual-assistant-cost-calculator"><span className="sp-tile-copy"><strong>Model the monthly cost</strong><small>Compare hours and compensation before reducing the role to a headline hourly rate.</small></span><ArrowRight className="hs-tile-arrow" size={15}/></Link>
         </div>
       </Band>
 

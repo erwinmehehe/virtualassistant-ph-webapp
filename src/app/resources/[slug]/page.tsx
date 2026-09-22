@@ -89,7 +89,7 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
         eyebrow={page.audience === "candidate" ? "For Virtual Assistants" : page.clusterLabel}
         title={<h1>{page.title}</h1>}
         description={<p>{page.lede}</p>}
-        meta={<Link className="text-link" href={parentHref}>{page.audience === "candidate" ? "Virtual Assistant candidate hub" : "Canonical role guide"} <ArrowRight size={13}/></Link>}
+        meta={<Link className="text-link" href={parentHref}>{page.audience === "candidate" ? "Virtual Assistant career hub" : page.role ? "View " + page.role : "Browse Virtual Assistant services"} <ArrowRight size={13}/></Link>}
         actions={<><Link className="btn btn-primary" href={primary.href}>{primary.label} <ArrowRight size={16}/></Link><Link className="btn" href={secondary.href}>{secondary.label}</Link></>}
       />
 
@@ -106,7 +106,7 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
         </Band>)}
 
         <Band tone={page.sections.length % 2 ? "white" : "soft"}>
-          <SectionHead kicker="Related guidance" title="Continue the topic without creating duplicate intent." lede="Use the canonical role, candidate hub, and supporting resources below to move to the next question."/>
+          <SectionHead kicker="Related guidance" title="Keep planning your next step." lede="Use the role page and supporting guides below to compare responsibilities, tasks, interview questions, costs, tools, and hiring decisions."/>
           <LinkTiles items={page.internalLinks.map((link) => ({ href: link.href, label: link.label, sub: link.description }))}/>
         </Band>
 

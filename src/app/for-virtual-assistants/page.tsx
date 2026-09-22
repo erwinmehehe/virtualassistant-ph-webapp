@@ -77,6 +77,13 @@ export default function ForVirtualAssistantsPage() {
           <article className="card service-card"><h3>VA requirements</h3><p>Check work setup, internet, equipment, professional readiness and role-specific requirements.</p><Link className="text-link" href="/for-virtual-assistants/virtual-assistant-requirements-philippines">See VA requirements <ArrowRight size={14}/></Link></article>
           <article className="card service-card"><h3>How to become a VA</h3><p>Choose a specialty, build role-specific proof and start applying strategically.</p><Link className="text-link" href="/for-virtual-assistants/how-to-become-a-virtual-assistant-philippines">Read career guide <ArrowRight size={14}/></Link></article>
         </div>
+        <div className="row wrap" style={{marginTop:16}}>
+          <Link className="text-link" href="/for-virtual-assistants/virtual-assistant-tools">VA tools <ArrowRight size={13}/></Link>
+          <Link className="text-link" href="/for-virtual-assistants/virtual-assistant-interview-questions">Interview questions <ArrowRight size={13}/></Link>
+          <Link className="text-link" href="/for-virtual-assistants/virtual-assistant-no-experience">Start with no VA experience <ArrowRight size={13}/></Link>
+          <Link className="text-link" href="/for-virtual-assistants/part-time-virtual-assistant-jobs">Part-time VA jobs guide <ArrowRight size={13}/></Link>
+          <Link className="text-link" href="/for-virtual-assistants/work-from-home-virtual-assistant-jobs">Work-from-home VA jobs guide <ArrowRight size={13}/></Link>
+        </div>
       </div>
     </section>
 

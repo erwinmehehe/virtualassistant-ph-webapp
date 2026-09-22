@@ -4,7 +4,8 @@ import type { BlogPost, BlogTopic } from "@/lib/blog-types";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
-export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...SEO_EXPANSION_BLOG_POSTS];
+export const BLOG_POSTS: BlogPost[] = RAW_BLOG_POSTS;
+BLOG_POSTS.push(...SEO_EXPANSION_BLOG_POSTS);
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

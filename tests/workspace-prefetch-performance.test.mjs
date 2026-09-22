@@ -20,7 +20,7 @@ test("shared dashboard cards and signal links avoid background route prefetch", 
 });
 
 test("recruiter My Day does not preload dense action destinations", () => {
-  assert.match(recruiter, /<Link prefetch=\{false\} className=\{styles\.actionLane/);
+  assert.match(recruiter, /actionLanes\.map\(\(lane\)=><Link prefetch=\{false\}/);
   assert.match(recruiter, /<Link prefetch=\{false\} className="btn"/);
 });
 

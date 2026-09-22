@@ -9,7 +9,7 @@ import { matchScore } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
-function snapshot(profile:any,va:any,vettingStage?:string|null){return{full_name:profile?.full_name,headline:va.headline,primary_category:va.primary_category,categories:va.categories,skills:va.skills,tools:va.tools,industries:va.industries,languages:va.languages,years_experience:va.years_experience,bio:va.bio,weekly_hours:va.weekly_hours,schedule:va.schedule,overlap_hours:va.overlap_hours,hourly_rate:va.hourly_rate,availability_status:va.availability_status,portfolio_url:va.portfolio_url,linkedin_url:va.linkedin_url,slug:va.slug,resume_path:va.resume_path,vetting_stage:vettingStage};}
+function snapshot(profile:any,va:any,vettingStage?:string|null){return{full_name:profile?.full_name,headline:va.headline,primary_category:va.primary_category,categories:va.categories,skills:va.skills,tools:va.tools,industries:va.industries,languages:va.languages,years_experience:va.years_experience,bio:va.bio,weekly_hours:va.weekly_hours,schedule:va.schedule,overlap_hours:va.overlap_hours,hourly_rate:va.hourly_rate,availability_status:va.availability_status,slug:va.slug,vetting_stage:vettingStage};}
 
 export async function expressInterestAction(formData:FormData){
   const {user,profile}=await requireRole("va");

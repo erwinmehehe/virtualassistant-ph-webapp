@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ShieldCheck, Sparkles } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { submitExpandedScorecardAction } from "@/app/actions/recruiter-operations-system";
 import { dateShort } from "@/lib/format";
@@ -28,7 +28,7 @@ function screeningLabel(value?: string | null) {
 }
 
 export default async function RecruiterScreeningPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}) {
-  const {id}=await params; const query=await searchParams; await requireRole("recruiter"); const admin=createAdminClient();
+  const {id}=await params; const query=await searchParams; await requireRoleFast("recruiter"); const admin=createAdminClient();
   const [{data:profile},{data:va},{data:vetting},{data:scorecards},{data:intelligence}]=await Promise.all([
     admin.from("profiles").select("id,full_name,last_active_at").eq("id",id).eq("role","va").maybeSingle(),
     admin.from("va_profiles").select("headline,primary_category,skills,tools,industries,years_experience,weekly_hours,schedule,overlap_hours,hourly_rate,availability_status").eq("user_id",id).maybeSingle(),

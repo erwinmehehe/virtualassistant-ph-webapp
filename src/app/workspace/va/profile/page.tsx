@@ -65,12 +65,12 @@ export default async function VaProfilePage({searchParams}:{searchParams:Promise
             <div className="privacy-note"><ShieldCheck size={17}/><span>Email, phone, private resume, identity documents, test answers, messages, recruiter notes, and account records are not part of the public VA directory.</span></div>
             <p className="small muted">This choice is voluntary. You can withdraw it at any time and your profile will stop being eligible for the public directory. Withdrawing does not delete your account, applications, messages, or hiring history. Read the <Link className="text-link" href="/privacy" target="_blank">Privacy Notice</Link>.</p>
             {consentGranted ? <div className="success-banner">Consent active{consentDate ? ` since ${consentDate}` : ""} · notice version {va?.public_profile_consent_version || PUBLIC_PROFILE_CONSENT_VERSION}</div> : <div className="alert">No public-profile consent is currently recorded. Your profile will remain private even if a recruiter approves it.</div>}
-            <div className="row-between wrap"><span className="small muted">Publication still requires approval, eligibility, and the platform visibility switch.</span><button className="btn btn-primary" type="submit">Save public profile preference</button></div>
+            <div className="row-between wrap"><span className="small muted">Publication still requires recruiter approval and public-profile eligibility. Granting consent enables public discovery automatically once those requirements are met.</span><button className="btn btn-primary" type="submit">Save public profile preference</button></div>
           </form>
         </section>
       </div>
 
-      <aside className="profile-editor-sidebar"><LiveProfileStrength formId="va-profile-form" initial={va || {}}/><div className="card profile-editor-tip"><strong>Public profile rules</strong><ul><li>Explicit public-profile consent</li><li>2+ years of experience</li><li>Approved or bench vetting stage</li><li>Available status</li><li>Public discovery enabled</li></ul></div></aside>
+      <aside className="profile-editor-sidebar"><LiveProfileStrength formId="va-profile-form" initial={va || {}}/><div className="card profile-editor-tip"><strong>Public profile rules</strong><ul><li>Explicit public-profile consent</li><li>2+ years of experience</li><li>Approved or bench vetting stage</li><li>Available status</li><li>Active public-profile consent</li></ul></div></aside>
     </div>
   </>;
 }

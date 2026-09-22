@@ -7,6 +7,7 @@ import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
+import { openClientDiscoveryBookingAction } from "@/app/actions/booking";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof Sparkles};
 
@@ -20,11 +21,12 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
   const [dashboardResult,{data:requested,error:requestedError}]=await Promise.all([getClientDashboardSummary(userId),requestedPromise]);
   const dashboard=dashboardResult.data;
+  const discoveryBooking=dashboard?.discovery_booking||null;
   const company=dashboard?.company||{};
   const hiringOwner=dashboard?.hiring_owner||null;
   const jobRows=dashboard?.jobs||[];
   const jobCount=Number(dashboard?.job_count||0);
-  if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent)redirect("/workspace/client/onboarding");
+  if(!dashboardResult.error&&!company?.onboarding_completed_at&&!jobCount&&!params.talent&&!discoveryBooking)redirect("/workspace/client/onboarding");
 
   const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null});
   const hires=Number(dashboard?.hire_count||0);
@@ -61,6 +63,25 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     <div className="dash-header"><div><div className="dash-kicker">Managed VA hiring</div><h1>Your hiring progress</h1><p>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you.</p><span className="dash-freshness">Live data · refreshed when this page opened</span></div><Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link></div>
 
     <section className="client-concierge-strip"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/support"><LifeBuoy size={16}/> Contact your recruiter</Link></section>
+
+    {params.booking_error?<div className="alert" role="alert">We could not open your booking. Please try again or contact your recruiter.</div>:null}
+    {discoveryBooking?<section className="card dashboard-section-card client-discovery-call">
+      <div className="dashboard-section-head">
+        <div>
+          <div className="row wrap"><CalendarDays size={18}/><h2 style={{margin:0}}>Discovery call</h2></div>
+          <p>{discoveryBooking.discovery_outcome==="no_show"?"You missed the previous call. Choose another time when you are ready.":discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Your previous call was cancelled. You can book another time now.":discoveryBooking.discovery_scheduled_at?`Your call is scheduled for ${new Intl.DateTimeFormat("en-PH",{dateStyle:"medium",timeStyle:"short",timeZone:company?.timezone||"Asia/Manila"}).format(new Date(discoveryBooking.discovery_scheduled_at))}.`:"Manage your discovery call."}</p>
+        </div>
+        <span className={`badge ${discoveryBooking.discovery_outcome==="no_show"||discoveryBooking.discovery_cancelled_at?"badge-warning":"badge-success"}`}>
+          {discoveryBooking.discovery_outcome==="no_show"?"Needs rebooking":discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Cancelled":discoveryBooking.discovery_outcome==="rescheduled"?"Rescheduled":"Booked"}
+        </span>
+      </div>
+      <div className="row wrap">
+        <form action={openClientDiscoveryBookingAction}>
+          <button className="btn btn-primary" type="submit">{discoveryBooking.discovery_outcome==="no_show"||discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Rebook call":"Manage / reschedule call"}</button>
+        </form>
+        {discoveryBooking.discovery_meeting_url&&discoveryBooking.discovery_scheduled_at&&!discoveryBooking.discovery_cancelled_at&&discoveryBooking.discovery_outcome!=="no_show"?<a className="btn" href={discoveryBooking.discovery_meeting_url} target="_blank" rel="noreferrer">Join Google Meet</a>:null}
+      </div>
+    </section>:null}
 
     <section className="workflow-progress card" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We recruit & vet","Review shortlist","Interview","Confirm & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on your recruiter":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
 

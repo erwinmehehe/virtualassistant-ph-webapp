@@ -13,6 +13,14 @@ export type ClientDashboardSummary = {
     id?: string;
     full_name?: string | null;
   };
+  discovery_booking: {
+    id: string;
+    created_at: string;
+    discovery_scheduled_at?: string | null;
+    discovery_outcome?: string | null;
+    discovery_cancelled_at?: string | null;
+    discovery_meeting_url?: string | null;
+  } | null;
   job_count: number;
   active_jobs: number;
   hire_count: number;

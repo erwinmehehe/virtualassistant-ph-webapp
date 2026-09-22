@@ -126,6 +126,27 @@ try {
     }
   }
 
+  const smokeVaId = "17def9aa-931c-432e-842c-090ffb45f896";
+  for (const viewport of viewports) {
+    const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
+    await context.addCookies(sessionCookies(recruiterSession, baseUrl));
+    const page = await context.newPage();
+    const consoleErrors = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") consoleErrors.push(message.text());
+    });
+    const response = await page.goto(`${baseUrl}/workspace/recruiter/candidates/${smokeVaId}`, { waitUntil: "networkidle", timeout: 90000 });
+    if (!response?.ok()) throw new Error(`recruiter candidate profile ${viewport.name} returned HTTP ${response?.status() || "unknown"}.`);
+    await page.getByText("Internal Recruiter View", { exact: true }).waitFor({ state: "visible", timeout: 30000 });
+    await page.getByRole("heading", { name: "Smoke VA One", exact: true }).waitFor({ state: "visible", timeout: 30000 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    if (overflow) throw new Error(`recruiter candidate profile ${viewport.name} has horizontal page overflow.`);
+    await page.screenshot({ path: path.join(outputDir, `recruiter-candidate-profile-${viewport.name}.png`), fullPage: true });
+    if (consoleErrors.length) throw new Error(`recruiter candidate profile ${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
+    await context.close();
+    console.log(`Captured recruiter candidate profile at ${viewport.width}x${viewport.height}`);
+  }
+
 
   if (smokeJobId) {
     const smokeTitle = "[SMOKE QA] Admin Support";

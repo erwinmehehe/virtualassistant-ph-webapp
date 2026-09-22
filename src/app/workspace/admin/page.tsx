@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, ClipboardCheck, Eye, UsersRound } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, ClipboardCheck, Eye, MailCheck, UsersRound } from "lucide-react";
 import { DashHeader, Notice, Panel, Pill, StatCard, type Tone } from "@/components/dash-ui";
 import { requireRole } from "@/lib/auth";
 import { getRuntimeSetupStatus } from "@/lib/env-status";
@@ -37,7 +37,8 @@ export default async function AdminPage(){
       <Link className="dash-list-row" href="/workspace/admin/jobs"><span><strong>Resolve job exceptions</strong><small>Managed-service margin and unusual commercial decisions only.</small></span><Pill tone={managedExceptions?"amber":"emerald"}>{managedExceptions||0} waiting</Pill></Link>
       <Link className="dash-list-row" href="/workspace/admin/vetting"><span><strong>Review finalists</strong><small>Only recruiter-screened and scorecarded VAs reach final approval.</small></span><Pill tone={finalists?"amber":"emerald"}>{finalists||0} waiting</Pill></Link>
       <Link className="dash-list-row" href="/workspace/admin/finance"><span><strong>Finance exceptions</strong><small>Review placement economics, collections, payouts, reconciliation, and disputes in one Finance OS.</small></span><ArrowRight size={16}/></Link>
-      <Link className="dash-list-row" href="/workspace/admin/system"><span><strong>System health</strong><small>Email, webhook protection, runtime configuration, and release readiness.</small></span><Pill tone={setupNeedsAttention?"rose":"emerald"}>{setupNeedsAttention?"needs attention":"configured"}</Pill></Link>
+      <Link className="dash-list-row" href="/workspace/admin/system"><span><strong>System health</strong><small>Webhook protection, runtime configuration, and release readiness.</small></span><Pill tone={setupNeedsAttention?"rose":"emerald"}>{setupNeedsAttention?"needs attention":"configured"}</Pill></Link>
+      <Link className="dash-list-row" href="/workspace/admin/email-health"><span><strong><MailCheck size={15}/> Email health</strong><small>Daily recipient allowance, delivery failures, bounces, suppressions, and duplicate prevention.</small></span><ArrowRight size={16}/></Link>
     </div></Panel></div>
     <div className="dash-col"><Panel title="Agency accounts" subtitle="Operational users by role"><div className="dash-funnel">{accounts.map((row)=><div className="dash-funnel-row" key={row.label}><span className="dash-funnel-label">{row.label}</span><div className="dash-funnel-track"><div className={`dash-funnel-fill tone-${row.tone}`} style={{width:`${Math.max((row.value/accountTop)*100,9)}%`}}>{row.value}</div></div></div>)}</div></Panel></div></div>
   </div>;

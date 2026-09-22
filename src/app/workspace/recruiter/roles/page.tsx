@@ -70,7 +70,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     ["history",history.length],
     ...(["needs_candidates","waiting_client","interviewing","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
   ]);
-  let visibleJobs=requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
+  const visibleJobs=requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
   visibleJobs.sort((a,b)=>{
     const aTime=new Date(a.hiring_stage_entered_at||a.created_at).getTime();
     const bTime=new Date(b.hiring_stage_entered_at||b.created_at).getTime();

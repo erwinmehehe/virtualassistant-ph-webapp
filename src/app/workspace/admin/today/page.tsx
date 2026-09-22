@@ -14,7 +14,8 @@ import {
   RefreshCw,
   UsersRound,
 } from "lucide-react";
-import { DashHeader, Empty, Panel, Pill, SignalList, StatCard, type Tone } from "@/components/dash-ui";
+import { DashHeader, Empty, Panel, Pill, SignalList, type Tone } from "@/components/dash-ui";
+import styles from "./today.module.css";
 import { requireRole } from "@/lib/auth";
 import { scoreLead } from "@/lib/lead-scoring";
 import { money } from "@/lib/format";
@@ -158,6 +159,7 @@ export default async function AdminTodayPage(){
     {data:paymentData,error:paymentError},
     {data:taskData,error:taskError},
     {data:financeSettings,error:settingsError},
+    {count:openRoleCount,error:openRoleError},
   ]=await Promise.all([
     admin.from("lead_intake")
       .select("id,name,email,company,service,hours,budget,message,crm_stage,created_at,stage_updated_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,first_response_due_at,estimated_value_usd")
@@ -194,9 +196,12 @@ export default async function AdminTodayPage(){
       .select("finance_invoice_overdue_days")
       .eq("id",1)
       .maybeSingle(),
+    admin.from("jobs")
+      .select("id",{count:"exact",head:true})
+      .in("status",["pending","published"]),
   ]);
 
-  const firstError=leadError||proposalError||shortlistError||workroomError||paymentError||taskError||settingsError;
+  const firstError=leadError||proposalError||shortlistError||workroomError||paymentError||taskError||settingsError||openRoleError;
   if(firstError)throw firstError;
 
   const leads=((leadData||[]) as LeadRow[]).filter((lead)=>ACTIVE_LEAD_STAGES.has(String(lead.crm_stage||"new")));
@@ -414,53 +419,43 @@ export default async function AdminTodayPage(){
   const visibleActions=actions.slice(0,14);
   const waitingHiringRooms=hiringRoomsWaiting.filter((room)=>now-new Date(room.releasedAt).getTime()>=DAY).length;
   const ownerAttention=actions.length;
+  const newLeadCount=leads.filter((lead)=>String(lead.crm_stage||"new")==="new").length;
+  const ownerPipeline=[
+    {label:"New leads",value:newLeadCount,hint:"Hiring enquiries",href:"/workspace/admin/leads?view=hiring",icon:<MessageSquare size={16}/>},
+    {label:"Calls today",value:callsToday.length,hint:"Discovery",href:"/workspace/admin/leads?view=hiring",icon:<CalendarClock size={16}/>},
+    {label:"Proposals",value:proposals.length,hint:"Open proposals",href:"/workspace/admin/leads?view=hiring",icon:<FileText size={16}/>},
+    {label:"Open roles",value:Number(openRoleCount||0),hint:"Recruiting",href:"/workspace/admin/jobs?view=all",icon:<BriefcaseBusiness size={16}/>},
+    {label:"Shortlists",value:hiringRoomsWaiting.length,hint:"Client review",href:"/workspace/admin/jobs?view=all",icon:<UsersRound size={16}/>},
+    {label:"Placements",value:workrooms.length,hint:"Active delivery",href:"/workspace/client-success",icon:<CheckCircle2 size={16}/>},
+    {label:"Collections",value:overdueInvoices.length,hint:overdueInvoices.length?money(overdueTotal)+" overdue":"No overdue invoices",href:"/workspace/admin/payments",icon:<CircleDollarSign size={16}/>},
+    {label:"Retention risks",value:atRisk.length,hint:"Needs intervention",href:"/workspace/client-success",icon:<HeartPulse size={16}/>}
+  ];
 
   return <div className="dash-page owner-command-center">
     <DashHeader
       kicker="Agency owner · Today"
       title="Owner Command Center"
-      subtitle={<>One page for what needs your attention across sales, hiring, client delivery and money. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
+      subtitle={<>Read the business left to right, then work the owner exceptions below. <span className="dash-freshness">Refreshed {manilaTime(nowIso)} · Manila</span></>}
       actions={<>
         <Link className="dash-btn dash-btn-light" href="/workspace/admin">Admin overview</Link>
         <Link className="dash-btn dash-btn-dark" href="/workspace/admin/leads?view=hiring">Hiring leads <ArrowRight size={14}/></Link>
       </>}
     />
 
-    <div className="dash-stats">
-      <StatCard
-        label="Needs your attention"
-        value={ownerAttention}
-        icon={<AlertTriangle size={20}/>}
-        tone={ownerAttention?"rose":"emerald"}
-        sub="Owner-level exceptions across the agency"
-        chip={ownerAttention?{label:"Work top to bottom",tone:"warn"}:{label:"Caught up",tone:"good"}}
-      />
-      <StatCard
-        label="Discovery calls today"
-        value={callsToday.length}
-        icon={<CalendarClock size={20}/>}
-        tone="violet"
-        href="/workspace/admin/leads?view=hiring"
-        sub="Scheduled client calls in Manila today"
-      />
-      <StatCard
-        label="At-risk placements"
-        value={atRisk.length}
-        icon={<HeartPulse size={20}/>}
-        tone={atRisk.length?"rose":"emerald"}
-        href="/workspace/client-success"
-        sub="Recovery or replacement attention"
-        chip={atRisk.length?{label:"Intervene",tone:"warn"}:{label:"Clear",tone:"good"}}
-      />
-      <StatCard
-        label="Overdue collections"
-        value={money(overdueTotal)}
-        icon={<CircleDollarSign size={20}/>}
-        tone={overdueTotal?"amber":"emerald"}
-        href="/workspace/admin/payments"
-        sub={overdueInvoices.length?`${overdueInvoices.length} invoice${overdueInvoices.length===1?"":"s"} beyond ${overdueDays} days`:"No overdue invoices"}
-      />
-    </div>
+    <section className={styles.pipelineSection} aria-label="Agency operating pipeline">
+      <div className={styles.pipelineHeading}>
+        <div><div className="dash-kicker">Business flow</div><h2>Lead → revenue → retention</h2><p>Every number opens the operating queue behind it.</p></div>
+        <span className={`badge ${ownerAttention?"badge-warning":"badge-success"}`}>{ownerAttention} owner exception{ownerAttention===1?"":"s"}</span>
+      </div>
+      <div className={styles.pipelineGrid}>
+        {ownerPipeline.map((item,index)=><Link prefetch={false} className={styles.pipelineItem} href={item.href} key={item.label}>
+          <span className={styles.pipelineIcon}>{item.icon}</span>
+          <span className={styles.pipelineCopy}><strong>{item.label}</strong><small>{item.hint}</small></span>
+          <b>{item.value}</b>
+          {index<ownerPipeline.length-1?<ArrowRight className={styles.pipelineArrow} size={13}/>:null}
+        </Link>)}
+      </div>
+    </section>
 
     <div id="owner-actions">
     <Panel

@@ -182,15 +182,37 @@ export type SpecialistTrainingReviewQueueItem = {
   contentReady: boolean;
   assessmentReady: boolean;
   specialistReady: boolean;
+  assignmentCurrent: boolean;
   review: {
     reviewer_name: string | null;
     reviewer_role: string | null;
+    assigned_reviewer_name: string | null;
+    assigned_reviewer_role: string | null;
+    review_due_date: string | null;
+    assigned_at: string | null;
+    assigned_by: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
     checklist: Record<string, boolean>;
     notes: string | null;
     decision: "in_progress" | "changes_requested" | "approved";
     reviewed_at: string | null;
     updated_at: string;
   } | null;
+  history: Array<{
+    id: string;
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated";
+    actor_id: string | null;
+    actor_label: string | null;
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    review_due_date: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
+    course_content_version: number | null;
+    notes: string | null;
+    created_at: string;
+  }>;
 };
 
 export async function getTrainingSpecialistReviewQueue() {
@@ -210,7 +232,7 @@ export async function getTrainingSpecialistReviewQueue() {
   const courseIds = courses.map((course) => course.id);
   if (!courseIds.length) return { items: [] as SpecialistTrainingReviewQueueItem[], error: null };
 
-  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }] = await Promise.all([
+  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }, { data: eventData }] = await Promise.all([
     admin
       .from("training_modules")
       .select("id,course_id")
@@ -221,8 +243,14 @@ export async function getTrainingSpecialistReviewQueue() {
       .in("course_id", courseIds),
     admin
       .from("training_specialist_reviews")
-      .select("course_id,reviewer_name,reviewer_role,checklist,notes,decision,reviewed_at,updated_at")
+      .select("course_id,reviewer_name,reviewer_role,assigned_reviewer_name,assigned_reviewer_role,review_due_date,assigned_at,assigned_by,review_revision,assigned_revision,checklist,notes,decision,reviewed_at,updated_at")
       .in("course_id", courseIds),
+    admin
+      .from("training_specialist_review_events")
+      .select("id,course_id,event_type,actor_id,actor_label,reviewer_name,reviewer_role,review_due_date,review_revision,assigned_revision,course_content_version,notes,created_at")
+      .in("course_id", courseIds)
+      .order("created_at", { ascending: false })
+      .limit(100),
   ]);
 
   const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
@@ -251,6 +279,13 @@ export async function getTrainingSpecialistReviewQueue() {
       course_id: string;
       reviewer_name: string | null;
       reviewer_role: string | null;
+      assigned_reviewer_name: string | null;
+      assigned_reviewer_role: string | null;
+      review_due_date: string | null;
+      assigned_at: string | null;
+      assigned_by: string | null;
+      review_revision: number;
+      assigned_revision: number | null;
       checklist: Record<string, boolean> | null;
       notes: string | null;
       decision: "in_progress" | "changes_requested" | "approved";
@@ -259,6 +294,13 @@ export async function getTrainingSpecialistReviewQueue() {
     }>).map((review) => [review.course_id, {
       reviewer_name: review.reviewer_name,
       reviewer_role: review.reviewer_role,
+      assigned_reviewer_name: review.assigned_reviewer_name,
+      assigned_reviewer_role: review.assigned_reviewer_role,
+      review_due_date: review.review_due_date,
+      assigned_at: review.assigned_at,
+      assigned_by: review.assigned_by,
+      review_revision: Math.max(1, Number(review.review_revision || 1)),
+      assigned_revision: review.assigned_revision,
       checklist: review.checklist || {},
       notes: review.notes,
       decision: review.decision,
@@ -266,6 +308,21 @@ export async function getTrainingSpecialistReviewQueue() {
       updated_at: review.updated_at,
     }]),
   );
+  const events = (eventData || []) as Array<{
+    id: string;
+    course_id: string;
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated";
+    actor_id: string | null;
+    actor_label: string | null;
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    review_due_date: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
+    course_content_version: number | null;
+    notes: string | null;
+    created_at: string;
+  }>;
   const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
 
   const items: SpecialistTrainingReviewQueueItem[] = courses.map((course) => {
@@ -290,12 +347,22 @@ export async function getTrainingSpecialistReviewQueue() {
     const assessmentReady =
       courseAssessments.length > 0 &&
       assessmentReadyCount === courseAssessments.length;
+    const review = reviews.get(course.id) || null;
+    const assignmentCurrent = Boolean(
+      review?.assigned_reviewer_name &&
+      review.assigned_reviewer_role &&
+      review.assigned_revision &&
+      review.assigned_revision === review.review_revision,
+    );
     const specialistReady = Boolean(
       course.specialist_reviewed_by &&
       course.specialist_reviewer_role &&
       course.specialist_reviewed_at &&
       course.specialist_review_notes &&
-      course.specialist_review_notes.trim().length >= 20,
+      course.specialist_review_notes.trim().length >= 20 &&
+      review?.decision === "approved" &&
+      assignmentCurrent &&
+      review.reviewed_at,
     );
 
     return {
@@ -310,7 +377,9 @@ export async function getTrainingSpecialistReviewQueue() {
       contentReady,
       assessmentReady,
       specialistReady,
-      review: reviews.get(course.id) || null,
+      assignmentCurrent,
+      review,
+      history: events.filter((event) => event.course_id === course.id).slice(0, 12),
     };
   });
 

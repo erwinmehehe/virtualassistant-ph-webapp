@@ -264,74 +264,18 @@ export async function submitExternalTrainingSpecialistReviewAction(formData: For
   }
 
   const admin = createAdminClient();
-  const now = new Date().toISOString();
-  const approved = decision === "approved";
-  const reviewedAt = approved ? now : null;
-
-  const { error: reviewUpdateError } = await admin
-    .from("training_specialist_reviews")
-    .update({
-      reviewer_name: invite.reviewer_name,
-      reviewer_role: invite.reviewer_role,
-      checklist,
-      notes,
-      decision,
-      reviewed_at: reviewedAt,
-      updated_at: now,
-    })
-    .eq("course_id", course.id)
-    .eq("review_revision", invite.review_revision)
-    .eq("assigned_revision", invite.assigned_revision);
-  if (reviewUpdateError) throw reviewUpdateError;
-
-  const { error: courseUpdateError } = await admin
-    .from("training_courses")
-    .update(approved
-      ? {
-          specialist_reviewed_by: invite.reviewer_name,
-          specialist_reviewer_role: invite.reviewer_role,
-          specialist_review_notes: notes,
-          specialist_reviewed_at: now,
-          status: "draft",
-          published_at: null,
-          updated_at: now,
-        }
-      : {
-          specialist_reviewed_by: null,
-          specialist_reviewer_role: null,
-          specialist_review_notes: null,
-          specialist_reviewed_at: null,
-          status: "draft",
-          published_at: null,
-          updated_at: now,
-        })
-    .eq("id", course.id)
-    .eq("content_version", invite.course_content_version);
-  if (courseUpdateError) throw courseUpdateError;
-
-  const eventType = approved ? "external_approved" : "external_changes_requested";
-  const { error: eventError } = await admin.from("training_specialist_review_events").insert({
-    course_id: course.id,
-    event_type: eventType,
-    actor_id: null,
-    actor_label: "External specialist reviewer",
-    reviewer_name: invite.reviewer_name,
-    reviewer_role: invite.reviewer_role,
-    review_due_date: review.review_due_date || null,
-    review_revision: invite.review_revision,
-    assigned_revision: invite.assigned_revision,
-    course_content_version: invite.course_content_version,
-    checklist,
-    notes,
+  const { error: submitError } = await admin.rpc("submit_external_training_specialist_review", {
+    p_invite_id: invite.id,
+    p_decision: decision,
+    p_checklist: checklist,
+    p_notes: notes,
   });
-  if (eventError) throw eventError;
-
-  const { error: inviteError } = await admin
-    .from("training_specialist_review_invites")
-    .update({ status: "submitted", submitted_at: now, updated_at: now })
-    .eq("id", invite.id)
-    .in("status", ["pending", "opened"]);
-  if (inviteError) throw inviteError;
+  if (submitError) {
+    if (/stale|no longer active/i.test(submitError.message || "")) {
+      throw new Error("This review is no longer current. Ask the training team for a new secure review link.");
+    }
+    throw submitError;
+  }
 
   revalidateTag("public-training");
   revalidatePath("/workspace/admin/training/reviews");

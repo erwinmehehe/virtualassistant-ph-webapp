@@ -52,7 +52,7 @@ test("specialist decisions write immutable review events with actor and version 
 test("publishing requires an approved current specialist revision", async () => {
   const action = await readFile("src/app/actions/training-admin.ts", "utf8");
   assert.match(action, /specialistReview\?\.decision !== "approved"/);
-  assert.match(action, /specialistReview\.assigned_revision !== specialistReview\.review_revision/);
+  assert.match(action, /specialistReview\?\.assigned_revision !== specialistReview\?\.review_revision/);
   assert.match(action, /Complete the current specialist review revision before publishing this course/);
 });
 

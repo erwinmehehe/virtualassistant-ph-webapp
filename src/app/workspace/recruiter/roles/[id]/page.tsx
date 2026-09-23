@@ -256,7 +256,7 @@ export default async function RoleControlCenter({
               <button className="btn btn-primary" type="submit">Prepare standard terms</button>
             </form>
           ) : null}
-          {publication.key === "needs_role_details" || publication.key === "needs_role_review" ? (
+          {publication.key === "needs_role_details" ? (
             <a className="btn btn-primary" href="#role-readiness">Complete role details</a>
           ) : null}
           {publication.key === "waiting_client_approval" ? (
@@ -344,13 +344,11 @@ export default async function RoleControlCenter({
         </section>
       </div>
 
-      {publication.key === "needs_role_details" ? (
-        <RoleReadinessForm
-          job={job}
-          returnTo={`/workspace/recruiter/roles/${job.id}`}
-          action={saveRoleReadinessDetailsAction}
-        />
-      ) : null}
+      <RoleReadinessForm
+        job={job}
+        returnTo={`/workspace/recruiter/roles/${job.id}`}
+        action={saveRoleReadinessDetailsAction}
+      />
 
       <section id="matching" className="role-workspace-section">
         <div className="role-workspace-section-head">

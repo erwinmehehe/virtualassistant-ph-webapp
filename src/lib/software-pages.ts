@@ -578,52 +578,59 @@ export const softwarePages: SoftwareSeoPage[] = [
     primaryKeyword: "cliniko virtual assistant",
     metaTitle: "Hire Cliniko Virtual Assistant Philippines",
     metaDescription:
-      "Outsource Cliniko patient intake, appointment administration, referrals, recalls, billing workflows and practice data management.",
-    h1: "Keep Cliniko Referrals, Appointments and Billing Moving",
+      "Hire a Cliniko Virtual Assistant for scheduling, reminders, patient admin, secure forms, invoices, payments and allied-health front desk support.",
+    h1: "Keep Cliniko Front-Desk Work Moving Without Pulling Clinicians Into Admin",
     intro:
-      "A Cliniko Virtual Assistant can manage the administrative queues around each patient journey. Practitioners keep control of clinical decisions, treatment and advice while the Virtual Assistant handles approved intake, scheduling, billing and recall workflows.",
-    focus: "cliniko practice administration",
+      "A Cliniko Virtual Assistant can handle defined non-clinical workflows such as appointment scheduling, patient record administration, reminders, secure forms, invoices, payments and routine follow-up. Clinicians retain responsibility for treatment notes, clinical decisions and patient care.",
+    focus: "cliniko allied-health and practice administration",
     workflows: [
-      "create or update the patient record",
-      "process referral information",
-      "schedule the appointment",
-      "record administrative referral dates",
-      "maintain appointment notes and status",
-      "prepare approved billing records",
-      "run recall lists",
-      "update administrative follow-up tasks"
+      "create or update the patient record from approved information",
+      "book, reschedule or cancel the correct appointment type",
+      "send or monitor approved confirmations and reminders",
+      "manage secure patient-form requests and completion status",
+      "record non-clinical communication and follow-up",
+      "prepare or send approved invoices",
+      "record approved payments and outstanding balances",
+      "run recall and missed-appointment follow-up",
+      "escalate privacy, billing, complaint or clinical exceptions"
     ],
     tasks: [
-      "patient intake",
-      "referral processing",
       "appointment scheduling",
-      "billing administration",
-      "recall management",
-      "patient record maintenance",
-      "administrative follow-up"
+      "patient record administration",
+      "appointment reminders",
+      "secure patient form administration",
+      "invoice administration",
+      "payment recording",
+      "outstanding invoice follow-up",
+      "recall and missed-appointment administration"
     ],
     bestFor: [
       "physiotherapy clinics",
-      "occupational therapy clinics",
-      "speech pathology practices",
+      "occupational therapy practices",
+      "speech pathology clinics",
       "psychology practices",
       "allied health clinics"
     ],
     outcomes: [
-      "Patient administration moves consistently between appointments.",
-      "Referral and recall queues stay easier to manage.",
-      "Clinicians spend less time maintaining non-clinical workflows."
+      "Practitioner calendars and patient follow-up stay more current.",
+      "Routine front-desk work moves without exposing staff to unnecessary patient information.",
+      "Invoices, payments and administrative exceptions reach the right owner sooner."
     ],
     hiringNotes: [
-      "Use role-based access to patient information.",
-      "Document referral and billing escalation rules.",
-      "The licensed local healthcare professional retains final clinical decisions, advice, treatment approval and compliance responsibility."
+      "Use the lowest Cliniko security role that supports the assigned work; Scheduler may be enough for booking-only support, while broader front-desk finance work may require Receptionist access.",
+      "Do not give a Virtual Assistant treatment-note or clinical access simply for convenience.",
+      "Keep clinical decisions, treatment documentation, sensitive complaints, refunds outside policy, and privacy exceptions with the authorised practitioner or practice owner."
     ],
     relatedServiceSlugs: [
-      "allied-health-referral-billing-virtual-assistant"
+      "allied-health-referral-billing-virtual-assistant",
+      "medical-virtual-assistant",
+      "phone-receptionist",
+      "medical-billing-virtual-assistant"
     ],
     relatedIndustrySlugs: [
-      "allied-health-referral-billing"
+      "allied-health-referral-billing",
+      "healthcare-dental",
+      "medical-practices"
     ]
   },
 

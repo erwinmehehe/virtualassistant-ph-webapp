@@ -72,7 +72,7 @@ test("candidate education pages route readers into training instead of buyer CTA
   assert.match(article, /CANDIDATE_LEARNING_GUIDES/);
   assert.match(article, /href="\/training" data-track="blog_training_click"/);
   assert.match(article, /Browse VA jobs/);
-  assert.match(vaHub, /href="\\/training"/);
+  assert.match(vaHub, /href="\/training"/);
   assert.match(vaHub, /Start free training|Free VA training/);
 });
 

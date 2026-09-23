@@ -75,17 +75,35 @@ function looksLikeSectionHeading(line: string): boolean {
 }
 
 function extractBio(text: string): string | null {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const headingIdx = lines.findIndex((l) => /^(summary|profile|objective|about)\b/i.test(l));
-  if (headingIdx === -1) return null;
-  const collected: string[] = [];
-  for (let i = headingIdx + 1; i < lines.length && collected.length < 4; i++) {
-    if (looksLikeSectionHeading(lines[i])) break;
-    collected.push(lines[i]);
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const headingIdx = lines.findIndex((line) => /^(summary|profile|objective|about|professional summary)\b/i.test(line));
+
+  if (headingIdx !== -1) {
+    const collected: string[] = [];
+    for (let i = headingIdx + 1; i < lines.length && collected.length < 4; i++) {
+      if (looksLikeSectionHeading(lines[i])) break;
+      collected.push(lines[i]);
+    }
+    const candidate = collected.join(" ").trim();
+    if (candidate.length >= 40) return candidate.slice(0, 600);
   }
-  const candidate = collected.join(" ").trim();
-  if (candidate.length < 40) return null;
-  return candidate.slice(0, 600);
+
+  // Many resumes start with a short professional paragraph but omit a
+  // "Summary" heading. Use only substantial prose near the top and skip
+  // obvious contact details, links, headings, and date-heavy lines.
+  const fallback = lines
+    .slice(0, 18)
+    .filter((line) =>
+      line.length >= 55 &&
+      !looksLikeSectionHeading(line) &&
+      !/@|https?:\/\/|linkedin\.com|\+?\d[\d\s().-]{7,}/i.test(line) &&
+      !/\b(19|20)\d{2}\b.*\b(19|20)\d{2}\b/.test(line)
+    )
+    .slice(0, 3)
+    .join(" ")
+    .trim();
+
+  return fallback.length >= 60 ? fallback.slice(0, 600) : null;
 }
 
 /**
@@ -120,7 +138,7 @@ export async function parseResumeWithAI(resumeText: string): Promise<ParsedResum
   const industries = INDUSTRIES.filter((industry) => countMatches(text, industry) > 0).slice(0, 6);
 
   return {
-    headline: null, // Too unreliable to guess from raw text without AI -- left for manual entry.
+    headline: primary_category ? `${primary_category} Virtual Assistant` : null,
     bio: extractBio(text),
     primary_category,
     categories,

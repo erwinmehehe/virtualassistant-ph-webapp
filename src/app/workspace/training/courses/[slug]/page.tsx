@@ -33,7 +33,6 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
         <div className="row wrap">
           <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
-          <span className="badge"><FileCheck2 size={13}/> Version {course.content_version}</span>
           <span className="badge">{reviewedLabel(course.last_reviewed_at)}</span>
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>

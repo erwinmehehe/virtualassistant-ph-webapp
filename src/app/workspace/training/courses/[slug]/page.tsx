@@ -48,7 +48,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {!course.enrolled ? (
             <form action={startTrainingCourseAction}>
               <input type="hidden" name="course_id" value={course.id}/>
-              <button className="btn btn-primary" type="submit">Start free training</button>
+              <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start free training</button>
             </form>
           ) : null}
         </div>
@@ -66,7 +66,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           </div>
           <div className="dash-actions">
             {module.lessons.map((lesson) => (
-              <Link className="dash-action" href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`} key={lesson.id}>
+              <Link className="dash-action" href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`} key={lesson.id} data-track="training_lesson_open">
                 <span className="dash-action-count">{lesson.completed ? <CheckCircle2 size={18}/> : lesson.position}</span>
                 <span className="dash-action-copy">
                   <span className="dash-action-title"><strong>{lesson.title}</strong></span>

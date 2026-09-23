@@ -17,7 +17,7 @@ function parseArray(path, marker) {
 
 const posts = () => parseArray("src/lib/blog-keyword-support-guides.ts", "export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = ");
 
-test("keyword-support batch owns six informational or comparison intents", () => {
+test("keyword-support corpus owns twelve informational or comparison intents", () => {
   const items = posts();
   assert.deepEqual(items.map((post) => post.slug), [
     "technical-virtual-assistant-vs-it-virtual-assistant",
@@ -25,7 +25,13 @@ test("keyword-support batch owns six informational or comparison intents", () =>
     "gohighlevel-virtual-assistant-tasks",
     "hubspot-virtual-assistant-tasks",
     "salesforce-virtual-assistant-tasks",
-    "what-does-a-logistics-virtual-assistant-do"
+    "what-does-a-logistics-virtual-assistant-do",
+    "klaviyo-virtual-assistant-tasks",
+    "xero-virtual-assistant-tasks",
+    "quickbooks-virtual-assistant-tasks",
+    "canva-virtual-assistant-tasks",
+    "creative-virtual-assistant-vs-graphic-designer",
+    "event-planning-virtual-assistant-tasks"
   ]);
 
   for (const post of items) {
@@ -46,7 +52,9 @@ test("service-support posts point to the existing commercial service owners", ()
   const expected = new Map([
     ["technical-virtual-assistant-vs-it-virtual-assistant", "technical-virtual-assistant"],
     ["virtual-assistant-email-management-tasks-sops", "email-management-virtual-assistant"],
-    ["what-does-a-logistics-virtual-assistant-do", "logistics-virtual-assistant"]
+    ["what-does-a-logistics-virtual-assistant-do", "logistics-virtual-assistant"],
+    ["creative-virtual-assistant-vs-graphic-designer", "creative-virtual-assistant"],
+    ["event-planning-virtual-assistant-tasks", "event-planning-virtual-assistant"]
   ]);
 
   for (const [slug, serviceSlug] of expected) {
@@ -65,7 +73,11 @@ test("software-support posts point to the correct software canonicals", () => {
   const expected = new Map([
     ["gohighlevel-virtual-assistant-tasks", "gohighlevel-virtual-assistant"],
     ["hubspot-virtual-assistant-tasks", "hubspot-virtual-assistant"],
-    ["salesforce-virtual-assistant-tasks", "salesforce-virtual-assistant"]
+    ["salesforce-virtual-assistant-tasks", "salesforce-virtual-assistant"],
+    ["klaviyo-virtual-assistant-tasks", "klaviyo-virtual-assistant"],
+    ["xero-virtual-assistant-tasks", "xero-virtual-assistant"],
+    ["quickbooks-virtual-assistant-tasks", "quickbooks-virtual-assistant"],
+    ["canva-virtual-assistant-tasks", "canva-virtual-assistant"]
   ]);
 
   for (const [slug, softwareSlug] of expected) {
@@ -111,12 +123,47 @@ test("software task guides remain distinct from hire-intent software pages", () 
   for (const slug of [
     "gohighlevel-virtual-assistant-tasks",
     "hubspot-virtual-assistant-tasks",
-    "salesforce-virtual-assistant-tasks"
+    "salesforce-virtual-assistant-tasks",
+    "klaviyo-virtual-assistant-tasks",
+    "xero-virtual-assistant-tasks",
+    "quickbooks-virtual-assistant-tasks",
+    "canva-virtual-assistant-tasks"
   ]) {
     const post = items.find((item) => item.slug === slug);
     assert.match(post.slug, /-tasks$/);
     assert.equal(post.intent, "informational");
     assert.doesNotMatch(post.metaTitle.toLowerCase(), /\bhire\b/);
     assert.doesNotMatch(post.title.toLowerCase(), /^hire\b/);
+  }
+});
+
+
+test("round two service guides answer adjacent intent without replacing money pages", () => {
+  const bySlug = new Map(posts().map((post) => [post.slug, post]));
+
+  const creative = bySlug.get("creative-virtual-assistant-vs-graphic-designer");
+  assert.equal(creative.intent, "comparison");
+  assert.ok(creative.internalLinks.some((link) => link.href === "/service/creative-virtual-assistant"));
+  assert.ok(creative.internalLinks.some((link) => link.href === "/service/graphic-design"));
+  assert.ok(creative.internalLinks.some((link) => link.href === "/software/canva-virtual-assistant"));
+  assert.match(JSON.stringify(creative), /creative ownership|original visual|template/i);
+
+  const events = bySlug.get("event-planning-virtual-assistant-tasks");
+  assert.equal(events.intent, "informational");
+  assert.ok(events.internalLinks.some((link) => link.href === "/service/event-planning-virtual-assistant"));
+  assert.ok(events.internalLinks.some((link) => link.href === "/service/project-coordination"));
+  assert.ok(events.internalLinks.some((link) => link.href === "/service/calendar"));
+  assert.match(JSON.stringify(events), /run sheet|vendor|registration|dependency/i);
+});
+
+test("round two finance-software guides keep accounting judgment with accountable owners", () => {
+  const bySlug = new Map(posts().map((post) => [post.slug, post]));
+  for (const slug of ["xero-virtual-assistant-tasks", "quickbooks-virtual-assistant-tasks"]) {
+    const post = bySlug.get(slug);
+    const body = JSON.stringify(post);
+    assert.match(body, /accounting|bookkeeping/i);
+    assert.match(body, /tax|final accounting|qualified|finance professional/i);
+    assert.match(body, /payment authority|bank/i);
+    assert.match(body, /exception|escalat/i);
   }
 });

@@ -24,7 +24,7 @@ test("hourly-rate guide exposes first-party data and useful monthly examples", (
   assert.match(body, /93 profiles reporting/);
   assert.match(body, /median preferred rate is \$5 per hour/);
   assert.match(body, /average is \$6\.61/);
-  assert.match(body, /current profile form requires new candidates to enter at least \$6 per hour/);
+  assert.match(body, /current platform minimum is \$6 per hour/);
   assert.match(body, /about \$1,039 per month/);
   assert.ok(post.sections.some((section) => section.table?.headers?.includes("20 hrs/week")));
   assert.equal(post.updatedAt, "2026-09-23");

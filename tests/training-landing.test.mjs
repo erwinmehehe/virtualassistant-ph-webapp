@@ -44,9 +44,14 @@ test("the VA page never leads with the client CTA", () => {
 });
 
 
-test("training social metadata is page-specific and unpublished courses have no Course schema", () => {
+test("training social metadata is page-specific and Course schema follows production release state", () => {
   assert.match(page, /\/training\/opengraph-image/);
-  assert.doesNotMatch(page, /"@type": "Course"/);
+  assert.match(page, /getPublishedFoundationCourse/);
+  assert.match(page, /\.\.\.\(publishedFoundation \? \[\{/);
+  assert.match(page, /"@type": "Course"/);
+  const publicTraining = source("src/lib/public-training.ts");
+  assert.match(publicTraining, /\.eq\("status", "published"\)/);
+  assert.match(publicTraining, /revalidate: 300/);
   const og = source("src/app/training/opengraph-image.tsx");
   assert.match(og, /Learn the work\./);
   assert.match(og, /Show what you can do\./);

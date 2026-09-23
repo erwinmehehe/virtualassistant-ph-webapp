@@ -709,3 +709,33 @@
   .profile-photo-control img,
   .profile-photo-placeholder { width: 56px; height: 56px; }
 }
+
+.resume-saved-name {
+  display: block;
+  margin-top: 5px;
+  max-width: 620px;
+  overflow: hidden;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resume-remove-form {
+  grid-column: 2;
+  justify-self: end;
+  margin-top: -8px;
+}
+.resume-remove-form .btn {
+  min-height: 30px;
+  padding: 5px 8px;
+  color: #667085;
+  font-size: 11px;
+}
+@media (max-width: 900px) {
+  .resume-remove-form {
+    grid-column: 1;
+    justify-self: start;
+    margin-top: -4px;
+  }
+}

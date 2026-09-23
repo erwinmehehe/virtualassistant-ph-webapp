@@ -9,6 +9,8 @@ import { LiveProfileStrength } from "@/components/live-profile-strength";
 import { ResumeAutoFill } from "@/components/resume-autofill";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
+import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
+import { TrainingCredentials } from "@/components/training-credentials";
 
 function availabilityAge(value?: string | null) {
   if (!value) return { label: "Not confirmed", stale: true };
@@ -31,8 +33,12 @@ export default async function VaProfilePage({
   ]);
 
   const supabase = await createClient();
-  const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", userId).single();
+  const [{ data: va }, trainingCredentials] = await Promise.all([
+    supabase.from("va_profiles").select("*").eq("user_id", userId).single(),
+    getTrainingCredentialsForUser(userId),
+  ]);
 
+  const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\d+-/, "") || null;
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at
     ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", {
@@ -51,7 +57,7 @@ export default async function VaProfilePage({
   return (
     <>
       {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
-      {params.saved ? <div className="success-banner" role="status">Profile saved.</div> : null}
+      {params.saved ? <div className="success-banner" role="status">Profile saved.</div> : null}\n      {params.resume_removed ? <div className="success-banner" role="status">Saved resume removed.</div> : null}
       {params.availability_confirmed ? (
         <div className="success-banner" role="status">Availability confirmed.</div>
       ) : null}
@@ -72,7 +78,7 @@ export default async function VaProfilePage({
         </Link>
       </div>
 
-      <ResumeAutoFill formId="va-profile-form" hasSavedResume={Boolean(va?.resume_path)} />
+      <ResumeAutoFill formId="va-profile-form" hasSavedResume={Boolean(va?.resume_path)} savedResumeName={savedResumeName} />
 
       <div className="profile-editor-layout">
         <div className="stack profile-editor-main">
@@ -362,7 +368,14 @@ export default async function VaProfilePage({
         </div>
 
         <aside className="profile-editor-sidebar">
-          <LiveProfileStrength formId="va-profile-form" initial={va || {}} />
+          <LiveProfileStrength formId="va-profile-form" initial={va || {}} hasAvatar={Boolean(profile.avatar_url)} />
+
+          <TrainingCredentials
+            credentials={trainingCredentials}
+            heading="Your completed training"
+            showEmpty
+            selfService
+          />
 
           <section className="profile-side-actions">
             <div className="profile-side-actions-head">

@@ -14,13 +14,15 @@ import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice"
 import { DashHeader } from "@/components/dash-ui";
 import { VETTING_PROFILE_MIN } from "@/lib/constants";
 import { getVaDashboardSummary } from "@/lib/va-dashboard";
+import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
+import { TrainingCredentials } from "@/components/training-credentials";
 
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
 export default async function VaDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
   const {userId}=await requireRoleFast("va");
-  const {data:summary,error:summaryError}=await getVaDashboardSummary(userId);
+  const [{data:summary,error:summaryError},trainingCredentials]=await Promise.all([getVaDashboardSummary(userId),getTrainingCredentialsForUser(userId)]);
   const va=summary?.profile||{};
   const avatarUrl=summary?.avatar_url||null;
   const vetting=summary?.vetting||{};
@@ -85,6 +87,8 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
       {readyToPublish?<form action={publishVaProfileAction} className="status-summary-item status-summary-action"><div className="row-between"><span>Recruiter visibility</span><Eye size={18}/></div><strong className="status-summary-text">Ready to activate</strong><small>Make your approved profile available for recruiter-managed searches.</small><button className="btn btn-primary btn-sm" type="submit">Activate profile</button></form>:<Link className="status-summary-item" href="/workspace/va/profile"><div className="row-between"><span>Recruiter visibility</span><Eye size={18}/></div><strong className="status-summary-text">{visibilityLabel}</strong><small>{visibilityCopy}</small></Link>}
       <Link className="status-summary-item" href="/workspace/va/notifications"><div className="row-between"><span>Updates</span><Bell size={18}/></div><strong>{unreadNotifications}</strong><small>{unreadNotifications?"Unread recruiter and hiring updates":"You are caught up"}</small></Link>
     </div>
+
+    {trainingCredentials.length?<TrainingCredentials credentials={trainingCredentials} heading="Training completed" selfService/>:null}
 
     <section className="card dashboard-section-card"><div className="dashboard-section-head"><div><h2>Application progress</h2><p>Your current activity across recruiter review, interviews, offers, and placements.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">View applications</Link></div><div className="pipeline-summary" aria-label="Recruiting pipeline">{[["Interest sent",pipeline.applied],["Recruiter shortlist",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Placed",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>{pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} opportunity{pipeline.rejected===1?" was":"ies were"} closed without placement.</div>:null}</section>
 

@@ -3,15 +3,18 @@
 import { useActionState, useRef, useState } from "react";
 import { CheckCircle2, FileText, UploadCloud } from "lucide-react";
 import { parseResumeAction, type ParseResumeState } from "@/app/actions/resume-autofill";
+import { removeVaResumeAction } from "@/app/actions/profile";
 
 const parseResumeInitialState: ParseResumeState = { status: "idle" };
 
 export function ResumeAutoFill({
   formId,
   hasSavedResume = false,
+  savedResumeName = null,
 }: {
   formId: string;
   hasSavedResume?: boolean;
+  savedResumeName?: string | null;
 }) {
   const parseFileRef = useRef<HTMLInputElement>(null);
   const profileResumeRef = useRef<HTMLInputElement>(null);
@@ -84,7 +87,7 @@ export function ResumeAutoFill({
     : 0;
 
   return (
-    <section className="resume-import-panel" aria-labelledby="resume-import-title">
+    <section className="resume-import-panel" id="resume" aria-labelledby="resume-import-title">
       <input
         ref={profileResumeRef}
         form={formId}
@@ -104,6 +107,7 @@ export function ResumeAutoFill({
             {hasSavedResume && !selectedName ? <span className="badge badge-success"><CheckCircle2 size={12}/> Resume saved</span> : null}
           </div>
           <p>Choose your resume once. PDF/DOCX can fill profile fields automatically; PDF, DOC, or DOCX will be saved privately when you save the profile.</p>
+          {hasSavedResume && savedResumeName && !selectedName ? <span className="resume-saved-name">Saved file: {savedResumeName}</span> : null}
         </div>
       </div>
 
@@ -128,6 +132,12 @@ export function ResumeAutoFill({
           {pending ? "Reading resume..." : "Fill profile from resume"}
         </button>
       </form>
+
+      {hasSavedResume && !selectedName ? (
+        <form action={removeVaResumeAction} className="resume-remove-form">
+          <button className="btn btn-sm btn-ghost" type="submit">Remove saved resume</button>
+        </form>
+      ) : null}
 
       {state.status === "error" ? (
         <div className="alert resume-import-message" role="alert">{state.message}</div>

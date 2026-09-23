@@ -155,11 +155,19 @@ export async function updateVaProfileAction(formData: FormData) {
   if (resume instanceof File && resume.size > 0) {
     if (resume.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
     const extension = resume.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
-    const allowedMime = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]);
-    if (!extension || !allowedMime.has(resume.type)) throw new Error("Upload a PDF, DOC, or DOCX resume only.");
+    const mimeByExtension: Record<string, string> = {
+      pdf: "application/pdf",
+      doc: "application/msword",
+      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    };
+    const genericMime = !resume.type || resume.type === "application/octet-stream";
+    const expectedMime = extension ? mimeByExtension[extension] : null;
+    if (!extension || !expectedMime || (!genericMime && resume.type !== expectedMime)) {
+      throw new Error("Upload a PDF, DOC, or DOCX resume only.");
+    }
     const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "-");
     const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: resume.type || undefined });
+    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: expectedMime });
     if (error) throw error;
     const { error: resumePathError } = await admin.from("va_profiles").update({ resume_path: path }).eq("user_id", user.id);
     if (resumePathError) {
@@ -243,6 +251,40 @@ export async function updateVaProfileAction(formData: FormData) {
       : "We could not save your profile. Please check the fields and try again.";
     redirect(`/workspace/va/profile?error=${encodeURIComponent(message.slice(0, 300))}`);
   }
+}
+
+export async function removeVaResumeAction() {
+  const { user } = await requireRole("va");
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  const [{ data: va }, { data: vetting }] = await Promise.all([
+    admin.from("va_profiles").select("resume_path").eq("user_id", user.id).maybeSingle(),
+    admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
+  ]);
+
+  if (va?.resume_path) {
+    const { error } = await admin.from("va_profiles").update({ resume_path: null }).eq("user_id", user.id);
+    if (error) throw error;
+    await supabase.storage.from("resumes").remove([va.resume_path]);
+
+    if (vetting && ["approved", "bench"].includes(vetting.stage)) {
+      await admin.from("va_vetting").update({ edited_since_approval_at: new Date().toISOString() }).eq("va_id", user.id);
+      await writeRecruiterActivity({
+        subjectType: "va",
+        subjectId: user.id,
+        action: "profile_edited_after_approval",
+        description: "Approved VA removed their resume. Still listed -- review the change.",
+        actorId: user.id,
+      });
+    }
+  }
+
+  revalidatePath("/workspace/va");
+  revalidatePath("/workspace/va/profile");
+  revalidatePath("/workspace/va/vetting");
+  revalidatePath("/workspace/recruiter/candidates");
+  redirect("/workspace/va/profile?resume_removed=1");
 }
 
 export async function updateClientProfileAction(formData: FormData) {

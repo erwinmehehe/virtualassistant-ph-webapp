@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRoleFast } from "@/lib/auth";
@@ -58,6 +58,7 @@ async function invalidateCourseReview(admin: ReturnType<typeof createAdminClient
       updated_at: new Date().toISOString(),
     })
     .eq("id", courseId);
+  revalidateTag("public-training");
 }
 
 async function invalidateLessonReview(admin: ReturnType<typeof createAdminClient>, lessonId: string) {
@@ -147,6 +148,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
     .eq("id", courseId);
   if (error) throw error;
 
+  revalidateTag("public-training");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");
 }
@@ -199,9 +201,11 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
     .eq("id", courseId);
   if (error) throw error;
 
+  revalidateTag("public-training");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");
   revalidatePath("/workspace/training");
+  revalidatePath("/training");
 }
 
 export async function createTrainingModuleAction(formData: FormData) {

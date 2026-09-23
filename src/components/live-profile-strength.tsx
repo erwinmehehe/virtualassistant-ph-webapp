@@ -48,9 +48,9 @@ export function LiveProfileStrength({ formId, initial }: { formId: string; initi
 
   const eligible = state.years >= PUBLIC_VA_MIN_EXPERIENCE;
   return <div className="card profile-strength-card live-strength-card" aria-live="polite">
-    <div className="row-between"><div><span className="small muted">Live profile strength</span><strong className="profile-strength-score">{state.score}%</strong></div><span className="badge">{state.done}/{state.total}</span></div>
+    <div className="row-between"><div><span className="small muted">Profile completeness</span><strong className="profile-strength-score">{state.score}%</strong></div><span className="badge">{state.done}/{state.total}</span></div>
     <div className="progress profile-strength-progress"><span style={{width:`${state.score}%`}}/></div>
-    <div className={`profile-eligibility ${eligible ? "eligible" : ""}`}>{eligible ? <CheckCircle2 size={15}/> : <EyeOff size={15}/>}<span>{eligible ? "Experience requirement met for public discovery." : "Public discovery needs 2+ years of experience."}</span></div>
-    <p className="small muted live-strength-next">{state.score === 100 ? "Everything needed for a complete profile is filled in." : `Next: ${state.next}.`}</p>
+    <div className={`profile-eligibility ${eligible ? "eligible" : ""}`}>{eligible ? <CheckCircle2 size={15}/> : <EyeOff size={15}/>}<span>{eligible ? "2+ years of experience recorded." : "Public profile requires 2+ years of experience."}</span></div>
+    <p className="small muted live-strength-next">{state.score === 100 ? "Profile complete." : `Next: ${state.next}.`}</p>
   </div>;
 }

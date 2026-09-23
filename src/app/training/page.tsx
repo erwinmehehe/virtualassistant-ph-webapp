@@ -20,11 +20,33 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+const META_TITLE = "Virtual Assistant Training Philippines | Free VA Course";
+const META_DESCRIPTION =
+  "Free virtual assistant training for Filipinos. Learn practical client communication, admin, software, and industry skills in short mobile-friendly lessons.";
+
 export const metadata: Metadata = {
-  title: "Virtual Assistant Training Philippines | Free VA Course",
-  description:
-    "Free Virtual Assistant training for Filipinos. Learn practical client communication, admin workflows, software, and industry skills in short mobile-friendly lessons.",
-  alternates: { canonical: canonicalPath("/training") }
+  title: { absolute: META_TITLE },
+  description: META_DESCRIPTION,
+  alternates: { canonical: canonicalPath("/training") },
+  openGraph: {
+    type: "website",
+    url: canonicalUrl("/training"),
+    siteName: "VirtualAssistant.com.ph",
+    title: META_TITLE,
+    description: META_DESCRIPTION,
+    images: [{
+      url: "/opengraph-image",
+      width: 1200,
+      height: 630,
+      alt: "VirtualAssistant.com.ph training"
+    }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: META_TITLE,
+    description: META_DESCRIPTION,
+    images: ["/twitter-image"]
+  }
 };
 
 const JOIN_HREF = "/workspace/training";

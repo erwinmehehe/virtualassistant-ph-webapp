@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { TRAINING_LEVELS, STATUS_LABEL } from "@/lib/training-catalogue";
+import { getPublishedFoundationCourse } from "@/lib/public-training";
 import "../training-landing.css";
 
 function safeJson(value: unknown) {
@@ -78,7 +79,10 @@ const FAQS = [
 const softwareLevel = TRAINING_LEVELS.find((level) => level.id === "software");
 const industryLevel = TRAINING_LEVELS.find((level) => level.id === "industry");
 
-export default function TrainingPage() {
+export default async function TrainingPage() {
+  const publishedFoundation = await getPublishedFoundationCourse();
+  const foundationLive = Boolean(publishedFoundation);
+
   const schema = [
     {
       "@context": "https://schema.org",
@@ -89,7 +93,27 @@ export default function TrainingPage() {
         name: question,
         acceptedAnswer: { "@type": "Answer", text: answer }
       }))
-    }
+    },
+    ...(publishedFoundation ? [{
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "@id": `${canonicalUrl("/training")}#virtual-assistant-foundations`,
+      name: publishedFoundation.title,
+      description: publishedFoundation.summary || "Practical Virtual Assistant foundations training for Filipino professionals.",
+      url: canonicalUrl("/training"),
+      isAccessibleForFree: true,
+      provider: {
+        "@type": "Organization",
+        name: "VirtualAssistant.com.ph",
+        url: canonicalUrl("/")
+      },
+      offers: {
+        "@type": "Offer",
+        price: 0,
+        priceCurrency: "PHP",
+        availability: "https://schema.org/InStock"
+      }
+    }] : [])
   ];
 
   return (
@@ -199,7 +223,7 @@ export default function TrainingPage() {
           <div className="container">
             <div className="tr-featured">
               <div className="tr-featured-copy">
-                <span className="tr-kicker">First release</span>
+                <span className="tr-kicker">{foundationLive ? "Available now" : "First release"}</span>
                 <h2>Start with Virtual Assistant Foundations.</h2>
                 <p>
                   The first course covers the basics that show up in almost every VA
@@ -226,7 +250,7 @@ export default function TrainingPage() {
               <div className="tr-course-facts">
                 <div>
                   <span>Status</span>
-                  <strong>In production</strong>
+                  <strong>{foundationLive ? "Available now" : "In production"}</strong>
                 </div>
                 <div>
                   <span>Lesson format</span>
@@ -459,8 +483,9 @@ export default function TrainingPage() {
               <span>Free Virtual Assistant training</span>
               <h2>Build skills you can actually show.</h2>
               <p>
-                Create your training account, save your progress, and start with the
-                first lessons as they are released.
+                {foundationLive
+                  ? "Create your training account, save your progress, and start Virtual Assistant Foundations."
+                  : "Create your training account, save your progress, and start with the first lessons as they are released."}
               </p>
             </div>
             <div className="tr-close-actions">

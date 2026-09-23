@@ -1,10 +1,11 @@
 import { BLOG_POSTS as RAW_BLOG_POSTS } from "@/lib/blog-content";
 import type { BlogPost, BlogTopic } from "@/lib/blog-types";
 import { EDITORIAL_SEO_POSTS } from "@/lib/editorial-seo-guides";
+import { BLOG_OPPORTUNITY_POSTS } from "@/lib/blog-opportunity-posts";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
-export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS];
+export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS, ...BLOG_OPPORTUNITY_POSTS];
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

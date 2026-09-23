@@ -682,13 +682,13 @@ export const BLOG_POSTS: BlogPost[] = [
     "clusterLabel": "Pricing",
     "intent": "informational",
     "publishedAt": "2026-03-01",
-    "updatedAt": "2026-09-22",
+    "updatedAt": "2026-09-23",
     "author": "Christ Hemsworthy",
     "sections": [
       {
         "heading": "What you are really paying for in a virtual assistant role",
         "paragraphs": [
-          "A useful budget is not a bid for the cheapest available hour. It is the price of getting a defined set of recurring work completed to an agreed standard. Two Virtual Assistant candidates can quote different rates and both be reasonable if one needs close supervision while the other can run the queue, document exceptions, and communicate directly with customers or internal stakeholders.",
+          "A useful budget is not a bid for the cheapest available hour. It is the price of getting a defined set of recurring work completed to an agreed standard. Two Virtual Assistant candidates can quote different rates and both be reasonable if one needs close supervision while the other can run the queue, document exceptions, and communicate directly with customers or internal stakeholders. The current platform minimum is $6 per hour for new profiles and hiring briefs, while older records and third-party market reports may show lower historical figures.",
           "Suppose a founder is losing several hours each week to inbox follow-up, calendar changes, data cleanup, and status chasing. A useful Virtual Assistant role would not simply say “help with admin.” It would assign named queues, set response windows, and define which items the assistant can close without approval."
         ],
         "bullets": [],
@@ -824,6 +824,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Virtual Assistant Salary in the Philippines: 2026 Guide",
         "href": "/blog/virtual-assistant-salary-philippines",
         "description": "A clearer way to interpret Philippine Virtual Assistant salary data without mixing local employee pay, freelance rates, and specialist pricing into one number."
+      },
+      {
+        "label": "2026 Virtual Assistant Rate and Skills Report",
+        "href": "/research/virtual-assistant-rates-philippines-2026",
+        "description": "Review first-party aggregate profile data, sample sizes, and the limits of the current rate evidence."
       },
       {
         "label": "Browse virtual assistant services",
@@ -21766,7 +21771,7 @@ export const BLOG_POSTS: BlogPost[] = [
     "clusterLabel": "Philippines Hiring",
     "intent": "compliance",
     "publishedAt": "2026-07-13",
-    "updatedAt": "2026-09-22",
+    "updatedAt": "2026-09-23",
     "author": "Christ Hemsworthy",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "reviewNote": "General information only, not Philippine employment, tax, or benefits advice. Classification and contribution obligations depend on the actual relationship and applicable law. Confirm your arrangement with qualified Philippine counsel or an employment professional.",
@@ -22350,13 +22355,13 @@ export const BLOG_POSTS: BlogPost[] = [
     "clusterLabel": "Pricing",
     "intent": "informational",
     "publishedAt": "2026-02-18",
-    "updatedAt": "2026-09-22",
+    "updatedAt": "2026-09-23",
     "author": "Christ Hemsworthy",
     "sections": [
       {
         "heading": "What you are really paying for in a virtual assistant role",
         "paragraphs": [
-          "Salary benchmarks only become useful when you compare similar working arrangements. A locally employed full-time assistant, an independent contractor serving overseas clients, and a specialist Virtual Assistant may all appear in salary research, but their pay structures and responsibilities are not interchangeable. Define the relationship and role level before treating one number as the market rate.",
+          "Salary benchmarks only become useful when you compare similar working arrangements. Employee salary, an independent contractor rate, and total client hiring cost answer different questions and should not be presented as one market number. A locally employed full-time assistant, an independent contractor serving overseas clients, and a specialist Virtual Assistant may all appear in salary research, but their pay structures and responsibilities are not interchangeable. Define the relationship and role level before treating one number as the market rate.",
           "Start with the job rather than the salary figure. If the role is mostly inbox follow-up, calendar administration, data cleanup, and routine status tracking, document those responsibilities and expected hours. If the person will also manage clients, specialist systems, or decisions with financial impact, compare compensation with roles carrying that higher level of responsibility."
         ],
         "bullets": [],
@@ -22487,6 +22492,11 @@ export const BLOG_POSTS: BlogPost[] = [
         "label": "Average Hourly Rate for Virtual Assistants in the Philippines: 2026 Guide",
         "href": "/average-hourly-rate-virtual-assistants-philippines",
         "description": "Use hourly-rate benchmarks as context, then budget for the responsibility and evidence of skill your role actually needs."
+      },
+      {
+        "label": "2026 Virtual Assistant Rate and Skills Report",
+        "href": "/research/virtual-assistant-rates-philippines-2026",
+        "description": "Review current first-party profile data with sample sizes and methodology."
       },
       {
         "label": "Medical Virtual Assistant Cost in the Philippines",

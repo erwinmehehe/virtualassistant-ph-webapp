@@ -54,7 +54,13 @@ test("near-page-one archive guides now answer the query earlier", () => {
     assert.ok(start >= 0, `${slug}: missing`);
     const end = archive.indexOf("\n  },", start);
     const block = archive.slice(start, end);
-    assert.ok(block.includes('"updatedDate": "September 22, 2026"'), `${slug}: updated date not refreshed`);
+    const expectedDate = [
+      "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
+      "get-paid-virtual-assistant-philippines"
+    ].includes(slug)
+      ? "September 23, 2026"
+      : "September 22, 2026";
+    assert.ok(block.includes(`"updatedDate": "${expectedDate}"`), `${slug}: updated date not refreshed`);
   }
 });
 

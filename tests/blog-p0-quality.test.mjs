@@ -18,7 +18,7 @@ test("blog rendering only emits update signals after a real date change", () => 
 
 test("blog content no longer depends on a runtime $5 pricing sanitizer", () => {
   const blog = source("src/lib/blog.ts");
-  assert.match(blog, /export const BLOG_POSTS: BlogPost\[\] = \[\.\.\.RAW_BLOG_POSTS, \.\.\.EDITORIAL_SEO_POSTS\];/);
+  assert.match(blog, /export const BLOG_POSTS: BlogPost\[\] = \[\.\.\.RAW_BLOG_POSTS, \.\.\.EDITORIAL_SEO_POSTS, \.\.\.BLOG_OPPORTUNITY_POSTS\];/);
   assert.doesNotMatch(blog, /containsStaleFiveDollarFloor/);
   assert.doesNotMatch(blog, /CURRENT_PRICING_FAQ/);
 });

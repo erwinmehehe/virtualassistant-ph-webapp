@@ -96,7 +96,7 @@ test("specialist invite token lookup hashes the URL token before querying storag
 
   assert.match(lib, /createHash\("sha256"\)/);
   assert.match(lib, /\.eq\("token_hash", tokenHash\)/);
-  assert.match(lib, /invite\.status === "revoked"/);
+  assert.match(lib, /inviteData\.status === "revoked"/);
   assert.match(lib, /new Date\(invite\.expires_at\)\.getTime\(\) <= Date\.now\(\)/);
   assert.match(lib, /review_requirement", "specialist"/);
 });

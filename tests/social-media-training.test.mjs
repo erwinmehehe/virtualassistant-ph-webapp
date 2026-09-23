@@ -37,3 +37,13 @@ test("Social Media final assessment tests real operations rather than platform t
   assert.match(seed, /creator usage-rights questions/i);
   assert.match(seed, /reporting and handoff plan/i);
 });
+
+
+test("Social Media course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923142000_release_social_media_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'social-media-virtual-assistant'/);
+});

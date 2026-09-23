@@ -38,6 +38,7 @@ export default async function VaProfilePage({
     getTrainingCredentialsForUser(userId),
   ]);
 
+  const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\\d+-/, "") || null;
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at
     ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", {
@@ -56,7 +57,7 @@ export default async function VaProfilePage({
   return (
     <>
       {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
-      {params.saved ? <div className="success-banner" role="status">Profile saved.</div> : null}
+      {params.saved ? <div className="success-banner" role="status">Profile saved.</div> : null}\n      {params.resume_removed ? <div className="success-banner" role="status">Saved resume removed.</div> : null}
       {params.availability_confirmed ? (
         <div className="success-banner" role="status">Availability confirmed.</div>
       ) : null}
@@ -77,7 +78,7 @@ export default async function VaProfilePage({
         </Link>
       </div>
 
-      <ResumeAutoFill formId="va-profile-form" hasSavedResume={Boolean(va?.resume_path)} />
+      <ResumeAutoFill formId="va-profile-form" hasSavedResume={Boolean(va?.resume_path)} savedResumeName={savedResumeName} />
 
       <div className="profile-editor-layout">
         <div className="stack profile-editor-main">

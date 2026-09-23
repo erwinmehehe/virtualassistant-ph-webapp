@@ -1325,6 +1325,87 @@ export const INDUSTRIES: IndustryPage[] = [
       "Quote comparisons prepared by the Virtual Assistant should present factual information without recommending coverage, insurers or policy terms.",
       "The licensed or authorised local insurance broker retains final coverage decisions, recommendations, advice, approvals and compliance responsibility; the Virtual Assistant performs renewal production and administration."
     ]
+  },
+  {
+    "slug": "cleaning-businesses",
+    "clusterSlug": "home-local-services",
+    "label": "Cleaning Businesses",
+    "h1": "Virtual Assistants for Cleaning Businesses",
+    "primaryKeyword": "virtual assistant for cleaning business",
+    "metaTitle": "Virtual Assistant for Cleaning Businesses | Philippines",
+    "metaDescription": "Hire a Virtual Assistant for your cleaning business in the Philippines for booking, quote follow-up, crew scheduling, CRM updates, invoicing admin and reviews.",
+    "intro": "Cleaning companies lose margin when calls, quote requests, schedule changes, customer reminders, invoices, and review follow-up are handled between jobs. A Virtual Assistant can run the repeatable office workflow around your field team while owners and supervisors keep pricing, staffing, quality, safety, and customer exceptions.",
+    "audience": "residential cleaning companies, commercial cleaning businesses, maid services and multi-crew operators",
+    "workflows": [
+      "respond to new enquiries and capture service details",
+      "prepare quote requests from approved pricing rules",
+      "book recurring and one-off cleaning appointments",
+      "coordinate schedule changes with customers and crew leads",
+      "send appointment confirmations and reminders",
+      "update the CRM with customer, property and service notes",
+      "prepare approved invoice information and payment follow-up queues",
+      "request reviews after completed services",
+      "track complaints, re-cleans and exceptions for manager review"
+    ],
+    "serviceSlugs": [
+      "phone-receptionist",
+      "appointment-setter-virtual-assistant",
+      "customer-service",
+      "admin-inbox"
+    ],
+    "tools": [
+      "Jobber",
+      "ZenMaid",
+      "Launch27",
+      "Housecall Pro",
+      "GoHighLevel",
+      "QuickBooks"
+    ],
+    "hiringNotes": [
+      "Document service areas, cleaning packages, add-ons, booking windows and which quote changes require owner approval.",
+      "Use one scheduling system so customer promises and crew availability do not diverge across chat, spreadsheets and calendars.",
+      "Keep staffing decisions, safety issues, pricing exceptions, refunds outside policy and service-quality disputes with the designated business owner or manager."
+    ]
+  },
+  {
+    "slug": "trucking-companies",
+    "label": "Trucking Companies",
+    "h1": "Virtual Assistants for Trucking Companies",
+    "primaryKeyword": "trucking virtual assistant",
+    "metaTitle": "Virtual Assistant for Trucking Companies | Philippines",
+    "metaDescription": "Hire a Virtual Assistant for your trucking company in the Philippines for dispatch admin, load tracking, POD follow-up, paperwork and customer updates.",
+    "intro": "Trucking operations generate a constant stream of load updates, paperwork, customer messages, proof-of-delivery follow-up, billing preparation, and carrier or driver coordination. A Virtual Assistant can keep those administrative queues current while dispatchers, drivers, brokers, and managers retain authority over routing, safety, rates, compliance, and live operational decisions.",
+    "audience": "trucking companies, small fleets, freight operators, owner-operators and logistics teams",
+    "workflows": [
+      "enter approved loads and shipment details into the operating system",
+      "maintain pickup, in-transit and delivery status updates",
+      "follow up for bills of lading and proof-of-delivery documents",
+      "organize rate confirmations and load paperwork",
+      "send approved customer status updates",
+      "maintain driver and carrier administrative records",
+      "prepare completed-load files for billing review",
+      "track missing documents and unresolved exceptions",
+      "update recurring operations and customer reports"
+    ],
+    "serviceSlugs": [
+      "logistics-virtual-assistant",
+      "customer-service",
+      "admin-inbox",
+      "bookkeeping"
+    ],
+    "tools": [
+      "transportation management systems",
+      "DAT",
+      "Truckstop",
+      "Google Workspace",
+      "Microsoft 365",
+      "QuickBooks"
+    ],
+    "hiringNotes": [
+      "Define which load, rate, routing and customer decisions the Virtual Assistant may record versus which require a dispatcher or manager.",
+      "Use documented status codes and one source of truth for pickup, transit, delivery and paperwork exceptions.",
+      "Drivers, dispatchers, brokers and company leadership retain responsibility for safety, regulatory compliance, routing, rate commitments and real-time operational decisions."
+    ]
   }
 ];
 

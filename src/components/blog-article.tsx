@@ -20,6 +20,22 @@ import { marketplaceEvidenceForPost } from "@/lib/editorial-evidence";
 import { SeoPriorityLinks } from "@/components/seo-priority-links";
 import { seoPriorityLinksForBlog } from "@/lib/seo-priority-links";
 
+const CANDIDATE_LEARNING_GUIDES = new Set([
+  "how-to-apply-as-a-virtual-assistant",
+  "virtual-assistant-resume-sample",
+  "virtual-assistant-portfolio-examples",
+  "virtual-assistant-skills",
+  "virtual-assistant-requirements-philippines",
+  "how-to-become-a-virtual-assistant-philippines",
+  "virtual-assistant-training-guide",
+  "virtual-assistant-certification-guide",
+  "virtual-assistant-cover-letter",
+  "best-laptop-for-virtual-assistant",
+  "freelance-platforms-for-virtual-assistants",
+  "how-to-start-a-virtual-assistant-business",
+  "become-virtual-assistant-no-experience"
+]);
+
 function idFor(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -76,7 +92,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
   const articleDate = new Date(`${hasMeaningfulUpdate ? post.updatedAt : post.publishedAt}T00:00:00Z`);
   const articleDateLabel = hasMeaningfulUpdate ? "Updated" : "Published";
-  const showPlanningTools = ["hiring", "pricing", "managing"].includes(post.topic);
+  const isCandidateLearningGuide = CANDIDATE_LEARNING_GUIDES.has(post.slug);
+  const showPlanningTools = !isCandidateLearningGuide && ["hiring", "pricing", "managing"].includes(post.topic);
   const authorHref = post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team";
   const authorInitials = post.author === "Christ Hemsworthy" ? "CH" : "VA";
 
@@ -162,10 +179,19 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             {section.numbered?.length ? <ol>{section.numbered.map((item, itemIndex) => <li key={`${item}-${itemIndex}`}>{item}</li>)}</ol> : null}
             {section.table ? <div className="blog-table-wrap"><table><thead><tr>{section.table.headers.map((heading) => <th key={heading}>{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>)}</tr>)}</tbody></table></div> : null}
 
-            {index === 1 ? <aside className="blog-inline-cta">
-              <div><span className="blog-inline-label">Hiring shortcut</span><h3>{service ? `Need a ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h3><p>Browse screened talent first, or talk through the role with our team.</p></div>
-              <div className="blog-inline-actions"><Link className="btn btn-primary" href={talentHref} data-track="blog_cta_talent">Browse talent <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href="/book-client-call">Book a call</Link></div>
-            </aside> : null}
+            {index === 1 ? (
+              isCandidateLearningGuide ? (
+                <aside className="blog-inline-cta">
+                  <div><span className="blog-inline-label">Put this into practice</span><h3>Want structured practice before you apply?</h3><p>Use the free training hub to work through practical VA skills, then browse roles when you are ready.</p></div>
+                  <div className="blog-inline-actions"><Link className="btn btn-primary" href="/training" data-track="blog_training_click">Explore free training <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href="/jobs">Browse VA jobs</Link></div>
+                </aside>
+              ) : (
+                <aside className="blog-inline-cta">
+                  <div><span className="blog-inline-label">Hiring shortcut</span><h3>{service ? `Need a ${roleLabel} Virtual Assistant?` : "Ready to delegate the work?"}</h3><p>Browse screened talent first, or talk through the role with our team.</p></div>
+                  <div className="blog-inline-actions"><Link className="btn btn-primary" href={talentHref} data-track="blog_cta_talent">Browse talent <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href="/book-client-call">Book a call</Link></div>
+                </aside>
+              )
+            ) : null}
 
             {index === 2 ? <ContextLinks post={post} start={0} count={2}/> : null}
             {index === 5 ? <ContextLinks post={post} start={2} count={2}/> : null}
@@ -224,17 +250,31 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <div><div className="small muted">Written by</div><h3><Link href={authorHref}>{post.author}</Link></h3><p>{post.author === "Christ Hemsworthy" ? "Christ Hemsworthy writes about remote hiring, Virtual Assistant operations, delegation, and the Philippines talent market for VirtualAssistant.com.ph." : "The VirtualAssistant.com.ph Editorial Team creates practical hiring and operations guidance from our recruiting, vetting, matching, and placement workflows."}</p></div>
           </div>
 
-          <aside className="blog-bottom-conversion">
-            <div className="blog-bottom-copy">
-              <span className="blog-bottom-label">Ready when you are</span>
-              <h2>{service ? `Find a ${roleLabel} Virtual Assistant with a clearer next step.` : "Turn the guide into a real shortlist."}</h2>
-              <p>Browse vetted Filipino Virtual Assistants, compare relevant profiles, or book a quick call if you want help defining the role.</p>
-              <div className="blog-bottom-actions">
-                <Link className="btn btn-primary btn-lg" href={talentHref} data-track="blog_cta_talent">Browse vetted talent <ArrowRight size={16}/></Link>
-                <Link className="btn btn-lg" href="/book-client-call" data-track="blog_cta_booking">Book a discovery call</Link>
+          {isCandidateLearningGuide ? (
+            <aside className="blog-bottom-conversion">
+              <div className="blog-bottom-copy">
+                <span className="blog-bottom-label">Next step</span>
+                <h2>Turn the guide into practice.</h2>
+                <p>Use the free training hub to build practical skills and keep your learning separate from whether you apply for a role.</p>
+                <div className="blog-bottom-actions">
+                  <Link className="btn btn-primary btn-lg" href="/training" data-track="blog_training_click">Explore free training <ArrowRight size={16}/></Link>
+                  <Link className="btn btn-lg" href="/jobs">Browse VA jobs</Link>
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+          ) : (
+            <aside className="blog-bottom-conversion">
+              <div className="blog-bottom-copy">
+                <span className="blog-bottom-label">Ready when you are</span>
+                <h2>{service ? `Find a ${roleLabel} Virtual Assistant with a clearer next step.` : "Turn the guide into a real shortlist."}</h2>
+                <p>Browse vetted Filipino Virtual Assistants, compare relevant profiles, or book a quick call if you want help defining the role.</p>
+                <div className="blog-bottom-actions">
+                  <Link className="btn btn-primary btn-lg" href={talentHref} data-track="blog_cta_talent">Browse vetted talent <ArrowRight size={16}/></Link>
+                  <Link className="btn btn-lg" href="/book-client-call" data-track="blog_cta_booking">Book a discovery call</Link>
+                </div>
+              </div>
+            </aside>
+          )}
         </article>
       </div>
     </section>

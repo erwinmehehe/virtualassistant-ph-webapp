@@ -14,8 +14,7 @@ const serviceGroups = Array.from(
 
 const industryLinks = INDUSTRIES.slice(0, 8);
 
-const CLIENT_LOGIN = "/auth/login?next=%2Fworkspace%2Fclient";
-const VA_LOGIN = "/auth/login?next=%2Fworkspace%2Fva";
+const ACCOUNT_LOGIN = "/auth/login";
 
 function CallCard({ title, body }: { title: string; body: string }) {
   return (
@@ -74,16 +73,7 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-actions">
-          <details className="va-nav-menu va-nav-login">
-            <summary>Log in <ChevronDown size={14} aria-hidden="true" /></summary>
-            <div className="va-nav-panel va-nav-panel-login">
-              <span>Clients</span>
-              <Link href={CLIENT_LOGIN}>Client Portal</Link>
-              <span>Virtual Assistants</span>
-              <Link href={VA_LOGIN}>VA log in</Link>
-              <Link href="/auth/join/va">Apply as a VA</Link>
-            </div>
-          </details>
+          <Link className="va-nav-account-login" href={ACCOUNT_LOGIN}>Log in</Link>
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
 
           <details className="va-mobile-drawer">
@@ -99,9 +89,8 @@ export function SiteNav() {
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse Virtual Assistant jobs</Link>
               <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
-              <Link href={VA_LOGIN}>VA log in</Link>
               <span className="va-mobile-panel-label">Account</span>
-              <Link href={CLIENT_LOGIN}>Client Portal</Link>
+              <Link href={ACCOUNT_LOGIN}>Log in</Link>
             </nav>
           </details>
         </div>

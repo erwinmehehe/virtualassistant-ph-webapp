@@ -37,3 +37,24 @@ create index if not exists training_specialist_review_invites_status_idx
 create unique index if not exists training_specialist_review_invites_one_active_per_course
   on public.training_specialist_review_invites(course_id)
   where status in ('pending', 'opened');
+
+
+-- Keep external handoff activity in the same append-only specialist review timeline.
+alter table public.training_specialist_review_events
+  drop constraint if exists training_specialist_review_events_event_type_check;
+
+alter table public.training_specialist_review_events
+  add constraint training_specialist_review_events_event_type_check
+  check (event_type in (
+    'assigned',
+    'reassigned',
+    'progress_saved',
+    'changes_requested',
+    'approved',
+    'invalidated',
+    'invite_sent',
+    'invite_opened',
+    'invite_revoked',
+    'external_changes_requested',
+    'external_approved'
+  ));

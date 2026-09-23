@@ -276,3 +276,11 @@ test("final assessment cannot be submitted before all published lessons are comp
   assert.match(page, /Complete the lessons first/);
   assert.match(page, /course\.completedLessons === course\.lessonCount/);
 });
+
+
+test("lesson-only completion does not display as full course completion", async () => {
+  const training = await readFile("src/lib/training.ts", "utf8");
+  assert.match(training, /completedLessons === courseLessons\.length\s*\? 95/);
+  assert.match(training, /completedLessons === lessons\.length\s*\? 95/);
+  assert.match(training, /enrollment\?\.completed_at\s*\? 100/);
+});

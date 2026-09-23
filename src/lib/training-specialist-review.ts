@@ -59,7 +59,7 @@ const definitions: Record<string, SpecialistReviewDefinition> = {
       { id: "corrections", label: "Corrections and employee queries are realistic", detail: "Underpayments, missing hours, deductions, and disputes are investigated with evidence and approval rather than silently edited or promised." },
       { id: "assessment", label: "Final simulation tests payroll operations judgment", detail: "The learner must manage inputs, exceptions, privacy, approvals, employee queries, and handoff without crossing into tax or legal advice." },
     ],
-  },,
+  },
   "ndis-administration-fundamentals": {
     title: "NDIS Administration specialist review",
     reviewerHint: "NDIS provider operations lead, support-coordination administrator, compliance reviewer, or experienced NDIS administration specialist working with current provider processes.",

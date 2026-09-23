@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { Band, CtaBand, FaqBlock, LinkTiles, SectionHead } from "@/components/hiring-page-sections";
 import { SEO_RESOURCE_PAGES, seoResourceBySlug } from "@/lib/seo-resource-pages";
+import { seoResourcePublishedAt, seoResourceUpdatedAt } from "@/lib/seo-resource-dates";
 import { canonicalPath } from "@/lib/seo-url";
 import "@/app/homepage-sections.css";
 import "@/app/hiring-pages.css";
@@ -58,8 +59,8 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
       headline: page.title,
       description: page.metaDescription,
       mainEntityOfPage: url,
-      datePublished: "2026-09-22",
-      dateModified: "2026-09-22",
+      datePublished: seoResourcePublishedAt(page.slug),
+      dateModified: seoResourceUpdatedAt(page.slug),
       author: { "@type": "Organization", name: "VirtualAssistant.com.ph Editorial Team", url: base + "/authors/editorial-team" },
       publisher: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }
     },

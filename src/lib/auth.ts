@@ -99,6 +99,15 @@ export const getFastRoleProfile = cache(async function getFastRoleProfile() {
   });
 });
 
+export async function requireAuthenticatedUserFast(nextPath = "/workspace/training") {
+  const session = await getFastRoleProfile();
+  if ("banned" in session && session.banned) {
+    redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");
+  }
+  if (!session.userId) redirect(`/auth/login?next=${encodeURIComponent(nextPath)}`);
+  return session as typeof session & { userId: string };
+}
+
 export async function requireRoleFast(role: Role) {
   const session = await getFastRoleProfile();
   if ("banned" in session && session.banned) redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");

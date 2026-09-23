@@ -92,6 +92,19 @@ function validateAvatarUpload(value: FormDataEntryValue | null) {
   };
 }
 
+function validateCompanyLogoUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
+
+  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP company logo.");
+
+  return {
+    file: value,
+    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
+  };
+}
+
 export async function updateVaProfileAction(formData: FormData) {
   try {
   const { user } = await requireRole("va");
@@ -317,27 +330,31 @@ export async function updateClientProfileAction(formData: FormData) {
   const admin = createAdminClient();
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (fullName && (fullName.length < 2 || fullName.length > 100)) throw new Error("Enter a valid name.");
+
+  // Resolve every user-input validation error before mutating either profile
+  // table so an invalid URL/logo cannot leave a partially saved company form.
+  const website = cleanUrl(formData.get("website"));
+  const logoUrl = cleanUrl(formData.get("logo_url"));
+  const logoUpload = validateCompanyLogoUpload(formData.get("logo"));
+
   const { error: nameError } = await admin.from("profiles").update({ full_name: fullName || null }).eq("id", user.id);
   if (nameError) throw nameError;
   const { error: companyError } = await admin.from("client_profiles").update({
     company_name: String(formData.get("company_name") ?? "").trim() || null,
-    website: cleanUrl(formData.get("website")),
+    website,
     industry: String(formData.get("industry") ?? "").trim() || null,
     timezone: String(formData.get("timezone") ?? "").trim() || null,
     team_size: String(formData.get("team_size") ?? "").trim() || null,
     company_description: String(formData.get("company_description") ?? "").trim() || null,
-    logo_url: cleanUrl(formData.get("logo_url")),
+    logo_url: logoUrl,
     location: String(formData.get("location") ?? "").trim() || null,
     hiring_needs: String(formData.get("hiring_needs") ?? "").trim() || null,
     hiring_notes: String(formData.get("hiring_notes") ?? "").trim() || null
   }).eq("user_id", user.id);
   if (companyError) throw companyError;
-  const logo = formData.get("logo");
-  if (logo instanceof File && logo.size > 0) {
-    if (logo.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
-    if (!["image/jpeg","image/png","image/webp"].includes(logo.type)) throw new Error("Upload a JPG, PNG, or WEBP company logo.");
-    const ext = logo.type === "image/png" ? "png" : logo.type === "image/webp" ? "webp" : "jpg";
-    const path = `${user.id}/logo-${Date.now()}.${ext}`;
+  if (logoUpload) {
+    const { file: logo, extension } = logoUpload;
+    const path = `${user.id}/logo-${Date.now()}.${extension}`;
     const { error: uploadError } = await admin.storage.from("company-logos").upload(path, logo, { upsert: false, contentType: logo.type });
     if (uploadError) throw uploadError;
     const { data: publicUrl } = admin.storage.from("company-logos").getPublicUrl(path);

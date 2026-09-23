@@ -1003,3 +1003,50 @@
     transform: none;
   }
 }
+
+
+/* Live LMS roadmap */
+.tr-paths-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tr-course-line {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.tr-course-line > span {
+  min-width: 0;
+  color: #344054;
+  font-size: .86rem;
+  font-weight: 620;
+}
+
+.tr-course-line > small {
+  flex: none;
+  color: var(--tr-muted);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.tr-course-line > small.tr-status-live {
+  color: #067647;
+}
+
+@media (max-width: 800px) {
+  .tr-paths-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .tr-course-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}

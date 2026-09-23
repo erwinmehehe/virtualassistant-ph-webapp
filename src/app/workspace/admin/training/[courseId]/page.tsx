@@ -134,12 +134,13 @@ export default async function AdminTrainingCoursePage({
             <label className="field"><span>Editorial reviewer</span><input name="reviewed_by" defaultValue={course.reviewed_by || ""} placeholder="Reviewer name"/></label>
             <label className="field"><span>Editorial review action</span><select name="review_action" defaultValue="preserve"><option value="preserve">Keep current review date</option><option value="mark_now">Mark reviewed now</option><option value="clear">Clear review date</option></select></label>
           </div>
-          <div className="grid-3">
-            <label className="field"><span>Specialist reviewer</span><input name="specialist_reviewed_by" defaultValue={course.specialist_reviewed_by || ""} placeholder="Name"/></label>
-            <label className="field"><span>Specialist role / scope</span><input name="specialist_reviewer_role" defaultValue={course.specialist_reviewer_role || ""} placeholder="e.g. payroll practitioner"/></label>
-            <label className="field"><span>Specialist review action</span><select name="specialist_review_action" defaultValue="preserve"><option value="preserve">Keep current review date</option><option value="mark_now">Mark specialist-reviewed now</option><option value="clear">Clear specialist review date</option></select></label>
-          </div>
-          <label className="field"><span>Specialist review notes</span><textarea name="specialist_review_notes" rows={4} maxLength={2000} defaultValue={course.specialist_review_notes || ""} placeholder="Scope reviewed, material corrections, and any limits or follow-up."/></label>
+          {course.review_requirement === "specialist" ? (
+            <div className="notice">
+              <strong>Specialist sign-off is managed in the review queue</strong>
+              <p>Course settings cannot grant specialist approval. Use the course-specific checklist and evidence workflow.</p>
+              <Link className="btn btn-sm" href="/workspace/admin/training/reviews">Open specialist reviews</Link>
+            </div>
+          ) : null}
           <div><button className="btn btn-primary" type="submit">Save course</button></div>
         </form>
       </section>

@@ -109,7 +109,7 @@ test("reviewer page is private and exposes actual lessons and assessment", async
   assert.doesNotMatch(page, /reviewer_email|invite\.reviewer_email/);
 });
 
-test("all seven gated specialist courses have a visible review standard", async () => {
+test("legacy specialist review standards remain readable for historical review records", async () => {
   const definitions = await source("src/lib/training-specialist-review.ts");
 
   for (const slug of [

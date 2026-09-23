@@ -689,7 +689,7 @@ export const BLOG_POSTS: BlogPost[] = [
       "heading": "2026 Virtual Assistant hourly rates in our Philippines profile sample",
       "paragraphs": [
         "Our September 22, 2026 profile snapshot includes 137 Filipino Virtual Assistant profiles, with 93 profiles reporting a positive preferred hourly rate in USD. In that rate-reporting sample, the median preferred rate is $5 per hour, the average is $6.61, and the middle 50% runs from $5 to $7 per hour. These are candidate asking preferences on VirtualAssistant.com.ph, not accepted placement rates and not a market-wide survey.",
-        "The current profile form requires new candidates to enter at least $6 per hour. Older profiles in the research snapshot include $5 preferences from before that rule, which is why the historical sample median can sit below the current profile minimum. Use the research as context, not as a reason to force every new role to one number."
+        "The current platform minimum is $6 per hour for new candidate profiles. Older profiles in the research snapshot include $5 preferences from before that rule, which is why the historical sample median can sit below the current profile minimum. Use the research as context, not as a reason to force every new role to one number."
       ],
       "table": {
         "headers": [

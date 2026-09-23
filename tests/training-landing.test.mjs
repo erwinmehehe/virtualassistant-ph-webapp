@@ -29,10 +29,11 @@ test("only courses that exist are offered as available", () => {
   assert.match(catalogue, /planned: "Planned"/);
 });
 
-test("the landing page sends people to the one training home", () => {
-  // Training sits outside /workspace/va/ on purpose: a learner is not a VA
-  // candidate, and that separation is what keeps recruiters protected.
-  assert.match(page, /const JOIN_HREF = "\/workspace\/training"/);
+test("the landing page separates new training signup from returning-user login", () => {
+  // New learners should not be dumped on a login screen. The dedicated training
+  // account flow keeps learning separate from candidate onboarding.
+  assert.match(page, /const JOIN_HREF = "\/auth\/join\/training"/);
+  assert.match(page, /const LOGIN_HREF = "\/auth\/login\?next=%2Fworkspace%2Ftraining"/);
   assert.doesNotMatch(page, /workspace%2Fva%2Ftraining/);
 });
 

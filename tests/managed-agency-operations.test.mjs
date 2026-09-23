@@ -40,7 +40,7 @@ test("public talent selection is framed as recruiter preference rather than clie
 
 test("VA opportunity workspace sends interest through recruiter review without exposing numeric score",()=>{
   const apps=read("src/app/workspace/va/applications/page.tsx");
-  assert.match(apps,/Interest sent to the recruiting team/);
+  assert.match(apps,/Interest sent\. A recruiter will review/);
   assert.match(apps,/Recruiter review/);
   assert.doesNotMatch(apps,/\/100/);
 });

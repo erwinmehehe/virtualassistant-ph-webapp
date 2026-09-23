@@ -368,7 +368,7 @@ export default async function VaProfilePage({
         </div>
 
         <aside className="profile-editor-sidebar">
-          <LiveProfileStrength formId="va-profile-form" initial={va || {}} />
+          <LiveProfileStrength formId="va-profile-form" initial={va || {}} hasAvatar={Boolean(profile.avatar_url)} />
 
           <TrainingCredentials
             credentials={trainingCredentials}

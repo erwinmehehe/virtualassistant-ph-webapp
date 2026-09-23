@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
+import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -40,10 +40,6 @@ export async function startTrainingCourseAction(formData: FormData) {
 
   revalidatePath("/workspace/training");
   redirect(`/workspace/training/courses/${course.slug}`);
-}
-
-function completionCredentialCode() {
-  return `VAT-${crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
 }
 
 export async function markTrainingLessonCompleteAction(formData: FormData) {
@@ -112,69 +108,119 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     });
   }
 
-  const { data: lessonRows } = await supabase
-    .from("training_lessons")
-    .select("id")
-    .in("module_id", moduleIds)
-    .eq("is_published", true);
-
-  const publishedLessonIds = (lessonRows || []).map((item) => item.id);
-  if (publishedLessonIds.length) {
-    const { data: completedRows } = await supabase
-      .from("training_lesson_progress")
-      .select("lesson_id")
-      .eq("user_id", userId)
-      .in("lesson_id", publishedLessonIds);
-
-    const completedIds = new Set((completedRows || []).map((item) => item.lesson_id));
-    const courseComplete = publishedLessonIds.every((id) => completedIds.has(id));
-
-    if (courseComplete) {
-      const admin = createAdminClient();
-      const completedAt = new Date().toISOString();
-
-      const { data: completedEnrollmentRows } = await admin
-        .from("training_enrollments")
-        .update({ completed_at: completedAt })
-        .eq("user_id", userId)
-        .eq("course_id", course.id)
-        .is("completed_at", null)
-        .select("id");
-
-      if (completedEnrollmentRows?.length) {
-        await recordProductEvent("training_course_complete", {
-          userId,
-          path: `/workspace/training/courses/${course.slug}`,
-          metadata: { course_slug: course.slug },
-        });
-      }
-
-      const { data: existingCertificate } = await admin
-        .from("training_certificates")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("course_id", course.id)
-        .maybeSingle();
-
-      if (!existingCertificate) {
-        const { error: certificateError } = await admin
-          .from("training_certificates")
-          .insert({
-            credential_code: completionCredentialCode(),
-            user_id: userId,
-            course_id: course.id,
-            issued_at: completedAt,
-            metadata: { credential_type: "certificate_of_completion" },
-          });
-
-        if (certificateError && certificateError.code !== "23505") {
-          throw new Error("Your lesson was saved, but the completion certificate could not be issued.");
-        }
-      }
-    }
+  const completion = await finalizeTrainingCourseIfEligible(userId, course.id);
+  if (completion.newlyCompleted) {
+    await recordProductEvent("training_course_complete", {
+      userId,
+      path: `/workspace/training/courses/${course.slug}`,
+      metadata: { course_slug: course.slug },
+    });
   }
 
   revalidatePath("/workspace/training");
   revalidatePath(`/workspace/training/courses/${course.slug}`);
   revalidatePath(`/workspace/training/courses/${course.slug}/lessons/${lessonId}`);
+}
+
+
+export async function submitTrainingAssessmentAction(formData: FormData) {
+  const courseSlug = String(formData.get("course_slug") || "").trim();
+  const assessmentId = String(formData.get("assessment_id") || "").trim();
+  const responseText = String(formData.get("response_text") || "").trim();
+  const { userId } = await requireAuthenticatedUserFast(
+    courseSlug && assessmentId
+      ? `/workspace/training/courses/${courseSlug}/assessments/${assessmentId}`
+      : "/workspace/training",
+  );
+
+  if (!courseSlug || !assessmentId || responseText.length < 100 || responseText.length > 20000) {
+    throw new Error("Submit at least 100 characters and no more than 20,000.");
+  }
+
+  const supabase = await createClient();
+  const { data: course } = await supabase
+    .from("training_courses")
+    .select("id,slug")
+    .eq("slug", courseSlug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!course) redirect("/workspace/training");
+
+  const { data: assessment } = await supabase
+    .from("training_assessments")
+    .select("id,course_id")
+    .eq("id", assessmentId)
+    .eq("course_id", course.id)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (!assessment) redirect(`/workspace/training/courses/${course.slug}`);
+
+  const { data: moduleRows } = await supabase
+    .from("training_modules")
+    .select("id")
+    .eq("course_id", course.id);
+  const moduleIds = (moduleRows || []).map((module) => module.id);
+  const { data: lessonRows } = moduleIds.length
+    ? await supabase
+        .from("training_lessons")
+        .select("id")
+        .in("module_id", moduleIds)
+        .eq("is_published", true)
+    : { data: [] };
+  const lessonIds = (lessonRows || []).map((lesson) => lesson.id);
+  const { data: completedRows } = lessonIds.length
+    ? await supabase
+        .from("training_lesson_progress")
+        .select("lesson_id")
+        .eq("user_id", userId)
+        .in("lesson_id", lessonIds)
+    : { data: [] };
+  const completedIds = new Set((completedRows || []).map((item) => item.lesson_id));
+  if (!lessonIds.length || !lessonIds.every((id) => completedIds.has(id))) {
+    throw new Error("Complete all published lessons before submitting the final assessment.");
+  }
+
+  const { error: enrollmentError } = await supabase
+    .from("training_enrollments")
+    .insert({ user_id: userId, course_id: course.id });
+
+  if (enrollmentError && enrollmentError.code !== "23505") {
+    throw new Error("Could not enroll you in this course.");
+  }
+
+  const { data: pendingSubmission } = await supabase
+    .from("training_assessment_submissions")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("assessment_id", assessment.id)
+    .eq("status", "submitted")
+    .order("submitted_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!pendingSubmission) {
+    const { error } = await supabase
+      .from("training_assessment_submissions")
+      .insert({
+        user_id: userId,
+        assessment_id: assessment.id,
+        response: { text: responseText },
+        status: "submitted",
+      });
+
+    if (error) throw new Error("Could not submit your assessment.");
+
+    await recordProductEvent("training_assessment_submit", {
+      userId,
+      path: `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`,
+      metadata: { course_slug: course.slug, assessment_id: assessment.id },
+    });
+  }
+
+  revalidatePath("/workspace/training");
+  revalidatePath(`/workspace/training/courses/${course.slug}`);
+  revalidatePath(`/workspace/training/courses/${course.slug}/assessments/${assessment.id}`);
+  redirect(`/workspace/training/courses/${course.slug}/assessments/${assessment.id}?submitted=1`);
 }

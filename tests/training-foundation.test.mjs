@@ -86,10 +86,13 @@ test("shared auth explicitly permits the training workspace without role coercio
 
 test("lesson completion is scoped to its course and certificate issuance is server-verified", async () => {
   const action = await readFile("src/app/actions/training.ts", "utf8");
+  const completion = await readFile("src/lib/training-completion.ts", "utf8");
   assert.match(action, /\.eq\("slug", courseSlug\)/);
   assert.match(action, /\.in\("module_id", moduleIds\)/);
-  assert.match(action, /createAdminClient/);
-  assert.match(action, /certificate_of_completion/);
+  assert.match(action, /finalizeTrainingCourseIfEligible/);
+  assert.match(completion, /training_assessment_submissions/);
+  assert.match(completion, /status", "reviewed"/);
+  assert.match(completion, /certificate_of_completion/);
 });
 
 test("training shell includes a mobile navigation", async () => {
@@ -126,19 +129,21 @@ test("admin training authoring stays admin-only and guarded before publish", asy
   assert.match(action, /updateTrainingAssessmentAction/);
 });
 
-test("Virtual Assistant Foundations is seeded as a detailed private draft", async () => {
+test("Virtual Assistant Foundations has a reviewed release migration", async () => {
   const seed = await readFile("supabase/migrations/20260923040600_seed_va_foundations_training.sql", "utf8");
-  assert.match(seed, /Virtual Assistant Foundations/);
-  assert.match(seed, /\n  375,\n  'draft'/);
-  assert.match(seed, /Final VA Work Simulation/);
-  assert.match(seed, /composite client simulation/i);
-  assert.match(seed, /false, 1, now\(\), now\(\)/);
+  const release = await readFile("supabase/migrations/20260923061000_release_va_foundations.sql", "utf8");
 
   const lessonIds = new Set(seed.match(/12000000-0000-4000-8000-0000000000\d{2}/g) || []);
   assert.equal(lessonIds.size, 13);
-  assert.match(seed, /"type":"scenario"/);
-  assert.match(seed, /Responsible AI for Virtual Assistant Work/);
-  assert.match(seed, /Time Zones, Deadlines, and Handoffs/);
+
+  assert.match(release, /estimated_minutes = 240/);
+  assert.match(release, /content_version = 2/);
+  assert.match(release, /VirtualAssistant\.com\.ph Editorial Team/);
+  assert.match(release, /Pass score: 80%/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /where slug = 'responsible-ai-for-va-work'/);
+  assert.match(release, /where slug = 'time-zones-deadlines-and-handoffs'/);
 });
 
 test("training authoring UI edits course, lesson blocks, and assessments without public course pages", async () => {
@@ -227,4 +232,55 @@ test("training library and admin inventory use roadmap order", async () => {
   const admin = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
   assert.match(admin, /course\.recommended_order/);
   assert.match(admin, /global curriculum/);
+});
+
+
+test("learners can submit practical assessments and admins can review them", async () => {
+  const learnerAction = await readFile("src/app/actions/training.ts", "utf8");
+  const learnerPage = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
+  const adminAction = await readFile("src/app/actions/training-admin.ts", "utf8");
+  const adminPage = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
+
+  assert.match(learnerAction, /submitTrainingAssessmentAction/);
+  assert.match(learnerAction, /training_assessment_submissions/);
+  assert.match(learnerPage, /Submit for review/);
+  assert.match(learnerPage, /Needs revision/);
+  assert.match(adminAction, /reviewTrainingAssessmentSubmissionAction/);
+  assert.match(adminAction, /finalizeTrainingCourseIfEligible/);
+  assert.match(adminPage, /Assessment submissions/);
+  assert.match(adminPage, /Save review/);
+});
+
+test("course publication requires assessment readiness", async () => {
+  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
+  const page = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
+
+  assert.match(action, /Publish every assessment that belongs in this course/);
+  assert.match(action, /Set a pass score for every published assessment/);
+  assert.match(page, /assessmentReady/);
+});
+
+test("assessment-pending courses remain active on the learner dashboard", async () => {
+  const training = await readFile("src/lib/training.ts", "utf8");
+  const dashboard = await readFile("src/app/workspace/training/page.tsx", "utf8");
+
+  assert.match(training, /completedAt: string \| null/);
+  assert.match(dashboard, /const active = enrolled\.filter\(\(course\) => !course\.completedAt\)/);
+});
+
+
+test("final assessment cannot be submitted before all published lessons are complete", async () => {
+  const action = await readFile("src/app/actions/training.ts", "utf8");
+  const page = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
+  assert.match(action, /Complete all published lessons before submitting the final assessment/);
+  assert.match(page, /Complete the lessons first/);
+  assert.match(page, /course\.completedLessons === course\.lessonCount/);
+});
+
+
+test("lesson-only completion does not display as full course completion", async () => {
+  const training = await readFile("src/lib/training.ts", "utf8");
+  assert.match(training, /completedLessons === courseLessons\.length\s*\? 95/);
+  assert.match(training, /completedLessons === lessons\.length\s*\? 95/);
+  assert.match(training, /enrollment\?\.completed_at\s*\? 100/);
 });

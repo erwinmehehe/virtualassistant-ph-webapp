@@ -48,6 +48,9 @@ const fixedEvents = new Set([
   "training_lesson_view",
   "training_lesson_complete_click",
   "training_lesson_complete",
+  "training_assessment_open",
+  "training_assessment_submit_click",
+  "training_assessment_submit",
   "training_course_complete",
   "web_vital"
 ]);

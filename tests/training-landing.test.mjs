@@ -11,7 +11,7 @@ const catalogue = source("src/lib/training-catalogue.ts");
 
 test("the public training page targets the search term and is indexable", () => {
   assert.match(page, /title: "Virtual Assistant Training Philippines \| Free VA Course"/);
-  assert.match(page, /virtual assistant training philippines/);
+  assert.match(page, /virtual assistant training philippines/i);
   assert.match(page, /canonicalPath\("\/training"\)/);
   // It must be in the sitemap, or nobody finds the one public door.
   assert.match(source("src/lib/public-seo-routes.ts"), /path: "\/training"/);

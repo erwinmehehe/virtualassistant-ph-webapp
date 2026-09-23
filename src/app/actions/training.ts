@@ -5,27 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-async function recordTrainingEvent(
-  eventName: "training_course_start" | "training_lesson_complete" | "training_course_complete",
-  userId: string,
-  path: string,
-  metadata: Record<string, string | number | boolean> = {},
-) {
-  try {
-    const admin = createAdminClient();
-    await admin.from("analytics_events").insert({
-      event_name: eventName,
-      path,
-      referrer: null,
-      session_id: null,
-      user_id: userId,
-      metadata,
-    });
-  } catch {
-    // Training progress must never fail because analytics storage is unavailable.
-  }
-}
+import { recordProductEvent } from "@/lib/product-events";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -51,12 +31,11 @@ export async function startTrainingCourseAction(formData: FormData) {
   }
 
   if (!error) {
-    await recordTrainingEvent(
-      "training_course_start",
+    await recordProductEvent("training_course_start", {
       userId,
-      `/workspace/training/courses/${course.slug}`,
-      { course_slug: course.slug },
-    );
+      path: `/workspace/training/courses/${course.slug}`,
+      metadata: { course_slug: course.slug },
+    });
   }
 
   revalidatePath("/workspace/training");
@@ -126,12 +105,11 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   if (progressError) throw new Error("Could not save lesson progress.");
 
   if (!existingProgress?.completed_at) {
-    await recordTrainingEvent(
-      "training_lesson_complete",
+    await recordProductEvent("training_lesson_complete", {
       userId,
-      `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
-      { course_slug: course.slug, lesson_id: lesson.id },
-    );
+      path: `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
+      metadata: { course_slug: course.slug, lesson_id: lesson.id },
+    });
   }
 
   const { data: lessonRows } = await supabase
@@ -164,12 +142,11 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
         .select("id");
 
       if (completedEnrollmentRows?.length) {
-        await recordTrainingEvent(
-          "training_course_complete",
+        await recordProductEvent("training_course_complete", {
           userId,
-          `/workspace/training/courses/${course.slug}`,
-          { course_slug: course.slug },
-        );
+          path: `/workspace/training/courses/${course.slug}`,
+          metadata: { course_slug: course.slug },
+        });
       }
 
       const { data: existingCertificate } = await admin

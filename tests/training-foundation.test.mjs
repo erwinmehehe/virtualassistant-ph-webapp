@@ -167,3 +167,64 @@ test("editing training content invalidates stale review and publication state", 
   assert.match(courseEditor, /name="review_action"/);
   assert.match(lessonEditor, /name="review_action"/);
 });
+
+
+test("training roadmap seeds fifteen total courses in a fixed global order", async () => {
+  const seed = await readFile("supabase/migrations/20260923050000_seed_training_15_course_roadmap.sql", "utf8");
+  assert.match(seed, /add column if not exists recommended_order smallint/i);
+  assert.match(seed, /virtual-assistant-foundations/);
+  assert.match(seed, /recommended_order = 1/);
+
+  const courseInserts = seed.match(/insert into public\.training_courses/g) || [];
+  const moduleInserts = seed.match(/insert into public\.training_modules/g) || [];
+  const lessonInserts = seed.match(/insert into public\.training_lessons/g) || [];
+  const assessmentInserts = seed.match(/insert into public\.training_assessments/g) || [];
+  assert.equal(courseInserts.length, 14);
+  assert.equal(moduleInserts.length, 84);
+  assert.equal(lessonInserts.length, 168);
+  assert.equal(assessmentInserts.length, 14);
+
+  for (const title of [
+    "Real Estate Virtual Assistant",
+    "Medical / Healthcare Virtual Assistant",
+    "Executive Virtual Assistant",
+    "Marketing Virtual Assistant",
+    "Bookkeeping Administration for Virtual Assistants",
+    "Sales & Lead Generation Virtual Assistant",
+    "E-commerce Virtual Assistant",
+    "Social Media Virtual Assistant",
+    "Customer Support Virtual Assistant",
+    "SEO Virtual Assistant",
+    "Operations Virtual Assistant",
+    "Project Management for Virtual Assistants",
+    "Payroll Administration for Virtual Assistants",
+    "Airbnb / Short-Term Rental Virtual Assistant",
+  ]) {
+    assert.ok(seed.includes(title), "Missing course: " + title);
+  }
+});
+
+test("new roadmap courses remain invisible until full content review", async () => {
+  const seed = await readFile("supabase/migrations/20260923050000_seed_training_15_course_roadmap.sql", "utf8");
+  assert.match(seed, /'draft'/);
+  assert.match(seed, /'\[\]'::jsonb, 25/);
+  assert.match(seed, /false, 1, now\(\), now\(\)/);
+
+  const training = await readFile("src/lib/training.ts", "utf8");
+  assert.match(training, /\.eq\("status", "published"\)/);
+  assert.match(training, /\.eq\("is_published", true\)/);
+
+  const authoring = await readFile("src/app/actions/training-admin.ts", "utf8");
+  assert.match(authoring, /recommended_order/);
+  assert.match(authoring, /Record a reviewer and review date before publishing the course/);
+});
+
+test("training library and admin inventory use roadmap order", async () => {
+  const training = await readFile("src/lib/training.ts", "utf8");
+  assert.match(training, /recommended_order: number \| null/);
+  assert.match(training, /\.order\("recommended_order", \{ ascending: true \}\)/);
+
+  const admin = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
+  assert.match(admin, /course\.recommended_order/);
+  assert.match(admin, /global curriculum/);
+});

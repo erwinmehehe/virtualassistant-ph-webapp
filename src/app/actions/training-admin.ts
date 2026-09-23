@@ -14,6 +14,10 @@ const courseSchema = z.object({
   category: z.enum(["foundation", "software", "industry", "skill"]),
   country_focus: z.string().trim().max(80).optional(),
   estimated_minutes: z.coerce.number().int().min(0).max(10000),
+  recommended_order: z.preprocess(
+    (value) => value === "" || value === null || value === undefined ? undefined : value,
+    z.coerce.number().int().min(1).max(999).optional(),
+  ),
   trademark_disclaimer: z.string().trim().max(1000).optional(),
 });
 
@@ -76,6 +80,7 @@ export async function createTrainingCourseAction(formData: FormData) {
     category: formData.get("category"),
     country_focus: formData.get("country_focus") || undefined,
     estimated_minutes: formData.get("estimated_minutes") || 0,
+    recommended_order: formData.get("recommended_order") || undefined,
     trademark_disclaimer: formData.get("trademark_disclaimer") || undefined,
   });
   if (!parsed.success) throw new Error("Check the course title, slug, summary, category, and duration.");
@@ -86,6 +91,7 @@ export async function createTrainingCourseAction(formData: FormData) {
     .insert({
       ...parsed.data,
       country_focus: parsed.data.country_focus || null,
+      recommended_order: parsed.data.recommended_order || null,
       trademark_disclaimer: parsed.data.trademark_disclaimer || null,
       status: "draft",
     })
@@ -106,6 +112,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
     category: formData.get("category"),
     country_focus: formData.get("country_focus") || undefined,
     estimated_minutes: formData.get("estimated_minutes") || 0,
+    recommended_order: formData.get("recommended_order") || undefined,
     trademark_disclaimer: formData.get("trademark_disclaimer") || undefined,
   });
   if (!courseId || !parsed.success) throw new Error("Check the course fields and try again.");
@@ -128,6 +135,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
     .update({
       ...parsed.data,
       country_focus: parsed.data.country_focus || null,
+      recommended_order: parsed.data.recommended_order || null,
       trademark_disclaimer: parsed.data.trademark_disclaimer || null,
       reviewed_by: reviewedBy,
       last_reviewed_at: lastReviewedAt,

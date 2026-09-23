@@ -11,6 +11,7 @@ type AdminCourse = {
   category: "foundation" | "software" | "industry" | "skill";
   country_focus: string | null;
   estimated_minutes: number;
+  recommended_order: number | null;
   status: "draft" | "published" | "archived";
   content_version: number;
   trademark_disclaimer: string | null;

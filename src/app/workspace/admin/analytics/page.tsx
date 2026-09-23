@@ -57,15 +57,17 @@ export default async function AdminAnalyticsPage() {
   await requireRoleFast("admin");
   const admin = createAdminClient();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }] = await Promise.all([
+  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }, { data: trainingRows }] = await Promise.all([
     admin.rpc("admin_analytics_summary", { p_since: since }),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).eq("event_name", "page_view").like("path", "/blog%").limit(10000),
-    admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).or(FUNNEL_EVENTS).limit(10000)
+    admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).or(FUNNEL_EVENTS).limit(10000),
+    admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).like("event_name", "training_%").limit(10000)
   ]);
 
   const summary = (summaryData || EMPTY_SUMMARY) as AnalyticsSummary;
   const blogViews = (blogViewRows || []) as EventRow[];
   const funnelEvents = (funnelRows || []) as EventRow[];
+  const trainingEvents = (trainingRows || []) as EventRow[];
   const events = [...blogViews, ...funnelEvents];
   const counts = new Map<string, number>((summary.event_counts || []).map((row) => [row.event_name, Number(row.total) || 0]));
   const knownSessions = Number(summary.sessions) || 0;
@@ -105,12 +107,24 @@ export default async function AdminAnalyticsPage() {
     ["Qualified leads", blogQualified, "Blog-attributed leads claimed by a client account or qualified through the legacy admin flow"]
   ] as const;
 
+  const trainingCount = (eventName: string) => trainingEvents.filter((event) => event.event_name === eventName).length;
+  const trainingFunnel = [
+    ["Training landing views", trainingCount("training_landing_view"), "Visits to the public training landing page"],
+    ["Create-account clicks", trainingCount("training_account_click"), "Clicks from the training page into the dedicated training signup"],
+    ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
+    ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
+    ["Lesson completions", trainingCount("training_lesson_complete"), "First successful completion of a lesson"],
+    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions"]
+  ] as const;
+
   return <>
     <div className="page-head"><div><h1>Conversion analytics</h1><p>First-party acquisition and content-funnel signals for the last 30 days. Server-side lead records remain the conversion source of truth.</p></div><span className="badge">Since {dateShort(since)}</span></div>
 
     <div className="stats">{acquisitionFunnel.map(([label, value, description]) => <div className="stat-card" key={label}><span className="small muted">{label}</span><strong>{value}</strong><span className="small muted">{description}</span></div>)}</div>
 
     <section className="card" style={{ marginBottom: 18 }}><div className="section-head"><div><div className="kicker">Content to revenue</div><h2>Blog to qualified-lead funnel</h2><p>Uses the same anonymous session ID from first article view through service/profile interactions, match request, and admin conversion.</p></div></div><div className="stats">{contentFunnel.map(([label, value, description]) => <div className="stat-card" key={label}><span className="small muted">{label}</span><strong>{value}</strong><span className="small muted">{description}</span></div>)}</div></section>
+
+    <section className="card" style={{ marginBottom: 18 }}><div className="section-head"><div><div className="kicker">Learning funnel</div><h2>Training engagement</h2><p>Landing and CTA interactions are first-party browser events. Course starts, lesson completions, and course completions are written server-side only after the training action succeeds.</p></div></div><div className="stats">{trainingFunnel.map(([label, value, description]) => <div className="stat-card" key={label}><span className="small muted">{label}</span><strong>{value}</strong><span className="small muted">{description}</span></div>)}</div></section>
 
     <div className="grid-2">
       <section className="card"><h3>Tracked acquisition events</h3><div className="table-wrap responsive-table"><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>{Object.entries(labels).map(([event, label]) => <tr key={event}><td data-label="Event"><strong>{label}</strong><div className="small muted">{event}</div></td><td data-label="Count">{counts.get(event) || 0}</td></tr>)}</tbody></table></div></section>

@@ -10,6 +10,7 @@ import { isKnownCompromisedPassword } from "@/lib/pwned-password";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { siteOrigin } from "@/lib/seo-url";
 import { sendAccountConfirmationEmail } from "@/lib/email";
+import { recordProductEvent } from "@/lib/product-events";
 
 const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admin", "iloveyou", "123456"];
 
@@ -114,6 +115,12 @@ export async function joinTrainingAction(formData: FormData) {
     await admin.auth.admin.deleteUser(data.user.id);
     joinError("We could not create a secure confirmation link. Please try again.");
   }
+
+  await recordProductEvent("training_account_created", {
+    userId: data.user.id,
+    path: "/auth/join/training",
+    metadata: { account_type: "training" },
+  });
 
   const confirmationParams = new URLSearchParams({
     token_hash: tokenHash,

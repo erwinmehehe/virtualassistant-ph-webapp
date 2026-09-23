@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { recordProductEvent } from "@/lib/product-events";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -27,6 +28,14 @@ export async function startTrainingCourseAction(formData: FormData) {
 
   if (error && error.code !== "23505") {
     throw new Error("Could not start this training course.");
+  }
+
+  if (!error) {
+    await recordProductEvent("training_course_start", {
+      userId,
+      path: `/workspace/training/courses/${course.slug}`,
+      metadata: { course_slug: course.slug },
+    });
   }
 
   revalidatePath("/workspace/training");
@@ -79,6 +88,13 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     throw new Error("Could not start this training course.");
   }
 
+  const { data: existingProgress } = await supabase
+    .from("training_lesson_progress")
+    .select("completed_at")
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
+    .maybeSingle();
+
   const { error: progressError } = await supabase
     .from("training_lesson_progress")
     .upsert(
@@ -87,6 +103,14 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     );
 
   if (progressError) throw new Error("Could not save lesson progress.");
+
+  if (!existingProgress?.completed_at) {
+    await recordProductEvent("training_lesson_complete", {
+      userId,
+      path: `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
+      metadata: { course_slug: course.slug, lesson_id: lesson.id },
+    });
+  }
 
   const { data: lessonRows } = await supabase
     .from("training_lessons")
@@ -109,12 +133,21 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
       const admin = createAdminClient();
       const completedAt = new Date().toISOString();
 
-      await admin
+      const { data: completedEnrollmentRows } = await admin
         .from("training_enrollments")
         .update({ completed_at: completedAt })
         .eq("user_id", userId)
         .eq("course_id", course.id)
-        .is("completed_at", null);
+        .is("completed_at", null)
+        .select("id");
+
+      if (completedEnrollmentRows?.length) {
+        await recordProductEvent("training_course_complete", {
+          userId,
+          path: `/workspace/training/courses/${course.slug}`,
+          metadata: { course_slug: course.slug },
+        });
+      }
 
       const { data: existingCertificate } = await admin
         .from("training_certificates")

@@ -75,6 +75,17 @@ export type TrainingModule = ModuleRow & {
   lessons: Array<LessonRow & { completed: boolean }>;
 };
 
+export type TrainingAssessmentSubmission = {
+  id: string;
+  assessment_id: string;
+  status: "submitted" | "reviewed" | "needs_revision";
+  score: number | null;
+  feedback: string | null;
+  submitted_at: string;
+  reviewed_at: string | null;
+  response: Record<string, unknown>;
+};
+
 export type TrainingAssessment = {
   id: string;
   course_id: string;
@@ -85,6 +96,7 @@ export type TrainingAssessment = {
   pass_score: number | null;
   position: number;
   is_published: boolean;
+  latestSubmission?: TrainingAssessmentSubmission | null;
 };
 
 export type TrainingCourseDetail = CourseRow & {
@@ -255,12 +267,32 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
 
   const completedLessons = lessons.filter((lesson) => completed.has(lesson.id)).length;
   const enrollment = enrollmentData as EnrollmentRow | null;
+  const assessments = (assessmentData || []) as TrainingAssessment[];
+  const assessmentIds = assessments.map((assessment) => assessment.id);
+  const { data: submissionData } = assessmentIds.length
+    ? await supabase
+        .from("training_assessment_submissions")
+        .select("id,assessment_id,status,score,feedback,submitted_at,reviewed_at,response")
+        .eq("user_id", userId)
+        .in("assessment_id", assessmentIds)
+        .order("submitted_at", { ascending: false })
+    : { data: [] };
+
+  const latestSubmissionByAssessment = new Map<string, TrainingAssessmentSubmission>();
+  for (const submission of (submissionData || []) as TrainingAssessmentSubmission[]) {
+    if (!latestSubmissionByAssessment.has(submission.assessment_id)) {
+      latestSubmissionByAssessment.set(submission.assessment_id, submission);
+    }
+  }
 
   return {
     course: {
       ...course,
       modules: hydratedModules,
-      assessments: (assessmentData || []) as TrainingAssessment[],
+      assessments: assessments.map((assessment) => ({
+        ...assessment,
+        latestSubmission: latestSubmissionByAssessment.get(assessment.id) || null,
+      })),
       enrolled: Boolean(enrollment),
       startedAt: enrollment?.started_at || null,
       completedAt: enrollment?.completed_at || null,
@@ -280,6 +312,13 @@ export async function getTrainingLesson(courseSlug: string, lessonId: string, us
     if (lesson) return { course: result.course, lesson, error: null };
   }
   return { course: result.course, lesson: null, error: null };
+}
+
+export async function getTrainingAssessment(courseSlug: string, assessmentId: string, userId: string) {
+  const result = await getTrainingCourse(courseSlug, userId);
+  if (!result.course) return { course: null, assessment: null, error: result.error };
+  const assessment = result.course.assessments.find((item) => item.id === assessmentId) || null;
+  return { course: result.course, assessment, error: null };
 }
 
 export async function getTrainingAdminSummary() {

@@ -38,7 +38,13 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
   }
   const resumeType = resolvedResumeType(file);
   if (!resumeType) {
-    return { status: "error", message: "Auto-fill supports PDF and DOCX files. If this is a valid resume, export it again as PDF or DOCX and retry." };
+    const isLegacyDoc = file.name.toLowerCase().endsWith(".doc");
+    return {
+      status: "error",
+      message: isLegacyDoc
+        ? "Your DOC resume can still be saved with the profile, but auto-fill needs a PDF or DOCX file."
+        : "Auto-fill supports PDF and DOCX files. If this is a valid resume, export it again as PDF or DOCX and retry."
+    };
   }
 
   try {

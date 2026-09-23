@@ -31,7 +31,8 @@ function familyFor(post) {
 
 const posts = [
   ...parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = "),
-  ...parseArray("src/lib/blog-opportunity-posts.ts", "export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = ")
+  ...parseArray("src/lib/blog-opportunity-posts.ts", "export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = "),
+  ...parseArray("src/lib/blog-hiring-guides.ts", "export const BLOG_HIRING_GUIDES: BlogPost[] = ")
 ];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");

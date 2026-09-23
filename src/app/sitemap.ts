@@ -7,6 +7,7 @@ import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { ARCHIVE_POSTS, archiveUpdatedIso } from "@/lib/archive";
 import { PUBLIC_SEO_ROUTES } from "@/lib/public-seo-routes";
 import { SEO_RESOURCE_PAGES } from "@/lib/seo-resource-pages";
+import { seoResourceUpdatedAt } from "@/lib/seo-resource-dates";
 import { EDITORIAL_RESOURCE_SLUGS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -33,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...SEO_RESOURCE_PAGES.filter((page) => !EDITORIAL_RESOURCE_SLUGS.includes(page.slug as typeof EDITORIAL_RESOURCE_SLUGS[number]) && !EXISTING_BLOG_RESOURCE_REDIRECTS[page.slug]).map((page) => ({
       url: `${base}/resources/${page.slug}`,
-      lastModified: "2026-09-22",
+      lastModified: seoResourceUpdatedAt(page.slug),
       changeFrequency: "monthly" as const,
       priority: page.audience === "client" ? 0.72 : 0.66,
     })),

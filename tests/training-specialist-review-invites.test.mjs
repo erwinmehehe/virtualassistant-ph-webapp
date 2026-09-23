@@ -9,6 +9,7 @@ test("specialist review invites store only hashed expiring tokens behind service
 
   assert.match(migration, /token_hash text not null unique/);
   assert.doesNotMatch(migration, /\bpublic_token\b|\braw_token\b/);
+  assert.match(migration, /course_content_version integer not null/);
   assert.match(migration, /expires_at timestamptz not null/);
   assert.match(migration, /enable row level security/);
   assert.match(migration, /revoke all on public\.training_specialist_review_invites from anon, authenticated/);
@@ -22,6 +23,7 @@ test("reviewer invite action creates a strong token, stores its hash, and sends 
   assert.match(action, /randomBytes\(32\)\.toString\("base64url"\)/);
   assert.match(action, /hashSpecialistReviewToken\(rawToken\)/);
   assert.match(action, /token_hash: tokenHash/);
+  assert.match(action, /course_content_version: course\.content_version/);
   assert.match(action, /training_specialist_review_invite/);
   assert.match(action, /training-specialist-review-invite:\$\{invite\.id\}/);
   assert.match(action, /\/training\/review\/\$\{rawToken\}/);
@@ -36,6 +38,8 @@ test("external specialist approval requires all configured review checks and doe
   assert.match(action, /Complete every specialist review check before approving the course/);
   assert.match(action, /specialist_reviewed_by: approved \? invite\.reviewer_name : null/);
   assert.match(action, /specialist_reviewed_at: approved \? now : null/);
+  assert.match(action, /course\.content_version !== invite\.course_content_version/);
+  assert.match(action, /course changed after the review was assigned/);
   assert.match(action, /status: "draft"/);
   assert.doesNotMatch(action, /status: "published"/);
 });
@@ -95,4 +99,20 @@ test("specialist invite token lookup hashes the URL token before querying storag
   assert.match(lib, /invite\.status === "revoked"/);
   assert.match(lib, /new Date\(invite\.expires_at\)\.getTime\(\) <= Date\.now\(\)/);
   assert.match(lib, /review_requirement", "specialist"/);
+});
+
+
+test("substantive course edits revoke any active external specialist link", async () => {
+  const adminAction = await source("src/app/actions/training-admin.ts");
+
+  assert.match(adminAction, /training_specialist_review_invites/);
+  assert.match(adminAction, /\.in\("status", \["pending", "opened"\]\)/);
+  assert.match(adminAction, /status: "revoked"/);
+});
+
+test("review queue surfaces correction notes as outstanding issues", async () => {
+  const page = await source("src/app/workspace/admin/training/reviews/page.tsx");
+
+  assert.match(page, /Outstanding issues/);
+  assert.match(page, /review\?\.decision === "changes_requested"/);
 });

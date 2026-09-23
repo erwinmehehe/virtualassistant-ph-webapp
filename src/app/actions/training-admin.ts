@@ -67,15 +67,22 @@ async function invalidateCourseReview(admin: ReturnType<typeof createAdminClient
     })
     .eq("id", courseId);
 
-  await admin
-    .from("training_specialist_reviews")
-    .update({
-      checklist: {},
-      decision: "in_progress",
-      reviewed_at: null,
-      updated_at: now,
-    })
-    .eq("course_id", courseId);
+  await Promise.all([
+    admin
+      .from("training_specialist_reviews")
+      .update({
+        checklist: {},
+        decision: "in_progress",
+        reviewed_at: null,
+        updated_at: now,
+      })
+      .eq("course_id", courseId),
+    admin
+      .from("training_specialist_review_invites")
+      .update({ status: "revoked", updated_at: now })
+      .eq("course_id", courseId)
+      .in("status", ["pending", "opened"]),
+  ]);
 
   revalidateTag("public-training");
 }
@@ -175,15 +182,23 @@ export async function updateTrainingCourseAction(formData: FormData) {
     .eq("id", courseId);
   if (error) throw error;
 
-  await admin
-    .from("training_specialist_reviews")
-    .update({
-      checklist: {},
-      decision: "in_progress",
-      reviewed_at: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("course_id", courseId);
+  const reviewInvalidatedAt = new Date().toISOString();
+  await Promise.all([
+    admin
+      .from("training_specialist_reviews")
+      .update({
+        checklist: {},
+        decision: "in_progress",
+        reviewed_at: null,
+        updated_at: reviewInvalidatedAt,
+      })
+      .eq("course_id", courseId),
+    admin
+      .from("training_specialist_review_invites")
+      .update({ status: "revoked", updated_at: reviewInvalidatedAt })
+      .eq("course_id", courseId)
+      .in("status", ["pending", "opened"]),
+  ]);
 
   revalidateTag("public-training");
   revalidatePath(adminTrainingPath(courseId));

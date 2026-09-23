@@ -60,6 +60,45 @@ const definitions: Record<string, SpecialistReviewDefinition> = {
       { id: "assessment", label: "Final simulation tests payroll operations judgment", detail: "The learner must manage inputs, exceptions, privacy, approvals, employee queries, and handoff without crossing into tax or legal advice." },
     ],
   },
+  "ndis-administration-fundamentals": {
+    title: "NDIS Administration specialist review",
+    reviewerHint: "NDIS provider operations lead, support-coordination administrator, compliance reviewer, or experienced NDIS administration specialist working with current provider processes.",
+    items: [
+      { id: "scope", label: "Administrative scope is clearly limited", detail: "The VA is not presented as a planner, support coordinator, clinician, behaviour practitioner, plan manager, or source of funding/legal advice unless separately qualified and authorized." },
+      { id: "privacy", label: "Participant privacy and consent handling are appropriate", detail: "Participant records, plans, service agreements, identity data, health information, nominees, and communications use minimum-necessary access and approved systems." },
+      { id: "funding", label: "Plan and funding boundaries are safe", detail: "The course does not teach the VA to interpret funding eligibility, promise claimability, reallocate budgets, or decide whether a support is reasonable and necessary." },
+      { id: "claims", label: "Service and claim administration is realistic", detail: "Times, service records, invoices, claims-support data, service bookings, and exception handling are documented from approved evidence rather than inferred." },
+      { id: "incidents", label: "Incidents, complaints, and safeguarding escalate correctly", detail: "Safety concerns, incidents, restrictive practices, complaints, conflicts, and suspected misuse are routed through the provider's approved escalation process." },
+      { id: "current_rules", label: "Current-source guidance is used appropriately", detail: "Material that depends on NDIA or NDIS Commission rules is framed as changeable and points the learner back to current official guidance and provider procedures." },
+      { id: "assessment", label: "Final simulation tests real NDIS admin judgment", detail: "The learner must manage documentation, privacy, claim-support data, exceptions, and escalation without making participant, funding, or clinical decisions." },
+    ],
+  },
+  "property-management-administration-australia": {
+    title: "Property Management Australia specialist review",
+    reviewerHint: "Licensed property manager, agency operations lead, senior property-management administrator, or compliance reviewer with current state or territory workflow responsibility.",
+    items: [
+      { id: "authority", label: "VA authority is separated from licensed work", detail: "The course clearly separates administration from legal advice, tenancy decisions, trust-account authority, formal notices, negotiations, representations, and actions requiring a licence." },
+      { id: "jurisdiction", label: "State and territory differences are handled correctly", detail: "Entry, notices, bonds, rent increases, repairs, applications, privacy, and disclosure are not presented as one national rule set." },
+      { id: "applications", label: "Application and tenant data workflows are fair and privacy-safe", detail: "Screening support uses approved criteria and records without discriminatory shortcuts, protected-characteristic inference, or unnecessary collection of personal data." },
+      { id: "maintenance", label: "Maintenance and emergency workflows are realistic", detail: "The VA can log, triage administratively, coordinate approved trades, track evidence, and escalate urgent or safety-sensitive issues without making technical or legal decisions." },
+      { id: "money", label: "Bond, rent, invoice, and trust-account boundaries are safe", detail: "Payment records and reconciliations are support tasks only; the course does not give the VA unapproved authority over trust money, bond decisions, refunds, or deductions." },
+      { id: "communication", label: "Owner and tenant communications stay within approved authority", detail: "Templates, updates, inspection coordination, and arrears follow-up are factual and do not overstate legal rights, approval, or agency authority." },
+      { id: "assessment", label: "Final simulation tests real property admin judgment", detail: "The learner must prioritize a mixed portfolio queue, document evidence, use the correct escalation path, and avoid legal or licensed decisions." },
+    ],
+  },
+  "mortgage-broking-administration-australia": {
+    title: "Mortgage Broking Australia specialist review",
+    reviewerHint: "Licensed mortgage broker, credit representative, brokerage compliance lead, loan-processing manager, or experienced mortgage administration specialist under an Australian credit licence framework.",
+    items: [
+      { id: "credit_assistance", label: "Credit-assistance boundaries are explicit", detail: "The VA does not suggest or recommend lenders, products, loan structures, borrowing amounts, suitability, or best-interest conclusions." },
+      { id: "privacy", label: "Sensitive financial data controls are appropriate", detail: "Identity, income, expense, liability, banking, credit, property, and application documents use approved secure systems and minimum-necessary access." },
+      { id: "fact_find", label: "Fact-find and document workflows preserve source evidence", detail: "The learner records client-provided facts and documents accurately, flags inconsistencies, and does not alter information to improve serviceability or policy fit." },
+      { id: "research", label: "Lender and product research remains factual", detail: "Rates, features, policy, turnaround times, and eligibility facts are source-dated and handed to the broker without a recommendation or winner." },
+      { id: "status", label: "Application and approval status language is precise", detail: "Conditional approval, formal approval, valuation, outstanding conditions, loan documents, and settlement are not overstated or guaranteed." },
+      { id: "legal", label: "Legal and settlement boundaries are safe", detail: "The VA does not interpret contracts or loan documents, advise on deposits or exchange, guarantee settlement, or replace the broker, conveyancer, solicitor, lender, or accountant." },
+      { id: "assessment", label: "Final simulation tests real mortgage admin judgment", detail: "The learner must package evidence, track conditions, protect privacy, prepare factual research, and escalate advice questions without providing credit assistance." },
+    ],
+  },
 };
 
 export function getSpecialistReviewDefinition(slug: string) {

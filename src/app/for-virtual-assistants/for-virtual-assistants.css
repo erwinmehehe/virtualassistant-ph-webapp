@@ -222,6 +222,43 @@
   text-align: center;
 }
 
+.va-live-course-list {
+  display: grid;
+  margin-top: 14px;
+  border-top: 1px solid #eaecf0;
+}
+
+.va-live-course-list article {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  padding: 16px 2px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.va-live-course-list strong,
+.va-live-course-list span {
+  display: block;
+}
+
+.va-live-course-list span {
+  margin-top: 4px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.va-live-course-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #3538cd;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .va-upcoming {
   display: grid;
   grid-template-columns: 120px 1fr;

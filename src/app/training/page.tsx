@@ -13,7 +13,7 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
-import { TRAINING_LEVELS, CATALOGUE_TOTALS, STATUS_LABEL } from "@/lib/training-catalogue";
+import { TRAINING_LEVELS, STATUS_LABEL } from "@/lib/training-catalogue";
 import "../training-landing.css";
 
 function safeJson(value: unknown) {
@@ -310,9 +310,9 @@ export default function TrainingPage() {
               <span className="tr-kicker">Learning paths</span>
               <h2>Build the general skills first. Specialise when the work calls for it.</h2>
               <p>
-                The roadmap currently covers {CATALOGUE_TOTALS.courses} course topics across
-                foundations, core skills, software, and industry workflows. Topics are released
-                as the underlying lessons are completed, not simply because they appear in the catalogue.
+                The production roadmap currently starts with 15 full courses, all still in draft.
+                The catalogue below also maps future software and industry topics we can build after
+                the core roadmap. A topic only becomes available when its lessons are actually published.
               </p>
             </div>
 
@@ -321,7 +321,7 @@ export default function TrainingPage() {
                 <article className="tr-path" key={level.id}>
                   <div className="tr-path-top">
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    <em>{level.courses.length} {level.courses.length === 1 ? "course" : "courses"}</em>
+                    <em>{level.courses.length} {level.courses.length === 1 ? "topic" : "topics"}</em>
                   </div>
                   <h3>{level.title}</h3>
                   <p>{level.intro}</p>

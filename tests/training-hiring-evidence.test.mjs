@@ -86,3 +86,18 @@ test("saved resume can be replaced or removed without exposing storage paths", a
   assert.match(action, /\.update\(\{ resume_path: null \}\)/);
   assert.match(action, /storage\.from\("resumes"\)\.remove/);
 });
+
+
+test("live and server profile readiness use the same core requirements", async () => {
+  const completeness = await source("src/lib/profile-completeness.ts");
+  const live = await source("src/components/live-profile-strength.tsx");
+  const profile = await source("src/app/workspace/va/profile/page.tsx");
+
+  assert.match(completeness, /portfolio_url \|\| p\.linkedin_url/);
+  assert.match(live, /hasAvatar \|\| \(avatar instanceof File/);
+  assert.match(live, /Choose your VA category", "#expertise"/);
+  assert.match(live, /Add at least 3 tools", "#expertise"/);
+  assert.match(live, /Number\(fd\.get\("years_experience"\) \|\| 0\) >= 1/);
+  assert.doesNotMatch(live, /Add your preferred schedule", "#availability"/);
+  assert.match(profile, /hasAvatar=\{Boolean\(profile\.avatar_url\)\}/);
+});

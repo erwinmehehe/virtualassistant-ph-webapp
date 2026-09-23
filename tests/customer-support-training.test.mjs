@@ -44,3 +44,13 @@ test("Customer Support final assessment tests work output rather than trivia", a
   assert.match(seed, /Triage the queue, draft customer replies/i);
   assert.match(seed, /write CRM\/internal notes/i);
 });
+
+
+test("Customer Support course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923135500_release_customer_support_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'customer-support-virtual-assistant'/);
+});

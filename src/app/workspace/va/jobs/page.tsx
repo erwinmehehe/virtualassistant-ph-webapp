@@ -7,4 +7,109 @@ import { saveJobAction } from "@/app/actions/applications";
 import { jobPublicHref } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
 
-export default async function VaJobsPage(){const {userId}=await requireRoleFast("va");const supabase=await createClient();const [{data:va},{data:jobs},{data:saved},{data:apps}]=await Promise.all([supabase.from("va_profiles").select("*").eq("user_id",userId).single(),supabase.from("public_jobs").select("*").order("published_at",{ascending:false}).limit(80),supabase.from("saved_jobs").select("job_id").eq("va_id",userId),supabase.from("applications").select("job_id,status").eq("va_id",userId)]);const savedSet=new Set((saved||[]).map((x:any)=>x.job_id));const appMap=new Map((apps||[]).map((x:any)=>[x.job_id,x.status]));const ranked=(jobs||[]).map((job:any)=>({job,...matchAssessment(job,va||{})})).sort((a,b)=>b.score-a.score);return <><div className="page-head"><div><h1>Find jobs</h1><p>Roles are ranked using known specialty, skills, tools, availability, and live-overlap data. Missing data lowers confidence instead of earning match points.</p></div><Link className="btn" href="/workspace/va/profile">Improve matching data</Link></div><div className="stack">{ranked.length?ranked.map(({job,score,confidence}:any)=><div className="card job-card" key={job.id}><div className="job-card-top"><div><div className="row wrap"><span className="badge badge-success">Open</span>{appMap.has(job.id)?<span className="badge">Applied: {appMap.get(job.id)}</span>:null}</div><h3 style={{marginTop:8}}><Link href={jobPublicHref(job)}>{job.title}</Link></h3><div className="small muted">{job.company_name||"Confidential client"}</div></div><div className="fit-badge"><strong>{matchLabel(score)}</strong><span>{score}/100</span></div></div><p className="muted" style={{margin:0}}>{job.summary}</p><div className="small muted">Match confidence: {confidence}% of weighted criteria could be assessed from the role and your profile.</div><div className="job-meta"><span>{job.hours_per_week?`${job.hours_per_week} hrs/week`:"Flexible hours"}</span><span>from {money(job.min_hourly_rate)}/hr</span><span>{job.timezone||"Flexible timezone"}</span></div><div className="pill-list">{uniqueStrings(job.categories).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div><div className="row wrap"><Link className="btn btn-primary btn-sm" href={jobPublicHref(job)}>{appMap.has(job.id)?"View application job":"View and apply"}</Link><form action={saveJobAction}><input type="hidden" name="job_id" value={job.id}/><button className="btn btn-sm" type="submit">{savedSet.has(job.id)?"Unsave":"Save job"}</button></form></div></div>):<div className="card empty">There are no published jobs right now.</div>}</div></>}
+function fitText(score: number, eligible: boolean) {
+  if (!eligible) return "Check requirements";
+  return matchLabel(score);
+}
+
+export default async function VaJobsPage() {
+  const { userId } = await requireRoleFast("va");
+  const supabase = await createClient();
+
+  const [{ data: va }, { data: jobs }, { data: saved }, { data: apps }] = await Promise.all([
+    supabase.from("va_profiles").select("*").eq("user_id", userId).single(),
+    supabase.from("public_jobs").select("*").order("published_at", { ascending: false }).limit(80),
+    supabase.from("saved_jobs").select("job_id").eq("va_id", userId),
+    supabase.from("applications").select("job_id,status").eq("va_id", userId),
+  ]);
+
+  const savedSet = new Set((saved || []).map((item: any) => item.job_id));
+  const appMap = new Map((apps || []).map((item: any) => [item.job_id, item.status]));
+
+  const ranked = (jobs || [])
+    .map((job: any) => ({ job, ...matchAssessment(job, va || {}) }))
+    .sort((a, b) => {
+      if (a.eligible !== b.eligible) return a.eligible ? -1 : 1;
+      return b.score - a.score;
+    });
+
+  return (
+    <div className="va-jobs-page">
+      <div className="va-jobs-head">
+        <div>
+          <h1>Find jobs</h1>
+          <p>Open roles matched to your profile, experience, and availability.</p>
+        </div>
+        <Link className="btn btn-sm" href="/workspace/va/profile">
+          Update profile
+        </Link>
+      </div>
+
+      <div className="va-jobs-list">
+        {ranked.length ? (
+          ranked.map(({ job, score, confidence, eligible }: any) => {
+            const categories = uniqueStrings(job.categories).slice(0, 3);
+            const applied = appMap.has(job.id);
+
+            return (
+              <article className="va-job-card" key={job.id}>
+                <div className="va-job-main">
+                  <div className="va-job-status-row">
+                    <span className="badge badge-success">Open</span>
+                    {applied ? <span className="badge">Applied</span> : null}
+                    {confidence >= 40 ? (
+                      <span className={`va-job-fit ${eligible ? "" : "needs-review"}`}>
+                        {fitText(score, eligible)}
+                        {eligible ? <span>{score}%</span> : null}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="va-job-title-block">
+                    <h2>
+                      <Link href={jobPublicHref(job)}>{job.title}</Link>
+                    </h2>
+                    <p>{job.company_name || "Confidential client"}</p>
+                  </div>
+
+                  {job.summary ? <p className="va-job-summary">{job.summary}</p> : null}
+
+                  <div className="va-job-meta" aria-label="Job details">
+                    <span>{job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible hours"}</span>
+                    <span>{job.min_hourly_rate != null ? `From ${money(job.min_hourly_rate)}/hr` : "Rate shown in role"}</span>
+                    <span>{job.timezone || "Flexible timezone"}</span>
+                  </div>
+
+                  {categories.length ? (
+                    <div className="va-job-categories">
+                      {categories.map((category, index) => (
+                        <span key={`${String(category)}-${index}`}>{category}</span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="va-job-actions">
+                  <Link className="btn btn-primary btn-sm" href={jobPublicHref(job)}>
+                    {applied ? "View role" : "View and apply"}
+                  </Link>
+                  <form action={saveJobAction}>
+                    <input type="hidden" name="job_id" value={job.id} />
+                    <button className="btn btn-sm" type="submit">
+                      {savedSet.has(job.id) ? "Saved" : "Save"}
+                    </button>
+                  </form>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <div className="workspace-empty-card">
+            <h2>No open jobs right now</h2>
+            <p>New roles will appear here when they are published.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

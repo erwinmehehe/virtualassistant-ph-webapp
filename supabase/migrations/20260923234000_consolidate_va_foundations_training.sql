@@ -61,6 +61,31 @@ where target.module_id in (select id from public.training_modules where course_i
     'Task Management and Prioritization'
   );
 
+-- Carry completion from a merged source lesson to the retained lesson so
+-- existing learners do not lose credited progress.
+with course as (
+  select id from public.training_courses where slug = 'virtual-assistant-foundations'
+),
+mapping(source_title,target_title) as (
+  values
+    ('Professional Standards, Boundaries, and Confidentiality','The VA Role, Standards, Boundaries, and Confidentiality'),
+    ('Updates, Questions, Mistakes, and Escalation','Client Communication, Updates, Mistakes, and Escalation'),
+    ('Time Zones, Deadlines, and Handoffs','Priorities, Deadlines, Time Zones, and Handoffs')
+),
+lesson_map as (
+  select source.id as source_id, target.id as target_id
+  from mapping x
+  join public.training_modules sm on sm.course_id=(select id from course)
+  join public.training_lessons source on source.module_id=sm.id and source.title=x.source_title
+  join public.training_modules tm on tm.course_id=(select id from course)
+  join public.training_lessons target on target.module_id=tm.id and target.title=x.target_title
+)
+insert into public.training_lesson_progress (user_id,lesson_id,completed_at)
+select p.user_id,m.target_id,p.completed_at
+from public.training_lesson_progress p
+join lesson_map m on m.source_id=p.lesson_id
+on conflict (user_id,lesson_id) do nothing;
+
 with course as (
   select id from public.training_courses where slug = 'virtual-assistant-foundations'
 )

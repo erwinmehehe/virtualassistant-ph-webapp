@@ -77,11 +77,6 @@ const FAQS = [
 
 const softwareLevel = TRAINING_LEVELS.find((level) => level.id === "software");
 const industryLevel = TRAINING_LEVELS.find((level) => level.id === "industry");
-const openCourses = TRAINING_LEVELS.flatMap((level) => level.courses).filter((course) => course.status === "open");
-
-function courseSchemaId(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
 
 export default function TrainingPage() {
   const schema = [
@@ -94,27 +89,7 @@ export default function TrainingPage() {
         name: question,
         acceptedAnswer: { "@type": "Answer", text: answer }
       }))
-    },
-    ...openCourses.map((course) => ({
-      "@context": "https://schema.org",
-      "@type": "Course",
-      "@id": `${canonicalUrl("/training")}#course-${courseSchemaId(course.title)}`,
-      name: course.title,
-      description: course.blurb,
-      url: canonicalUrl("/training"),
-      isAccessibleForFree: true,
-      provider: {
-        "@type": "Organization",
-        name: "VirtualAssistant.com.ph",
-        url: canonicalUrl("/")
-      },
-      offers: {
-        "@type": "Offer",
-        price: 0,
-        priceCurrency: "PHP",
-        availability: "https://schema.org/InStock"
-      }
-    }))
+    }
   ];
 
   return (

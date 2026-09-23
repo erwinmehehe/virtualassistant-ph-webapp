@@ -9,6 +9,10 @@ function safeNext(value: string | null) {
   return value;
 }
 
+function isTrainingPath(value: string | null) {
+  return value === "/workspace/training" || Boolean(value?.startsWith("/workspace/training/"));
+}
+
 function oauthSignInMethod(provider: unknown) {
   if (provider === "google") return "Google";
   if (provider === "azure") return "Microsoft";
@@ -34,15 +38,20 @@ export async function GET(request: Request) {
         const { data } = await supabase.auth.updateUser({ data: { role: requestedRole } });
         user = data.user ?? user;
       }
+      const trainingDestination = isTrainingPath(requestedNext);
+      if (user && trainingDestination && !user.user_metadata?.role && user.user_metadata?.account_type !== "training") {
+        const { data } = await supabase.auth.updateUser({ data: { account_type: "training" } });
+        user = data.user ?? user;
+      }
       const profile = user ? await getOrBootstrapProfile(user) : null;
 
-      if (user?.email_confirmed_at) {
+      if (user?.email_confirmed_at && profile) {
         // Social/OAuth and confirmed email sign-ins should immediately feed the
         // trust signal used by internal/public profile badges.
         await supabase.from("profiles").update({ email_verified: true, last_active_at: new Date().toISOString() }).eq("id", user.id);
       }
 
-      if (!user || !profile) {
+      if (!user || (!profile && !trainingDestination)) {
         await supabase.auth.signOut();
         return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));
       }
@@ -51,14 +60,14 @@ export async function GET(request: Request) {
         await recordSuccessfulLoginAndMaybeAlert({
           userId: user.id,
           email: user.email,
-          fullName: profile.full_name,
+          fullName: profile?.full_name || (typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null),
           signInMethod: oauthSignInMethod(user.app_metadata?.provider),
         });
       } catch {
         // OAuth sign-in remains available if security-event persistence is temporarily unavailable.
       }
 
-      if (user.email && lead && profile.role === "client") {
+      if (user.email && lead && profile?.role === "client") {
         try {
           const claimedJobId = await claimClientHiringRequests({ userId: user.id, email: user.email, leadId: lead });
           if (claimedJobId) return NextResponse.redirect(new URL(`/workspace/client/jobs/${claimedJobId}?claimed=1`, url.origin));
@@ -67,9 +76,15 @@ export async function GET(request: Request) {
         }
       }
 
-      const fallback = `/workspace/${profile.role}`;
+      const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";
       const next = requestedNext ?? fallback;
-      const destination = next.startsWith("/workspace/") && !next.startsWith(fallback) ? fallback : next;
+      const destination = isTrainingPath(next)
+        ? next
+        : next.startsWith("/workspace/") && profile && !next.startsWith(fallback)
+          ? fallback
+          : profile || !next.startsWith("/workspace/")
+            ? next
+            : "/workspace/training";
       return NextResponse.redirect(new URL(destination, url.origin));
     }
   }

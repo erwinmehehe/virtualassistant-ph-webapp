@@ -11,6 +11,10 @@ function safeNext(value: string | null) {
   return value;
 }
 
+function isTrainingPath(value: string | null) {
+  return value === "/workspace/training" || Boolean(value?.startsWith("/workspace/training/"));
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get("token_hash");
@@ -34,17 +38,20 @@ export async function GET(request: Request) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
-  if (!user || !profile) {
+  const trainingDestination = isTrainingPath(requestedNext);
+  if (!user || (!profile && !trainingDestination)) {
     await supabase.auth.signOut();
     return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));
   }
 
-  await supabase
-    .from("profiles")
-    .update({ email_verified: true, last_active_at: new Date().toISOString() })
-    .eq("id", user.id);
+  if (profile) {
+    await supabase
+      .from("profiles")
+      .update({ email_verified: true, last_active_at: new Date().toISOString() })
+      .eq("id", user.id);
+  }
 
-  if (user.email && lead && profile.role === "client") {
+  if (user.email && lead && profile?.role === "client") {
     try {
       const claimedJobId = await claimClientHiringRequests({ userId: user.id, email: user.email, leadId: lead });
       if (claimedJobId) {
@@ -55,8 +62,14 @@ export async function GET(request: Request) {
     }
   }
 
-  const fallback = `/workspace/${profile.role}`;
+  const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";
   const next = requestedNext ?? fallback;
-  const destination = next.startsWith("/workspace/") && !next.startsWith(fallback) ? fallback : next;
+  const destination = isTrainingPath(next)
+    ? next
+    : next.startsWith("/workspace/") && profile && !next.startsWith(fallback)
+      ? fallback
+      : profile || !next.startsWith("/workspace/")
+        ? next
+        : "/workspace/training";
   return NextResponse.redirect(new URL(destination, url.origin));
 }

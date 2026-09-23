@@ -33,6 +33,21 @@ const fixedEvents = new Set([
   "role_brief_create_account",
   "role_brief_submit",
   "talent_request_intro",
+  "training_landing_view",
+  "training_account_click",
+  "training_learning_paths_click",
+  "training_login_click",
+  "training_course_request",
+  "training_dashboard_view",
+  "training_course_view",
+  "training_course_start_click",
+  "training_course_start",
+  "training_course_continue",
+  "training_lesson_open",
+  "training_lesson_view",
+  "training_lesson_complete_click",
+  "training_lesson_complete",
+  "training_course_complete",
   "web_vital"
 ]);
 

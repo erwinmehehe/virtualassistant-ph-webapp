@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
+import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 
 type ClientJobRow = { id: string; title: string | null; status: string; created_at: string };
 type ReleasedCandidateRow = { id: string; job_id: string; va_id: string; match_score: number | null; shortlist_order: number | null; released_at: string | null; client_recommendation: string | null; client_decision: string | null; client_decision_note: string | null; client_decision_at: string | null };
@@ -33,10 +34,11 @@ export default async function ClientCandidatesPage({searchParams}:{searchParams:
   if(selectedJob&&selectedPublished&&selectedAccessUnlocked&&selectedReleased.length){try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","job").eq("subject_id",selectedJob.id).eq("action","client_shortlist_viewed").eq("actor_id",userId).gte("created_at",cutoff);if(!count)await admin.from("recruiter_activity").insert({subject_type:"job",subject_id:selectedJob.id,action:"client_shortlist_viewed",description:"Client viewed the recruiter-curated shortlist",actor_id:userId,metadata:{released_count:selectedReleased.length}});}catch{}}
 
   const releasedVaIds=selectedPublished&&selectedAccessUnlocked?[...new Set(selectedReleased.map((row)=>row.va_id))]:[];
-  const [{data:profiles},{data:vas}]=releasedVaIds.length?await Promise.all([
+  const [{data:profiles},{data:vas},trainingByUser]=releasedVaIds.length?await Promise.all([
     admin.from("profiles").select("id,full_name").in("id",releasedVaIds),
-    admin.from("va_profiles").select("user_id,slug,headline,primary_category,weekly_hours,hourly_rate,skills,tools,years_experience,schedule,overlap_hours").in("user_id",releasedVaIds)
-  ]):[{data:[]},{data:[]}];
+    admin.from("va_profiles").select("user_id,slug,headline,primary_category,weekly_hours,hourly_rate,skills,tools,years_experience,schedule,overlap_hours").in("user_id",releasedVaIds),
+    getTrainingCredentialsForUsers(releasedVaIds)
+  ]):[{data:[]},{data:[]},new Map()];
   const profileMap=new Map(((profiles||[]) as {id:string;full_name:string|null}[]).map((row)=>[row.id,row]));const vaMap=new Map(((vas||[]) as ShortlistVaRow[]).map((row)=>[row.user_id,row]));
 
   const activeOffers=offers.filter((row)=>["pending_va","pending_client"].includes(row.status)).length;const activeInterviews=interviews.filter((row)=>["requested","scheduled"].includes(row.status)&&!row.client_decision).length;const held=selectedReleased.filter((row)=>row.client_decision==="hold").length;const remaining=selectedReleased.filter((row)=>!row.client_decision||row.client_decision==="hold").length;const interested=selectedReleased.filter((row)=>row.client_decision==="interested").length;const allPassed=selectedReleased.length>0&&selectedReleased.every((row)=>row.client_decision==="pass");
@@ -62,6 +64,7 @@ export default async function ClientCandidatesPage({searchParams}:{searchParams:
         skills={va?.skills}
         tools={va?.tools}
         recommendation={row.client_recommendation}
+        trainingCredentials={trainingByUser.get(row.va_id) || []}
         status={decisionLabel?<span className={`badge ${decision==="pass"||decision==="hold"?"badge-warning":"badge-success"}`}>{decisionLabel}</span>:null}
         actions={selectedJob?<div className="stack" style={{marginTop:10}}><div className="row wrap">
           <form action={clientShortlistDecisionAction}><input type="hidden" name="job_id" value={selectedJob.id}/><input type="hidden" name="va_id" value={row.va_id}/><input type="hidden" name="decision" value="interested"/><input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/><button className={`btn btn-sm ${decision==="interested"?"btn-primary":""}`} type="submit">Interested</button></form>

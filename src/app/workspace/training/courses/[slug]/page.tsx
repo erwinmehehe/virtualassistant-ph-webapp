@@ -71,7 +71,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                 <span className="dash-action-copy">
                   <span className="dash-action-title"><strong>{lesson.title}</strong></span>
                   <small>{lesson.summary || "Detailed lesson with examples and practical application."}</small>
-                  <small className="muted">{lesson.estimated_minutes} min · v{lesson.content_version}</small>
+                  <small className="muted">{lesson.estimated_minutes} min</small>
                 </span>
                 <ArrowRight size={16}/>
               </Link>

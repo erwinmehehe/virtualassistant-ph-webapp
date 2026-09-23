@@ -32,12 +32,12 @@ test("keyword-support corpus owns eighteen informational or comparison intents",
     "canva-virtual-assistant-tasks",
     "creative-virtual-assistant-vs-graphic-designer",
     "event-planning-virtual-assistant-tasks",
-    "real-estate-virtual-assistant-tasks",
-    "amazon-virtual-assistant-tasks-for-sellers",
+    "real-estate-virtual-assistant-crm-listing-workflow",
+    "amazon-virtual-assistant-seller-operations-workflow",
     "data-entry-virtual-assistant-tasks",
-    "medical-virtual-assistant-job-description",
+    "medical-virtual-assistant-admin-workflow",
     "digital-marketing-virtual-assistant-tasks",
-    "bookkeeping-virtual-assistant-tasks"
+    "bookkeeping-virtual-assistant-month-end-workflow"
   ]);
 
   for (const post of items) {
@@ -61,12 +61,12 @@ test("service-support posts point to the existing commercial service owners", ()
     ["what-does-a-logistics-virtual-assistant-do", "logistics-virtual-assistant"],
     ["creative-virtual-assistant-vs-graphic-designer", "creative-virtual-assistant"],
     ["event-planning-virtual-assistant-tasks", "event-planning-virtual-assistant"],
-    ["real-estate-virtual-assistant-tasks", "real-estate"],
-    ["amazon-virtual-assistant-tasks-for-sellers", "amazon-virtual-assistant"],
+    ["real-estate-virtual-assistant-crm-listing-workflow", "real-estate"],
+    ["amazon-virtual-assistant-seller-operations-workflow", "amazon-virtual-assistant"],
     ["data-entry-virtual-assistant-tasks", "research-data"],
-    ["medical-virtual-assistant-job-description", "medical-virtual-assistant"],
+    ["medical-virtual-assistant-admin-workflow", "medical-virtual-assistant"],
     ["digital-marketing-virtual-assistant-tasks", "digital-marketing-virtual-assistant"],
-    ["bookkeeping-virtual-assistant-tasks", "bookkeeping"]
+    ["bookkeeping-virtual-assistant-month-end-workflow", "bookkeeping"]
   ]);
 
   for (const [slug, serviceSlug] of expected) {
@@ -184,12 +184,12 @@ test("round two finance-software guides keep accounting judgment with accountabl
 test("round three service-support guides preserve role boundaries and adjacent intent", () => {
   const bySlug = new Map(posts().map((post) => [post.slug, post]));
 
-  const realEstate = bySlug.get("real-estate-virtual-assistant-tasks");
+  const realEstate = bySlug.get("real-estate-virtual-assistant-crm-listing-workflow");
   assert.ok(realEstate.internalLinks.some((link) => link.href === "/service/real-estate"));
   assert.ok(realEstate.internalLinks.some((link) => link.href === "/industries/real-estate-agents"));
   assert.match(JSON.stringify(realEstate), /licensed|negotiat|contract/i);
 
-  const amazon = bySlug.get("amazon-virtual-assistant-tasks-for-sellers");
+  const amazon = bySlug.get("amazon-virtual-assistant-seller-operations-workflow");
   assert.ok(amazon.internalLinks.some((link) => link.href === "/service/amazon-virtual-assistant"));
   assert.match(JSON.stringify(amazon), /account-risk|compliance|inventory|listing/i);
 
@@ -202,8 +202,8 @@ test("round three service-support guides preserve role boundaries and adjacent i
   assert.match(JSON.stringify(digital), /strategy|approval|budget|reporting/i);
 });
 
-test("medical job-description guide remains administrative and non-clinical", () => {
-  const post = posts().find((item) => item.slug === "medical-virtual-assistant-job-description");
+test("medical admin workflow remains administrative and non-clinical", () => {
+  const post = posts().find((item) => item.slug === "medical-virtual-assistant-admin-workflow");
   const body = JSON.stringify(post);
   assert.match(body, /non-clinical/i);
   assert.match(body, /does not diagnose|do not interpret|without giving clinical advice/i);
@@ -212,8 +212,8 @@ test("medical job-description guide remains administrative and non-clinical", ()
   assert.ok(post.internalLinks.some((link) => link.href === "/resources/virtual-assistant-job-description"));
 });
 
-test("bookkeeping task guide links the service owner to Xero and QuickBooks support content", () => {
-  const post = posts().find((item) => item.slug === "bookkeeping-virtual-assistant-tasks");
+test("bookkeeping month-end workflow links the service owner to Xero and QuickBooks support content", () => {
+  const post = posts().find((item) => item.slug === "bookkeeping-virtual-assistant-month-end-workflow");
   const hrefs = post.internalLinks.map((link) => link.href);
   assert.ok(hrefs.includes("/service/bookkeeping"));
   assert.ok(hrefs.includes("/blog/xero-virtual-assistant-tasks"));

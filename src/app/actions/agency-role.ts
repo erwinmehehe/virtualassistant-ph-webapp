@@ -2,9 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { writeAdminAudit } from "@/lib/admin-audit";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { publicationMissingDetails } from "@/lib/job-publication";
 
 export async function prepareStandardPlacementTermsAction(formData:FormData){
   const {user}=await requireRole("recruiter");
@@ -101,3 +104,162 @@ export async function sendClientAccountClaimAction(formData: FormData) {
   redirect(`/workspace/recruiter/roles/${jobId}?client_claim_sent=1`);
 }
 
+
+
+function readinessLines(value: FormDataEntryValue | null) {
+  return String(value ?? "")
+    .split(/\r?\n/)
+    .map((item) => item.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean)
+    .slice(0, 30);
+}
+
+function readinessCsv(value: FormDataEntryValue | null) {
+  return String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 30);
+}
+
+function readinessReturnPath(role: string, jobId: string, value: FormDataEntryValue | null) {
+  const requested = String(value || "").trim();
+  const prefix = role === "admin" ? "/workspace/admin/" : "/workspace/recruiter/";
+  if (requested.startsWith(prefix) && !requested.startsWith("//")) return requested;
+  return role === "admin" ? `/workspace/admin/jobs/${jobId}` : `/workspace/recruiter/roles/${jobId}`;
+}
+
+export async function saveRoleReadinessDetailsAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Role is required.");
+
+  const returnTo = readinessReturnPath(profile.role, jobId, formData.get("return_to"));
+  const admin = createAdminClient();
+  const { data: job } = await admin
+    .from("jobs")
+    .select("id,status,recruiter_id,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (!job) redirect(`${returnTo}?role_details_error=${encodeURIComponent("Role not found.")}`);
+  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
+    redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
+  }
+
+  const patch: Record<string, unknown> = {};
+  const changed: string[] = [];
+
+  if (formData.has("title")) {
+    const value = String(formData.get("title") || "").trim();
+    if (value.length < 3 || value.length > 140) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Enter a valid role title.")}#role-readiness`);
+    }
+    patch.title = value;
+    changed.push("title");
+  }
+
+  if (formData.has("summary")) {
+    const value = String(formData.get("summary") || "").trim();
+    if (value.length < 20 || value.length > 1200) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Role summary must be at least 20 characters.")}#role-readiness`);
+    }
+    patch.summary = value;
+    changed.push("summary");
+  }
+
+  if (formData.has("responsibilities")) {
+    const value = readinessLines(formData.get("responsibilities"));
+    if (!value.length) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Add at least one responsibility.")}#role-readiness`);
+    }
+    patch.responsibilities = value;
+    changed.push("responsibilities");
+  }
+
+  if (formData.has("required_skills")) {
+    const value = readinessCsv(formData.get("required_skills"));
+    if (value.length < 2) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Add at least two required skills.")}#role-readiness`);
+    }
+    patch.required_skills = value;
+    changed.push("skills");
+  }
+
+  if (formData.has("hours_per_week")) {
+    const value = Number(formData.get("hours_per_week"));
+    if (!Number.isInteger(value) || value < 1 || value > 168) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Hours per week must be between 1 and 168.")}#role-readiness`);
+    }
+    patch.hours_per_week = value;
+    changed.push("hours");
+  }
+
+  if (formData.has("timezone")) {
+    const value = String(formData.get("timezone") || "").trim();
+    if (!value || value.length > 100) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Enter the client timezone or working region.")}#role-readiness`);
+    }
+    patch.timezone = value;
+    changed.push("timezone");
+  }
+
+  if (formData.has("min_hourly_rate")) {
+    const value = Number(formData.get("min_hourly_rate"));
+    if (!Number.isFinite(value) || value < MIN_HOURLY_RATE) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent(`VA budget must be at least USD ${MIN_HOURLY_RATE}/hour.`)}#role-readiness`);
+    }
+    patch.min_hourly_rate = value;
+    changed.push("budget");
+  }
+
+  if (formData.has("start_timing")) {
+    const value = String(formData.get("start_timing") || "").trim();
+    if (!value || value.length > 100) {
+      redirect(`${returnTo}?role_details_error=${encodeURIComponent("Enter the client's confirmed preferred start.")}#role-readiness`);
+    }
+    patch.start_timing = value;
+    changed.push("start timing");
+  }
+
+  if (!changed.length) {
+    redirect(`${returnTo}?role_details_error=${encodeURIComponent("No missing role details were submitted.")}#role-readiness`);
+  }
+
+  const candidate = { ...job, ...patch };
+  const stillMissing = publicationMissingDetails(candidate);
+  if (stillMissing.length) {
+    redirect(`${returnTo}?role_details_error=${encodeURIComponent(`Still missing: ${stillMissing.join(", ")}.`)}#role-readiness`);
+  }
+
+  const { error } = await admin.from("jobs").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", jobId);
+  if (error) throw error;
+
+  const description = `Completed role readiness: ${changed.join(", ")}`;
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "role_readiness_completed",
+    description,
+    actorId: user.id,
+    metadata: { changed_fields: changed, role: profile.role },
+  });
+
+  if (profile.role === "admin") {
+    await writeAdminAudit({
+      actorId: user.id,
+      action: "job_role_readiness_completed",
+      targetType: "job",
+      targetId: jobId,
+      metadata: { changed_fields: changed },
+    });
+  }
+
+  revalidatePath(returnTo);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath(`/workspace/admin/jobs/${jobId}`);
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  if (job.status === "published") revalidatePath("/jobs");
+
+  redirect(`${returnTo}?role_details_saved=1#role-readiness`);
+}

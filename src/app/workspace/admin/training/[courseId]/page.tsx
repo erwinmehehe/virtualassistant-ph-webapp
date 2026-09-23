@@ -128,7 +128,7 @@ export default async function AdminTrainingCoursePage({
             <label className="field"><span>Roadmap order</span><input type="number" name="recommended_order" min={1} max={999} defaultValue={course.recommended_order ?? ""} placeholder="Optional"/></label>
             <label className="field"><span>Review requirement</span><select name="review_requirement" defaultValue={course.review_requirement || "editorial"}><option value="editorial">Editorial review</option><option value="specialist">Editorial + specialist review</option></select></label>
           </div>
-          <label className="field"><span>Trademark / affiliation disclosure</span><textarea name="trademark_disclaimer" rows={3} defaultValue={course.trademark_disclaimer || ""}/></label>
+          <label className="field"><span>Course notice / affiliation disclosure</span><textarea name="trademark_disclaimer" rows={3} defaultValue={course.trademark_disclaimer || ""}/></label>
           <div className="grid-3">
             <label className="field"><span>Content version</span><input type="number" name="content_version" min={1} defaultValue={course.content_version}/></label>
             <label className="field"><span>Editorial reviewer</span><input name="reviewed_by" defaultValue={course.reviewed_by || ""} placeholder="Reviewer name"/></label>

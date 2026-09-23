@@ -4,10 +4,11 @@ import { EDITORIAL_SEO_POSTS } from "@/lib/editorial-seo-guides";
 import { BLOG_OPPORTUNITY_POSTS } from "@/lib/blog-opportunity-posts";
 import { BLOG_HIRING_GUIDES } from "@/lib/blog-hiring-guides";
 import { BLOG_DEMAND_GUIDES } from "@/lib/blog-demand-guides";
+import { BLOG_KEYWORD_SUPPORT_GUIDES } from "@/lib/blog-keyword-support-guides";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
-export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS, ...BLOG_OPPORTUNITY_POSTS, ...BLOG_HIRING_GUIDES, ...BLOG_DEMAND_GUIDES];
+export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS, ...BLOG_OPPORTUNITY_POSTS, ...BLOG_HIRING_GUIDES, ...BLOG_DEMAND_GUIDES, ...BLOG_KEYWORD_SUPPORT_GUIDES];
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },
@@ -61,6 +62,12 @@ export function serviceBlogPosts(serviceSlug: string, limit = 9) {
       const intentOrder: Record<BlogPost["intent"], number> = { commercial: 0, informational: 1, comparison: 2, compliance: 3 };
       return intentOrder[a.intent] - intentOrder[b.intent] || a.title.localeCompare(b.title);
     })
+    .slice(0, limit);
+}
+
+export function softwareBlogPosts(softwareSlug: string, limit = 6) {
+  return BLOG_POSTS.filter((post) => post.softwareSlug === softwareSlug)
+    .sort((a, b) => a.title.localeCompare(b.title))
     .slice(0, limit);
 }
 

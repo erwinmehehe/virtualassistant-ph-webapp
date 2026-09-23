@@ -310,9 +310,9 @@ export default function TrainingPage() {
               <span className="tr-kicker">Learning paths</span>
               <h2>Build the general skills first. Specialise when the work calls for it.</h2>
               <p>
-                The production roadmap currently starts with 15 full courses, all still in draft.
-                The catalogue below also maps future software and industry topics we can build after
-                the core roadmap. A topic only becomes available when its lessons are actually published.
+                The production roadmap starts with 15 full courses. The catalogue below also maps
+                future software and industry topics we can build after the core roadmap. We only mark
+                a course available after its lessons are complete and reviewed.
               </p>
             </div>
 

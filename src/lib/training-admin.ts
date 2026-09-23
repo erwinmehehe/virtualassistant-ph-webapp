@@ -199,9 +199,25 @@ export type SpecialistTrainingReviewQueueItem = {
     reviewed_at: string | null;
     updated_at: string;
   } | null;
+  invite: {
+    id: string;
+    reviewer_email: string;
+    reviewer_name: string;
+    reviewer_role: string;
+    review_revision: number;
+    assigned_revision: number;
+    course_content_version: number;
+    due_at: string | null;
+    expires_at: string;
+    status: "pending" | "opened" | "submitted" | "revoked";
+    sent_at: string | null;
+    opened_at: string | null;
+    submitted_at: string | null;
+    created_at: string;
+  } | null;
   history: Array<{
     id: string;
-    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated";
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated" | "invite_sent" | "invite_opened" | "invite_revoked" | "external_changes_requested" | "external_approved";
     actor_id: string | null;
     actor_label: string | null;
     reviewer_name: string | null;
@@ -232,7 +248,7 @@ export async function getTrainingSpecialistReviewQueue() {
   const courseIds = courses.map((course) => course.id);
   if (!courseIds.length) return { items: [] as SpecialistTrainingReviewQueueItem[], error: null };
 
-  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }, { data: eventData }] = await Promise.all([
+  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }, { data: eventData }, { data: inviteData }] = await Promise.all([
     admin
       .from("training_modules")
       .select("id,course_id")
@@ -250,7 +266,12 @@ export async function getTrainingSpecialistReviewQueue() {
       .select("id,course_id,event_type,actor_id,actor_label,reviewer_name,reviewer_role,review_due_date,review_revision,assigned_revision,course_content_version,notes,created_at")
       .in("course_id", courseIds)
       .order("created_at", { ascending: false })
-      .limit(100),
+      .limit(140),
+    admin
+      .from("training_specialist_review_invites")
+      .select("id,course_id,reviewer_email,reviewer_name,reviewer_role,review_revision,assigned_revision,course_content_version,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at")
+      .in("course_id", courseIds)
+      .order("created_at", { ascending: false }),
   ]);
 
   const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
@@ -311,7 +332,7 @@ export async function getTrainingSpecialistReviewQueue() {
   const events = (eventData || []) as Array<{
     id: string;
     course_id: string;
-    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated";
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated" | "invite_sent" | "invite_opened" | "invite_revoked" | "external_changes_requested" | "external_approved";
     actor_id: string | null;
     actor_label: string | null;
     reviewer_name: string | null;
@@ -323,6 +344,44 @@ export async function getTrainingSpecialistReviewQueue() {
     notes: string | null;
     created_at: string;
   }>;
+  const latestInviteByCourse = new Map<string, SpecialistTrainingReviewQueueItem["invite"]>();
+  for (const invite of (inviteData || []) as Array<{
+    id: string;
+    course_id: string;
+    reviewer_email: string;
+    reviewer_name: string;
+    reviewer_role: string;
+    review_revision: number;
+    assigned_revision: number;
+    course_content_version: number;
+    due_at: string | null;
+    expires_at: string;
+    status: "pending" | "opened" | "submitted" | "revoked";
+    sent_at: string | null;
+    opened_at: string | null;
+    submitted_at: string | null;
+    created_at: string;
+  }>) {
+    if (!latestInviteByCourse.has(invite.course_id)) {
+      latestInviteByCourse.set(invite.course_id, {
+        id: invite.id,
+        reviewer_email: invite.reviewer_email,
+        reviewer_name: invite.reviewer_name,
+        reviewer_role: invite.reviewer_role,
+        review_revision: invite.review_revision,
+        assigned_revision: invite.assigned_revision,
+        course_content_version: invite.course_content_version,
+        due_at: invite.due_at,
+        expires_at: invite.expires_at,
+        status: invite.status,
+        sent_at: invite.sent_at,
+        opened_at: invite.opened_at,
+        submitted_at: invite.submitted_at,
+        created_at: invite.created_at,
+      });
+    }
+  }
+
   const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
 
   const items: SpecialistTrainingReviewQueueItem[] = courses.map((course) => {
@@ -379,7 +438,8 @@ export async function getTrainingSpecialistReviewQueue() {
       specialistReady,
       assignmentCurrent,
       review,
-      history: events.filter((event) => event.course_id === course.id).slice(0, 12),
+      invite: latestInviteByCourse.get(course.id) || null,
+      history: events.filter((event) => event.course_id === course.id).slice(0, 16),
     };
   });
 

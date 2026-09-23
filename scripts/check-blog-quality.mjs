@@ -6,7 +6,9 @@ const blogPath = path.join(root, 'src/lib/blog-content.ts');
 const opportunityBlogPath = path.join(root, 'src/lib/blog-opportunity-posts.ts');
 const hiringGuidesPath = path.join(root, 'src/lib/blog-hiring-guides.ts');
 const demandGuidesPath = path.join(root, 'src/lib/blog-demand-guides.ts');
+const keywordSupportGuidesPath = path.join(root, 'src/lib/blog-keyword-support-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
+const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
 const archivePath = path.join(root, 'src/lib/archive-posts.ts');
 const editorialPath = path.join(root, 'src/lib/editorial-seo-guides.ts');
@@ -17,6 +19,7 @@ function readPosts() {
     ...readPostArray(opportunityBlogPath, 'export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = '),
     ...readPostArray(hiringGuidesPath, 'export const BLOG_HIRING_GUIDES: BlogPost[] = '),
     ...readPostArray(demandGuidesPath, 'export const BLOG_DEMAND_GUIDES: BlogPost[] = '),
+    ...readPostArray(keywordSupportGuidesPath, 'export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {
@@ -57,7 +60,7 @@ function routeForPost(post) {
 
 function roleTokens(post) {
   return new Set(
-    [post.serviceSlug || '', post.clusterLabel || '', post.title || '']
+    [post.serviceSlug || '', post.softwareSlug || '', post.clusterLabel || '', post.title || '']
       .join(' ')
       .toLowerCase()
       .split(/[^a-z0-9]+/)
@@ -103,6 +106,7 @@ function jaccard(a, b) {
 
 const posts = readPosts();
 const serviceSlugs = slugsFrom(servicePath);
+const softwareSlugs = slugsFrom(softwarePath);
 const industrySlugs = slugsFrom(industryPath);
 const blogRoutes = new Set(posts.map(routeForPost));
 for (const slug of slugsFrom(archivePath)) blogRoutes.add(`/blog/${slug}`);
@@ -180,6 +184,7 @@ for (const post of posts) {
   const hrefs = (post.internalLinks || []).map(link => link.href);
   if (!hrefs.includes(`/blog/topic/${post.topic}`)) failures.push(`${post.slug}: missing topic-hub internal link`);
   if (post.serviceSlug && !hrefs.includes(`/service/${post.serviceSlug}`)) failures.push(`${post.slug}: missing canonical service-page link`);
+  if (post.softwareSlug && !hrefs.includes(`/software/${post.softwareSlug}`)) failures.push(`${post.slug}: missing canonical software-page link`);
   const articleLinkCount = hrefs.filter(href => blogRoutes.has(href)).length;
   if (articleLinkCount < 1) failures.push(`${post.slug}: missing a contextual article link`);
 
@@ -203,6 +208,7 @@ for (const post of posts) {
     if (!href.startsWith('/')) continue;
     if (blogRoutes.has(href) || topicRoutes.has(href) || knownStatic.has(href)) continue;
     let m = href.match(/^\/service\/([^/]+)\/?$/); if (m && serviceSlugs.has(m[1])) continue;
+    m = href.match(/^\/software\/([^/]+)\/?$/); if (m && softwareSlugs.has(m[1])) continue;
     m = href.match(/^\/industries\/([^/]+)\/?$/); if (m && industrySlugs.has(m[1])) continue;
     failures.push(`${post.slug}: unresolved internal link ${href}`);
   }

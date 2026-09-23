@@ -24,7 +24,7 @@ export function TrainingShell({
   const workspaceHref = isRole(profile?.role) ? roleHome[profile.role] : null;
 
   return (
-    <div className="app-shell dashboard-shell">
+    <div className="app-shell dashboard-shell training-shell">
       <aside className="app-sidebar">
         <div className="app-sidebar-brand">
           <Link className="app-brand" href="/workspace/training" aria-label="Go to Training home">
@@ -35,22 +35,21 @@ export function TrainingShell({
 
         <nav className="app-nav app-nav-desktop" aria-label="Training navigation">
           <div className="app-nav-group">
-            <div className="sidebar-label">Free training</div>
-            <Link href="/workspace/training"><BookOpenCheck size={17}/><span>My learning</span></Link>
-            {workspaceHref ? <Link href={workspaceHref}><ArrowLeft size={17}/><span>Back to workspace</span></Link> : null}
+            <Link className="active" aria-current="page" href="/workspace/training"><BookOpenCheck size={17}/><span>Training home</span></Link>
+            {workspaceHref ? <Link href={workspaceHref}><ArrowLeft size={17}/><span>{profile?.role === "va" ? "VA workspace" : "Workspace"}</span></Link> : null}
           </div>
         </nav>
 
         <nav className="app-nav-mobile" aria-label="Mobile training navigation">
-          <Link href="/workspace/training"><BookOpenCheck size={18}/><span>My learning</span></Link>
-          {workspaceHref ? <Link href={workspaceHref}><ArrowLeft size={18}/><span>Workspace</span></Link> : null}
+          <Link className="active" aria-current="page" href="/workspace/training"><BookOpenCheck size={18}/><span>Training</span></Link>
+          {workspaceHref ? <Link href={workspaceHref}><ArrowLeft size={18}/><span>{profile?.role === "va" ? "VA workspace" : "Workspace"}</span></Link> : null}
         </nav>
 
         <div className="sidebar-footer">
-          <div className="app-account-card" aria-label="Training learner">
+          <Link className="app-account-card" href="/workspace/account" aria-label="Open account settings">
             <span className="app-account-avatar"><BookOpenCheck size={18}/></span>
-            <div className="user-copy"><strong>{profile?.full_name || "Learner"}</strong><span>Free training</span></div>
-          </div>
+            <div className="user-copy"><strong>{profile?.full_name || "Learner"}</strong><span>Learner account</span></div>
+          </Link>
           <form action={logoutAction}>
             <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
           </form>
@@ -61,8 +60,7 @@ export function TrainingShell({
         <div className="app-topbar">
           <div className="app-topbar-inner">
             <div className="app-topbar-title">
-              <Link className="app-topbar-workspace-home" href="/workspace/training">Training</Link>
-              <strong className="app-topbar-page-title">Free learning</strong>
+              <strong className="app-topbar-page-title">Training</strong>
             </div>
           </div>
         </div>

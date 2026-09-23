@@ -11,7 +11,8 @@ import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
-import { getRoleReadinessDashboard, roleReadinessMissingLabel } from "@/lib/role-readiness-dashboard";
+import { getRoleReadinessDashboard } from "@/lib/role-readiness-dashboard";
+import { roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
 import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };

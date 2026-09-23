@@ -93,3 +93,53 @@ export async function getPublishedFoundationCourse() {
     (course) => course.slug === "virtual-assistant-foundations" && course.status === "published",
   ) || null;
 }
+
+
+export const getPublishedTrainingCourses = unstable_cache(
+  async (): Promise<PublicTrainingCourse[]> => {
+    try {
+      const admin = createAdminClient();
+      const { data: courses, error } = await admin
+        .from("training_courses")
+        .select("id,slug,title,summary,estimated_minutes,category,country_focus,published_at")
+        .eq("status", "published")
+        .order("roadmap_order", { ascending: true, nullsFirst: false })
+        .order("published_at", { ascending: true });
+
+      if (error || !courses?.length) return [];
+
+      const courseIds = courses.map((course) => course.id);
+      const { data: modules } = await admin
+        .from("training_modules")
+        .select("id,course_id")
+        .in("course_id", courseIds);
+
+      const moduleIds = (modules || []).map((module) => module.id);
+      const courseByModule = new Map((modules || []).map((module) => [module.id, module.course_id]));
+      const lessonCountByCourse = new Map<string, number>();
+
+      if (moduleIds.length) {
+        const { data: lessons } = await admin
+          .from("training_lessons")
+          .select("id,module_id")
+          .in("module_id", moduleIds)
+          .eq("is_published", true);
+
+        for (const lesson of lessons || []) {
+          const courseId = courseByModule.get(lesson.module_id);
+          if (!courseId) continue;
+          lessonCountByCourse.set(courseId, (lessonCountByCourse.get(courseId) || 0) + 1);
+        }
+      }
+
+      return courses.map((course) => ({
+        ...course,
+        lesson_count: lessonCountByCourse.get(course.id) || 0,
+      })) as PublicTrainingCourse[];
+    } catch {
+      return [];
+    }
+  },
+  ["public-training-course-list"],
+  { revalidate: 300, tags: ["public-training"] },
+);

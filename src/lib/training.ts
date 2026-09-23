@@ -68,6 +68,7 @@ export type TrainingCourseSummary = CourseRow & {
   progressPercent: number;
   enrolled: boolean;
   startedAt: string | null;
+  completedAt: string | null;
   certificate: CertificateRow | null;
 };
 
@@ -193,6 +194,7 @@ export async function getTrainingDashboard(userId: string) {
       progressPercent: percent(completedLessons, courseLessons.length),
       enrolled: Boolean(enrollment),
       startedAt: enrollment?.started_at || null,
+      completedAt: enrollment?.completed_at || null,
       certificate: certificates.get(course.id) || null,
     };
   });

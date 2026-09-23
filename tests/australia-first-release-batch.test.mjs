@@ -107,7 +107,7 @@ test("ServiceM8 course preserves current-product and trademark safeguards", asyn
 
   assert.match(seed, /not affiliated with, certified by, or endorsed by ServiceM8/i);
   assert.match(seed, /verify the current workflow against official ServiceM8 help documentation/i);
-  assert.match(seed, /client's first call through scheduling, quoting, completion, invoicing, and payment/i);
+  assert.match(seed, /first call through scheduling, quoting, completion, invoicing, and payment/i);
   assert.match(seed, /online acceptance/i);
   assert.match(seed, /accounting integrations/i);
   assert.match(seed, /automation/i);

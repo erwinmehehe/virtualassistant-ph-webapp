@@ -6,9 +6,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
-import { prepareStandardPlacementTermsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
+import { prepareStandardPlacementTermsAction, saveRoleReadinessDetailsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { StaffJobMatching } from "@/components/staff-job-matching";
+import { RoleReadinessForm } from "@/components/role-readiness-form";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -171,6 +172,8 @@ export default async function RoleControlCenter({
       {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
       {query.availability_reminded ? <div className="success-banner" role="status">Availability reminder sent. Client release will unlock after the VA reconfirms their current availability.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
+      {query.role_details_saved ? <div className="success-banner" role="status">Required role details saved.</div> : null}
+      {query.role_details_error ? <div className="alert" role="alert">{query.role_details_error}</div> : null}
       <div className="page-head">
         <div>
           <div className="kicker">Role Control Center</div>
@@ -254,7 +257,7 @@ export default async function RoleControlCenter({
             </form>
           ) : null}
           {publication.key === "needs_role_details" || publication.key === "needs_role_review" ? (
-            <a className="btn btn-primary" href="#matching">Complete role review</a>
+            <a className="btn btn-primary" href="#role-readiness">Complete role details</a>
           ) : null}
           {publication.key === "waiting_client_approval" ? (
             <Link className="btn" href={lead?.email ? `/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/leads"}>
@@ -340,6 +343,14 @@ export default async function RoleControlCenter({
           ) : null}
         </section>
       </div>
+
+      {publication.key === "needs_role_details" ? (
+        <RoleReadinessForm
+          job={job}
+          returnTo={`/workspace/recruiter/roles/${job.id}`}
+          action={saveRoleReadinessDetailsAction}
+        />
+      ) : null}
 
       <section id="matching" className="role-workspace-section">
         <div className="role-workspace-section-head">

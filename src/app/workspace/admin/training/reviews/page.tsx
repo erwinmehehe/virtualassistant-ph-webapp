@@ -157,6 +157,13 @@ export default async function SpecialistTrainingReviewPage({
                 </div>
               </div>
 
+              {review?.decision === "changes_requested" && review.notes ? (
+                <div className="alert" style={{ marginTop: 16 }}>
+                  <strong>Outstanding issues</strong>
+                  <p style={{ marginBottom: 0 }}>{review.notes}</p>
+                </div>
+              ) : null}
+
               {!item.specialistReady ? (
                 <section className="card" style={{ marginTop: 18 }}>
                   <div className="row-between wrap">

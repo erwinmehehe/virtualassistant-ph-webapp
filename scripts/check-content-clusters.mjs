@@ -47,7 +47,7 @@ const blogArticle = source("src/components/blog-article.tsx");
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
-const softwareSlugs = new Set([...softwareSource.matchAll(/slug:\\s*"([^"]+)"/g)].map((match) => match[1]));
+const softwareSlugs = new Set([...softwareSource.matchAll(/slug:\s*"([^"]+)"/g)].map((match) => match[1]));
 const industrySlugs = new Set(industries.map((item) => item.slug));
 const familyOwners = new Map();
 const clusterCounts = new Map();

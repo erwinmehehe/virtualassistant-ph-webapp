@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarClock, ExternalLink, Video } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CandidateInterviewRow, JobSummaryRow } from "@/lib/workspace-rows";
 import { cancelCandidateInterviewAction } from "@/app/actions/recruiter-operations-system";
@@ -8,8 +8,8 @@ import { cancelCandidateInterviewAction } from "@/app/actions/recruiter-operatio
 function localLabel(value?:string|null){if(!value)return"Not scheduled";return new Intl.DateTimeFormat("en",{dateStyle:"full",timeStyle:"short"}).format(new Date(value));}
 
 export default async function VaInterviewsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const query=await searchParams;const {user}=await requireRole("va");const admin=createAdminClient();
-  const {data:rowData,error}=await admin.from("candidate_interviews").select("*").eq("va_id",user.id).order("created_at",{ascending:false}).limit(100);if(error)throw error;
+  const query=await searchParams;const {userId}=await requireRoleFast("va");const admin=createAdminClient();
+  const {data:rowData,error}=await admin.from("candidate_interviews").select("*").eq("va_id",userId).order("created_at",{ascending:false}).limit(100);if(error)throw error;
   const rows=(rowData||[]) as CandidateInterviewRow[];
   const jobIds=[...new Set(rows.map((row)=>row.job_id))];const {data:jobs}=jobIds.length?await admin.from("jobs").select("id,title,company_name,timezone").in("id",jobIds):{data:[]};const jobMap=new Map(((jobs||[]) as JobSummaryRow[]).map((row)=>[row.id,row]));
   const active=rows.filter((row)=>row.status!=="cancelled");

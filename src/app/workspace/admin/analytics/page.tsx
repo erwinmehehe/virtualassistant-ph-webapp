@@ -114,7 +114,8 @@ export default async function AdminAnalyticsPage() {
     ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
     ["Lesson completions", trainingCount("training_lesson_complete"), "First successful completion of a lesson"],
-    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions"]
+    ["Assessment submissions", trainingCount("training_assessment_submit"), "Practical work submitted for reviewer scoring"],
+    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions after required assessment review"]
   ] as const;
 
   return <>

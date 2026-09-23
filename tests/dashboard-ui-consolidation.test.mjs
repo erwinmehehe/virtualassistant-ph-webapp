@@ -50,9 +50,9 @@ test("client and VA dashboards keep their lean summary paths",async()=>{
   assert.match(client,/getClientDashboardSummary\(userId\)/);
   assert.match(va,/getVaDashboardSummary\(userId\)/);
   assert.match(client,/DashHeader kicker="Managed VA hiring"/);
-  assert.match(va,/DashHeader kicker="Vetted VA workspace"/);
+  assert.match(va,/DashHeader title="VA dashboard"/);
   assert.match(client,/Current action/);
-  assert.match(va,/Next best action/);
+  assert.match(va,/Next step/);
   assert.match(css,/@media \(max-width: 680px\)[\s\S]*\.dash-page\.role-overview \.dash-header-actions \{ width: 100%; \}/);
   assert.match(css,/\.dash-page\.role-overview \.dash-header-actions > a \{ width: 100%; \}/);
 });

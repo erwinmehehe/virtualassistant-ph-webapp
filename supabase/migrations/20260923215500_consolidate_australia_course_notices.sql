@@ -36,8 +36,8 @@ from (
     ) as content
   from public.training_lessons l2
   join public.training_modules m2 on m2.id = l2.module_id
-  where m2.course_id in (select id from target_courses)
   cross join lateral jsonb_array_elements(l2.content) with ordinality as item(value, ordinality)
+  where m2.course_id in (select id from target_courses)
   group by l2.id
 ) cleaned
 where l.id = cleaned.id;

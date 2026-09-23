@@ -1,92 +1,225 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, CircleUserRound, LogIn, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  BookOpenCheck,
+  BriefcaseBusiness,
+  Check,
+  CircleUserRound,
+  FileCheck2,
+  GraduationCap,
+  LogIn,
+  ShieldCheck,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath } from "@/lib/seo-url";
+import { getPublishedTrainingCourses } from "@/lib/public-training";
+import "./va-hub.css";
 
 export const metadata: Metadata = {
   title: "For Filipino Virtual Assistants",
-  description: "Create your Virtual Assistant profile, complete screening, browse reviewed remote jobs, and manage applications through one private workspace.",
+  description: "Free VA training, profile building, reviewed remote jobs, and one private workspace for Filipino Virtual Assistants.",
   alternates: { canonical: canonicalPath("/for-virtual-assistants") }
 };
 
+function duration(minutes: number) {
+  if (!minutes) return "Self-paced";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours}h ${rest}m` : `${hours}h`;
+}
+
 const steps = [
-  ["01", "Create your profile", "Add your experience, skills, tools, schedule, preferred rate, resume, and work samples."],
-  ["02", "Complete screening", "Finish the category assessment, video introduction, and recruiter review for your specialty."],
-  ["03", "Apply to suitable roles", "Browse reviewed jobs and apply when the responsibilities, hours, schedule, and budget fit."],
-  ["04", "Manage everything privately", "Track applications, messages, onboarding, workroom tasks, and payments in your workspace."]
+  ["01", "Learn the work", "Use free training to practise the communication, admin, software, and workflow skills clients actually hand over."],
+  ["02", "Build proof", "Create a profile with your experience, tools, work samples, schedule, preferred rate, and role-specific evidence."],
+  ["03", "Apply selectively", "Use reviewed job details to decide whether the responsibilities, hours, schedule, and budget fit you."],
+  ["04", "Manage the process", "Track applications, interviews, onboarding, workroom tasks, and payments from your private workspace."]
 ] as const;
 
-export default function ForVirtualAssistantsPage() {
-  return <><SiteHeader/><main id="main-content">
-    <section className="section public-hero-small">
-      <div className="container public-page-head">
-        <span className="kicker">For Filipino Virtual Assistants</span>
-        <h1 className="public-page-title">Build one strong profile. Apply to roles that fit.</h1>
-        <p className="public-lede">VirtualAssistant.com.ph gives Filipino professionals one place to present verified experience, complete role-specific screening, find reviewed opportunities, and manage the hiring process.</p>
-        <div className="row wrap">
-          <Link className="btn btn-primary btn-lg" href="/auth/join/va">Create your profile <ArrowRight size={16}/></Link>
-          <Link className="btn btn-lg" href="/jobs">Browse Virtual Assistant jobs</Link>
-          <Link className="btn btn-lg" href="/training">Free VA training</Link>
-          <Link className="btn btn-ghost btn-lg" href="/resources">VA career resources</Link>
-          <Link className="btn btn-ghost btn-lg" href="/auth/login?next=%2Fworkspace%2Fva">Open your workspace</Link>
+const resources = [
+  ["/blog/how-to-become-a-virtual-assistant-philippines", "How to become a Virtual Assistant in the Philippines"],
+  ["/blog/virtual-assistant-skills", "Virtual Assistant skills employers look for"],
+  ["/blog/virtual-assistant-resume-sample", "Virtual Assistant resume guide"],
+  ["/blog/virtual-assistant-portfolio-examples", "Virtual Assistant portfolio examples"],
+] as const;
+
+export default async function ForVirtualAssistantsPage() {
+  const courses = await getPublishedTrainingCourses();
+  const featuredCourse = courses[0] || null;
+
+  return <><SiteHeader/><main id="main-content" className="va-hub">
+    <section className="va-hub-hero">
+      <div className="container va-hub-hero-grid">
+        <div className="va-hub-hero-copy">
+          <span className="va-hub-kicker">For Filipino Virtual Assistants</span>
+          <h1>Learn the work. Build proof. Find roles that fit.</h1>
+          <p>Training, job search, and your candidate profile should support each other without becoming one confusing funnel. Start where you are today.</p>
+          <div className="va-hub-actions">
+            <Link className="btn btn-primary btn-lg" href="/training">Explore free training <ArrowRight size={16}/></Link>
+            <Link className="btn btn-lg" href="/auth/join/va">Create your VA profile</Link>
+          </div>
+          <p className="va-hub-login">Already have an account? <Link href="/auth/login?next=%2Fworkspace%2Fva">Open your VA workspace</Link></p>
+          <div className="va-hub-trust">
+            <span><Check size={15}/> No course fee</span>
+            <span><Check size={15}/> No application fee</span>
+            <span><Check size={15}/> Training is optional for hiring</span>
+          </div>
         </div>
+
+        <aside className="va-hub-path" aria-label="Virtual Assistant path">
+          <div className="va-hub-path-head">
+            <span>Your VA path</span>
+            <strong>One clear next step at a time.</strong>
+          </div>
+          <Link href="/training"><span>01</span><div><strong>Learn</strong><small>Free practical training</small></div><ArrowRight size={16}/></Link>
+          <Link href="/auth/join/va"><span>02</span><div><strong>Build your profile</strong><small>Experience, proof, tools, availability</small></div><ArrowRight size={16}/></Link>
+          <Link href="/jobs"><span>03</span><div><strong>Find work</strong><small>Reviewed Virtual Assistant roles</small></div><ArrowRight size={16}/></Link>
+          <Link href="/auth/login?next=%2Fworkspace%2Fva"><span>04</span><div><strong>Manage applications</strong><small>Interviews, workroom, payments</small></div><ArrowRight size={16}/></Link>
+        </aside>
       </div>
     </section>
 
-    <section className="section section-white">
+    <section className="va-hub-section va-hub-training">
       <div className="container">
-        <div className="section-head">
-          <h2>Choose what you need today.</h2>
-          <p>You do not have to start from the job board every time.</p>
+        <div className="va-hub-section-head">
+          <div>
+            <span className="va-hub-kicker">Free training</span>
+            <h2>Start with a course that is actually live.</h2>
+          </div>
+          <Link className="va-hub-text-link" href="/training">View training hub <ArrowRight size={15}/></Link>
         </div>
-        <div className="grid-3">
-          <article className="card service-card">
-            <CircleUserRound size={24}/>
-            <h3>New to the platform?</h3>
-            <p>Create your profile first. You can save progress and return before submitting it for review.</p>
-            <Link className="btn btn-primary" href="/auth/join/va">Create a Virtual Assistant profile</Link>
+
+        {featuredCourse ? (
+          <article className="va-hub-course">
+            <div className="va-hub-course-main">
+              <span className="va-hub-course-icon"><GraduationCap size={22}/></span>
+              <div>
+                <div className="va-hub-course-status">Available now</div>
+                <h3>{featuredCourse.title}</h3>
+                <p>{featuredCourse.summary}</p>
+                <div className="va-hub-course-meta">
+                  <span><BookOpenCheck size={15}/>{featuredCourse.lesson_count} lessons</span>
+                  <span><FileCheck2 size={15}/>{duration(featuredCourse.estimated_minutes)}</span>
+                  <span><Award size={15}/>Free completion certificate</span>
+                </div>
+              </div>
+            </div>
+            <div className="va-hub-course-action">
+              <Link className="btn btn-primary" href="/training">See course details <ArrowRight size={15}/></Link>
+              <small>Training does not create or publish a candidate profile.</small>
+            </div>
           </article>
-          <article className="card service-card">
-            <BriefcaseBusiness size={24}/>
-            <h3>Ready to find work?</h3>
-            <p>Browse reviewed roles with published responsibilities, hours, schedule, and compensation range.</p>
-            <Link className="btn" href="/jobs">Browse available jobs</Link>
-          </article>
-          <article className="card service-card">
-            <LogIn size={24}/>
-            <h3>Already have an account?</h3>
-            <p>Return to your private workspace to finish your profile, check applications, and read messages.</p>
-            <Link className="btn" href="/auth/login?next=%2Fworkspace%2Fva">Log in to your workspace</Link>
-          </article>
-        </div>
+        ) : (
+          <div className="va-hub-empty">
+            <strong>New courses are being reviewed.</strong>
+            <p>We only show courses here after their lessons are published and ready to take.</p>
+          </div>
+        )}
+
+        {courses.length > 1 ? (
+          <div className="va-hub-more-courses">
+            {courses.slice(1, 4).map((course) => (
+              <Link href="/training" key={course.id}>
+                <strong>{course.title}</strong>
+                <span>{course.lesson_count} lessons · {duration(course.estimated_minutes)}</span>
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
 
-    <section className="section">
+    <section className="va-hub-section va-hub-next">
       <div className="container">
-        <div className="section-head">
-          <h2>How the Virtual Assistant process works.</h2>
-          <p>Complete the evidence recruiters and clients need before you apply.</p>
+        <div className="va-hub-section-head va-hub-section-head-narrow">
+          <div>
+            <span className="va-hub-kicker">Choose your next step</span>
+            <h2>You do not need to do everything at once.</h2>
+            <p>Learning, applying, and building a public candidate profile are separate choices.</p>
+          </div>
         </div>
-        <div className="process-grid">
-          {steps.map(([number, title, copy]) => <div className="process-step" key={number}><div className="process-number">{number}</div><h3>{title}</h3><p className="muted">{copy}</p></div>)}
+        <div className="va-hub-next-list">
+          <Link href="/training">
+            <span className="va-hub-next-icon"><GraduationCap size={20}/></span>
+            <div><strong>I want to improve my skills first.</strong><p>Start free training and save your progress without entering the talent marketplace.</p></div>
+            <span>Free training <ArrowRight size={15}/></span>
+          </Link>
+          <Link href="/auth/join/va">
+            <span className="va-hub-next-icon"><CircleUserRound size={20}/></span>
+            <div><strong>I am ready to build my candidate profile.</strong><p>Add your experience, tools, work samples, availability, and preferred rate for recruiter review.</p></div>
+            <span>Create profile <ArrowRight size={15}/></span>
+          </Link>
+          <Link href="/jobs">
+            <span className="va-hub-next-icon"><BriefcaseBusiness size={20}/></span>
+            <div><strong>I want to see current opportunities.</strong><p>Review responsibilities, hours, schedule, and compensation before deciding whether to apply.</p></div>
+            <span>Browse jobs <ArrowRight size={15}/></span>
+          </Link>
         </div>
       </div>
     </section>
 
-    <section className="section section-white">
-      <div className="container grid-2">
+    <section className="va-hub-section va-hub-process">
+      <div className="container">
+        <div className="va-hub-section-head va-hub-section-head-narrow">
+          <div>
+            <span className="va-hub-kicker">How it fits together</span>
+            <h2>From learning to paid work, without fake shortcuts.</h2>
+          </div>
+        </div>
+        <div className="va-hub-process-grid">
+          {steps.map(([number, title, copy]) => (
+            <div className="va-hub-process-step" key={number}>
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section className="va-hub-section va-hub-boundaries">
+      <div className="container va-hub-boundaries-grid">
         <div>
-          <span className="kicker">What approval means</span>
-          <h2>A complete profile is reviewed before it appears publicly.</h2>
-          <p className="muted">Recruiters review your professional experience, role-specific skills, communication, availability, preferred rate, and submitted evidence. Approval is not automatic, and completing a profile does not guarantee placement.</p>
+          <span className="va-hub-kicker">What stays separate</span>
+          <h2>Training is not a placement promise.</h2>
+          <p>You can learn without publishing a candidate profile. You can apply for jobs without completing training. Recruiters and clients still evaluate actual experience, communication, evidence, availability, and role fit.</p>
         </div>
-        <div className="card">
-          <div className="row"><ShieldCheck size={22}/><strong>No application or placement fee for Virtual Assistants</strong></div>
-          <p className="muted">You can create a profile, complete screening, apply to roles, and receive your agreed compensation without paying VirtualAssistant.com.ph a worker fee.</p>
-          <Link className="text-link" href="/how-vetting-works">See how screening works</Link>
+        <div className="va-hub-boundary-list">
+          <div><ShieldCheck size={19}/><span><strong>No worker fee</strong><small>Creating a profile, applying, and receiving your agreed compensation do not require a VirtualAssistant.com.ph worker fee.</small></span></div>
+          <div><BookOpenCheck size={19}/><span><strong>Training remains optional</strong><small>Courses are there to build skill and proof, not to manufacture a hiring credential.</small></span></div>
+          <div><CircleUserRound size={19}/><span><strong>Public profile requires review</strong><small>A candidate profile only appears publicly after the relevant review and consent steps.</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section className="va-hub-section va-hub-resources">
+      <div className="container">
+        <div className="va-hub-section-head">
+          <div>
+            <span className="va-hub-kicker">Career guides</span>
+            <h2>Use a guide when you need a specific answer.</h2>
+          </div>
+          <Link className="va-hub-text-link" href="/resources">All VA resources <ArrowRight size={15}/></Link>
+        </div>
+        <div className="va-hub-resource-links">
+          {resources.map(([href, title]) => <Link href={href} key={href}><span>{title}</span><ArrowRight size={15}/></Link>)}
+        </div>
+      </div>
+    </section>
+
+    <section className="va-hub-close">
+      <div className="container va-hub-close-inner">
+        <div>
+          <span className="va-hub-kicker">Ready to start?</span>
+          <h2>Choose the step that matches where you are now.</h2>
+        </div>
+        <div className="va-hub-actions">
+          <Link className="btn btn-primary btn-lg" href="/training">Start with free training</Link>
+          <Link className="btn btn-lg" href="/jobs">Browse VA jobs</Link>
         </div>
       </div>
     </section>

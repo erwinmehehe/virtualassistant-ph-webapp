@@ -1418,3 +1418,105 @@
 .dashboard-shell .workspace-person-cell > span:last-child {
   min-width: 0;
 }
+
+
+/* Verified training evidence shared across VA, recruiter, and client workspaces */
+.training-credentials-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.training-credentials-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+.training-credentials-head h3 {
+  margin: 3px 0 0;
+  font-size: 15px;
+  letter-spacing: -.015em;
+}
+.training-credentials-kicker {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #475467;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .065em;
+  text-transform: uppercase;
+}
+.training-credential-list {
+  display: grid;
+  margin-top: 13px;
+  border-top: 1px solid #eaecf0;
+}
+.training-credential-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr);
+  gap: 9px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eaecf0;
+}
+.training-credential-check {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #067647;
+}
+.training-credential-item strong,
+.training-credential-item span,
+.training-credential-item small {
+  display: block;
+}
+.training-credential-item strong {
+  color: #101828;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.training-credential-item span {
+  margin-top: 2px;
+  color: #667085;
+  font-size: 11px;
+}
+.training-credential-item small {
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 10px;
+}
+.training-credentials-note,
+.training-credentials-empty {
+  margin: 11px 0 0;
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.training-credentials-card > .btn {
+  margin-top: 11px;
+}
+.shortlist-training-evidence {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eaecf0;
+}
+.shortlist-training-evidence > span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .training-credentials-head {
+    align-items: flex-start;
+  }
+}

@@ -77,7 +77,6 @@ test("training learner journey remains connected from signup through verified hi
   for (const eventName of [
     "training_landing_view",
     "training_account_click",
-    "training_account_created",
     "training_course_start",
     "training_lesson_complete",
     "training_assessment_submit",
@@ -85,6 +84,9 @@ test("training learner journey remains connected from signup through verified hi
   ]) {
     assert.match(analyticsRoute, new RegExp(eventName));
   }
+  // Account creation is a server-side product event, so it intentionally does
+  // not need to be accepted by the public browser analytics endpoint.
+  assert.match(signup, /recordProductEvent\("training_account_created"/);
   assert.match(adminAnalytics, /Training engagement/);
   assert.match(adminAnalytics, /Assessment submissions/);
 });

@@ -71,6 +71,16 @@ export type TrainingCourseSummary = CourseRow & {
   certificate: CertificateRow | null;
 };
 
+export type TrainingLearningPathSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  country_focus: string | null;
+  status: "draft" | "published" | "archived";
+  courses: TrainingCourseSummary[];
+};
+
 export type TrainingModule = ModuleRow & {
   lessons: Array<LessonRow & { completed: boolean }>;
 };
@@ -112,11 +122,11 @@ export async function getTrainingDashboard(userId: string) {
     .order("recommended_order", { ascending: true })
     .order("title");
 
-  if (error) return { courses: [] as TrainingCourseSummary[], error: error.message };
+  if (error) return { courses: [] as TrainingCourseSummary[], paths: [] as TrainingLearningPathSummary[], error: error.message };
 
   const courses = (courseData || []) as CourseRow[];
   const courseIds = courses.map((course) => course.id);
-  if (!courseIds.length) return { courses: [] as TrainingCourseSummary[], error: null };
+  if (!courseIds.length) return { courses: [] as TrainingCourseSummary[], paths: [] as TrainingLearningPathSummary[], error: null };
 
   const { data: moduleData } = await supabase
     .from("training_modules")
@@ -185,7 +195,40 @@ export async function getTrainingDashboard(userId: string) {
     };
   });
 
-  return { courses: summaries, error: null };
+  const { data: pathData } = await supabase
+    .from("training_learning_paths")
+    .select("id,slug,title,summary,country_focus,status")
+    .eq("status", "published")
+    .order("title");
+
+  const pathRows = (pathData || []) as Array<{
+    id: string;
+    slug: string;
+    title: string;
+    summary: string | null;
+    country_focus: string | null;
+    status: "draft" | "published" | "archived";
+  }>;
+  const pathIds = pathRows.map((item) => item.id);
+  const { data: pathCourseData } = pathIds.length
+    ? await supabase
+        .from("training_learning_path_courses")
+        .select("path_id,course_id,position")
+        .in("path_id", pathIds)
+        .order("position")
+    : { data: [] };
+
+  const pathCourses = (pathCourseData || []) as Array<{ path_id: string; course_id: string; position: number }>;
+  const paths: TrainingLearningPathSummary[] = pathRows.map((item) => ({
+    ...item,
+    courses: pathCourses
+      .filter((relation) => relation.path_id === item.id)
+      .sort((a, b) => a.position - b.position)
+      .map((relation) => summaries.find((course) => course.id === relation.course_id))
+      .filter((course): course is TrainingCourseSummary => Boolean(course)),
+  }));
+
+  return { courses: summaries, paths, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {
@@ -293,6 +336,7 @@ export async function getTrainingAdminSummary() {
   if (error) {
     return {
       courses: [] as Array<CourseRow & { modules: number; lessons: number; publishedLessons: number }>,
+      paths: [] as Array<{ id: string; slug: string; title: string; summary: string | null; country_focus: string | null; status: string; courseCount: number }>,
       totals: { courses: 0, published: 0, lessons: 0 },
       error: error.message,
     };
@@ -325,8 +369,33 @@ export async function getTrainingAdminSummary() {
     };
   });
 
+  const { data: adminPathData } = await supabase
+    .from("training_learning_paths")
+    .select("id,slug,title,summary,country_focus,status")
+    .order("title");
+  const adminPaths = (adminPathData || []) as Array<{
+    id: string;
+    slug: string;
+    title: string;
+    summary: string | null;
+    country_focus: string | null;
+    status: string;
+  }>;
+  const adminPathIds = adminPaths.map((item) => item.id);
+  const { data: adminPathCourseData } = adminPathIds.length
+    ? await supabase
+        .from("training_learning_path_courses")
+        .select("path_id,course_id")
+        .in("path_id", adminPathIds)
+    : { data: [] };
+  const adminPathCourses = (adminPathCourseData || []) as Array<{ path_id: string; course_id: string }>;
+
   return {
     courses: hydrated,
+    paths: adminPaths.map((item) => ({
+      ...item,
+      courseCount: adminPathCourses.filter((relation) => relation.path_id === item.id).length,
+    })),
     totals: {
       courses: hydrated.length,
       published: hydrated.filter((course) => course.status === "published").length,

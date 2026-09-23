@@ -15,9 +15,11 @@ function duration(minutes: number) {
 
 export default async function TrainingDashboardPage() {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
-  const { courses, error } = await getTrainingDashboard(userId);
+  const { courses, paths, error } = await getTrainingDashboard(userId);
   const enrolled = courses.filter((course) => course.enrolled);
   const certificates = courses.filter((course) => course.certificate && !course.certificate.revoked_at);
+  const pathCourseIds = new Set(paths.flatMap((path) => path.courses.map((course) => course.id)));
+  const generalCourses = courses.filter((course) => !pathCourseIds.has(course.id));
 
   return (
     <div className="dash-page role-overview">
@@ -87,6 +89,38 @@ export default async function TrainingDashboardPage() {
         </section>
       ) : null}
 
+      {paths.map((learningPath) => (
+        <section className="card dashboard-section-card" key={learningPath.id}>
+          <div className="dashboard-section-head">
+            <div>
+              <span className="small">{learningPath.country_focus || "Optional learning path"}</span>
+              <h2>{learningPath.title}</h2>
+              <p>{learningPath.summary}</p>
+            </div>
+          </div>
+          <div className="dash-actions">
+            {learningPath.courses.map((course, index) => (
+              <article className="dash-action" key={course.id}>
+                <span className="dash-action-count">{index + 1}</span>
+                <span className="dash-action-copy">
+                  <span className="dash-action-title"><strong>{course.title}</strong><span className="badge">{course.category}</span></span>
+                  <small>{course.summary || "Practical training with clear explanations and realistic exercises."}</small>
+                  <small className="muted">{course.lessonCount} lesson{course.lessonCount === 1 ? "" : "s"} · {duration(course.estimated_minutes)}</small>
+                </span>
+                {course.enrolled ? (
+                  <Link className="btn btn-sm btn-primary" href={`/workspace/training/courses/${course.slug}`} data-track="training_course_continue">Continue</Link>
+                ) : (
+                  <form action={startTrainingCourseAction}>
+                    <input type="hidden" name="course_id" value={course.id}/>
+                    <button className="btn btn-sm btn-primary" type="submit" data-track="training_course_start_click">Start free</button>
+                  </form>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head">
           <div>
@@ -95,9 +129,9 @@ export default async function TrainingDashboardPage() {
           </div>
         </div>
 
-        {courses.length ? (
+        {generalCourses.length ? (
           <div className="dash-actions">
-            {courses.map((course) => (
+            {generalCourses.map((course) => (
               <article className="dash-action" key={course.id}>
                 <span className="dash-action-count"><BookOpenCheck size={17}/></span>
                 <span className="dash-action-copy">
@@ -119,7 +153,7 @@ export default async function TrainingDashboardPage() {
               </article>
             ))}
           </div>
-        ) : !error ? (
+        ) : !error && paths.length === 0 ? (
           <div className="dashboard-caught-up">
             <BookOpenCheck size={22}/>
             <div>

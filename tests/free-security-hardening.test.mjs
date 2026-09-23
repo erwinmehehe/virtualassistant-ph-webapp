@@ -74,6 +74,22 @@ test("expected recruiter guardrails stay user-facing instead of polluting error 
   assert.match(list, /params\.error \? <div className="alert" role="alert">\{params\.error\}<\/div>/);
 });
 
+test("VA application entry points require moderated public jobs and keep private snapshot fields out", async () => {
+  const [applications, interest] = await Promise.all([
+    read("src/app/actions/applications.ts"),
+    read("src/app/actions/va-interest.ts"),
+  ]);
+
+  for (const source of [applications, interest]) {
+    assert.match(source, /\.eq\("status",\s*"published"\)/);
+    assert.match(source, /\.eq\("moderation_status",\s*"clear"\)/);
+    assert.match(source, /\.not\("client_id",\s*"is",\s*null\)/);
+    assert.doesNotMatch(source, /resume_path:\s*va\.resume_path/);
+    assert.doesNotMatch(source, /linkedin_url:\s*va\.linkedin_url/);
+    assert.doesNotMatch(source, /portfolio_url:\s*va\.portfolio_url/);
+  }
+});
+
 test("Turnstile remains optional but production key names are documented", async () => {
   const [env, turnstile] = await Promise.all([
     read(".env.example"),

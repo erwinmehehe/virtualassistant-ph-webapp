@@ -47,7 +47,9 @@ test("new passwords are checked against HIBP using k-anonymity without sending t
   assert.match(helper, /https:\/\/api\.pwnedpasswords\.com\/range\/\$\{prefix\}/);
   assert.match(helper, /"Add-Padding": "true"/);
   assert.match(helper, /AbortSignal\.timeout\(2500\)/);
-  assert.doesNotMatch(helper, /fetch\([^\n]*password/);
+  assert.doesNotMatch(helper, /range\/\$\{password\}/);
+  assert.doesNotMatch(helper, /body:\s*password/);
+  assert.doesNotMatch(helper, /response:\s*password/);
 
   assert.match(auth, /isKnownCompromisedPassword\(parsed\.data\.password\)/);
   assert.match(auth, /isKnownCompromisedPassword\(password\)/);

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { clientMatchLabel } from "@/lib/matching";
 import { maskVaName } from "@/lib/va-identity";
+import { GraduationCap } from "lucide-react";
+import type { TrainingCredential } from "@/lib/training-credentials";
 
 export function ClientShortlistCandidateCard({
   fullName,
@@ -13,6 +15,7 @@ export function ClientShortlistCandidateCard({
   skills,
   tools,
   recommendation,
+  trainingCredentials,
   status,
   actions,
   feedback,
@@ -27,6 +30,7 @@ export function ClientShortlistCandidateCard({
   skills?: string[] | null;
   tools?: string[] | null;
   recommendation?: string | null;
+  trainingCredentials?: TrainingCredential[];
   status?: ReactNode;
   actions?: ReactNode;
   feedback?: ReactNode;
@@ -49,6 +53,15 @@ export function ClientShortlistCandidateCard({
     <div className="pill-list">
       {evidence.map((item, index) => <span className="badge" key={`${item}-${index}`}>{item}</span>)}
     </div>
+    {trainingCredentials?.length ? (
+      <div className="shortlist-training-evidence">
+        <span><GraduationCap size={14}/> Training completed</span>
+        <div className="pill-list">
+          {trainingCredentials.slice(0, 2).map((credential) => <span className="badge badge-success" key={credential.id}>{credential.courseTitle}</span>)}
+          {trainingCredentials.length > 2 ? <span className="badge">+{trainingCredentials.length - 2}</span> : null}
+        </div>
+      </div>
+    ) : null}
     {recommendation
       ? <div className="info-banner"><strong>Why we recommend this VA</strong><p style={{margin:"6px 0 0"}}>{recommendation}</p></div>
       : <div className="info-banner"><strong>Recruiter reviewed</strong><p style={{margin:"6px 0 0"}}>This VA passed our internal screening for this role. Ask your recruiter if you want more context before deciding.</p></div>}

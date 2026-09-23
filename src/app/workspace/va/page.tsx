@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, Bell, BriefcaseBusiness, Eye, FileText, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, Eye, FileText, ShieldCheck } from "lucide-react";
 import { missingForPublic } from "@/lib/public-visibility";
 import { requireRoleFast } from "@/lib/auth";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -52,7 +52,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   }else if(!vetted){
     nextAction={title:"Continue recruiter vetting",copy:`Complete the skills test, video intro, recruiter review, and final approval. You are ${vettingReadiness.score}% through vetting.`,href:"/workspace/va/vetting",label:"Continue vetting",icon:ShieldCheck};
   }else if(pipeline.offered){
-    nextAction={title:`You have ${pipeline.offered} placement offer${pipeline.offered===1?"":"s"}`,copy:"Review the final rate, hours, schedule, and start date before accepting.",href:"/workspace/va/offers",label:"Review offers",icon:Sparkles};
+    nextAction={title:`You have ${pipeline.offered} placement offer${pipeline.offered===1?"":"s"}`,copy:"Review the final rate, hours, schedule, and start date before accepting.",href:"/workspace/va/offers",label:"Review offers",icon:BriefcaseBusiness};
   }else if(pipeline.interview){
     nextAction={title:`Prepare for ${pipeline.interview} interview${pipeline.interview===1?"":"s"}`,copy:"Open the interview workspace for the schedule, meeting link, and role details.",href:"/workspace/va/interviews",label:"Open interviews",icon:BriefcaseBusiness};
   }else if(pendingInvites){
@@ -60,7 +60,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     }else if(completion.score<100&&completion.next){
     nextAction={title:"Keep your vetted profile current",copy:`Complete ${completion.next.label} so recruiters have stronger evidence when matching you to client roles.`,href:completion.next.href,label:"Update profile",icon:FileText};
   }else{
-    nextAction={title:"Your vetted profile is ready",copy:"Keep your skills, rate, hours, and availability current. You can express interest in recruiter-reviewed roles, but recruiters control client presentation.",href:"/workspace/va/jobs",label:"Browse roles",icon:Sparkles};
+    nextAction={title:"Your vetted profile is ready",copy:"Keep your skills, rate, hours, and availability current. You can express interest in recruiter-reviewed roles, but recruiters control client presentation.",href:"/workspace/va/jobs",label:"Browse roles",icon:BriefcaseBusiness};
   }
   const NextIcon=nextAction.icon;
 
@@ -75,9 +75,9 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   return <div className="dash-page role-overview va-overview">
     <DashboardDegradedNotice issues={issues}/>
     {params.setup==="complete"?<div className="success-banner" role="status"><strong>Quick setup saved.</strong> Your profile is now {completion.score}% complete. Follow the next action below and finish the remaining items in smaller steps.</div>:null}
-    <DashHeader kicker="Vetted VA workspace" title="What should you do next?" subtitle={<>Stay recruiter-ready, respond quickly to real opportunities, and manage interviews, offers, and active placements from the right workspace. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} actions={<Link className="dash-btn dash-btn-dark" href="/workspace/va/jobs">Browse roles</Link>}/>
+    <DashHeader title="VA dashboard" subtitle="Keep your profile current and manage applications, interviews, offers, and placements." actions={<Link className="dash-btn dash-btn-dark" href="/workspace/va/jobs">Find jobs</Link>}/>
 
-    <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next best action</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
+    <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next step</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
 
     <div className="va-status-grid">
       <Link className="status-summary-card" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`${completion.next.label} to strengthen recruiter evidence.`:"Ready for recruiter matching"}</small></Link>

@@ -13,7 +13,7 @@ type Snapshot = {
 
 const split = (value: FormDataEntryValue | null) => String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean);
 
-export function LiveProfileStrength({ formId, initial }: { formId: string; initial: Snapshot }) {
+export function LiveProfileStrength({ formId, initial, hasAvatar = false }: { formId: string; initial: Snapshot; hasAvatar?: boolean }) {
   const [state, setState] = useState(() => ({ score: 0, done: 0, total: 11, years: Number(initial.years_experience || 0), next: "Complete your profile", nextHref: "/workspace/va/profile" }));
   const initialResume = useMemo(() => Boolean(initial.resume_path), [initial.resume_path]);
 
@@ -23,18 +23,19 @@ export function LiveProfileStrength({ formId, initial }: { formId: string; initi
     const calculate = () => {
       const fd = new FormData(form);
       const resume = fd.get("resume");
+      const avatar = fd.get("avatar");
       const items = [
+        [hasAvatar || (avatar instanceof File && avatar.size > 0), 10, "Add a professional profile photo", "#basics"],
         [Boolean(String(fd.get("headline") || "").trim()), 10, "Add a professional headline", "#basics"],
         [String(fd.get("bio") || "").trim().length >= 80, 15, "Write a stronger professional summary", "#basics"],
-        [Boolean(String(fd.get("primary_category") || "").trim()), 10, "Choose your VA category", "#expertise"],
+        [Boolean(String(fd.get("primary_category") || "").trim()), 5, "Choose your VA category", "#expertise"],
         [split(fd.get("skills")).length >= 5, 15, "Add at least 5 skills", "#expertise"],
-        [split(fd.get("tools")).length >= 3, 10, "Add at least 3 tools", "#expertise"],
-        [String(fd.get("years_experience") || "").trim() !== "", 5, "Add your years of experience", "#expertise"],
+        [split(fd.get("tools")).length >= 3, 5, "Add at least 3 tools", "#expertise"],
+        [Number(fd.get("years_experience") || 0) >= 1, 10, "Add your years of experience", "#expertise"],
         [Number(fd.get("weekly_hours") || 0) > 0, 10, "Set weekly availability", "#availability"],
         [Number(fd.get("hourly_rate") || 0) >= 5, 10, "Set your preferred rate", "#availability"],
         [initialResume || (resume instanceof File && resume.size > 0), 5, "Upload your resume", "#resume"],
-        [Boolean(String(fd.get("portfolio_url") || "").trim() || String(fd.get("linkedin_url") || "").trim()), 5, "Add a portfolio or LinkedIn", "#links"],
-        [Boolean(String(fd.get("schedule") || "").trim()), 5, "Add your preferred schedule", "#availability"]
+        [Boolean(String(fd.get("portfolio_url") || "").trim() || String(fd.get("linkedin_url") || "").trim()), 5, "Add a portfolio or LinkedIn", "#links"]
       ] as const;
       const score = items.reduce((sum, [done, weight]) => sum + (done ? weight : 0), 0);
       const done = items.filter(([ok]) => ok).length;
@@ -56,7 +57,7 @@ export function LiveProfileStrength({ formId, initial }: { formId: string; initi
       form.removeEventListener("change", calculate);
       resumeInput?.removeEventListener("change", calculate);
     };
-  }, [formId, initialResume]);
+  }, [formId, initialResume, hasAvatar]);
 
   const eligible = state.years >= PUBLIC_VA_MIN_EXPERIENCE;
   return <div className="card profile-strength-card live-strength-card" aria-live="polite">

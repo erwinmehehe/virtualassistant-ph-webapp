@@ -27,7 +27,6 @@ export default function NewTrainingCoursePage() {
           </div>
           <div className="grid-2">
             <label className="field"><span>Roadmap order</span><input name="recommended_order" type="number" min={1} max={999} placeholder="Optional"/></label>
-            <label className="field"><span>Review requirement</span><select name="review_requirement" defaultValue="editorial"><option value="editorial">Editorial review</option><option value="specialist">Editorial + specialist review</option></select></label>
           </div>
           <label className="field"><span>Course notice / affiliation disclosure</span><textarea name="trademark_disclaimer" maxLength={1000} rows={3} placeholder="Use for product currency, affiliation, regulatory, or jurisdiction notes that belong at course level."/></label>
           <div><button className="btn btn-primary" type="submit">Create draft course</button></div>

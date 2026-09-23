@@ -1,0 +1,582 @@
+.va-hub {
+  background:
+    radial-gradient(circle at 82% 4%, rgba(68, 76, 231, 0.08), transparent 28rem),
+    #f8f9fc;
+  color: #101828;
+}
+
+.va-hub .container {
+  width: min(1180px, calc(100% - 40px));
+}
+
+.va-hub-hero {
+  padding: 84px 0 68px;
+  border-bottom: 1px solid #eaecf0;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.va-hub-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.72fr);
+  gap: 64px;
+  align-items: center;
+}
+
+.va-hub-kicker {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: #444ce7;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.va-hub-hero-copy h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.va-hub-hero-copy > p {
+  max-width: 720px;
+  margin: 24px 0 0;
+  color: #475467;
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.va-hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.va-hub-login {
+  margin-top: 16px !important;
+  font-size: 14px !important;
+}
+
+.va-hub-login a,
+.va-hub-text-link {
+  color: #3538cd;
+  font-weight: 700;
+}
+
+.va-hub-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 28px;
+  color: #475467;
+  font-size: 13px;
+}
+
+.va-hub-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.va-hub-path {
+  overflow: hidden;
+  border: 1px solid #dfe3f1;
+  border-radius: 26px;
+  background: #101828;
+  color: #fff;
+  box-shadow: 0 24px 70px rgba(16, 24, 40, 0.14);
+}
+
+.va-hub-path-head {
+  padding: 28px 28px 22px;
+}
+
+.va-hub-path-head span {
+  display: block;
+  margin-bottom: 6px;
+  color: #a4bcfd;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.va-hub-path-head strong {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.va-hub-path > a {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 28px;
+  border-top: 1px solid rgba(255,255,255,.09);
+  color: #fff;
+  text-decoration: none;
+}
+
+.va-hub-path > a:hover {
+  background: rgba(255,255,255,.045);
+}
+
+.va-hub-path > a > span:first-child {
+  color: #a4bcfd;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.va-hub-path > a div {
+  display: grid;
+  gap: 4px;
+}
+
+.va-hub-path > a strong {
+  font-size: 15px;
+}
+
+.va-hub-path > a small {
+  color: #98a2b3;
+  font-size: 12px;
+}
+
+.va-hub-section {
+  padding: 74px 0;
+}
+
+.va-hub-section + .va-hub-section {
+  border-top: 1px solid #eaecf0;
+}
+
+.va-hub-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 30px;
+}
+
+.va-hub-section-head-narrow {
+  max-width: 760px;
+}
+
+.va-hub-section-head h2,
+.va-hub-boundaries h2,
+.va-hub-close h2 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+}
+
+.va-hub-section-head p,
+.va-hub-boundaries p {
+  margin: 12px 0 0;
+  color: #667085;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.va-hub-text-link {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.va-hub-training {
+  background: #fff;
+}
+
+.va-hub-course {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: center;
+  padding: 32px;
+  border: 1px solid #dfe3f1;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(68, 76, 231, 0.035), rgba(18, 183, 106, 0.025)),
+    #fff;
+}
+
+.va-hub-course-main {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 18px;
+}
+
+.va-hub-course-icon,
+.va-hub-next-icon {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #eef0ff;
+  color: #444ce7;
+}
+
+.va-hub-course-status {
+  margin-bottom: 7px;
+  color: #027a48;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.va-hub-course h3 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.025em;
+}
+
+.va-hub-course p {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: #667085;
+  line-height: 1.6;
+}
+
+.va-hub-course-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 18px;
+  color: #475467;
+  font-size: 13px;
+}
+
+.va-hub-course-meta span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.va-hub-course-action {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  max-width: 250px;
+  text-align: right;
+}
+
+.va-hub-course-action small {
+  color: #667085;
+  line-height: 1.45;
+}
+
+.va-hub-more-courses {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.va-hub-more-courses a,
+.va-hub-resource-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.va-hub-more-courses a {
+  display: grid;
+  gap: 5px;
+  padding: 18px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.va-hub-more-courses span {
+  color: #667085;
+  font-size: 13px;
+}
+
+.va-hub-next-list {
+  border-top: 1px solid #dfe3f1;
+}
+
+.va-hub-next-list > a {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid #dfe3f1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.va-hub-next-list > a > div {
+  max-width: 760px;
+}
+
+.va-hub-next-list strong {
+  font-size: 18px;
+}
+
+.va-hub-next-list p {
+  margin: 5px 0 0;
+  color: #667085;
+  line-height: 1.55;
+}
+
+.va-hub-next-list > a > span:last-child {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: #3538cd;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.va-hub-process {
+  background: #fff;
+}
+
+.va-hub-process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid #dfe3f1;
+}
+
+.va-hub-process-step {
+  padding: 26px 26px 0 0;
+}
+
+.va-hub-process-step + .va-hub-process-step {
+  padding-left: 26px;
+  border-left: 1px solid #eaecf0;
+}
+
+.va-hub-process-step > span {
+  color: #444ce7;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.va-hub-process-step h3 {
+  margin: 13px 0 8px;
+  font-size: 18px;
+}
+
+.va-hub-process-step p {
+  margin: 0;
+  color: #667085;
+  line-height: 1.6;
+}
+
+.va-hub-boundaries-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 72px;
+  align-items: start;
+}
+
+.va-hub-boundary-list {
+  border-top: 1px solid #dfe3f1;
+}
+
+.va-hub-boundary-list > div {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 14px;
+  padding: 21px 0;
+  border-bottom: 1px solid #dfe3f1;
+}
+
+.va-hub-boundary-list svg {
+  margin-top: 2px;
+  color: #444ce7;
+}
+
+.va-hub-boundary-list span {
+  display: grid;
+  gap: 5px;
+}
+
+.va-hub-boundary-list small {
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.va-hub-resources {
+  background: #fff;
+}
+
+.va-hub-resource-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 28px;
+  border-top: 1px solid #dfe3f1;
+}
+
+.va-hub-resource-links a {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #dfe3f1;
+  font-weight: 700;
+}
+
+.va-hub-resource-links a:hover,
+.va-hub-next-list > a:hover,
+.va-hub-more-courses a:hover {
+  color: #3538cd;
+}
+
+.va-hub-close {
+  padding: 66px 0;
+  background: #101828;
+  color: #fff;
+}
+
+.va-hub-close-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 36px;
+  align-items: center;
+}
+
+.va-hub-close .va-hub-kicker {
+  color: #a4bcfd;
+}
+
+.va-hub-close .va-hub-actions {
+  margin-top: 0;
+}
+
+.va-hub-close .btn:not(.btn-primary) {
+  border-color: #344054;
+  color: #fff;
+  background: transparent;
+}
+
+.va-hub-empty {
+  padding: 26px 0;
+  border-top: 1px solid #dfe3f1;
+  border-bottom: 1px solid #dfe3f1;
+}
+
+.va-hub-empty p {
+  color: #667085;
+}
+
+@media (max-width: 960px) {
+  .va-hub-hero-grid,
+  .va-hub-boundaries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-hub-hero-grid {
+    gap: 38px;
+  }
+
+  .va-hub-process-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .va-hub-process-step:nth-child(3) {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .va-hub-course {
+    grid-template-columns: 1fr;
+  }
+
+  .va-hub-course-action {
+    justify-items: start;
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (max-width: 700px) {
+  .va-hub .container {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .va-hub-hero {
+    padding: 54px 0 46px;
+  }
+
+  .va-hub-hero-copy h1 {
+    font-size: clamp(40px, 12vw, 54px);
+  }
+
+  .va-hub-hero-copy > p {
+    font-size: 17px;
+  }
+
+  .va-hub-actions {
+    display: grid;
+  }
+
+  .va-hub-actions .btn {
+    width: 100%;
+  }
+
+  .va-hub-trust {
+    display: grid;
+    gap: 9px;
+  }
+
+  .va-hub-path > a {
+    padding: 17px 20px;
+  }
+
+  .va-hub-section {
+    padding: 54px 0;
+  }
+
+  .va-hub-section-head {
+    display: grid;
+    align-items: start;
+  }
+
+  .va-hub-course {
+    padding: 22px;
+  }
+
+  .va-hub-course-main {
+    grid-template-columns: 1fr;
+  }
+
+  .va-hub-more-courses,
+  .va-hub-resource-links,
+  .va-hub-process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-hub-process-step,
+  .va-hub-process-step + .va-hub-process-step,
+  .va-hub-process-step:nth-child(3) {
+    padding: 22px 0;
+    border-left: 0;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  .va-hub-next-list > a {
+    grid-template-columns: 44px 1fr;
+  }
+
+  .va-hub-next-list > a > span:last-child {
+    grid-column: 2;
+  }
+
+  .va-hub-close-inner {
+    display: grid;
+  }
+}

@@ -10,6 +10,7 @@ import { servicePageBySlug } from "@/lib/service-pages";
 import { industryBySlug } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
 import { organizationRef } from "@/lib/organization";
+import { blogHref, softwareBlogPosts } from "@/lib/blog";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -64,6 +65,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
 
   const relatedServices = page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean);
+  const relatedGuides = softwareBlogPosts(page.slug, 4);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;
@@ -192,6 +194,11 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     {relatedIndustries.length ? <section className="section section-white"><div className="container"><div className="section-head"><h2>Related industries.</h2></div>
       <div className="grid-3">{relatedIndustries.map((industry) => industry ? <Link className="card card-hover" href={`/industries/${industry.slug}`} key={industry.slug}><h3>{industry.label}</h3><p className="muted small">{industry.metaDescription}</p></Link> : null)}</div>
     </div></section> : null}
+
+    {relatedGuides.length ? <section className="section section-white"><div className="container"><div className="section-head"><h2>{page.software} guides.</h2><p>Use these workflow guides to scope the role before you hire.</p></div>
+      <div className="grid-3">{relatedGuides.map((guide) => <Link className="card card-hover" href={blogHref(guide)} key={guide.slug}><h3>{guide.title}</h3><p className="muted small">{guide.excerpt}</p><span className="text-link">Read guide <ArrowRight size={13}/></span></Link>)}</div>
+    </div></section> : null}
+
 
     <section className="section"><div className="container faq-narrow"><div className="section-head specialty-section-head"><h2>{page.software} virtual assistant questions.</h2></div>
       <div className="faq-list">{faqs.map((faq) => <details className="faq-item" key={faq.q}><summary>{faq.q}</summary><p>{faq.a}</p></details>)}</div>

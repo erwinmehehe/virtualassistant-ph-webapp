@@ -208,6 +208,47 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
   revalidatePath("/training");
 }
 
+export async function setTrainingLearningPathStatusAction(formData: FormData) {
+  await requireRoleFast("admin");
+  const pathId = requiredString(formData, "path_id");
+  const status = requiredString(formData, "status");
+  if (!pathId || !["draft", "published", "archived"].includes(status)) {
+    throw new Error("Invalid learning path status.");
+  }
+
+  const admin = createAdminClient();
+
+  if (status === "published") {
+    const { data: relations } = await admin
+      .from("training_learning_path_courses")
+      .select("course_id")
+      .eq("path_id", pathId);
+    const courseIds = (relations || []).map((item) => item.course_id);
+    if (!courseIds.length) throw new Error("Add courses before publishing this learning path.");
+
+    const { data: publishedCourses } = await admin
+      .from("training_courses")
+      .select("id")
+      .in("id", courseIds)
+      .eq("status", "published");
+
+    if (!(publishedCourses || []).length) {
+      throw new Error("Publish at least one reviewed course before publishing this learning path.");
+    }
+  }
+
+  const { error } = await admin
+    .from("training_learning_paths")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", pathId);
+  if (error) throw error;
+
+  revalidateTag("public-training");
+  revalidatePath("/workspace/admin/training");
+  revalidatePath("/workspace/training");
+  revalidatePath("/training");
+}
+
 export async function createTrainingModuleAction(formData: FormData) {
   await requireRoleFast("admin");
   const parsed = moduleSchema.safeParse({

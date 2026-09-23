@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
+import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
 
 function reviewState(value: string | null) {
   if (!value) return "Review not recorded";
@@ -12,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, totals, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -30,6 +31,35 @@ export default async function AdminTrainingPage() {
       </div>
 
       {error ? <section className="card dashboard-section-card"><h2>Migration required</h2><p className="muted">Apply the free training foundation migration before using course administration.</p></section> : null}
+
+      {paths.length ? (
+        <section className="card dashboard-section-card">
+          <div className="dashboard-section-head"><div><h2>Learning paths</h2><p>Optional country or market tracks. They never control hiring eligibility.</p></div></div>
+          <div className="compact-list">
+            {paths.map((learningPath) => (
+              <div key={learningPath.id}>
+                <span><strong>{learningPath.title}</strong><small>{learningPath.country_focus || "Global"} · {learningPath.courseCount} course{learningPath.courseCount === 1 ? "" : "s"}</small></span>
+                <span className="row wrap">
+                  <span className="badge">{learningPath.status}</span>
+                  {learningPath.status !== "published" ? (
+                    <form action={setTrainingLearningPathStatusAction}>
+                      <input type="hidden" name="path_id" value={learningPath.id}/>
+                      <input type="hidden" name="status" value="published"/>
+                      <button className="btn btn-sm" type="submit">Publish path</button>
+                    </form>
+                  ) : (
+                    <form action={setTrainingLearningPathStatusAction}>
+                      <input type="hidden" name="path_id" value={learningPath.id}/>
+                      <input type="hidden" name="status" value="draft"/>
+                      <button className="btn btn-sm" type="submit">Return to draft</button>
+                    </form>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head"><div><h2>Course inventory</h2><p>Keep the global curriculum versioned, reviewed, and easy to maintain as tools, industries, and country-specific workflows change.</p></div></div>

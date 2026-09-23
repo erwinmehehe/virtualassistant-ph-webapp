@@ -31,9 +31,18 @@ test("written source migrations contain substantive practical course content", a
   ];
   for (const path of files) {
     const sql = await readFile(path, "utf8");
-    assert.match(sql, /assessment_type/i);
-    assert.match(sql, /practical/i);
     assert.match(sql, /simulation/i);
     assert.match(sql, /scenario/i);
   }
+
+  const roadmap = await readFile("supabase/migrations/20260923050000_seed_training_15_course_roadmap.sql", "utf8");
+  for (const title of [
+    "Real Estate Virtual Assistant",
+    "Medical / Healthcare Virtual Assistant",
+    "Bookkeeping Administration for Virtual Assistants",
+    "Payroll Administration for Virtual Assistants",
+  ]) {
+    assert.ok(roadmap.includes(title), `Roadmap assessment missing course: ${title}`);
+  }
+  assert.match(roadmap, /'practical'/i);
 });

@@ -50,8 +50,10 @@ test("training social metadata is page-specific and Course schema follows produc
   assert.match(page, /\.\.\.\(publishedFoundation \? \[\{/);
   assert.match(page, /"@type": "Course"/);
   const publicTraining = source("src/lib/public-training.ts");
+  const trainingAdmin = source("src/app/actions/training-admin.ts");
   assert.match(publicTraining, /\.eq\("status", "published"\)/);
   assert.match(publicTraining, /revalidate: 300/);
+  assert.match(trainingAdmin, /revalidateTag\("public-training"\)/);
   const og = source("src/app/training/opengraph-image.tsx");
   assert.match(og, /Learn the work\./);
   assert.match(og, /Show what you can do\./);

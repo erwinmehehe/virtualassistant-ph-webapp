@@ -58,18 +58,8 @@ export default async function AdminTrainingCoursePage({
       assessment.resource_pack.length >= 2
     ))
   );
-  const specialistReviewReady =
-    course.review_requirement !== "specialist" ||
-    Boolean(
-      course.specialist_reviewed_by &&
-      course.specialist_reviewer_role &&
-      course.specialist_reviewed_at &&
-      course.specialist_review_notes &&
-      course.specialist_review_notes.trim().length >= 20
-    );
   const publishReady =
     Boolean(course.reviewed_by && course.last_reviewed_at) &&
-    specialistReviewReady &&
     lessons.length > 0 &&
     publishedLessons.length === lessons.length &&
     lessons.every((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3) &&
@@ -133,7 +123,6 @@ export default async function AdminTrainingCoursePage({
           </div>
           <div className="grid-2">
             <label className="field"><span>Roadmap order</span><input type="number" name="recommended_order" min={1} max={999} defaultValue={course.recommended_order ?? ""} placeholder="Optional"/></label>
-            <label className="field"><span>Review requirement</span><select name="review_requirement" defaultValue={course.review_requirement || "editorial"}><option value="editorial">Editorial review</option><option value="specialist">Editorial + specialist review</option></select></label>
           </div>
           <label className="field"><span>Course notice / affiliation disclosure</span><textarea name="trademark_disclaimer" rows={3} defaultValue={course.trademark_disclaimer || ""}/></label>
           <div className="grid-3">
@@ -141,13 +130,6 @@ export default async function AdminTrainingCoursePage({
             <label className="field"><span>Editorial reviewer</span><input name="reviewed_by" defaultValue={course.reviewed_by || ""} placeholder="Reviewer name"/></label>
             <label className="field"><span>Editorial review action</span><select name="review_action" defaultValue="preserve"><option value="preserve">Keep current review date</option><option value="mark_now">Mark reviewed now</option><option value="clear">Clear review date</option></select></label>
           </div>
-          {course.review_requirement === "specialist" ? (
-            <div className="notice">
-              <strong>Specialist sign-off is managed in the review queue</strong>
-              <p>Course settings cannot grant specialist approval. Use the course-specific checklist and evidence workflow.</p>
-              <Link className="btn btn-sm" href="/workspace/admin/training/reviews">Open specialist reviews</Link>
-            </div>
-          ) : null}
           <div><button className="btn btn-primary" type="submit">Save course</button></div>
         </form>
       </section>
@@ -156,14 +138,11 @@ export default async function AdminTrainingCoursePage({
         <div className="dashboard-section-head">
           <div>
             <h2>Publishing</h2>
-            <p>A course can only go live after required editorial and specialist review, with substantive content in every published lesson.</p>
+            <p>A course can only go live after editorial review, with substantive content in every published lesson.</p>
           </div>
         </div>
         <div className="compact-list">
           <div><span><strong>Editorial review</strong><small>{course.reviewed_by ? course.reviewed_by + " · " + reviewedLabel(course.last_reviewed_at) : "Reviewer not recorded"}</small></span><span className={"badge " + (course.reviewed_by && course.last_reviewed_at ? "badge-success" : "badge-warning")}>{course.reviewed_by && course.last_reviewed_at ? "Done" : "Needed"}</span></div>
-          {course.review_requirement === "specialist" ? (
-            <div><span><strong>Specialist review</strong><small>{specialistReviewReady ? course.specialist_reviewed_by + " · " + course.specialist_reviewer_role + " · " + reviewedLabel(course.specialist_reviewed_at) : "Specialist sign-off required before publishing"}</small></span><span className={"badge " + (specialistReviewReady ? "badge-success" : "badge-warning")}>{specialistReviewReady ? "Done" : "Needed"}</span></div>
-          ) : null}
           <div><span><strong>Lesson content</strong><small>{lessons.length ? lessons.filter((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3).length + "/" + lessons.length + " have substantive blocks" : "No lessons yet"}</small></span></div>
           <div><span><strong>Lesson publishing</strong><small>{publishedLessons.length}/{lessons.length} lessons marked publishable</small></span></div>
           <div><span><strong>Assessments</strong><small>{course.assessments.length ? (assessmentReady ? "Published with instructions, rubric, source pack, and pass score" : "Assessment setup still needs review") : "No course assessment configured"}</small></span><span className={"badge " + (assessmentReady ? "badge-success" : "badge-warning")}>{assessmentReady ? "Ready" : "Needed"}</span></div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpenCheck, ClipboardCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
+import { BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
 import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
@@ -21,7 +21,7 @@ export default async function AdminTrainingPage() {
         kicker="Learning system"
         title="Training"
         subtitle={<>Manage the free learning library separately from hiring. Published lessons are private to signed-in learners and remain out of search indexing.</>}
-        actions={<><Link className="dash-btn" href="/workspace/admin/training/reviews"><ClipboardCheck size={15}/> Specialist reviews</Link><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
+        actions={<><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
       />
 
       <div className="va-status-grid">
@@ -72,7 +72,6 @@ export default async function AdminTrainingPage() {
                   <span className="dash-action-title"><strong>{course.recommended_order ? "#" + course.recommended_order + " " : ""}{course.title}</strong><span className="badge">{course.status}</span></span>
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
-                  {course.review_requirement === "specialist" ? <small className="muted">{course.specialist_reviewed_at ? "Specialist reviewed · " + (course.specialist_reviewed_by || "Reviewer recorded") : "Specialist review required"}</small> : null}
                   {course.trademark_disclaimer ? <small className="muted">Course notice recorded</small> : null}
                 </span>
               </Link>
@@ -88,7 +87,7 @@ export default async function AdminTrainingPage() {
         <div className="compact-list">
           <div><span><strong>Free learning and certificates</strong><small>No lesson, assessment, or completion certificate is paywalled.</small></span></div>
           <div><span><strong>Independent from hiring</strong><small>Course completion never controls job access or shortlisting.</small></span></div>
-          <div><span><strong>Expert-reviewed specialist content</strong><small>Courses marked specialist are blocked from publication until reviewer name, role, notes, and review date are recorded.</small></span></div>
+          <div><span><strong>Editorial QA before release</strong><small>Courses need a recorded editorial review, complete lesson content, and ready assessments before publication.</small></span></div>
           <div><span><strong>Composite scenarios only</strong><small>Real briefs can inspire exercises, but a single client brief should never be lightly anonymized and reused.</small></span></div>
         </div>
       </section>

@@ -31,6 +31,7 @@ export type BlogPost = {
   topic: BlogTopic;
   clusterLabel: string;
   serviceSlug?: string;
+  softwareSlug?: string;
   industrySlugs?: string[];
   intent: "informational" | "commercial" | "comparison" | "compliance";
   publishedAt: string;

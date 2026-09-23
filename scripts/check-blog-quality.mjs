@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const blogPath = path.join(root, 'src/lib/blog-content.ts');
 const opportunityBlogPath = path.join(root, 'src/lib/blog-opportunity-posts.ts');
+const hiringGuidesPath = path.join(root, 'src/lib/blog-hiring-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
 const archivePath = path.join(root, 'src/lib/archive-posts.ts');
@@ -13,6 +14,7 @@ function readPosts() {
   return [
     ...readPostArray(blogPath, 'export const BLOG_POSTS: BlogPost[] = '),
     ...readPostArray(opportunityBlogPath, 'export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = '),
+    ...readPostArray(hiringGuidesPath, 'export const BLOG_HIRING_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {
@@ -106,10 +108,10 @@ for (const slug of slugsFrom(editorialPath)) blogRoutes.add(`/blog/${slug}`);
 for (const slug of editorialResourceSlugs()) blogRoutes.add(`/blog/${slug}`);
 const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}`));
 const knownStatic = new Set([
-  '/', '/blog', '/services', '/industries', '/hire', '/pricing', '/jobs', '/virtual-assistant-companies-philippines',
+  '/', '/blog', '/services', '/industries', '/hire', '/pricing', '/jobs', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire',
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need',
-  '/research/virtual-assistant-rates-philippines-2026'
+  '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description'
 ]);
 const banned = [
   'delve into', 'game-changer', 'game changer', 'unlock the potential', 'seamless solution',

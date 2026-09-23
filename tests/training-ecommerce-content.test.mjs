@@ -66,3 +66,13 @@ test("E-commerce VA final assessment tests real store operations", async () => {
   assert.match(sql, /pass_score = null/);
   assert.match(sql, /is_published = false/);
 });
+
+
+test("E-commerce course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923141500_release_ecommerce_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'ecommerce-virtual-assistant'/);
+});

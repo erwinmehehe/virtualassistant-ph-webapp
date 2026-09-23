@@ -15,6 +15,7 @@ export type SpecialistReviewInvite = {
   reviewer_name: string;
   reviewer_email: string;
   reviewer_role: string;
+  course_content_version: number;
   due_at: string | null;
   expires_at: string;
   status: SpecialistReviewInviteStatus;
@@ -73,7 +74,7 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
   const tokenHash = hashSpecialistReviewToken(rawToken);
   const { data: inviteData, error: inviteError } = await admin
     .from("training_specialist_review_invites")
-    .select("id,course_id,reviewer_name,reviewer_email,reviewer_role,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at,updated_at")
+    .select("id,course_id,reviewer_name,reviewer_email,reviewer_role,course_content_version,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at,updated_at")
     .eq("token_hash", tokenHash)
     .maybeSingle();
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
 import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
@@ -21,7 +21,7 @@ export default async function AdminTrainingPage() {
         kicker="Learning system"
         title="Training"
         subtitle={<>Manage the free learning library separately from hiring. Published lessons are private to signed-in learners and remain out of search indexing.</>}
-        actions={<><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
+        actions={<><Link className="dash-btn" href="/workspace/admin/training/reviews"><ClipboardCheck size={15}/> Specialist reviews</Link><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
       />
 
       <div className="va-status-grid">

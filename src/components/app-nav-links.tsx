@@ -133,6 +133,7 @@ function Badge({ count }: { count: number }) {
 export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record<string, number> }) {
   const pathname = usePathname();
   const groups = nav[role];
+  const desktopGroups = groups.map((group) => ({ ...group, items: group.items.filter(([, href]) => href !== "/workspace/account") })).filter((group) => group.items.length);
   const primarySet = new Set(mobilePrimary[role]);
   const primaryItems = groups.flatMap((group) => group.items).filter(([, href]) => primarySet.has(href));
   const secondaryGroups = groups
@@ -164,7 +165,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
   return (
     <>
       <nav className="app-nav app-nav-desktop" aria-label="Workspace navigation">
-        {groups.map((group) => (
+        {desktopGroups.map((group) => (
           <div className="app-nav-group" key={group.label}>
             <div className="sidebar-label">{group.label}</div>
             {group.items.map((item) => renderItem(item))}

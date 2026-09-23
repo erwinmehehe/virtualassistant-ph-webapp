@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarClock, HeartPulse } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { deleteTimeEntryAction, logTimeAction, updateTaskStatusAction, updateTimeEntryAction } from "@/app/actions/workroom";
@@ -23,10 +23,10 @@ function dateLabel(value?:string|null){if(!value)return"Not scheduled";return ne
 
 export default async function VaWorkroomPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  const {user}=await requireRole("va");
+  const {userId}=await requireRoleFast("va");
   const supabase=await createClient();
   const admin=createAdminClient();
-  const {data:roomData}=await supabase.from("workrooms").select("*,jobs(title,company_name,hours_per_week,min_hourly_rate,timezone,overlap_hours,onboarding_plan,engagement_length)").eq("va_id",user.id).order("created_at",{ascending:false});
+  const {data:roomData}=await supabase.from("workrooms").select("*,jobs(title,company_name,hours_per_week,min_hourly_rate,timezone,overlap_hours,onboarding_plan,engagement_length)").eq("va_id",userId).order("created_at",{ascending:false});
   const rooms=(roomData||[]) as VaWorkroom[];
   const ids=rooms.map((r)=>r.id);
   let tasks:WorkroomTaskRow[]=[];let checks:WorkroomChecklistRow[]=[];let time:TimeEntryRow[]=[];let reviews:PlacementReview[]=[];let checkins:PlacementCheckinRow[]=[];let csms:AvatarProfileRow[]=[];
@@ -43,7 +43,7 @@ export default async function VaWorkroomPage({searchParams}:{searchParams:Promis
     ]);
     tasks=results[0].data||[];checks=results[1].data||[];time=results[2].data||[];reviews=results[3].data||[];checkins=results[4].data||[];csms=results[5].data||[];
   }
-  const {data:publicProfile}=await supabase.from("public_va_directory").select("user_id").eq("user_id",user.id).maybeSingle();
+  const {data:publicProfile}=await supabase.from("public_va_directory").select("user_id").eq("user_id",userId).maybeSingle();
   const vaProfileIsPublic=Boolean(publicProfile);const csmMap=new Map(csms.map((c)=>[c.id,c.full_name]));
   const requestedCheckin=String(params.checkin||"");
 
@@ -62,7 +62,7 @@ export default async function VaWorkroomPage({searchParams}:{searchParams:Promis
         <section className="card"><h3>Log time</h3><p className="small muted">Submit completed work for client review. Approved time becomes eligible for invoicing.</p><form action={logTimeAction} className="stack"><input type="hidden" name="workroom_id" value={r.id}/><div className="form-grid"><div className="field"><label>Date</label><input type="date" name="work_date" defaultValue={new Date().toISOString().slice(0,10)} required/></div><div className="field"><label>Hours</label><input type="number" name="hours" min="0.25" max="24" step="0.25" required/></div><div className="field span-2"><label>Work note</label><textarea name="note" placeholder="What did you work on?"/></div></div><button className="btn btn-primary" type="submit">Submit time for review</button></form></section></div>
       <section className="card"><div className="row-between wrap"><h3 style={{margin:0}}>Assigned tasks</h3><span className="small muted">{roomTasks.filter((t)=>t.status==="done").length} of {roomTasks.length} done</span></div>{roomTasks.length?<div className="table-wrap responsive-table" style={{marginTop:12}}><table><thead><tr><th>Task</th><th>Due</th><th>Status</th></tr></thead><tbody>{roomTasks.map((t)=><tr key={t.id}><td data-label="Task"><strong>{t.title}</strong><div className="small muted">{t.description}</div></td><td data-label="Due">{t.due_date||"No date"}</td><td data-label="Status"><form action={updateTaskStatusAction} className="row"><input type="hidden" name="task_id" value={t.id}/><label className="sr-only" htmlFor={`va-task-${t.id}`}>Task status</label><select id={`va-task-${t.id}`} name="status" defaultValue={t.status} className="compact-select"><option value="todo">To do</option><option value="in_progress">In progress</option><option value="review">Ready for review</option><option value="done">Done</option></select><button className="btn btn-sm" type="submit">Save</button></form></td></tr>)}</tbody></table></div>:<div className="empty">The client has not assigned tasks yet.</div>}</section>
       {roomTime.length?<section className="card"><h3>Your time entries</h3><p className="small muted">You can correct or delete an entry until the client approves it. A correction returns the entry to pending review.</p><div className="stack">{roomTime.slice(0,20).map((t)=><div className="review-answer" key={t.id}><div className="row-between wrap"><div><span className={`badge ${t.status==="approved"?"badge-success":t.status==="changes_requested"?"badge-warning":""}`}>{timeStatus(t.status)}</span>{t.client_note?<p className="small" style={{margin:"7px 0 0"}}><strong>Client note:</strong> {t.client_note}</p>:null}</div><strong>{Number(t.hours).toFixed(2)} hrs · {t.work_date}</strong></div>{t.status==="approved"?<p className="small muted">{t.note||"No work note."}</p>:<form action={updateTimeEntryAction} className="stack" style={{marginTop:12}}><input type="hidden" name="time_entry_id" value={t.id}/><div className="form-grid"><div className="field"><label>Date</label><input type="date" name="work_date" defaultValue={t.work_date} required/></div><div className="field"><label>Hours</label><input type="number" name="hours" defaultValue={Number(t.hours)} min="0.25" max="24" step="0.25" required/></div><div className="field span-2"><label>Work note</label><textarea name="note" defaultValue={t.note||""}/></div></div><div className="row wrap"><button className="btn btn-sm" type="submit">Save correction</button></div></form>}{t.status!=="approved"?<form action={deleteTimeEntryAction} style={{marginTop:8}}><input type="hidden" name="time_entry_id" value={t.id}/><button className="btn btn-sm btn-danger" type="submit">Delete entry</button></form>:null}</div>)}</div></section>:null}
-      <PlacementReviewPanel workroomId={r.id} viewerRole="va" counterpartyLabel={r.jobs?.company_name||"this client"} ownReview={reviews.find((review)=>review.workroom_id===r.id&&review.reviewer_id===user.id)||null} receivedReview={reviews.find((review)=>review.workroom_id===r.id&&review.reviewer_id===r.client_id)||null} vaProfileIsPublic={vaProfileIsPublic}/>
+      <PlacementReviewPanel workroomId={r.id} viewerRole="va" counterpartyLabel={r.jobs?.company_name||"this client"} ownReview={reviews.find((review)=>review.workroom_id===r.id&&review.reviewer_id===userId)||null} receivedReview={reviews.find((review)=>review.workroom_id===r.id&&review.reviewer_id===r.client_id)||null} vaProfileIsPublic={vaProfileIsPublic}/>
     </div>})}</div>:<div className="card empty">Your workroom will appear after you accept the recruiter-prepared terms and the client confirms the placement.</div>}
   </>;
 }

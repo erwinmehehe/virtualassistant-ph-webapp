@@ -35,8 +35,8 @@ export function TrainingShell({
 
         <nav className="app-nav app-nav-desktop" aria-label="Training navigation">
           <div className="app-nav-group">
-            <div className="sidebar-label">Free training</div>
-            <Link href="/workspace/training"><BookOpenCheck size={17}/><span>My learning</span></Link>
+            <div className="sidebar-label">Training</div>
+            <Link href="/workspace/training" aria-current="page"><BookOpenCheck size={17}/><span>My learning</span></Link>
             {workspaceHref ? <Link href={workspaceHref}><ArrowLeft size={17}/><span>Back to workspace</span></Link> : null}
           </div>
         </nav>
@@ -49,7 +49,7 @@ export function TrainingShell({
         <div className="sidebar-footer">
           <div className="app-account-card" aria-label="Training learner">
             <span className="app-account-avatar"><BookOpenCheck size={18}/></span>
-            <div className="user-copy"><strong>{profile?.full_name || "Learner"}</strong><span>Free training</span></div>
+            <div className="user-copy"><strong>{profile?.full_name || "Learner"}</strong><span>Learner account</span></div>
           </div>
           <form action={logoutAction}>
             <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>

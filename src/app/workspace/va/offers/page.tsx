@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { CheckCircle2, Clock3 } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { respondPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 
 export default async function VaOffersPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
-  const query=await searchParams;const {user}=await requireRole("va");const admin=createAdminClient();
-  const {data:offers,error}=await admin.from("placement_offers").select("*").eq("va_id",user.id).order("created_at",{ascending:false}).limit(100);if(error)throw error;
+  const query=await searchParams;const {userId}=await requireRoleFast("va");const admin=createAdminClient();
+  const {data:offers,error}=await admin.from("placement_offers").select("*").eq("va_id",userId).order("created_at",{ascending:false}).limit(100);if(error)throw error;
   const jobIds=[...new Set((offers||[]).map((row:any)=>row.job_id))];const {data:jobs}=jobIds.length?await admin.from("jobs").select("id,title,company_name").in("id",jobIds):{data:[] as any[]};const jobMap=new Map((jobs||[]).map((row:any)=>[row.id,row]));
   return <>
     {query.accepted?<div className="success-banner">Offer accepted. The client now has the final confirmation step.</div>:null}{query.declined?<div className="success-banner">Offer declined. The recruiting team has been notified.</div>:null}

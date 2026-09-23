@@ -55,6 +55,10 @@ function safePath(value: string | undefined, fallback: string) {
   return value;
 }
 
+function isTrainingPath(value: string | undefined | null) {
+  return value === "/workspace/training" || Boolean(value?.startsWith("/workspace/training/"));
+}
+
 function destinationFor(role: "client" | "va", next?: string, talent?: string) {
   if (role === "client" && talent) return `/workspace/client?talent=${encodeURIComponent(talent)}`;
   const fallback = role === "va" ? "/workspace/va/onboarding" : `/workspace/${role}`;
@@ -182,7 +186,9 @@ export async function loginAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
-  if (!user || !profile) {
+  const trainingAccount = user?.user_metadata?.account_type === "training";
+  const requestedTraining = isTrainingPath(parsed.data.next) || trainingAccount;
+  if (!user || (!profile && !requestedTraining)) {
     await supabase.auth.signOut();
     redirect("/auth/login?error=Your%20account%20was%20authenticated%20but%20its%20workspace%20could%20not%20be%20loaded.%20Please%20try%20again%20or%20contact%20support.");
   }
@@ -190,15 +196,16 @@ export async function loginAction(formData: FormData) {
     await recordSuccessfulLoginAndMaybeAlert({
       userId: user.id,
       email: user.email,
-      fullName: profile.full_name,
+      fullName: profile?.full_name || (typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null),
       signInMethod: "Email & password",
     });
   } catch {
     // Sign-in remains available if security-event persistence is temporarily unavailable.
   }
-  const fallback = `/workspace/${profile.role}`;
+  const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";
   const requested = safePath(parsed.data.next, fallback);
-  if (requested.startsWith("/workspace/") && profile?.role && !requested.startsWith(`/workspace/${profile.role}`)) redirect(fallback);
+  if (!isTrainingPath(requested) && requested.startsWith("/workspace/") && profile?.role && !requested.startsWith(`/workspace/${profile.role}`)) redirect(fallback);
+  if (!profile && !isTrainingPath(requested)) redirect("/workspace/training");
   let claimedJobId: string | null = null;
   if (profile?.role === "client" && parsed.data.lead && user?.email) {
     try {
@@ -436,5 +443,7 @@ export async function updatePasswordAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
   if (user?.email) { try { const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: user.email, subject: "Your password was changed", heading: "Password updated", body: "The password for your VirtualAssistant.com.ph account was changed. If you did not do this, contact support immediately.", archive: false }); } catch {} }
-  redirect(profile?.role ? `/workspace/${profile.role}` : "/auth/login?error=Your%20workspace%20role%20could%20not%20be%20loaded");
+  if (profile?.role) redirect(`/workspace/${profile.role}`);
+  if (user) redirect("/workspace/training");
+  redirect("/auth/login?error=Your%20account%20could%20not%20be%20loaded");
 }

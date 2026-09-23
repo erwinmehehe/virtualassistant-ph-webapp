@@ -1,0 +1,169 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+
+const migrationPath = "supabase/migrations/20260923013500_free_training_foundation.sql";
+
+test("training is independent from VA candidate profiles", async () => {
+  const sql = await readFile(migrationPath, "utf8");
+  assert.match(sql, /references auth\.users\(id\)/i);
+  assert.doesNotMatch(sql, /references public\.va_profiles/i);
+
+  const auth = await readFile("src/lib/auth.ts", "utf8");
+  assert.match(auth, /requireAuthenticatedUserFast/);
+  assert.doesNotMatch(
+    auth.match(/export async function requireAuthenticatedUserFast[\s\S]*?\n}\n/)?.[0] || "",
+    /requireRoleFast\("va"\)/,
+  );
+});
+
+test("private training routes are noindex", async () => {
+  const layout = await readFile("src/app/workspace/training/layout.tsx", "utf8");
+  assert.match(layout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
+  assert.match(layout, /requireAuthenticatedUserFast/);
+});
+
+test("lesson design supports detailed lessons up to thirty minutes", async () => {
+  const sql = await readFile(migrationPath, "utf8");
+  assert.match(sql, /estimated_minutes between 1 and 30/i);
+  assert.match(sql, /content_version/i);
+  assert.match(sql, /last_reviewed_at/i);
+  assert.match(sql, /trademark_disclaimer/i);
+});
+
+test("training tables use RLS and learner-owned progress", async () => {
+  const sql = await readFile(migrationPath, "utf8");
+  for (const table of [
+    "training_courses",
+    "training_modules",
+    "training_lessons",
+    "training_enrollments",
+    "training_lesson_progress",
+    "training_assessments",
+    "training_assessment_submissions",
+    "training_certificates",
+  ]) {
+    assert.match(sql, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(sql, /learners read own lesson progress/i);
+  assert.match(sql, /\(select auth\.uid\(\)\) = user_id/i);
+  assert.doesNotMatch(sql, /grant\s+select[^;]*\s+to\s+anon/i);
+});
+
+test("training actions do not change hiring or vetting state", async () => {
+  const action = await readFile("src/app/actions/training.ts", "utf8");
+  assert.doesNotMatch(action, /va_vetting|applications|job_shortlist|directory_visible|work_readiness/i);
+  assert.match(action, /training_enrollments/);
+  assert.match(action, /training_lesson_progress/);
+});
+
+test("VA and admin workspaces expose the training system", async () => {
+  const nav = await readFile("src/components/app-nav-links.tsx", "utf8");
+  assert.match(nav, /\["Training", "\/workspace\/training", GraduationCap\]/);
+  assert.match(nav, /\["Training", "\/workspace\/admin\/training", GraduationCap\]/);
+});
+
+
+test("training-only signup never creates candidate or hiring records", async () => {
+  const action = await readFile("src/app/actions/training-auth.ts", "utf8");
+  assert.match(action, /account_type:\s*"training"/);
+  assert.match(action, /next:\s*"\/workspace\/training"/);
+  assert.doesNotMatch(action, /va_profiles|va_vetting|client_profiles|applications|directory_visible/i);
+
+  const page = await readFile("src/app/auth/join/training/page.tsx", "utf8");
+  assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
+});
+
+test("shared auth explicitly permits the training workspace without role coercion", async () => {
+  const authAction = await readFile("src/app/actions/auth.ts", "utf8");
+  const callback = await readFile("src/app/auth/callback/route.ts", "utf8");
+  const confirm = await readFile("src/app/auth/confirm/route.ts", "utf8");
+  for (const source of [authAction, callback, confirm]) {
+    assert.match(source, /isTrainingPath/);
+    assert.match(source, /\/workspace\/training/);
+  }
+});
+
+test("lesson completion is scoped to its course and certificate issuance is server-verified", async () => {
+  const action = await readFile("src/app/actions/training.ts", "utf8");
+  assert.match(action, /\.eq\("slug", courseSlug\)/);
+  assert.match(action, /\.in\("module_id", moduleIds\)/);
+  assert.match(action, /createAdminClient/);
+  assert.match(action, /certificate_of_completion/);
+});
+
+test("training shell includes a mobile navigation", async () => {
+  const shell = await readFile("src/components/training-shell.tsx", "utf8");
+  assert.match(shell, /app-nav-mobile/);
+  assert.match(shell, /Mobile training navigation/);
+});
+
+
+test("auth trigger preserves training-only accounts outside the VA candidate system", async () => {
+  const sql = await readFile(migrationPath, "utf8");
+  assert.match(sql, /create or replace function public\.handle_new_user/i);
+  assert.match(sql, /raw_user_meta_data->>'account_type'\s*=\s*'training'/i);
+  assert.match(sql, /return new;/i);
+
+  const form = await readFile("src/components/training-join-form.tsx", "utf8");
+  assert.doesNotMatch(form, /oauthAction|Continue with Google|Continue with Microsoft/);
+});
+
+
+test("training-directed login does not expose first-time social signup", async () => {
+  const login = await readFile("src/app/auth/login/page.tsx", "utf8");
+  assert.match(login, /socialEnabled\s*=\s*\(googleEnabled \|\| microsoftEnabled\) && !trainingLogin/);
+});
+
+
+test("admin training authoring stays admin-only and guarded before publish", async () => {
+  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
+  assert.match(action, /requireRoleFast\("admin"\)/);
+  assert.match(action, /Record a reviewer and review date before publishing the course/);
+  assert.match(action, /Every published lesson needs substantive content/);
+  assert.match(action, /Record a reviewer and review date before publishing this lesson/);
+  assert.match(action, /createTrainingAssessmentAction/);
+  assert.match(action, /updateTrainingAssessmentAction/);
+});
+
+test("Virtual Assistant Foundations is seeded as a detailed private draft", async () => {
+  const seed = await readFile("supabase/migrations/20260923021000_seed_va_foundations_training.sql", "utf8");
+  assert.match(seed, /Virtual Assistant Foundations/);
+  assert.match(seed, /\n  375,\n  'draft'/);
+  assert.match(seed, /Final VA Work Simulation/);
+  assert.match(seed, /composite client simulation/i);
+  assert.match(seed, /false, 1, now\(\), now\(\)/);
+
+  const lessonIds = new Set(seed.match(/12000000-0000-4000-8000-0000000000\d{2}/g) || []);
+  assert.equal(lessonIds.size, 13);
+  assert.match(seed, /"type":"scenario"/);
+  assert.match(seed, /Responsible AI for Virtual Assistant Work/);
+  assert.match(seed, /Time Zones, Deadlines, and Handoffs/);
+});
+
+test("training authoring UI edits course, lesson blocks, and assessments without public course pages", async () => {
+  const courseEditor = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
+  const lessonEditor = await readFile("src/app/workspace/admin/training/[courseId]/lessons/[lessonId]/page.tsx", "utf8");
+  assert.match(courseEditor, /Course settings/);
+  assert.match(courseEditor, /Publish course/);
+  assert.match(courseEditor, /Add assessment/);
+  assert.match(lessonEditor, /Add content block/);
+  assert.match(lessonEditor, /Practice scenario/);
+  assert.match(lessonEditor, /Maximum 30 minutes|30 minutes or less/);
+});
+
+
+test("editing training content invalidates stale review and publication state", async () => {
+  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
+  assert.match(action, /function invalidateCourseReview/);
+  assert.match(action, /status:\s*"draft"/);
+  assert.match(action, /published_at:\s*null/);
+  assert.match(action, /function invalidateLessonReview/);
+  assert.match(action, /is_published:\s*false/);
+  assert.match(action, /last_reviewed_at:\s*null/);
+
+  const courseEditor = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
+  const lessonEditor = await readFile("src/app/workspace/admin/training/[courseId]/lessons/[lessonId]/page.tsx", "utf8");
+  assert.match(courseEditor, /name="review_action"/);
+  assert.match(lessonEditor, /name="review_action"/);
+});

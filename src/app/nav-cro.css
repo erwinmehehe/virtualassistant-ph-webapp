@@ -123,23 +123,20 @@
 }
 .va-site-nav .va-nav-callcard a:hover { filter: brightness(1.07); color: #fff; background: linear-gradient(135deg, #444ce7, #6236ff); }
 
-/* Log in menu replaces the separate VA and Client Portal links. */
-.va-site-nav .va-nav-login > summary { color: var(--va-slate-700); font-size: 14px; font-weight: 700; }
-.va-site-nav .va-nav-menu.va-nav-login .va-nav-panel-login,
-.va-site-nav .va-nav-menu.va-nav-login:hover .va-nav-panel-login,
-.va-site-nav .va-nav-menu.va-nav-login:focus-within .va-nav-panel-login {
-  left: auto;
-  right: 0;
-  width: 230px;
-  padding: 10px;
+/* Client and VA accounts share the same role-aware login page. */
+.va-site-nav .va-nav-account-login {
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--va-slate-700);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
 }
-.va-site-nav .va-nav-menu.va-nav-login:not(:hover):not(:focus-within) .va-nav-panel-login { transform: translate(0, 8px); }
-.va-site-nav .va-nav-menu.va-nav-login:hover .va-nav-panel-login,
-.va-site-nav .va-nav-menu.va-nav-login:focus-within .va-nav-panel-login { transform: translate(0, 0); }
-.va-nav-panel-login > span { display: block; margin: 8px 8px 4px; color: var(--va-slate-500); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.va-nav-panel-login > span:first-child { margin-top: 2px; }
-.va-nav-panel-login a { display: block; padding: 7px 8px; border-radius: 9px; color: var(--va-slate-700); font-size: 13.5px; font-weight: 650; text-decoration: none; }
-.va-nav-panel-login a:hover { color: var(--va-indigo); background: rgba(68, 76, 231, .06); }
+.va-site-nav .va-nav-account-login:hover {
+  color: var(--va-indigo);
+  background: rgba(68, 76, 231, .055);
+}
 @media (max-width: 1180px) {
-  .va-site-nav .va-nav-login { display: none; }
+  .va-site-nav .va-nav-account-login { display: none; }
 }

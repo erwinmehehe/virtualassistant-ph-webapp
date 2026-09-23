@@ -110,7 +110,8 @@ export default async function AdminAnalyticsPage() {
   const trainingCount = (eventName: string) => trainingEvents.filter((event) => event.event_name === eventName).length;
   const trainingFunnel = [
     ["Training landing views", trainingCount("training_landing_view"), "Visits to the public training landing page"],
-    ["Create-account clicks", trainingCount("training_account_click"), "Clicks from the training page into the learning workspace"],
+    ["Create-account clicks", trainingCount("training_account_click"), "Clicks from the training page into the dedicated training signup"],
+    ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
     ["Lesson completions", trainingCount("training_lesson_complete"), "First successful completion of a lesson"],
     ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions"]

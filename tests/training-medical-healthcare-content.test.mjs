@@ -25,7 +25,7 @@ test("Healthcare training keeps clinical and regulated decisions outside the VA 
   ]) {
     assert.match(sql.toLowerCase(), new RegExp(boundary.toLowerCase().replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&")));
   }
-  assert.match(sql, /client's approved policy/i);
+  assert.match(sql, /client''s approved policy/i);
   assert.match(sql, /approved emergency or clinical escalation script/i);
 });
 

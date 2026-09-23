@@ -304,6 +304,198 @@ function bestFitCopy(item: string, s: ServiceSeoPage, index: number) {
   return `${toTitle(item)} can use this role to keep ${firstTask} and ${secondTask} moving consistently while higher-risk decisions stay with the appropriate manager or specialist.`;
 }
 
+type PriorityServiceModule = {
+  kicker: string;
+  title: string;
+  lede: string;
+  owns: string[];
+  keepInternal: string[];
+  proof: string[];
+};
+
+const PRIORITY_SERVICE_MODULES: Record<string, PriorityServiceModule> = {
+  fulfilment: {
+    kicker: "Order workflow",
+    title: "Give the exception queue a clear owner, not just the easy orders.",
+    lede: "The useful Order & Fulfilment VA role starts after an order is placed. Define who watches failed fulfilment, delayed shipments, address issues, stock exceptions, returns, and customer updates until each case is closed.",
+    owns: [
+      "Monitor unfulfilled, delayed, failed, and returned orders and record the next action",
+      "Keep shipment status and customer updates aligned with the store, carrier, and help desk",
+      "Coordinate routine 3PL or warehouse follow-up using the client's approved process",
+      "Maintain an exception log so recurring fulfilment problems are visible"
+    ],
+    keepInternal: [
+      "Supplier contracts, purchasing commitments, and inventory strategy",
+      "Pricing, promotion, and margin decisions",
+      "Refunds or replacements above the client's approval threshold",
+      "Account-owner credentials and financial settings"
+    ],
+    proof: [
+      "A delayed-shipment example showing the checks, customer update, and escalation path",
+      "Hands-on use of Shopify, ShipStation, Gorgias, Amazon Seller Central, or the client's equivalent stack",
+      "A daily or weekly exception report that makes unresolved orders easy to review"
+    ]
+  },
+  "dental-virtual-assistant": {
+    kicker: "Dental workflow",
+    title: "Keep the role administrative, measurable, and clearly non-clinical.",
+    lede: "A Dental Virtual Assistant can take ownership of repeatable front-desk and patient-admin work, but the practice should define privacy, system access, clinical boundaries, and escalation before the first patient interaction.",
+    owns: [
+      "Appointment scheduling, confirmations, reschedules, and reminder queues",
+      "Recall and follow-up lists using the practice's approved scripts and systems",
+      "Insurance information gathering and verification support within the practice workflow",
+      "Accurate patient-admin notes, routing, and status updates"
+    ],
+    keepInternal: [
+      "Diagnosis, treatment recommendations, and clinical judgment",
+      "Clinical coding or billing decisions that require qualified review",
+      "Privacy exceptions, sensitive disclosures, and access decisions",
+      "Final handling of complaints or issues that require the dentist or practice manager"
+    ],
+    proof: [
+      "A scheduling scenario that includes a cancellation, waitlist, or urgent escalation",
+      "A patient-note example that is concise, factual, and privacy-aware",
+      "Practical experience with the practice-management system or a comparable dental workflow"
+    ]
+  },
+  "project-coordination": {
+    kicker: "Project ownership",
+    title: "Separate coordination ownership from project authority.",
+    lede: "The strongest Project Management VA role owns visibility and follow-through. The client still owns scope, budget, priority tradeoffs, and binding stakeholder decisions unless those responsibilities are explicitly delegated.",
+    owns: [
+      "Keep task boards, due dates, owners, dependencies, and meeting actions current",
+      "Chase overdue actions and surface blockers before they become deadline surprises",
+      "Prepare status summaries from the project source of truth",
+      "Maintain decision, risk, and change logs for the accountable project owner"
+    ],
+    keepInternal: [
+      "Scope changes and final prioritization tradeoffs",
+      "Budget approval and commercial commitments",
+      "Executive or client commitments outside the approved plan",
+      "Acceptance of material project risk"
+    ],
+    proof: [
+      "A real project board showing how dependencies and overdue work were handled",
+      "A concise weekly status report that separates progress, blockers, decisions, and next steps",
+      "An example of escalating a risk early instead of quietly moving the date"
+    ]
+  },
+  operations: {
+    kicker: "Operations scope",
+    title: "Delegate the recurring operating layer, not undefined company ownership.",
+    lede: "An Operations VA is most valuable when recurring processes already have an accountable business owner. The VA can run checklists, maintain SOPs, track exceptions, and keep vendors or internal owners moving against clear standards.",
+    owns: [
+      "Run recurring checklists and keep due dates, owners, and exceptions visible",
+      "Update SOPs when the approved process changes",
+      "Follow up vendors or internal owners on routine operational commitments",
+      "Maintain operational reports and QA queues from agreed source data"
+    ],
+    keepInternal: [
+      "Policy changes and business-wide process decisions",
+      "Financial approvals, purchasing authority, and contract commitments",
+      "High-risk customer, legal, HR, or compliance exceptions",
+      "Final decisions when two operational priorities conflict"
+    ],
+    proof: [
+      "A before-and-after SOP or checklist they personally improved",
+      "An exception log that shows how issues were categorized and escalated",
+      "A recurring operations report that a manager could use without rebuilding the data"
+    ]
+  },
+  "hvac-virtual-assistant": {
+    kicker: "HVAC office workflow",
+    title: "Run the office queue from the service board, not from scattered messages.",
+    lede: "An HVAC Virtual Assistant can protect field-team time by owning intake, scheduling, dispatch administration, customer follow-up, and job-status updates while technical diagnosis and pricing authority remain with qualified staff.",
+    owns: [
+      "Capture inbound lead and service-request details accurately",
+      "Book or reschedule jobs using territory, technician, and time-window rules",
+      "Keep dispatch and job-status fields current as information changes",
+      "Follow up quotes, reminders, and routine customer updates using approved scripts"
+    ],
+    keepInternal: [
+      "Technical diagnosis, repair recommendations, and site-safety decisions",
+      "Final estimates or price exceptions outside approved rules",
+      "Commitments that affect technician capacity without dispatcher approval",
+      "Emergency decisions that require the owner, manager, or qualified field staff"
+    ],
+    proof: [
+      "A live-call scenario that captures the right job details without overpromising",
+      "A dispatch example showing how they handle an urgent job and an already-full schedule",
+      "Experience in ServiceM8, Jobber, ServiceTitan, Housecall Pro, or a comparable field-service workflow"
+    ]
+  },
+  transcription: {
+    kicker: "Transcription workflow",
+    title: "Quality is more than typing speed.",
+    lede: "A Transcription Virtual Assistant should own the file from intake through a reviewable transcript: naming, speaker labels, timestamps where required, uncertainty flags, formatting, QA, and secure delivery.",
+    owns: [
+      "Organize incoming audio or video files and confirm the required output format",
+      "Produce transcripts with consistent speaker labels, punctuation, and timestamps when requested",
+      "Flag unclear audio instead of inventing words or context",
+      "Run a second-pass QA check before delivery and keep version names clean"
+    ],
+    keepInternal: [
+      "Legal, medical, or specialist interpretation of the recorded content",
+      "Decisions about releasing sensitive or confidential transcripts",
+      "Final editorial meaning when the audio is genuinely ambiguous",
+      "Access to recordings that are outside the approved scope"
+    ],
+    proof: [
+      "A transcript sample that shows formatting, speaker changes, and uncertainty handling",
+      "A noisy-audio scenario explaining what they would flag instead of guess",
+      "A clear confidentiality and file-retention routine"
+    ]
+  },
+  "travel-lifestyle": {
+    kicker: "Travel support",
+    title: "Turn research and booking admin into one auditable itinerary.",
+    lede: "A Travel & Lifestyle Virtual Assistant can reduce planning time by owning comparison research, booking administration, confirmations, itinerary updates, and routine reservation changes while the client keeps final purchase and risk decisions.",
+    owns: [
+      "Research flights, hotels, transport, restaurants, and activities against written preferences",
+      "Prepare comparison options with price, timing, restrictions, and cancellation terms",
+      "Maintain one itinerary with confirmation numbers, addresses, contacts, and change history",
+      "Handle routine reservation changes and follow-up within approved limits"
+    ],
+    keepInternal: [
+      "Final purchase approval and high-value commitments",
+      "Passport, visa, immigration, health, or legal travel advice",
+      "Risk decisions during emergencies or major disruptions",
+      "Use of payment methods beyond the client's approved controls"
+    ],
+    proof: [
+      "A comparison sheet that makes tradeoffs clear instead of dumping search results",
+      "A multi-city itinerary with confirmations and contingency notes",
+      "An example of handling a cancellation or schedule change without losing the audit trail"
+    ]
+  },
+  "content-writing": {
+    kicker: "Content workflow",
+    title: "Hire for research discipline and editorial judgment, not generic writing volume.",
+    lede: "A Content Writing Virtual Assistant is most useful when the client provides a real brief, source standards, brand guidance, and one approval path. The VA can own research, drafting, formatting, and revision while final positioning and sensitive claims remain with the accountable editor or marketer.",
+    owns: [
+      "Turn approved briefs into research notes, outlines, and first drafts",
+      "Use provided or approved sources and keep factual claims traceable",
+      "Apply brand, formatting, linking, and CMS requirements consistently",
+      "Manage revisions and version control through the agreed editorial workflow"
+    ],
+    keepInternal: [
+      "Final positioning, campaign strategy, and business-critical claims",
+      "Legal, medical, financial, or regulated claims without qualified review",
+      "Final publishing approval when the content carries material brand risk",
+      "Rights-clearance decisions for third-party text, images, or data"
+    ],
+    proof: [
+      "A draft with source notes showing where factual claims came from",
+      "A before-and-after revision that demonstrates they can follow specific editorial feedback",
+      "A CMS or publishing sample with correct headings, links, metadata, and formatting"
+    ]
+  }
+};
+
+function priorityServiceModule(slug: string) {
+  return PRIORITY_SERVICE_MODULES[slug] || null;
+}
+
 const TALENT_MATCH_STOP_WORDS = new Set(["virtual","assistant","support","specialist","manager","management","service","services","philippines","the","and","for","with"]);
 
 function talentRelevanceScore(va: any, service: ServiceSeoPage) {
@@ -376,6 +568,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const pageUrl = `${base}/service/${s.slug}`;
   const regulated = complianceNote(s.slug, s.group);
   const editorial = serviceEditorial(s);
+  const priorityModule = priorityServiceModule(s.slug);
   const talentHref = `/find-talent?category=${encodeURIComponent(s.directoryCategory)}&q=${encodeURIComponent(roleName(s.name))}`;
   const matchExample = `Handle ${s.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, exceptions, and next steps.`;
 
@@ -486,6 +679,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
         <JumpNav links={[
           { href: "#responsibilities", label: "Responsibilities" },
+          ...(priorityModule ? [{ href: "#role-scope", label: "Role scope" }] : []),
           { href: "#onboarding", label: "First 30 days" },
           { href: "#tools", label: "Tools & skills" },
           { href: "#hiring", label: "Hiring process" },
@@ -507,6 +701,27 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
             <a className="hs-btn hs-btn-primary" href="#hiring-brief">Send a quick brief <ArrowRight size={16}/></a>
           </div>
         </Band>
+
+        {priorityModule ? <Band tone="soft" id="role-scope">
+          <SectionHead kicker={priorityModule.kicker} title={priorityModule.title} lede={priorityModule.lede}/>
+          <div className="sp-cards-3">
+            <article className="sp-card">
+              <span className="sp-card-icon" aria-hidden="true"><ClipboardList size={18}/></span>
+              <h3>The VA can own</h3>
+              <CheckList tone="green" items={priorityModule.owns}/>
+            </article>
+            <article className="sp-card">
+              <span className="sp-card-icon" aria-hidden="true"><ShieldCheck size={18}/></span>
+              <h3>Keep with the client</h3>
+              <CheckList items={priorityModule.keepInternal}/>
+            </article>
+            <article className="sp-card">
+              <span className="sp-card-icon" aria-hidden="true"><BadgeCheck size={18}/></span>
+              <h3>Proof to ask for</h3>
+              <CheckList items={priorityModule.proof}/>
+            </article>
+          </div>
+        </Band> : null}
 
         <Band tone="soft">
           <div className="sp-split">

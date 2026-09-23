@@ -197,17 +197,17 @@ export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
 };
 
 export const SERVICE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
-  "project-coordination": [PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB],
-  "operations": [PROJECT_MANAGER_RATES, RATE_GUIDE],
+  "project-coordination": [PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB, HIRE_HUB],
+  "operations": [PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB, HIRE_HUB],
   "general-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE],
   "executive-virtual-assistant": [GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE],
-  "fulfilment": [ECOMMERCE_TASKS],
-  "dental-virtual-assistant": [DENTAL_INTERVIEW, DENTAL_COST],
-  "hvac-virtual-assistant": [HVAC_HIRING, HVAC_COST],
+  "fulfilment": [ECOMMERCE_TASKS, RATE_GUIDE, PRICING_HUB],
+  "dental-virtual-assistant": [DENTAL_INTERVIEW, DENTAL_COST, RATE_GUIDE, HIRE_HUB],
+  "hvac-virtual-assistant": [HVAC_HIRING, HVAC_COST, RATE_GUIDE, HIRE_HUB],
   "ebay-virtual-assistant": [EBAY_HIRING, EBAY_COST],
-  "transcription": [RATE_GUIDE],
-  "travel-lifestyle": [RATE_GUIDE],
-  "content-writing": [CONTENT_MARKETING_GUIDE]
+  "transcription": [RATE_GUIDE, PRICING_HUB, HIRE_HUB],
+  "travel-lifestyle": [RATE_GUIDE, PRICING_HUB, HIRE_HUB],
+  "content-writing": [CONTENT_MARKETING_GUIDE, RATE_GUIDE, PRICING_HUB, HIRE_HUB]
 };
 
 export function seoPriorityLinksForBlog(slug: string) {

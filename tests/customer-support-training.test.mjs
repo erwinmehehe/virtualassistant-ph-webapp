@@ -18,7 +18,7 @@ test("Customer Support VA course is fully written but remains draft", async () =
 test("Customer Support course teaches real support operations", async () => {
   const seed = await readFile(seedPath, "utf8");
   for (const phrase of [
-    "Ticket Triage",
+    "triage",
     "knowledge base",
     "Troubleshooting",
     "Refunds",

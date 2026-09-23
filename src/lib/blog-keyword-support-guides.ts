@@ -1430,7 +1430,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "slug": "canva-virtual-assistant-tasks",
     "title": "Canva Virtual Assistant Tasks: What to Delegate",
     "metaTitle": "Canva Virtual Assistant Tasks: What to Delegate",
-    "description": "Learn which Canva Virtual Assistant tasks to delegate across social graphics, presentations, templates, resizing, lead magnets, thumbnails, QA, and file organization.",
+    "description": "Learn Canva Virtual Assistant tasks to delegate across social graphics, presentations, templates, resizing, lead magnets, thumbnails, QA, and file organization.",
     "excerpt": "A production-focused guide to using a Canva Virtual Assistant for repeatable branded assets without confusing production support with creative direction.",
     "topic": "seo-marketing",
     "clusterLabel": "Canva Virtual Assistant",

@@ -8,7 +8,7 @@ test("suppressed email is not reported as sent",async()=>{
   const email=await read("src/lib/email.ts");
   assert.match(email,/sent: false as const, data: null, suppressed: true/);
   assert.match(email,/return delivery\.sent \? \{ sent: true as const \} : \{ sent: false as const, reason: delivery\.reason \}/);
-  assert.equal((email.match(/const delivery = await trackedSend\(/g)||[]).length,23);
+  assert.equal((email.match(/const delivery = await trackedSend\(/g)||[]).length,24);
 });
 
 test("maintenance isolates independent jobs and preserves auth when storage cleanup fails",async()=>{

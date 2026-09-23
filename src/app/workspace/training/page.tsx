@@ -17,6 +17,7 @@ export default async function TrainingDashboardPage() {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, error } = await getTrainingDashboard(userId);
   const enrolled = courses.filter((course) => course.enrolled);
+  const active = enrolled.filter((course) => !course.completedAt);
   const certificates = courses.filter((course) => course.certificate && !course.certificate.revoked_at);
 
   return (
@@ -51,7 +52,7 @@ export default async function TrainingDashboardPage() {
         </div>
         <div className="status-summary-card">
           <div className="row-between"><span>In progress</span><Clock3 size={18}/></div>
-          <strong>{enrolled.filter((course) => course.progressPercent < 100).length}</strong>
+          <strong>{active.length}</strong>
           <small>Courses you have started</small>
         </div>
         <div className="status-summary-card">
@@ -61,7 +62,7 @@ export default async function TrainingDashboardPage() {
         </div>
       </div>
 
-      {enrolled.length ? (
+      {active.length ? (
         <section className="card dashboard-section-card">
           <div className="dashboard-section-head">
             <div>
@@ -70,7 +71,7 @@ export default async function TrainingDashboardPage() {
             </div>
           </div>
           <div className="dash-actions">
-            {enrolled.map((course) => (
+            {active.map((course) => (
               <Link className="dash-action" href={`/workspace/training/courses/${course.slug}`} key={course.id} data-track="training_course_continue">
                 <span className="dash-action-count">{course.progressPercent}%</span>
                 <span className="dash-action-copy">

@@ -7,6 +7,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock } from "@/lib/training";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
+import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
 
 const courseSchema = z.object({
   title: z.string().trim().min(4).max(140),
@@ -51,16 +52,31 @@ function adminTrainingPath(courseId?: string, lessonId?: string) {
 }
 
 async function invalidateCourseReview(admin: ReturnType<typeof createAdminClient>, courseId: string) {
+  const now = new Date().toISOString();
   await admin
     .from("training_courses")
     .update({
       status: "draft",
       published_at: null,
       last_reviewed_at: null,
+      specialist_reviewed_by: null,
+      specialist_reviewer_role: null,
+      specialist_review_notes: null,
       specialist_reviewed_at: null,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     })
     .eq("id", courseId);
+
+  await admin
+    .from("training_specialist_reviews")
+    .update({
+      checklist: {},
+      decision: "in_progress",
+      reviewed_at: null,
+      updated_at: now,
+    })
+    .eq("course_id", courseId);
+
   revalidateTag("public-training");
 }
 
@@ -127,24 +143,9 @@ export async function updateTrainingCourseAction(formData: FormData) {
   const admin = createAdminClient();
   const reviewedBy = requiredString(formData, "reviewed_by") || null;
   const reviewAction = requiredString(formData, "review_action");
-  const specialistReviewedBy = requiredString(formData, "specialist_reviewed_by") || null;
-  const specialistReviewerRole = requiredString(formData, "specialist_reviewer_role") || null;
-  const specialistReviewNotes = requiredString(formData, "specialist_review_notes") || null;
-  const specialistReviewAction = requiredString(formData, "specialist_review_action");
-  if (specialistReviewNotes && specialistReviewNotes.length > 2000) {
-    throw new Error("Keep specialist review notes under 2,000 characters.");
-  }
-  if (specialistReviewAction === "mark_now" && (
-    !specialistReviewedBy ||
-    !specialistReviewerRole ||
-    !specialistReviewNotes ||
-    specialistReviewNotes.length < 20
-  )) {
-    throw new Error("Add the specialist reviewer, role, and a meaningful review note before marking specialist review complete.");
-  }
   const { data: existing } = await admin
     .from("training_courses")
-    .select("last_reviewed_at,specialist_reviewed_at")
+    .select("last_reviewed_at")
     .eq("id", courseId)
     .maybeSingle();
   const lastReviewedAt = reviewAction === "mark_now"
@@ -152,11 +153,6 @@ export async function updateTrainingCourseAction(formData: FormData) {
     : reviewAction === "clear"
       ? null
       : existing?.last_reviewed_at || null;
-  const specialistReviewedAt = specialistReviewAction === "mark_now"
-    ? new Date().toISOString()
-    : specialistReviewAction === "clear"
-      ? null
-      : existing?.specialist_reviewed_at || null;
   const { error } = await admin
     .from("training_courses")
     .update({
@@ -167,10 +163,10 @@ export async function updateTrainingCourseAction(formData: FormData) {
       review_requirement: parsed.data.review_requirement,
       reviewed_by: reviewedBy,
       last_reviewed_at: lastReviewedAt,
-      specialist_reviewed_by: specialistReviewedBy,
-      specialist_reviewer_role: specialistReviewerRole,
-      specialist_review_notes: specialistReviewNotes,
-      specialist_reviewed_at: specialistReviewedAt,
+      specialist_reviewed_by: null,
+      specialist_reviewer_role: null,
+      specialist_review_notes: null,
+      specialist_reviewed_at: null,
       status: "draft",
       published_at: null,
       content_version: z.coerce.number().int().min(1).catch(1).parse(formData.get("content_version")),
@@ -179,9 +175,117 @@ export async function updateTrainingCourseAction(formData: FormData) {
     .eq("id", courseId);
   if (error) throw error;
 
+  await admin
+    .from("training_specialist_reviews")
+    .update({
+      checklist: {},
+      decision: "in_progress",
+      reviewed_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("course_id", courseId);
+
   revalidateTag("public-training");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");
+}
+
+export async function saveTrainingSpecialistReviewAction(formData: FormData) {
+  await requireRoleFast("admin");
+  const courseId = requiredString(formData, "course_id");
+  const decision = requiredString(formData, "decision");
+  const reviewerName = requiredString(formData, "reviewer_name");
+  const reviewerRole = requiredString(formData, "reviewer_role");
+  const notes = requiredString(formData, "notes");
+
+  if (!courseId || !["in_progress", "changes_requested", "approved"].includes(decision)) {
+    throw new Error("Choose a valid specialist review decision.");
+  }
+  if (notes.length > 5000) {
+    throw new Error("Keep specialist review notes under 5,000 characters.");
+  }
+
+  const admin = createAdminClient();
+  const { data: course, error: courseError } = await admin
+    .from("training_courses")
+    .select("id,slug,review_requirement")
+    .eq("id", courseId)
+    .maybeSingle();
+
+  if (courseError) throw courseError;
+  if (!course || course.review_requirement !== "specialist") {
+    throw new Error("This course does not require specialist review.");
+  }
+
+  const definition = getSpecialistReviewDefinition(course.slug);
+  if (!definition) {
+    throw new Error("No specialist review checklist is configured for this course.");
+  }
+
+  const checklist = Object.fromEntries(
+    definition.items.map((item) => [item.id, requiredString(formData, "check_" + item.id) === "1"]),
+  );
+  const allChecked = definition.items.every((item) => checklist[item.id]);
+
+  if (decision === "approved") {
+    if (!reviewerName || !reviewerRole || notes.length < 20) {
+      throw new Error("Add the specialist reviewer, role, and meaningful review notes before approval.");
+    }
+    if (!allChecked) {
+      throw new Error("Complete every specialist checklist item before approving the course.");
+    }
+  }
+
+  if (decision === "changes_requested" && (!reviewerName || !reviewerRole || notes.length < 20)) {
+    throw new Error("Record the reviewer, role, and correction notes when requesting changes.");
+  }
+
+  const reviewedAt = decision === "approved" ? new Date().toISOString() : null;
+  const { error: reviewError } = await admin
+    .from("training_specialist_reviews")
+    .upsert({
+      course_id: courseId,
+      reviewer_name: reviewerName || null,
+      reviewer_role: reviewerRole || null,
+      checklist,
+      notes: notes || null,
+      decision,
+      reviewed_at: reviewedAt,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "course_id" });
+
+  if (reviewError) throw reviewError;
+
+  const courseUpdate = decision === "approved"
+    ? {
+        specialist_reviewed_by: reviewerName,
+        specialist_reviewer_role: reviewerRole,
+        specialist_review_notes: notes,
+        specialist_reviewed_at: reviewedAt,
+        updated_at: new Date().toISOString(),
+      }
+    : {
+        specialist_reviewed_by: null,
+        specialist_reviewer_role: null,
+        specialist_review_notes: null,
+        specialist_reviewed_at: null,
+        status: "draft",
+        published_at: null,
+        updated_at: new Date().toISOString(),
+      };
+
+  const { error: updateError } = await admin
+    .from("training_courses")
+    .update(courseUpdate)
+    .eq("id", courseId);
+
+  if (updateError) throw updateError;
+
+  revalidateTag("public-training");
+  revalidatePath(adminTrainingPath(courseId));
+  revalidatePath("/workspace/admin/training");
+  revalidatePath("/workspace/admin/training/reviews");
+  revalidatePath("/workspace/training");
 }
 
 export async function setTrainingCourseStatusAction(formData: FormData) {

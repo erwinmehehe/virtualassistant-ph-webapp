@@ -36,15 +36,17 @@ test("editing course content invalidates specialist review date", async () => {
   assert.match(action, /invalidateCourseReview/);
 });
 
-test("training admin exposes specialist-review requirement and evidence fields", async () => {
+test("training admin exposes specialist-review requirement and routes evidence through the queue", async () => {
   const coursePage = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
+  const reviewPage = await readFile("src/app/workspace/admin/training/reviews/page.tsx", "utf8");
   const inventory = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
   const newCourse = await readFile("src/app/workspace/admin/training/new/page.tsx", "utf8");
 
   assert.match(coursePage, /Editorial \+ specialist review/);
-  assert.match(coursePage, /Specialist reviewer/);
-  assert.match(coursePage, /Specialist role \/ scope/);
-  assert.match(coursePage, /Specialist review notes/);
+  assert.match(coursePage, /Specialist sign-off is managed in the review queue/);
+  assert.match(reviewPage, /Reviewer name/);
+  assert.match(reviewPage, /Reviewer role \/ scope/);
+  assert.match(reviewPage, /Review notes and corrections/);
   assert.match(coursePage, /Specialist sign-off required before publishing/);
   assert.match(inventory, /Specialist review required/);
   assert.match(newCourse, /review_requirement/);

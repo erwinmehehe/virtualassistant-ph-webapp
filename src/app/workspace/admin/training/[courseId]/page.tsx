@@ -104,6 +104,7 @@ export default async function AdminTrainingCoursePage({
             <label className="field"><span>Country focus</span><input name="country_focus" defaultValue={course.country_focus || ""}/></label>
             <label className="field"><span>Estimated minutes</span><input type="number" name="estimated_minutes" min={0} max={10000} defaultValue={course.estimated_minutes}/></label>
           </div>
+          <label className="field"><span>Roadmap order</span><input type="number" name="recommended_order" min={1} max={999} defaultValue={course.recommended_order ?? ""} placeholder="Optional"/></label>
           <label className="field"><span>Trademark / affiliation disclosure</span><textarea name="trademark_disclaimer" rows={3} defaultValue={course.trademark_disclaimer || ""}/></label>
           <div className="grid-3">
             <label className="field"><span>Content version</span><input type="number" name="content_version" min={1} defaultValue={course.content_version}/></label>

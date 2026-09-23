@@ -32,14 +32,14 @@ export default async function AdminTrainingPage() {
       {error ? <section className="card dashboard-section-card"><h2>Migration required</h2><p className="muted">Apply the free training foundation migration before using course administration.</p></section> : null}
 
       <section className="card dashboard-section-card">
-        <div className="dashboard-section-head"><div><h2>Course inventory</h2><p>Keep content versioned, reviewed, and easy to maintain as software and Australian workflows change.</p></div></div>
+        <div className="dashboard-section-head"><div><h2>Course inventory</h2><p>Keep the global curriculum versioned, reviewed, and easy to maintain as tools, industries, and country-specific workflows change.</p></div></div>
         {courses.length ? (
           <div className="dash-actions">
             {courses.map((course) => (
               <Link className="dash-action" href={"/workspace/admin/training/" + course.id} key={course.id}>
                 <span className="dash-action-count"><Clock3 size={16}/></span>
                 <span className="dash-action-copy">
-                  <span className="dash-action-title"><strong>{course.title}</strong><span className="badge">{course.status}</span></span>
+                  <span className="dash-action-title"><strong>{course.recommended_order ? "#" + course.recommended_order + " " : ""}{course.title}</strong><span className="badge">{course.status}</span></span>
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
                   {course.trademark_disclaimer ? <small className="muted">Trademark disclosure recorded</small> : null}

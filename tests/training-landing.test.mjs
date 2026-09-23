@@ -44,10 +44,9 @@ test("the VA page never leads with the client CTA", () => {
 });
 
 
-test("training social metadata is page-specific and course schema stays gated", () => {
+test("training social metadata is page-specific and unpublished courses have no Course schema", () => {
   assert.match(page, /\/training\/opengraph-image/);
-  assert.match(page, /const openCourses = .*status === "open"/);
-  assert.match(page, /"@type": "Course"/);
+  assert.doesNotMatch(page, /"@type": "Course"/);
   const og = source("src/app/training/opengraph-image.tsx");
   assert.match(og, /Learn the work\./);
   assert.match(og, /Show what you can do\./);

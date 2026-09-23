@@ -72,7 +72,12 @@ export default async function TrainingDashboardPage() {
   const active = enrolled.filter((course) => !course.completedAt);
   const certificates = courses.filter((course) => course.certificate && !course.certificate.revoked_at);
   const pathCourseIds = new Set(paths.flatMap((path) => path.courses.map((course) => course.id)));
-  const generalCourses = courses.filter((course) => !pathCourseIds.has(course.id));
+  const australiaCourseIds = new Set(
+    courses.filter((course) => course.country_focus === "Australia").map((course) => course.id),
+  );
+  const generalCourses = courses.filter(
+    (course) => !pathCourseIds.has(course.id) && !australiaCourseIds.has(course.id),
+  );
 
   return (
     <div className="dash-page role-overview">

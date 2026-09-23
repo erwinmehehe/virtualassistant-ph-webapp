@@ -191,7 +191,11 @@ export async function getTrainingDashboard(userId: string) {
       ...course,
       lessonCount: courseLessons.length,
       completedLessons,
-      progressPercent: percent(completedLessons, courseLessons.length),
+      progressPercent: enrollment?.completed_at
+        ? 100
+        : courseLessons.length > 0 && completedLessons === courseLessons.length
+          ? 95
+          : percent(completedLessons, courseLessons.length),
       enrolled: Boolean(enrollment),
       startedAt: enrollment?.started_at || null,
       completedAt: enrollment?.completed_at || null,
@@ -300,7 +304,11 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       completedAt: enrollment?.completed_at || null,
       lessonCount: lessons.length,
       completedLessons,
-      progressPercent: percent(completedLessons, lessons.length),
+      progressPercent: enrollment?.completed_at
+        ? 100
+        : lessons.length > 0 && completedLessons === lessons.length
+          ? 95
+          : percent(completedLessons, lessons.length),
     },
     error: null,
   };

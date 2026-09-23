@@ -46,11 +46,17 @@ export default async function AdminTrainingCoursePage({
 
   const lessons = course.modules.flatMap((courseModule) => courseModule.lessons);
   const publishedLessons = lessons.filter((lesson) => lesson.is_published);
+  const assessmentReady = course.assessments.every((assessment) =>
+    assessment.is_published &&
+    Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
+    assessment.pass_score !== null
+  );
   const publishReady =
     Boolean(course.reviewed_by && course.last_reviewed_at) &&
     lessons.length > 0 &&
     publishedLessons.length === lessons.length &&
-    lessons.every((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3);
+    lessons.every((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3) &&
+    assessmentReady;
 
   return (
     <div className="dash-page role-overview">
@@ -130,6 +136,7 @@ export default async function AdminTrainingCoursePage({
           <div><span><strong>Course review</strong><small>{course.reviewed_by ? course.reviewed_by + " · " + reviewedLabel(course.last_reviewed_at) : "Reviewer not recorded"}</small></span><span className={"badge " + (course.reviewed_by && course.last_reviewed_at ? "badge-success" : "badge-warning")}>{course.reviewed_by && course.last_reviewed_at ? "Done" : "Needed"}</span></div>
           <div><span><strong>Lesson content</strong><small>{lessons.length ? lessons.filter((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3).length + "/" + lessons.length + " have substantive blocks" : "No lessons yet"}</small></span></div>
           <div><span><strong>Lesson publishing</strong><small>{publishedLessons.length}/{lessons.length} lessons marked publishable</small></span></div>
+          <div><span><strong>Assessments</strong><small>{course.assessments.length ? (assessmentReady ? "Published with instructions and pass score" : "Assessment setup still needs review") : "No course assessment configured"}</small></span><span className={"badge " + (assessmentReady ? "badge-success" : "badge-warning")}>{assessmentReady ? "Ready" : "Needed"}</span></div>
         </div>
         <div className="row wrap" style={{ marginTop: 16 }}>
           {course.status !== "published" ? (

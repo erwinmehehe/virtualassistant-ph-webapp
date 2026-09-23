@@ -13,8 +13,12 @@ declare global {
   }
 }
 
+function isTrainingPath(pathname: string) {
+  return pathname === "/training" || pathname.startsWith("/workspace/training");
+}
+
 function trackablePath(pathname: string) {
-  return !pathname.startsWith("/workspace") && !pathname.startsWith("/api");
+  return isTrainingPath(pathname) || (!pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
 }
 
 /**
@@ -119,7 +123,16 @@ export function Analytics() {
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;
+
+    if (pathname.startsWith("/workspace/training")) {
+      if (pathname === "/workspace/training") send("training_dashboard_view");
+      else if (pathname.includes("/lessons/")) send("training_lesson_view");
+      else if (pathname.startsWith("/workspace/training/courses/")) send("training_course_view");
+      return;
+    }
+
     send("page_view");
+    if (pathname === "/training") send("training_landing_view");
     if (pathname === "/pricing") send("pricing_view");
     if (pathname === "/hire") send("hire_page_view");
     if (pathname.startsWith("/va/")) send("candidate_view");

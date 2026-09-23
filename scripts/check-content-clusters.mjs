@@ -37,7 +37,7 @@ const posts = [
   ...parseArray("src/lib/blog-keyword-support-guides.ts", "export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = ")
 ];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
-const software = parseArray("src/lib/software-pages.ts", "export const softwarePages: SoftwareSeoPage[] = ");
+const softwareSource = source("src/lib/software-pages.ts");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const servicePage = source("src/app/service/[slug]/page.tsx");
 const industryPage = source("src/app/industries/[slug]/page.tsx");
@@ -47,7 +47,7 @@ const blogArticle = source("src/components/blog-article.tsx");
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
-const softwareSlugs = new Set(software.map((item) => item.slug));
+const softwareSlugs = new Set([...softwareSource.matchAll(/slug:\\s*"([^"]+)"/g)].map((match) => match[1]));
 const industrySlugs = new Set(industries.map((item) => item.slug));
 const familyOwners = new Map();
 const clusterCounts = new Map();

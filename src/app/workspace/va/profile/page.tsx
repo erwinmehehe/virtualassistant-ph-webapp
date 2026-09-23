@@ -9,6 +9,8 @@ import { LiveProfileStrength } from "@/components/live-profile-strength";
 import { ResumeAutoFill } from "@/components/resume-autofill";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
+import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
+import { TrainingCredentials } from "@/components/training-credentials";
 
 function availabilityAge(value?: string | null) {
   if (!value) return { label: "Not confirmed", stale: true };
@@ -31,7 +33,10 @@ export default async function VaProfilePage({
   ]);
 
   const supabase = await createClient();
-  const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", userId).single();
+  const [{ data: va }, trainingCredentials] = await Promise.all([
+    supabase.from("va_profiles").select("*").eq("user_id", userId).single(),
+    getTrainingCredentialsForUser(userId),
+  ]);
 
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at
@@ -363,6 +368,13 @@ export default async function VaProfilePage({
 
         <aside className="profile-editor-sidebar">
           <LiveProfileStrength formId="va-profile-form" initial={va || {}} />
+
+          <TrainingCredentials
+            credentials={trainingCredentials}
+            heading="Your completed training"
+            showEmpty
+            selfService
+          />
 
           <section className="profile-side-actions">
             <div className="profile-side-actions-head">

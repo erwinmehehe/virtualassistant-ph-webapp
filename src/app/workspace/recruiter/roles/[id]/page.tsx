@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
-import { prepareStandardPlacementTermsAction, saveRoleReadinessDetailsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
+import { prepareStandardPlacementTermsAction, requestClientRoleDetailsAction, saveRoleReadinessDetailsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { RoleReadinessForm } from "@/components/role-readiness-form";
@@ -344,10 +344,12 @@ export default async function RoleControlCenter({
         </section>
       </div>
 
+      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request sent to the client.</div> : null}
       <RoleReadinessForm
         job={job}
         returnTo={`/workspace/recruiter/roles/${job.id}`}
         action={saveRoleReadinessDetailsAction}
+        requestAction={job.client_id ? requestClientRoleDetailsAction : undefined}
       />
 
       <section id="matching" className="role-workspace-section">

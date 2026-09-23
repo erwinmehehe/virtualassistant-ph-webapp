@@ -121,6 +121,81 @@ function readinessReturnPath(role: string, jobId: string, value: FormDataEntryVa
   return role === "admin" ? `/workspace/admin/jobs/${jobId}` : `/workspace/recruiter/roles/${jobId}`;
 }
 
+
+export async function requestClientRoleDetailsAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Role is required.");
+
+  const returnTo = readinessReturnPath(profile.role, jobId, formData.get("return_to"));
+  const admin = createAdminClient();
+  const { data: job } = await admin
+    .from("jobs")
+    .select("id,status,recruiter_id,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (!job) throw new Error("Role not found.");
+  if (job.status === "closed") throw new Error("Closed roles do not need a client details request.");
+  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
+    redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
+  }
+  if (!job.client_id) throw new Error("Link the client account before requesting missing details.");
+
+  const missing = publicationMissingDetails(job);
+  if (!missing.length) redirect(`${returnTo}?role_details_complete=1#role-readiness`);
+
+  const { data: client } = await admin
+    .from("profiles")
+    .select("email,full_name")
+    .eq("id", job.client_id)
+    .maybeSingle();
+
+  if (!client?.email) throw new Error("The linked client account does not have an email address.");
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const { sendRoleDetailsRequestEmail } = await import("@/lib/email");
+  const result = await sendRoleDetailsRequestEmail({
+    to: client.email,
+    clientName: client.full_name,
+    jobTitle: job.title || "Virtual Assistant role",
+    jobId,
+    missing,
+    appUrl,
+  });
+  if (!result.sent) throw new Error("The client details request could not be sent.");
+
+  await admin.from("notifications").insert({
+    user_id: job.client_id,
+    title: "Complete your hiring brief",
+    body: `Your recruiter needs a few more details for “${job.title || "your Virtual Assistant role"}”: ${missing.join(", ")}.`,
+    href: `/workspace/client/jobs/${jobId}?complete=1#role-readiness`,
+  });
+
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "role_details_requested",
+    description: `Requested missing hiring details from the client: ${missing.join(", ")}`,
+    actorId: user.id,
+    metadata: { missing_fields: missing, role: profile.role },
+  });
+
+  if (profile.role === "admin") {
+    await writeAdminAudit({
+      actorId: user.id,
+      action: "job_role_details_requested",
+      targetType: "job",
+      targetId: jobId,
+      metadata: { missing_fields: missing },
+    });
+  }
+
+  revalidatePath(returnTo);
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  redirect(`${returnTo}?role_details_requested=1#role-readiness`);
+}
+
 export async function saveRoleReadinessDetailsAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const jobId = String(formData.get("job_id") || "").trim();

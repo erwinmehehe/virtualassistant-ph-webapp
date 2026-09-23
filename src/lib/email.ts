@@ -123,7 +123,7 @@ type NotificationPreferenceField = "hiring_updates" | "booking_reminders" | "can
 
 function notificationPreferenceField(eventType: string): NotificationPreferenceField | null {
   if (eventType.startsWith("discovery_reminder_")) return "booking_reminders";
-  if (["client_followup", "lead_claim_nudge"].includes(eventType)) return "hiring_updates";
+  if (["client_followup", "lead_claim_nudge", "role_details_request"].includes(eventType)) return "hiring_updates";
   if (["new_application", "application_status", "profile_completion_reminder", "profile_stage_nudge"].includes(eventType)) {
     return "candidate_activity";
   }
@@ -724,6 +724,48 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
       ctaLabel: "Claim my hiring request"
     })
   }, "lead_claim_nudge", { archive: false, priority: "low", idempotencyKey: `lead-claim-nudge-${args.leadId}` });
+  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+
+export async function sendRoleDetailsRequestEmail(args: {
+  to?: string | null;
+  clientName?: string | null;
+  jobTitle: string;
+  jobId: string;
+  missing: string[];
+  appUrl: string;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
+  const origin = args.appUrl.replace(/\/$/, "");
+  const roleUrl = `${origin}/workspace/client/jobs/${encodeURIComponent(args.jobId)}?complete=1#role-readiness`;
+  const missingLabel = args.missing.join(", ");
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We are ready to keep <strong>${escapeHtml(args.jobTitle)}</strong> moving, but the hiring brief is still missing: <strong>${escapeHtml(missingLabel)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Open your workspace and complete only those fields. Once saved, your recruiter will see the updated brief automatically.</p>`;
+  const dateKey = new Date().toISOString().slice(0, 10);
+
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    replyTo: configuredReplyTo(),
+    subject: `A few details are still needed for ${args.jobTitle}`,
+    text: `Hi ${firstName},\n\nWe are ready to keep ${args.jobTitle} moving, but the hiring brief is still missing: ${missingLabel}.\n\nComplete the missing details here:\n${roleUrl}\n\nOnce saved, your recruiter will see the update automatically.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
+    html: renderHiringEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      ctaHref: roleUrl,
+      ctaLabel: "Complete hiring brief"
+    })
+  }, "role_details_request", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: `role-details-request-${args.jobId}-${dateKey}`
+  });
+
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

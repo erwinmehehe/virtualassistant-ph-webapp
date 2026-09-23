@@ -5,9 +5,11 @@ type RoleReadinessFormProps = {
   job: PublicationJob & { id: string; status?: string | null };
   returnTo: string;
   action: (formData: FormData) => void | Promise<void>;
+  audience?: "staff" | "client";
+  requestAction?: (formData: FormData) => void | Promise<void>;
 };
 
-export function RoleReadinessForm({ job, returnTo, action }: RoleReadinessFormProps) {
+export function RoleReadinessForm({ job, returnTo, action, audience = "staff", requestAction }: RoleReadinessFormProps) {
   const missing = publicationMissingDetails(job);
   if (!missing.length) return null;
 
@@ -16,10 +18,12 @@ export function RoleReadinessForm({ job, returnTo, action }: RoleReadinessFormPr
     <section id="role-readiness" className="card" style={{ marginTop: 18 }}>
       <div className="row-between wrap">
         <div>
-          <div className="kicker">Role readiness</div>
-          <h2 style={{ margin: "4px 0 0" }}>Complete required hiring details</h2>
+          <div className="kicker">{audience === "client" ? "Hiring brief" : "Role readiness"}</div>
+          <h2 style={{ margin: "4px 0 0" }}>{audience === "client" ? "Complete your hiring brief" : "Complete required hiring details"}</h2>
           <p className="small muted" style={{ margin: "7px 0 0", maxWidth: 760 }}>
-            Add only confirmed client information. Saving this form does not change commercial terms or the role&apos;s publication state.
+            {audience === "client"
+              ? "Your recruiter needs these details before the role can move forward. Add only information you have confirmed."
+              : "Add only confirmed client information. Saving this form does not change commercial terms or the role's publication state."}
             {job.status === "published" ? " This role is already live, so saved details will update the live brief." : ""}
           </p>
         </div>
@@ -107,10 +111,17 @@ export function RoleReadinessForm({ job, returnTo, action }: RoleReadinessFormPr
         ) : null}
 
         <div className="row wrap">
-          <button className="btn btn-primary" type="submit">Save role details</button>
+          <button className="btn btn-primary" type="submit">{audience === "client" ? "Save hiring brief" : "Save role details"}</button>
           <span className="small muted">Missing: {missing.join(", ")}.</span>
         </div>
       </form>
+      {audience === "staff" && requestAction ? (
+        <form action={requestAction} style={{ marginTop: 12 }}>
+          <input type="hidden" name="job_id" value={job.id} />
+          <input type="hidden" name="return_to" value={returnTo} />
+          <button className="btn" type="submit">Request missing details from client</button>
+        </form>
+      ) : null}
     </section>
   );
 }

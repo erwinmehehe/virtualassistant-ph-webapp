@@ -211,6 +211,104 @@ export async function createJobAction(formData: FormData) {
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
 }
 
+
+export async function saveClientRoleReadinessDetailsAction(formData: FormData) {
+  const { user } = await requireRole("client");
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Role is required.");
+
+  const supabase = await createClient();
+  const { data: job } = await supabase
+    .from("jobs")
+    .select("id,status,slug,recruiter_id,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing")
+    .eq("id", jobId)
+    .eq("client_id", user.id)
+    .maybeSingle();
+
+  if (!job) throw new Error("Role not found.");
+  if (job.status === "closed") throw new Error("This hiring request is closed.");
+
+  const missing = new Set(publicationMissingDetails(job));
+  if (!missing.size) redirect(`/workspace/client/jobs/${jobId}?role_details_complete=1#role-readiness`);
+
+  const patch: Record<string, unknown> = {};
+  if (missing.has("title")) {
+    const value = String(formData.get("title") || "").trim();
+    if (value.length < 3 || value.length > 140) throw new Error("Enter a valid role title.");
+    patch.title = value;
+  }
+  if (missing.has("summary")) {
+    const value = String(formData.get("summary") || "").trim();
+    if (value.length < 20 || value.length > 1200) throw new Error("Role summary must be at least 20 characters.");
+    patch.summary = value;
+  }
+  if (missing.has("responsibilities")) {
+    const value = lines(formData.get("responsibilities"));
+    if (!value.length) throw new Error("Add at least one responsibility.");
+    patch.responsibilities = value;
+  }
+  if (missing.has("skills")) {
+    const value = csv(formData.get("required_skills"));
+    if (value.length < 2) throw new Error("Add at least two required skills.");
+    patch.required_skills = value;
+  }
+  if (missing.has("hours")) {
+    const value = Number(formData.get("hours_per_week"));
+    if (!Number.isInteger(value) || value < 1 || value > 168) throw new Error("Hours per week must be between 1 and 168.");
+    patch.hours_per_week = value;
+  }
+  if (missing.has("timezone")) {
+    const value = String(formData.get("timezone") || "").trim();
+    if (!value || value.length > 100) throw new Error("Enter your timezone or working region.");
+    patch.timezone = value;
+  }
+  if (missing.has("budget")) {
+    const value = Number(formData.get("min_hourly_rate"));
+    if (!Number.isFinite(value) || value < MIN_HOURLY_RATE) throw new Error(`VA budget must be at least USD ${MIN_HOURLY_RATE}/hour.`);
+    patch.min_hourly_rate = value;
+  }
+  if (missing.has("start timing")) {
+    const value = String(formData.get("start_timing") || "").trim();
+    if (!value || value.length > 100) throw new Error("Enter your preferred start timing.");
+    patch.start_timing = value;
+  }
+
+  const candidate = { ...job, ...patch };
+  const stillMissing = publicationMissingDetails(candidate);
+  if (stillMissing.length) throw new Error(`Complete the remaining hiring details: ${stillMissing.join(", ")}.`);
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("jobs").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", jobId).eq("client_id", user.id);
+  if (error) throw error;
+
+  if (job.recruiter_id) {
+    await admin.from("notifications").insert({
+      user_id: job.recruiter_id,
+      title: "Client completed role details",
+      body: `The client completed the missing hiring details for “${String((patch.title || job.title) ?? "Virtual Assistant role")}”.`,
+      href: `/workspace/recruiter/roles/${jobId}`,
+    });
+  }
+
+  await recordProductEvent("job_updated", {
+    userId: user.id,
+    path: `/workspace/client/jobs/${jobId}`,
+    metadata: { job_id: jobId, source: "client_role_readiness" },
+  });
+
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath(`/workspace/admin/jobs/${jobId}`);
+  revalidatePath("/workspace/recruiter/roles");
+  revalidatePath("/workspace/admin/jobs");
+  if (job.status === "published") {
+    revalidatePath("/jobs");
+    if (job.slug) revalidatePath(`/jobs/${job.slug}`);
+  }
+
+  redirect(`/workspace/client/jobs/${jobId}?role_details_saved=1#role-readiness`);
+}
+
 export async function closeJobAction(formData: FormData) {
   const { user } = await requireRole("client");
   const id = String(formData.get("job_id"));

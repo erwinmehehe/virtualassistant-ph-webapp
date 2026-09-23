@@ -19,7 +19,8 @@ import { requireRoleFast } from "@/lib/auth";
 import { money } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
-import { adminRoleReadinessNeedsAttention, getRoleReadinessDashboard, roleReadinessMissingLabel, type RoleReadinessDashboardItem } from "@/lib/role-readiness-dashboard";
+import { getRoleReadinessDashboard, type RoleReadinessDashboardItem } from "@/lib/role-readiness-dashboard";
+import { adminRoleReadinessNeedsAttention, roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
 import styles from "./today.module.css";
 
 type OwnerActionRow = {

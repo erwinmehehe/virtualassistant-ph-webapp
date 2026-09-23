@@ -25,6 +25,7 @@ const fixedEvents = new Set([
   "blog_service_click",
   "blog_related_click",
   "blog_tool_click",
+  "blog_training_click",
   "tool_open",
   "tool_complete",
   "tool_cta_match",

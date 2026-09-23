@@ -4,6 +4,7 @@ import { DashHeader } from "@/components/dash-ui";
 import { getTrainingSpecialistReviewQueue } from "@/lib/training-admin";
 import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
 import {
+  assignTrainingSpecialistReviewerAction,
   saveTrainingSpecialistReviewAction,
   setTrainingCourseStatusAction,
 } from "@/app/actions/training-admin";
@@ -15,6 +16,20 @@ function dateLabel(value: string | null | undefined) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not recorded";
   return new Intl.DateTimeFormat("en-PH", { dateStyle: "medium" }).format(date);
+}
+
+function dueState(value: string | null | undefined) {
+  if (!value) return { label: "No due date", overdue: false };
+  const due = new Date(value + "T23:59:59+08:00");
+  if (Number.isNaN(due.getTime())) return { label: "No due date", overdue: false };
+  return {
+    label: dateLabel(value),
+    overdue: due.getTime() < Date.now(),
+  };
+}
+
+function eventLabel(value: string) {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export default async function SpecialistTrainingReviewPage() {
@@ -79,7 +94,9 @@ export default async function SpecialistTrainingReviewPage() {
           const definition = getSpecialistReviewDefinition(item.course.slug);
           if (!definition) return null;
           const review = item.review;
-          const canApprove = item.contentReady && item.assessmentReady;
+          const due = dueState(review?.review_due_date);
+          const canReview = item.assignmentCurrent;
+          const canApprove = item.contentReady && item.assessmentReady && item.assignmentCurrent;
           const canPublish = item.editorialReady && item.contentReady && item.assessmentReady && item.specialistReady;
 
           return (
@@ -114,18 +131,44 @@ export default async function SpecialistTrainingReviewPage() {
                 </div>
               </div>
 
-              <form action={saveTrainingSpecialistReviewAction} className="stack" style={{ marginTop: 18 }}>
+              <form action={assignTrainingSpecialistReviewerAction} className="stack" style={{ marginTop: 18 }}>
                 <input type="hidden" name="course_id" value={item.course.id}/>
-
-                <div className="grid-2">
+                <div className="dashboard-section-head">
+                  <div>
+                    <h3>Reviewer assignment</h3>
+                    <p>Assignment locks this review to revision {review?.review_revision || 1}. Any later course edit makes the assignment stale until it is refreshed.</p>
+                  </div>
+                  <span className={"badge " + (item.assignmentCurrent ? "badge-success" : "badge-warning")}>
+                    {item.assignmentCurrent ? "Current assignment" : review?.assigned_reviewer_name ? "Refresh required" : "Unassigned"}
+                  </span>
+                </div>
+                <div className="grid-3">
                   <label className="field">
-                    <span>Reviewer name</span>
-                    <input name="reviewer_name" defaultValue={review?.reviewer_name || item.course.specialist_reviewed_by || ""} placeholder="Full name"/>
+                    <span>Assigned reviewer</span>
+                    <input name="assigned_reviewer_name" required defaultValue={review?.assigned_reviewer_name || ""} placeholder="Full name"/>
                   </label>
                   <label className="field">
                     <span>Reviewer role / scope</span>
-                    <input name="reviewer_role" defaultValue={review?.reviewer_role || item.course.specialist_reviewer_role || ""} placeholder="e.g. payroll practitioner"/>
+                    <input name="assigned_reviewer_role" required defaultValue={review?.assigned_reviewer_role || ""} placeholder="e.g. payroll practitioner"/>
                   </label>
+                  <label className="field">
+                    <span>Due date</span>
+                    <input name="review_due_date" type="date" defaultValue={review?.review_due_date || ""}/>
+                  </label>
+                </div>
+                <div className="row wrap">
+                  <button className="btn" type="submit">{review?.assigned_reviewer_name ? "Refresh assignment" : "Assign reviewer"}</button>
+                  {review?.assigned_reviewer_name ? <span className={"badge " + (due.overdue && !item.specialistReady ? "badge-warning" : "")}>Due {due.label}</span> : null}
+                  {review?.assigned_at ? <span className="small muted">Assigned {dateLabel(review.assigned_at)} · revision {review.assigned_revision || "—"}/{review.review_revision}</span> : null}
+                </div>
+              </form>
+
+              <form action={saveTrainingSpecialistReviewAction} className="stack" style={{ marginTop: 18 }}>
+                <input type="hidden" name="course_id" value={item.course.id}/>
+
+                <div className="notice">
+                  <strong>{review?.assigned_reviewer_name || "No specialist reviewer assigned"}</strong>
+                  <p>{review?.assigned_reviewer_role || "Assign a reviewer before recording checklist work."}</p>
                 </div>
 
                 <div className="stack">
@@ -158,8 +201,8 @@ export default async function SpecialistTrainingReviewPage() {
                 </label>
 
                 <div className="row wrap">
-                  <button className="btn" type="submit" name="decision" value="in_progress">Save progress</button>
-                  <button className="btn" type="submit" name="decision" value="changes_requested">Needs changes</button>
+                  <button className="btn" type="submit" name="decision" value="in_progress" disabled={!canReview}>Save progress</button>
+                  <button className="btn" type="submit" name="decision" value="changes_requested" disabled={!canReview}>Needs changes</button>
                   <button className="btn btn-primary" type="submit" name="decision" value="approved" disabled={!canApprove}>Approve specialist review</button>
                   <Link className="btn" href={"/workspace/admin/training/" + item.course.id}>Open course <ExternalLink size={14}/></Link>
                 </div>
@@ -170,6 +213,30 @@ export default async function SpecialistTrainingReviewPage() {
                   <strong>Specialist approval recorded</strong>
                   <p>{item.course.specialist_review_notes}</p>
                 </div>
+              ) : null}
+
+              {item.history.length ? (
+                <details className="card" style={{ marginTop: 16 }}>
+                  <summary className="row-between">
+                    <span><strong>Review history</strong><small className="muted"> Immutable assignment and decision events</small></span>
+                    <span className="badge">{item.history.length}</span>
+                  </summary>
+                  <div className="compact-list" style={{ marginTop: 12 }}>
+                    {item.history.map((event) => (
+                      <div key={event.id}>
+                        <span>
+                          <strong>{eventLabel(event.event_type)}</strong>
+                          <small>{event.reviewer_name || "System"}{event.reviewer_role ? " · " + event.reviewer_role : ""} · revision {event.assigned_revision || "—"}/{event.review_revision}</small>
+                          {event.notes ? <small className="muted">{event.notes}</small> : null}
+                        </span>
+                        <span>
+                          <small>{dateLabel(event.created_at)}</small>
+                          {event.actor_label ? <small className="muted">{event.actor_label}</small> : null}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
               ) : null}
 
               {canPublish && item.course.status !== "published" ? (

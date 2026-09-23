@@ -27,7 +27,7 @@ test("course publishing blocks specialist courses without explicit specialist si
   assert.match(action, /specialist_reviewer_role/);
   assert.match(action, /specialist_review_notes/);
   assert.match(action, /specialist_reviewed_at/);
-  assert.match(action, /Complete the required specialist review before publishing this course/);
+  assert.match(action, /Complete the current specialist review revision before publishing this course/);
 });
 
 test("editing course content invalidates specialist review date", async () => {
@@ -44,7 +44,7 @@ test("training admin exposes specialist-review requirement and routes evidence t
 
   assert.match(coursePage, /Editorial \+ specialist review/);
   assert.match(coursePage, /Specialist sign-off is managed in the review queue/);
-  assert.match(reviewPage, /Reviewer name/);
+  assert.match(reviewPage, /Assigned reviewer/);
   assert.match(reviewPage, /Reviewer role \/ scope/);
   assert.match(reviewPage, /Review notes and corrections/);
   assert.match(coursePage, /Specialist sign-off required before publishing/);

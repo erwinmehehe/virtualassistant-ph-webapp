@@ -31,7 +31,8 @@ test("specialist review action requires evidence and every checklist item before
   const action = await readFile("src/app/actions/training-admin.ts", "utf8");
   assert.match(action, /saveTrainingSpecialistReviewAction/);
   assert.match(action, /Complete every specialist checklist item before approving the course/);
-  assert.match(action, /Add the specialist reviewer, role, and meaningful review notes before approval/);
+  assert.match(action, /Assign a specialist reviewer before recording review work/);
+  assert.match(action, /Add meaningful specialist review notes before approval/);
   assert.match(action, /training_specialist_reviews/);
   assert.match(action, /specialist_reviewed_at: reviewedAt/);
   assert.match(action, /status: "draft"/);

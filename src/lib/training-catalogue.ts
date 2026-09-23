@@ -45,12 +45,12 @@ const FOUNDATIONS: TrainingCourse[] = [
   {
     // Written, and being ported into the training system as a real course.
     title: "Get client-ready",
-    blurb: "Turn the experience you already have into a profile a client picks: summary, skills, headline, rate, portfolio, photo.",
+    blurb: "Turn the experience you already have into a profile a client can understand quickly: summary, skills, headline, rate, portfolio, and photo.",
     status: "writing"
   },
   {
     title: "Virtual Assistant Foundations",
-    blurb: "Remote work habits, professional communication, inbox and calendar, file management, research, handling mistakes, and using AI without getting caught out.",
+    blurb: "Remote work habits, professional communication, inbox and calendar, file management, research, handling mistakes, and responsible use of AI.",
     status: "writing"
   }
 ];

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BadgeCheck, CalendarClock, CheckCircle2, HeartPulse, LifeBuoy, MessagesSquare, ShieldCheck } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
+import { PublicAvatar } from "@/components/public-avatar";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { submitPlacementPulseAction } from "@/app/actions/agency-operations-v2";
 import type { AvatarProfileRow, JobSummaryRow, PlacementCheckinRow, WorkroomRow } from "@/lib/workspace-rows";
@@ -13,9 +14,9 @@ function dateLabel(value?:string|null){if(!value)return"Not scheduled";return ne
 
 export default async function ClientTeamPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const query=await searchParams;
-  const {user}=await requireRole("client");
+  const {userId}=await requireRoleFast("client");
   const admin=createAdminClient();
-  const {data:roomData,error}=await admin.from("workrooms").select("*").eq("client_id",user.id).order("created_at",{ascending:false});
+  const {data:roomData,error}=await admin.from("workrooms").select("*").eq("client_id",userId).order("created_at",{ascending:false});
   if(error)throw error;
   const active=((roomData||[]) as WorkroomRow[]).filter((r)=>r.placement_stage!=="ended"&&r.status!=="completed");
   const jobIds=[...new Set(active.map((r)=>r.job_id))];
@@ -40,7 +41,7 @@ export default async function ClientTeamPage({searchParams}:{searchParams:Promis
     {query.pulse_saved?<div className="success-banner" role="status">Thanks. Your check-in was saved and Client Success will step in if anything needs attention.</div>:null}
     <div className="page-head"><div><h1>My Team</h1><p>Your active Virtual Assistants, placement health, launch progress, and Client Success support in one place.</p></div></div>
     {active.length?<div className="stack">{active.map((room)=>{const job:Partial<JobSummaryRow>=jobMap.get(room.job_id)||{};const va:Partial<AvatarProfileRow>=vaMap.get(room.va_id||"")||{};const setup:{work_setup_verified_at?:string|null}=setupMap.get(room.va_id||"")||{};const csm:Partial<AvatarProfileRow>=csmMap.get(room.client_success_owner_id||"")||{};const roomCheckins=checkins.filter((c)=>c.workroom_id===room.id);const pending=roomCheckins.filter((c)=>!c.client_signal&&c.status!=="skipped");const requested=roomCheckins.find((c)=>c.id===requestedCheckin&&!c.client_signal);const next=requested||pending[0];return <section className="card stack" key={room.id}>
-      <div className="row-between wrap"><div className="row" style={{alignItems:"center"}}>{va.avatar_url?<img src={va.avatar_url} alt="" style={{width:48,height:48,borderRadius:"50%",objectFit:"cover"}}/>:null}<div><div className="row wrap"><h2 style={{margin:"0 0 3px"}}>{va.full_name||"Virtual Assistant"}</h2>{setup.work_setup_verified_at?<span className="badge badge-success"><BadgeCheck size={13}/>Work setup verified</span>:null}</div><p className="small muted" style={{margin:0}}>{job.title||"Placement"}</p></div></div><div className="row wrap"><span className={`badge ${healthBadge(room.health_status||"")}`}><HeartPulse size={13}/>{HEALTH_LABELS[room.health_status||""]||room.health_status}{room.health_score!=null?` · ${room.health_score}`:""}</span><span className="badge">{STAGE_LABELS[room.placement_stage||""]||room.placement_stage}</span></div></div>
+      <div className="row-between wrap"><div className="row" style={{alignItems:"center"}}><PublicAvatar name={va.full_name||"Virtual Assistant"} src={va.avatar_url} size="sm"/><div><div className="row wrap"><h2 style={{margin:"0 0 3px"}}>{va.full_name||"Virtual Assistant"}</h2>{setup.work_setup_verified_at?<span className="badge badge-success"><BadgeCheck size={13}/>Work setup verified</span>:null}</div><p className="small muted" style={{margin:0}}>{job.title||"Placement"}</p></div></div><div className="row wrap"><span className={`badge ${healthBadge(room.health_status||"")}`}><HeartPulse size={13}/>{HEALTH_LABELS[room.health_status||""]||room.health_status}{room.health_score!=null?` · ${room.health_score}`:""}</span><span className="badge">{STAGE_LABELS[room.placement_stage||""]||room.placement_stage}</span></div></div>
 
       <div className="grid-4">
         <div><span className="small muted">Start date</span><strong style={{display:"block"}}>{room.start_date||"Not recorded"}</strong></div>

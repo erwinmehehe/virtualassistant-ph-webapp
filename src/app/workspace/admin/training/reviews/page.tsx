@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ClipboardCheck, ExternalLink, ShieldAlert } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, ExternalLink, Mail, Send, ShieldAlert, XCircle } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingSpecialistReviewQueue } from "@/lib/training-admin";
 import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
@@ -8,6 +8,10 @@ import {
   saveTrainingSpecialistReviewAction,
   setTrainingCourseStatusAction,
 } from "@/app/actions/training-admin";
+import {
+  revokeTrainingSpecialistReviewInviteAction,
+  sendTrainingSpecialistReviewInviteAction,
+} from "@/app/actions/training-specialist-invites";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +36,16 @@ function eventLabel(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export default async function SpecialistTrainingReviewPage() {
+export default async function SpecialistTrainingReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const query = await searchParams;
   const { items, error } = await getTrainingSpecialistReviewQueue();
   const approved = items.filter((item) => item.specialistReady).length;
   const changesRequested = items.filter((item) => item.review?.decision === "changes_requested").length;
+  const activeInvites = items.filter((item) => ["pending", "opened"].includes(item.invite?.status || "")).length;
   const releaseReady = items.filter(
     (item) => item.editorialReady && item.contentReady && item.assessmentReady && item.specialistReady,
   ).length;
@@ -49,11 +59,18 @@ export default async function SpecialistTrainingReviewPage() {
         actions={<Link className="dash-btn" href="/workspace/admin/training"><ArrowLeft size={15}/> Training</Link>}
       />
 
+      {query.invited ? <div className="success-banner" role="status">Secure specialist review invite sent.</div> : null}
+
       <div className="va-status-grid">
         <div className="status-summary-card">
           <div className="row-between"><span>Specialist courses</span><ClipboardCheck size={18}/></div>
           <strong>{items.length}</strong>
           <small>Require subject-matter sign-off</small>
+        </div>
+        <div className="status-summary-card">
+          <div className="row-between"><span>Reviews out</span><Mail size={18}/></div>
+          <strong>{activeInvites}</strong>
+          <small>Secure invites pending or opened</small>
         </div>
         <div className="status-summary-card">
           <div className="row-between"><span>Approved</span><CheckCircle2 size={18}/></div>
@@ -92,8 +109,14 @@ export default async function SpecialistTrainingReviewPage() {
       <div className="stack">
         {items.map((item) => {
           const definition = getSpecialistReviewDefinition(item.course.slug);
-          if (!definition) return null;
+          if (!definition) {
+            return <section className="card dashboard-section-card" key={item.course.id}>
+              <div className="alert">Review checklist missing for {item.course.title}. This course cannot be approved until its specialist standard is configured.</div>
+            </section>;
+          }
           const review = item.review;
+          const invite = item.invite;
+          const inviteActive = Boolean(invite && ["pending", "opened"].includes(invite.status));
           const due = dueState(review?.review_due_date);
           const canReview = item.assignmentCurrent;
           const canApprove = item.contentReady && item.assessmentReady && item.assignmentCurrent;
@@ -162,6 +185,50 @@ export default async function SpecialistTrainingReviewPage() {
                   {review?.assigned_at ? <span className="small muted">Assigned {dateLabel(review.assigned_at)} · revision {review.assigned_revision || "—"}/{review.review_revision}</span> : null}
                 </div>
               </form>
+
+              {review?.decision === "changes_requested" && review.notes ? (
+                <div className="alert" style={{ marginTop: 16 }}>
+                  <strong>Outstanding issues</strong>
+                  <p style={{ marginBottom: 0 }}>{review.notes}</p>
+                </div>
+              ) : null}
+
+              {item.assignmentCurrent && !item.specialistReady && review?.decision !== "changes_requested" ? (
+                <section className="card" style={{ marginTop: 18 }}>
+                  <div className="row-between wrap">
+                    <div>
+                      <div className="small muted">External reviewer handoff</div>
+                      <h3 style={{ margin: "4px 0" }}>{inviteActive ? "Secure review is active" : "Send the assigned reviewer a secure link"}</h3>
+                      <p className="small muted" style={{ margin: 0 }}>No admin account is required. The link is locked to revision {review?.assigned_revision || "—"} and expires automatically.</p>
+                    </div>
+                    {invite ? <span className={"badge " + (invite.status === "opened" ? "badge-success" : "")}>{invite.status === "pending" ? "Sent" : invite.status === "opened" ? "Opened" : invite.status === "submitted" ? "Submitted" : "Revoked"}</span> : null}
+                  </div>
+
+                  {inviteActive && invite ? (
+                    <>
+                      <div className="compact-list" style={{ marginTop: 12 }}>
+                        <div><span><strong>{invite.reviewer_name}</strong><small>{invite.reviewer_email} · {invite.reviewer_role}</small></span></div>
+                        <div><span><strong>Review activity</strong><small>{invite.opened_at ? "Opened " + dateLabel(invite.opened_at) : invite.sent_at ? "Sent " + dateLabel(invite.sent_at) : "Invite created"}</small></span></div>
+                      </div>
+                      <form action={revokeTrainingSpecialistReviewInviteAction} style={{ marginTop: 12 }}>
+                        <input type="hidden" name="invite_id" value={invite.id}/>
+                        <button className="btn btn-sm" type="submit"><XCircle size={14}/> Revoke secure link</button>
+                      </form>
+                    </>
+                  ) : (
+                    <form action={sendTrainingSpecialistReviewInviteAction} className="stack" style={{ marginTop: 14 }}>
+                      <input type="hidden" name="course_id" value={item.course.id}/>
+                      <label className="field">
+                        <span>Reviewer email</span>
+                        <input type="email" name="reviewer_email" required maxLength={254} defaultValue={invite?.reviewer_email || ""} placeholder="reviewer@company.com"/>
+                      </label>
+                      <div>
+                        <button className="btn btn-primary" type="submit"><Send size={14}/> Send secure review</button>
+                      </div>
+                    </form>
+                  )}
+                </section>
+              ) : null}
 
               <form action={saveTrainingSpecialistReviewAction} className="stack" style={{ marginTop: 18 }}>
                 <input type="hidden" name="course_id" value={item.course.id}/>

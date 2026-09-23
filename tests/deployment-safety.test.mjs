@@ -10,10 +10,9 @@ test("Vercel only auto-deploys main from Git",async()=>{
   assert.equal(config.git?.deploymentEnabled?.["**"],false);
 });
 
-test("optional CLI production deploy cannot report success without credentials",async()=>{
-  const workflow=await read(".github/workflows/vercel-production.yml");
-  assert.doesNotMatch(workflow,/workflow_run:/);
-  assert.match(workflow,/workflow_dispatch:/);
-  assert.match(workflow,/VERCEL_TOKEN is not configured/);
-  assert.match(workflow,/exit 1/);
+test("production deploy relies on the Git integration instead of a long-lived Vercel token workflow",async()=>{
+  await assert.rejects(
+    read(".github/workflows/vercel-production.yml"),
+    (error)=>error?.code === "ENOENT"
+  );
 });

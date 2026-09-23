@@ -10,8 +10,8 @@ const page = source("src/app/training/page.tsx");
 const catalogue = source("src/lib/training-catalogue.ts");
 
 test("the public training page targets the search term and is indexable", () => {
-  assert.match(page, /const META_TITLE = "Virtual Assistant Training Philippines \\| Free VA Course"/);
-  assert.match(page, /title: \\{ absolute: META_TITLE \\}/);
+  assert.match(page, /const META_TITLE = "Virtual Assistant Training Philippines \| Free VA Course"/);
+  assert.match(page, /title: \{ absolute: META_TITLE \}/);
   assert.match(page, /virtual assistant training philippines/i);
   assert.match(page, /canonicalPath\("\/training"\)/);
   // It must be in the sitemap, or nobody finds the one public door.

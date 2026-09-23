@@ -14,6 +14,11 @@ type CourseRow = {
   trademark_disclaimer: string | null;
   reviewed_by: string | null;
   last_reviewed_at: string | null;
+  review_requirement: "editorial" | "specialist";
+  specialist_reviewed_by: string | null;
+  specialist_reviewer_role: string | null;
+  specialist_review_notes: string | null;
+  specialist_reviewed_at: string | null;
   published_at: string | null;
   updated_at: string;
 };
@@ -130,7 +135,7 @@ export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
     .eq("status", "published")
     .order("recommended_order", { ascending: true })
     .order("title");
@@ -253,7 +258,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -378,7 +383,7 @@ export async function getTrainingAdminSummary() {
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
     .order("recommended_order", { ascending: true })
     .order("title");
 

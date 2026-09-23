@@ -17,6 +17,11 @@ type AdminCourse = {
   trademark_disclaimer: string | null;
   reviewed_by: string | null;
   last_reviewed_at: string | null;
+  review_requirement: "editorial" | "specialist";
+  specialist_reviewed_by: string | null;
+  specialist_reviewer_role: string | null;
+  specialist_review_notes: string | null;
+  specialist_reviewed_at: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;

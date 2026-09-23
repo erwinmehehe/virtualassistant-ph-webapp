@@ -72,6 +72,7 @@ export default async function AdminTrainingPage() {
                   <span className="dash-action-title"><strong>{course.recommended_order ? "#" + course.recommended_order + " " : ""}{course.title}</strong><span className="badge">{course.status}</span></span>
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
+                  {course.review_requirement === "specialist" ? <small className="muted">{course.specialist_reviewed_at ? "Specialist reviewed · " + (course.specialist_reviewed_by || "Reviewer recorded") : "Specialist review required"}</small> : null}
                   {course.trademark_disclaimer ? <small className="muted">Trademark disclosure recorded</small> : null}
                 </span>
               </Link>
@@ -87,7 +88,7 @@ export default async function AdminTrainingPage() {
         <div className="compact-list">
           <div><span><strong>Free learning and certificates</strong><small>No lesson, assessment, or completion certificate is paywalled.</small></span></div>
           <div><span><strong>Independent from hiring</strong><small>Course completion never controls job access or shortlisting.</small></span></div>
-          <div><span><strong>Expert-reviewed specialist content</strong><small>Industry workflows should be reviewed by practising VAs or subject-matter experts before publishing.</small></span></div>
+          <div><span><strong>Expert-reviewed specialist content</strong><small>Courses marked specialist are blocked from publication until reviewer name, role, notes, and review date are recorded.</small></span></div>
           <div><span><strong>Composite scenarios only</strong><small>Real briefs can inspire exercises, but a single client brief should never be lightly anonymized and reused.</small></span></div>
         </div>
       </section>

@@ -14,6 +14,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
     "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "Career guidance only. Verify the employer, contract terms, platform rules, and any employment or tax obligations that apply to your situation.",
+    "sources": [
+      { "label": "DOLE: Public warned on fake jobs", "href": "https://dole.gov.ph/news/public-warned-on-fake-jobs/" },
+      { "label": "CICC: Kontra Scam guidance", "href": "https://cicc.gov.ph/wp-content/uploads/2025/04/KONTRA-SCAM-Brochure.pdf" }
+    ],
     "keyTakeaways": [
       "Part-time Virtual Assistant jobs vary by schedule, client timezone, live coverage, and whether hours are fixed or flexible.",
       "Choose roles that match your strongest repeatable skills instead of applying to every broad Virtual Assistant listing.",
@@ -104,6 +109,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "How do I avoid fake Virtual Assistant jobs?", "answer": "Research the employer, use established platforms where possible, be cautious with rushed off-platform communication, and do not pay fees to unlock a job or release supposed earnings." }
     ],
     "internalLinks": [
+      { "label": "Philippines hiring guides", "href": "/blog/topic/philippines", "description": "Browse practical Philippines-focused Virtual Assistant guidance." },
       { "label": "Browse Virtual Assistant jobs", "href": "/jobs", "description": "Review current openings and their role requirements." },
       { "label": "Virtual Assistant training", "href": "/training", "description": "Build practical skills before applying." },
       { "label": "General Virtual Assistant", "href": "/service/general-virtual-assistant", "description": "See common general support workflows." },
@@ -124,6 +130,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
     "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "Career guidance only. Role labels, hiring demand, qualifications, and work arrangements vary by employer and should be checked against the actual vacancy.",
+    "sources": [
+      { "label": "PhilJobNet: Philippine job portal", "href": "https://philjobnet.gov.ph/" },
+      { "label": "Department of Labor and Employment", "href": "https://dole.gov.ph/" }
+    ],
     "keyTakeaways": [
       "A useful niche is usually a repeatable workflow, industry, or tool specialization rather than a trendy job title.",
       "Choose a niche where you can build proof, understand the client's operating context, and improve with repetition.",
@@ -222,6 +233,8 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "Should I choose a niche based only on salary?", "answer": "No. Consider whether you can build evidence, learn the workflow deeply, find repeatable demand, and sustain the work. Compensation varies by scope, experience, schedule, responsibility, and market." }
     ],
     "internalLinks": [
+      { "label": "Philippines hiring guides", "href": "/blog/topic/philippines", "description": "Browse practical Philippines-focused Virtual Assistant guidance." },
+      { "label": "Virtual Assistant tasks", "href": "/blog/virtual-assistant-tasks", "description": "See how niche roles map to concrete delegated work." },
       { "label": "Browse Virtual Assistant services", "href": "/services", "description": "Compare role specializations and their workflows." },
       { "label": "Browse industries", "href": "/industries", "description": "See how Virtual Assistant work changes by client industry." },
       { "label": "Browse software specializations", "href": "/software", "description": "Explore software-led workflow roles." },
@@ -356,6 +369,8 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "What non-phone tasks can a small business outsource first?", "answer": "Start with repeatable work such as inbox organization, data cleanup, research, CRM updates, content scheduling, reporting, or ecommerce administration where the inputs and expected outputs are clear." }
     ],
     "internalLinks": [
+      { "label": "Hiring guides", "href": "/blog/topic/hiring", "description": "Browse role design, task and hiring guidance." },
+      { "label": "Virtual Assistant tasks", "href": "/blog/virtual-assistant-tasks", "description": "Compare phone and non-phone work within a wider delegation plan." },
       { "label": "Data Entry & Research Virtual Assistant", "href": "/service/research-data", "description": "Delegate structured research and record maintenance." },
       { "label": "Content Writing Virtual Assistant", "href": "/service/content-writing", "description": "Build a written content production workflow." },
       { "label": "SEO Virtual Assistant", "href": "/service/seo", "description": "Delegate recurring SEO implementation." },
@@ -514,6 +529,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "How do I know when to give a Virtual Assistant more tasks?", "answer": "Expand the role after the existing workflows are accurate, timely, documented, and require less manager intervention. Use actual workload and quality data rather than adding filler work." }
     ],
     "internalLinks": [
+      { "label": "Hiring guides", "href": "/blog/topic/hiring", "description": "Browse practical hiring and role-design guidance." },
       { "label": "Virtual Assistant services", "href": "/services", "description": "Match tasks to a coherent role specialization." },
       { "label": "How many hours to hire a Virtual Assistant", "href": "/blog/how-many-hours-hire-virtual-assistant", "description": "Turn task volume into a realistic weekly schedule." },
       { "label": "Virtual Assistant job description", "href": "/resources/virtual-assistant-job-description", "description": "Convert delegated workflows into a clear role brief." },
@@ -619,6 +635,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "How do I manage a Virtual Assistant team?", "answer": "Give every workflow one owner, use shared systems rather than private trackers, document handoffs, define escalation rules, and measure outcomes such as backlog, quality and response time." }
     ],
     "internalLinks": [
+      { "label": "Managing Virtual Assistants", "href": "/blog/topic/managing", "description": "Browse delegation, onboarding and team-management guidance." },
       { "label": "How many hours to hire a Virtual Assistant", "href": "/blog/how-many-hours-hire-virtual-assistant", "description": "Estimate capacity before adding headcount." },
       { "label": "Virtual Assistant onboarding checklist", "href": "/blog/virtual-assistant-onboarding-checklist", "description": "Create a controlled handoff for each new hire." },
       { "label": "Virtual Assistant services", "href": "/services", "description": "Compare generalist and specialist roles." },
@@ -639,6 +656,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
     "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "Career guidance only. Check your own employment agreement, client contract, tax obligations, platform terms, and data-security requirements before taking outside work.",
+    "sources": [
+      { "label": "DOLE: Public warned on fake jobs", "href": "https://dole.gov.ph/news/public-warned-on-fake-jobs/" },
+      { "label": "CICC: Kontra Scam guidance", "href": "https://cicc.gov.ph/wp-content/uploads/2025/04/KONTRA-SCAM-Brochure.pdf" }
+    ],
     "keyTakeaways": [
       "Choose a small service offer that fits hours you can reliably protect every week.",
       "Use real work samples or honest practice projects to prove capability before chasing many clients.",
@@ -710,6 +732,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
       { "question": "How do I find my first Virtual Assistant client?", "answer": "Use several channels such as curated jobs, direct applications, professional networks, referrals, and reputable remote-work platforms. Tailor each application to a specific workflow you can perform." }
     ],
     "internalLinks": [
+      { "label": "Philippines hiring guides", "href": "/blog/topic/philippines", "description": "Browse practical Philippines-focused Virtual Assistant guidance." },
       { "label": "Part-time Virtual Assistant jobs", "href": "/blog/part-time-virtual-assistant-jobs-philippines", "description": "Understand part-time schedules and application expectations." },
       { "label": "Virtual Assistant niches", "href": "/blog/virtual-assistant-niches", "description": "Choose a specialization that matches your existing strengths." },
       { "label": "Virtual Assistant training", "href": "/training", "description": "Build practical workflow skills." },

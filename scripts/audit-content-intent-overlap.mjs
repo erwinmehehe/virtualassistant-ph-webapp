@@ -24,7 +24,9 @@ const blogs = [
   ...parseArray("src/lib/blog-keyword-support-guides.ts", "export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = ")
 ];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
-const software = parseArray("src/lib/software-pages.ts", "export const softwarePages: SoftwareSeoPage[] = ");
+const softwareSource = source("src/lib/software-pages.ts");
+const software = [...softwareSource.matchAll(/slug:\\s*"([^"]+)"[\\s\\S]{0,1200}?primaryKeyword:\\s*"([^"]+)"[\\s\\S]{0,600}?metaTitle:\\s*"([^"]+)"/g)]
+  .map((match) => ({ slug: match[1], primaryKeyword: match[2], metaTitle: match[3] }));
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const archive = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
 

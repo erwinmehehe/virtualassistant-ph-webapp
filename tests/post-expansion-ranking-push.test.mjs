@@ -34,7 +34,7 @@ test("priority link graph reinforces the near-page-one owners", () => {
   for (const path of expected) assert.ok(links.includes(path), `${path}: missing from priority link graph`);
   assert.match(links, /"general-virtual-assistant": \[GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE\]/);
   assert.match(links, /"executive-virtual-assistant": \[GENERAL_VS_EXECUTIVE, RATE_GUIDE, SALARY_GUIDE\]/);
-  assert.match(links, /"project-coordination": \[PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB\]/);
+  assert.match(links, /"project-coordination": \[PROJECT_MANAGER_RATES, RATE_GUIDE, PRICING_HUB, HIRE_HUB\]/);
 });
 
 test("near-page-one archive guides now answer the query earlier", () => {

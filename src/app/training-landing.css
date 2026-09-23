@@ -979,8 +979,7 @@
     min-height: 66px;
   }
 
-  .tr-request,
-  .tr-hiring {
+  .tr-request {
     align-items: flex-start;
     flex-direction: column;
   }

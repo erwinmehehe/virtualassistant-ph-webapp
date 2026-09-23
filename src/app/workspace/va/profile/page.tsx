@@ -38,7 +38,7 @@ export default async function VaProfilePage({
     getTrainingCredentialsForUser(userId),
   ]);
 
-  const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\\d+-/, "") || null;
+  const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\d+-/, "") || null;
   const consentGranted = Boolean(va?.public_profile_consent);
   const consentDate = va?.public_profile_consent_at
     ? new Date(va.public_profile_consent_at).toLocaleDateString("en-PH", {

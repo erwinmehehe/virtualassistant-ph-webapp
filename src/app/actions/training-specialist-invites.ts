@@ -63,7 +63,7 @@ export async function sendTrainingSpecialistReviewInviteAction(formData: FormDat
   const admin = createAdminClient();
   const { data: course, error: courseError } = await admin
     .from("training_courses")
-    .select("id,slug,title,summary,review_requirement,status")
+    .select("id,slug,title,summary,review_requirement,status,content_version")
     .eq("id", parsed.data.course_id)
     .maybeSingle();
 
@@ -95,6 +95,7 @@ export async function sendTrainingSpecialistReviewInviteAction(formData: FormDat
       reviewer_name: parsed.data.reviewer_name,
       reviewer_email: parsed.data.reviewer_email.toLowerCase(),
       reviewer_role: parsed.data.reviewer_role,
+      course_content_version: course.content_version,
       token_hash: tokenHash,
       due_at: dueAt.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -186,6 +187,16 @@ export async function submitExternalTrainingSpecialistReviewAction(formData: For
   }
 
   const { invite, course, definition } = reviewContext;
+  if (course.content_version !== invite.course_content_version) {
+    const admin = createAdminClient();
+    await admin
+      .from("training_specialist_review_invites")
+      .update({ status: "revoked", updated_at: new Date().toISOString() })
+      .eq("id", invite.id)
+      .in("status", ["pending", "opened"]);
+    throw new Error("This course changed after the review was assigned. Ask the training team for a new review link.");
+  }
+
   const checklist = Object.fromEntries(
     definition.items.map((item) => [item.id, field(formData, `check_${item.id}`) === "1"]),
   );

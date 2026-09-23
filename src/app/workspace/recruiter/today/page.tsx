@@ -10,6 +10,8 @@ import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
+import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
+import { getRoleReadinessDashboard, roleReadinessMissingLabel } from "@/lib/role-readiness-dashboard";
 import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
@@ -123,7 +125,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId }));
+  const [{ data: summaryData, error: summaryError }, incompleteRoles] = await Promise.all([
+    withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId })),
+    getRoleReadinessDashboard(userId),
+  ]);
   if (summaryError) throw summaryError;
 
   const summary = (summaryData || {}) as Record<string,any>;
@@ -158,14 +163,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const clientResponseOverdue = Number(summary.client_response_overdue || 0);
   const interviewsDue = Number(summary.interviews_due || 0);
   const offersWaiting = Number(summary.offers_waiting || 0);
+  const incompleteRoleCount = incompleteRoles.length;
 
   const talentActions = approvalReadyCount + approvalCleanupCount + workSetupReadyCount + recentZeroCount;
   const clientActions = clientWaits.length + noShowNeedsEmail + noShowWaitingRebook;
-  const roleActions = roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
+  const roleActions = incompleteRoleCount + roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
   const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
 
   const nextActionCandidates = [
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
+    {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
     {count:noShowNeedsEmail,title:"Send no-show rebooking links",copy:"These clients missed discovery and have not received a secure link to choose another time.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open rebooking",icon:<RefreshCw size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
@@ -220,6 +227,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       hint:"Roles, interviews, offers",
       icon:<BriefcaseBusiness size={17}/>,
       items:[
+        {label:"Missing role details",count:incompleteRoleCount,href:"/workspace/recruiter/today#role-readiness"},
         {label:"Need candidates",count:roleNoCandidates,href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent"},
         {label:"Interview action",count:interviewsDue,href:"/workspace/recruiter/roles?view=interviewing&sort=urgent"},
         {label:"Offers waiting",count:offersWaiting,href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent"},
@@ -242,6 +250,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
     {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
     {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
+    {params.role_details_requested ? <div className="success-banner">Missing role details request sent to the client.</div> : null}
+    {params.role_details_complete ? <div className="info-banner">This role is already complete. No request was sent.</div> : null}
     <DashHeader
       kicker="Agency daily workflow"
       title="My Day"
@@ -267,7 +277,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
     <section id="workstreams" className={styles.workstreamSection} aria-labelledby="workstreams-title">
@@ -424,6 +434,30 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
         </div>
 
+        {incompleteRoles.length ? <div id="role-readiness" className={styles.followList}>
+          <div className={styles.groupLabel}>Needs role details</div>
+          {incompleteRoles.slice(0,5).map((role)=>{
+            const missing=role.missing.map(roleReadinessMissingLabel);
+            return <div className={styles.followRow} key={`readiness-${role.id}`}>
+              <span className={styles.followIcon}><BriefcaseBusiness size={15}/></span>
+              <span className={styles.followCopy}>
+                <strong>{role.title || "Client role"}</strong>
+                <small>{role.company_name || "Client"} · Missing {missing.join(", ")}</small>
+                <small>{ageLabel(role.age_hours)} open · this item disappears automatically when the brief is complete</small>
+              </span>
+              <div className={styles.followActions}>
+                <Link prefetch={false} className="btn btn-sm btn-primary" href={`/workspace/recruiter/roles/${role.id}#role-readiness`}>Complete role</Link>
+                {role.client_id ? <form action={requestClientRoleDetailsAction}>
+                  <input type="hidden" name="job_id" value={role.id}/>
+                  <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
+                  <button className="btn btn-sm" type="submit">Request client details</button>
+                </form> : <span className="badge badge-warning">Client account not linked</span>}
+              </div>
+            </div>;
+          })}
+          {incompleteRoles.length>5 ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles?view=needs_details&sort=urgent">+{incompleteRoles.length-5} more incomplete roles</Link> : null}
+        </div> : null}
+
         {clientWaits.length ? <div className={styles.followList}>
           <div className={styles.groupLabel}>Waiting on client</div>
           {clientWaits.slice(0,5).map((item)=>(
@@ -459,7 +493,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           {staleRolesCount > staleRolePreview.length ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRolesCount - staleRolePreview.length} more stale roles</Link> : null}
         </div> : null}
 
-        {!clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
+        {!incompleteRoles.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No required role details are missing, no client decisions are overdue, and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
       </section>
     </div>
   </div>;

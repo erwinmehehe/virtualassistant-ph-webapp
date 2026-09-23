@@ -1899,12 +1899,12 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
   },
   {
     "slug": "real-estate-virtual-assistant-tasks",
-    "title": "Real Estate Virtual Assistant Tasks: What to Delegate",
-    "metaTitle": "Real Estate Virtual Assistant Tasks to Delegate",
-    "description": "Learn which Real Estate Virtual Assistant tasks to delegate across CRM updates, lead follow-up, listings, transactions, scheduling, research, and admin.",
-    "excerpt": "A practical guide to separating repeatable real estate administration from licensed, strategic, and client-facing decisions that should stay with the agent or broker.",
+    "title": "Real Estate VA Workflow: CRM, Listings and Transactions",
+    "metaTitle": "Real Estate VA Workflow: CRM, Listings & Transactions",
+    "description": "Build a Real Estate VA workflow for CRM updates, lead follow-up, listing administration, transaction coordination, scheduling, research, and escalation.",
+    "excerpt": "A practical real estate operating workflow for delegating CRM, listing, and transaction administration without crossing into licensed decisions.",
     "topic": "hiring",
-    "clusterLabel": "Real Estate Virtual Assistant",
+    "clusterLabel": "Real Estate VA Workflow",
     "serviceSlug": "real-estate",
     "intent": "informational",
     "publishedAt": "2026-09-23",
@@ -1919,7 +1919,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ],
     "sections": [
       {
-        "heading": "Start with the workflows that repeat every week",
+        "heading": "Build one workflow across CRM, listings, and transactions",
         "paragraphs": [
           "Real estate teams create recurring administrative work around leads, listings, appointments, transactions, marketing assets, documents, and follow-up. A Virtual Assistant can own those repeatable queues when the process and escalation rules are documented.",
           "The goal is not to turn the VA into an unlicensed agent. The useful role is to keep the operating system current so the agent spends less time updating records, chasing documents, and rebuilding context before every client conversation."

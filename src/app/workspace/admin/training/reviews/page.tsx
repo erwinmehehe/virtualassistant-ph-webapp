@@ -8,6 +8,8 @@ import {
   setTrainingCourseStatusAction,
 } from "@/app/actions/training-admin";
 
+export const dynamic = "force-dynamic";
+
 function dateLabel(value: string | null | undefined) {
   if (!value) return "Not recorded";
   const date = new Date(value);

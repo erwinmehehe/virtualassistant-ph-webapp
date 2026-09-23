@@ -157,6 +157,31 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
 
   if (!assessment) redirect(`/workspace/training/courses/${course.slug}`);
 
+  const { data: moduleRows } = await supabase
+    .from("training_modules")
+    .select("id")
+    .eq("course_id", course.id);
+  const moduleIds = (moduleRows || []).map((module) => module.id);
+  const { data: lessonRows } = moduleIds.length
+    ? await supabase
+        .from("training_lessons")
+        .select("id")
+        .in("module_id", moduleIds)
+        .eq("is_published", true)
+    : { data: [] };
+  const lessonIds = (lessonRows || []).map((lesson) => lesson.id);
+  const { data: completedRows } = lessonIds.length
+    ? await supabase
+        .from("training_lesson_progress")
+        .select("lesson_id")
+        .eq("user_id", userId)
+        .in("lesson_id", lessonIds)
+    : { data: [] };
+  const completedIds = new Set((completedRows || []).map((item) => item.lesson_id));
+  if (!lessonIds.length || !lessonIds.every((id) => completedIds.has(id))) {
+    throw new Error("Complete all published lessons before submitting the final assessment.");
+  }
+
   const { error: enrollmentError } = await supabase
     .from("training_enrollments")
     .insert({ user_id: userId, course_id: course.id });

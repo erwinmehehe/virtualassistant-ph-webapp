@@ -13,6 +13,58 @@ function duration(minutes: number) {
   return rest ? `${hours}h ${rest}m` : `${hours}h`;
 }
 
+const AUSTRALIA_SPECIALIZATIONS = [
+  {
+    slug: "tradie-operations",
+    title: "Tradie & home-service operations",
+    bestFor: "Plumbing, electrical, HVAC, cleaning, pest control, maintenance, and other field-service businesses.",
+    outcome: "Learn to move work from enquiry to booking, quote follow-up, job completion, invoicing, payment follow-up, and customer review.",
+    courses: [
+      ["virtual-assistant-foundations", "Virtual Assistant Foundations"],
+      ["australian-va-fundamentals", "Australian VA Fundamentals"],
+      ["australian-trades-administration", "Australian Trades Administration"],
+      ["servicem8-for-virtual-assistants", "ServiceM8 for Virtual Assistants"],
+      ["xero-workflows-for-virtual-assistants", "Xero Workflows for Virtual Assistants"],
+    ],
+  },
+  {
+    slug: "property-management",
+    title: "Property management administration",
+    bestFor: "Property managers, real-estate teams, maintenance coordinators, and residential portfolio support.",
+    outcome: "Build reliable tenant, maintenance, inspection, arrears, document, and owner-reporting workflows without crossing licensed or tenancy-law boundaries.",
+    courses: [
+      ["virtual-assistant-foundations", "Virtual Assistant Foundations"],
+      ["australian-va-fundamentals", "Australian VA Fundamentals"],
+      ["property-management-administration-australia", "Property Management Administration Australia"],
+      ["xero-workflows-for-virtual-assistants", "Xero Workflows for Virtual Assistants"],
+    ],
+  },
+  {
+    slug: "ndis-allied-health",
+    title: "NDIS & allied health administration",
+    bestFor: "NDIS providers, allied-health clinics, therapy practices, and non-clinical healthcare administration.",
+    outcome: "Learn privacy-safe intake, scheduling, documentation, participant or patient communication, service administration, and escalation.",
+    courses: [
+      ["virtual-assistant-foundations", "Virtual Assistant Foundations"],
+      ["australian-va-fundamentals", "Australian VA Fundamentals"],
+      ["ndis-administration-fundamentals", "NDIS Administration Fundamentals"],
+      ["australian-allied-health-administration", "Australian Allied Health Administration"],
+      ["cliniko-for-virtual-assistants", "Cliniko for Virtual Assistants"],
+    ],
+  },
+  {
+    slug: "mortgage-broking",
+    title: "Mortgage broking administration",
+    bestFor: "Mortgage brokers and finance teams that need organised document collection, CRM follow-up, milestone tracking, and client administration.",
+    outcome: "Support the application workflow while keeping lending recommendations, credit assistance, and regulated decisions with authorised professionals.",
+    courses: [
+      ["virtual-assistant-foundations", "Virtual Assistant Foundations"],
+      ["australian-va-fundamentals", "Australian VA Fundamentals"],
+      ["mortgage-broking-administration-australia", "Mortgage Broking Administration Australia"],
+    ],
+  },
+] as const;
+
 export default async function TrainingDashboardPage() {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, paths, error } = await getTrainingDashboard(userId);
@@ -63,6 +115,74 @@ export default async function TrainingDashboardPage() {
           <small>Free completion credentials</small>
         </div>
       </div>
+
+      <section id="choose-australia-specialization" className="card dashboard-section-card">
+        <div className="dashboard-section-head">
+          <div>
+            <span className="small">Choose your Australian VA specialization</span>
+            <h2>Pick the client workflow you want to become good at.</h2>
+            <p>
+              Start with the common foundations, then follow one industry path. You do not need to complete every Australian course before applying for work.
+            </p>
+          </div>
+        </div>
+
+        <div className="dash-actions">
+          {AUSTRALIA_SPECIALIZATIONS.map((specialization, index) => {
+            const steps = specialization.courses.map(([slug, title]) => ({
+              slug,
+              title,
+              course: courses.find((course) => course.slug === slug) || null,
+            }));
+            const publishedCount = steps.filter((step) => step.course).length;
+            const nextCourse = steps
+              .map((step) => step.course)
+              .find((course) => course && !course.completedAt) || null;
+
+            return (
+              <article className="dash-action" key={specialization.slug}>
+                <span className="dash-action-count">{index + 1}</span>
+                <span className="dash-action-copy">
+                  <span className="dash-action-title">
+                    <strong>{specialization.title}</strong>
+                    <span className="badge">{publishedCount}/{steps.length} available</span>
+                  </span>
+                  <small>{specialization.bestFor}</small>
+                  <small>{specialization.outcome}</small>
+                  <small className="muted">
+                    {steps.map((step, stepIndex) => (
+                      <span key={step.slug}>
+                        {stepIndex ? " → " : ""}
+                        {step.title}{step.course ? "" : " · in development"}
+                      </span>
+                    ))}
+                  </small>
+                </span>
+                {nextCourse ? (
+                  nextCourse.enrolled ? (
+                    <Link className="btn btn-sm btn-primary" href={`/workspace/training/courses/${nextCourse.slug}`} data-track="training_specialization_continue">
+                      Continue
+                    </Link>
+                  ) : (
+                    <form action={startTrainingCourseAction}>
+                      <input type="hidden" name="course_id" value={nextCourse.id}/>
+                      <button className="btn btn-sm btn-primary" type="submit" data-track="training_specialization_start">
+                        Start next
+                      </button>
+                    </form>
+                  )
+                ) : (
+                  <span className="badge">Next course in development</span>
+                )}
+              </article>
+            );
+          })}
+        </div>
+
+        <p className="muted">
+          “Available” means the course has been reviewed and published in the LMS. Draft specialist courses stay unavailable until they pass the normal review process.
+        </p>
+      </section>
 
       {active.length ? (
         <section className="card dashboard-section-card">

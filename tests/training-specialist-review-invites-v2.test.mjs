@@ -67,13 +67,13 @@ test("external approval requires every checklist item and never auto-publishes",
 
   assert.match(action, /definition\.items\.every\(\(item\) => checklist\[item\.id\]\)/);
   assert.match(action, /Complete every specialist review check before approving the course/);
-  assert.match(action, /specialist_reviewed_by: invite\.reviewer_name/);
-  assert.match(action, /specialist_reviewed_at: now/);
-  assert.match(action, /status: "draft"/);
   assert.match(action, /submit_external_training_specialist_review/);
   assert.doesNotMatch(action, /status:\s*"published"/);
 
   const migration = await source("supabase/migrations/20260923222000_training_specialist_review_invites.sql");
+  assert.match(migration, /specialist_reviewed_by = case when p_decision = 'approved' then v_invite\.reviewer_name else null end/);
+  assert.match(migration, /specialist_reviewed_at = case when p_decision = 'approved' then v_now else null end/);
+  assert.match(migration, /status = 'draft'/);
   assert.match(migration, /create or replace function public\.submit_external_training_specialist_review/);
   assert.match(migration, /for update/);
   assert.match(migration, /v_review\.review_revision <> v_invite\.review_revision/);

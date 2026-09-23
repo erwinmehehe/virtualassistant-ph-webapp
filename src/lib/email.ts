@@ -118,7 +118,7 @@ function configuredReplyTo() {
 }
 
 type EmailPriority = "critical" | "standard" | "low";
-type EmailEventStatus = "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
+type EmailEventStatus = "sending" | "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
 type NotificationPreferenceField = "hiring_updates" | "booking_reminders" | "candidate_activity" | "product_emails";
 
 function notificationPreferenceField(eventType: string): NotificationPreferenceField | null {
@@ -400,6 +400,49 @@ async function trackedSend(
     }
   }
 
+  let sendClaimId: string | null = null;
+  if (options?.idempotencyKey) {
+    const { data: claim, error: claimError } = await admin
+      .from("outbound_email_events")
+      .insert({
+        event_type: eventType,
+        recipient: allRecipients.join(","),
+        recipient_count,
+        status: "sending",
+        provider_id: null,
+        error_message: null,
+        priority,
+        idempotency_key: options.idempotencyKey,
+        skip_reason: null,
+        automation: eventType,
+      })
+      .select("id")
+      .single();
+
+    if (claimError) {
+      if (claimError.code === "23505") {
+        await logEmailEvent(eventType, [], "duplicate_prevented", null, `Atomic idempotency claim prevented a duplicate request: ${options.idempotencyKey}`, {
+          priority,
+          idempotencyKey: null,
+          recipientCount: 0,
+          skipReason: "idempotency_replay",
+          automation: eventType,
+        });
+        return { sent: true as const, data: null, duplicatePrevented: true as const };
+      }
+      if (priority !== "critical") {
+        await logEmailEvent(eventType, allRecipients, "failed", null, "Idempotency claim failed; non-critical email was not sent.", {
+          ...eventMeta,
+          recipientCount: recipient_count,
+          skipReason: "idempotency_claim_failed",
+        });
+        return { sent: false as const, data: null, reason: "idempotency_claim_failed" };
+      }
+      throw claimError;
+    }
+    sendClaimId = claim?.id || null;
+  }
+
   try {
     const result: any = options?.idempotencyKey
       ? await config.client.emails.send(payload, { idempotencyKey: options.idempotencyKey })
@@ -407,29 +450,34 @@ async function trackedSend(
     if (result?.error) throw new Error(result.error?.message || "Email provider rejected the message.");
 
     const providerId = result?.data?.id || null;
-    if (providerId && options?.idempotencyKey) {
-      const { data: existing } = await admin.from("outbound_email_events").select("id").eq("provider_id", providerId).limit(1).maybeSingle();
-      if (existing?.id) {
-        await logEmailEvent(eventType, [], "duplicate_prevented", null, `Resend idempotency prevented a duplicate request: ${options.idempotencyKey}`, {
-          ...eventMeta,
-          recipientCount: 0,
-          skipReason: "idempotency_replay"
-        });
-        return { ...result, sent: true as const, duplicatePrevented: true as const };
-      }
+    if (sendClaimId) {
+      await admin.from("outbound_email_events").update({
+        status: "sent",
+        provider_id: providerId,
+        error_message: null,
+      }).eq("id", sendClaimId);
+    } else {
+      await logEmailEvent(eventType, allRecipients, "sent", providerId, null, {
+        ...eventMeta,
+        recipientCount: recipient_count
+      });
     }
-
-    await logEmailEvent(eventType, allRecipients, "sent", providerId, null, {
-      ...eventMeta,
-      recipientCount: recipient_count
-    });
     return { ...result, sent: true as const };
   } catch (error) {
-    await logEmailEvent(eventType, allRecipients, "failed", null, error instanceof Error ? error.message : String(error), {
-      ...eventMeta,
-      recipientCount: recipient_count,
-      skipReason: "provider_error"
-    });
+    if (sendClaimId) {
+      await admin.from("outbound_email_events").update({
+        status: "failed",
+        idempotency_key: null,
+        error_message: (error instanceof Error ? error.message : String(error)).slice(0, 1000),
+        skip_reason: "provider_error",
+      }).eq("id", sendClaimId);
+    } else {
+      await logEmailEvent(eventType, allRecipients, "failed", null, error instanceof Error ? error.message : String(error), {
+        ...eventMeta,
+        recipientCount: recipient_count,
+        skipReason: "provider_error"
+      });
+    }
     throw error;
   }
 }

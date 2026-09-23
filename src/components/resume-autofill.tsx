@@ -84,7 +84,7 @@ export function ResumeAutoFill({
     : 0;
 
   return (
-    <section className="resume-import-panel" aria-labelledby="resume-import-title">
+    <section className="resume-import-panel" id="resume" aria-labelledby="resume-import-title">
       <input
         ref={profileResumeRef}
         form={formId}

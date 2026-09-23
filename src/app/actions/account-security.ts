@@ -13,6 +13,7 @@ import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { sendEmailChangeVerificationEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { isKnownCompromisedPassword } from "@/lib/pwned-password";
 
 const sessionIdSchema = z.string().uuid();
 
@@ -200,6 +201,9 @@ export async function changeAccountPasswordAction(formData: FormData) {
   }
   if (!accountPasswordSchema.safeParse(newPassword).success) {
     redirect("/workspace/account?tab=security&error=Use%2012%2B%20characters%20with%20uppercase%2C%20lowercase%2C%20a%20number%2C%20and%20a%20symbol.%20Avoid%20common%20password%20phrases.");
+  }
+  if (await isKnownCompromisedPassword(newPassword)) {
+    redirect("/workspace/account?tab=security&error=That%20password%20appears%20in%20known%20data%20breaches.%20Choose%20a%20different%20password.");
   }
 
   await verifySensitiveAccountPassword(user, formData, "/workspace/account?tab=security");

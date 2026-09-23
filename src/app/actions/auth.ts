@@ -7,13 +7,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
-import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
 import { socialLoginEnabled } from "@/lib/social-login";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { sendAccountConfirmationEmail, sendPasswordRecoveryEmail } from "@/lib/email";
 import { recordSuccessfulLoginAndMaybeAlert } from "@/lib/account-security";
+import { isKnownCompromisedPassword } from "@/lib/pwned-password";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -142,9 +143,9 @@ export async function oauthAction(formData: FormData) {
 // server action that is otherwise all redirects, that surfaced as a generic
 // error page -- so someone who mistyped their password a few times was told the
 // site had crashed rather than to wait a few minutes.
-async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: number, windowMinutes: number, errorPath: (message: string) => string) {
+async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: number, maxIpAttempts: number, windowMinutes: number, errorPath: (message: string) => string) {
   try {
-    await enforceActionRateLimit(actionKey, subject, maxAttempts, windowMinutes);
+    await enforceEmailAndIpRateLimit(actionKey, subject, maxAttempts, maxIpAttempts, windowMinutes);
   } catch (err) {
     if (typeof (err as { digest?: unknown })?.digest === "string" && String((err as { digest: string }).digest).startsWith("NEXT_")) throw err;
     redirect(errorPath((err as Error).message || "Too many attempts. Please wait a few minutes and try again."));
@@ -153,7 +154,7 @@ async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: 
 
 export async function loginAction(formData: FormData) {
   const rawEmail = String(formData.get("email") || "").trim().toLowerCase();
-  await limitOrRedirect("auth_login", rawEmail, 8, 15, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
+  await limitOrRedirect("auth_login", rawEmail, 8, 30, 15, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
   if (!(await verifyTurnstile(formData))) redirect("/auth/login?error=Please%20complete%20the%20security%20check");
   const rawNext = String(formData.get("next") || "").trim();
   const rawLead = String(formData.get("lead") || "").trim();
@@ -212,7 +213,7 @@ export async function loginAction(formData: FormData) {
 
 export async function joinAction(formData: FormData) {
   const rawEmailForLimit = String(formData.get("email") || "").trim().toLowerCase();
-  await limitOrRedirect("auth_join", rawEmailForLimit, 5, 60, (message) => joinErrorPath(String(formData.get("role")) === "client" ? "client" : "va", message));
+  await limitOrRedirect("auth_join", rawEmailForLimit, 5, 15, 60, (message) => joinErrorPath(String(formData.get("role")) === "client" ? "client" : "va", message));
   if (!(await verifyTurnstile(formData))) {
     const roleForError = String(formData.get("role")) === "client" ? "client" : "va";
     redirect(joinErrorPath(roleForError, "Please complete the security check"));
@@ -233,6 +234,10 @@ export async function joinAction(formData: FormData) {
 
   if (isDisposableEmail(parsed.data.email)) {
     redirect(joinErrorPath(role, "Please use a permanent email address. Temporary inbox providers cannot receive account or hiring notifications.", { talent, lead, next }));
+  }
+
+  if (await isKnownCompromisedPassword(parsed.data.password)) {
+    redirect(joinErrorPath(role, "That password appears in known data breaches. Choose a different password.", { talent, lead, next }));
   }
 
   // A photo is optional at signup and is collected on the profile instead. If
@@ -376,7 +381,7 @@ export async function logoutAction() {
 
 export async function requestPasswordResetAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  await limitOrRedirect("password_reset", email, 4, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
+  await limitOrRedirect("password_reset", email, 4, 12, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
 
   if (email) {
     let brandedRecoverySent = false;
@@ -421,6 +426,9 @@ export async function updatePasswordAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   if (!newPasswordSchema.safeParse(password).success) {
     redirect("/auth/update-password?error=Use%2012%2B%20characters%20with%20uppercase%2C%20lowercase%2C%20a%20number%2C%20and%20a%20symbol.%20Avoid%20common%20password%20phrases.");
+  }
+  if (await isKnownCompromisedPassword(password)) {
+    redirect("/auth/update-password?error=That%20password%20appears%20in%20known%20data%20breaches.%20Choose%20a%20different%20password.");
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });

@@ -1,4 +1,7 @@
+import "server-only";
+
 import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function enforceActionRateLimit(actionKey: string, subject: string, maxAttempts: number, windowMinutes: number) {
@@ -19,4 +22,21 @@ export async function enforceActionRateLimit(actionKey: string, subject: string,
     throw new Error("We could not verify this request safely. Please try again.");
   }
   if (!data) throw new Error("Too many attempts. Please wait a few minutes and try again.");
+}
+
+async function requestIp() {
+  const requestHeaders = await headers();
+  const forwarded = requestHeaders.get("x-forwarded-for") || requestHeaders.get("x-real-ip") || "unknown";
+  return forwarded.split(",")[0]?.trim().slice(0, 128) || "unknown";
+}
+
+export async function enforceEmailAndIpRateLimit(
+  actionKey: string,
+  email: string,
+  maxPerEmail: number,
+  maxPerIp: number,
+  windowMinutes: number,
+) {
+  await enforceActionRateLimit(`${actionKey}:email`, email, maxPerEmail, windowMinutes);
+  await enforceActionRateLimit(`${actionKey}:ip`, await requestIp(), maxPerIp, windowMinutes);
 }

@@ -52,7 +52,7 @@ export async function applyToJobAction(formData: FormData) {
   const admin = createAdminClient();
   const [{ data: va }, { data: job }, { data: vetting }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", user.id).single(),
-    admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").single(),
+    admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null).single(),
     admin.from("va_vetting").select("stage").eq("va_id",user.id).single()
   ]);
   if (!va || !job) throw new Error("Job or VA profile was not found.");

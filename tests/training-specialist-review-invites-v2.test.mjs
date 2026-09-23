@@ -70,8 +70,18 @@ test("external approval requires every checklist item and never auto-publishes",
   assert.match(action, /specialist_reviewed_by: invite\.reviewer_name/);
   assert.match(action, /specialist_reviewed_at: now/);
   assert.match(action, /status: "draft"/);
-  assert.match(action, /eventType = approved \? "external_approved" : "external_changes_requested"/);
+  assert.match(action, /submit_external_training_specialist_review/);
   assert.doesNotMatch(action, /status:\s*"published"/);
+
+  const migration = await source("supabase/migrations/20260923222000_training_specialist_review_invites.sql");
+  assert.match(migration, /create or replace function public\.submit_external_training_specialist_review/);
+  assert.match(migration, /for update/);
+  assert.match(migration, /v_review\.review_revision <> v_invite\.review_revision/);
+  assert.match(migration, /v_review\.assigned_revision <> v_invite\.assigned_revision/);
+  assert.match(migration, /v_course\.content_version <> v_invite\.course_content_version/);
+  assert.match(migration, /'external_approved'/);
+  assert.match(migration, /'external_changes_requested'/);
+  assert.match(migration, /status = 'submitted'/);
 });
 
 test("course edits and assignment refreshes revoke active external review links", async () => {
@@ -95,6 +105,7 @@ test("reviewer page is private and exposes actual lessons and assessment", async
   assert.match(page, /Request changes/);
   assert.match(page, /Approve specialist review/);
   assert.match(page, /does not automatically publish the course/);
+  assert.match(page, /course changed after your review was assigned/i);
   assert.doesNotMatch(page, /reviewer_email|invite\.reviewer_email/);
 });
 

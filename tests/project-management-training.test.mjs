@@ -53,3 +53,13 @@ test("Project Management final assessment tests coordination work, not trivia", 
   assert.match(seed, /define QA and acceptance/i);
   assert.match(seed, /handover and closeout plan/i);
 });
+
+
+test("Project Management course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923140500_release_project_management_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'project-management-for-virtual-assistants'/);
+});

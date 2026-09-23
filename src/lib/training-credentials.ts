@@ -83,3 +83,46 @@ export async function getTrainingCredentialsForUser(userId: string) {
   const byUser = await getTrainingCredentialsForUsers([userId]);
   return byUser.get(userId) || [];
 }
+
+
+export type PublicTrainingCredential = {
+  credentialCode: string;
+  issuedAt: string;
+  courseTitle: string;
+  courseSlug: string;
+  courseSummary: string | null;
+  estimatedMinutes: number;
+};
+
+export async function getPublicTrainingCredentialByCode(rawCode: string): Promise<PublicTrainingCredential | null> {
+  const credentialCode = rawCode.trim().toUpperCase();
+  if (!/^VAT-[A-Z0-9-]{8,64}$/.test(credentialCode)) return null;
+
+  const admin = createAdminClient();
+  const { data: certificate, error: certificateError } = await admin
+    .from("training_certificates")
+    .select("credential_code,issued_at,course_id,revoked_at")
+    .eq("credential_code", credentialCode)
+    .is("revoked_at", null)
+    .maybeSingle();
+
+  if (certificateError || !certificate) return null;
+
+  const { data: course, error: courseError } = await admin
+    .from("training_courses")
+    .select("title,slug,summary,estimated_minutes,status")
+    .eq("id", certificate.course_id)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (courseError || !course) return null;
+
+  return {
+    credentialCode: certificate.credential_code,
+    issuedAt: certificate.issued_at,
+    courseTitle: course.title,
+    courseSlug: course.slug,
+    courseSummary: course.summary,
+    estimatedMinutes: course.estimated_minutes,
+  };
+}

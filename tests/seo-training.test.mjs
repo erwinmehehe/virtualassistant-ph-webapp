@@ -46,3 +46,13 @@ test("SEO final assessment tests practical work output instead of trivia", async
   assert.match(seed, /client-ready handoff/i);
   assert.match(seed, /define how each implemented change should be validated/i);
 });
+
+
+test("SEO course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923134500_release_seo_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'seo-virtual-assistant'/);
+});

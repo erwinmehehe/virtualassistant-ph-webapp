@@ -2468,19 +2468,19 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "faqs": [
       {
         "question": "What does a Medical Virtual Assistant do?",
-        "answer": "They can support non-clinical scheduling, reminders, intake administration, referral coordination, records work, insurance verification support, billing administration, and routine patient communication."
+        "answer": "A Medical Virtual Assistant handles defined administrative workflows such as scheduling, intake follow-up, referrals, records coordination, insurance verification support, billing administration, and routine patient communication. Clinical questions stay with qualified staff."
       },
       {
         "question": "What should a Medical VA not do?",
-        "answer": "They should not diagnose, recommend treatment, provide clinical interpretation, or perform regulated professional duties unless separately qualified and authorized to do so."
+        "answer": "The role should not independently diagnose, recommend treatment, interpret clinical information for patients, or perform regulated professional duties unless the person is separately qualified and authorized for that work."
       },
       {
         "question": "What skills should I include in a Medical VA job description?",
-        "answer": "Include accurate communication, scheduling, record discipline, privacy awareness, practice-system familiarity, escalation judgment, and any specific referral, billing, or insurance workflow experience the role needs."
+        "answer": "Prioritize accurate communication, scheduling discipline, record quality, privacy awareness, practice-system familiarity, escalation judgment, and the specific referral, billing, or insurance workflows your practice actually uses."
       },
       {
         "question": "How should I test a Medical VA?",
-        "answer": "Use fictional scheduling, referral, documentation, and escalation scenarios. The candidate should show accuracy and privacy awareness without giving clinical advice."
+        "answer": "Use fictional scheduling, referral, documentation, and escalation scenarios with no real patient data. Look for accurate notes, privacy-aware handling, and a clear decision to escalate clinical or sensitive questions."
       }
     ],
     "internalLinks": [
@@ -2498,6 +2498,11 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
         "label": "Medical practices",
         "href": "/industries/medical-practices",
         "description": "See how Virtual Assistant support fits a medical-practice workflow."
+      },
+      {
+        "label": "Medical Virtual Assistant cost",
+        "href": "/blog/medical-virtual-assistant-cost-philippines",
+        "description": "Compare the role scope with budgeting and hiring-cost considerations."
       },
       {
         "label": "Virtual Assistant job description",
@@ -2666,12 +2671,12 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
   },
   {
     "slug": "bookkeeping-virtual-assistant-tasks",
-    "title": "Bookkeeping Virtual Assistant Tasks: What to Delegate",
-    "metaTitle": "Bookkeeping Virtual Assistant Tasks to Delegate",
-    "description": "Learn which Bookkeeping Virtual Assistant tasks to delegate across documents, invoices, transaction prep, reconciliation support, receivables, and month-end.",
-    "excerpt": "A practical bookkeeping delegation guide that separates review-ready administrative work from accounting judgment, tax treatment, and payment authority.",
+    "title": "Bookkeeping Virtual Assistant Workflow and Month-End QA",
+    "metaTitle": "Bookkeeping VA Workflow: Month-End Prep & QA",
+    "description": "Build a Bookkeeping Virtual Assistant workflow for document collection, transaction prep, reconciliation support, receivables, exceptions, and month-end QA.",
+    "excerpt": "A month-end-focused bookkeeping workflow that separates review-ready preparation from accounting judgment, tax treatment, and payment authority.",
     "topic": "hiring",
-    "clusterLabel": "Bookkeeping Virtual Assistant",
+    "clusterLabel": "Bookkeeping Virtual Assistant Workflow",
     "serviceSlug": "bookkeeping",
     "intent": "informational",
     "publishedAt": "2026-09-23",
@@ -2686,7 +2691,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ],
     "sections": [
       {
-        "heading": "Define preparation work separately from accounting judgment",
+        "heading": "Define the month-end workflow before assigning the queue",
         "paragraphs": [
           "A Bookkeeping Virtual Assistant can own recurring preparation and administrative queues when the business already has a chart of accounts, coding rules, approval limits, and a responsible reviewer.",
           "That distinction matters because bookkeeping support can involve sensitive financial records without requiring the assistant to make tax, accounting-policy, or payment decisions."
@@ -2721,7 +2726,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "Use a month-end ownership table",
+        "heading": "Use a month-end ownership and QA table",
         "table": {
           "headers": [
             "Month-end area",

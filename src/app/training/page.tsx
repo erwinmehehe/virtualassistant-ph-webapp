@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   }
 };
 
-const JOIN_HREF = "/workspace/training";
+const JOIN_HREF = "/auth/join/training";
 const LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Ftraining";
 
 const FAQS = [

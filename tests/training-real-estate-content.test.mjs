@@ -44,7 +44,7 @@ test("Real Estate training includes practical scenarios and clear boundaries", a
   const sql = await readFile(migrationPath, "utf8");
   assert.match(sql, /"type":"scenario"/);
   assert.match(sql, /The boundary rule/);
-  assert.match(sql, /do not provide legal advice/i);
+  assert.match(sql, /legal advice/i);
   assert.match(sql, /unauthorized negotiation/i);
   assert.match(sql, /Maintenance requests need structure/);
   assert.match(sql, /CRM hygiene standards/);

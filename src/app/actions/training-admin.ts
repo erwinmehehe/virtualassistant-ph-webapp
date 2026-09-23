@@ -513,7 +513,7 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
         : Promise.resolve({ data: [] }),
       admin
         .from("training_assessments")
-        .select("id,is_published,instructions,pass_score")
+        .select("id,is_published,instructions,pass_score,assessment_type,rubric,resource_pack")
         .eq("course_id", courseId),
     ]);
 
@@ -555,6 +555,25 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
     }
     if ((assessments || []).some((assessment) => assessment.pass_score === null)) {
       throw new Error("Set a pass score for every published assessment before publishing the course.");
+    }
+    if ((assessments || []).some((assessment) =>
+      assessment.assessment_type === "practical" &&
+      (!Array.isArray(assessment.rubric) || assessment.rubric.length < 4)
+    )) {
+      throw new Error("Every practical assessment needs a grading rubric with at least four criteria.");
+    }
+    if ((assessments || []).some((assessment) =>
+      assessment.assessment_type === "practical" &&
+      (!Array.isArray(assessment.resource_pack) || assessment.resource_pack.length < 2)
+    )) {
+      throw new Error("Every practical assessment needs at least two fictional source resources.");
+    }
+    if ((assessments || []).some((assessment) =>
+      Array.isArray(assessment.rubric) &&
+      assessment.rubric.length > 0 &&
+      assessment.rubric.reduce((sum: number, item: { weight?: number }) => sum + Number(item.weight || 0), 0) !== 100
+    )) {
+      throw new Error("Assessment rubric weights must total 100.");
     }
   }
 
@@ -793,6 +812,47 @@ const assessmentSchema = z.object({
   position: z.coerce.number().int().min(1).max(999),
 });
 
+const assessmentRubricSchema = z.array(z.object({
+  id: z.string().trim().min(1).max(80),
+  label: z.string().trim().min(2).max(160),
+  weight: z.number().int().min(1).max(100),
+  description: z.string().trim().min(10).max(1200),
+  hard_fail: z.boolean().optional(),
+})).max(12);
+
+const assessmentResourceSchema = z.array(z.object({
+  id: z.string().trim().min(1).max(80),
+  title: z.string().trim().min(2).max(180),
+  kind: z.enum(["brief", "dataset", "document", "policy", "checklist", "csv"]),
+  content: z.string().trim().min(10).max(20000),
+})).max(20);
+
+function parseAssessmentExtras(formData: FormData) {
+  const rubricText = requiredString(formData, "rubric_json");
+  const resourcesText = requiredString(formData, "resource_pack_json");
+  let rubric: unknown = [];
+  let resourcePack: unknown = [];
+  try {
+    rubric = rubricText ? JSON.parse(rubricText) : [];
+    resourcePack = resourcesText ? JSON.parse(resourcesText) : [];
+  } catch {
+    throw new Error("Rubric and resource pack must be valid JSON.");
+  }
+
+  const parsedRubric = assessmentRubricSchema.safeParse(rubric);
+  const parsedResources = assessmentResourceSchema.safeParse(resourcePack);
+  if (!parsedRubric.success || !parsedResources.success) {
+    throw new Error("Check the rubric and resource pack format.");
+  }
+
+  const weightTotal = parsedRubric.data.reduce((sum, item) => sum + item.weight, 0);
+  if (parsedRubric.data.length && weightTotal !== 100) {
+    throw new Error("Assessment rubric weights must total 100.");
+  }
+
+  return { rubric: parsedRubric.data, resourcePack: parsedResources.data };
+}
+
 export async function createTrainingAssessmentAction(formData: FormData) {
   await requireRoleFast("admin");
   const parsed = assessmentSchema.safeParse({
@@ -805,6 +865,7 @@ export async function createTrainingAssessmentAction(formData: FormData) {
     position: formData.get("position"),
   });
   if (!parsed.success) throw new Error("Check the assessment title, instructions, type, score, and position.");
+  const extras = parseAssessmentExtras(formData);
 
   const admin = createAdminClient();
   const { error } = await admin.from("training_assessments").insert({
@@ -815,6 +876,8 @@ export async function createTrainingAssessmentAction(formData: FormData) {
     assessment_type: parsed.data.assessment_type,
     pass_score: parsed.data.pass_score ?? null,
     position: parsed.data.position,
+    rubric: extras.rubric,
+    resource_pack: extras.resourcePack,
     is_published: false,
   });
   if (error) throw error;
@@ -836,6 +899,7 @@ export async function updateTrainingAssessmentAction(formData: FormData) {
     position: formData.get("position"),
   });
   if (!assessmentId || !parsed.success) throw new Error("Check the assessment fields and try again.");
+  const extras = parseAssessmentExtras(formData);
 
   const admin = createAdminClient();
   const { error } = await admin
@@ -847,6 +911,8 @@ export async function updateTrainingAssessmentAction(formData: FormData) {
       assessment_type: parsed.data.assessment_type,
       pass_score: parsed.data.pass_score ?? null,
       position: parsed.data.position,
+      rubric: extras.rubric,
+      resource_pack: extras.resourcePack,
       is_published: requiredString(formData, "is_published") === "1",
       updated_at: new Date().toISOString(),
     })
@@ -864,13 +930,11 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
   const courseId = requiredString(formData, "course_id");
   const decision = requiredString(formData, "decision");
   const feedback = requiredString(formData, "feedback");
-  const scoreValue = requiredString(formData, "score");
 
   if (!submissionId || !courseId || !["pass", "needs_revision"].includes(decision)) {
     throw new Error("Choose a valid assessment review decision.");
   }
 
-  const score = z.coerce.number().min(0).max(100).parse(scoreValue);
   if (feedback.length < 10 || feedback.length > 5000) {
     throw new Error("Add clear reviewer feedback between 10 and 5,000 characters.");
   }
@@ -886,12 +950,33 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
 
   const { data: assessment } = await admin
     .from("training_assessments")
-    .select("id,course_id,pass_score")
+    .select("id,course_id,pass_score,rubric")
     .eq("id", submission.assessment_id)
     .eq("course_id", courseId)
     .maybeSingle();
 
   if (!assessment) throw new Error("Assessment does not belong to this course.");
+
+  const rubric = Array.isArray(assessment.rubric)
+    ? assessment.rubric as Array<{ id: string; label: string; weight: number; hard_fail?: boolean }>
+    : [];
+  const rubricScores: Record<string, number> = {};
+  let score = 0;
+
+  if (rubric.length) {
+    for (const criterion of rubric) {
+      const value = z.coerce.number().min(0).max(100).parse(formData.get("rubric_" + criterion.id));
+      rubricScores[criterion.id] = value;
+      score += value * Number(criterion.weight || 0) / 100;
+      if (decision === "pass" && criterion.hard_fail && value < 70) {
+        throw new Error(`Cannot pass while the critical "${criterion.label}" criterion is below 70%.`);
+      }
+    }
+    score = Math.round(score);
+  } else {
+    score = z.coerce.number().min(0).max(100).parse(formData.get("score"));
+  }
+
   if (decision === "pass" && assessment.pass_score !== null && score < assessment.pass_score) {
     throw new Error(`A passing review must meet the ${assessment.pass_score}% pass score.`);
   }
@@ -902,6 +987,7 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
     .update({
       status,
       score,
+      rubric_scores: rubricScores,
       feedback,
       reviewer_id: session.userId,
       reviewed_at: new Date().toISOString(),

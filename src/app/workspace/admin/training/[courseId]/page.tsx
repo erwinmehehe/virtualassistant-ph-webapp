@@ -49,7 +49,14 @@ export default async function AdminTrainingCoursePage({
   const assessmentReady = course.assessments.every((assessment) =>
     assessment.is_published &&
     Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
-    assessment.pass_score !== null
+    assessment.pass_score !== null &&
+    (assessment.assessment_type !== "practical" || (
+      Array.isArray(assessment.rubric) &&
+      assessment.rubric.length >= 4 &&
+      assessment.rubric.reduce((sum, item) => sum + Number(item.weight || 0), 0) === 100 &&
+      Array.isArray(assessment.resource_pack) &&
+      assessment.resource_pack.length >= 2
+    ))
   );
   const specialistReviewReady =
     course.review_requirement !== "specialist" ||
@@ -159,7 +166,7 @@ export default async function AdminTrainingCoursePage({
           ) : null}
           <div><span><strong>Lesson content</strong><small>{lessons.length ? lessons.filter((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3).length + "/" + lessons.length + " have substantive blocks" : "No lessons yet"}</small></span></div>
           <div><span><strong>Lesson publishing</strong><small>{publishedLessons.length}/{lessons.length} lessons marked publishable</small></span></div>
-          <div><span><strong>Assessments</strong><small>{course.assessments.length ? (assessmentReady ? "Published with instructions and pass score" : "Assessment setup still needs review") : "No course assessment configured"}</small></span><span className={"badge " + (assessmentReady ? "badge-success" : "badge-warning")}>{assessmentReady ? "Ready" : "Needed"}</span></div>
+          <div><span><strong>Assessments</strong><small>{course.assessments.length ? (assessmentReady ? "Published with instructions, rubric, source pack, and pass score" : "Assessment setup still needs review") : "No course assessment configured"}</small></span><span className={"badge " + (assessmentReady ? "badge-success" : "badge-warning")}>{assessmentReady ? "Ready" : "Needed"}</span></div>
         </div>
         <div className="row wrap" style={{ marginTop: 16 }}>
           {course.status !== "published" ? (
@@ -274,13 +281,44 @@ export default async function AdminTrainingCoursePage({
                     <strong>Learner response</strong>
                     <p style={{ whiteSpace: "pre-wrap" }}>{responseText}</p>
                   </div>
+                  {submission.assessment_rubric.length ? (
+                    <div className="card" style={{ marginTop: 12 }}>
+                      <strong>Grading rubric</strong>
+                      <div className="compact-list" style={{ marginTop: 10 }}>
+                        {submission.assessment_rubric.map((criterion) => (
+                          <div key={criterion.id}>
+                            <span><strong>{criterion.label}</strong><small>{criterion.description}</small></span>
+                            <span><span className="badge">{criterion.weight}%</span>{criterion.hard_fail ? <small className="muted">Critical boundary</small> : null}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   <form action={reviewTrainingAssessmentSubmissionAction} className="stack" style={{ marginTop: 12 }}>
                     <input type="hidden" name="submission_id" value={submission.id}/>
                     <input type="hidden" name="course_id" value={course.id}/>
-                    <div className="grid-2">
+                    {submission.assessment_rubric.length ? (
+                      <div className="stack">
+                        {submission.assessment_rubric.map((criterion) => (
+                          <label className="field" key={criterion.id}>
+                            <span>{criterion.label} · {criterion.weight}%{criterion.hard_fail ? " · critical" : ""}</span>
+                            <input
+                              name={"rubric_" + criterion.id}
+                              type="number"
+                              min={0}
+                              max={100}
+                              required
+                              defaultValue={submission.rubric_scores?.[criterion.id] ?? ""}
+                              placeholder="0–100"
+                            />
+                          </label>
+                        ))}
+                        <small className="muted">The overall score is calculated from the rubric weights when you save the review. Critical criteria must score at least 70% for a passing decision.</small>
+                      </div>
+                    ) : (
                       <label className="field"><span>Score</span><input name="score" type="number" min={0} max={100} required defaultValue={submission.score ?? ""}/></label>
-                      <label className="field"><span>Decision</span><select name="decision" defaultValue={submission.status === "reviewed" ? "pass" : "needs_revision"}><option value="pass">Pass</option><option value="needs_revision">Needs revision</option></select></label>
-                    </div>
+                    )}
+                    <label className="field"><span>Decision</span><select name="decision" defaultValue={submission.status === "reviewed" ? "pass" : "needs_revision"}><option value="pass">Pass</option><option value="needs_revision">Needs revision</option></select></label>
                     <label className="field"><span>Feedback</span><textarea name="feedback" minLength={10} maxLength={5000} rows={4} required defaultValue={submission.feedback || ""}/></label>
                     <div><button className="btn btn-primary btn-sm" type="submit">Save review</button></div>
                   </form>
@@ -308,6 +346,13 @@ export default async function AdminTrainingCoursePage({
                   <label className="field"><span>Module</span><select name="module_id" defaultValue={assessment.module_id || ""}><option value="">Course-wide</option>{course.modules.map((courseModule) => <option value={courseModule.id} key={courseModule.id}>{courseModule.title}</option>)}</select></label>
                 </div>
                 <label className="field"><span>Instructions</span><textarea name="instructions" required minLength={20} maxLength={5000} rows={6} defaultValue={assessment.instructions || ""}/></label>
+                <details className="card">
+                  <summary><strong>Practical assessment evidence</strong> <span className="small muted">Rubric + fictional resource pack</span></summary>
+                  <div className="stack" style={{ marginTop: 12 }}>
+                    <label className="field"><span>Rubric JSON</span><textarea name="rubric_json" rows={10} defaultValue={JSON.stringify(assessment.rubric || [], null, 2)}/></label>
+                    <label className="field"><span>Resource pack JSON</span><textarea name="resource_pack_json" rows={12} defaultValue={JSON.stringify(assessment.resource_pack || [], null, 2)}/></label>
+                  </div>
+                </details>
                 <div className="grid-3">
                   <label className="field"><span>Type</span><select name="assessment_type" defaultValue={assessment.assessment_type}><option value="practical">Practical</option><option value="knowledge">Knowledge</option></select></label>
                   <label className="field"><span>Pass score</span><input name="pass_score" type="number" min={0} max={100} defaultValue={assessment.pass_score ?? ""} placeholder="Optional"/></label>
@@ -329,6 +374,13 @@ export default async function AdminTrainingCoursePage({
               <label className="field"><span>Module</span><select name="module_id" defaultValue=""><option value="">Course-wide</option>{course.modules.map((courseModule) => <option value={courseModule.id} key={courseModule.id}>{courseModule.title}</option>)}</select></label>
             </div>
             <label className="field"><span>Instructions</span><textarea name="instructions" required minLength={20} maxLength={5000} rows={6}/></label>
+            <details className="card">
+              <summary><strong>Practical assessment evidence</strong> <span className="small muted">Required before publishing a practical assessment</span></summary>
+              <div className="stack" style={{ marginTop: 12 }}>
+                <label className="field"><span>Rubric JSON</span><textarea name="rubric_json" rows={10} defaultValue="[]"/></label>
+                <label className="field"><span>Resource pack JSON</span><textarea name="resource_pack_json" rows={12} defaultValue="[]"/></label>
+              </div>
+            </details>
             <div className="grid-3">
               <label className="field"><span>Type</span><select name="assessment_type" defaultValue="practical"><option value="practical">Practical</option><option value="knowledge">Knowledge</option></select></label>
               <label className="field"><span>Pass score</span><input name="pass_score" type="number" min={0} max={100} placeholder="Optional"/></label>

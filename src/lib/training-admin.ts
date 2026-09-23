@@ -64,7 +64,7 @@ export async function getTrainingCourseForAdmin(courseId: string) {
       : Promise.resolve({ data: [] }),
     admin
       .from("training_assessments")
-      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published")
+      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
       .eq("course_id", courseId)
       .order("position"),
   ]);
@@ -112,9 +112,11 @@ export type AdminTrainingAssessmentSubmission = {
   user_id: string;
   assessment_id: string;
   assessment_title: string;
+  assessment_rubric: Array<{ id: string; label: string; weight: number; description: string; hard_fail?: boolean }>;
   response: Record<string, unknown>;
   status: "submitted" | "reviewed" | "needs_revision";
   score: number | null;
+  rubric_scores: Record<string, number>;
   feedback: string | null;
   submitted_at: string;
   reviewed_at: string | null;
@@ -125,18 +127,22 @@ export async function getTrainingAssessmentSubmissionsForAdmin(courseId: string)
   const admin = createAdminClient();
   const { data: assessments, error: assessmentError } = await admin
     .from("training_assessments")
-    .select("id,title")
+    .select("id,title,rubric")
     .eq("course_id", courseId);
 
   if (assessmentError) return { submissions: [] as AdminTrainingAssessmentSubmission[], error: assessmentError.message };
 
   const titleById = new Map((assessments || []).map((assessment) => [assessment.id, assessment.title]));
+  const rubricById = new Map((assessments || []).map((assessment) => [
+    assessment.id,
+    Array.isArray(assessment.rubric) ? assessment.rubric : [],
+  ]));
   const assessmentIds = [...titleById.keys()];
   if (!assessmentIds.length) return { submissions: [] as AdminTrainingAssessmentSubmission[], error: null };
 
   const { data, error } = await admin
     .from("training_assessment_submissions")
-    .select("id,user_id,assessment_id,response,status,score,feedback,submitted_at,reviewed_at")
+    .select("id,user_id,assessment_id,response,status,score,rubric_scores,feedback,submitted_at,reviewed_at")
     .in("assessment_id", assessmentIds)
     .order("submitted_at", { ascending: false })
     .limit(100);
@@ -158,6 +164,7 @@ export async function getTrainingAssessmentSubmissionsForAdmin(courseId: string)
     submissions: (data || []).map((submission) => ({
       ...submission,
       assessment_title: titleById.get(submission.assessment_id) || "Assessment",
+      assessment_rubric: rubricById.get(submission.assessment_id) || [],
       user_email: emailByUser.get(submission.user_id) || null,
     })) as AdminTrainingAssessmentSubmission[],
     error: null,

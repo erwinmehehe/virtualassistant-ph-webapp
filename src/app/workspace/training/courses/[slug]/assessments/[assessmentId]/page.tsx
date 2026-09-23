@@ -62,6 +62,54 @@ export default async function TrainingAssessmentPage({
         </div>
       </section>
 
+      {assessment.resource_pack?.length ? (
+        <section className="card dashboard-section-card">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>Fictional client source pack</h2>
+              <p>Use these materials as evidence. Do not invent missing facts. Flag gaps and assumptions in your submission.</p>
+            </div>
+            <span className="badge">{assessment.resource_pack.length} resources</span>
+          </div>
+          <div className="stack">
+            {assessment.resource_pack.map((resource) => (
+              <article className="card" key={resource.id}>
+                <div className="row-between wrap">
+                  <strong>{resource.title}</strong>
+                  <span className="badge">{resource.kind.toUpperCase()}</span>
+                </div>
+                <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", margin: "12px 0 0", font: "inherit" }}>{resource.content}</pre>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {assessment.rubric?.length ? (
+        <section className="card dashboard-section-card">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>How your work will be graded</h2>
+              <p>The score is based on the work quality below, not keyword matching or course trivia.</p>
+            </div>
+          </div>
+          <div className="compact-list">
+            {assessment.rubric.map((criterion) => (
+              <div key={criterion.id}>
+                <span>
+                  <strong>{criterion.label}</strong>
+                  <small>{criterion.description}</small>
+                </span>
+                <span>
+                  <span className="badge">{criterion.weight}%</span>
+                  {criterion.hard_fail ? <small className="muted">Critical boundary</small> : null}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head">
           <div>
@@ -88,6 +136,16 @@ export default async function TrainingAssessmentPage({
             </span>
           </div>
           {latest.score !== null ? <p><strong>Score:</strong> {latest.score}%</p> : null}
+          {latest.status !== "submitted" && assessment.rubric?.length && latest.rubric_scores ? (
+            <div className="compact-list" style={{ marginTop: 12 }}>
+              {assessment.rubric.map((criterion) => (
+                <div key={criterion.id}>
+                  <span><strong>{criterion.label}</strong><small>{criterion.weight}% of overall score</small></span>
+                  <span className="badge">{latest.rubric_scores?.[criterion.id] ?? "—"}%</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
           {latest.feedback ? <div className="notice"><strong>Reviewer feedback</strong><p>{latest.feedback}</p></div> : null}
           {query.submitted === "1" && latest.status === "submitted" ? <p className="success-banner">Your assessment was submitted for review.</p> : null}
         </section>

@@ -96,10 +96,26 @@ export type TrainingAssessmentSubmission = {
   assessment_id: string;
   status: "submitted" | "reviewed" | "needs_revision";
   score: number | null;
+  rubric_scores: Record<string, number>;
   feedback: string | null;
   submitted_at: string;
   reviewed_at: string | null;
   response: Record<string, unknown>;
+};
+
+export type TrainingAssessmentRubricCriterion = {
+  id: string;
+  label: string;
+  weight: number;
+  description: string;
+  hard_fail?: boolean;
+};
+
+export type TrainingAssessmentResource = {
+  id: string;
+  title: string;
+  kind: "brief" | "dataset" | "document" | "policy" | "checklist" | "csv";
+  content: string;
 };
 
 export type TrainingAssessment = {
@@ -112,6 +128,8 @@ export type TrainingAssessment = {
   pass_score: number | null;
   position: number;
   is_published: boolean;
+  rubric: TrainingAssessmentRubricCriterion[];
+  resource_pack: TrainingAssessmentResource[];
   latestSubmission?: TrainingAssessmentSubmission | null;
 };
 
@@ -292,7 +310,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       .maybeSingle(),
     supabase
       .from("training_assessments")
-      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published")
+      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
       .eq("course_id", course.id)
       .eq("is_published", true)
       .order("position"),
@@ -326,7 +344,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
   const { data: submissionData } = assessmentIds.length
     ? await supabase
         .from("training_assessment_submissions")
-        .select("id,assessment_id,status,score,feedback,submitted_at,reviewed_at,response")
+        .select("id,assessment_id,status,score,rubric_scores,feedback,submitted_at,reviewed_at,response")
         .eq("user_id", userId)
         .in("assessment_id", assessmentIds)
         .order("submitted_at", { ascending: false })

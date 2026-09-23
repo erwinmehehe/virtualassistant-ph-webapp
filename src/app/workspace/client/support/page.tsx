@@ -1,5 +1,5 @@
 import { AlertTriangle, CalendarClock, CheckCircle2, LifeBuoy } from "lucide-react";
-import { requireRole } from "@/lib/auth";
+import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { AvatarProfileRow, JobSummaryRow, PlacementSupportRequestRow, WorkroomRow } from "@/lib/workspace-rows";
 import { submitPlacementSupportRequestAction } from "@/app/actions/placement-support";
@@ -10,9 +10,9 @@ function badge(status:string){return status==="resolved"?"badge-success":status=
 
 export default async function ClientSupportPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const query = await searchParams;
-  const { user } = await requireRole("client");
+  const { userId } = await requireRoleFast("client");
   const admin = createAdminClient();
-  const { data: rooms, error } = await admin.from("workrooms").select("id,job_id,va_id,placement_stage,client_success_owner_id").eq("client_id", user.id).neq("placement_stage", "ended").order("created_at", { ascending:false });
+  const { data: rooms, error } = await admin.from("workrooms").select("id,job_id,va_id,placement_stage,client_success_owner_id").eq("client_id", userId).neq("placement_stage", "ended").order("created_at", { ascending:false });
   if (error) throw error;
   const roomRows=(rooms||[]) as Pick<WorkroomRow,"id"|"job_id"|"va_id"|"placement_stage"|"client_success_owner_id">[];
   const roomIds=roomRows.map((r)=>r.id);const jobIds=roomRows.map((r)=>r.job_id);const vaIds=roomRows.map((r)=>r.va_id).filter(Boolean);

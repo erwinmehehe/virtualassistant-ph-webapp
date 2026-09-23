@@ -80,9 +80,7 @@ export function SiteNav() {
               <span>Clients</span>
               <Link href={CLIENT_LOGIN}>Client Portal</Link>
               <span>Virtual Assistants</span>
-              <Link href={VA_LOGIN}>VA log in</Link>
-              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              <Link href="/auth/join/va">Apply as a VA</Link>
+              <Link href={VA_LOGIN}>VA workspace</Link>
             </div>
           </details>
           <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
@@ -97,10 +95,10 @@ export function SiteNav() {
               <Link href="/how-vetting-works">How it works</Link>
               <Link href="/pricing">Pricing</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
-              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              <Link href="/jobs">Browse Virtual Assistant jobs</Link>
-              <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
-              <Link href={VA_LOGIN}>VA log in</Link>
+              <Link href="/for-virtual-assistants">VA hub</Link>
+              <Link href="/training">Free VA training</Link>
+              <Link href="/jobs">Browse VA jobs</Link>
+              <Link href={VA_LOGIN}>VA workspace</Link>
               <span className="va-mobile-panel-label">Account</span>
               <Link href={CLIENT_LOGIN}>Client Portal</Link>
             </nav>

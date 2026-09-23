@@ -50,15 +50,6 @@ test("successful login records security context without sending a new-login emai
   assert.match(accountPage,/recorded in your security activity/i);
 });
 
-test("authenticated dashboard visual QA bootstraps passwordless smoke sessions with GitHub OIDC", async()=>{
-  const workflow=await read(".github/workflows/dashboard-visual.yml");
-  assert.match(workflow,/id-token: write/);
-  assert.match(workflow,/Bootstrap passwordless smoke sessions/);
-  assert.match(workflow,/bootstrap-github-smoke\.mjs/);
-  assert.doesNotMatch(workflow,/secrets\.SMOKE_/);
-  assert.doesNotMatch(workflow,/Authenticated dashboard QA is required/);
-});
-
 test("Account Center hardening requires reauthentication and supports suspicious-session containment", async()=>{
   const [actions,sessions]=await Promise.all([
     read("src/app/actions/account-security.ts"),

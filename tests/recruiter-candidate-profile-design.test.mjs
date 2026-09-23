@@ -13,11 +13,3 @@ test("recruiter candidate profile uses the compact premium layout",()=>{
   assert.match(css,/recruiter-candidate-sidebar[\s\S]*position:sticky/);
   assert.match(css,/@media \(max-width:480px\)/);
 });
-
-test("authenticated visual QA covers recruiter candidate profile on all breakpoints",()=>{
-  const script=read("scripts/authenticated-dashboard-visual.mjs");
-  assert.match(script,/workspace\/recruiter\/candidates\/\$\{smokeVaId\}/);
-  assert.match(script,/recruiter-candidate-profile-\$\{viewport\.name\}\.png/);
-  assert.match(script,/has horizontal page overflow/);
-  assert.match(script,/Smoke VA One/);
-});

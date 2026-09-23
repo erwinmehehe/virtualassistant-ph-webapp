@@ -7,23 +7,37 @@ import {
   Briefcase,
   Check,
   GraduationCap,
+  MapPinned,
   Smartphone,
   Wallet
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
-import { TRAINING_LEVELS, STATUS_LABEL } from "@/lib/training-catalogue";
-import { getPublishedFoundationCourse } from "@/lib/public-training";
+import { getPublicTrainingOverview } from "@/lib/public-training";
 import "../training-landing.css";
 
 function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+function duration(minutes: number) {
+  if (!minutes) return "Self-paced";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours}h ${rest}m` : `${hours}h`;
+}
+
+function statusLabel(status: "draft" | "published" | "archived") {
+  if (status === "published") return "Available now";
+  if (status === "draft") return "In development";
+  return "Unavailable";
+}
+
 const META_TITLE = "Virtual Assistant Training Philippines | Free VA Course";
 const META_DESCRIPTION =
-  "Free virtual assistant training for Filipinos. Learn practical client communication, admin, software, and industry skills in short mobile-friendly lessons.";
+  "Free virtual assistant training for Filipinos. Learn practical client communication, admin, software, and industry skills in mobile-friendly lessons.";
 
 export const metadata: Metadata = {
   title: { absolute: META_TITLE },
@@ -60,28 +74,32 @@ const FAQS = [
   ],
   [
     "Do I have to work with VirtualAssistant.com.ph?",
-    "No. The training is useful outside our platform too. You can complete it and use what you learned with any employer or client."
+    "No. You can learn here and use those skills with any employer or client."
   ],
   [
     "Do I need to finish the training to get hired here?",
-    "No. Training is optional. Recruiters and clients still look at your experience, work samples, communication, availability, and role fit."
+    "No. Training is optional and never controls access to jobs, shortlisting, or the public talent directory."
   ],
   [
     "Why do I need an account?",
-    "An account saves your progress and connects completed lessons and certificates to you."
+    "Your training account saves lesson progress, assessment work, and completion certificates. It does not automatically create a candidate profile."
   ],
   [
     "Will it work on my phone?",
-    "Yes. Lessons are designed around short text, images, and practical exercises so they stay usable on a phone and lighter on mobile data."
+    "Yes. Lessons are text-first, mobile-friendly, and designed to avoid unnecessary video or large downloads."
   ]
 ] as const;
 
-const softwareLevel = TRAINING_LEVELS.find((level) => level.id === "software");
-const industryLevel = TRAINING_LEVELS.find((level) => level.id === "industry");
-
 export default async function TrainingPage() {
-  const publishedFoundation = await getPublishedFoundationCourse();
-  const foundationLive = Boolean(publishedFoundation);
+  const { courses, paths } = await getPublicTrainingOverview();
+  const foundation = courses.find((course) => course.slug === "virtual-assistant-foundations") || null;
+  const foundationLive = foundation?.status === "published";
+  const globalCourses = courses.filter((course) => !course.country_focus);
+  const australiaPath = paths.find((path) => path.slug === "australia") || null;
+  const australiaCourses = australiaPath?.courses.length
+    ? australiaPath.courses
+    : courses.filter((course) => course.country_focus === "Australia");
+  const publishedCourses = courses.filter((course) => course.status === "published").length;
 
   const schema = [
     {
@@ -94,12 +112,12 @@ export default async function TrainingPage() {
         acceptedAnswer: { "@type": "Answer", text: answer }
       }))
     },
-    ...(publishedFoundation ? [{
+    ...(foundationLive && foundation ? [{
       "@context": "https://schema.org",
       "@type": "Course",
       "@id": `${canonicalUrl("/training")}#virtual-assistant-foundations`,
-      name: publishedFoundation.title,
-      description: publishedFoundation.summary || "Practical Virtual Assistant foundations training for Filipino professionals.",
+      name: foundation.title,
+      description: foundation.summary || "Practical Virtual Assistant foundations training for Filipino professionals.",
       url: canonicalUrl("/training"),
       isAccessibleForFree: true,
       provider: {
@@ -133,14 +151,13 @@ export default async function TrainingPage() {
                 Free Virtual Assistant training for Filipinos
               </span>
               <h1>
-                Learn the work.
-                <span> Show what you can do.</span>
+                Learn the work
+                <span> before a client hands it to you.</span>
               </h1>
               <p className="tr-hero-lede">
-                Practical Virtual Assistant training built around the communication,
-                admin, software, and industry workflows clients actually hand over.
-                Lessons are short, mobile-friendly, and designed to leave you with
-                proof of skill, not just notes.
+                Start with Virtual Assistant Foundations, then move into role,
+                software, industry, and country-specific training. No course fees,
+                no certificate fees, and no requirement to join our talent marketplace.
               </p>
 
               <div className="tr-cta-row">
@@ -149,10 +166,10 @@ export default async function TrainingPage() {
                   href={JOIN_HREF}
                   data-track="training_account_click"
                 >
-                  Create free training account <ArrowRight size={17} />
+                  Start free training <ArrowRight size={17} />
                 </Link>
-                <a className="tr-btn tr-btn-secondary" href="#learning-paths" data-track="training_learning_paths_click">
-                  Browse learning paths
+                <a className="tr-btn tr-btn-secondary" href="#training-roadmap" data-track="training_learning_paths_click">
+                  See the training roadmap
                 </a>
               </div>
 
@@ -161,49 +178,49 @@ export default async function TrainingPage() {
               </p>
 
               <ul className="tr-assure">
-                <li><Check size={15} /> No course or certificate fees</li>
-                <li><Check size={15} /> Built for phone and mobile data</li>
-                <li><Check size={15} /> Never required for placement</li>
+                <li><Check size={15} /> Training and certificates stay free</li>
+                <li><Check size={15} /> Text-first and mobile-friendly</li>
+                <li><Check size={15} /> Separate from hiring and shortlisting</li>
               </ul>
             </div>
 
-            <aside className="tr-preview" aria-label="Training outcomes">
+            <aside className="tr-preview" aria-label="Inside the training">
               <div className="tr-preview-top">
-                <span>What you build</span>
-                <strong>Client-ready proof</strong>
+                <span>Inside the LMS</span>
+                <strong>{courses.length || 26} courses mapped</strong>
               </div>
               <ol className="tr-preview-list">
                 <li>
                   <b>01</b>
                   <div>
-                    <strong>Clearer client communication</strong>
-                    <span>Updates, questions, handoffs, and escalation.</span>
+                    <strong>Virtual Assistant Foundations</strong>
+                    <span>{foundationLive ? "Available now" : "First course being prepared"} · communication, admin, research, AI, and remote work.</span>
                   </div>
                 </li>
                 <li>
                   <b>02</b>
                   <div>
-                    <strong>Repeatable work habits</strong>
-                    <span>Inbox, calendar, files, research, and quality checks.</span>
+                    <strong>Role specialisations</strong>
+                    <span>Real estate, executive support, marketing, bookkeeping, sales, e-commerce, SEO, operations, and more.</span>
                   </div>
                 </li>
                 <li>
                   <b>03</b>
                   <div>
-                    <strong>Role-specific context</strong>
-                    <span>Software and industry workflows used by real businesses.</span>
+                    <strong>Optional country tracks</strong>
+                    <span>Australia is the first market-specific path, with other markets able to follow without replacing the global core.</span>
                   </div>
                 </li>
                 <li>
                   <b>04</b>
                   <div>
-                    <strong>Evidence you can show</strong>
-                    <span>Exercises, profile improvements, and certificates.</span>
+                    <strong>Assessments and certificates</strong>
+                    <span>Practical work simulations, saved progress, and free completion credentials.</span>
                   </div>
                 </li>
               </ol>
               <div className="tr-preview-foot">
-                Short lessons. Practical exercises. No paid upgrade.
+                One public training page. Course lessons stay inside your training account.
               </div>
             </aside>
           </div>
@@ -211,10 +228,10 @@ export default async function TrainingPage() {
 
         <section className="tr-intro-band">
           <div className="container tr-intro-band-grid">
-            <strong>Training should make you easier to trust with real work.</strong>
+            <strong>Training is a learning product, not a recruitment gate.</strong>
             <span>
-              That means fewer generic lectures and more practice with the decisions,
-              messages, tools, and handoffs a Virtual Assistant handles every day.
+              You can complete a course, keep the certificate, and work somewhere else.
+              Creating a training account does not automatically make you a job candidate.
             </span>
           </div>
         </section>
@@ -226,23 +243,22 @@ export default async function TrainingPage() {
                 <span className="tr-kicker">{foundationLive ? "Available now" : "First release"}</span>
                 <h2>Start with Virtual Assistant Foundations.</h2>
                 <p>
-                  The first course covers the basics that show up in almost every VA
-                  role: professional communication, remote work habits, inbox and
-                  calendar management, file organisation, research, mistakes, and
-                  responsible use of AI.
+                  This is the common base for almost every VA role: client communication,
+                  inbox and calendar work, files and spreadsheets, task management,
+                  research, responsible AI use, and knowing when to escalate.
                 </p>
                 <ul className="tr-outcomes">
-                  <li><Check size={16} /> Communicate clearly without overexplaining</li>
-                  <li><Check size={16} /> Organise recurring work so nothing gets lost</li>
-                  <li><Check size={16} /> Check your own work before a client has to</li>
-                  <li><Check size={16} /> Use AI without exposing client data or trusting bad output</li>
+                  <li><Check size={16} /> Write useful updates and ask better questions</li>
+                  <li><Check size={16} /> Organise recurring work without relying on memory</li>
+                  <li><Check size={16} /> Handle inbox, calendar, files, research, and handoffs more reliably</li>
+                  <li><Check size={16} /> Use AI without exposing client data or trusting unverified output</li>
                 </ul>
                 <div className="tr-cta-row">
                   <Link className="tr-btn tr-btn-primary" href={JOIN_HREF} data-track="training_account_click">
-                    Create free account <ArrowRight size={16} />
+                    {foundationLive ? "Start Foundations free" : "Create free training account"} <ArrowRight size={16} />
                   </Link>
-                  <a className="tr-text-link" href="#learning-paths" data-track="training_learning_paths_click">
-                    See the full roadmap
+                  <a className="tr-text-link" href="#training-roadmap" data-track="training_learning_paths_click">
+                    See what comes next
                   </a>
                 </div>
               </div>
@@ -250,15 +266,15 @@ export default async function TrainingPage() {
               <div className="tr-course-facts">
                 <div>
                   <span>Status</span>
-                  <strong>{foundationLive ? "Available now" : "In production"}</strong>
+                  <strong>{foundationLive ? "Available now" : "In development"}</strong>
+                </div>
+                <div>
+                  <span>Course length</span>
+                  <strong>{foundation ? duration(foundation.estimated_minutes) : "About 4 hours"}</strong>
                 </div>
                 <div>
                   <span>Lesson format</span>
-                  <strong>Short text + images</strong>
-                </div>
-                <div>
-                  <span>Typical lesson</span>
-                  <strong>10 to 30 minutes</strong>
+                  <strong>Text + practical exercises</strong>
                 </div>
                 <div>
                   <span>Certificate</span>
@@ -273,10 +289,10 @@ export default async function TrainingPage() {
           <div className="container">
             <div className="tr-head">
               <span className="tr-kicker">How it works</span>
-              <h2>Learn something useful, practise it, then show the evidence.</h2>
+              <h2>Learn it. Practise it. Save your progress.</h2>
               <p>
-                The training is structured around work outputs instead of long lectures.
-                Each stage should improve something a recruiter or client can actually inspect.
+                Lessons explain the workflow, show the common mistakes, and then ask you
+                to apply the idea in a realistic scenario or final work simulation.
               </p>
             </div>
 
@@ -284,119 +300,116 @@ export default async function TrainingPage() {
               <article>
                 <span>01</span>
                 <BookOpen size={22} />
-                <h3>Learn the workflow</h3>
-                <p>Understand the task, the handoff, the checks, and when to escalate.</p>
+                <h3>Understand the workflow</h3>
+                <p>Learn what the task is for, what information matters, and where your authority stops.</p>
               </article>
               <article>
                 <span>02</span>
                 <Briefcase size={22} />
-                <h3>Do the work</h3>
-                <p>Complete a short exercise based on the kind of output a client expects.</p>
+                <h3>Work through a scenario</h3>
+                <p>Apply the lesson to realistic composite examples instead of memorising trivia.</p>
               </article>
               <article>
                 <span>03</span>
                 <BadgeCheck size={22} />
-                <h3>Keep the proof</h3>
-                <p>Use the result to strengthen your profile, portfolio, or training record.</p>
+                <h3>Complete the course</h3>
+                <p>Finish the lessons and required practical assessment, then keep your free certificate.</p>
               </article>
             </div>
           </div>
         </section>
 
-        <section className="tr-section" id="learning-paths">
+        <section className="tr-section" id="training-roadmap">
           <div className="container">
             <div className="tr-head tr-head-wide">
-              <span className="tr-kicker">Learning paths</span>
-              <h2>Build the general skills first. Specialise when the work calls for it.</h2>
+              <span className="tr-kicker">Training roadmap</span>
+              <h2>The roadmap below comes directly from the LMS.</h2>
               <p>
-                The production roadmap starts with 15 full courses. The catalogue below also maps
-                future software and industry topics we can build after the core roadmap. We only mark
-                a course available after its lessons are complete and reviewed.
+                We keep one public training page to avoid creating competing SEO pages.
+                Course content, progress, assessments, and certificates live inside the signed-in training area.
               </p>
             </div>
 
-            <div className="tr-paths">
-              {TRAINING_LEVELS.map((level, index) => (
-                <article className="tr-path" key={level.id}>
-                  <div className="tr-path-top">
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <em>{level.courses.length} {level.courses.length === 1 ? "topic" : "topics"}</em>
-                  </div>
-                  <h3>{level.title}</h3>
-                  <p>{level.intro}</p>
-                  <ul>
-                    {level.courses.slice(0, 3).map((course) => (
-                      <li key={course.title}>
-                        <span>{course.title.replace(/ fundamentals$| administration$/i, "")}</span>
-                        {level.display === "list" ? (
-                          <small>{STATUS_LABEL[course.status]}</small>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                  {level.courses.length > 3 ? (
-                    <div className="tr-path-more">+ {level.courses.length - 3} more topics</div>
-                  ) : null}
-                </article>
-              ))}
+            <div className="tr-paths tr-paths-two">
+              <article className="tr-path">
+                <div className="tr-path-top">
+                  <span>01</span>
+                  <em>{globalCourses.length || 15} courses</em>
+                </div>
+                <h3>Global VA training</h3>
+                <p>Start with the universal skills and role specialisations that apply across client markets.</p>
+                <ul>
+                  {globalCourses.slice(0, 4).map((course) => (
+                    <li key={course.id}>
+                      <span>{course.title}</span>
+                      <small>{statusLabel(course.status)}</small>
+                    </li>
+                  ))}
+                </ul>
+                {globalCourses.length > 4 ? <div className="tr-path-more">+ {globalCourses.length - 4} more courses</div> : null}
+              </article>
+
+              <article className="tr-path">
+                <div className="tr-path-top">
+                  <span>02</span>
+                  <em>{australiaCourses.length || 11} courses</em>
+                </div>
+                <h3>Work with Australian businesses</h3>
+                <p>Optional market-specific training for Australian business workflows, software, terminology, and administration.</p>
+                <ul>
+                  {australiaCourses.slice(0, 4).map((course) => (
+                    <li key={course.id}>
+                      <span>{course.title}</span>
+                      <small>{statusLabel(course.status)}</small>
+                    </li>
+                  ))}
+                </ul>
+                {australiaCourses.length > 4 ? <div className="tr-path-more">+ {australiaCourses.length - 4} more courses</div> : null}
+              </article>
             </div>
 
             <div className="tr-catalogue">
-              {softwareLevel ? (
-                <details>
-                  <summary>
-                    <span>
-                      <strong>Software training</strong>
-                      <small>{softwareLevel.courses.length} planned topics</small>
-                    </span>
-                    <span>Browse</span>
-                  </summary>
-                  <ul className="tr-catalogue-grid">
-                    {softwareLevel.courses.map((course) => (
-                      <li key={course.title}>
-                        {course.href ? (
-                          <Link href={course.href}>
-                            {course.title.replace(/ fundamentals$/i, "")}
-                          </Link>
-                        ) : (
-                          <span>{course.title}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ) : null}
+              <details open>
+                <summary>
+                  <span>
+                    <strong>Global course roadmap</strong>
+                    <small>{globalCourses.length || 15} courses · {publishedCourses} currently available</small>
+                  </span>
+                  <span>View</span>
+                </summary>
+                <ul className="tr-catalogue-grid">
+                  {globalCourses.map((course) => (
+                    <li className="tr-course-line" key={course.id}>
+                      <span>{course.title}</span>
+                      <small className={course.status === "published" ? "tr-status-live" : ""}>{statusLabel(course.status)}</small>
+                    </li>
+                  ))}
+                </ul>
+              </details>
 
-              {industryLevel ? (
-                <details>
-                  <summary>
-                    <span>
-                      <strong>Industry workflow training</strong>
-                      <small>{industryLevel.courses.length} planned topics</small>
-                    </span>
-                    <span>Browse</span>
-                  </summary>
-                  <ul className="tr-catalogue-grid">
-                    {industryLevel.courses.map((course) => (
-                      <li key={course.title}>
-                        {course.href ? (
-                          <Link href={course.href}>
-                            {course.title.replace(/ administration$/i, "")}
-                          </Link>
-                        ) : (
-                          <span>{course.title}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ) : null}
+              <details>
+                <summary>
+                  <span>
+                    <strong>Australia specialisation</strong>
+                    <small>{australiaCourses.length || 11} optional courses</small>
+                  </span>
+                  <span>View</span>
+                </summary>
+                <ul className="tr-catalogue-grid">
+                  {australiaCourses.map((course) => (
+                    <li className="tr-course-line" key={course.id}>
+                      <span>{course.title}</span>
+                      <small>{statusLabel(course.status)}</small>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
 
             <div className="tr-request">
               <div>
-                <strong>Missing a tool or workflow you use at work?</strong>
-                <span>Tell us what would be genuinely useful and we will use requests to prioritise the roadmap.</span>
+                <strong>Need a course that is not on the roadmap?</strong>
+                <span>Tell us the role, software, or workflow you actually use. Requests help us decide what to build next.</span>
               </div>
               <Link href="/contact" data-track="training_course_request">
                 Request a course <ArrowRight size={15} />
@@ -408,31 +421,25 @@ export default async function TrainingPage() {
         <section className="tr-section tr-section-soft">
           <div className="container">
             <div className="tr-head">
-              <span className="tr-kicker">Designed for working VAs</span>
-              <h2>Useful when your time, data, and attention are limited.</h2>
+              <span className="tr-kicker">Built for working VAs</span>
+              <h2>Useful without needing a laptop, long videos, or a paid upgrade.</h2>
             </div>
 
             <div className="tr-principles">
               <article>
                 <Smartphone size={22} />
-                <h3>Phone-friendly by default</h3>
-                <p>
-                  Short text and images instead of making every lesson a long video or large download.
-                </p>
+                <h3>Phone-friendly</h3>
+                <p>Text-first lessons, practical examples, and fewer unnecessary downloads.</p>
               </article>
               <article>
-                <Briefcase size={22} />
-                <h3>Built around actual workflows</h3>
-                <p>
-                  Learn the language, tools, handoffs, and expectations behind the roles businesses hire for.
-                </p>
+                <MapPinned size={22} />
+                <h3>Global first, local when useful</h3>
+                <p>Core training works across markets. Country-specific tracks add local context instead of duplicating the whole course library.</p>
               </article>
               <article>
                 <Wallet size={22} />
-                <h3>No paywall behind progress</h3>
-                <p>
-                  Course access and certificates stay free. Training is separate from whether you apply for work here.
-                </p>
+                <h3>No paid certificate</h3>
+                <p>Course access, assessments, and completion certificates stay free.</p>
               </article>
             </div>
 
@@ -441,15 +448,15 @@ export default async function TrainingPage() {
                 <span className="tr-kicker">Clear boundaries</span>
                 <h2>No placement promise. No training requirement.</h2>
                 <p>
-                  A course can help you become better prepared, but it does not replace experience,
-                  role fit, communication, work samples, or a client's hiring decision.
+                  Training can make you better prepared for work, but it does not replace
+                  experience, work samples, communication, availability, or a client's hiring decision.
                 </p>
               </div>
               <ul>
                 <li><Check size={16} /> Training is optional</li>
+                <li><Check size={16} /> A training account is not a candidate profile</li>
                 <li><Check size={16} /> No course or certificate fee</li>
-                <li><Check size={16} /> No guaranteed placement language</li>
-                <li><Check size={16} /> Your work evidence still matters most</li>
+                <li><Check size={16} /> Specialist courses stay unpublished until reviewed</li>
               </ul>
             </div>
           </div>
@@ -459,10 +466,10 @@ export default async function TrainingPage() {
           <div className="container tr-faq-layout">
             <div className="tr-head">
               <span className="tr-kicker">FAQ</span>
-              <h2>Training questions, answered plainly.</h2>
+              <h2>What to know before you start.</h2>
               <p>
-                The important parts are simple: it is free, optional, mobile-friendly,
-                and separate from the hiring decision.
+                The important parts are simple: training is free, optional, mobile-friendly,
+                and separate from the hiring system.
               </p>
             </div>
 
@@ -481,23 +488,19 @@ export default async function TrainingPage() {
           <div className="container tr-close-inner">
             <div>
               <span>Free Virtual Assistant training</span>
-              <h2>Build skills you can actually show.</h2>
+              <h2>{foundationLive ? "Virtual Assistant Foundations is open." : "Create your free training account."}</h2>
               <p>
                 {foundationLive
-                  ? "Create your training account, save your progress, and start Virtual Assistant Foundations."
-                  : "Create your training account, save your progress, and start with the first lessons as they are released."}
+                  ? "Start with Foundations, save your progress, and complete the practical assessment when you are ready."
+                  : "Your account will hold your progress and certificates as courses are released."}
               </p>
             </div>
             <div className="tr-close-actions">
-              <Link
-                className="tr-btn tr-btn-light"
-                href={JOIN_HREF}
-                data-track="training_account_click"
-              >
-                Create free account <ArrowRight size={17} />
+              <Link className="tr-btn tr-btn-light" href={JOIN_HREF} data-track="training_account_click">
+                {foundationLive ? "Start free training" : "Create free account"} <ArrowRight size={16} />
               </Link>
               <Link className="tr-close-login" href={LOGIN_HREF} data-track="training_login_click">
-                I already have an account
+                Already registered? Log in
               </Link>
             </div>
           </div>

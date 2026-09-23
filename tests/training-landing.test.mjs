@@ -7,7 +7,6 @@ function source(path) {
 }
 
 const page = source("src/app/training/page.tsx");
-const catalogue = source("src/lib/training-catalogue.ts");
 
 test("the public training page targets the search term and is indexable", () => {
   assert.match(page, /const META_TITLE = "Virtual Assistant Training Philippines \| Free VA Course"/);
@@ -18,15 +17,22 @@ test("the public training page targets the search term and is indexable", () => 
   assert.match(source("src/lib/public-seo-routes.ts"), /path: "\/training"/);
 });
 
-test("the catalogue is derived from what we already sell, not invented", () => {
-  assert.match(catalogue, /softwarePages\.map/);
-  assert.match(catalogue, /href: `\/software\/\$\{page\.slug\}`/);
-  assert.match(catalogue, /href: `\/industries\/\$\{industry\.slug\}`/);
+test("the public roadmap comes from the LMS, not a second static catalogue", () => {
+  const publicTraining = source("src/lib/public-training.ts");
+  assert.match(page, /getPublicTrainingOverview/);
+  assert.doesNotMatch(page, /TRAINING_LEVELS|STATUS_LABEL|training-catalogue/);
+  assert.match(publicTraining, /from\("training_courses"\)/);
+  assert.match(publicTraining, /from\("training_learning_paths"\)/);
+  assert.match(publicTraining, /from\("training_learning_path_courses"\)/);
+  assert.match(page, /Global course roadmap/);
+  assert.match(page, /Australia specialisation/);
 });
 
-test("only courses that exist are offered as available", () => {
-  assert.match(page, /STATUS_LABEL\[course\.status\]/);
-  assert.match(catalogue, /planned: "Planned"/);
+test("the landing page tells the truth about release state", () => {
+  assert.match(page, /statusLabel/);
+  assert.match(page, /Available now/);
+  assert.match(page, /In development/);
+  assert.match(page, /foundationLive/);
 });
 
 test("the landing page separates new training signup from returning-user login", () => {
@@ -46,12 +52,13 @@ test("the VA page never leads with the client CTA", () => {
 
 test("training social metadata is page-specific and Course schema follows production release state", () => {
   assert.match(page, /\/training\/opengraph-image/);
-  assert.match(page, /getPublishedFoundationCourse/);
-  assert.match(page, /\.\.\.\(publishedFoundation \? \[\{/);
+  assert.match(page, /getPublicTrainingOverview/);
+  assert.match(page, /foundationLive && foundation/);
   assert.match(page, /"@type": "Course"/);
   const publicTraining = source("src/lib/public-training.ts");
   const trainingAdmin = source("src/app/actions/training-admin.ts");
-  assert.match(publicTraining, /\.eq\("status", "published"\)/);
+  assert.match(publicTraining, /getPublicTrainingOverview/);
+  assert.match(publicTraining, /status === "published"/);
   assert.match(publicTraining, /revalidate: 300/);
   assert.match(trainingAdmin, /revalidateTag\("public-training"\)/);
   const og = source("src/app/training/opengraph-image.tsx");
@@ -84,4 +91,19 @@ test("the training funnel records successful product actions", () => {
   assert.match(trainingActions, /recordProductEvent\("training_lesson_complete"/);
   assert.match(trainingActions, /recordProductEvent\("training_course_complete"/);
   assert.match(adminAnalytics, /Training engagement/);
+});
+
+
+test("the public training page keeps individual course pages private", () => {
+  assert.doesNotMatch(page, /href=\{?`?\/training\/[^"'`#]/);
+  assert.doesNotMatch(page, /workspace\/training\/courses/);
+  assert.match(page, /One public training page/);
+  assert.match(page, /Course content, progress, assessments, and certificates live inside the signed-in training area/);
+});
+
+test("training landing copy does not treat learning as a hiring gate", () => {
+  assert.match(page, /Training is a learning product, not a recruitment gate/);
+  assert.match(page, /does not automatically make you a job candidate/);
+  assert.match(page, /Separate from hiring and shortlisting/);
+  assert.doesNotMatch(page, /get you picked by clients|client-ready proof|guaranteed placement/i);
 });

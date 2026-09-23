@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const migrationPath = "supabase/migrations/20260923013500_free_training_foundation.sql";
+const migrationPath = "supabase/migrations/20260923040500_free_training_foundation.sql";
 
 test("training is independent from VA candidate profiles", async () => {
   const sql = await readFile(migrationPath, "utf8");
@@ -127,7 +127,7 @@ test("admin training authoring stays admin-only and guarded before publish", asy
 });
 
 test("Virtual Assistant Foundations is seeded as a detailed private draft", async () => {
-  const seed = await readFile("supabase/migrations/20260923021000_seed_va_foundations_training.sql", "utf8");
+  const seed = await readFile("supabase/migrations/20260923040600_seed_va_foundations_training.sql", "utf8");
   assert.match(seed, /Virtual Assistant Foundations/);
   assert.match(seed, /\n  375,\n  'draft'/);
   assert.match(seed, /Final VA Work Simulation/);

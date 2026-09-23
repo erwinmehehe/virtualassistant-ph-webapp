@@ -267,3 +267,12 @@ test("assessment-pending courses remain active on the learner dashboard", async 
   assert.match(training, /completedAt: string \| null/);
   assert.match(dashboard, /const active = enrolled\.filter\(\(course\) => !course\.completedAt\)/);
 });
+
+
+test("final assessment cannot be submitted before all published lessons are complete", async () => {
+  const action = await readFile("src/app/actions/training.ts", "utf8");
+  const page = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
+  assert.match(action, /Complete all published lessons before submitting the final assessment/);
+  assert.match(page, /Complete the lessons first/);
+  assert.match(page, /course\.completedLessons === course\.lessonCount/);
+});

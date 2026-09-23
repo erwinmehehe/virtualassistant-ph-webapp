@@ -88,6 +88,12 @@ async function invalidateSpecialistReview(
     .eq("course_id", courseId);
   if (error) throw error;
 
+  await admin
+    .from("training_specialist_review_invites")
+    .update({ status: "revoked", updated_at: now })
+    .eq("course_id", courseId)
+    .in("status", ["pending", "opened"]);
+
   const { error: eventError } = await admin
     .from("training_specialist_review_events")
     .insert({
@@ -266,6 +272,13 @@ export async function assignTrainingSpecialistReviewerAction(formData: FormData)
   }
 
   const now = new Date().toISOString();
+
+  await admin
+    .from("training_specialist_review_invites")
+    .update({ status: "revoked", updated_at: now })
+    .eq("course_id", courseId)
+    .in("status", ["pending", "opened"]);
+
   const reviewRevision = Math.max(1, Number(existing?.review_revision || 1));
   const eventType = existing?.assigned_reviewer_name || existing?.assigned_reviewer_role
     ? "reassigned"
@@ -433,6 +446,14 @@ export async function saveTrainingSpecialistReviewAction(formData: FormData) {
     .update(courseUpdate)
     .eq("id", courseId);
   if (updateError) throw updateError;
+
+  if (decision === "approved" || decision === "changes_requested") {
+    await admin
+      .from("training_specialist_review_invites")
+      .update({ status: "revoked", updated_at: now })
+      .eq("course_id", courseId)
+      .in("status", ["pending", "opened"]);
+  }
 
   const eventType = decision === "approved"
     ? "approved"

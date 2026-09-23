@@ -42,7 +42,7 @@ test("training admin exposes specialist-review requirement and routes evidence t
   const inventory = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
   const newCourse = await readFile("src/app/workspace/admin/training/new/page.tsx", "utf8");
 
-  assert.match(coursePage, /Editorial \\+ specialist review/);
+  assert.match(coursePage, /Editorial \+ specialist review/);
   assert.match(coursePage, /Specialist sign-off is managed in the review queue/);
   assert.match(reviewPage, /Reviewer name/);
   assert.match(reviewPage, /Reviewer role \/ scope/);

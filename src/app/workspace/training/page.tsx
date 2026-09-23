@@ -71,7 +71,7 @@ export default async function TrainingDashboardPage() {
           </div>
           <div className="dash-actions">
             {enrolled.map((course) => (
-              <Link className="dash-action" href={`/workspace/training/courses/${course.slug}`} key={course.id}>
+              <Link className="dash-action" href={`/workspace/training/courses/${course.slug}`} key={course.id} data-track="training_course_continue">
                 <span className="dash-action-count">{course.progressPercent}%</span>
                 <span className="dash-action-copy">
                   <span className="dash-action-title"><strong>{course.title}</strong></span>
@@ -109,11 +109,11 @@ export default async function TrainingDashboardPage() {
                   <small className="muted">{course.lessonCount} lesson{course.lessonCount === 1 ? "" : "s"} · {duration(course.estimated_minutes)}</small>
                 </span>
                 {course.enrolled ? (
-                  <Link className="btn btn-sm btn-primary" href={`/workspace/training/courses/${course.slug}`}>Continue</Link>
+                  <Link className="btn btn-sm btn-primary" href={`/workspace/training/courses/${course.slug}`} data-track="training_course_continue">Continue</Link>
                 ) : (
                   <form action={startTrainingCourseAction}>
                     <input type="hidden" name="course_id" value={course.id}/>
-                    <button className="btn btn-sm btn-primary" type="submit">Start free</button>
+                    <button className="btn btn-sm btn-primary" type="submit" data-track="training_course_start_click">Start free</button>
                   </form>
                 )}
               </article>

@@ -1,3 +1,4 @@
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { publicationMissingDetails, type PublicationJob } from "@/lib/job-publication";
 
 type RoleReadinessFormProps = {
@@ -54,7 +55,7 @@ export function RoleReadinessForm({ job, returnTo, action }: RoleReadinessFormPr
           {needs.has("budget") ? (
             <div className="field">
               <label htmlFor="role-readiness-budget">Minimum VA budget, USD/hour</label>
-              <input id="role-readiness-budget" name="min_hourly_rate" type="number" min="5" step="0.01" required />
+              <input id="role-readiness-budget" name="min_hourly_rate" type="number" min={MIN_HOURLY_RATE} step="0.01" required />
             </div>
           ) : null}
 

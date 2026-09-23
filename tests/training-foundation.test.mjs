@@ -284,3 +284,36 @@ test("lesson-only completion does not display as full course completion", async 
   assert.match(training, /completedLessons === lessons\.length\s*\? 95/);
   assert.match(training, /enrollment\?\.completed_at\s*\? 100/);
 });
+
+
+test("Foundations is compacted to ten learner-facing lessons without losing progress", async () => {
+  const compact = await readFile("supabase/migrations/20260923093000_compact_va_foundations.sql", "utf8");
+  assert.match(compact, /estimated_minutes = 215/);
+  assert.match(compact, /content_version = 3/);
+  assert.match(compact, /The VA Role, Standards, and Boundaries/);
+  assert.match(compact, /Client Communication, Updates, and Escalation/);
+  assert.match(compact, /Priorities, Deadlines, and Handoffs/);
+  assert.match(compact, /insert into public\.training_lesson_progress/);
+  assert.match(compact, /delete from public\.training_lessons/);
+  for (const removedId of [
+    "12000000-0000-4000-8000-000000000002",
+    "12000000-0000-4000-8000-000000000004",
+    "12000000-0000-4000-8000-000000000010",
+  ]) assert.ok(compact.includes(removedId));
+});
+
+test("internal content versions stay out of learner-facing training UI", async () => {
+  const course = await readFile("src/app/workspace/training/courses/[slug]/page.tsx", "utf8");
+  const lesson = await readFile("src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx", "utf8");
+  assert.doesNotMatch(course, /Version \{course\.content_version\}/);
+  assert.doesNotMatch(course, /v\{lesson\.content_version\}/);
+  assert.doesNotMatch(lesson, /Version \{lesson\.content_version\}/);
+});
+
+test("training shell avoids repeating Free training and Free learning labels", async () => {
+  const shell = await readFile("src/components/training-shell.tsx", "utf8");
+  assert.match(shell, /Training home/);
+  assert.match(shell, /Learner account/);
+  assert.doesNotMatch(shell, /sidebar-label">Free training/);
+  assert.doesNotMatch(shell, /app-topbar-page-title">Free learning/);
+});

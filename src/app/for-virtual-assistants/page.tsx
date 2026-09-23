@@ -20,7 +20,7 @@ import "./for-virtual-assistants.css";
 
 const META_TITLE = "For Virtual Assistants Philippines | Training & Jobs";
 const META_DESCRIPTION =
-  "Free VA training, reviewed remote jobs, profile tools, and practical career resources for Filipino Virtual Assistants. Learn, apply, and manage your work in one place.";
+  "Free VA training, reviewed remote jobs, profile tools, and career resources for Filipino Virtual Assistants. Learn, apply, and manage your work in one place.";
 
 export const metadata: Metadata = {
   title: { absolute: META_TITLE },

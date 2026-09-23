@@ -20,9 +20,13 @@ const blogs = [
   ...parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = "),
   ...parseArray("src/lib/blog-opportunity-posts.ts", "export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = "),
   ...parseArray("src/lib/blog-hiring-guides.ts", "export const BLOG_HIRING_GUIDES: BlogPost[] = "),
-  ...parseArray("src/lib/blog-demand-guides.ts", "export const BLOG_DEMAND_GUIDES: BlogPost[] = ")
+  ...parseArray("src/lib/blog-demand-guides.ts", "export const BLOG_DEMAND_GUIDES: BlogPost[] = "),
+  ...parseArray("src/lib/blog-keyword-support-guides.ts", "export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = ")
 ];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
+const softwareSource = source("src/lib/software-pages.ts");
+const software = [...softwareSource.matchAll(/slug:\s*"([^"]+)"[\s\S]{0,1200}?primaryKeyword:\s*"([^"]+)"[\s\S]{0,600}?metaTitle:\s*"([^"]+)"/g)]
+  .map((match) => ({ slug: match[1], primaryKeyword: match[2], metaTitle: match[3] }));
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const archive = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
 
@@ -180,6 +184,45 @@ for (const post of blogs) {
     }
   }
 
+  for (const page of software) {
+    const sim = [
+      similarity(post.metaTitle, page.metaTitle),
+      similarity(post.title, page.primaryKeyword),
+      similarity(post.metaTitle, page.primaryKeyword)
+    ].sort((a,b) => b.score - a.score)[0];
+    if (sim.score < 0.76 || sim.shared.length < 2) continue;
+
+    const sameSoftware = post.softwareSlug === page.slug;
+    const family = blogFamily(post);
+    const distinctFamily = ["cost","interview","tasks","job-description","training","tools","role-definition","hiring"].includes(family);
+    const targetHref = `/software/${page.slug}`;
+    const explicitBridge = (post.internalLinks || []).some((link) => link.href === targetHref);
+
+    let reason = null;
+    if (!sameSoftware && !explicitBridge) reason = "high lexical overlap outside declared software cluster";
+    else if (sameSoftware && !distinctFamily && sim.score >= 0.9) reason = "same-software article has no strong editorial-family separator";
+
+    if (reason) {
+      candidates.push({
+        type: "blog-software",
+        score: Number(sim.score.toFixed(3)),
+        coverage: Number(sim.coverage.toFixed(3)),
+        shared: sim.shared,
+        source: `/blog/${post.slug}`,
+        sourceTitle: post.metaTitle,
+        sourceIntent: post.intent,
+        sourceFamily: family,
+        declaredSoftware: post.softwareSlug || null,
+        target: `/software/${page.slug}`,
+        targetTitle: page.metaTitle,
+        targetKeyword: page.primaryKeyword,
+        sameSoftware,
+        reason,
+        blogDiagnostics: compactBlogDiagnostics(post)
+      });
+    }
+  }
+
   for (const industry of industries) {
     const sim = [
       similarity(post.metaTitle, industry.metaTitle),
@@ -237,6 +280,7 @@ console.log(JSON.stringify({
   corpus: {
     blogs: blogs.length,
     services: services.length,
+    software: software.length,
     industries: industries.length,
     archive: archive.length
   },

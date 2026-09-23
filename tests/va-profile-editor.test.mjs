@@ -80,3 +80,35 @@ test("Next keeps native PDF parser dependencies out of the server bundle", async
   const config = await source("next.config.ts");
   assert.match(config, /serverExternalPackages:\s*\["pdf-parse", "@napi-rs\/canvas"\]/);
 });
+
+
+test("VA profile validates resume and photo before persisting profile edits", async () => {
+  const action = await source("src/app/actions/profile.ts");
+  const resumeValidation = action.indexOf('const resumeUpload = validateResumeUpload(formData.get("resume"))');
+  const avatarValidation = action.indexOf('const avatarUpload = validateAvatarUpload(formData.get("avatar"))');
+  const firstProfileWrite = action.indexOf('admin.from("profiles").update({ full_name: fullName })');
+
+  assert.ok(resumeValidation >= 0, "resume validation must run");
+  assert.ok(avatarValidation >= 0, "avatar validation must run");
+  assert.ok(firstProfileWrite > resumeValidation, "resume must validate before profile writes");
+  assert.ok(firstProfileWrite > avatarValidation, "photo must validate before profile writes");
+  assert.match(action, /function validateResumeUpload/);
+  assert.match(action, /function validateAvatarUpload/);
+});
+
+
+test("client profile validates URLs and logo before persisting account edits", async () => {
+  const action = await source("src/app/actions/profile.ts");
+  const clientStart = action.indexOf("export async function updateClientProfileAction");
+  const clientSource = action.slice(clientStart);
+  const websiteValidation = clientSource.indexOf('const website = cleanUrl(formData.get("website"))');
+  const logoUrlValidation = clientSource.indexOf('const logoUrl = cleanUrl(formData.get("logo_url"))');
+  const logoValidation = clientSource.indexOf('const logoUpload = validateCompanyLogoUpload(formData.get("logo"))');
+  const firstWrite = clientSource.indexOf('admin.from("profiles").update({ full_name: fullName || null })');
+
+  assert.ok(clientStart >= 0);
+  assert.ok(websiteValidation >= 0 && websiteValidation < firstWrite);
+  assert.ok(logoUrlValidation >= 0 && logoUrlValidation < firstWrite);
+  assert.ok(logoValidation >= 0 && logoValidation < firstWrite);
+  assert.match(action, /function validateCompanyLogoUpload/);
+});

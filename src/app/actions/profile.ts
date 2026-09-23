@@ -56,6 +56,55 @@ const cleanUrl = (value: FormDataEntryValue | null) => {
   return url.toString();
 };
 
+function validateResumeUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
+
+  const extension = value.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
+  const mimeByExtension: Record<string, string> = {
+    pdf: "application/pdf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  };
+  const expectedMime = extension ? mimeByExtension[extension] : null;
+  const genericMime = !value.type || value.type === "application/octet-stream";
+  if (!extension || !expectedMime || (!genericMime && value.type !== expectedMime)) {
+    throw new Error("Upload a PDF, DOC, or DOCX resume only.");
+  }
+
+  return {
+    file: value,
+    expectedMime,
+    safeName: value.name.replace(/[^a-zA-Z0-9._-]/g, "-"),
+  };
+}
+
+function validateAvatarUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
+
+  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP photo only.");
+
+  return {
+    file: value,
+    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
+  };
+}
+
+function validateCompanyLogoUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
+
+  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP company logo.");
+
+  return {
+    file: value,
+    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
+  };
+}
+
 export async function updateVaProfileAction(formData: FormData) {
   try {
   const { user } = await requireRole("va");
@@ -92,6 +141,12 @@ export async function updateVaProfileAction(formData: FormData) {
     tools.join(" "),
     industries.join(" ")
   );
+
+  // Validate every file before writing profile fields. A rejected resume/photo
+  // must not leave the user with a "save failed" message after other edits
+  // were already persisted.
+  const resumeUpload = validateResumeUpload(formData.get("resume"));
+  const avatarUpload = validateAvatarUpload(formData.get("avatar"));
 
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
@@ -151,21 +206,8 @@ export async function updateVaProfileAction(formData: FormData) {
   if (nameError) throw nameError;
   if (profileError) throw profileError;
 
-  const resume = formData.get("resume");
-  if (resume instanceof File && resume.size > 0) {
-    if (resume.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
-    const extension = resume.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
-    const mimeByExtension: Record<string, string> = {
-      pdf: "application/pdf",
-      doc: "application/msword",
-      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    };
-    const genericMime = !resume.type || resume.type === "application/octet-stream";
-    const expectedMime = extension ? mimeByExtension[extension] : null;
-    if (!extension || !expectedMime || (!genericMime && resume.type !== expectedMime)) {
-      throw new Error("Upload a PDF, DOC, or DOCX resume only.");
-    }
-    const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+  if (resumeUpload) {
+    const { file: resume, expectedMime, safeName } = resumeUpload;
     const path = `${user.id}/${Date.now()}-${safeName}`;
     const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: expectedMime });
     if (error) throw error;
@@ -178,12 +220,8 @@ export async function updateVaProfileAction(formData: FormData) {
     materialChanged = true;
   }
 
-  const avatar = formData.get("avatar");
-  if (avatar instanceof File && avatar.size > 0) {
-    if (avatar.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
-    const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
-    if (!allowedMime.has(avatar.type)) throw new Error("Upload a JPG, PNG, or WEBP photo only.");
-    const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
+  if (avatarUpload) {
+    const { file: avatar, extension } = avatarUpload;
     const path = `${user.id}/${Date.now()}.${extension}`;
     const { error: uploadError } = await supabase.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
     if (uploadError) throw uploadError;
@@ -292,27 +330,31 @@ export async function updateClientProfileAction(formData: FormData) {
   const admin = createAdminClient();
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (fullName && (fullName.length < 2 || fullName.length > 100)) throw new Error("Enter a valid name.");
+
+  // Resolve every user-input validation error before mutating either profile
+  // table so an invalid URL/logo cannot leave a partially saved company form.
+  const website = cleanUrl(formData.get("website"));
+  const logoUrl = cleanUrl(formData.get("logo_url"));
+  const logoUpload = validateCompanyLogoUpload(formData.get("logo"));
+
   const { error: nameError } = await admin.from("profiles").update({ full_name: fullName || null }).eq("id", user.id);
   if (nameError) throw nameError;
   const { error: companyError } = await admin.from("client_profiles").update({
     company_name: String(formData.get("company_name") ?? "").trim() || null,
-    website: cleanUrl(formData.get("website")),
+    website,
     industry: String(formData.get("industry") ?? "").trim() || null,
     timezone: String(formData.get("timezone") ?? "").trim() || null,
     team_size: String(formData.get("team_size") ?? "").trim() || null,
     company_description: String(formData.get("company_description") ?? "").trim() || null,
-    logo_url: cleanUrl(formData.get("logo_url")),
+    logo_url: logoUrl,
     location: String(formData.get("location") ?? "").trim() || null,
     hiring_needs: String(formData.get("hiring_needs") ?? "").trim() || null,
     hiring_notes: String(formData.get("hiring_notes") ?? "").trim() || null
   }).eq("user_id", user.id);
   if (companyError) throw companyError;
-  const logo = formData.get("logo");
-  if (logo instanceof File && logo.size > 0) {
-    if (logo.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
-    if (!["image/jpeg","image/png","image/webp"].includes(logo.type)) throw new Error("Upload a JPG, PNG, or WEBP company logo.");
-    const ext = logo.type === "image/png" ? "png" : logo.type === "image/webp" ? "webp" : "jpg";
-    const path = `${user.id}/logo-${Date.now()}.${ext}`;
+  if (logoUpload) {
+    const { file: logo, extension } = logoUpload;
+    const path = `${user.id}/logo-${Date.now()}.${extension}`;
     const { error: uploadError } = await admin.storage.from("company-logos").upload(path, logo, { upsert: false, contentType: logo.type });
     if (uploadError) throw uploadError;
     const { data: publicUrl } = admin.storage.from("company-logos").getPublicUrl(path);

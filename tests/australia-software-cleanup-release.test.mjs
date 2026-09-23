@@ -27,20 +27,14 @@ test("Australia cleanup consolidates repeated lesson warnings into course-level 
   assert.match(sql, /Australian credit law, lender policy/);
 });
 
-test("regulated Australia courses remain draft behind specialist review", async () => {
-  const sql = await readFile(cleanupPath, "utf8");
+test("later editorial-only release retires the temporary Australia specialist gate", async () => {
+  const cleanup = await readFile(cleanupPath, "utf8");
+  const finalRelease = await readFile("supabase/migrations/20260923234500_remove_all_course_specialist_gates.sql", "utf8");
 
-  assert.match(sql, /review_requirement = 'specialist'/);
-  assert.match(sql, /specialist_reviewed_by = null/);
-  assert.match(sql, /specialist_reviewed_at = null/);
-
-  for (const slug of [
-    "ndis-administration-fundamentals",
-    "property-management-administration-australia",
-    "mortgage-broking-administration-australia",
-  ]) {
-    assert.ok(sql.includes(slug), "Missing specialist-gated course: " + slug);
-  }
+  assert.match(cleanup, /review_requirement = 'specialist'/);
+  assert.match(finalRelease, /review_requirement = 'editorial'/);
+  assert.match(finalRelease, /where review_requirement = 'specialist'/);
+  assert.match(finalRelease, /status = 'published'/);
 });
 
 test("software release refuses repeated boilerplate and requires practical assessments", async () => {

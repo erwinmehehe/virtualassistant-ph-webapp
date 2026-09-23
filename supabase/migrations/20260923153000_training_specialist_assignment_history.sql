@@ -36,8 +36,27 @@ create table if not exists public.training_specialist_review_events (
 
 alter table public.training_specialist_review_events enable row level security;
 
-revoke all on public.training_specialist_review_events from anon, authenticated;
-grant all on public.training_specialist_review_events to service_role;
+revoke all on public.training_specialist_review_events from anon, authenticated, service_role;
+grant select, insert on public.training_specialist_review_events to service_role;
+
+create schema if not exists private;
+
+create or replace function private.reject_training_specialist_review_event_mutation()
+returns trigger
+language plpgsql
+set search_path = ''
+as $
+begin
+  raise exception 'training specialist review history is append-only';
+end;
+$;
+
+drop trigger if exists training_specialist_review_events_append_only
+  on public.training_specialist_review_events;
+
+create trigger training_specialist_review_events_append_only
+before update or delete on public.training_specialist_review_events
+for each row execute function private.reject_training_specialist_review_event_mutation();
 
 create index if not exists training_specialist_review_events_course_created_idx
   on public.training_specialist_review_events(course_id, created_at desc);

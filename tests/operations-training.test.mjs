@@ -51,3 +51,13 @@ test("Operations final assessment tests real operating work", async () => {
   assert.match(seed, /end-of-shift handoff/i);
   assert.match(seed, /process dependencies/i);
 });
+
+
+test("Operations course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923140000_release_operations_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'operations-virtual-assistant'/);
+});

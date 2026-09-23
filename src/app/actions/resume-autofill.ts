@@ -9,10 +9,16 @@ export type ParseResumeState = {
   fields?: ParsedResumeFields;
 };
 
-const ALLOWED_MIME = new Set([
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-]);
+const PDF_MIME = "application/pdf";
+const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const GENERIC_MIME = new Set(["", "application/octet-stream"]);
+
+function resolvedResumeType(file: File) {
+  const name = file.name.toLowerCase();
+  if (file.type === PDF_MIME || (GENERIC_MIME.has(file.type) && name.endsWith(".pdf"))) return PDF_MIME;
+  if (file.type === DOCX_MIME || (GENERIC_MIME.has(file.type) && name.endsWith(".docx"))) return DOCX_MIME;
+  return null;
+}
 
 /**
  * Parses an uploaded resume and returns suggested profile fields for the
@@ -30,15 +36,22 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
   if (file.size > 5 * 1024 * 1024) {
     return { status: "error", message: "Resume must be 5 MB or smaller." };
   }
-  if (!ALLOWED_MIME.has(file.type)) {
-    return { status: "error", message: "Auto-fill supports PDF and DOCX only. You can still upload a DOC resume below and fill the form manually." };
+  const resumeType = resolvedResumeType(file);
+  if (!resumeType) {
+    const isLegacyDoc = file.name.toLowerCase().endsWith(".doc");
+    return {
+      status: "error",
+      message: isLegacyDoc
+        ? "Your DOC resume can still be saved with the profile, but auto-fill needs a PDF or DOCX file."
+        : "Auto-fill supports PDF and DOCX files. If this is a valid resume, export it again as PDF or DOCX and retry."
+    };
   }
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const text = await extractResumeText(buffer, file.type);
+    const text = await extractResumeText(buffer, resumeType);
     if (!text.trim()) {
-      return { status: "error", message: "Could not read any text from this file. Try a different export of your resume." };
+      return { status: "error", message: "No readable text was found. If the PDF is scanned or image-only, export a text-based PDF or DOCX and try again." };
     }
 
     const fields = await parseResumeWithAI(text);

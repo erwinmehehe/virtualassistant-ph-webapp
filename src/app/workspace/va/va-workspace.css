@@ -545,3 +545,167 @@
     justify-self: start;
   }
 }
+
+
+/* VA profile 2026-09 cleanup: one resume flow and fewer duplicate actions */
+.resume-import-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px 24px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid #dfe3f0;
+  border-radius: 16px;
+  background: #fff;
+}
+.resume-import-copy {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.resume-import-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #eef0ff;
+  color: #3538cd;
+}
+.resume-import-title-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.resume-import-copy strong { font-size: 14px; }
+.resume-import-copy p {
+  margin: 4px 0 0;
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.resume-import-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.resume-file-picker {
+  position: relative;
+  min-width: 190px;
+  max-width: 280px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfd;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.resume-file-picker span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resume-file-picker input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.resume-profile-file-target { display: none; }
+.resume-import-message { grid-column: 1 / -1; margin: 0; }
+
+.profile-editor-main { gap: 16px; }
+.profile-photo-control {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+.profile-photo-control img,
+.profile-photo-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+.profile-photo-control img { object-fit: cover; }
+.profile-photo-placeholder {
+  display: grid;
+  place-items: center;
+  border: 1px dashed #cfd4dc;
+  background: #f8fafc;
+  color: #98a2b3;
+  font-size: 10px;
+  font-weight: 700;
+}
+.profile-photo-control > div { display: grid; gap: 6px; }
+.profile-inline-note {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.profile-side-actions {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+}
+.profile-side-actions-head,
+.profile-side-action {
+  padding: 14px;
+}
+.profile-side-actions-head {
+  border-bottom: 1px solid var(--line);
+}
+.profile-side-actions-head strong,
+.profile-side-actions-head span,
+.profile-side-action strong,
+.profile-side-action span {
+  display: block;
+}
+.profile-side-actions-head strong { font-size: 13px; }
+.profile-side-actions-head span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.profile-side-action + .profile-side-action { border-top: 1px solid var(--line); }
+.profile-side-action > div { margin-bottom: 10px; }
+.profile-side-action strong { font-size: 12.5px; }
+.profile-side-action span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.profile-side-action .btn { width: 100%; }
+.profile-editor-form .profile-section + .profile-section { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .resume-import-panel { grid-template-columns: 1fr; }
+  .resume-import-form { justify-content: flex-start; }
+}
+@media (max-width: 620px) {
+  .resume-import-panel { padding: 16px; }
+  .resume-import-form { display: grid; grid-template-columns: 1fr; }
+  .resume-file-picker { width: 100%; max-width: none; }
+  .resume-import-form .btn { width: 100%; }
+  .profile-photo-control { grid-template-columns: 56px minmax(0, 1fr); }
+  .profile-photo-control img,
+  .profile-photo-placeholder { width: 56px; height: 56px; }
+}

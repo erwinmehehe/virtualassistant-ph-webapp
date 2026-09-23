@@ -41,9 +41,18 @@ export function LiveProfileStrength({ formId, initial }: { formId: string; initi
       setState({ score, done, total: items.length, years: Number(fd.get("years_experience") || 0), next });
     };
     calculate();
+    const resumeInput = form.elements.namedItem("resume") as HTMLInputElement | null;
     form.addEventListener("input", calculate);
     form.addEventListener("change", calculate);
-    return () => { form.removeEventListener("input", calculate); form.removeEventListener("change", calculate); };
+    // The resume picker is form-associated but rendered outside the form so
+    // the parser can submit independently. Its events do not bubble through
+    // the profile form DOM tree, so listen to it directly as well.
+    resumeInput?.addEventListener("change", calculate);
+    return () => {
+      form.removeEventListener("input", calculate);
+      form.removeEventListener("change", calculate);
+      resumeInput?.removeEventListener("change", calculate);
+    };
   }, [formId, initialResume]);
 
   const eligible = state.years >= PUBLIC_VA_MIN_EXPERIENCE;

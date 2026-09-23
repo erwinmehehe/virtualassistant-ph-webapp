@@ -186,7 +186,7 @@ export async function sendTrainingSpecialistReviewInviteAction(formData: FormDat
         assigned_revision: review.assigned_revision,
         course_content_version: course.content_version,
         checklist: {},
-        notes: `Secure review sent to ${parsed.data.reviewer_email.toLowerCase()}.`,
+        notes: "Secure external specialist review invite sent.",
       }),
   ]);
 

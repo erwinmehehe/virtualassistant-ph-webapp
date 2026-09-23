@@ -8,6 +8,7 @@ type CourseRow = {
   category: "foundation" | "software" | "industry" | "skill";
   country_focus: string | null;
   estimated_minutes: number;
+  recommended_order: number | null;
   status: "draft" | "published" | "archived";
   content_version: number;
   trademark_disclaimer: string | null;
@@ -106,8 +107,9 @@ export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
     .eq("status", "published")
+    .order("recommended_order", { ascending: true })
     .order("title");
 
   if (error) return { courses: [] as TrainingCourseSummary[], error: error.message };
@@ -190,7 +192,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -284,8 +286,9 @@ export async function getTrainingAdminSummary() {
   const supabase = await createClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
-    .order("updated_at", { ascending: false });
+    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
+    .order("recommended_order", { ascending: true })
+    .order("title");
 
   if (error) {
     return {

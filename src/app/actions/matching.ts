@@ -200,17 +200,20 @@ export async function saveJobShortlistAction(formData: FormData) {
   });
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) {
-    console.error("saveJobShortlistAction upsert failed:", error);
     const message = String(error.message || "");
     if (message.includes("VA availability is stale")) {
+      console.info("[shortlist] blocked by stale VA availability");
       return fail("A selected VA's availability changed while you were reviewing the shortlist. Send an availability reminder and try again after they confirm.");
     }
     if (message.includes("Agency Certified")) {
+      console.info("[shortlist] blocked by release-readiness guardrail");
       return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership, fresh availability, and verified work setup first.");
     }
     if (message.includes("Client review is not ready yet")) {
+      console.info("[shortlist] blocked by client-review guardrail");
       return fail("Client review is not ready yet. Confirm the linked client, accepted service terms, and candidate access before sending.");
     }
+    console.error("saveJobShortlistAction upsert failed:", error);
     return fail("Could not save the shortlist. Please try again.");
   }
 

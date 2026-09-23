@@ -1898,7 +1898,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ]
   },
   {
-    "slug": "real-estate-virtual-assistant-tasks",
+    "slug": "real-estate-virtual-assistant-crm-listing-workflow",
     "title": "Real Estate VA Workflow: CRM, Listings and Transactions",
     "metaTitle": "Real Estate VA Workflow: CRM, Listings & Transactions",
     "description": "Build a Real Estate VA workflow for CRM updates, lead follow-up, listing administration, transaction coordination, scheduling, research, and escalation.",
@@ -2051,13 +2051,13 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ]
   },
   {
-    "slug": "amazon-virtual-assistant-tasks-for-sellers",
-    "title": "Amazon Virtual Assistant Tasks for Sellers",
-    "metaTitle": "Amazon Virtual Assistant Tasks for Sellers",
-    "description": "Learn which Amazon Virtual Assistant tasks sellers can delegate across listings, inventory, order issues, support queues, reporting, and marketplace admin.",
+    "slug": "amazon-virtual-assistant-seller-operations-workflow",
+    "title": "Amazon Virtual Assistant Workflow for Seller Operations",
+    "metaTitle": "Amazon VA Workflow for Seller Operations",
+    "description": "Build an Amazon VA workflow for listing administration, inventory monitoring, order issues, support queues, reporting, and controlled marketplace operations.",
     "excerpt": "A practical Amazon seller workflow guide that separates repeatable marketplace administration from pricing, account-risk, brand, and strategic decisions.",
     "topic": "hiring",
-    "clusterLabel": "Amazon Virtual Assistant",
+    "clusterLabel": "Amazon Seller Operations Workflow",
     "serviceSlug": "amazon-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
@@ -2357,13 +2357,13 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ]
   },
   {
-    "slug": "medical-virtual-assistant-job-description",
-    "title": "Medical Virtual Assistant Job Description: Tasks, Skills and Boundaries",
-    "metaTitle": "Medical Virtual Assistant Job Description & Tasks",
-    "description": "Use this Medical Virtual Assistant job description to define non-clinical tasks, skills, privacy, systems access, escalation rules, and hiring evidence.",
+    "slug": "medical-virtual-assistant-admin-workflow",
+    "title": "Medical Virtual Assistant Admin Workflow: Scheduling, Referrals and Records",
+    "metaTitle": "Medical VA Admin Workflow: Scheduling & Referrals",
+    "description": "Build a non-clinical Medical VA workflow for scheduling, intake, referrals, records, insurance support, privacy controls, access, and escalation.",
     "excerpt": "A practical non-clinical Medical VA role template for practices that need scheduling, referrals, records, intake, billing administration, and patient follow-up support.",
     "topic": "hiring",
-    "clusterLabel": "Medical Virtual Assistant",
+    "clusterLabel": "Medical Virtual Assistant Admin Workflow",
     "serviceSlug": "medical-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
@@ -2670,7 +2670,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     ]
   },
   {
-    "slug": "bookkeeping-virtual-assistant-tasks",
+    "slug": "bookkeeping-virtual-assistant-month-end-workflow",
     "title": "Bookkeeping Virtual Assistant Workflow and Month-End QA",
     "metaTitle": "Bookkeeping VA Workflow: Month-End Prep & QA",
     "description": "Build a Bookkeeping Virtual Assistant workflow for document collection, transaction prep, reconciliation support, receivables, exceptions, and month-end QA.",

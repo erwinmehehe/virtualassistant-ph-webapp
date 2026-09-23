@@ -103,7 +103,7 @@ export const getPublishedTrainingCourses = unstable_cache(
         .from("training_courses")
         .select("id,slug,title,summary,estimated_minutes,category,country_focus,published_at")
         .eq("status", "published")
-        .order("roadmap_order", { ascending: true, nullsFirst: false })
+        .order("recommended_order", { ascending: true, nullsFirst: false })
         .order("published_at", { ascending: true });
 
       if (error || !courses?.length) return [];

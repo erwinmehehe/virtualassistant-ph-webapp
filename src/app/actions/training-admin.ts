@@ -296,6 +296,14 @@ export async function saveTrainingSpecialistReviewAction(formData: FormData) {
 
   if (updateError) throw updateError;
 
+  if (decision === "approved" || decision === "changes_requested") {
+    await admin
+      .from("training_specialist_review_invites")
+      .update({ status: "revoked", updated_at: new Date().toISOString() })
+      .eq("course_id", courseId)
+      .in("status", ["pending", "opened"]);
+  }
+
   revalidateTag("public-training");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");

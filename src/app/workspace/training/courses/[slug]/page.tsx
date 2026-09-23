@@ -83,13 +83,34 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
       {course.assessments.length ? (
         <section className="card dashboard-section-card">
           <div className="dashboard-section-head"><div><h2>Assessments</h2><p>Assessments are part of learning, not a requirement to access jobs.</p></div></div>
-          <div className="compact-list">
-            {course.assessments.map((assessment) => (
-              <div key={assessment.id}>
-                <span><strong>{assessment.title}</strong><small>{assessment.assessment_type === "practical" ? "Practical exercise" : "Knowledge check"}</small></span>
-                <span className="badge">Free</span>
-              </div>
-            ))}
+          <div className="dash-actions">
+            {course.assessments.map((assessment) => {
+              const latest = assessment.latestSubmission || null;
+              const passed = latest?.status === "reviewed" &&
+                (assessment.pass_score === null || (latest.score !== null && Number(latest.score) >= assessment.pass_score));
+              const status = passed
+                ? "Passed"
+                : latest?.status === "needs_revision"
+                  ? "Needs revision"
+                  : latest?.status === "submitted"
+                    ? "In review"
+                    : "Not submitted";
+              return (
+                <Link
+                  className="dash-action"
+                  href={`/workspace/training/courses/${course.slug}/assessments/${assessment.id}`}
+                  key={assessment.id}
+                  data-track="training_assessment_open"
+                >
+                  <span className="dash-action-count">{passed ? <CheckCircle2 size={18}/> : <FileCheck2 size={17}/>}</span>
+                  <span className="dash-action-copy">
+                    <span className="dash-action-title"><strong>{assessment.title}</strong></span>
+                    <small>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Knowledge check"} · {status}</small>
+                  </span>
+                  <ArrowRight size={16}/>
+                </Link>
+              );
+            })}
           </div>
         </section>
       ) : null}

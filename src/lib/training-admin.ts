@@ -196,6 +196,7 @@ export type SpecialistTrainingReviewQueueItem = {
     reviewer_name: string;
     reviewer_email: string;
     reviewer_role: string;
+    course_content_version: number;
     due_at: string | null;
     expires_at: string;
     status: "pending" | "opened" | "submitted" | "revoked";
@@ -238,7 +239,7 @@ export async function getTrainingSpecialistReviewQueue() {
       .in("course_id", courseIds),
     admin
       .from("training_specialist_review_invites")
-      .select("id,course_id,reviewer_name,reviewer_email,reviewer_role,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at")
+      .select("id,course_id,reviewer_name,reviewer_email,reviewer_role,course_content_version,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at")
       .in("course_id", courseIds)
       .order("created_at", { ascending: false }),
   ]);
@@ -292,6 +293,7 @@ export async function getTrainingSpecialistReviewQueue() {
         reviewer_name: invite.reviewer_name,
         reviewer_email: invite.reviewer_email,
         reviewer_role: invite.reviewer_role,
+        course_content_version: invite.course_content_version,
         due_at: invite.due_at,
         expires_at: invite.expires_at,
         status: invite.status,

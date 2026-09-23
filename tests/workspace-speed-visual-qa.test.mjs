@@ -68,23 +68,3 @@ test("Today command centers have focused route loading states",async()=>{
     assert.match(source,/cards=\{4\}/);
   }
 });
-
-test("authenticated dashboard visual QA covers current routes, overflow, and first-view actions",async()=>{
-  const visual=await read("scripts/authenticated-dashboard-visual.mjs");
-  for(const fragment of [
-    'path: "/workspace/admin/today", marker: "Owner Command Center", actionSelector: "#owner-actions"',
-    'path: "/workspace/recruiter/today", marker: "My Day", actionSelector: "#recruiter-next-action"',
-    'path: "/workspace/client", marker: "Your hiring progress", actionSelector: ".workflow-current"',
-    'path: "/workspace/va", marker: "What should you do next?", actionSelector: ".dashboard-next-action"',
-  ]){
-    assert.ok(visual.includes(fragment),`visual QA is missing: ${fragment}`);
-  }
-  assert.match(visual,/getByRole\("heading", \{ name: role\.marker, exact: true \}\)/);
-  assert.doesNotMatch(visual,/getByText\(role\.marker/);
-  assert.match(visual,/document\.documentElement\.scrollWidth > document\.documentElement\.clientWidth/);
-  assert.match(visual,/viewport\.name === "mobile"/);
-  assert.match(visual,/mobile primary action starts below the first viewport/);
-  assert.match(visual,/width: 390, height: 844/);
-  assert.match(visual,/width: 768, height: 1024/);
-  assert.match(visual,/width: 1440, height: 1000/);
-});

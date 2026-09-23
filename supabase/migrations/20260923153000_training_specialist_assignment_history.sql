@@ -45,11 +45,11 @@ create or replace function private.reject_training_specialist_review_event_mutat
 returns trigger
 language plpgsql
 set search_path = ''
-as $
+as $$
 begin
   raise exception 'training specialist review history is append-only';
 end;
-$;
+$$;
 
 drop trigger if exists training_specialist_review_events_append_only
   on public.training_specialist_review_events;

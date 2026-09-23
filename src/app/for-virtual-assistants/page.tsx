@@ -122,6 +122,20 @@ export default async function ForVirtualAssistantsPage() {
               <div className="va-hub-empty">The first training course is being prepared.</div>
             )}
 
+            {publishedCourses.length > 1 ? (
+              <div className="va-live-course-list">
+                {publishedCourses.slice(1).map((course) => (
+                  <article key={course.id}>
+                    <div>
+                      <strong>{course.title}</strong>
+                      <span>{course.lesson_count} lessons · {duration(course.estimated_minutes)}</span>
+                    </div>
+                    <Link href="/auth/join/training">Start free <ArrowRight size={14} /></Link>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+
             {upcomingCourses.length ? (
               <div className="va-upcoming">
                 <span>In production</span>

@@ -24,6 +24,11 @@ type PublicationCommercial = {
   commercial_status?: string | null;
 } | null | undefined;
 
+export function publicationMissingDetails(job: PublicationJob): string[] {
+  const missing = publicationMissingDetails(job);
+  return missing;
+}
+
 export function publicationBlocker(job: PublicationJob, commercial?: PublicationCommercial): {
   key: PublicationBlocker;
   label: string;

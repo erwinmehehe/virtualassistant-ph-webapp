@@ -85,3 +85,32 @@ test("approved client publishing UI explains when a job will go live", async () 
   assert.match(wizard, /public Virtual Assistant jobs directory immediately/);
   assert.match(clientJobs, /Direct publishing is enabled for your account/);
 });
+
+
+test("all publication write paths use the same required-role validator", async () => {
+  const [helper, jobs, admin] = await Promise.all([
+    read("src/lib/job-publication.ts"),
+    read("src/app/actions/jobs.ts"),
+    read("src/app/actions/admin.ts"),
+  ]);
+
+  assert.match(helper, /export function publicationMissingDetails/);
+  assert.match(helper, /missing\.push\("start timing"\)/);
+  assert.match(helper, /missing\.push\("hours"\)/);
+  assert.match(helper, /missing\.push\("timezone"\)/);
+  assert.match(helper, /missing\.push\("budget"\)/);
+
+  assert.match(jobs, /publicationMissingDetails\(\{/);
+  assert.match(jobs, /Complete the public job before publishing/);
+  assert.match(jobs, /Complete the role before publishing/);
+  assert.match(admin, /publicationMissingDetails\(job\)/);
+  assert.match(admin, /Complete the role before sending terms/);
+});
+
+test("client commercial acceptance fetches every publication-required job field before publishing", async () => {
+  const jobs = await read("src/app/actions/jobs.ts");
+  assert.match(jobs, /select\("id,status,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing"\)/);
+  const validationIndex = jobs.indexOf("const missing = publicationMissingDetails(job)");
+  const publishIndex = jobs.indexOf('update({status:"published",published_at:publishedAt})');
+  assert.ok(validationIndex >= 0 && publishIndex > validationIndex, "publication validation must happen before the published update");
+});

@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { APPROVAL_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
+import { publicationMissingDetails } from "@/lib/job-publication";
 
 export async function reviewJobAction(formData: FormData) {
   const { user } = await requireRole("admin");
@@ -13,8 +14,10 @@ export async function reviewJobAction(formData: FormData) {
   const decision = String(formData.get("decision"));
   const admin = createAdminClient();
   if (decision === "approve") {
-    const { data: job } = await admin.from("jobs").select("client_id,service_model").eq("id", id).single();
+    const { data: job } = await admin.from("jobs").select("client_id,service_model,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
     if (!job?.client_id) throw new Error("Link this lead-created job to a client account before publishing it.");
+    const missing = publicationMissingDetails(job);
+    if (missing.length) throw new Error(`Complete the role before sending terms: ${missing.join(", ")}.`);
     const { data: settings } = await admin.from("admin_settings").select("default_placement_fee,default_managed_markup_percent").eq("id",1).single();
     const placementFee = Number(formData.get("placement_fee") || settings?.default_placement_fee || 0);
     const managedMarkup = Number(formData.get("managed_markup_percent") || settings?.default_managed_markup_percent || 0);

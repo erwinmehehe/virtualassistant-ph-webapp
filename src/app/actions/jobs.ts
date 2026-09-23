@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
+import { publicationMissingDetails } from "@/lib/job-publication";
 
 function csv(value: FormDataEntryValue | null) {
   return String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
@@ -82,16 +83,17 @@ export async function createJobAction(formData: FormData) {
     .maybeSingle();
 
   const canSelfPublish = Boolean(clientProfile?.can_self_publish_jobs) && serviceModel === "curated_placement";
-  const selfPublishMissing: string[] = [];
   if (canSelfPublish && submitMode !== "draft") {
-    if (title.length < 3) selfPublishMissing.push("role title");
-    if (summary.length < 20) selfPublishMissing.push("role summary");
-    if (!responsibilities.length) selfPublishMissing.push("responsibilities");
-    if (requiredSkills.length < 2) selfPublishMissing.push("at least 2 required skills");
-    if (!hoursPerWeek) selfPublishMissing.push("weekly hours");
-    if (!timezone) selfPublishMissing.push("timezone");
-    if (minRate == null) selfPublishMissing.push("VA budget");
-    if (!startTiming) selfPublishMissing.push("start timing");
+    const selfPublishMissing = publicationMissingDetails({
+      title,
+      summary,
+      responsibilities,
+      required_skills: requiredSkills,
+      hours_per_week: hoursPerWeek,
+      timezone,
+      min_hourly_rate: minRate,
+      start_timing: startTiming,
+    });
     if (selfPublishMissing.length) {
       throw new Error(`Complete the public job before publishing: ${selfPublishMissing.join(", ")}.`);
     }
@@ -227,9 +229,11 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const jobId = String(formData.get("job_id") ?? "");
   if (formData.get("fee_ack") !== "on") throw new Error("Please confirm that the service fee is separate from VA compensation.");
   const supabase = await createClient();
-  const { data: job } = await supabase.from("jobs").select("id,status,client_id,min_hourly_rate").eq("id",jobId).eq("client_id",user.id).single();
+  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id",jobId).eq("client_id",user.id).single();
   if (!job) throw new Error("Job not found.");
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) throw new Error(`Raise the VA budget to at least USD ${MIN_HOURLY_RATE}/hour before publishing.`);
+  const missing = publicationMissingDetails(job);
+  if (missing.length) throw new Error(`Complete the role before publishing: ${missing.join(", ")}.`);
   const { data: commercial } = await supabase.from("job_commercials").select("commercial_status").eq("job_id",jobId).single();
   if (!commercial || commercial.commercial_status !== "quoted") throw new Error("The service fee is not ready for acceptance.");
   const admin = createAdminClient();

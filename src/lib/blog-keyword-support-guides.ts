@@ -224,7 +224,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "slug": "gohighlevel-virtual-assistant-tasks",
     "title": "GoHighLevel Virtual Assistant Tasks: What to Delegate",
     "metaTitle": "GoHighLevel Virtual Assistant Tasks to Delegate",
-    "description": "See practical GoHighLevel Virtual Assistant tasks across CRM cleanup, pipeline updates, follow-up administration, calendars, campaign support, QA, and reporting.",
+    "description": "See GoHighLevel Virtual Assistant tasks across CRM cleanup, pipeline updates, follow-up administration, calendars, campaign support, QA, and reporting.",
     "excerpt": "A workflow-level guide to the GoHighLevel work a Virtual Assistant can own without turning routine CRM administration into unrestricted system control.",
     "topic": "seo-marketing",
     "clusterLabel": "GoHighLevel Virtual Assistant",

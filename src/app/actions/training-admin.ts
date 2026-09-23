@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock } from "@/lib/training";
+import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
 
 const courseSchema = z.object({
   title: z.string().trim().min(4).max(140),
@@ -447,6 +448,74 @@ export async function updateTrainingAssessmentAction(formData: FormData) {
   await invalidateCourseReview(admin, parsed.data.course_id);
 
   revalidatePath(adminTrainingPath(parsed.data.course_id));
+}
+
+
+export async function reviewTrainingAssessmentSubmissionAction(formData: FormData) {
+  const session = await requireRoleFast("admin");
+  const submissionId = requiredString(formData, "submission_id");
+  const courseId = requiredString(formData, "course_id");
+  const decision = requiredString(formData, "decision");
+  const feedback = requiredString(formData, "feedback");
+  const scoreValue = requiredString(formData, "score");
+
+  if (!submissionId || !courseId || !["pass", "needs_revision"].includes(decision)) {
+    throw new Error("Choose a valid assessment review decision.");
+  }
+
+  const score = z.coerce.number().min(0).max(100).parse(scoreValue);
+  if (feedback.length < 10 || feedback.length > 5000) {
+    throw new Error("Add clear reviewer feedback between 10 and 5,000 characters.");
+  }
+
+  const admin = createAdminClient();
+  const { data: submission } = await admin
+    .from("training_assessment_submissions")
+    .select("id,user_id,assessment_id")
+    .eq("id", submissionId)
+    .maybeSingle();
+
+  if (!submission) throw new Error("Assessment submission not found.");
+
+  const { data: assessment } = await admin
+    .from("training_assessments")
+    .select("id,course_id,pass_score")
+    .eq("id", submission.assessment_id)
+    .eq("course_id", courseId)
+    .maybeSingle();
+
+  if (!assessment) throw new Error("Assessment does not belong to this course.");
+  if (decision === "pass" && assessment.pass_score !== null && score < assessment.pass_score) {
+    throw new Error(`A passing review must meet the ${assessment.pass_score}% pass score.`);
+  }
+
+  const status = decision === "pass" ? "reviewed" : "needs_revision";
+  const { error } = await admin
+    .from("training_assessment_submissions")
+    .update({
+      status,
+      score,
+      feedback,
+      reviewer_id: session.userId,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", submissionId);
+
+  if (error) throw error;
+
+  const completion = await finalizeTrainingCourseIfEligible(submission.user_id, courseId);
+  if (completion.newlyCompleted) {
+    await admin.from("analytics_events").insert({
+      event_name: "training_course_complete",
+      path: "/workspace/training",
+      session_id: null,
+      user_id: submission.user_id,
+      metadata: { course_id: courseId, completion_source: "assessment_review" },
+    });
+  }
+
+  revalidatePath(adminTrainingPath(courseId));
+  revalidatePath("/workspace/training");
 }
 
 function parseList(text: string) {

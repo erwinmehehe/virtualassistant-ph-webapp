@@ -455,20 +455,6 @@ export default function TrainingPage() {
             </div>
           </div>
         </section>
-
-        <section className="tr-hiring-wrap">
-          <div className="container">
-            <div className="tr-hiring">
-              <div>
-                <strong>Hiring a Virtual Assistant instead?</strong>
-                <span>Tell us what needs to get done and we will help scope the role.</span>
-              </div>
-              <Link href="/hire" data-track="training_hire_cta">
-                Start a hiring brief <ArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
       <SiteFooter />
     </>

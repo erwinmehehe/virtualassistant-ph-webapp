@@ -34,16 +34,6 @@ function ageHours(value:string){
   return Math.max(0,Math.floor((Date.now()-created)/3600000));
 }
 
-export function roleReadinessMissingLabel(value:string){
-  if(value==="start timing") return "preferred start";
-  if(value==="budget") return "VA budget";
-  return value;
-}
-
-export function adminRoleReadinessNeedsAttention(item:RoleReadinessDashboardItem){
-  return !item.recruiter_id || item.age_hours>=72 || item.service_model==="managed_service";
-}
-
 export const getRoleReadinessDashboard=cache(async function getRoleReadinessDashboard(recruiterId:string|null=null){
   const admin=createAdminClient();
   let query=admin

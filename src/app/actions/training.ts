@@ -6,6 +6,27 @@ import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+async function recordTrainingEvent(
+  eventName: "training_course_start" | "training_lesson_complete" | "training_course_complete",
+  userId: string,
+  path: string,
+  metadata: Record<string, string | number | boolean> = {},
+) {
+  try {
+    const admin = createAdminClient();
+    await admin.from("analytics_events").insert({
+      event_name: eventName,
+      path,
+      referrer: null,
+      session_id: null,
+      user_id: userId,
+      metadata,
+    });
+  } catch {
+    // Training progress must never fail because analytics storage is unavailable.
+  }
+}
+
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const courseId = String(formData.get("course_id") || "");
@@ -27,6 +48,15 @@ export async function startTrainingCourseAction(formData: FormData) {
 
   if (error && error.code !== "23505") {
     throw new Error("Could not start this training course.");
+  }
+
+  if (!error) {
+    await recordTrainingEvent(
+      "training_course_start",
+      userId,
+      `/workspace/training/courses/${course.slug}`,
+      { course_slug: course.slug },
+    );
   }
 
   revalidatePath("/workspace/training");
@@ -79,6 +109,13 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     throw new Error("Could not start this training course.");
   }
 
+  const { data: existingProgress } = await supabase
+    .from("training_lesson_progress")
+    .select("completed_at")
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
+    .maybeSingle();
+
   const { error: progressError } = await supabase
     .from("training_lesson_progress")
     .upsert(
@@ -87,6 +124,15 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     );
 
   if (progressError) throw new Error("Could not save lesson progress.");
+
+  if (!existingProgress?.completed_at) {
+    await recordTrainingEvent(
+      "training_lesson_complete",
+      userId,
+      `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
+      { course_slug: course.slug, lesson_id: lesson.id },
+    );
+  }
 
   const { data: lessonRows } = await supabase
     .from("training_lessons")
@@ -109,12 +155,22 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
       const admin = createAdminClient();
       const completedAt = new Date().toISOString();
 
-      await admin
+      const { data: completedEnrollmentRows } = await admin
         .from("training_enrollments")
         .update({ completed_at: completedAt })
         .eq("user_id", userId)
         .eq("course_id", course.id)
-        .is("completed_at", null);
+        .is("completed_at", null)
+        .select("id");
+
+      if (completedEnrollmentRows?.length) {
+        await recordTrainingEvent(
+          "training_course_complete",
+          userId,
+          `/workspace/training/courses/${course.slug}`,
+          { course_slug: course.slug },
+        );
+      }
 
       const { data: existingCertificate } = await admin
         .from("training_certificates")

@@ -33,9 +33,11 @@ const posts = [
   ...parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = "),
   ...parseArray("src/lib/blog-opportunity-posts.ts", "export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = "),
   ...parseArray("src/lib/blog-hiring-guides.ts", "export const BLOG_HIRING_GUIDES: BlogPost[] = "),
-  ...parseArray("src/lib/blog-demand-guides.ts", "export const BLOG_DEMAND_GUIDES: BlogPost[] = ")
+  ...parseArray("src/lib/blog-demand-guides.ts", "export const BLOG_DEMAND_GUIDES: BlogPost[] = "),
+  ...parseArray("src/lib/blog-keyword-support-guides.ts", "export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = ")
 ];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
+const software = parseArray("src/lib/software-pages.ts", "export const softwarePages: SoftwareSeoPage[] = ");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const servicePage = source("src/app/service/[slug]/page.tsx");
 const industryPage = source("src/app/industries/[slug]/page.tsx");
@@ -45,6 +47,7 @@ const blogArticle = source("src/components/blog-article.tsx");
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
+const softwareSlugs = new Set(software.map((item) => item.slug));
 const industrySlugs = new Set(industries.map((item) => item.slug));
 const familyOwners = new Map();
 const clusterCounts = new Map();
@@ -52,6 +55,12 @@ let explicitBlogIndustryEdges = 0;
 let industryServiceEdges = 0;
 
 for (const post of posts) {
+  if (post.softwareSlug) {
+    if (!softwareSlugs.has(post.softwareSlug)) failures.push(`${post.slug}: softwareSlug ${post.softwareSlug} does not resolve to a current software page`);
+    const softwareHref = `/software/${post.softwareSlug}`;
+    if (!(post.internalLinks || []).some((link) => link.href === softwareHref)) failures.push(`${post.slug}: missing canonical software link ${softwareHref}`);
+  }
+
   for (const industrySlug of post.industrySlugs || []) {
     explicitBlogIndustryEdges += 1;
     if (!industrySlugs.has(industrySlug)) failures.push(`${post.slug}: unresolved industry ${industrySlug}`);

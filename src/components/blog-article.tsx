@@ -19,6 +19,7 @@ import { INDUSTRIES } from "@/lib/industries";
 import { marketplaceEvidenceForPost } from "@/lib/editorial-evidence";
 import { SeoPriorityLinks } from "@/components/seo-priority-links";
 import { seoPriorityLinksForBlog } from "@/lib/seo-priority-links";
+import { getSoftwarePage } from "@/lib/software-pages";
 
 const CANDIDATE_LEARNING_GUIDES = new Set([
   "how-to-apply-as-a-virtual-assistant",
@@ -79,6 +80,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
   const topic = BLOG_TOPICS[post.topic];
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
+  const software = post.softwareSlug ? getSoftwarePage(post.softwareSlug) : undefined;
   const serviceHref = service ? `/service/${service.slug}` : "/services";
   const roleLabel = service?.name.replace(/ Virtual Assistant$/i, "") || "Virtual Assistant";
   const talentHref = service
@@ -134,6 +136,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <span className="blog-toc-eyebrow">In this guide</span>
             <nav>{headings.map((item) => <a href={`#${item.id}`} key={item.id}>{item.label}</a>)}</nav>
             {service ? <Link href={serviceHref} className="blog-toc-service" data-track="blog_service_click">Explore {roleLabel} hiring <ArrowRight size={14}/></Link> : null}
+            {software ? <Link href={`/software/${software.slug}`} className="blog-toc-service" data-track="blog_software_click">Explore {software.software} hiring <ArrowRight size={14}/></Link> : null}
           </div>
         </aside>
 

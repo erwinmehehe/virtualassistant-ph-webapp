@@ -173,12 +173,18 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
       .select("id")
       .eq("course_id", courseId);
     const moduleIds = (modules || []).map((item) => item.id);
-    const { data: lessons } = moduleIds.length
-      ? await admin
-          .from("training_lessons")
-          .select("id,is_published,content")
-          .in("module_id", moduleIds)
-      : { data: [] };
+    const [{ data: lessons }, { data: assessments }] = await Promise.all([
+      moduleIds.length
+        ? admin
+            .from("training_lessons")
+            .select("id,is_published,content")
+            .in("module_id", moduleIds)
+        : Promise.resolve({ data: [] }),
+      admin
+        .from("training_assessments")
+        .select("id,is_published,instructions,pass_score")
+        .eq("course_id", courseId),
+    ]);
 
     if (!course?.reviewed_by || !course.last_reviewed_at) {
       throw new Error("Record a reviewer and review date before publishing the course.");
@@ -189,6 +195,15 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
     }
     if ((lessons || []).some((lesson) => !Array.isArray(lesson.content) || lesson.content.length < 3)) {
       throw new Error("Every published lesson needs substantive content before the course can go live.");
+    }
+    if ((assessments || []).some((assessment) => !assessment.is_published)) {
+      throw new Error("Publish every assessment that belongs in this course before publishing the course.");
+    }
+    if ((assessments || []).some((assessment) => !assessment.instructions || assessment.instructions.trim().length < 100)) {
+      throw new Error("Every published assessment needs clear learner instructions before the course can go live.");
+    }
+    if ((assessments || []).some((assessment) => assessment.pass_score === null)) {
+      throw new Error("Set a pass score for every published assessment before publishing the course.");
     }
   }
 

@@ -56,6 +56,42 @@ const cleanUrl = (value: FormDataEntryValue | null) => {
   return url.toString();
 };
 
+function validateResumeUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
+
+  const extension = value.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
+  const mimeByExtension: Record<string, string> = {
+    pdf: "application/pdf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  };
+  const expectedMime = extension ? mimeByExtension[extension] : null;
+  const genericMime = !value.type || value.type === "application/octet-stream";
+  if (!extension || !expectedMime || (!genericMime && value.type !== expectedMime)) {
+    throw new Error("Upload a PDF, DOC, or DOCX resume only.");
+  }
+
+  return {
+    file: value,
+    expectedMime,
+    safeName: value.name.replace(/[^a-zA-Z0-9._-]/g, "-"),
+  };
+}
+
+function validateAvatarUpload(value: FormDataEntryValue | null) {
+  if (!(value instanceof File) || value.size === 0) return null;
+  if (value.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
+
+  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP photo only.");
+
+  return {
+    file: value,
+    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
+  };
+}
+
 export async function updateVaProfileAction(formData: FormData) {
   try {
   const { user } = await requireRole("va");
@@ -92,6 +128,12 @@ export async function updateVaProfileAction(formData: FormData) {
     tools.join(" "),
     industries.join(" ")
   );
+
+  // Validate every file before writing profile fields. A rejected resume/photo
+  // must not leave the user with a "save failed" message after other edits
+  // were already persisted.
+  const resumeUpload = validateResumeUpload(formData.get("resume"));
+  const avatarUpload = validateAvatarUpload(formData.get("avatar"));
 
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
@@ -151,21 +193,8 @@ export async function updateVaProfileAction(formData: FormData) {
   if (nameError) throw nameError;
   if (profileError) throw profileError;
 
-  const resume = formData.get("resume");
-  if (resume instanceof File && resume.size > 0) {
-    if (resume.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
-    const extension = resume.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
-    const mimeByExtension: Record<string, string> = {
-      pdf: "application/pdf",
-      doc: "application/msword",
-      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    };
-    const genericMime = !resume.type || resume.type === "application/octet-stream";
-    const expectedMime = extension ? mimeByExtension[extension] : null;
-    if (!extension || !expectedMime || (!genericMime && resume.type !== expectedMime)) {
-      throw new Error("Upload a PDF, DOC, or DOCX resume only.");
-    }
-    const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+  if (resumeUpload) {
+    const { file: resume, expectedMime, safeName } = resumeUpload;
     const path = `${user.id}/${Date.now()}-${safeName}`;
     const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: expectedMime });
     if (error) throw error;
@@ -178,12 +207,8 @@ export async function updateVaProfileAction(formData: FormData) {
     materialChanged = true;
   }
 
-  const avatar = formData.get("avatar");
-  if (avatar instanceof File && avatar.size > 0) {
-    if (avatar.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
-    const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
-    if (!allowedMime.has(avatar.type)) throw new Error("Upload a JPG, PNG, or WEBP photo only.");
-    const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
+  if (avatarUpload) {
+    const { file: avatar, extension } = avatarUpload;
     const path = `${user.id}/${Date.now()}.${extension}`;
     const { error: uploadError } = await supabase.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
     if (uploadError) throw uploadError;

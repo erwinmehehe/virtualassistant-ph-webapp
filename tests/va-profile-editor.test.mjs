@@ -74,3 +74,9 @@ test("resume autofill does not expose internal parser exceptions to VAs", async 
   assert.match(action, /We couldn't read this resume/);
   assert.doesNotMatch(action, /message: \(err as Error\)\.message/);
 });
+
+
+test("Next keeps native PDF parser dependencies out of the server bundle", async () => {
+  const config = await source("next.config.ts");
+  assert.match(config, /serverExternalPackages:\s*\["pdf-parse", "@napi-rs\/canvas"\]/);
+});

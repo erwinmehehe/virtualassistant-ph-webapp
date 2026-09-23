@@ -98,5 +98,7 @@ test("round four still follows the existing-canonical-first GSC release rule", (
   const plan = source("SEO_GSC_TOP20_2026-09-21.md");
   assert.match(plan, /Do not create a new URL just because a query has impressions/);
   const route = source("src/app/service/[slug]/page.tsx");
-  assert.doesNotMatch(route, /generateStaticParams\(\).*PRIORITY_SERVICE_MODULES/s);
+  const staticParams = route.match(/export function generateStaticParams\(\) \{([\s\S]*?)\n\}/)?.[1] || "";
+  assert.match(staticParams, /SERVICE_PAGES\.map/);
+  assert.doesNotMatch(staticParams, /PRIORITY_SERVICE_MODULES/);
 });

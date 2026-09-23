@@ -100,3 +100,61 @@ export function lessonBlocks(value: unknown): LessonContentBlock[] {
     return ["heading", "paragraph", "list", "steps", "callout", "scenario"].includes(type);
   });
 }
+
+
+export type AdminTrainingAssessmentSubmission = {
+  id: string;
+  user_id: string;
+  assessment_id: string;
+  assessment_title: string;
+  response: Record<string, unknown>;
+  status: "submitted" | "reviewed" | "needs_revision";
+  score: number | null;
+  feedback: string | null;
+  submitted_at: string;
+  reviewed_at: string | null;
+  user_email: string | null;
+};
+
+export async function getTrainingAssessmentSubmissionsForAdmin(courseId: string) {
+  const admin = createAdminClient();
+  const { data: assessments, error: assessmentError } = await admin
+    .from("training_assessments")
+    .select("id,title")
+    .eq("course_id", courseId);
+
+  if (assessmentError) return { submissions: [] as AdminTrainingAssessmentSubmission[], error: assessmentError.message };
+
+  const titleById = new Map((assessments || []).map((assessment) => [assessment.id, assessment.title]));
+  const assessmentIds = [...titleById.keys()];
+  if (!assessmentIds.length) return { submissions: [] as AdminTrainingAssessmentSubmission[], error: null };
+
+  const { data, error } = await admin
+    .from("training_assessment_submissions")
+    .select("id,user_id,assessment_id,response,status,score,feedback,submitted_at,reviewed_at")
+    .in("assessment_id", assessmentIds)
+    .order("submitted_at", { ascending: false })
+    .limit(100);
+
+  if (error) return { submissions: [] as AdminTrainingAssessmentSubmission[], error: error.message };
+
+  const userIds = [...new Set((data || []).map((submission) => submission.user_id))];
+  const emailByUser = new Map<string, string | null>();
+  await Promise.all(userIds.map(async (userId) => {
+    try {
+      const { data: userData } = await admin.auth.admin.getUserById(userId);
+      emailByUser.set(userId, userData.user?.email || null);
+    } catch {
+      emailByUser.set(userId, null);
+    }
+  }));
+
+  return {
+    submissions: (data || []).map((submission) => ({
+      ...submission,
+      assessment_title: titleById.get(submission.assessment_id) || "Assessment",
+      user_email: emailByUser.get(submission.user_id) || null,
+    })) as AdminTrainingAssessmentSubmission[],
+    error: null,
+  };
+}

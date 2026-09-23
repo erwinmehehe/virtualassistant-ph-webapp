@@ -404,7 +404,7 @@ export const BLOG_CANDIDATE_GAP_GUIDES: BlogPost[] = [
     "slug": "virtual-assistant-cover-letter",
     "title": "Virtual Assistant Cover Letter: Sample and Writing Guide",
     "metaTitle": "Virtual Assistant Cover Letter Sample & Guide",
-    "description": "Write a Virtual Assistant cover letter that matches the role, proves relevant skills, uses concise examples, states availability, and avoids generic application copy.",
+    "description": "Write a Virtual Assistant cover letter that matches the role, proves relevant skills, uses concise examples, states availability, and avoids generic copy.",
     "excerpt": "A practical structure for writing a short Virtual Assistant cover letter that connects your evidence to the employer's actual workflow.",
     "topic": "hiring",
     "clusterLabel": "Virtual Assistant Careers",

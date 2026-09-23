@@ -123,17 +123,17 @@ export default function TrainingPage() {
                 <Link
                   className="tr-btn tr-btn-primary"
                   href={JOIN_HREF}
-                  data-track="training_join"
+                  data-track="training_account_click"
                 >
                   Create free training account <ArrowRight size={17} />
                 </Link>
-                <a className="tr-btn tr-btn-secondary" href="#learning-paths">
+                <a className="tr-btn tr-btn-secondary" href="#learning-paths" data-track="training_learning_paths_click">
                   Browse learning paths
                 </a>
               </div>
 
               <p className="tr-login-note">
-                Already have an account? <Link href={LOGIN_HREF}>Log in to training</Link>
+                Already have an account? <Link href={LOGIN_HREF} data-track="training_login_click">Log in to training</Link>
               </p>
 
               <ul className="tr-assure">
@@ -374,7 +374,7 @@ export default function TrainingPage() {
                 <strong>Missing a tool or workflow you use at work?</strong>
                 <span>Tell us what would be genuinely useful and we will use requests to prioritise the roadmap.</span>
               </div>
-              <Link href="/contact">
+              <Link href="/contact" data-track="training_course_request">
                 Request a course <ArrowRight size={15} />
               </Link>
             </div>
@@ -467,11 +467,11 @@ export default function TrainingPage() {
               <Link
                 className="tr-btn tr-btn-light"
                 href={JOIN_HREF}
-                data-track="training_join_footer"
+                data-track="training_account_click"
               >
                 Create free account <ArrowRight size={17} />
               </Link>
-              <Link className="tr-close-login" href={LOGIN_HREF}>
+              <Link className="tr-close-login" href={LOGIN_HREF} data-track="training_login_click">
                 I already have an account
               </Link>
             </div>

@@ -187,6 +187,14 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     llmsSection: "Editorial Resources",
   },
   {
+    path: "/training",
+    label: "Free VA Training",
+    description: "Free practical training for Filipino Virtual Assistants: software, industry workflows and client-ready profiles.",
+    changeFrequency: "weekly",
+    priority: 0.85,
+    llmsSection: "For Virtual Assistants",
+  },
+  {
     path: "/for-virtual-assistants",
     label: "For Virtual Assistants",
     description: "Information for Filipino virtual assistants using the platform.",

@@ -1,4 +1,5 @@
 export const metadata = { robots: { index: false, follow: false } };
+import "./va-workspace.css";
 import { requireRoleFast } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 

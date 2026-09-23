@@ -1,11 +1,12 @@
 import "server-only";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
-import { JobCard } from "@/components/job-card";
 import { matchScore } from "@/lib/matching";
+import { money } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 import type { VaProfile } from "@/lib/types";
+import { jobPublicHref } from "@/lib/public-routing";
 
 const getPublishedJobsForDashboard = unstable_cache(async () => {
   const admin = createAdminClient();
@@ -18,12 +19,32 @@ const getPublishedJobsForDashboard = unstable_cache(async () => {
 
 export async function VaDashboardMatches({ va, vetted }: { va: Partial<VaProfile>; vetted: boolean }) {
   if (!vetted) {
-    return <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>Your job matches unlock after vetting.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div><div className="empty"><p>Your job matches will unlock after vetting.</p><Link className="btn btn-primary" href="/workspace/va/vetting">Complete vetting</Link></div></div>;
+    return (
+      <div className="card">
+        <div className="dashboard-section-head">
+          <div>
+            <h2>Recommended roles</h2>
+            <p>Complete vetting to unlock role recommendations.</p>
+          </div>
+          <Link className="btn btn-sm" href="/workspace/va/vetting">Continue vetting</Link>
+        </div>
+      </div>
+    );
   }
 
   const { data: jobs, error } = await withServerTiming("va.job_matches", getPublishedJobsForDashboard);
   if (error) {
-    return <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>We could not load matching roles right now.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">Browse jobs</Link></div><div className="empty">Open the jobs page to see the latest published roles.</div></div>;
+    return (
+      <div className="card">
+        <div className="dashboard-section-head">
+          <div>
+            <h2>Recommended roles</h2>
+            <p>Role recommendations are temporarily unavailable.</p>
+          </div>
+          <Link className="btn btn-sm" href="/workspace/va/jobs">Browse jobs</Link>
+        </div>
+      </div>
+    );
   }
 
   const matches = (jobs || [])
@@ -31,5 +52,34 @@ export async function VaDashboardMatches({ va, vetted }: { va: Partial<VaProfile
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
 
-  return <div className="card"><div className="dashboard-section-head"><div><h2>Best job matches</h2><p>The % shows how well your skills, tools, availability and rate fit the role. It is a guide, not a gate — you can apply to any open role.</p></div><Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link></div><div className="stack">{matches.length ? matches.map(({ job, score }: any) => <JobCard key={job.id} job={job} match={score}/>) : <div className="empty">No strong matches are available right now. Keep your profile and availability current.</div>}</div></div>;
+  return (
+    <div className="card">
+      <div className="dashboard-section-head">
+        <div>
+          <h2>Recommended roles</h2>
+          <p>Based on the profile and availability you have on file.</p>
+        </div>
+        <Link className="btn btn-sm" href="/workspace/va/jobs">View all</Link>
+      </div>
+
+      {matches.length ? (
+        <div className="va-recommended-list">
+          {matches.map(({ job }: any) => (
+            <Link className="va-recommended-row" href={jobPublicHref(job)} key={job.id}>
+              <span>
+                <strong>{job.title}</strong>
+                <small>{job.company_name || "Confidential client"}</small>
+              </span>
+              <span className="va-recommended-meta">
+                {job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible hours"}
+                {job.min_hourly_rate != null ? ` · From ${money(job.min_hourly_rate)}/hr` : ""}
+              </span>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="empty">No recommended roles right now.</div>
+      )}
+    </div>
+  );
 }

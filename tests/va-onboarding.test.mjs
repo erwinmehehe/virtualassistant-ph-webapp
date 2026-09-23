@@ -30,7 +30,7 @@ test("new VA signups land in a focused quick setup instead of the full profile e
   assert.match(quickPage, /name="weekly_hours"/);
   assert.match(quickPage, /name="hourly_rate"/);
   assert.doesNotMatch(quickPage, /redirect\("\/workspace\/va\/profile#basics"\)/);
-  assert.match(profilePage, /Get ready for client matching/);
+  assert.match(profilePage, /<h1>Your profile<\/h1>/);
   assert.doesNotMatch(nav, /\["Quick setup", "\/workspace\/va\/onboarding"/);
 });
 
@@ -57,7 +57,7 @@ test("Google and Microsoft signup are enabled independently", () => {
 test("unconfirmed accounts can request another confirmation without cluttering normal login", () => {
   assert.match(login, /showConfirmationRecovery/);
   assert.match(login, /resendSignupConfirmationAction/);
-  assert.match(login, /Resend email/);
+  assert.match(login, /type="submit">Resend<\/button>/);
   assert.doesNotMatch(login, /Didn&apos;t receive your confirmation email\?/);
   assert.match(resend, /auth\.resend\(\{/);
   assert.match(resend, /type: "signup"/);

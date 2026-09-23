@@ -86,7 +86,7 @@ test("availability freshness is VA self-service and blocks stale client presenta
   assert.match(automation,/new\.shortlist_status='released'/);
   assert.match(actions,/confirmVaAvailabilityAction/);
   assert.match(actions,/availability_self_confirmed/);
-  assert.match(vaProfile,/Confirm my current availability/);
+  assert.match(vaProfile,/Confirm availability/);
   assert.match(vaProfile,/Availability confirmed/);
   assert.match(guardrails,/invalidate_va_availability_confirmation/);
 });

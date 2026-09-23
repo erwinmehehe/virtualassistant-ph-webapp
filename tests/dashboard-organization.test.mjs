@@ -51,7 +51,8 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.match(recruiter, /recruiter-next-action/);
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Today’s work queue/);
-  for (const page of [client, va]) assert.match(page, /refreshed when this page opened/);
+  assert.match(client, /refreshed when this page opened/);
+  assert.match(va, /DashHeader title="VA dashboard"/);
   assert.match(recruiter, /One owner · one next action · one due time/);
 });
 

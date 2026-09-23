@@ -43,7 +43,14 @@ test("priority structured posts have clean query-focused metadata", () => {
     assert.equal(post.metaTitle, title);
     assert.ok(post.metaTitle.length >= 45 && post.metaTitle.length <= 60, `${slug}: meta title length ${post.metaTitle.length}`);
     assert.ok(post.description.length >= 140 && post.description.length <= 160, `${slug}: meta description length ${post.description.length}`);
-    const expectedDate = slug === "medical-virtual-assistant-interview-questions" ? "2026-09-19" : "2026-09-22";
+    const expectedDate = [
+      "average-hourly-rate-virtual-assistants-philippines",
+      "virtual-assistant-salary-philippines"
+    ].includes(slug)
+      ? "2026-09-23"
+      : slug === "medical-virtual-assistant-interview-questions"
+        ? "2026-09-19"
+        : "2026-09-22";
     assert.equal(post.updatedAt, expectedDate);
   }
   const rate = posts.find((item) => item.slug === "average-hourly-rate-virtual-assistants-philippines");
@@ -108,9 +115,14 @@ test("priority retained guides can optimize SERP metadata without changing their
     assert.ok(post, `${slug}: missing`);
     assert.ok(post.metaTitle && post.metaTitle.length >= 45 && post.metaTitle.length <= 60, `${slug}: invalid meta title`);
     assert.ok(post.metaDescription && post.metaDescription.length >= 140 && post.metaDescription.length <= 160, `${slug}: invalid meta description`);
-    const expectedDate = ["get-paid-virtual-assistant-philippines", "how-to-pay-a-filipino-virtual-assistant-directly", "hourly-rates-for-filipino-virtual-project-manager", "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines"].includes(slug)
-      ? "September 22, 2026"
-      : "September 20, 2026";
+    const expectedDate = [
+      "get-paid-virtual-assistant-philippines",
+      "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines"
+    ].includes(slug)
+      ? "September 23, 2026"
+      : ["how-to-pay-a-filipino-virtual-assistant-directly", "hourly-rates-for-filipino-virtual-project-manager"].includes(slug)
+        ? "September 22, 2026"
+        : "September 20, 2026";
     assert.equal(post.updatedDate, expectedDate);
   }
   const page = source("src/app/blog/[slug]/page.tsx");

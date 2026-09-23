@@ -16,7 +16,10 @@ function parseArray(file, marker) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
-const blogs = parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = ");
+const blogs = [
+  ...parseArray("src/lib/blog-content.ts", "export const BLOG_POSTS: BlogPost[] = "),
+  ...parseArray("src/lib/blog-opportunity-posts.ts", "export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = ")
+];
 const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
 const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
 const archive = parseArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");

@@ -37,7 +37,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
 
-        {course.trademark_disclaimer ? <div className="notice" role="note">{course.trademark_disclaimer}</div> : null}
+        {course.trademark_disclaimer ? <div className="notice" role="note"><strong>Course notice.</strong> {course.trademark_disclaimer}</div> : null}
 
         <div className="row-between" style={{ marginTop: 18 }}>
           <div>

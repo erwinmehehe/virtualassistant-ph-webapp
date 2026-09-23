@@ -73,7 +73,7 @@ export default async function AdminTrainingPage() {
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
                   {course.review_requirement === "specialist" ? <small className="muted">{course.specialist_reviewed_at ? "Specialist reviewed · " + (course.specialist_reviewed_by || "Reviewer recorded") : "Specialist review required"}</small> : null}
-                  {course.trademark_disclaimer ? <small className="muted">Trademark disclosure recorded</small> : null}
+                  {course.trademark_disclaimer ? <small className="muted">Course notice recorded</small> : null}
                 </span>
               </Link>
             ))}

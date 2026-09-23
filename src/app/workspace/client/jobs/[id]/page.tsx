@@ -4,10 +4,11 @@ import { CheckCircle2, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs";
+import { acceptCommercialTermsAction, closeJobAction, saveClientRoleReadinessDetailsAction } from "@/app/actions/jobs";
 import { dateShort, money } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { candidateAccessLabel } from "@/lib/candidate-access";
+import { RoleReadinessForm } from "@/components/role-readiness-form";
 
 export default async function ClientJobDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
   const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",userId).single();if(!job)notFound();
@@ -26,10 +27,12 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
 
   return <>
     {query.saved?<div className="success-banner" role="status"><CheckCircle2 size={17}/> Hiring request saved.</div>:null}
+    {query.role_details_saved?<div className="success-banner" role="status"><CheckCircle2 size={17}/> Hiring brief completed. Your recruiter can see the update.</div>:null}
     <div className="page-head"><div><Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link><div className="row wrap" style={{marginTop:8}}><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</span><span className="small muted">Created {dateShort(job.created_at)}</span></div><h1 style={{marginTop:8}}>{job.title}</h1><p>{job.company_name||"Your company"} · {job.hours_per_week?`${job.hours_per_week} hrs/week`:"Flexible hours"} · VA compensation from {money(job.min_hourly_rate)}/hr</p></div><div className="row wrap">{job.status!=="closed"?<Link className="btn" href={`/workspace/client/jobs/${job.id}/edit`}>Edit request</Link>:null}{job.status!=="closed"?<form action={closeJobAction}><input type="hidden" name="job_id" value={job.id}/><button className="btn btn-danger" type="submit">Close request</button></form>:null}</div></div>
 
     {job.status==="pending"?<div className="alert" style={{marginBottom:18}}>{commercial?.commercial_status==="quoted"?"Your hiring brief has been reviewed. Approve the service terms below so your recruiter can begin the client-facing hiring process.":"Your hiring request is with our team. The recruiter can prepare internally while the brief and commercial terms are confirmed."}</div>:null}
     {job.rejection_note?<div className="alert" style={{marginBottom:18}}><strong>Review note:</strong> {job.rejection_note}</div>:null}
+    {job.status!=="closed"?<RoleReadinessForm job={job} returnTo={`/workspace/client/jobs/${job.id}`} action={saveClientRoleReadinessDetailsAction} audience="client"/>:null}
 
     <section className="candidate-next-action" style={{marginBottom:18}}><div className="candidate-next-icon"><Sparkles size={21}/></div><div><span className="small">Current stage</span><h2>{progress.title}</h2><p>{progress.copy}</p></div><Link className="btn btn-primary" href={progress.href}>{progress.label}</Link></section>
 

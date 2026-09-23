@@ -72,7 +72,7 @@ export default async function TrainingLessonPage({
             <form action={markTrainingLessonCompleteAction}>
               <input type="hidden" name="lesson_id" value={lesson.id}/>
               <input type="hidden" name="course_slug" value={course.slug}/>
-              <button className="btn btn-primary" type="submit"><CheckCircle2 size={15}/> Mark lesson complete</button>
+              <button className="btn btn-primary" type="submit" data-track="training_lesson_complete_click"><CheckCircle2 size={15}/> Mark lesson complete</button>
             </form>
           )}
         </div>

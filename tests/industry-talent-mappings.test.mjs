@@ -10,7 +10,7 @@ test("every industry uses an explicit reviewed talent mapping", () => {
   const page = source("src/app/industries/[slug]/page.tsx");
 
   const slugs = [...industries.matchAll(/"slug": "([^"]+)"/g)].map((match) => match[1]);
-  assert.equal(slugs.length, 33);
+  assert.equal(slugs.length, 35);
 
   for (const slug of slugs) {
     assert.match(mappings, new RegExp(`"${slug}": \\{[\\s\\S]*?category: "[^"]+",[\\s\\S]*?query: "[^"]+"`), `${slug} needs an explicit category and query`);

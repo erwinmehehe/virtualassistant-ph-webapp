@@ -4946,6 +4946,72 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "travel-lifestyle",
       "content-writing"
     ]
+  },
+  {
+    "slug": "technical-virtual-assistant",
+    "name": "Technical Virtual Assistant",
+    "group": "Technology & Web",
+    "directoryCategory": "Web & WordPress",
+    "primaryKeyword": "technical virtual assistant",
+    "metaTitle": "Technical Virtual Assistant Philippines",
+    "metaDescription": "Hire a Technical Virtual Assistant in the Philippines for SaaS setup, automation, CRM configuration, integrations, technical documentation and support.",
+    "intro": "Hire a Technical Virtual Assistant in the Philippines to maintain repeatable SaaS workflows, configure approved CRM and automation rules, connect business tools, document systems, troubleshoot routine issues, and keep technical operations visible. Architecture, security-sensitive changes, production deployments, and decisions requiring an engineer or system owner remain with the appropriate specialist.",
+    "focus": "SaaS configuration, workflow automation, integrations, and technical operations support",
+    "tasks": [
+      "SaaS account and workspace configuration",
+      "Zapier and Make workflow maintenance",
+      "CRM field, pipeline, and automation setup",
+      "form and lead-routing configuration",
+      "webhook and integration troubleshooting",
+      "CMS and no-code website maintenance",
+      "technical SOP and system documentation",
+      "automation monitoring and error logging",
+      "tool migration and data-cleanup support"
+    ],
+    "tools": [
+      "Zapier",
+      "Make",
+      "HubSpot",
+      "GoHighLevel",
+      "Airtable",
+      "Notion",
+      "WordPress",
+      "Webflow"
+    ],
+    "skills": [
+      "workflow mapping",
+      "automation logic",
+      "SaaS configuration",
+      "technical troubleshooting",
+      "documentation",
+      "data hygiene",
+      "access-control awareness"
+    ],
+    "bestFor": [
+      "agencies",
+      "SaaS companies",
+      "consultants",
+      "online businesses",
+      "operations teams"
+    ],
+    "outcomes": [
+      "Approved automations and integrations stay documented and maintained instead of becoming one-off experiments.",
+      "Routine SaaS configuration and troubleshooting have a clear owner before issues reach senior technical staff.",
+      "CRM, forms, workflows, and no-code systems remain more consistent as the business changes."
+    ],
+    "costFactors": [
+      "Number and complexity of connected systems.",
+      "Required automation and integration depth.",
+      "Whether the role maintains existing workflows or builds new approved ones.",
+      "Access level and production-risk sensitivity.",
+      "Required live overlap for troubleshooting and releases."
+    ],
+    "relatedSlugs": [
+      "it-virtual-assistant",
+      "web-developer-virtual-assistant",
+      "crm",
+      "operations"
+    ]
   }
 
 ];

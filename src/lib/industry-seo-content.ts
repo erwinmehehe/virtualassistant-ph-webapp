@@ -268,6 +268,66 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
   },
   "insurance-broker-renewal-desk": {
     heroIntro: "Insurance brokers need renewal files complete before advice and placement decisions begin. A renewal desk can chase approved information, update broking systems and prepare factual comparison schedules while licensed recommendations and binding decisions remain with the broker."
+  },
+  "cleaning-businesses": {
+    seoLabel: "Cleaning Businesses",
+    heroIntro: "Cleaning companies lose office time when quote requests, booking changes, reminders, invoices and review follow-up are handled between jobs. A Virtual Assistant can keep the administrative workflow moving while owners and supervisors retain pricing, staffing, safety and service-quality decisions.",
+    workflowDetails: {
+      "respond to new enquiries and capture service details": "Reply to approved enquiry channels, capture property type, service requested, location, preferred timing and contact details, then route anything outside the standard service menu for review.",
+      "prepare quote requests from approved pricing rules": "Organize the information needed for a quote and apply approved templates or pricing inputs without changing rates, discounts or service terms outside the authority given by the owner.",
+      "book recurring and one-off cleaning appointments": "Schedule approved jobs against crew availability, travel windows and service duration, then record the booking in the shared system.",
+      "coordinate schedule changes with customers and crew leads": "Update affected bookings, confirm the revised time and keep the team calendar current so customer promises and field schedules stay aligned.",
+      "send appointment confirmations and reminders": "Send approved confirmations, reminders and access instructions through the business's chosen channels and record customer responses.",
+      "update the CRM with customer, property and service notes": "Maintain addresses, service history, preferences, access notes and next actions so office staff and crew leads can rely on one current customer record.",
+      "prepare approved invoice information and payment follow-up queues": "Prepare invoice inputs from completed jobs and run approved reminder queues while refunds, write-offs, pricing disputes and payment decisions remain with authorized staff.",
+      "request reviews after completed services": "Send approved review requests after confirmed completion and record the outcome without offering incentives or making unsupported claims.",
+      "track complaints, re-cleans and exceptions for manager review": "Log the issue, collect the relevant job details and move service-quality or compensation decisions to the designated manager."
+    },
+    toolDetails: {
+      "Jobber": "Customer records, quotes, jobs, scheduling, invoices and follow-up workflows.",
+      "ZenMaid": "Residential cleaning bookings, recurring schedules, customer communication and cleaner coordination.",
+      "Launch27": "Online booking, scheduling and recurring cleaning administration.",
+      "Housecall Pro": "Jobs, estimates, customer records, scheduling and payment-status visibility.",
+      "GoHighLevel": "Lead capture, CRM stages, reminders and approved marketing follow-up.",
+      "QuickBooks": "Invoice preparation, customer records and bookkeeping handoff."
+    },
+    first30Days: [
+      "Week 1: document service areas, booking rules, cleaning packages, CRM fields and escalation boundaries.",
+      "Week 2: own enquiry capture, reminders and CRM updates while a manager reviews booking accuracy.",
+      "Week 3: add schedule changes, quote preparation and invoice administration after the first queues are stable.",
+      "Week 4: review response time, booking errors, unresolved customer issues and jobs waiting for billing before expanding scope."
+    ],
+    metrics: ["Enquiry response time", "Bookings completed accurately", "Schedule changes resolved", "Jobs missing customer or property details", "Completed jobs waiting for invoicing", "Payment follow-ups completed", "Review requests sent", "Complaints awaiting manager action"]
+  },
+  "trucking-companies": {
+    seoLabel: "Trucking Companies",
+    heroIntro: "Trucking teams generate constant administrative work around load updates, paperwork, proof of delivery, customer communication and billing preparation. A Virtual Assistant can keep those records and follow-ups current while dispatchers, drivers, brokers and managers retain live routing, rate, safety and compliance decisions.",
+    workflowDetails: {
+      "enter approved loads and shipment details into the operating system": "Create or update the load record from approved source information, including pickup, delivery, customer, driver or carrier details and required references.",
+      "maintain pickup, in-transit and delivery status updates": "Record status changes from approved channels and keep the customer or operations view current without making routing or dispatch decisions.",
+      "follow up for bills of lading and proof-of-delivery documents": "Track missing BOL and POD documents, request copies from approved contacts and attach them to the correct load record for billing review.",
+      "organize rate confirmations and load paperwork": "File rate confirmations, shipping documents and customer paperwork using the company's naming and retention rules.",
+      "send approved customer status updates": "Send routine shipment updates using approved information and templates, then escalate delays, claims or disputed commitments to operations staff.",
+      "maintain driver and carrier administrative records": "Keep approved contact, equipment and document records current while compliance qualification and safety decisions remain with authorized staff.",
+      "prepare completed-load files for billing review": "Confirm that required delivery documents and approved charge information are present before moving the load to the billing queue.",
+      "track missing documents and unresolved exceptions": "Maintain a visible exception list so operations and billing teams can see which loads are blocked and who owns the next action.",
+      "update recurring operations and customer reports": "Prepare status and completion reports from the operating system without changing the underlying operational decisions."
+    },
+    toolDetails: {
+      "transportation management systems": "Load records, status updates, document storage, customer information and billing handoff.",
+      "DAT": "Approved load-board and market workflow support where the company has defined permissions and responsibilities.",
+      "Truckstop": "Approved load-board administration, record updates and supporting research within the company's operating rules.",
+      "Google Workspace": "Shared documents, customer communication, tracking sheets and operating checklists.",
+      "Microsoft 365": "Email, spreadsheets, documents and recurring reporting.",
+      "QuickBooks": "Billing preparation, customer records and finance handoff after completed-load documentation is ready."
+    },
+    first30Days: [
+      "Week 1: map load stages, status codes, document requirements, customer-update rules and escalation boundaries.",
+      "Week 2: own document filing and a limited status-update queue under dispatcher or operations review.",
+      "Week 3: add POD follow-up, exception tracking and completed-load billing preparation after record accuracy is consistent.",
+      "Week 4: review missing-document backlog, update accuracy, customer response time and billing delays before expanding responsibility."
+    ],
+    metrics: ["Loads with current status", "Missing POD or BOL backlog", "Customer updates completed on time", "Completed loads waiting for billing review", "Records returned for correction", "Open load exceptions", "Documents matched to the correct load", "Administrative follow-ups overdue"]
   }
 };
 

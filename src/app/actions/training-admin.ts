@@ -514,8 +514,8 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
       !course.specialist_review_notes ||
       course.specialist_review_notes.trim().length < 20 ||
       specialistReview?.decision !== "approved" ||
-      specialistReview.assigned_revision !== specialistReview.review_revision ||
-      !specialistReview.reviewed_at
+      specialistReview?.assigned_revision !== specialistReview?.review_revision ||
+      !specialistReview?.reviewed_at
     )) {
       throw new Error("Complete the current specialist review revision before publishing this course.");
     }

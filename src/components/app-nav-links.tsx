@@ -11,6 +11,7 @@ import {
   CircleEllipsis,
   CircleUserRound,
   ClipboardCheck,
+  GraduationCap,
   LayoutDashboard,
   ListTodo,
   LifeBuoy,
@@ -54,6 +55,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
+        ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
         ["Support", "/workspace/va/support", LifeBuoy],
         ["Account settings", "/workspace/account", Settings],
@@ -105,6 +107,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Audit Log", "/workspace/admin/audit", Activity],
         ["Email Health", "/workspace/admin/email-health", Activity],
+        ["Training", "/workspace/admin/training", GraduationCap],
         ["Deletion requests", "/workspace/admin/account-deletion-requests", ShieldCheck],
         ["Settings", "/workspace/admin/settings", Settings],
       ],

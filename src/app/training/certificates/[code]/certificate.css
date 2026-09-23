@@ -1,0 +1,155 @@
+.credential-page {
+  min-height: 70vh;
+  background: #f7f8fc;
+  padding: 72px 0 88px;
+  color: #101828;
+}
+
+.credential-shell {
+  max-width: 880px;
+}
+
+.credential-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 16px;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.credential-card {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 20px;
+  padding: 32px;
+  border: 1px solid #dfe3f0;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(16, 24, 40, .08);
+}
+
+.credential-status-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+}
+
+.credential-valid .credential-status-icon {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.credential-invalid .credential-status-icon {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.credential-status {
+  display: block;
+  margin-bottom: 8px;
+  color: #067647;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.credential-invalid .credential-status {
+  color: #b42318;
+}
+
+.credential-card h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -.045em;
+}
+
+.credential-card > div > p {
+  max-width: 680px;
+  margin: 14px 0 0;
+  color: #667085;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.credential-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 28px 0 0;
+  border-top: 1px solid #eaecf0;
+  border-left: 1px solid #eaecf0;
+}
+
+.credential-facts > div {
+  padding: 16px;
+  border-right: 1px solid #eaecf0;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.credential-facts dt {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.credential-facts dd {
+  margin: 5px 0 0;
+  color: #101828;
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.credential-note {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 13px;
+  background: #f8fafc;
+}
+
+.credential-note strong {
+  font-size: 13px;
+}
+
+.credential-note p {
+  margin: 5px 0 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.credential-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  color: #3538cd;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+@media (max-width: 620px) {
+  .credential-page {
+    padding: 48px 0 64px;
+  }
+
+  .credential-card {
+    grid-template-columns: 1fr;
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .credential-facts {
+    grid-template-columns: 1fr;
+  }
+}

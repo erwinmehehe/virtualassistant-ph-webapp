@@ -41,7 +41,7 @@ export function TrainingCredentials({
               <div>
                 <strong>{credential.courseTitle}</strong>
                 <span>Completed {issuedLabel(credential.issuedAt)}</span>
-                <small>Verified course completion</small>
+                <small>Verified course completion · <Link href={`/training/certificates/${encodeURIComponent(credential.credentialCode)}`}>Verify credential</Link></small>
               </div>
             </div>
           ))}

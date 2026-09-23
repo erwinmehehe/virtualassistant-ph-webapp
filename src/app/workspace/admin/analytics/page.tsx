@@ -34,6 +34,7 @@ type EventRow = {
   event_name: string;
   path: string;
   session_id: string | null;
+  user_id?: string | null;
 };
 
 type AnalyticsSummary = {
@@ -61,7 +62,7 @@ export default async function AdminAnalyticsPage() {
     admin.rpc("admin_analytics_summary", { p_since: since }),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).eq("event_name", "page_view").like("path", "/blog%").limit(10000),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).or(FUNNEL_EVENTS).limit(10000),
-    admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).like("event_name", "training_%").limit(10000)
+    admin.from("analytics_events").select("event_name,path,session_id,user_id").gte("created_at", since).like("event_name", "training_%").limit(10000)
   ]);
 
   const summary = (summaryData || EMPTY_SUMMARY) as AnalyticsSummary;
@@ -108,12 +109,42 @@ export default async function AdminAnalyticsPage() {
   ] as const;
 
   const trainingCount = (eventName: string) => trainingEvents.filter((event) => event.event_name === eventName).length;
+  const trainingParticipantCount = (eventName: string) => {
+    const matching = trainingEvents.filter((event) => event.event_name === eventName);
+    const identities = matching
+      .map((event) => event.user_id ? `user:${event.user_id}` : event.session_id ? `session:${event.session_id}` : null)
+      .filter((value): value is string => Boolean(value));
+    return identities.length ? new Set(identities).size : matching.length;
+  };
+
+  const trainingConversionStages = [
+    ["Landing views", trainingParticipantCount("training_landing_view")],
+    ["Signup clicks", trainingParticipantCount("training_account_click")],
+    ["Accounts created", trainingParticipantCount("training_account_created")],
+    ["Course starts", trainingParticipantCount("training_course_start")],
+    ["Assessment submissions", trainingParticipantCount("training_assessment_submit")],
+    ["Course completions", trainingParticipantCount("training_course_complete")]
+  ] as const;
+
+  const trainingTransitions = trainingConversionStages.slice(1).map(([label, value], index) => {
+    const [previousLabel, previousValue] = trainingConversionStages[index];
+    const rate = previousValue > 0 ? Math.round((value / previousValue) * 100) : null;
+    const dropRate = previousValue > 0 && value <= previousValue
+      ? Math.round(((previousValue - value) / previousValue) * 100)
+      : null;
+    return { previousLabel, label, previousValue, value, rate, dropRate };
+  });
+
+  const largestTrainingDrop = trainingTransitions
+    .filter((transition) => transition.dropRate !== null)
+    .sort((a, b) => (b.dropRate || 0) - (a.dropRate || 0))[0] || null;
+
   const trainingFunnel = [
-    ["Training landing views", trainingCount("training_landing_view"), "Visits to the public training landing page"],
-    ["Create-account clicks", trainingCount("training_account_click"), "Clicks from the training page into the dedicated training signup"],
+    ["Training landing views", trainingCount("training_landing_view"), "All public training landing view events"],
+    ["Create-account clicks", trainingCount("training_account_click"), "Clicks into the dedicated training signup"],
     ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
-    ["Lesson completions", trainingCount("training_lesson_complete"), "First successful completion of a lesson"],
+    ["Lesson completions", trainingCount("training_lesson_complete"), "Completed lessons across all learners"],
     ["Assessment submissions", trainingCount("training_assessment_submit"), "Practical work submitted for reviewer scoring"],
     ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions after required assessment review"]
   ] as const;
@@ -125,7 +156,53 @@ export default async function AdminAnalyticsPage() {
 
     <section className="card" style={{ marginBottom: 18 }}><div className="section-head"><div><div className="kicker">Content to revenue</div><h2>Blog to qualified-lead funnel</h2><p>Uses the same anonymous session ID from first article view through service/profile interactions, match request, and admin conversion.</p></div></div><div className="stats">{contentFunnel.map(([label, value, description]) => <div className="stat-card" key={label}><span className="small muted">{label}</span><strong>{value}</strong><span className="small muted">{description}</span></div>)}</div></section>
 
-    <section className="card" style={{ marginBottom: 18 }}><div className="section-head"><div><div className="kicker">Learning funnel</div><h2>Training engagement</h2><p>Landing and CTA interactions are first-party browser events. Course starts, lesson completions, and course completions are written server-side only after the training action succeeds.</p></div></div><div className="stats">{trainingFunnel.map(([label, value, description]) => <div className="stat-card" key={label}><span className="small muted">{label}</span><strong>{value}</strong><span className="small muted">{description}</span></div>)}</div></section>
+    <section className="card" style={{ marginBottom: 18 }}>
+      <div className="section-head">
+        <div>
+          <div className="kicker">Learning funnel</div>
+          <h2>Training engagement</h2>
+          <p>Conversion stages use unique first-party user or session identifiers where available. Lesson completions remain an activity count because one learner can complete many lessons.</p>
+        </div>
+      </div>
+
+      <div className="stats">
+        {trainingConversionStages.map(([label, value], index) => {
+          const transition = index > 0 ? trainingTransitions[index - 1] : null;
+          return <div className="stat-card" key={label}>
+            <span className="small muted">{label}</span>
+            <strong>{value}</strong>
+            <span className="small muted">
+              {transition?.rate === null || transition === null ? "Entry stage" : `${transition.rate}% of previous stage`}
+            </span>
+          </div>;
+        })}
+      </div>
+
+      {largestTrainingDrop ? (
+        <div className="review-answer" style={{ marginTop: 14 }}>
+          <span className="small muted">Largest measured drop-off</span>
+          <strong style={{ display: "block", marginTop: 3 }}>
+            {largestTrainingDrop.previousLabel} → {largestTrainingDrop.label}: {largestTrainingDrop.dropRate}%
+          </strong>
+          <span className="small muted">
+            {largestTrainingDrop.previousValue} at the previous stage, {largestTrainingDrop.value} at the next stage.
+          </span>
+        </div>
+      ) : null}
+
+      <div className="table-wrap responsive-table" style={{ marginTop: 16 }}>
+        <table>
+          <thead><tr><th>Training event</th><th>Events</th><th>What it measures</th></tr></thead>
+          <tbody>
+            {trainingFunnel.map(([label, value, description]) => <tr key={label}>
+              <td data-label="Training event"><strong>{label}</strong></td>
+              <td data-label="Events">{value}</td>
+              <td data-label="What it measures"><span className="small muted">{description}</span></td>
+            </tr>)}
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <div className="grid-2">
       <section className="card"><h3>Tracked acquisition events</h3><div className="table-wrap responsive-table"><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>{Object.entries(labels).map(([event, label]) => <tr key={event}><td data-label="Event"><strong>{label}</strong><div className="small muted">{event}</div></td><td data-label="Count">{counts.get(event) || 0}</td></tr>)}</tbody></table></div></section>

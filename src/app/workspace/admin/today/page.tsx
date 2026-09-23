@@ -19,6 +19,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { money } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
+import { adminRoleReadinessNeedsAttention, getRoleReadinessDashboard, roleReadinessMissingLabel, type RoleReadinessDashboardItem } from "@/lib/role-readiness-dashboard";
 import styles from "./today.module.css";
 
 type OwnerActionRow = {
@@ -59,13 +60,14 @@ function manilaTime(value:string){
 
 function actionTone(item:OwnerActionRow):Tone{
   if(["placement_risk","overdue_collections","payment_disputes","lead_first_response"].includes(item.kind))return "rose";
-  if(["lead_followup","shortlist_waiting","owner_task"].includes(item.kind))return "amber";
+  if(["lead_followup","shortlist_waiting","owner_task","role_details"].includes(item.kind))return "amber";
   if(item.kind==="discovery_call")return "violet";
   if(item.kind==="proposal_followup"||item.kind==="renewal")return "indigo";
   return "slate";
 }
 
 function actionIcon(item:OwnerActionRow){
+  if(item.kind==="role_details")return <BriefcaseBusiness size={17}/>;
   if(item.kind==="discovery_call")return <CalendarClock size={17}/>;
   if(item.kind==="proposal_followup")return <FileText size={17}/>;
   if(item.kind==="shortlist_waiting")return <UsersRound size={17}/>;
@@ -77,15 +79,44 @@ function actionIcon(item:OwnerActionRow){
   return <MessageSquare size={17}/>;
 }
 
+function readinessAge(hours:number){
+  const value=Math.max(0,Number(hours||0));
+  return value<24?`${Math.max(1,Math.round(value))}h`:`${Math.max(1,Math.floor(value/24))}d`;
+}
+
+function readinessSubtitle(item:RoleReadinessDashboardItem){
+  const missing=item.missing.map(roleReadinessMissingLabel).join(", ");
+  const flags:string[]=[`${readinessAge(item.age_hours)} open`];
+  if(!item.recruiter_id)flags.push("unassigned");
+  if(item.service_model==="managed_service")flags.push("managed service");
+  return `Missing ${missing} · ${flags.join(" · ")}`;
+}
+
 export default async function AdminTodayPage(){
   await requireRoleFast("admin");
   const admin=createAdminClient();
-  const {data,error}=await withServerTiming("admin.today_summary", () => admin.rpc("admin_today_summary"));
+  const [{data,error},incompleteRoles]=await Promise.all([
+    withServerTiming("admin.today_summary", () => admin.rpc("admin_today_summary")),
+    getRoleReadinessDashboard(null),
+  ]);
   if(error)throw error;
 
   const summary=(data||{}) as AdminTodaySummary;
-  const ownerActions=Array.isArray(summary.owner_actions)?summary.owner_actions:[];
-  const ownerAttention=Number(summary.owner_attention||0);
+  const baseOwnerActions=Array.isArray(summary.owner_actions)?summary.owner_actions:[];
+  const readinessEscalations=incompleteRoles.filter(adminRoleReadinessNeedsAttention);
+  const readinessActions:OwnerActionRow[]=readinessEscalations.map((role)=>({
+    rank:role.recruiter_id?2:1,
+    due_at:role.created_at,
+    kind:"role_details",
+    title:`Incomplete role · ${role.title||"Client role"}`,
+    subtitle:readinessSubtitle(role),
+    href:`/workspace/admin/jobs/${role.id}#role-readiness`,
+    label:"Role details",
+  }));
+  const ownerActions=[...readinessActions,...baseOwnerActions]
+    .sort((a,b)=>a.rank-b.rank||new Date(a.due_at||0).getTime()-new Date(b.due_at||0).getTime())
+    .slice(0,14);
+  const ownerAttention=Number(summary.owner_attention||0)+readinessEscalations.length;
   const nowIso=new Date().toISOString();
 
   const ownerPipeline=[
@@ -140,7 +171,7 @@ export default async function AdminTodayPage(){
           </Link>)}
         </div>:<Empty
           title="Nothing needs owner intervention right now"
-          desc="Sales, client delivery and finance have no current exception that crosses the owner threshold."
+          desc="Sales, hiring briefs, client delivery and finance have no current exception that crosses the owner threshold."
           action={<Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/admin/funnel">Review the agency funnel</Link>}
         />}
       </Panel>
@@ -166,6 +197,7 @@ export default async function AdminTodayPage(){
         {label:"Renewals in 30 days",count:Number(summary.renewals_30||0),href:"/workspace/client-success",icon:<RefreshCw size={16}/>,hint:"Upcoming client decision"},
         {label:"Payout ready",count:Number(summary.payout_ready_count||0),href:"/workspace/admin/payments",icon:<CircleDollarSign size={16}/>,hint:Number(summary.payout_ready_count||0)?`${money(Number(summary.payout_ready_total||0))} collected / release pending`:"No payout waiting"},
         {label:"Payment disputes",count:Number(summary.disputes||0),href:"/workspace/admin/payments",icon:<AlertTriangle size={16}/>,hint:"Frozen until reviewed"},
+        {label:"Incomplete role briefs",count:readinessEscalations.length,href:"/workspace/admin/jobs",icon:<BriefcaseBusiness size={16}/>,hint:"Unassigned, 72h+ old, or admin-sensitive"},
         {label:"High-priority tasks",count:Number(summary.urgent_tasks||0),href:"/workspace/admin/today#owner-actions",icon:<ListTodo size={16}/>,hint:"Urgent/high due within 24h"}
       ]}/>
     </Panel>

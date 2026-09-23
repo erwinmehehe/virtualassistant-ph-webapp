@@ -45,7 +45,7 @@ test("training admin exposes specialist-review requirement and routes evidence t
   assert.match(coursePage, /Editorial \\+ specialist review/);
   assert.match(coursePage, /Specialist sign-off is managed in the review queue/);
   assert.match(reviewPage, /Reviewer name/);
-  assert.match(reviewPage, /Reviewer role \\/ scope/);
+  assert.match(reviewPage, /Reviewer role \/ scope/);
   assert.match(reviewPage, /Review notes and corrections/);
   assert.match(coursePage, /Specialist sign-off required before publishing/);
   assert.match(inventory, /Specialist review required/);

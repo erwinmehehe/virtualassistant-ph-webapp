@@ -846,51 +846,6 @@
   text-decoration: underline;
 }
 
-/* Hiring handoff */
-.tr-hiring-wrap {
-  padding: 34px 0 58px;
-  background: #fff;
-}
-
-.tr-hiring {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--tr-line);
-}
-
-.tr-hiring strong,
-.tr-hiring span {
-  display: block;
-}
-
-.tr-hiring strong {
-  font-size: .94rem;
-  font-weight: 750;
-}
-
-.tr-hiring span {
-  margin-top: 3px;
-  color: var(--tr-text);
-  font-size: .84rem;
-}
-
-.tr-hiring a {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 7px;
-  color: var(--tr-brand-strong);
-  font-size: .86rem;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.tr-hiring a:hover {
-  text-decoration: underline;
-}
 
 @media (max-width: 1080px) {
   .tr-hero-grid,

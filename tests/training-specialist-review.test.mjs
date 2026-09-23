@@ -57,3 +57,12 @@ test("training query types carry specialist review state", async () => {
   assert.match(training, /specialist_reviewed_at: string \| null/);
   assert.match(admin, /specialist_reviewer_role: string \| null/);
 });
+
+
+test("specialist gate is reasserted after concurrent course release migrations", async () => {
+  const migration = await readFile("supabase/migrations/20260923134405_reassert_training_specialist_review_gate.sql", "utf8");
+  assert.match(migration, /review_requirement = 'specialist'/);
+  assert.match(migration, /specialist_reviewed_at is null/);
+  assert.match(migration, /status = 'draft'/);
+  assert.match(migration, /published_at = null/);
+});

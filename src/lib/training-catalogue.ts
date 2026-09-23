@@ -43,11 +43,10 @@ function subject(name: string) {
 
 const FOUNDATIONS: TrainingCourse[] = [
   {
+    // Written, and being ported into the training system as a real course.
     title: "Get client-ready",
     blurb: "Turn the experience you already have into a profile a client picks: summary, skills, headline, rate, portfolio, photo.",
-    status: "open",
-    lessons: 11,
-    minutes: 42
+    status: "writing"
   },
   {
     title: "Virtual Assistant Foundations",

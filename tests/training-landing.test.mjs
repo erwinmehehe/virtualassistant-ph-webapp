@@ -24,11 +24,15 @@ test("the catalogue is derived from what we already sell, not invented", () => {
 });
 
 test("only courses that exist are offered as available", () => {
-  // Exactly one course is open today; the rest must say so.
-  assert.match(catalogue, /status: "open"/);
-  assert.equal((catalogue.match(/status: "open"/g) || []).length, 1);
   assert.match(page, /STATUS_LABEL\[course\.status\]/);
   assert.match(catalogue, /planned: "Planned"/);
+});
+
+test("the landing page sends people to the one training home", () => {
+  // Training sits outside /workspace/va/ on purpose: a learner is not a VA
+  // candidate, and that separation is what keeps recruiters protected.
+  assert.match(page, /const JOIN_HREF = "\/workspace\/training"/);
+  assert.doesNotMatch(page, /workspace%2Fva%2Ftraining/);
 });
 
 test("the VA page never leads with the client CTA", () => {

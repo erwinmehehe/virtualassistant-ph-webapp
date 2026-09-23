@@ -55,7 +55,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Opportunities", "/workspace/va/jobs", Search],
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
-        ["Free Training", "/workspace/va/training", GraduationCap],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],

@@ -4,7 +4,6 @@ import { ArrowRight, BadgeCheck, BookOpen, Briefcase, Check, GraduationCap, Smar
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
-import { TRAINING_LESSONS, TOTAL_TRAINING_MINUTES } from "@/lib/va-training";
 import { TRAINING_LEVELS, CATALOGUE_TOTALS, STATUS_LABEL } from "@/lib/training-catalogue";
 import "../training-landing.css";
 
@@ -35,8 +34,8 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalPath("/training") }
 };
 
-const JOIN_HREF = "/auth/join/va?next=%2Fworkspace%2Fva%2Ftraining&from=training";
-const LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Fva%2Ftraining";
+const JOIN_HREF = "/workspace/training";
+const LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Ftraining";
 
 const FAQS = [
   ["Is the training really free?", "Yes. Every lesson, exercise and certificate is free, and always will be. We never charge Filipino Virtual Assistants for anything — not for training, not for being matched with a client."],
@@ -85,25 +84,25 @@ export default function TrainingPage() {
 
         <aside className="tr-card">
           <div className="tr-card-head">
-            <strong>Get client-ready</strong>
-            <span>{TRAINING_LESSONS.length} lessons · {TOTAL_TRAINING_MINUTES} min</span>
+            <strong>The catalogue</strong>
+            <span>{CATALOGUE_TOTALS.courses} courses</span>
           </div>
           <ol>
-            {TRAINING_LESSONS.slice(0, 4).map((lesson) => (
-              <li key={lesson.key}><span>{lesson.title}</span><em>{lesson.minutes}m</em></li>
+            {TRAINING_LEVELS.map((level) => (
+              <li key={level.id}><span>{level.title}</span><em>{level.courses.length}</em></li>
             ))}
           </ol>
-          <p className="tr-card-foot">…and {TRAINING_LESSONS.length - 4} more. Every lesson finishes a part of your profile as you go.</p>
+          <p className="tr-card-foot">Free to take, free to finish, free to keep. Your training is separate from hiring and never required for work.</p>
         </aside>
       </div>
     </section>
 
     <section className="tr-stats">
       <div className="container tr-stats-grid">
-        <div><strong>{TRAINING_LESSONS.length}</strong><span>lessons open now</span></div>
-        <div><strong>{TOTAL_TRAINING_MINUTES} min</strong><span>to finish the course</span></div>
+        <div><strong>{CATALOGUE_TOTALS.courses}</strong><span>courses planned</span></div>
         <div><strong>&#8369;0</strong><span>now and always</span></div>
-        <div><strong>10&ndash;15 min</strong><span>per lesson</span></div>
+        <div><strong>10&ndash;30 min</strong><span>per lesson</span></div>
+        <div><strong>Free</strong><span>certificates</span></div>
       </div>
     </section>
 
@@ -111,26 +110,25 @@ export default function TrainingPage() {
       <div className="container">
         <div className="tr-head">
           <span className="tr-kicker">Open now</span>
-          <h2>Start with the course that changes what clients see.</h2>
-          <p>Before you learn new software, make the experience you already have readable to someone deciding in twenty seconds. That is what this course does.</p>
+          <h2>The first course is nearly ready.</h2>
+          <p>Open a free account now and Foundations lands in it the day we finish. Everything after that is built in the order VAs ask for it.</p>
         </div>
         <div className="tr-featured">
           <div>
-            <span className="tr-chip is-live">Available now</span>
-            <h3>Get client-ready</h3>
-            <p>Your summary, skills, headline, rate, portfolio and photo — what each one is for, what a strong one looks like, and the weak version that loses you the job. Every lesson ends on the part of your profile it teaches.</p>
+            <span className="tr-chip">First course</span>
+            <h3>Virtual Assistant Foundations</h3>
+            <p>Remote work habits, professional communication, inbox and calendar, file management, research, handling mistakes, and using AI without getting caught out. We are finishing it now — open your free account and you will have it the day it lands.</p>
             <div className="tr-cta-row">
-              <Link className="tr-btn tr-btn-primary" href={JOIN_HREF}>Start free <ArrowRight size={16}/></Link>
+              <Link className="tr-btn tr-btn-primary" href={JOIN_HREF}>Open the training <ArrowRight size={16}/></Link>
             </div>
-            <div className="tr-tile-meta">{TRAINING_LESSONS.length} lessons · {TOTAL_TRAINING_MINUTES} minutes · free certificate</div>
+            <div className="tr-tile-meta">Free · certificate included · no card, ever</div>
           </div>
           <ul className="tr-featured-list">
-            {TRAINING_LESSONS.map((lesson, index) => (
-              <li key={lesson.key}><b>{String(index + 1).padStart(2, "0")}</b><span>{lesson.title}</span><em>{lesson.minutes}m</em></li>
+            {TRAINING_LEVELS.map((level, index) => (
+              <li key={level.id}><b>{String(index + 1).padStart(2, "0")}</b><span>{level.title}</span><em>{level.courses.length}</em></li>
             ))}
           </ul>
         </div>
-
       </div>
     </section>
 
@@ -139,7 +137,7 @@ export default function TrainingPage() {
         <div className="tr-head">
           <span className="tr-kicker">The catalogue</span>
           <h2>{CATALOGUE_TOTALS.courses} free courses, built from the work Australian businesses actually hire for.</h2>
-          <p>Every software and industry course here matches a role we already recruit for, so what you learn is what someone is paying for. {CATALOGUE_TOTALS.open} is open today and the rest are marked honestly — we would rather say &ldquo;planned&rdquo; than sell you a course that does not exist.</p>
+          <p>Every software and industry course here matches a role we already recruit for, so what you learn is what someone is paying for. Nothing is open yet and the list says so honestly — we would rather say &ldquo;planned&rdquo; than sell you a course that does not exist.</p>
         </div>
 
         <div className="tr-levels">

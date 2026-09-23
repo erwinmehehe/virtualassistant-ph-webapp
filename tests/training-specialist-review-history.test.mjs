@@ -14,7 +14,9 @@ test("specialist review assignment migration adds revision locks and private aud
   assert.match(migration, /'invalidated'/);
   assert.match(migration, /alter table public\.training_specialist_review_events enable row level security/);
   assert.match(migration, /revoke all on public\.training_specialist_review_events from anon, authenticated/);
-  assert.match(migration, /grant all on public\.training_specialist_review_events to service_role/);
+  assert.match(migration, /grant select, insert on public\.training_specialist_review_events to service_role/);
+  assert.match(migration, /training_specialist_review_events_append_only/);
+  assert.match(migration, /raise exception 'training specialist review history is append-only'/);
 });
 
 test("specialist reviewer assignment locks work to the current review revision", async () => {

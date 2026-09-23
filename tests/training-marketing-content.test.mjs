@@ -66,3 +66,13 @@ test("Marketing VA final assessment tests real campaign work", async () => {
   assert.match(sql, /pass_score = null/);
   assert.match(sql, /is_published = false/);
 });
+
+
+test("Marketing course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923141000_release_marketing_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'marketing-virtual-assistant'/);
+});

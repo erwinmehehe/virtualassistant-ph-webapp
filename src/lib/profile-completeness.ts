@@ -20,7 +20,7 @@ export function getVaCompletion(profile: Partial<VaProfile> | null, avatarUrl?: 
     { key: "availability", label: "Set weekly availability", done: Number(p.weekly_hours || 0) >= 1, weight: 10, href: "/workspace/va/profile#availability" },
     { key: "rate", label: "Set your preferred rate", done: Boolean(p.hourly_rate && p.hourly_rate >= 5), weight: 10, href: "/workspace/va/profile#availability" },
     { key: "resume", label: "Upload your resume", done: Boolean(p.resume_path), weight: 5, href: "/workspace/va/profile#resume" },
-    { key: "portfolio", label: "Add a portfolio sample or portfolio link", done: Boolean(p.portfolio_url), weight: 5, href: "/workspace/va/profile#links" }
+    { key: "portfolio", label: "Add a portfolio sample or portfolio link", done: Boolean(p.portfolio_url || p.linkedin_url), weight: 5, href: "/workspace/va/profile#links" }
   ];
   const score = items.reduce((sum, item) => sum + (item.done ? item.weight : 0), 0);
   return { score, items, next: items.find((item) => !item.done) ?? null };

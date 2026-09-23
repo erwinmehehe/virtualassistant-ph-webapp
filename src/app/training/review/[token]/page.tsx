@@ -47,14 +47,14 @@ export default async function ExternalSpecialistReviewPage({
 
   if (context.state === "invalid") notFound();
 
-  if (context.state === "expired") {
+  if (context.state === "expired" || context.state === "stale") {
     return (
       <main className="specialist-review-page">
         <section className="specialist-review-shell specialist-review-state">
           <div className="specialist-review-brand">VirtualAssistant.com.ph</div>
           <Clock3 size={34}/>
-          <h1>This review link has expired.</h1>
-          <p>Ask the training administrator for a new specialist review invite.</p>
+          <h1>{context.state === "stale" ? "This course changed after your review was assigned." : "This review link has expired."}</h1>
+          <p>{context.state === "stale" ? "Your previous link cannot approve an older course revision. Ask the training administrator to refresh the assignment and send a new secure link." : "Ask the training administrator for a new specialist review invite."}</p>
         </section>
       </main>
     );

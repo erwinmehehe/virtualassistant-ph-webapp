@@ -55,7 +55,7 @@ export function TrainingJoinForm({ error }: { error?: string }) {
       </p>
       <p className="small muted auth-login">
         Already have any VirtualAssistant.com.ph account?{" "}
-        <Link href="/auth/login?next=%2Fworkspace%2Ftraining" className="text-link">Log in and use the same account</Link>.
+        <Link href="/auth/login?next=%2Fworkspace%2Ftraining" className="text-link" data-track="training_login_click">Log in and use the same account</Link>.
       </p>
     </div>
   );

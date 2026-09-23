@@ -60,19 +60,6 @@ const definitions: Record<string, SpecialistReviewDefinition> = {
       { id: "assessment", label: "Final simulation tests payroll operations judgment", detail: "The learner must manage inputs, exceptions, privacy, approvals, employee queries, and handoff without crossing into tax or legal advice." },
     ],
   },
-  "ndis-administration-fundamentals": {
-    title: "NDIS Administration specialist review",
-    reviewerHint: "NDIS provider operations lead, support-coordination administrator, compliance reviewer, or experienced NDIS administration specialist working with current provider processes.",
-    items: [
-      { id: "scope", label: "Administrative scope is clearly limited", detail: "The VA is not presented as a planner, support coordinator, clinician, behaviour practitioner, plan manager, or source of funding or legal advice unless separately qualified and authorized." },
-      { id: "privacy", label: "Participant privacy and consent handling are appropriate", detail: "Participant records, plans, service agreements, identity data, health information, nominees, and communications use minimum-necessary access and approved systems." },
-      { id: "funding", label: "Plan and funding boundaries are safe", detail: "The course does not teach the VA to interpret funding eligibility, promise claimability, reallocate budgets, or decide whether a support is reasonable and necessary." },
-      { id: "claims", label: "Service and claim administration is realistic", detail: "Times, service records, invoices, claims-support data, service bookings, and exception handling are documented from approved evidence rather than inferred." },
-      { id: "incidents", label: "Incidents, complaints, and safeguarding escalate correctly", detail: "Safety concerns, incidents, restrictive practices, complaints, conflicts, and suspected misuse are routed through the provider's approved escalation process." },
-      { id: "current_rules", label: "Current-source guidance is used appropriately", detail: "Material that depends on NDIA or NDIS Commission rules is framed as changeable and points the learner back to current official guidance and provider procedures." },
-      { id: "assessment", label: "Final simulation tests real NDIS admin judgment", detail: "The learner must manage documentation, privacy, claim-support data, exceptions, and escalation without making participant, funding, or clinical decisions." },
-    ],
-  },
   "property-management-administration-australia": {
     title: "Property Management Australia specialist review",
     reviewerHint: "Licensed property manager, agency operations lead, senior property-management administrator, or compliance reviewer with current state or territory workflow responsibility.",

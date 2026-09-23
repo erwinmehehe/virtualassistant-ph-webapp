@@ -103,7 +103,7 @@ export function ResumeAutoFill({
             <strong id="resume-import-title">Use your resume to fill this profile</strong>
             {hasSavedResume && !selectedName ? <span className="badge badge-success"><CheckCircle2 size={12}/> Resume saved</span> : null}
           </div>
-          <p>Upload one PDF or DOCX. We will suggest profile fields below, and the same file will be saved as your private resume when you save the profile.</p>
+          <p>Choose your resume once. PDF/DOCX can fill profile fields automatically; PDF, DOC, or DOCX will be saved privately when you save the profile.</p>
         </div>
       </div>
 
@@ -114,9 +114,13 @@ export function ResumeAutoFill({
             ref={parseFileRef}
             type="file"
             name="resume_for_autofill"
-            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             required
-            onChange={(event) => setSelectedName(event.target.files?.[0]?.name || "")}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              setSelectedName(file?.name || "");
+              if (file) attachResumeToProfileForm(file);
+            }}
           />
         </label>
         <button className="btn btn-sm" type="submit" disabled={pending}>

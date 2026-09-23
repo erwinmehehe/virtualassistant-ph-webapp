@@ -163,3 +163,156 @@ export async function getTrainingAssessmentSubmissionsForAdmin(courseId: string)
     error: null,
   };
 }
+
+
+export type SpecialistTrainingReviewQueueItem = {
+  course: Pick<AdminCourse,
+    "id" | "slug" | "title" | "status" | "content_version" |
+    "reviewed_by" | "last_reviewed_at" |
+    "specialist_reviewed_by" | "specialist_reviewer_role" |
+    "specialist_review_notes" | "specialist_reviewed_at"
+  >;
+  moduleCount: number;
+  lessonCount: number;
+  publishedLessonCount: number;
+  substantiveLessonCount: number;
+  assessmentCount: number;
+  assessmentReadyCount: number;
+  editorialReady: boolean;
+  contentReady: boolean;
+  assessmentReady: boolean;
+  specialistReady: boolean;
+  review: {
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    checklist: Record<string, boolean>;
+    notes: string | null;
+    decision: "in_progress" | "changes_requested" | "approved";
+    reviewed_at: string | null;
+    updated_at: string;
+  } | null;
+};
+
+export async function getTrainingSpecialistReviewQueue() {
+  const admin = createAdminClient();
+  const { data: courseData, error } = await admin
+    .from("training_courses")
+    .select("id,slug,title,status,content_version,reviewed_by,last_reviewed_at,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at")
+    .eq("review_requirement", "specialist")
+    .order("recommended_order", { ascending: true })
+    .order("title");
+
+  if (error) {
+    return { items: [] as SpecialistTrainingReviewQueueItem[], error: error.message };
+  }
+
+  const courses = (courseData || []) as SpecialistTrainingReviewQueueItem["course"][];
+  const courseIds = courses.map((course) => course.id);
+  if (!courseIds.length) return { items: [] as SpecialistTrainingReviewQueueItem[], error: null };
+
+  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }] = await Promise.all([
+    admin
+      .from("training_modules")
+      .select("id,course_id")
+      .in("course_id", courseIds),
+    admin
+      .from("training_assessments")
+      .select("course_id,is_published,instructions,pass_score")
+      .in("course_id", courseIds),
+    admin
+      .from("training_specialist_reviews")
+      .select("course_id,reviewer_name,reviewer_role,checklist,notes,decision,reviewed_at,updated_at")
+      .in("course_id", courseIds),
+  ]);
+
+  const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
+  const moduleIds = modules.map((module) => module.id);
+  const { data: lessonData } = moduleIds.length
+    ? await admin
+        .from("training_lessons")
+        .select("id,module_id,is_published,content")
+        .in("module_id", moduleIds)
+    : { data: [] };
+
+  const lessons = (lessonData || []) as Array<{
+    id: string;
+    module_id: string;
+    is_published: boolean;
+    content: unknown;
+  }>;
+  const assessments = (assessmentData || []) as Array<{
+    course_id: string;
+    is_published: boolean;
+    instructions: string | null;
+    pass_score: number | null;
+  }>;
+  const reviews = new Map(
+    ((reviewData || []) as Array<{
+      course_id: string;
+      reviewer_name: string | null;
+      reviewer_role: string | null;
+      checklist: Record<string, boolean> | null;
+      notes: string | null;
+      decision: "in_progress" | "changes_requested" | "approved";
+      reviewed_at: string | null;
+      updated_at: string;
+    }>).map((review) => [review.course_id, {
+      reviewer_name: review.reviewer_name,
+      reviewer_role: review.reviewer_role,
+      checklist: review.checklist || {},
+      notes: review.notes,
+      decision: review.decision,
+      reviewed_at: review.reviewed_at,
+      updated_at: review.updated_at,
+    }]),
+  );
+  const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
+
+  const items: SpecialistTrainingReviewQueueItem[] = courses.map((course) => {
+    const courseModules = modules.filter((module) => module.course_id === course.id);
+    const courseLessons = lessons.filter((lesson) => moduleCourse.get(lesson.module_id) === course.id);
+    const courseAssessments = assessments.filter((assessment) => assessment.course_id === course.id);
+    const publishedLessonCount = courseLessons.filter((lesson) => lesson.is_published).length;
+    const substantiveLessonCount = courseLessons.filter(
+      (lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3,
+    ).length;
+    const assessmentReadyCount = courseAssessments.filter(
+      (assessment) =>
+        assessment.is_published &&
+        Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
+        assessment.pass_score !== null,
+    ).length;
+    const editorialReady = Boolean(course.reviewed_by && course.last_reviewed_at);
+    const contentReady =
+      courseLessons.length > 0 &&
+      publishedLessonCount === courseLessons.length &&
+      substantiveLessonCount === courseLessons.length;
+    const assessmentReady =
+      courseAssessments.length > 0 &&
+      assessmentReadyCount === courseAssessments.length;
+    const specialistReady = Boolean(
+      course.specialist_reviewed_by &&
+      course.specialist_reviewer_role &&
+      course.specialist_reviewed_at &&
+      course.specialist_review_notes &&
+      course.specialist_review_notes.trim().length >= 20,
+    );
+
+    return {
+      course,
+      moduleCount: courseModules.length,
+      lessonCount: courseLessons.length,
+      publishedLessonCount,
+      substantiveLessonCount,
+      assessmentCount: courseAssessments.length,
+      assessmentReadyCount,
+      editorialReady,
+      contentReady,
+      assessmentReady,
+      specialistReady,
+      review: reviews.get(course.id) || null,
+    };
+  });
+
+  return { items, error: null };
+}

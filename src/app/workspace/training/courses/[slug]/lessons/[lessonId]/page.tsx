@@ -59,7 +59,6 @@ export default async function TrainingLessonPage({
         {lesson.summary ? <p>{lesson.summary}</p> : null}
         <div className="row wrap">
           <span className="badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
-          <span className="badge">Version {lesson.content_version}</span>
           {lesson.last_reviewed_at ? <span className="badge">Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}</span> : null}
         </div>
 

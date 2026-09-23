@@ -39,6 +39,7 @@ export default async function TrainingAssessmentPage({
   }
 
   const latest = assessment.latestSubmission || null;
+  const lessonsComplete = course.lessonCount > 0 && course.completedLessons === course.lessonCount;
   const waitingForReview = latest?.status === "submitted";
   const passed =
     latest?.status === "reviewed" &&
@@ -92,7 +93,7 @@ export default async function TrainingAssessmentPage({
         </section>
       ) : null}
 
-      {!waitingForReview && !passed ? (
+      {lessonsComplete && !waitingForReview && !passed ? (
         <section className="card dashboard-section-card">
           <div className="dashboard-section-head">
             <div>
@@ -120,6 +121,13 @@ export default async function TrainingAssessmentPage({
               </button>
             </div>
           </form>
+        </section>
+      ) : null}
+
+      {!lessonsComplete ? (
+        <section className="card dashboard-section-card">
+          <h2>Complete the lessons first</h2>
+          <p className="muted">The final simulation unlocks after all {course.lessonCount} published lessons are complete. You have finished {course.completedLessons}.</p>
         </section>
       ) : null}
 

@@ -2663,3 +2663,55 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .floating-cta { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
   .floating-cta .btn { min-height: 36px; padding: 0 13px 0 11px; font-size: 13px; }
 }
+
+
+/* Compact confirmation recovery on login */
+.auth-confirmation-help {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.auth-confirmation-copy strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.auth-confirmation-copy p {
+  margin: 3px 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.auth-confirmation-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+.auth-confirmation-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #fff;
+  padding: 9px 11px;
+  color: var(--text);
+  outline: none;
+}
+.auth-confirmation-form input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(10,77,168,.10);
+}
+.auth-confirmation-form .btn {
+  min-height: 40px;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .auth-card-wide { padding: 24px; }
+  .auth-confirmation-form { grid-template-columns: 1fr; }
+  .auth-confirmation-form .btn { width: 100%; }
+}

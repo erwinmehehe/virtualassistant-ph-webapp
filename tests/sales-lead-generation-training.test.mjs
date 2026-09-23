@@ -29,3 +29,13 @@ test("Sales final assessment tests real sales-support work", async () => {
   assert.match(seed, /apply suppression rules/i);
   assert.match(seed, /produce a short funnel report/i);
 });
+
+
+test("Sales and Lead Generation course has a reviewed release migration", async () => {
+  const release = await readFile("supabase/migrations/20260923142500_release_sales_lead_generation_va_training.sql", "utf8");
+  assert.match(release, /is_published = true/);
+  assert.match(release, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
+  assert.match(release, /pass_score = 80/);
+  assert.match(release, /status = 'published'/);
+  assert.match(release, /slug = 'sales-lead-generation-virtual-assistant'/);
+});

@@ -70,3 +70,19 @@ test("profile save accepts generic MIME resume uploads by validated extension", 
   assert.match(action, /mimeByExtension/);
   assert.match(action, /contentType: expectedMime/);
 });
+
+
+test("saved resume can be replaced or removed without exposing storage paths", async () => {
+  const page = await source("src/app/workspace/va/profile/page.tsx");
+  const component = await source("src/components/resume-autofill.tsx");
+  const action = await source("src/app/actions/profile.ts");
+
+  assert.match(page, /savedResumeName/);
+  assert.match(page, /replace\(\/\^\\d\+\-\//);
+  assert.match(component, /Saved file:/);
+  assert.match(component, /removeVaResumeAction/);
+  assert.match(component, /Remove saved resume/);
+  assert.match(action, /export async function removeVaResumeAction/);
+  assert.match(action, /\.update\(\{ resume_path: null \}\)/);
+  assert.match(action, /storage\.from\("resumes"\)\.remove/);
+});

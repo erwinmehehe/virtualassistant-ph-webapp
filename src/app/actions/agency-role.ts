@@ -26,15 +26,7 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
   if(!job.client_id)throw new Error("Link the client account before preparing service terms.");
   if(existing?.commercial_status)redirect(`/workspace/recruiter/roles/${jobId}`);
 
-  const missing:string[]=[];
-  if(!job.title||String(job.title).trim().length<3)missing.push("role title");
-  if(!job.summary||String(job.summary).trim().length<20)missing.push("role outcome / summary");
-  if(!Array.isArray(job.responsibilities)||!job.responsibilities.length)missing.push("responsibilities");
-  if(!Array.isArray(job.required_skills)||job.required_skills.length<2)missing.push("at least 2 required skills");
-  if(!job.hours_per_week)missing.push("weekly hours");
-  if(!job.timezone)missing.push("client timezone / working region");
-  if(job.min_hourly_rate==null)missing.push("VA budget");
-  if(!job.start_timing)missing.push("start timing");
+  const missing=publicationMissingDetails(job);
   if(missing.length)throw new Error(`Complete the role quality gate first: ${missing.join(", ")}.`);
 
   const defaultFee=Number(settings?.default_placement_fee||0);
@@ -138,7 +130,7 @@ export async function saveRoleReadinessDetailsAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: job } = await admin
     .from("jobs")
-    .select("id,status,recruiter_id,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing")
+    .select("id,status,slug,recruiter_id,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing")
     .eq("id", jobId)
     .maybeSingle();
 
@@ -259,7 +251,10 @@ export async function saveRoleReadinessDetailsAction(formData: FormData) {
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
-  if (job.status === "published") revalidatePath("/jobs");
+  if (job.status === "published") {
+    revalidatePath("/jobs");
+    if (job.slug) revalidatePath(`/jobs/${job.slug}`);
+  }
 
   redirect(`${returnTo}?role_details_saved=1#role-readiness`);
 }

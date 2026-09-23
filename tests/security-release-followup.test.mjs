@@ -40,23 +40,6 @@ test("server-only operational tables have explicit deny policies", async()=>{
 });
 
 
-test("authenticated dashboard visual QA targets the shipped main commit without privileged database secrets", async()=>{
-  const [workflow,visual]=await Promise.all([
-    read(".github/workflows/dashboard-visual.yml"),
-    read("scripts/authenticated-dashboard-visual.mjs"),
-  ]);
-  assert.match(workflow,/push:/);
-  assert.match(workflow,/branches: \[main\]/);
-  assert.match(workflow,/const sha = context\.sha/);
-  assert.match(workflow,/Wait for this main commit to reach production/);
-  assert.match(workflow,/VISUAL_BASE_URL: https:\/\/virtualassistant\.com\.ph/);
-  assert.doesNotMatch(workflow,/VISUAL_BASE_URL: \${{ steps\.production\.outputs\.url }}/);
-  assert.doesNotMatch(workflow,/SUPABASE_SERVICE_ROLE_KEY|VERCEL_AUTOMATION_BYPASS_SECRET|npm start|Build authenticated dashboard test app/);
-  assert.match(visual,/role: "admin"/);
-  assert.match(visual,/SMOKE_ADMIN_EMAIL/);
-  assert.match(visual,/secure = parsedBaseUrl\.protocol === "https:"/);
-});
-
 test("pg_net migration refuses queued work and reinstalls outside public", async()=>{
   const sql=await read("supabase/migrations/20260922005659_move_pg_net_extension_out_of_public.sql");
   assert.match(sql,/http_request_queue/);

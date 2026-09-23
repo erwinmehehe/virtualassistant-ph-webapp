@@ -73,6 +73,10 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // pdf-parse's Node worker uses @napi-rs/canvas native bindings. Keep both
+  // packages out of the Next/Webpack server bundle so Node loads the native
+  // .node binary at runtime instead of Webpack trying to parse it.
+  serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"],
   poweredByHeader: false,
   async headers() {
     return [

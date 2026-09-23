@@ -29,8 +29,12 @@ const EMPTY_RESULT: ParsedResumeFields = {
 /** Extracts raw text from an uploaded resume file (PDF or DOCX). */
 export async function extractResumeText(buffer: Buffer, mimeType: string): Promise<string> {
   if (mimeType === "application/pdf") {
+    // pdf-parse uses PDF.js internally. On server runtimes such as Vercel,
+    // DOMMatrix is not a global, so load the package's Node canvas factory
+    // before PDFParse and pass it explicitly.
+    const { CanvasFactory } = await import("pdf-parse/worker");
     const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: buffer });
+    const parser = new PDFParse({ data: buffer, CanvasFactory });
     try {
       const result = await parser.getText();
       return result.text;

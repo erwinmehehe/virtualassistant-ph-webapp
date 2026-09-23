@@ -57,3 +57,26 @@ test("resume parser can fill a useful headline and summary without a Summary hea
   assert.match(parsing, /primary_category \? `\$\{primary_category\} Virtual Assistant` : null/);
   assert.match(parsing, /Many resumes start with a short professional paragraph/);
 });
+
+
+test("PDF resume parser uses the Node canvas factory before PDFParse", async () => {
+  const parsing = await source("src/lib/resume-parsing.ts");
+  const workerImport = parsing.indexOf('await import("pdf-parse/worker")');
+  const parserImport = parsing.indexOf('await import("pdf-parse")');
+  assert.ok(workerImport >= 0);
+  assert.ok(parserImport > workerImport);
+  assert.match(parsing, /new PDFParse\(\{ data: buffer, CanvasFactory \}\)/);
+});
+
+test("resume autofill does not expose internal parser exceptions to VAs", async () => {
+  const action = await source("src/app/actions/resume-autofill.ts");
+  assert.match(action, /\[resume-autofill\] resume parsing failed/);
+  assert.match(action, /We couldn't read this resume/);
+  assert.doesNotMatch(action, /message: \(err as Error\)\.message/);
+});
+
+
+test("Next keeps native PDF parser dependencies out of the server bundle", async () => {
+  const config = await source("next.config.ts");
+  assert.match(config, /serverExternalPackages:\s*\["pdf-parse", "@napi-rs\/canvas"\]/);
+});

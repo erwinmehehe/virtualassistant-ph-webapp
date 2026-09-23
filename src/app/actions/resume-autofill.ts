@@ -62,6 +62,13 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
 
     return { status: "success", fields };
   } catch (err) {
-    return { status: "error", message: (err as Error).message || "Could not process this resume. Please fill the form in manually." };
+    console.error("[resume-autofill] resume parsing failed", {
+      type: resumeType,
+      message: err instanceof Error ? err.message : "unknown",
+    });
+    return {
+      status: "error",
+      message: "We couldn't read this resume. Try exporting it again as a text-based PDF or DOCX, then retry.",
+    };
   }
 }

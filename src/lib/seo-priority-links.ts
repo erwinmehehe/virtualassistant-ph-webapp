@@ -179,7 +179,11 @@ export const BLOG_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "how-to-hire-a-medical-virtual-assistant": [MEDICAL_SERVICE, HIRE_HUB, PRICING_HUB],
   "virtual-assistant-agency-vs-freelancer": [COMPANIES_GUIDE, HIRE_HUB, PRICING_HUB],
   "onlinejobs-ph-vs-virtual-assistant-agency": [COMPANIES_GUIDE, HIRE_HUB],
-  "what-does-an-appointment-setter-virtual-assistant-do": [SERVICES_HUB, HIRE_HUB]
+  "what-does-an-appointment-setter-virtual-assistant-do": [SERVICES_HUB, HIRE_HUB],
+  "part-time-virtual-assistant-jobs-philippines": [SALARY_GUIDE, RATE_GUIDE, GET_PAID_GUIDE],
+  "virtual-assistant-side-hustle-philippines": [GET_PAID_GUIDE, SALARY_GUIDE, RATE_GUIDE],
+  "virtual-assistant-team": [GENERAL_VS_EXECUTIVE, PRICING_HUB, HIRE_HUB],
+  "virtual-assistant-tasks": [RATE_GUIDE, SERVICES_HUB, HIRE_HUB]
 };
 
 export const ARCHIVE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {

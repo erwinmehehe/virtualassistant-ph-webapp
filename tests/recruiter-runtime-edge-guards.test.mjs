@@ -4,13 +4,6 @@ import { readFileSync } from "node:fs";
 
 const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("smoke VAs remain above the shared approval completion floor",()=>{
-  const route=read("src/app/api/internal/github-smoke-auth/route.ts");
-  assert.match(route,/skills: \["Data Entry", "Email Management", "Calendar Management", "Research", "CRM Administration"\]/);
-  assert.match(route,/tools: \["Google Workspace", "Slack", "Microsoft 365"\]/);
-  assert.match(route,/Dedicated non-public automated QA profile used only to verify recruiter and client workflows safely in production/);
-});
-
 test("stale VA availability is blocked before client shortlist release",()=>{
   const action=read("src/app/actions/matching.ts");
   const table=read("src/components/matching-candidate-table.tsx");

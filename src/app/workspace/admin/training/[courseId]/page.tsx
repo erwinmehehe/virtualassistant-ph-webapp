@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpenCheck, FilePlus2, Pencil, Plus, ShieldCheck } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
-import { getTrainingCourseForAdmin } from "@/lib/training-admin";
+import { getTrainingAssessmentSubmissionsForAdmin, getTrainingCourseForAdmin } from "@/lib/training-admin";
 import {
   createTrainingAssessmentAction,
   createTrainingLessonAction,
@@ -10,6 +10,7 @@ import {
   setTrainingCourseStatusAction,
   updateTrainingAssessmentAction,
   updateTrainingCourseAction,
+  reviewTrainingAssessmentSubmissionAction,
 } from "@/app/actions/training-admin";
 
 function reviewedLabel(value: string | null) {
@@ -25,7 +26,10 @@ export default async function AdminTrainingCoursePage({
   params: Promise<{ courseId: string }>;
 }) {
   const { courseId } = await params;
-  const { course, error } = await getTrainingCourseForAdmin(courseId);
+  const [{ course, error }, { submissions }] = await Promise.all([
+    getTrainingCourseForAdmin(courseId),
+    getTrainingAssessmentSubmissionsForAdmin(courseId),
+  ]);
   if (!course && !error) notFound();
 
   if (!course) {
@@ -213,6 +217,49 @@ export default async function AdminTrainingCoursePage({
           </form>
         </details>
       </section>
+
+
+      {submissions.length ? (
+        <section className="card dashboard-section-card">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>Assessment submissions</h2>
+              <p>Review practical work before issuing course completion.</p>
+            </div>
+            <span className="badge">{submissions.filter((submission) => submission.status === "submitted").length} waiting</span>
+          </div>
+          <div className="stack">
+            {submissions.map((submission) => {
+              const responseText = typeof submission.response?.text === "string" ? submission.response.text : JSON.stringify(submission.response);
+              return (
+                <article className="card" key={submission.id}>
+                  <div className="row-between wrap">
+                    <div>
+                      <strong>{submission.assessment_title}</strong>
+                      <div className="small muted">{submission.user_email || submission.user_id}</div>
+                    </div>
+                    <span className={"badge " + (submission.status === "reviewed" ? "badge-success" : submission.status === "needs_revision" ? "badge-warning" : "")}>{submission.status.replace("_", " ")}</span>
+                  </div>
+                  <div className="notice" style={{ marginTop: 12 }}>
+                    <strong>Learner response</strong>
+                    <p style={{ whiteSpace: "pre-wrap" }}>{responseText}</p>
+                  </div>
+                  <form action={reviewTrainingAssessmentSubmissionAction} className="stack" style={{ marginTop: 12 }}>
+                    <input type="hidden" name="submission_id" value={submission.id}/>
+                    <input type="hidden" name="course_id" value={course.id}/>
+                    <div className="grid-2">
+                      <label className="field"><span>Score</span><input name="score" type="number" min={0} max={100} required defaultValue={submission.score ?? ""}/></label>
+                      <label className="field"><span>Decision</span><select name="decision" defaultValue={submission.status === "reviewed" ? "pass" : "needs_revision"}><option value="pass">Pass</option><option value="needs_revision">Needs revision</option></select></label>
+                    </div>
+                    <label className="field"><span>Feedback</span><textarea name="feedback" minLength={10} maxLength={5000} rows={4} required defaultValue={submission.feedback || ""}/></label>
+                    <div><button className="btn btn-primary btn-sm" type="submit">Save review</button></div>
+                  </form>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head"><div><h2>Assessments</h2><p>Practical exercises should test judgment and execution, not trivia.</p></div></div>

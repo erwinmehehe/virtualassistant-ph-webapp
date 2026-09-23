@@ -254,7 +254,7 @@ export async function submitExternalTrainingSpecialistReviewAction(formData: For
     throw new Error("This specialist review link is no longer active.");
   }
 
-  const { invite, course, definition, review } = context;
+  const { invite, course, definition } = context;
   const checklist = Object.fromEntries(
     definition.items.map((item) => [item.id, field(formData, `check_${item.id}`) === "1"]),
   );

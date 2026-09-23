@@ -81,7 +81,6 @@ export function SiteNav() {
               <Link href={CLIENT_LOGIN}>Client Portal</Link>
               <span>Virtual Assistants</span>
               <Link href={VA_LOGIN}>VA log in</Link>
-              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/auth/join/va">Apply as a VA</Link>
             </div>
           </details>

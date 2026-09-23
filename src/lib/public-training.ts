@@ -14,6 +14,7 @@ export type PublicTrainingCourse = {
   recommended_order: number | null;
   status: "draft" | "published" | "archived";
   published_at: string | null;
+  lesson_count: number;
 };
 
 export type PublicTrainingPath = {
@@ -51,7 +52,28 @@ export const getPublicTrainingOverview = unstable_cache(
 
       if (courseError) return { courses: [], paths: [] };
 
-      const courses = (courseData || []) as PublicTrainingCourse[];
+      const rawCourses = (courseData || []) as Array<Omit<PublicTrainingCourse, "lesson_count">>;
+      const courseIds = rawCourses.map((course) => course.id);
+      const { data: moduleData } = courseIds.length
+        ? await admin.from("training_modules").select("id,course_id").in("course_id", courseIds)
+        : { data: [] };
+      const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
+      const moduleIds = modules.map((module) => module.id);
+      const { data: lessonData } = moduleIds.length
+        ? await admin
+            .from("training_lessons")
+            .select("id,module_id")
+            .in("module_id", moduleIds)
+            .eq("is_published", true)
+        : { data: [] };
+      const lessons = (lessonData || []) as Array<{ id: string; module_id: string }>;
+      const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
+
+      const courses: PublicTrainingCourse[] = rawCourses.map((course) => ({
+        ...course,
+        lesson_count: lessons.filter((lesson) => moduleCourse.get(lesson.module_id) === course.id).length,
+      }));
+
       if (pathError || !(pathData || []).length) return { courses, paths: [] };
 
       const pathIds = (pathData || []).map((path) => path.id);

@@ -33,7 +33,6 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
         <div className="row wrap">
           <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
-          <span className="badge"><FileCheck2 size={13}/> Version {course.content_version}</span>
           <span className="badge">{reviewedLabel(course.last_reviewed_at)}</span>
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
@@ -71,7 +70,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                 <span className="dash-action-copy">
                   <span className="dash-action-title"><strong>{lesson.title}</strong></span>
                   <small>{lesson.summary || "Detailed lesson with examples and practical application."}</small>
-                  <small className="muted">{lesson.estimated_minutes} min · v{lesson.content_version}</small>
+                  <small className="muted">{lesson.estimated_minutes} min</small>
                 </span>
                 <ArrowRight size={16}/>
               </Link>

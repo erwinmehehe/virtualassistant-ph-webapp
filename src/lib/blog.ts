@@ -3,10 +3,11 @@ import type { BlogPost, BlogTopic } from "@/lib/blog-types";
 import { EDITORIAL_SEO_POSTS } from "@/lib/editorial-seo-guides";
 import { BLOG_OPPORTUNITY_POSTS } from "@/lib/blog-opportunity-posts";
 import { BLOG_HIRING_GUIDES } from "@/lib/blog-hiring-guides";
+import { BLOG_DEMAND_GUIDES } from "@/lib/blog-demand-guides";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
-export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS, ...BLOG_OPPORTUNITY_POSTS, ...BLOG_HIRING_GUIDES];
+export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS, ...BLOG_OPPORTUNITY_POSTS, ...BLOG_HIRING_GUIDES, ...BLOG_DEMAND_GUIDES];
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

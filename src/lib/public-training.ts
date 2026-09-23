@@ -31,6 +31,10 @@ export type PublicTrainingOverview = {
   paths: PublicTrainingPath[];
 };
 
+export type PublicTrainingCourseWithLessons = PublicTrainingCourse & {
+  lesson_count: number;
+};
+
 export const getPublicTrainingOverview = unstable_cache(
   async (): Promise<PublicTrainingOverview> => {
     try {
@@ -96,7 +100,7 @@ export async function getPublishedFoundationCourse() {
 
 
 export const getPublishedTrainingCourses = unstable_cache(
-  async (): Promise<PublicTrainingCourse[]> => {
+  async (): Promise<PublicTrainingCourseWithLessons[]> => {
     try {
       const admin = createAdminClient();
       const { data: courses, error } = await admin
@@ -135,7 +139,7 @@ export const getPublishedTrainingCourses = unstable_cache(
       return courses.map((course) => ({
         ...course,
         lesson_count: lessonCountByCourse.get(course.id) || 0,
-      })) as PublicTrainingCourse[];
+      })) as PublicTrainingCourseWithLessons[];
     } catch {
       return [];
     }

@@ -109,7 +109,7 @@ test("reviewer page is private and exposes actual lessons and assessment", async
   assert.doesNotMatch(page, /reviewer_email|invite\.reviewer_email/);
 });
 
-test("all seven gated specialist courses have a visible review standard", async () => {
+test("all remaining gated specialist courses have a visible review standard", async () => {
   const definitions = await source("src/lib/training-specialist-review.ts");
 
   for (const slug of [
@@ -117,7 +117,6 @@ test("all seven gated specialist courses have a visible review standard", async 
     "medical-healthcare-virtual-assistant",
     "bookkeeping-administration",
     "payroll-administration",
-    "ndis-administration-fundamentals",
     "property-management-administration-australia",
     "mortgage-broking-administration-australia",
   ]) {

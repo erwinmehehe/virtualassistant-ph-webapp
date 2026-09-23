@@ -42,3 +42,40 @@ test("the VA page never leads with the client CTA", () => {
   // /training is excluded from the hire-a-VA band, which addresses buyers.
   assert.ok(footerCta.includes("/training"), "footer CTA should skip /training");
 });
+
+
+test("training social metadata is page-specific and course schema stays gated", () => {
+  assert.match(page, /\/training\/opengraph-image/);
+  assert.match(page, /const openCourses = .*status === "open"/);
+  assert.match(page, /"@type": "Course"/);
+  const og = source("src/app/training/opengraph-image.tsx");
+  assert.match(og, /Learn the work\./);
+  assert.match(og, /Show what you can do\./);
+});
+
+test("candidate education pages route readers into training instead of buyer CTAs", () => {
+  const article = source("src/components/blog-article.tsx");
+  const vaHub = source("src/app/for-virtual-assistants/page.tsx");
+  assert.match(article, /CANDIDATE_LEARNING_GUIDES/);
+  assert.match(article, /href="\/training" data-track="blog_training_click"/);
+  assert.match(article, /Browse VA jobs/);
+  assert.match(vaHub, /href="\/training">Free VA training/);
+});
+
+test("the training funnel records successful product actions", () => {
+  const browserAnalytics = source("src/components/analytics.tsx");
+  const analyticsRoute = source("src/app/api/analytics/route.ts");
+  const trainingActions = source("src/app/actions/training.ts");
+  const trainingAuth = source("src/app/actions/training-auth.ts");
+  const adminAnalytics = source("src/app/workspace/admin/analytics/page.tsx");
+
+  assert.match(browserAnalytics, /training_landing_view/);
+  assert.match(browserAnalytics, /training_dashboard_view/);
+  assert.match(analyticsRoute, /training_account_click/);
+  assert.match(analyticsRoute, /training_lesson_complete/);
+  assert.match(trainingAuth, /recordProductEvent\("training_account_created"/);
+  assert.match(trainingActions, /recordProductEvent\("training_course_start"/);
+  assert.match(trainingActions, /recordProductEvent\("training_lesson_complete"/);
+  assert.match(trainingActions, /recordProductEvent\("training_course_complete"/);
+  assert.match(adminAnalytics, /Training engagement/);
+});

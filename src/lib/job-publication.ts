@@ -7,7 +7,7 @@ export type PublicationBlocker =
   | "waiting_client_approval"
   | "ready_to_publish";
 
-type PublicationJob = {
+export type PublicationJob = {
   status?: string | null;
   client_id?: string | null;
   title?: string | null;
@@ -25,7 +25,15 @@ type PublicationCommercial = {
 } | null | undefined;
 
 export function publicationMissingDetails(job: PublicationJob): string[] {
-  const missing = publicationMissingDetails(job);
+  const missing: string[] = [];
+  if (!job.title || String(job.title).trim().length < 3) missing.push("title");
+  if (!job.summary || String(job.summary).trim().length < 20) missing.push("summary");
+  if (!Array.isArray(job.responsibilities) || job.responsibilities.length === 0) missing.push("responsibilities");
+  if (!Array.isArray(job.required_skills) || job.required_skills.length < 2) missing.push("skills");
+  if (!job.hours_per_week) missing.push("hours");
+  if (!job.timezone) missing.push("timezone");
+  if (job.min_hourly_rate == null) missing.push("budget");
+  if (!job.start_timing) missing.push("start timing");
   return missing;
 }
 
@@ -34,10 +42,6 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   label: string;
   detail: string;
 } {
-  if (job.status === "published") {
-    return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
-  }
-
   if (!job.client_id) {
     return {
       key: "needs_client_account",
@@ -54,22 +58,19 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
     };
   }
 
-  const missing: string[] = [];
-  if (!job.title || String(job.title).trim().length < 3) missing.push("title");
-  if (!job.summary || String(job.summary).trim().length < 20) missing.push("summary");
-  if (!Array.isArray(job.responsibilities) || job.responsibilities.length === 0) missing.push("responsibilities");
-  if (!Array.isArray(job.required_skills) || job.required_skills.length < 2) missing.push("skills");
-  if (!job.hours_per_week) missing.push("hours");
-  if (!job.timezone) missing.push("timezone");
-  if (job.min_hourly_rate == null) missing.push("budget");
-  if (!job.start_timing) missing.push("start timing");
-
+  const missing = publicationMissingDetails(job);
   if (missing.length) {
     return {
       key: "needs_role_details",
       label: "Needs role details",
-      detail: `Complete: ${missing.join(", ")}.`,
+      detail: job.status === "published"
+        ? `This published role is incomplete. Complete: ${missing.join(", ")}.`
+        : `Complete: ${missing.join(", ")}.`,
     };
+  }
+
+  if (job.status === "published") {
+    return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
   }
 
   if (!commercial?.commercial_status) {

@@ -66,6 +66,8 @@ test("Foundations is consolidated to ten published lessons without deleting lear
   assert.match(sql, /Client Communication, Updates, Mistakes, and Escalation/);
   assert.match(sql, /Priorities, Deadlines, Time Zones, and Handoffs/);
   assert.match(sql, /is_published = false/);
+  assert.match(sql, /insert into public\.training_lesson_progress/);
+  assert.match(sql, /on conflict \(user_id,lesson_id\) do nothing/);
   assert.doesNotMatch(sql, /delete from public\.training_lessons/i);
   assert.match(sql, /status = 'published'/);
 });

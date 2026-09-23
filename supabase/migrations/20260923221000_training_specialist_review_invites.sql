@@ -7,6 +7,7 @@ create table if not exists public.training_specialist_review_invites (
   reviewer_name text not null,
   reviewer_email text not null,
   reviewer_role text not null,
+  course_content_version integer not null,
   token_hash text not null unique,
   due_at timestamptz,
   expires_at timestamptz not null,

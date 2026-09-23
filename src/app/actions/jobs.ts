@@ -226,6 +226,7 @@ export async function saveClientRoleReadinessDetailsAction(formData: FormData) {
     .maybeSingle();
 
   if (!job) throw new Error("Role not found.");
+  if (job.status === "closed") throw new Error("This hiring request is closed.");
 
   const missing = new Set(publicationMissingDetails(job));
   if (!missing.size) redirect(`/workspace/client/jobs/${jobId}?role_details_complete=1#role-readiness`);

@@ -214,10 +214,10 @@ export default function TrainingPage() {
                   <li><Check size={16} /> Use AI without exposing client data or trusting bad output</li>
                 </ul>
                 <div className="tr-cta-row">
-                  <Link className="tr-btn tr-btn-primary" href={JOIN_HREF}>
+                  <Link className="tr-btn tr-btn-primary" href={JOIN_HREF} data-track="training_account_click">
                     Create free account <ArrowRight size={16} />
                   </Link>
-                  <a className="tr-text-link" href="#learning-paths">
+                  <a className="tr-text-link" href="#learning-paths" data-track="training_learning_paths_click">
                     See the full roadmap
                   </a>
                 </div>

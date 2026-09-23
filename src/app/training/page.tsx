@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: META_TITLE,
     description: META_DESCRIPTION,
     images: [{
-      url: "/opengraph-image",
+      url: "/training/opengraph-image",
       width: 1200,
       height: 630,
       alt: "VirtualAssistant.com.ph training"
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: META_TITLE,
     description: META_DESCRIPTION,
-    images: ["/twitter-image"]
+    images: ["/training/opengraph-image"]
   }
 };
 

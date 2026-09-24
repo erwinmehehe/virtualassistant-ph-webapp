@@ -19,7 +19,7 @@ export function TrainingSiteHeader({
   return (
     <header className={`site-header va-site-nav training-site-header ${isJoin ? "is-join" : ""}`}>
       <div className="container site-nav">
-        <Link className="brand" href="/training" aria-label="VirtualAssistant.com.ph training home">
+        <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
           VirtualAssistant<span className="ph">.com.ph</span>
         </Link>
 

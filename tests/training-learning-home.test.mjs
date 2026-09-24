@@ -177,3 +177,17 @@ test("training home has a dedicated compact mobile layout for 375 and 390 pixel 
   assert.match(css, /\.training-certificate-actions/);
   assert.match(css, /\.training-filter-tabs/);
 });
+
+
+test("training home makes the last lesson and ready final check explicit", async () => {
+  const page = await readFile(pagePath, "utf8");
+
+  assert.match(page, /1 lesson left/);
+  assert.match(page, /One lesson left:/);
+  assert.match(page, /Lessons complete · final check ready/);
+  assert.match(page, /Your final check is ready now/);
+  assert.match(page, /Finish last lesson/);
+  assert.match(page, /Start final check/);
+  assert.match(page, /course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
+  assert.match(page, /resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
+});

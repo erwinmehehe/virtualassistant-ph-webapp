@@ -46,6 +46,8 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
 
   assert.match(component, /document\.visibilityState !== "visible"/);
   assert.match(component, /document\.hasFocus\(\)/);
+  assert.match(component, /lastInteractionAt/);
+  assert.match(component, /> 45_000/);
   assert.match(component, /20_000/);
   assert.match(component, /Check answer/);
   assert.match(component, /Finish the requirements above/);

@@ -8,9 +8,11 @@ import { createClient } from "@/lib/supabase/server";
 import { recordProductEvent } from "@/lib/product-events";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
 import {
+  assessmentQuestionSetKey,
   buildAssessmentQuestionsFromLessons,
   buildLessonCheckpoint,
   lessonActiveSecondsRequired,
+  summarizeAssessmentAnswerPattern,
 } from "@/lib/training-integrity";
 import { getAustraliaSpecialization, isAustraliaSpecializationSlug } from "@/lib/training-specializations";
 
@@ -456,6 +458,7 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
   const courseSlug = String(formData.get("course_slug") || "").trim();
   const assessmentId = String(formData.get("assessment_id") || "").trim();
   const requestedAttempt = Number(formData.get("attempt_number") || 0);
+  const submittedQuestionSetKey = String(formData.get("question_set_key") || "").trim();
   const { userId } = await requireAuthenticatedUserFast(
     courseSlug && assessmentId
       ? `/workspace/training/courses/${courseSlug}/assessments/${assessmentId}`
@@ -543,6 +546,11 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     throw new Error("This assessment is not ready for automatic scoring yet.");
   }
 
+  const expectedQuestionSetKey = assessmentQuestionSetKey(questions);
+  if (!submittedQuestionSetKey || submittedQuestionSetKey !== expectedQuestionSetKey) {
+    throw new Error("This assessment question set is stale or does not belong to this attempt. Refresh and try again.");
+  }
+
   const answers: Record<string, string> = {};
   const missedLessonIds: string[] = [];
   let correct = 0;
@@ -555,14 +563,20 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
 
   const score = Math.round((correct / questions.length) * 100);
   const passScore = Number(assessment.pass_score ?? 80);
-  const passed = score >= passScore;
+  const criticalMisses = questions.filter(
+    (question) => question.critical && answers[question.id] !== question.correctOptionId,
+  );
+  const pattern = summarizeAssessmentAnswerPattern(questions, answers);
+  const passed = score >= passScore && criticalMisses.length === 0;
   const missedLessonTitles = questions
     .filter((question) => missedLessonIds.includes(question.lessonId))
     .map((question) => question.lessonTitle)
     .filter((value, index, values) => values.indexOf(value) === index);
   const feedback = passed
     ? "Passed automatically. Your course completion and certificate are being issued now."
-    : `Not passed yet. Review these lessons before retrying: ${missedLessonTitles.join(", ")}. The answer key is not shown.`;
+    : criticalMisses.length
+      ? `Not passed yet. Review the authority and decision-boundary material in: ${missedLessonTitles.join(", ")}. A critical boundary question was missed. The answer key is not shown.`
+      : `Not passed yet. Review these lessons before retrying: ${missedLessonTitles.join(", ")}. The answer key is not shown.`;
 
   const { error: submissionError } = await admin
     .from("training_assessment_submissions")
@@ -574,7 +588,16 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
         attempt: nextAttempt,
         question_ids: questions.map((question) => question.id),
         question_keys: questions.map((question) => question.questionKey),
+        question_set_key: expectedQuestionSetKey,
+        question_kinds: questions.map((question) => question.kind),
         answers,
+        answer_positions: pattern.positions,
+        answer_position_histogram: pattern.histogram,
+        unique_answer_positions: pattern.uniquePositions,
+        longest_same_position_run: pattern.longestSamePositionRun,
+        answer_pattern_flagged: pattern.flagged,
+        critical_miss_count: criticalMisses.length,
+        critical_missed_question_keys: criticalMisses.map((question) => question.questionKey),
         missed_lesson_ids: missedLessonIds,
       },
       status: passed ? "reviewed" : "needs_revision",
@@ -603,6 +626,10 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
       question_count: questions.length,
       correct_count: correct,
       missed_lesson_count: missedLessonTitles.length,
+      critical_miss_count: criticalMisses.length,
+      answer_pattern_flagged: pattern.flagged,
+      unique_answer_positions: pattern.uniquePositions,
+      longest_same_position_run: pattern.longestSamePositionRun,
     },
   });
 

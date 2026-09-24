@@ -22,14 +22,16 @@ test("homepage featured talent is cookie-free and explicitly cached", async () =
 });
 
 test("public analytics ingestion is rate limited and retry-idempotent", async () => {
-  const [route, client, migration] = await Promise.all([
+  const [route, client, rateLimit, migration] = await Promise.all([
     read("src/app/api/analytics/route.ts"),
     read("src/components/analytics.tsx"),
+    read("src/lib/rate-limit.ts"),
     read("supabase/migrations/20260924213000_analytics_and_booking_capability_hardening.sql"),
   ]);
   assert.match(route, /enforceActionRateLimit\("public_analytics:session"/);
   assert.match(route, /enforceIpRateLimit\("public_analytics"/);
   assert.match(route, /status: 429/);
+  assert.match(rateLimit, /if \(ip === "unknown"\) return/);
   assert.match(route, /event_id: parsed\.data\.event_id/);
   assert.match(route, /error\.code !== "23505"/);
   assert.match(client, /crypto\.randomUUID/);

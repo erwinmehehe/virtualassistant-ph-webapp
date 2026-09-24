@@ -5,9 +5,9 @@ alter table public.lead_intake
   add column if not exists discovery_manage_token_id uuid,
   add column if not exists discovery_manage_token_expires_at timestamptz;
 
--- Existing high-entropy links remain usable for a limited migration window.
--- New/reissued links are reconstructable from token_id + expiry and signed
--- server-side, so the raw capability never needs to be stored.
+-- Existing high-entropy links remain usable during the zero-downtime rollout.
+-- The follow-up cleanup migration clears raw tokens only after the new runtime
+-- is deployed. New/reissued links are reconstructable from token_id + expiry.
 update public.lead_intake
 set discovery_manage_token_expires_at = coalesce(
   discovery_manage_token_expires_at,
@@ -15,12 +15,8 @@ set discovery_manage_token_expires_at = coalesce(
 )
 where discovery_manage_token_hash is not null;
 
-update public.lead_intake
-set discovery_manage_token = null
-where discovery_manage_token is not null;
-
 comment on column public.lead_intake.discovery_manage_token is
-  'Deprecated. Raw booking-management capabilities must not be stored.';
+  'Deprecated legacy field. New runtime code must keep this null; a post-deploy migration removes remaining values.';
 comment on column public.lead_intake.discovery_manage_token_hash is
   'SHA-256 hash of the current booking-management capability.';
 comment on column public.lead_intake.discovery_manage_token_id is

@@ -78,7 +78,7 @@ export default async function TrainingAssessmentPage({
         <div className="row wrap">
           <span className="badge"><FileCheck2 size={13}/> {assessment.assessment_type === "practical" ? "Work sample" : "Assessment"}</span>
           {assessment.pass_score !== null ? <span className="badge">Pass score {assessment.pass_score}%</span> : null}
-          <span className="badge"><Clock3 size={13}/> Manual review</span>
+          <span className="badge"><Clock3 size={13}/> Reviewed by a person</span>
           <span className={`badge ${lessonsComplete ? "badge-success" : ""}`}>
             {lessonsComplete ? "Lessons complete" : `${course.completedLessons}/${course.lessonCount} lessons complete`}
           </span>

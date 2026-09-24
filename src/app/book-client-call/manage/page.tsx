@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -8,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import "../booking.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Manage discovery call", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Manage discovery call", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
 export default async function ManageBookingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;

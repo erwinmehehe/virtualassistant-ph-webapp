@@ -130,6 +130,7 @@ const AUSTRALIA_SPECIALIZATIONS = [
     slug: "tradie-operations",
     title: "Tradie & home-service operations",
     bestFor: "Field-service businesses such as plumbing, electrical, HVAC, cleaning, pest control, and maintenance.",
+    startSignals: ["australian-trades-administration", "servicem8-for-virtual-assistants"],
     courses: [
       "virtual-assistant-foundations",
       "australian-va-fundamentals",
@@ -142,6 +143,7 @@ const AUSTRALIA_SPECIALIZATIONS = [
     slug: "property-management",
     title: "Property management administration",
     bestFor: "Property managers, real-estate teams, maintenance coordinators, and residential portfolio support.",
+    startSignals: ["property-management-administration-australia"],
     courses: [
       "virtual-assistant-foundations",
       "australian-va-fundamentals",
@@ -153,6 +155,7 @@ const AUSTRALIA_SPECIALIZATIONS = [
     slug: "ndis-allied-health",
     title: "NDIS & allied health administration",
     bestFor: "NDIS providers, allied-health clinics, therapy practices, and non-clinical healthcare administration.",
+    startSignals: ["ndis-administration-fundamentals", "australian-allied-health-administration"],
     courses: [
       "virtual-assistant-foundations",
       "australian-va-fundamentals",
@@ -165,6 +168,7 @@ const AUSTRALIA_SPECIALIZATIONS = [
     slug: "mortgage-broking",
     title: "Mortgage broking administration",
     bestFor: "Mortgage brokers and finance teams needing organised document, CRM, milestone, and client administration.",
+    startSignals: ["mortgage-broking-administration-australia"],
     courses: [
       "virtual-assistant-foundations",
       "australian-va-fundamentals",
@@ -476,7 +480,8 @@ export default async function TrainingDashboardPage({
               .map((slug) => courses.find((course) => course.slug === slug) || null)
               .filter((course): course is TrainingCourseSummary => Boolean(course));
             const uniqueCourses = published.filter((course) => !SHARED_AUSTRALIA_COURSES.has(course.slug));
-            const pathStarted = uniqueCourses.some((course) =>
+            const signalCourses = published.filter((course) => specialization.startSignals.includes(course.slug as never));
+            const pathStarted = signalCourses.some((course) =>
               course.enrolled || Boolean(course.completedAt) || course.completedLessons > 0
             );
             const completedCount = published.filter((course) => Boolean(course.completedAt)).length;

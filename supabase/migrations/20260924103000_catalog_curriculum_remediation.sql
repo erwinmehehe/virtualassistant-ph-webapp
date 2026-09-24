@@ -17,7 +17,17 @@ with module_outcomes as (
       to_jsonb(
         case
           when trim(l.summary) ~* '^learn[[:space:]]+' then
-            'Explain ' || regexp_replace(regexp_replace(trim(l.summary), '[.]
+            'Explain ' || regexp_replace(regexp_replace(trim(l.summary), '[.]$', ''), '^learn[[:space:]]+', '', 'i') || '.'
+          when trim(l.summary) ~* '^understand[[:space:]]+' then
+            'Explain ' || regexp_replace(regexp_replace(trim(l.summary), '[.]$', ''), '^understand[[:space:]]+', '', 'i') || '.'
+          else
+            upper(left(regexp_replace(trim(l.summary), '[.]$', ''), 1))
+            || substring(regexp_replace(trim(l.summary), '[.]$', '') from 2)
+            || '.'
+        end
+      )
+      order by l.position
+    ) as outcomes
   from public.training_modules m
   join public.training_lessons l
     on l.module_id = m.id

@@ -4,8 +4,11 @@ import { money, dateShort } from "@/lib/format";
 
 const statusLabel: Record<string, string> = {
   awaiting_payment: "Client has not paid yet",
+  checkout_pending: "Client checkout in progress",
   paid: "Client paid, payout in progress",
   disputed: "Under review, payout paused",
+  provider_disputed: "Payment provider review, payout paused",
+  refund_pending: "Refund review, payout paused",
   release_pending: "Payout in progress",
   released: "Paid out to you",
   failed: "Payment failed",
@@ -24,7 +27,7 @@ export default async function VaPaymentsPage() {
       {payouts?.length ? payouts.map((p: any) => <div className="card" key={p.id}>
         <div className="row-between wrap">
           <div>
-            <div className="row wrap"><span className={`badge ${p.status === "released" ? "badge-success" : p.status === "disputed" ? "badge-danger" : ""}`}>{statusLabel[p.status] || p.status}</span><span className="small muted">{dateShort(p.created_at)}</span></div>
+            <div className="row wrap"><span className={`badge ${p.status === "released" ? "badge-success" : p.status === "disputed" || p.status === "provider_disputed" || p.status === "refund_pending" ? "badge-danger" : ""}`}>{statusLabel[p.status] || p.status}</span><span className="small muted">{dateShort(p.created_at)}</span></div>
             <h3 style={{ margin: "8px 0 3px" }}>{p.description}</h3>
           </div>
           <strong>{money(p.payout_amount)}</strong>

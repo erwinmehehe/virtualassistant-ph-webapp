@@ -262,7 +262,7 @@ export default async function TrainingAssessmentPage({
                   Review first lesson
                 </Link>
               ) : null}
-              <Link className="btn btn-primary" href="#final-check-questions">Try again</Link>
+              <Link className="btn btn-primary" href="#final-check-questions">Start final check again</Link>
             </div>
           ) : null}
         </section>
@@ -275,7 +275,7 @@ export default async function TrainingAssessmentPage({
             The final check unlocks after all {course.lessonCount} lessons are complete.
             You have completed {course.completedLessons}.
           </p>
-          <Link className="btn" href={courseHref}>Back to lessons</Link>
+          <Link className="btn btn-primary" href={courseHref}>Continue lessons</Link>
         </section>
       ) : null}
 

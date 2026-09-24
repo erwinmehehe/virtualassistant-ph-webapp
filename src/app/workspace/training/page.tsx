@@ -219,10 +219,11 @@ function CourseCard({
 export default async function TrainingDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; browse?: string }>;
 }) {
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
+  const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, learnerProfile, learnerPreferences, error } = await getTrainingDashboard(userId);
 
@@ -237,9 +238,8 @@ export default async function TrainingDashboardPage({
     .filter((course) => Boolean(course.completedAt))
     .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime());
   const notStarted = courses.filter((course) => !course.enrolled && !course.completedAt);
-  const filteredNotStarted = notStarted
-    .filter((course) => course.country_focus !== "Australia")
-    .filter((course) => matchesFilter(course, filter));
+  const standaloneNotStarted = notStarted.filter((course) => course.country_focus !== "Australia");
+  const filteredNotStarted = standaloneNotStarted.filter((course) => matchesFilter(course, filter));
   const certificates = courses
     .filter((course) => course.certificate && !course.certificate.revoked_at)
     .sort(
@@ -249,6 +249,8 @@ export default async function TrainingDashboardPage({
     );
 
   const resumeCourse = active[0] || null;
+  const isNewLearner = active.length === 0 && completed.length === 0;
+  const foundationsCourse = courses.find((course) => course.slug === "virtual-assistant-foundations") || null;
   const specialty = learnerProfile?.primaryCategory || null;
   const recommendation: { title: string; slugs: string[] } = specialty
     ? SPECIALTY_PATHS[specialty] || DEFAULT_PATH
@@ -289,6 +291,21 @@ export default async function TrainingDashboardPage({
             {nextCourseLabel(resumeCourse)} <ArrowRight size={15} />
           </Link>
         </section>
+      ) : isNewLearner && foundationsCourse ? (
+        <section className="training-resume-card training-start-card" aria-labelledby="start-learning-title">
+          <div className="training-resume-icon"><GraduationCap size={20} /></div>
+          <div className="training-resume-copy">
+            <span className="small">Start here</span>
+            <h2 id="start-learning-title">Virtual Assistant Foundations</h2>
+            <p>Build the client communication, workflow, boundaries, handoff, and QA habits that every specialisation uses.</p>
+          </div>
+          <form action={startTrainingCourseAction}>
+            <input type="hidden" name="course_id" value={foundationsCourse.id} />
+            <button className="btn btn-primary training-resume-action" type="submit" data-track="training_foundations_start">
+              Start VA Foundations <ArrowRight size={15} />
+            </button>
+          </form>
+        </section>
       ) : nextRecommended ? (
         <section className="training-resume-card" aria-labelledby="continue-learning-title">
           <div className="training-resume-icon"><Compass size={20} /></div>
@@ -315,7 +332,9 @@ export default async function TrainingDashboardPage({
       <DashHeader
         kicker="Free learning for Filipino VAs"
         title="My learning"
-        subtitle={<>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
+        subtitle={isNewLearner
+          ? <>Start with the foundations, then choose a role or Australian client specialisation when you are ready. Training is free and separate from hiring.</>
+          : <>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
       />
 
       {error ? (
@@ -325,13 +344,15 @@ export default async function TrainingDashboardPage({
         </section>
       ) : null}
 
-      <div className="training-home-stats" aria-label="Learning summary">
-        <span><strong>{active.length}</strong> active</span>
-        <span><strong>{completed.length}</strong> completed</span>
-        <span><strong>{certificates.length}</strong> certificates</span>
-      </div>
+      {!isNewLearner ? (
+        <div className="training-home-stats" aria-label="Learning summary">
+          <span><strong>{active.length}</strong> active</span>
+          <span><strong>{completed.length}</strong> completed</span>
+          <span><strong>{certificates.length}</strong> certificates</span>
+        </div>
+      ) : null}
 
-      {recommendedCourses.length ? (
+      {recommendedCourses.length && !isNewLearner ? (
         <section className="card dashboard-section-card training-path-card">
           <div className="training-section-heading">
             <div>
@@ -372,7 +393,7 @@ export default async function TrainingDashboardPage({
           {nextRecommended ? (
             <div className="training-path-next">
               <div>
-                <span className="small">Automatically selected next</span>
+                <span className="small">Next in your path</span>
                 <strong>{nextRecommended.title}</strong>
               </div>
               {nextRecommended.enrolled ? (
@@ -537,35 +558,65 @@ export default async function TrainingDashboardPage({
       <section className="training-home-section" aria-labelledby="course-library-title">
         <div className="training-section-heading training-library-heading">
           <div>
-            <span className="small">Not started</span>
+            <span className="small">Course library</span>
             <h2 id="course-library-title">Explore courses</h2>
             <p>Browse standalone role, software, and industry courses. Australian courses stay in the specialisation paths above so they are not duplicated here.</p>
           </div>
+          {libraryOpen ? (
+            <Link className="btn btn-sm training-library-toggle" href="/workspace/training#course-library-title">
+              Hide library
+            </Link>
+          ) : null}
         </div>
 
-        <nav className="training-filter-tabs" aria-label="Course filters">
-          {FILTERS.map(([key, label]) => (
-            <Link
-              className={filter === key ? "is-active" : ""}
-              href={key === "all" ? "/workspace/training#course-library-title" : `/workspace/training?filter=${key}#course-library-title`}
-              key={key}
-              aria-current={filter === key ? "page" : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        {libraryOpen ? (
+          <>
+            <nav className="training-filter-tabs" aria-label="Course filters">
+              {FILTERS.map(([key, label]) => (
+                <Link
+                  className={filter === key ? "is-active" : ""}
+                  href={key === "all"
+                    ? "/workspace/training?browse=1#course-library-title"
+                    : `/workspace/training?browse=1&filter=${key}#course-library-title`}
+                  key={key}
+                  aria-current={filter === key ? "page" : undefined}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
 
-        {filteredNotStarted.length ? (
-          <div className="training-course-grid">
-            {filteredNotStarted.map((course) => <CourseCard course={course} mode="not-started" key={course.id} />)}
+            {filteredNotStarted.length ? (
+              <div className="training-course-grid">
+                {filteredNotStarted.map((course) => <CourseCard course={course} mode="not-started" key={course.id} />)}
+              </div>
+            ) : (
+              <div className="dashboard-caught-up">
+                <GraduationCap size={22} />
+                <div>
+                  <strong>No not-started courses in this filter.</strong>
+                  <p>Try another filter or continue one of your active courses.</p>
+                </div>
+              </div>
+            )}
+          </>
+        ) : standaloneNotStarted.length ? (
+          <div className="training-library-collapsed">
+            <div className="training-library-collapsed-icon"><BookOpenCheck size={19} /></div>
+            <div>
+              <strong>{standaloneNotStarted.length} standalone courses available</strong>
+              <p>Open the library when you want to explore beyond your current path.</p>
+            </div>
+            <Link className="btn btn-sm training-library-toggle" href="/workspace/training?browse=1#course-library-title">
+              Browse courses <ArrowRight size={14} />
+            </Link>
           </div>
         ) : (
           <div className="dashboard-caught-up">
-            <GraduationCap size={22} />
+            <CheckCircle2 size={22} />
             <div>
-              <strong>No not-started courses in this filter.</strong>
-              <p>Try another filter or continue one of your active courses.</p>
+              <strong>You have started every standalone course.</strong>
+              <p>Continue an active course or review something you already completed.</p>
             </div>
           </div>
         )}

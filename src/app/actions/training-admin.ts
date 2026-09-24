@@ -934,6 +934,12 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
 
   if (!assessment) throw new Error("Assessment does not belong to this course.");
 
+  const { data: reviewedCourse } = await admin
+    .from("training_courses")
+    .select("id,slug")
+    .eq("id", courseId)
+    .maybeSingle();
+
   const rubric = Array.isArray(assessment.rubric)
     ? assessment.rubric as Array<{ id: string; label: string; weight: number; hard_fail?: boolean }>
     : [];
@@ -973,15 +979,55 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
 
   if (error) throw error;
 
+  await admin.from("analytics_events").insert({
+    event_name: "training_assessment_reviewed",
+    path: reviewedCourse?.slug
+      ? `/workspace/training/courses/${reviewedCourse.slug}/assessments/${assessment.id}`
+      : "/workspace/training",
+    session_id: null,
+    user_id: submission.user_id,
+    metadata: {
+      course_id: courseId,
+      course_slug: reviewedCourse?.slug || null,
+      assessment_id: assessment.id,
+      outcome: decision,
+      score,
+    },
+  });
+
   const completion = await finalizeTrainingCourseIfEligible(submission.user_id, courseId);
+  const completionEvents = [];
   if (completion.newlyCompleted) {
-    await admin.from("analytics_events").insert({
+    completionEvents.push({
       event_name: "training_course_complete",
-      path: "/workspace/training",
+      path: reviewedCourse?.slug
+        ? `/workspace/training/courses/${reviewedCourse.slug}`
+        : "/workspace/training",
       session_id: null,
       user_id: submission.user_id,
-      metadata: { course_id: courseId, completion_source: "assessment_review" },
+      metadata: {
+        course_id: courseId,
+        course_slug: reviewedCourse?.slug || null,
+        completion_source: "assessment_review",
+      },
     });
+  }
+  if (completion.certificateIssued) {
+    completionEvents.push({
+      event_name: "training_certificate_issued",
+      path: reviewedCourse?.slug
+        ? `/workspace/training/courses/${reviewedCourse.slug}`
+        : "/workspace/training",
+      session_id: null,
+      user_id: submission.user_id,
+      metadata: {
+        course_id: courseId,
+        course_slug: reviewedCourse?.slug || null,
+      },
+    });
+  }
+  if (completionEvents.length) {
+    await admin.from("analytics_events").insert(completionEvents);
   }
 
   revalidatePath(adminTrainingPath(courseId));

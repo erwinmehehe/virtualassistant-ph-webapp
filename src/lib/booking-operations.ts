@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 function bookingManageSecret() {
   const secret = process.env.BOOKING_MANAGE_SECRET?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();

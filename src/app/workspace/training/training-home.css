@@ -1449,3 +1449,147 @@
     width: 100%;
   }
 }
+
+
+/* Practical lesson work */
+.training-exercise-block,
+.training-template-block,
+.training-checklist-block {
+  margin: 24px 0;
+  padding: 17px 18px;
+  border-radius: 16px;
+}
+
+.training-exercise-block {
+  border: 1px solid #c7d2fe;
+  background: linear-gradient(145deg, #fafaff, #f7f8ff);
+}
+
+.training-template-block {
+  border: 1px solid #d8dee9;
+  background: #f8fafc;
+}
+
+.training-checklist-block {
+  border: 1px solid #bae6d3;
+  background: #f8fffb;
+}
+
+.training-practice-block-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.training-practice-block-head .dash-kicker {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.training-practice-block-head h3,
+.training-exercise-block h3 {
+  margin: 3px 0 0;
+  font-size: 17px;
+  letter-spacing: -0.015em;
+}
+
+.training-exercise-block > p {
+  margin: 0;
+}
+
+.training-exercise-deliverable {
+  margin-top: 14px;
+  padding: 12px 13px;
+  border: 1px solid #d9ddff;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.training-exercise-deliverable strong {
+  display: block;
+  color: var(--training-indigo);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.training-exercise-deliverable p {
+  margin: 4px 0 0;
+  color: #344054;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.training-template-block pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #344054;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.training-checklist-items {
+  display: grid;
+  gap: 7px;
+}
+
+.training-checklist-items label {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 8px 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #344054;
+  cursor: pointer;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.training-checklist-items input {
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  accent-color: var(--training-green);
+}
+
+.training-checklist-items label.is-checked span {
+  color: #667085;
+  text-decoration: line-through;
+}
+
+@media (max-width: 430px) {
+  .training-exercise-block,
+  .training-template-block,
+  .training-checklist-block {
+    margin: 18px 0;
+    padding: 13px;
+  }
+
+  .training-practice-block-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .training-practice-block-head .btn {
+    width: 100%;
+  }
+
+  .training-template-block pre {
+    padding: 11px;
+    font-size: 11px;
+  }
+}

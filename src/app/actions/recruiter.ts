@@ -25,13 +25,20 @@ function isRequestId(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
-function dailyEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
-  const day = new Date().toISOString().slice(0, 10);
-  const digest = createHash("sha256")
+function emailIdempotencyDigest(parts: Array<string | null | undefined>) {
+  return createHash("sha256")
     .update(parts.map((part) => String(part || "").trim()).join("\u001f"))
     .digest("hex")
     .slice(0, 24);
-  return `${prefix}-${day}-${digest}`;
+}
+
+function dailyEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
+  const day = new Date().toISOString().slice(0, 10);
+  return `${prefix}-${day}-${emailIdempotencyDigest(parts)}`;
+}
+
+function stableEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
+  return `${prefix}-${emailIdempotencyDigest(parts)}`;
 }
 
 async function claimRecruiterAction(
@@ -672,7 +679,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
       durationMinutes: duration,
       meetingUrl: generatedMeetingUrl,
       recruiterName: profile.full_name,
-      idempotencyKey: `discovery-booking-${leadId}-${scheduledIso}`,
+      idempotencyKey: stableEmailIdempotencyKey("discovery-booking", [leadId, scheduledIso]),
     });
   } catch (emailError) {
     console.error("[discovery-booking] Confirmation email failed after booking was saved", {

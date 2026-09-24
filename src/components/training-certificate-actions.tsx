@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Share2 } from "lucide-react";
+import { Check, Share2 } from "lucide-react";
 import { useState } from "react";
 
 export function TrainingCertificateActions({
@@ -35,7 +35,7 @@ export function TrainingCertificateActions({
 
   return (
     <button className="btn btn-sm training-certificate-share" type="button" onClick={copyOrShare}>
-      {copied ? <Check size={14} /> : navigator.share ? <Share2 size={14} /> : <Copy size={14} />}
+      {copied ? <Check size={14} /> : <Share2 size={14} />}
       {copied ? "Copied" : "Copy / share link"}
     </button>
   );

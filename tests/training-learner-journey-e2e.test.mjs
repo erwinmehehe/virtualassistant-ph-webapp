@@ -30,7 +30,7 @@ test("training learner journey remains connected from signup through verified hi
     source("src/app/workspace/client/candidates/[id]/page.tsx"),
     source("src/app/workspace/client/candidates/page.tsx"),
     source("src/lib/client-hiring-room.ts"),
-    source("supabase/migrations/20260924164500_client_hiring_room_summary.sql"),
+    source("supabase/migrations/20260924172000_client_hiring_room_summary.sql"),
     source("src/app/api/analytics/route.ts"),
     source("src/app/workspace/admin/analytics/page.tsx"),
   ]);

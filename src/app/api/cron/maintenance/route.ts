@@ -331,11 +331,11 @@ async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClien
 
   const lessonsByCourse = new Map<string, any[]>();
   for (const lesson of lessons) {
-    const module = moduleMap.get(lesson.module_id) as any;
-    if (!module?.course_id) continue;
-    const list = lessonsByCourse.get(module.course_id) || [];
+    const moduleRow = moduleMap.get(lesson.module_id) as any;
+    if (!moduleRow?.course_id) continue;
+    const list = lessonsByCourse.get(moduleRow.course_id) || [];
     list.push(lesson);
-    lessonsByCourse.set(module.course_id, list);
+    lessonsByCourse.set(moduleRow.course_id, list);
   }
   const assessmentsByCourse = new Map<string, any[]>();
   for (const assessment of assessmentData || []) {

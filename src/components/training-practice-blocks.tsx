@@ -22,7 +22,7 @@ export function TrainingTemplateBlock({
     <section className="training-template-block">
       <div className="training-practice-block-head">
         <div>
-          <span className="dash-kicker">Reusable template</span>
+          <span className="dash-kicker">Use this template</span>
           {title ? <h3>{title}</h3> : null}
         </div>
         <button className="btn btn-sm" type="button" onClick={copyTemplate}>
@@ -60,7 +60,7 @@ export function TrainingChecklistBlock({
     <section className="training-checklist-block">
       <div className="training-practice-block-head">
         <div>
-          <span className="dash-kicker">QA checklist</span>
+          <span className="dash-kicker">Check your work</span>
           {title ? <h3>{title}</h3> : null}
         </div>
         {checked.length ? (

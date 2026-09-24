@@ -1,5 +1,8 @@
 const DEFAULT_BLOCKED_CONTACT_DOMAINS = [
   "blastleadgeneration.com",
+  "freeb2bdata.org",
+  "instagrow.business",
+  "unsub.agency",
 ] as const;
 
 const OWN_DOMAINS = new Set([

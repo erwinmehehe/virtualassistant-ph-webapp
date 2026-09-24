@@ -2,9 +2,16 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("contact spam filter blocks blastleadgeneration.com and subdomains", async () => {
+test("contact spam filter blocks known spam domains and subdomains", async () => {
   const source = await readFile("src/lib/contact-spam.ts", "utf8");
-  assert.match(source, /blastleadgeneration\.com/);
+  for (const domain of [
+    "blastleadgeneration.com",
+    "freeb2bdata.org",
+    "instagrow.business",
+    "unsub.agency",
+  ]) {
+    assert.ok(source.includes(domain), "Missing blocked domain: " + domain);
+  }
   assert.match(source, /normalized === domain \|\| normalized\.endsWith\(.*domain/);
   assert.match(source, /CONTACT_BLOCKED_DOMAINS/);
 });

@@ -217,7 +217,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   const message = String(formData.get("message") || "").trim();
   const archiveCopy = formData.get("archive_copy") === "1";
   if ((!leadId && !jobId) || subject.length < 3 || subject.length > 180 || message.length < 10 || message.length > 5000) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}`);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
   }
 
   const admin = createAdminClient();
@@ -266,7 +266,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   }
 
   if (!recipient) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("No client email is attached to this lead or role.")}`);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("No client email is attached to this lead or role.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
   }
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
@@ -280,7 +280,7 @@ export async function sendClientFollowupAction(formData: FormData) {
     archiveCopy
   });
   if (!result.sent) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check the email configuration and recipient address.")}`);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check Email Health and the recipient address, then try again.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
   }
 
   const now = new Date();
@@ -318,7 +318,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   });
   revalidatePath("/workspace/recruiter");
   revalidatePath(returnTo);
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1&action_lead=${encodeURIComponent(activityId)}`);
 }
 
 export async function addRecruiterNoteAction(formData: FormData) {
@@ -801,7 +801,7 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
-  const fail = (message: string) => redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent(message)}`);
+  const fail = (message: string) => redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent(message)}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
   if (!leadId) return fail("Lead not found.");
 
   const admin = createAdminClient();
@@ -810,11 +810,15 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
     .from("outbound_email_events")
     .select("id,created_at,status")
     .eq("idempotency_key", idempotencyKey)
-    .eq("status", "sent")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (existingSend?.id) redirect(`${returnTo}${joiner}rebook_email_already_sent=1`);
+  if (existingSend?.id && ["sending", "sent", "delivered"].includes(String(existingSend.status || ""))) {
+    redirect(`${returnTo}${joiner}rebook_email_already_sent=1&action_lead=${encodeURIComponent(leadId)}`);
+  }
+  if (existingSend?.id && ["bounced", "complained", "suppressed"].includes(String(existingSend.status || ""))) {
+    return fail("A rebooking email was already attempted but delivery failed. Check Email Health before contacting this client again.");
+  }
 
   const { data: lead, error: leadError } = await admin
     .from("lead_intake")
@@ -870,7 +874,7 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${joiner}rebook_email_sent=1`);
+  redirect(`${returnTo}${joiner}rebook_email_sent=1&action_lead=${encodeURIComponent(leadId)}`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {

@@ -532,6 +532,68 @@
   box-shadow: none;
 }
 
+.crmPage :global(.crm-inline-reply) {
+  display: grid;
+  gap: 8px;
+  width: min(760px, 100%);
+}
+
+.crmPage :global(.crm-inline-reply-head) {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 11px;
+  border: 1px solid #c7d7fe;
+  border-radius: 11px;
+  background: #f8f9ff;
+}
+
+.crmPage :global(.crm-inline-reply-head > span) {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.crmPage :global(.crm-inline-reply-head strong) {
+  color: var(--crm-ink);
+  font-size: 12.5px;
+}
+
+.crmPage :global(.crm-inline-reply-head small) {
+  color: var(--crm-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.crmPage :global(.crm-inline-action-state) {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.crmPage :global(.crm-inline-action-state.is-success) {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #05603a;
+}
+
+.crmPage :global(.crm-inline-action-state.is-error) {
+  border-color: #fecdca;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.crmPage :global(.crm-rebook-send-form),
+.crmPage :global(.crm-contact-bar .staff-followup-details),
+.crmPage :global(.staff-followup-form) {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
 .crmPage :global(.crm-contact-bar input[name="note"]) {
   min-width: 220px;
 }

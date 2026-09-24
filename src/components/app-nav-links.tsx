@@ -135,6 +135,22 @@ function Badge({ count }: { count: number }) {
   return <span className="nav-badge" aria-label={`${count} unread`}>{count > 99 ? "99+" : count}</span>;
 }
 
+function navToneFor(href: string) {
+  if (href.includes("/training")) return "violet";
+  if (href.includes("/payments") || href.includes("/finance")) return "emerald";
+  if (href.includes("/profile") || href.includes("/account") || href.includes("/users")) return "violet";
+  if (href.includes("/jobs") || href.includes("/talent")) return "cyan";
+  if (href.includes("/interviews")) return "blue";
+  if (href.includes("/workroom") || href.includes("/client-success")) return "amber";
+  if (href.includes("/work-readiness") || href.includes("/coverage")) return "teal";
+  if (href.includes("/support")) return "rose";
+  if (href.includes("/notifications")) return "orange";
+  if (href.includes("/settings") || href.includes("/audit")) return "slate";
+  if (href.includes("/analytics") || href.includes("/funnel")) return "indigo";
+  if (href.includes("/leads") || href.includes("/roles") || href.includes("/sales")) return "blue";
+  return "indigo";
+}
+
 export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record<string, number> }) {
   const pathname = usePathname();
   const groups = nav[role];
@@ -156,11 +172,11 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
         prefetch={false}
         href={href}
         key={href}
-        className={active ? "active" : undefined}
+        className={`${active ? "active " : ""}nav-tone-${navToneFor(href)}`}
         aria-current={active ? "page" : undefined}
         onClick={mobile ? (event) => event.currentTarget.closest("details")?.removeAttribute("open") : undefined}
       >
-        <Icon size={mobile ? 18 : 17} />
+        <span className="app-nav-icon" aria-hidden="true"><Icon size={mobile ? 18 : 17} /></span>
         <span>{label}</span>
         <Badge count={badges[href] || 0} />
       </Link>

@@ -92,17 +92,30 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             </div>
           </div>
           <div className="dash-actions training-module-lessons">
-            {module.lessons.map((lesson) => (
-              <Link className="dash-action training-lesson-row" href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`} key={lesson.id} data-track="training_lesson_open">
-                <span className="dash-action-count training-lesson-index">{lesson.completed ? <CheckCircle2 size={18}/> : lesson.position}</span>
-                <span className="dash-action-copy training-lesson-copy">
-                  <span className="dash-action-title"><strong>{lesson.title}</strong></span>
-                  <small>{lesson.summary || "Detailed lesson with examples and practical application."}</small>
-                  <small className="muted">{lesson.estimated_minutes} min</small>
-                </span>
-                <ArrowRight className="training-lesson-arrow" size={16}/>
-              </Link>
-            ))}
+            {module.lessons.map((lesson) => {
+              const isNextLesson = nextLesson?.id === lesson.id;
+              return (
+                <Link
+                  className={[
+                    "dash-action",
+                    "training-lesson-row",
+                    lesson.completed ? "is-complete" : "",
+                    isNextLesson ? "is-next" : "",
+                  ].filter(Boolean).join(" ")}
+                  href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`}
+                  key={lesson.id}
+                  data-track="training_lesson_open"
+                >
+                  <span className="dash-action-count training-lesson-index">{lesson.completed ? <CheckCircle2 size={18}/> : lesson.position}</span>
+                  <span className="dash-action-copy training-lesson-copy">
+                    <span className="dash-action-title"><strong>{lesson.title}</strong></span>
+                    <span className="training-lesson-summary">{lesson.summary || "Detailed lesson with examples and practical application."}</span>
+                    <span className="training-lesson-meta"><Clock3 size={12}/>{lesson.estimated_minutes} min{isNextLesson ? " · Next lesson" : lesson.completed ? " · Completed" : ""}</span>
+                  </span>
+                  <ArrowRight className="training-lesson-arrow" size={16}/>
+                </Link>
+              );
+            })}
           </div>
         </section>
       ))}

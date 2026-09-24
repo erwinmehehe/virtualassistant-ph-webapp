@@ -25,6 +25,7 @@ alter table public.payments
   add column if not exists checkout_claim_token uuid,
   add column if not exists checkout_claimed_at timestamptz,
   add column if not exists checkout_idempotency_key text,
+  add column if not exists checkout_generation integer not null default 0,
   add column if not exists provider_checkout_url text,
   add column if not exists provider_refund_id text,
   add column if not exists provider_refund_status text,
@@ -325,7 +326,10 @@ begin
     raise exception 'payment_not_awaiting_checkout:%', v_payment.status;
   end if;
 
-  v_key := coalesce(v_payment.checkout_idempotency_key, 'payment-checkout-' || v_payment.id::text);
+  v_key := coalesce(
+    v_payment.checkout_idempotency_key,
+    'payment-checkout-' || v_payment.id::text || '-g' || (coalesce(v_payment.checkout_generation, 0) + 1)::text
+  );
 
   if v_payment.status = 'awaiting_payment' then
     perform set_config('app.payment_state_transition', 'allowed', true);
@@ -334,6 +338,10 @@ begin
         checkout_claim_token = p_claim_token,
         checkout_claimed_at = now(),
         checkout_idempotency_key = v_key,
+        checkout_generation = case
+          when checkout_idempotency_key is null then coalesce(checkout_generation, 0) + 1
+          else checkout_generation
+        end,
         provider = 'paymongo'
     where id = v_payment.id
     returning * into v_payment;
@@ -478,6 +486,61 @@ $$;
 revoke all on function public.release_payment_checkout_claim(uuid,uuid,text)
   from public, anon, authenticated;
 grant execute on function public.release_payment_checkout_claim(uuid,uuid,text)
+  to service_role;
+
+create or replace function public.expire_payment_checkout(
+  p_payment_id uuid,
+  p_session_id text,
+  p_source text default 'paymongo_reconciliation'
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = pg_catalog
+as $$
+declare
+  v_payment public.payments%rowtype;
+begin
+  select * into v_payment
+  from public.payments
+  where id = p_payment_id
+  for update;
+
+  if not found then return false; end if;
+  if v_payment.status <> 'checkout_pending' then return false; end if;
+  if v_payment.provider_session_id is distinct from p_session_id then return false; end if;
+  if v_payment.provider_payment_id is not null then return false; end if;
+
+  perform set_config('app.payment_state_transition', 'allowed', true);
+  update public.payments
+  set status = 'awaiting_payment',
+      checkout_claim_token = null,
+      checkout_claimed_at = null,
+      checkout_idempotency_key = null,
+      provider_session_id = null,
+      provider_checkout_url = null,
+      provider_payment_intent = null,
+      charged_amount_php = null,
+      fx_rate_usd_php = null
+  where id = p_payment_id;
+
+  perform set_config('app.payment_state_transition', '', true);
+
+  insert into public.payment_state_events(
+    payment_id, from_status, to_status, actor_id, source, external_reference, context
+  ) values (
+    p_payment_id, 'checkout_pending', 'awaiting_payment', null,
+    p_source, p_session_id,
+    jsonb_build_object('reason', 'provider_checkout_expired')
+  );
+
+  return true;
+end;
+$$;
+
+revoke all on function public.expire_payment_checkout(uuid,text,text)
+  from public, anon, authenticated;
+grant execute on function public.expire_payment_checkout(uuid,text,text)
   to service_role;
 
 create or replace function public.claim_payment_provider_event(

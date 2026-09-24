@@ -7,6 +7,7 @@ const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8"
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientJob = fs.readFileSync("src/app/workspace/client/jobs/[id]/page.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924164500_client_hiring_room_summary.sql", "utf8");
 const clientCandidate = fs.readFileSync("src/app/workspace/client/candidates/[id]/page.tsx", "utf8");
 const compare = fs.readFileSync("src/app/workspace/client/compare/page.tsx", "utf8");
 const applicationActions = fs.readFileSync("src/app/actions/applications.ts", "utf8");
@@ -25,7 +26,8 @@ test("client shortlist surfaces require active candidate access before loading i
   assert.match(clientJob, /job_candidate_access/);
   assert.match(clientJob, /candidateAccessLabel/);
   assert.match(clientJob, /You do not need to manage raw applicants/);
-  assert.match(clientCandidates, /job_candidate_access/);
+  assert.match(clientHiringRoomMigration, /job_candidate_access/);
+  assert.match(clientHiringRoomMigration, /a\.access_status in \('paid','comped'\)/);
   assert.match(clientCandidates, /selectedAccessUnlocked/);
   assert.match(clientCandidate, /job_candidate_access/);
   assert.match(clientCandidate, /candidateAccessUnlocked/);

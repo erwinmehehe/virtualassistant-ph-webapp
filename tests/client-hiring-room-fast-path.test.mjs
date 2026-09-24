@@ -25,7 +25,7 @@ test("client Hiring Room uses the consolidated summary fast path", async () => {
 });
 
 test("Hiring Room summary keeps candidate identity behind published role and paid or comped access", async () => {
-  const sql = await read("supabase/migrations/20260924162500_client_hiring_room_summary.sql");
+  const sql = await read("supabase/migrations/20260924164500_client_hiring_room_summary.sql");
 
   assert.match(sql, /from jobs\s+where client_id=p_client_id/);
   assert.match(sql, /where j\.status='published'/);
@@ -39,7 +39,7 @@ test("Hiring Room summary keeps candidate identity behind published role and pai
 });
 
 test("shortlist view logging is ownership checked and rate limited in one database call", async () => {
-  const sql = await read("supabase/migrations/20260924162500_client_hiring_room_summary.sql");
+  const sql = await read("supabase/migrations/20260924164500_client_hiring_room_summary.sql");
 
   assert.match(sql, /client_id=p_client_id/);
   assert.match(sql, /status='published'/);

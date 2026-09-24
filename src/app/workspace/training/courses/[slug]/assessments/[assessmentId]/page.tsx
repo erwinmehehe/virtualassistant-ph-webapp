@@ -63,7 +63,7 @@ export default async function TrainingAssessmentPage({
         </div>
         <div className={`training-assessment-step ${passed ? "is-complete" : lessonsComplete ? "is-current" : ""}`}>
           <span>{passed ? <CheckCircle2 size={14}/> : <FileCheck2 size={14}/>}</span>
-          <div><strong>Assessment</strong><small>{passed ? "Passed" : waitingForReview ? "In review" : latest?.status === "needs_revision" ? "Revision needed" : "Current step"}</small></div>
+          <div><strong>Assessment</strong><small>{passed ? "Passed" : waitingForReview ? "In review" : latest?.status === "needs_revision" ? "Revision needed" : "Ready to start"}</small></div>
         </div>
         <div className={`training-assessment-step ${course.completedAt ? "is-complete" : ""}`}>
           <span>{course.completedAt ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
@@ -72,13 +72,13 @@ export default async function TrainingAssessmentPage({
       </section>
 
       <section className="card dashboard-section-card training-assessment-hero">
-        <div className="dash-kicker">Final assessment</div>
+        <div className="dash-kicker">Assessment</div>
         <h1>{assessment.title}</h1>
         <p>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Knowledge check"}</p>
         <div className="row wrap">
           <span className="badge"><FileCheck2 size={13}/> {assessment.assessment_type === "practical" ? "Work sample" : "Assessment"}</span>
           {assessment.pass_score !== null ? <span className="badge">Pass score {assessment.pass_score}%</span> : null}
-          <span className="badge"><Clock3 size={13}/> Human review</span>
+          <span className="badge"><Clock3 size={13}/> Manual review</span>
           <span className={`badge ${lessonsComplete ? "badge-success" : ""}`}>
             {lessonsComplete ? "Lessons complete" : `${course.completedLessons}/${course.lessonCount} lessons complete`}
           </span>
@@ -93,8 +93,8 @@ export default async function TrainingAssessmentPage({
         <section className="card dashboard-section-card">
           <div className="dashboard-section-head">
             <div>
-              <h2>Fictional client source pack</h2>
-              <p>Use these materials as evidence. Do not invent missing facts. Flag gaps and assumptions in your submission.</p>
+              <h2>Practice client materials</h2>
+              <p>Use these materials for the task. If something is missing, note the gap or assumption instead of inventing details.</p>
             </div>
             <span className="badge">{assessment.resource_pack.length} resources</span>
           </div>
@@ -129,7 +129,7 @@ export default async function TrainingAssessmentPage({
                 </span>
                 <span>
                   <span className="badge">{criterion.weight}%</span>
-                  {criterion.hard_fail ? <small className="muted">Critical boundary</small> : null}
+                  {criterion.hard_fail ? <small className="muted">Must meet</small> : null}
                 </span>
               </div>
             ))}
@@ -207,7 +207,7 @@ export default async function TrainingAssessmentPage({
             </label>
             <div>
               <button className="btn btn-primary" type="submit" data-track="training_assessment_submit_click">
-                <CheckCircle2 size={15}/> Submit for review
+                <CheckCircle2 size={15}/> Submit assessment
               </button>
             </div>
           </form>
@@ -243,14 +243,16 @@ export default async function TrainingAssessmentPage({
                   <code>{course.certificate.credential_code}</code>
                 </div>
                 <div className="training-certificate-actions">
-                  <Link className="btn btn-sm" href={credentialHref || "/workspace/training"}>Verify credential</Link>
                   {credentialHref ? <TrainingCertificateActions href={credentialHref} courseTitle={course.title}/> : null}
                 </div>
               </div>
             ) : (
               <p className="small muted">Your completion is saved. The certificate will appear in My learning when issued.</p>
             )}
-            <Link className="btn btn-primary" href="/workspace/training">Continue to My learning</Link>
+            <div className="row wrap training-completion-actions">
+              {credentialHref ? <Link className="btn btn-primary" href={credentialHref}>View certificate</Link> : null}
+              <Link className={credentialHref ? "btn" : "btn btn-primary"} href="/workspace/training">My learning</Link>
+            </div>
           </div>
         </section>
       ) : null}
@@ -259,7 +261,7 @@ export default async function TrainingAssessmentPage({
         <section className="card dashboard-section-card">
           <h2>Assessment passed</h2>
           <p className="muted">This assessment is complete. If the course has another published assessment, continue from the course overview.</p>
-          <Link className="btn btn-primary" href={courseHref}>Continue course</Link>
+          <Link className="btn btn-primary" href={courseHref}>Course overview</Link>
         </section>
       ) : null}
     </div>

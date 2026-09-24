@@ -48,7 +48,7 @@ export function TrainingLessonIntegrityGate({
   const [selectedOption, setSelectedOption] = useState("");
   const [checkpointPassed, setCheckpointPassed] = useState(checkpointAlreadyPassed || !checkpoint);
   const [checkpointMessage, setCheckpointMessage] = useState(
-    checkpointAlreadyPassed ? "Checkpoint passed." : "",
+    checkpointAlreadyPassed ? "Quick check complete." : "",
   );
   const [exerciseResponse, setExerciseResponse] = useState(initialExerciseResponse || "");
   const [isChecking, startChecking] = useTransition();
@@ -120,44 +120,54 @@ export function TrainingLessonIntegrityGate({
 
   const readiness = useMemo(() => [
     {
-      label: "Active reading",
+      label: "Spend a little time with the lesson",
+      action: "spend a little more active time here",
       ready: timeReady,
-      detail: `${timeLabel(Math.min(activeSeconds, requiredActiveSeconds))} / ${timeLabel(requiredActiveSeconds)}`,
+      detail: timeReady
+        ? "Enough active time recorded"
+        : `${timeLabel(Math.min(activeSeconds, requiredActiveSeconds))} of about ${timeLabel(requiredActiveSeconds)} active time`,
       icon: Clock3,
     },
     {
-      label: "Lesson content",
+      label: "Reach the lesson end",
+      action: "reach the lesson end",
       ready: readingReady,
-      detail: readingReady ? "Reached the lesson end" : `${Math.min(maxScrollPercent, 100)}% viewed`,
+      detail: readingReady ? "Lesson content reached" : `${Math.min(maxScrollPercent, 100)}% viewed`,
       icon: Gauge,
     },
     {
-      label: "Knowledge checkpoint",
+      label: "Answer the quick check",
+      action: "answer the quick check",
       ready: checkpointPassed,
-      detail: checkpointPassed ? "Passed" : "Answer one lesson check",
+      detail: checkpointPassed ? "Complete" : "One short question",
       icon: ShieldCheck,
     },
     {
-      label: "Practical response",
+      label: "Add your practical note",
+      action: "add your practical note",
       ready: exerciseReady,
       detail: requiresExercise
         ? exerciseReady
-          ? "Response added"
-          : `${exerciseResponse.trim().length}/80 characters`
-        : "Not required",
+          ? "Practical note added"
+          : "A few useful sentences are enough"
+        : "Not needed for this lesson",
       icon: FileCheck2,
     },
   ], [
     activeSeconds,
     checkpointPassed,
     exerciseReady,
-    exerciseResponse,
     maxScrollPercent,
     readingReady,
     requiredActiveSeconds,
     requiresExercise,
     timeReady,
   ]);
+
+  const remainingActions = readiness.filter((item) => !item.ready).map((item) => item.action);
+  const remainingText = remainingActions.length
+    ? `Still to do: ${remainingActions.join(", ")}.`
+    : "Everything is ready. You can complete the lesson.";
 
   function checkAnswer() {
     if (!checkpoint || !selectedOption) return;
@@ -169,23 +179,23 @@ export function TrainingLessonIntegrityGate({
       });
       if (result.correct) {
         setCheckpointPassed(true);
-        setCheckpointMessage("Correct. This checkpoint is saved.");
+        setCheckpointMessage("Correct. Your quick check is saved.");
       } else {
         setCheckpointPassed(false);
-        setCheckpointMessage("Not quite. Review the lesson QA checklist and try again.");
+        setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
       }
     });
   }
 
   return (
-    <section className="training-integrity-gate" aria-label="Lesson completion requirements">
+    <section className="training-integrity-gate" aria-label="Lesson completion">
       <div className="training-integrity-head">
         <div>
-          <span className="dash-kicker">Before you complete this lesson</span>
-          <h3>Show that you worked through it</h3>
+          <span className="dash-kicker">Lesson wrap-up</span>
+          <h3>Ready to complete this lesson?</h3>
           <p>
-            There is no fixed 30-minute timer. Completion uses active reading, content progress,
-            one lesson check, and the practical task.
+            A few quick checks confirm you reached the lesson end, understood the key point,
+            and completed the practical work.
           </p>
         </div>
       </div>
@@ -196,7 +206,7 @@ export function TrainingLessonIntegrityGate({
           return (
             <div className={item.ready ? "is-ready" : ""} key={item.label}>
               <span className="training-integrity-status-icon">
-                {item.ready ? <CheckCircle2 size={15}/> : <Icon size={15}/>}
+                {item.ready ? <CheckCircle2 size={16}/> : <Icon size={16}/>}
               </span>
               <span>
                 <strong>{item.label}</strong>
@@ -209,7 +219,10 @@ export function TrainingLessonIntegrityGate({
 
       {checkpoint && !checkpointPassed ? (
         <div className="training-inline-checkpoint">
-          <strong>{checkpoint.prompt}</strong>
+          <div className="training-inline-checkpoint-head">
+            <span className="dash-kicker">Quick check</span>
+            <strong>{checkpoint.prompt}</strong>
+          </div>
           <div className="training-checkpoint-options">
             {checkpoint.options.map((option) => (
               <label key={option.id}>
@@ -236,7 +249,7 @@ export function TrainingLessonIntegrityGate({
             >
               {isChecking ? "Checking…" : "Check answer"}
             </button>
-            {checkpointMessage ? <span className="small muted">{checkpointMessage}</span> : null}
+            {checkpointMessage ? <span className="training-checkpoint-message" role="status">{checkpointMessage}</span> : null}
           </div>
         </div>
       ) : checkpointMessage ? (
@@ -252,35 +265,37 @@ export function TrainingLessonIntegrityGate({
 
         {requiresExercise ? (
           <label className="field training-integrity-response">
-            <span>Your practical response</span>
+            <span>Your practical note</span>
             <textarea
               name="exercise_response"
-              rows={6}
+              rows={5}
               minLength={80}
               maxLength={5000}
               required
               value={exerciseResponse}
               onChange={(event) => setExerciseResponse(event.target.value)}
-              placeholder="Write what you would actually do, what evidence you would use, and what you would hand off or escalate."
+              placeholder="Describe what you would do, what evidence you would use, or what you would hand off."
             />
             <small>
-              This is saved as evidence that you completed the practical checkpoint. Do not paste passwords,
-              private client data, or confidential documents.
+              A few useful sentences are enough. Use fictional or non-sensitive details only.
             </small>
           </label>
         ) : (
           <input type="hidden" name="exercise_response" value=""/>
         )}
 
-        <button
-          className="btn btn-primary training-integrity-complete"
-          type="submit"
-          disabled={!ready}
-          data-track="training_lesson_complete_click"
-        >
-          {ready ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
-          {ready ? "Complete lesson" : "Finish the requirements above"}
-        </button>
+        <div className="training-integrity-finish">
+          <button
+            className="btn btn-primary training-integrity-complete"
+            type="submit"
+            disabled={!ready}
+            data-track="training_lesson_complete_click"
+          >
+            {ready ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
+            {ready ? "Complete lesson" : "Complete lesson when ready"}
+          </button>
+          <p className={ready ? "is-ready" : ""} aria-live="polite">{remainingText}</p>
+        </div>
       </form>
     </section>
   );

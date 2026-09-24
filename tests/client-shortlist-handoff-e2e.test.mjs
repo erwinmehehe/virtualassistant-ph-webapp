@@ -5,7 +5,7 @@ import fs from "node:fs";
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
-const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924164500_client_hiring_room_summary.sql", "utf8");
+const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924172000_client_hiring_room_summary.sql", "utf8");
 const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
 const clientActions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");

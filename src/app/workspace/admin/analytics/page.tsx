@@ -108,12 +108,49 @@ export default async function AdminAnalyticsPage() {
   await requireRoleFast("admin");
   const admin = createAdminClient();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }, { data: trainingRows }] = await Promise.all([
+  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }, { data: trainingRows }, { data: trainingCourseData }] = await Promise.all([
     admin.rpc("admin_analytics_summary", { p_since: since }),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).eq("event_name", "page_view").like("path", "/blog%").limit(10000),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).or(FUNNEL_EVENTS).limit(10000),
-    admin.from("analytics_events").select("event_name,path,session_id,user_id").gte("created_at", since).like("event_name", "training_%").limit(10000)
+    admin.from("analytics_events").select("event_name,path,session_id,user_id").gte("created_at", since).like("event_name", "training_%").limit(10000),
+    admin.from("training_courses").select("id,slug,title,recommended_order").eq("status", "published").order("recommended_order").order("title")
   ]);
+
+  const trainingCourses = (trainingCourseData || []) as TrainingCourseAnalyticsRow[];
+  const trainingCourseIds = trainingCourses.map((course) => course.id);
+  const [
+    { data: trainingModuleData },
+    { data: trainingEnrollmentData },
+    { data: trainingAssessmentData },
+    { data: trainingCertificateData },
+  ] = trainingCourseIds.length
+    ? await Promise.all([
+        admin.from("training_modules").select("id,course_id,position").in("course_id", trainingCourseIds),
+        admin.from("training_enrollments").select("user_id,course_id,completed_at").in("course_id", trainingCourseIds),
+        admin.from("training_assessments").select("id,course_id,pass_score").in("course_id", trainingCourseIds).eq("is_published", true),
+        admin.from("training_certificates").select("user_id,course_id,revoked_at").in("course_id", trainingCourseIds),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
+
+  const trainingModules = (trainingModuleData || []) as TrainingModuleAnalyticsRow[];
+  const trainingModuleIds = trainingModules.map((module) => module.id);
+  const trainingAssessments = (trainingAssessmentData || []) as TrainingAssessmentAnalyticsRow[];
+  const trainingAssessmentIds = trainingAssessments.map((assessment) => assessment.id);
+
+  const [{ data: trainingLessonData }, { data: trainingSubmissionData }] = await Promise.all([
+    trainingModuleIds.length
+      ? admin.from("training_lessons").select("id,module_id,title,position").in("module_id", trainingModuleIds).eq("is_published", true)
+      : Promise.resolve({ data: [] }),
+    trainingAssessmentIds.length
+      ? admin.from("training_assessment_submissions").select("user_id,assessment_id,status,score").in("assessment_id", trainingAssessmentIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const trainingLessons = (trainingLessonData || []) as TrainingLessonAnalyticsRow[];
+  const trainingLessonIds = trainingLessons.map((lesson) => lesson.id);
+  const { data: trainingProgressData } = trainingLessonIds.length
+    ? await admin.from("training_lesson_progress").select("user_id,lesson_id").in("lesson_id", trainingLessonIds)
+    : { data: [] };
 
   const summary = (summaryData || EMPTY_SUMMARY) as AnalyticsSummary;
   const blogViews = (blogViewRows || []) as EventRow[];

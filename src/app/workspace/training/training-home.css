@@ -272,6 +272,128 @@
   justify-content: space-between;
 }
 
+.training-course-card {
+  --course-tone: #4f46e5;
+  --course-tone-soft: #eef2ff;
+  --course-tone-border: #d9ddff;
+}
+
+.training-course-card-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 11px;
+  min-width: 0;
+  align-items: start;
+}
+
+.training-course-card-copy {
+  min-width: 0;
+}
+
+.training-course-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--course-tone-border);
+  border-radius: 12px;
+  color: var(--course-tone);
+  background: var(--course-tone-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 6px 14px -12px color-mix(in srgb, var(--course-tone) 42%, transparent);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+
+.training-course-card:hover .training-course-icon {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 9px 18px -13px color-mix(in srgb, var(--course-tone) 48%, transparent);
+  filter: saturate(1.08);
+}
+
+.training-course-card .training-course-eyebrow span:first-child {
+  border: 1px solid var(--course-tone-border);
+  color: var(--course-tone);
+  background: var(--course-tone-soft);
+}
+
+.training-course-card:hover {
+  border-color: var(--course-tone-border);
+}
+
+.training-course-card.tone-indigo {
+  --course-tone: #4f46e5;
+  --course-tone-soft: #eef2ff;
+  --course-tone-border: #d9ddff;
+}
+
+.training-course-card.tone-violet {
+  --course-tone: #7c3aed;
+  --course-tone-soft: #f5f3ff;
+  --course-tone-border: #e9d5ff;
+}
+
+.training-course-card.tone-blue {
+  --course-tone: #2563eb;
+  --course-tone-soft: #eff6ff;
+  --course-tone-border: #dbeafe;
+}
+
+.training-course-card.tone-cyan {
+  --course-tone: #0891b2;
+  --course-tone-soft: #ecfeff;
+  --course-tone-border: #bae6fd;
+}
+
+.training-course-card.tone-teal {
+  --course-tone: #0f766e;
+  --course-tone-soft: #f0fdfa;
+  --course-tone-border: #ccfbf1;
+}
+
+.training-course-card.tone-emerald {
+  --course-tone: #059669;
+  --course-tone-soft: #ecfdf5;
+  --course-tone-border: #bbf7d0;
+}
+
+.training-course-card.tone-amber {
+  --course-tone: #d97706;
+  --course-tone-soft: #fffbeb;
+  --course-tone-border: #fde68a;
+}
+
+.training-course-card.tone-orange {
+  --course-tone: #ea580c;
+  --course-tone-soft: #fff7ed;
+  --course-tone-border: #fed7aa;
+}
+
+.training-course-card.tone-rose {
+  --course-tone: #e11d48;
+  --course-tone-soft: #fff1f2;
+  --course-tone-border: #fecdd3;
+}
+
+.training-course-card.tone-pink {
+  --course-tone: #db2777;
+  --course-tone-soft: #fdf2f8;
+  --course-tone-border: #fbcfe8;
+}
+
+.training-course-card.tone-sky {
+  --course-tone: #0284c7;
+  --course-tone-soft: #f0f9ff;
+  --course-tone-border: #bae6fd;
+}
+
+.training-course-card.tone-slate {
+  --course-tone: #475569;
+  --course-tone-soft: #f8fafc;
+  --course-tone-border: #e2e8f0;
+}
+
 .training-course-card h3 {
   margin: 4px 0 0;
   color: var(--dash-ink);
@@ -900,6 +1022,17 @@
     padding: 12px;
     border-radius: 14px;
   }
+
+  .training-course-card-heading {
+    gap: 9px;
+  }
+
+  .training-course-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
 
   .training-course-card h3 {
     font-size: 14px;

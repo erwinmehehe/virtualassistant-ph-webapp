@@ -313,13 +313,17 @@ export async function closeJobAction(formData: FormData) {
   const { user } = await requireRole("client");
   const id = String(formData.get("job_id"));
   const supabase = await createClient();
-  const { data: job } = await supabase.from("jobs").select("id,title").eq("id", id).eq("client_id", user.id).single();
+  const { data: job } = await supabase.from("jobs").select("id,title,slug").eq("id", id).eq("client_id", user.id).single();
   if (!job) throw new Error("Job not found.");
   const admin = createAdminClient();
-  const { error } = await admin.from("jobs").update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", id).eq("client_id", user.id);
+  const now = new Date().toISOString();
+  const { error } = await admin.from("jobs").update({ status: "closed", closed_at: now, updated_at: now }).eq("id", id).eq("client_id", user.id);
   if (error) throw error;
   revalidatePath(`/workspace/client/jobs/${id}`);
   revalidatePath("/workspace/client");
+  revalidatePath("/workspace/client/jobs");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${job.slug || id}`);
 }
 
 export async function acceptCommercialTermsAction(formData: FormData) {

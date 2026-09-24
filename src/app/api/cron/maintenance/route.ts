@@ -34,14 +34,37 @@ async function runIndexNowSubmission(admin: ReturnType<typeof createAdminClient>
 
   const { data: jobs } = await admin
     .from("jobs")
-    .select("id,slug,published_at")
-    .eq("status", "published")
+    .select("id,slug,status,updated_at")
+    .in("status", ["published", "closed"])
     .not("client_id", "is", null)
-    .gte("published_at", since)
+    .gte("updated_at", since)
     .limit(200);
   for (const job of jobs || []) changed.push(`${base}/jobs/${job.slug || job.id}`);
 
   return submitToIndexNow(changed);
+}
+
+async function runExpiredJobCleanup(admin: ReturnType<typeof createAdminClient>) {
+  const now = new Date().toISOString();
+  const { data: expired, error } = await admin
+    .from("jobs")
+    .select("id,slug,title")
+    .eq("status", "published")
+    .not("expires_at", "is", null)
+    .lte("expires_at", now)
+    .limit(500);
+  if (error) throw error;
+  if (!expired?.length) return { closed: 0 };
+
+  const ids = expired.map((job) => job.id);
+  const { error: closeError } = await admin
+    .from("jobs")
+    .update({ status: "closed", closed_at: now, updated_at: now })
+    .in("id", ids)
+    .eq("status", "published");
+  if (closeError) throw closeError;
+
+  return { closed: ids.length };
 }
 
 async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>) {
@@ -482,6 +505,11 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
+
+  // Close expired public roles first so recruiter reminders and IndexNow see
+  // the same lifecycle state during this maintenance run.
+  const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
+
   const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
@@ -494,5 +522,5 @@ export async function GET(request: Request) {
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
 }

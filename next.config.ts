@@ -54,13 +54,19 @@ const roleResourceConsolidationRedirects = ROLE_RESOURCE_CONSOLIDATIONS.flatMap(
   return core.flatMap((redirect) => [redirect, { ...redirect, source: redirect.source + "/" }]);
 });
 
+const allowUnsafeEval = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com",
+  // Next.js still emits inline hydration/JSON-LD script blocks in this app, so
+  // keep that narrow allowance for now. Production no longer permits eval,
+  // and inline event-handler attributes are explicitly blocked.
+  `script-src 'self' 'unsafe-inline'${allowUnsafeEval} https://challenges.cloudflare.com https://www.googletagmanager.com`,
+  "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",

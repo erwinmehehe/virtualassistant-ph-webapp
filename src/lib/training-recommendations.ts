@@ -239,7 +239,7 @@ export function recommendNextTrainingCourses(args: {
     : null;
   const allowAustralia = Boolean(australiaPath || current?.country_focus === "Australia");
 
-  let priority: string[] = [];
+  const priority: string[] = [];
 
   if (args.currentSlug === "virtual-assistant-foundations" && args.primaryCategory) {
     priority.push(...specialty.slugs);

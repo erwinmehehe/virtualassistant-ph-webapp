@@ -31,6 +31,7 @@ export async function GET(request: Request) {
   let rows: DirectoryRow[] = [];
   try {
     const supabase = createPublicClient();
+    if (!supabase) return NextResponse.json({ category, exact: false, total: 0, matches: [] as TopMatch[] });
     const { data } = await supabase
       .from("public_va_directory")
       .select("user_id,slug,full_name,headline,primary_category,categories,skills,avatar_url,years_experience,weekly_hours")

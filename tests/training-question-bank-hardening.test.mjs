@@ -47,9 +47,9 @@ test("final assessment can still produce eight questions for courses with fewer 
 test("final assessment rotates variants across attempts and keeps answer keys server-only", async () => {
   const source = await readFile(integrityPath, "utf8");
 
-  assert.match(source, /args\.attemptNumber \+/);
-  assert.match(source, /:variant/);
-  assert.match(source, /% bank\.length/);
+  assert.match(source, /args\.attemptNumber - 1/);
+  assert.match(source, /kind-offset/);
+  assert.match(source, /% ASSESSMENT_KIND_SEQUENCE\.length/);
   assert.match(source, /questionKey: checkpoint\.questionKey/);
   assert.match(source, /publicAssessmentQuestions/);
 

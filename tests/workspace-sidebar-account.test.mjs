@@ -37,3 +37,19 @@ test("every workspace shell passes the profile avatar",async()=>{
     assert.match(source,/avatarUrl=\{profile\.avatar_url\}/,`${path} should pass the saved avatar`);
   }
 });
+
+
+test("workspace navigation gives icons distinct restrained color treatments",async()=>{
+  const [nav,css]=await Promise.all([
+    read("src/components/app-nav-links.tsx"),
+    read("src/app/dashboard-premium.css"),
+  ]);
+  assert.match(nav,/app-nav-icon nav-tone-/);
+  assert.match(nav,/navToneFor\(label, href\)/);
+  assert.match(css,/\.app-nav-icon \{/);
+  assert.match(css,/\.nav-tone-violet/);
+  assert.match(css,/\.nav-tone-emerald/);
+  assert.match(css,/\.nav-tone-amber/);
+  assert.match(css,/\.nav-tone-rose/);
+  assert.match(css,/app-nav-mobile > a \.app-nav-icon/);
+});

@@ -253,7 +253,7 @@ export default async function TrainingAssessmentPage({
               <p className="small muted">Your completion is saved. The certificate will appear in My learning when issued.</p>
             )}
             <div className="row wrap training-completion-actions">
-              {credentialHref ? <Link className="btn btn-primary" href={credentialHref}>View certificate</Link> : null}
+              {credentialHref ? <Link className="btn btn-primary" href={credentialHref} data-track="training_certificate_open">View certificate</Link> : null}
               <Link className={credentialHref ? "btn" : "btn btn-primary"} href="/workspace/training">My learning</Link>
             </div>
           </div>

@@ -67,6 +67,21 @@ alter table public.payment_state_events enable row level security;
 revoke all on public.payment_state_events from public, anon, authenticated;
 grant all on public.payment_state_events to service_role;
 
+create or replace function public.reject_payment_state_event_mutation()
+returns trigger
+language plpgsql
+set search_path = pg_catalog
+as $
+begin
+  raise exception 'payment_state_events_are_immutable';
+end;
+$;
+
+drop trigger if exists payment_state_events_immutable on public.payment_state_events;
+create trigger payment_state_events_immutable
+before update or delete on public.payment_state_events
+for each row execute function public.reject_payment_state_event_mutation();
+
 create table if not exists public.payment_provider_events (
   id uuid primary key default gen_random_uuid(),
   provider text not null,
@@ -240,6 +255,8 @@ begin
   where id = p_payment_id
   returning * into v_payment;
 
+  perform set_config('app.payment_state_transition', '', true);
+
   insert into public.payment_state_events(
     payment_id, from_status, to_status, actor_id, source, external_reference, context
   ) values (
@@ -320,6 +337,8 @@ begin
         provider = 'paymongo'
     where id = v_payment.id
     returning * into v_payment;
+
+    perform set_config('app.payment_state_transition', '', true);
 
     insert into public.payment_state_events(
       payment_id, from_status, to_status, actor_id, source, external_reference, context
@@ -442,6 +461,8 @@ begin
       checkout_claimed_at = null
   where id = p_payment_id;
 
+  perform set_config('app.payment_state_transition', '', true);
+
   insert into public.payment_state_events(
     payment_id, from_status, to_status, actor_id, source, external_reference, context
   ) values (
@@ -489,7 +510,8 @@ begin
   for update;
 
   if v_event.processed_at is not null then return 'processed'; end if;
-  if v_event.processing_started_at is not null
+  if v_event.processing_status = 'processing'
+     and v_event.processing_started_at is not null
      and v_event.processing_started_at > now() - interval '5 minutes' then
     return 'in_progress';
   end if;

@@ -18,12 +18,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // VA profiles are deliberately noindex, so they are not listed here.
   // Public jobs must come from the sanitized public_jobs view: raw jobs are
   // intentionally unavailable to anonymous/public reads after RLS hardening.
-  const jobs: Array<{ id: string; slug: string | null; published_at: string | null }> = [];
+  const jobs: Array<{ id: string; slug: string | null; published_at: string | null; expires_at: string | null }> = [];
   const JOB_PAGE_SIZE = 500;
   for (let from = 0; from < 10_000; from += JOB_PAGE_SIZE) {
     const { data, error } = await supabase
       .from("public_jobs")
-      .select("id,slug,published_at")
+      .select("id,slug,published_at,expires_at")
+      .gt("expires_at", new Date().toISOString())
       .order("published_at", { ascending: false, nullsFirst: false })
       .range(from, from + JOB_PAGE_SIZE - 1);
     if (error || !data?.length) break;

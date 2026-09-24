@@ -26,7 +26,8 @@ test("no-show rebooking action is no-show only and blocks duplicate sends before
   assert.match(action, /sendDiscoveryNoShowRebookAction/);
   assert.match(action, /discovery-no-show-rebook-\$\{leadId\}/);
   assert.match(action, /outbound_email_events/);
-  assert.match(action, /\["sending", "sent", "delivered"\]\.includes/);\n  assert.match(action, /\["bounced", "complained", "suppressed"\]\.includes/);
+  assert.match(action, /\["sending", "sent", "delivered"\]\.includes/);
+  assert.match(action, /\["bounced", "complained", "suppressed"\]\.includes/);
   assert.match(action, /lead\.discovery_outcome !== "no_show"/);
   assert.match(action, /rebook_email_already_sent=1/);
   assert.match(action, /createBookingManageToken/);
@@ -45,7 +46,8 @@ test("marking no-show prompts recruiter to send the rebooking email", async () =
   assert.match(page, /Send rebooking email/);
   assert.match(page, /Rebooking email sent/);
   assert.match(page, /No duplicate email was sent/);
-  assert.match(page, /discovery_no_show_rebook/);\n  assert.match(page, /\.in\("status", \["sent", "delivered"\]\)/);
+  assert.match(page, /discovery_no_show_rebook/);
+  assert.match(page, /\.in\("status", \["sent", "delivered"\]\)/);
   assert.match(page, /Rebooked/);
   assert.match(page, /Mark no-show/);
   assert.match(page, /Subject: Would you like to rebook your call\?/);

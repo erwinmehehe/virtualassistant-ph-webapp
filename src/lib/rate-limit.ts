@@ -35,7 +35,12 @@ export async function enforceIpRateLimit(
   maxPerIp: number,
   windowMinutes: number,
 ) {
-  await enforceActionRateLimit(`${actionKey}:ip`, await requestIp(), maxPerIp, windowMinutes);
+  const ip = await requestIp();
+  // Local previews/tests and unusual proxy paths can legitimately lack a
+  // trustworthy client IP. Never collapse all such traffic into one shared
+  // "unknown" bucket; other subject/session limits still apply.
+  if (ip === "unknown") return;
+  await enforceActionRateLimit(`${actionKey}:ip`, ip, maxPerIp, windowMinutes);
 }
 
 export async function enforceEmailAndIpRateLimit(

@@ -21,7 +21,8 @@ test("VA workspace and private preview show verified training automatically", as
   const dashboard = await source("src/app/workspace/va/page.tsx");
 
   assert.match(profile, /getTrainingCredentialsForUser\(userId\)/);
-  assert.match(profile, /heading="Your completed training"/);
+  assert.match(profile, /heading="Training & certificates"/);
+  assert.match(profile, /audience="self"/);
   assert.match(preview, /getTrainingCredentialsForUser\(user\.id\)/);
   assert.match(preview, /heading="Training completed"/);
   assert.match(dashboard, /getTrainingCredentialsForUser\(userId\)/);
@@ -32,9 +33,11 @@ test("recruiter candidate profiles show training as supporting evidence", async 
   const component = await source("src/components/training-credentials.tsx");
 
   assert.match(page, /getTrainingCredentialsForUser\(id\)/);
-  assert.match(page, /heading="Verified training completed"/);
-  assert.match(component, /Training is supporting evidence only/);
-  assert.match(component, /not required for recruiter approval or client selection/);
+  assert.match(page, /heading="Verified training & certificates"/);
+  assert.match(page, /audience="recruiter"/);
+  assert.match(page, /showEmpty/);
+  assert.match(component, /does not verify employment history, role experience, or hiring eligibility/);
+  assert.match(component, /never required for recruiter approval or client selection/);
 });
 
 test("client shortlist training data is fetched only for recruiter-released accessible candidates", async () => {

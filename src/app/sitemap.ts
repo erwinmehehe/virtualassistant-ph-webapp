@@ -16,14 +16,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
   // VA profiles are deliberately noindex, so they are not listed here.
-  const [{ data: jobs }] = await Promise.all([
-    supabase
-      .from("jobs")
+  // Public job pages read the sanitized public_jobs view, so the sitemap must
+  // use the same contract. Raw jobs are intentionally unavailable to anon
+  // after the source-exposure hardening migration.
+  const jobs: Array<{ id: string; slug: string | null; published_at: string | null }> = [];
+  const JOB_BATCH = 500;
+  for (let from = 0; ; from += JOB_BATCH) {
+    const { data, error } = await supabase
+      .from("public_jobs")
       .select("id,slug,published_at")
-      .eq("status", "published")
-      .not("client_id", "is", null)
-      .limit(500),
-  ]);
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("id", { ascending: true })
+      .range(from, from + JOB_BATCH - 1);
+
+    if (error) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[sitemap] public job lookup failed:", error.message);
+      }
+      break;
+    }
+
+    const batch = (data || []) as Array<{ id: string; slug: string | null; published_at: string | null }>;
+    jobs.push(...batch);
+    if (batch.length < JOB_BATCH) break;
+  }
 
   return [
     ...PUBLIC_SEO_ROUTES.map((route) => ({
@@ -70,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
-    ...(jobs || []).map((job: { id: string; slug: string | null; published_at: string | null }) => ({
+    ...jobs.map((job) => ({
       url: `${base}/jobs/${job.slug || job.id}`,
       lastModified: job.published_at || undefined,
       changeFrequency: "daily" as const,

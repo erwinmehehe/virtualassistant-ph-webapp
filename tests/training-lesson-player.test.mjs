@@ -50,7 +50,9 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
   assert.match(component, /> 45_000/);
   assert.match(component, /20_000/);
   assert.match(component, /Check answer/);
-  assert.match(component, /Finish the requirements above/);
+  assert.match(component, /Complete lesson when ready/);
+  assert.match(component, /Ready to complete this lesson\?/);
+  assert.match(component, /Still to do:/);
 
   assert.match(integrity, /Math\.max\(60, Math\.min\(300/);
   assert.match(integrity, /buildLessonCheckpoint/);
@@ -66,9 +68,12 @@ test("automatic final assessment randomizes, rate limits, scores server-side, an
 
   assert.match(assessmentPage, /buildAssessmentQuestions/);
   assert.match(assessmentPage, /publicAssessmentQuestions/);
+  assert.match(assessmentPage, /Fresh mix each attempt/);
+  assert.match(assessmentPage, /Review and try again/);
+  assert.match(assessmentPage, /id="final-check-questions"/);
   assert.match(assessmentPage, /attemptNumber/);
-  assert.match(assessmentPage, /three attempts in the last 24 hours|Up to 3 attempts \/ 24h/i);
-  assert.match(assessmentPage, /No answer key is revealed/);
+  assert.match(assessmentPage, /3 attempts in a rolling 24-hour period|3-attempt limit/i);
+  assert.match(assessmentPage, /answer key is not shown/i);
 
   assert.match(actions, /buildAssessmentQuestionsFromLessons/);
   assert.match(actions, /recentAttempts\.length >= 3/);

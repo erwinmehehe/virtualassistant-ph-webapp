@@ -679,6 +679,13 @@ export async function getTrainingAdminSummary() {
         windowDays: 30,
         stages: [] as Array<{ event: string; label: string; learners: number; events: number }>,
       },
+      recovery: {
+        inactivityHours: 72,
+        incompleteEnrollments: 0,
+        stalled72h: 0,
+        stalled7d: 0,
+        remindersSent: 0,
+      },
       integrity: {
         windowDays: 30,
         checkpointAttempts: 0,
@@ -961,6 +968,99 @@ export async function getTrainingAdminSummary() {
 
   const checkpointAttempts = checkpointRows.length;
   const checkpointFailures = checkpointRows.filter((row) => row.metadata?.correct !== true).length;
+  const { data: incompleteEnrollmentData } = courseIds.length
+    ? await admin
+        .from("training_enrollments")
+        .select("user_id,course_id,started_at")
+        .in("course_id", courseIds)
+        .is("completed_at", null)
+        .limit(5000)
+    : { data: [] };
+  const incompleteEnrollments = (incompleteEnrollmentData || []) as Array<{
+    user_id: string;
+    course_id: string;
+    started_at: string;
+  }>;
+  const incompleteUserIds = [...new Set(incompleteEnrollments.map((row) => row.user_id))];
+  const publishedLessonIds = lessons.filter((lesson) => lesson.is_published).map((lesson) => lesson.id);
+  const [{ data: recoveryProgressData }, { data: recoveryEngagementData }, { data: trainingReminderData }] =
+    await Promise.all([
+      incompleteUserIds.length && publishedLessonIds.length
+        ? admin
+            .from("training_lesson_progress")
+            .select("user_id,lesson_id,completed_at")
+            .in("user_id", incompleteUserIds)
+            .in("lesson_id", publishedLessonIds)
+            .limit(10000)
+        : Promise.resolve({ data: [] }),
+      incompleteUserIds.length && publishedLessonIds.length
+        ? admin
+            .from("training_lesson_engagement")
+            .select("user_id,lesson_id,last_activity_at,updated_at")
+            .in("user_id", incompleteUserIds)
+            .in("lesson_id", publishedLessonIds)
+            .limit(10000)
+        : Promise.resolve({ data: [] }),
+      courseIds.length
+        ? admin
+            .from("workflow_reminders")
+            .select("subject_id,recipient_id,reminder_count,last_sent_at")
+            .eq("subject_type", "training")
+            .eq("action", "resume_training")
+            .in("subject_id", courseIds)
+            .limit(5000)
+        : Promise.resolve({ data: [] }),
+    ]);
+
+  const lessonCourseId = new Map(
+    lessons.map((lesson) => [lesson.id, moduleCourse.get(lesson.module_id) || ""]),
+  );
+  const recoveryActivityByEnrollment = new Map<string, number>();
+  for (const row of recoveryProgressData || []) {
+    const courseId = lessonCourseId.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const timestamp = new Date(row.completed_at).getTime();
+    recoveryActivityByEnrollment.set(
+      key,
+      Math.max(recoveryActivityByEnrollment.get(key) || 0, timestamp),
+    );
+  }
+  for (const row of recoveryEngagementData || []) {
+    const courseId = lessonCourseId.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const timestamp = new Date(row.last_activity_at || row.updated_at).getTime();
+    recoveryActivityByEnrollment.set(
+      key,
+      Math.max(recoveryActivityByEnrollment.get(key) || 0, timestamp),
+    );
+  }
+
+  const nowMs = Date.now();
+  let stalled72h = 0;
+  let stalled7d = 0;
+  for (const enrollment of incompleteEnrollments) {
+    const key = `${enrollment.user_id}:${enrollment.course_id}`;
+    const lastActivity = Math.max(
+      new Date(enrollment.started_at).getTime(),
+      recoveryActivityByEnrollment.get(key) || 0,
+    );
+    if (lastActivity <= nowMs - 72 * 60 * 60 * 1000) stalled72h += 1;
+    if (lastActivity <= nowMs - 7 * 24 * 60 * 60 * 1000) stalled7d += 1;
+  }
+
+  const recovery = {
+    inactivityHours: 72,
+    incompleteEnrollments: incompleteEnrollments.length,
+    stalled72h,
+    stalled7d,
+    remindersSent: (trainingReminderData || []).reduce(
+      (sum, row) => sum + Number(row.reminder_count || 0),
+      0,
+    ),
+  };
+
   const integrity = {
     windowDays: funnelWindowDays,
     checkpointAttempts,
@@ -995,6 +1095,7 @@ export async function getTrainingAdminSummary() {
       lessons: lessons.length,
     },
     funnel,
+    recovery,
     integrity,
     error: null,
   };

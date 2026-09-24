@@ -87,3 +87,20 @@ test("final assessment failure, retry, pass, and certificate states stay connect
   assert.match(assessment, /course\.certificate\.credential_code/);
   assert.match(assessment, /View certificate/);
 });
+
+
+test("last lesson auto-handoff is visible and recorded in the training funnel", async () => {
+  const [actions, lessonPage, gate] = await Promise.all([
+    source("src/app/actions/training.ts"),
+    source("src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx"),
+    source("src/components/training-lesson-integrity-gate.tsx"),
+  ]);
+
+  assert.match(actions, /lesson_number: lessonIndex \+ 1/);
+  assert.match(actions, /lesson_count: orderedLessons\.length/);
+  assert.match(actions, /is_final_lesson: lessonIndex === orderedLessons\.length - 1/);
+  assert.match(actions, /training_assessment_open/);
+  assert.match(actions, /source: "final_lesson_auto_handoff"/);
+  assert.match(lessonPage, /Complete lesson & start final check/);
+  assert.match(gate, /completionLabel/);
+});

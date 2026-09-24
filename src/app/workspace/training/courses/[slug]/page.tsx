@@ -67,7 +67,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           ) : course.completedAt && credentialHref ? (
             <Link className="btn btn-primary" href={credentialHref} data-track="training_certificate_open">View certificate <ArrowRight size={14}/></Link>
           ) : nextLesson ? (
-            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`} data-track="training_course_continue">Continue lesson <ArrowRight size={14}/></Link>
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`} data-track="training_course_continue">
+              {course.lessonCount - course.completedLessons === 1 ? "Finish last lesson" : "Continue lesson"} <ArrowRight size={14}/>
+            </Link>
           ) : nextAssessment ? (
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start final check <ArrowRight size={14}/></Link>
           ) : course.completedAt ? (

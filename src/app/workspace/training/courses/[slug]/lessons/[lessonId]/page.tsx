@@ -241,6 +241,7 @@ export default async function TrainingLessonPage({
               lessonId={lesson.id}
               courseSlug={course.slug}
               nextHref={nextHref}
+              completionLabel={!next && nextAssessment ? "Complete lesson & start final check" : "Complete lesson"}
               requiredActiveSeconds={requiredActiveSeconds}
               initialActiveSeconds={engagement?.activeSeconds || 0}
               initialScrollPercent={engagement?.maxScrollPercent || 0}

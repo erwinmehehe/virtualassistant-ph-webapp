@@ -24,7 +24,7 @@ test("learner home resumes the exact next lesson or automatic final check", asyn
   assert.match(home, /"Not started"/);
   assert.match(home, /"Start path"/);
   assert.match(home, /"Continue path"/);
-  assert.match(home, /Open final check/);
+  assert.match(home, /Start final check/);
   assert.doesNotMatch(home, /Specialist-review pending/);
 });
 
@@ -154,4 +154,17 @@ test("training home retains compact mobile layouts for phone widths", async () =
   assert.match(css, /training-integrity-gate/);
   assert.match(css, /training-auto-question/);
   assert.match(css, /training-player-lesson-link strong/);
+});
+
+
+test("final Foundations lesson hands off directly into the automatic final", async () => {
+  const [lesson, course] = await Promise.all([
+    readFile(lessonPath, "utf8"),
+    readFile(coursePath, "utf8"),
+  ]);
+
+  assert.match(lesson, /Complete lesson & start final check/);
+  assert.match(lesson, /completionLabel=/);
+  assert.match(course, /Finish last lesson/);
+  assert.match(course, /Start final check/);
 });

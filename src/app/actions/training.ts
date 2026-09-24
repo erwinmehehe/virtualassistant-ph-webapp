@@ -420,6 +420,9 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
         max_scroll_percent: Number(engagement?.max_scroll_percent || 0),
         checkpoint_required: Boolean(checkpoint),
         practical_response_required: hasExercise,
+        lesson_number: lessonIndex + 1,
+        lesson_count: orderedLessons.length,
+        is_final_lesson: lessonIndex === orderedLessons.length - 1,
       },
     });
   }
@@ -449,6 +452,22 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     continueTo === coursePath || continueTo.startsWith(`${coursePath}/`)
       ? continueTo
       : "";
+
+  if (
+    safeContinueTo.includes("/assessments/") &&
+    !existingProgress?.completed_at
+  ) {
+    await recordProductEvent("training_assessment_open", {
+      userId,
+      path: safeContinueTo,
+      metadata: {
+        course_slug: course.slug,
+        source: "final_lesson_auto_handoff",
+        from_lesson_id: lesson.id,
+      },
+    });
+  }
+
   if (safeContinueTo) redirect(safeContinueTo);
   redirect(coursePath);
 }

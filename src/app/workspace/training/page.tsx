@@ -73,9 +73,19 @@ function nextCourseHref(course: TrainingCourseSummary) {
   return `/workspace/training/courses/${course.slug}`;
 }
 
+function remainingLearningLabel(course: TrainingCourseSummary) {
+  if (course.completedAt) return "Completed";
+  if (course.nextAssessment) return "Lessons complete · final check ready";
+  const remainingLessons = Math.max(0, course.lessonCount - course.completedLessons);
+  if (remainingLessons === 1) return `1 lesson left · ${course.completedLessons} of ${course.lessonCount} complete`;
+  if (remainingLessons > 1) return `${remainingLessons} lessons left · ${course.completedLessons} of ${course.lessonCount} complete`;
+  return `${course.completedLessons} of ${course.lessonCount} lessons`;
+}
+
 function nextCourseLabel(course: TrainingCourseSummary) {
+  if (course.nextAssessment) return "Start final check";
+  if (course.nextLesson && course.lessonCount - course.completedLessons === 1) return "Finish last lesson";
   if (course.nextLesson) return "Continue lesson";
-  if (course.nextAssessment) return "Open final check";
   return "Open course";
 }
 
@@ -141,7 +151,12 @@ function CourseCard({
   const visual = courseVisual(course);
   const CourseIcon = visual.icon;
   const action = mode === "active" ? (
-    <Link className="btn btn-sm btn-primary" href={nextCourseHref(course)} data-track="training_course_continue">
+    <Link
+      className="btn btn-sm btn-primary"
+      href={nextCourseHref(course)}
+      data-track={course.nextAssessment ? "training_assessment_open" : "training_course_continue"}
+      data-course-slug={course.slug}
+    >
       {nextCourseLabel(course)} <ArrowRight size={14} />
     </Link>
   ) : mode === "completed" ? (
@@ -183,7 +198,7 @@ function CourseCard({
       {mode !== "not-started" ? (
         <div className="training-course-progress">
           <div className="row-between">
-            <span>{mode === "completed" ? "Completed" : `${course.completedLessons} of ${course.lessonCount} lessons`}</span>
+            <span>{mode === "completed" ? "Completed" : remainingLearningLabel(course)}</span>
             <strong>{course.progressPercent}%</strong>
           </div>
           <div className="progress" aria-label={`${course.title} ${course.progressPercent}% complete`}>
@@ -264,11 +279,15 @@ export default async function TrainingDashboardPage({
             <h2 id="continue-learning-title">{resumeCourse.title}</h2>
             {resumeCourse.nextLesson ? (
               <p>
-                Next lesson: <strong>{resumeCourse.nextLesson.title}</strong>
+                {resumeCourse.lessonCount - resumeCourse.completedLessons === 1 ? (
+                  <>One lesson left: <strong>{resumeCourse.nextLesson.title}</strong></>
+                ) : (
+                  <>Next lesson: <strong>{resumeCourse.nextLesson.title}</strong></>
+                )}
                 <span> · {resumeCourse.nextLesson.estimatedMinutes} min</span>
               </p>
             ) : resumeCourse.nextAssessment ? (
-              <p>Lessons complete. Next: <strong>{resumeCourse.nextAssessment.title}</strong></p>
+              <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
             ) : (
               <p>Your course is ready to reopen.</p>
             )}
@@ -276,7 +295,8 @@ export default async function TrainingDashboardPage({
           <Link
             className="btn btn-primary training-resume-action"
             href={nextCourseHref(resumeCourse)}
-            data-track="training_resume_next"
+            data-track={resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
+            data-course-slug={resumeCourse.slug}
           >
             {nextCourseLabel(resumeCourse)} <ArrowRight size={15} />
           </Link>

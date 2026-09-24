@@ -24,6 +24,7 @@ export function TrainingLessonIntegrityGate({
   lessonId,
   courseSlug,
   nextHref,
+  completionLabel,
   requiredActiveSeconds,
   initialActiveSeconds,
   initialScrollPercent,
@@ -35,6 +36,7 @@ export function TrainingLessonIntegrityGate({
   lessonId: string;
   courseSlug: string;
   nextHref: string;
+  completionLabel: string;
   requiredActiveSeconds: number;
   initialActiveSeconds: number;
   initialScrollPercent: number;
@@ -292,7 +294,7 @@ export function TrainingLessonIntegrityGate({
             data-track="training_lesson_complete_click"
           >
             {ready ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
-            {ready ? "Complete lesson" : "Complete lesson when ready"}
+            {ready ? completionLabel : "Complete lesson when ready"}
           </button>
           <p className={ready ? "is-ready" : ""} aria-live="polite">{remainingText}</p>
         </div>

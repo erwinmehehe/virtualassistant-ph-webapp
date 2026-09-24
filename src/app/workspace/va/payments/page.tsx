@@ -13,6 +13,7 @@ const statusLabel: Record<string, string> = {
   released: "Paid out to you",
   failed: "Payment failed",
   refunded: "Refunded",
+  chargeback: "Provider dispute / chargeback",
   void: "Void"
 };
 

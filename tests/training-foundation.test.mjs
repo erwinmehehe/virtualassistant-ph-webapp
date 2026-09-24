@@ -265,7 +265,9 @@ test("assessment-pending courses remain active on the learner dashboard", async 
   const dashboard = await readFile("src/app/workspace/training/page.tsx", "utf8");
 
   assert.match(training, /completedAt: string \| null/);
-  assert.match(dashboard, /const active = enrolled\.filter\(\(course\) => !course\.completedAt\)/);
+  assert.match(dashboard, /course\.enrolled && !course\.completedAt/);
+  assert.match(dashboard, /nextAssessment/);
+  assert.match(dashboard, /assessmentStatus/);
 });
 
 

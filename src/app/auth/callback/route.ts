@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
+import { recordProductEvent } from "@/lib/product-events";
 import { recordSuccessfulLoginAndMaybeAlert } from "@/lib/account-security";
 
 function safeNext(value: string | null) {
@@ -76,7 +77,15 @@ export async function GET(request: Request) {
         }
       }
 
-      const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";
+      if (user && trainingDestination) {
+    await recordProductEvent("training_email_confirmed", {
+      userId: user.id,
+      path: requestedNext || "/workspace/training",
+      metadata: { confirmation_route: "callback" },
+    });
+  }
+
+  const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";
       const next = requestedNext ?? fallback;
       const destination = isTrainingPath(next)
         ? next

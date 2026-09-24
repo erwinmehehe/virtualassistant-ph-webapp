@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 type CourseRow = {
@@ -586,6 +587,7 @@ export async function getTrainingAssessment(courseSlug: string, assessmentId: st
 
 export async function getTrainingAdminSummary() {
   const supabase = await createClient();
+  const admin = createAdminClient();
   const { data: courseData, error } = await supabase
     .from("training_courses")
     .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
@@ -597,6 +599,10 @@ export async function getTrainingAdminSummary() {
       courses: [] as Array<CourseRow & { modules: number; lessons: number; publishedLessons: number }>,
       paths: [] as Array<{ id: string; slug: string; title: string; summary: string | null; country_focus: string | null; status: string; courseCount: number }>,
       totals: { courses: 0, published: 0, lessons: 0 },
+      funnel: {
+        windowDays: 30,
+        stages: [] as Array<{ event: string; label: string; learners: number; events: number }>,
+      },
       error: error.message,
     };
   }
@@ -649,6 +655,39 @@ export async function getTrainingAdminSummary() {
     : { data: [] };
   const adminPathCourses = (adminPathCourseData || []) as Array<{ path_id: string; course_id: string }>;
 
+  const funnelWindowDays = 30;
+  const funnelSince = new Date(Date.now() - funnelWindowDays * 86_400_000).toISOString();
+  const funnelDefinitions = [
+    { event: "training_course_start", label: "Started a course" },
+    { event: "training_lesson_complete", label: "Completed a lesson" },
+    { event: "training_assessment_submit", label: "Submitted assessment" },
+    { event: "training_assessment_reviewed", label: "Assessment reviewed" },
+    { event: "training_course_complete", label: "Completed a course" },
+    { event: "training_certificate_view", label: "Viewed certificate" },
+  ] as const;
+  const { data: funnelEventData } = await admin
+    .from("analytics_events")
+    .select("event_name,user_id")
+    .gte("created_at", funnelSince)
+    .in("event_name", funnelDefinitions.map((item) => item.event))
+    .limit(10000);
+
+  const funnelRows = (funnelEventData || []) as Array<{
+    event_name: string;
+    user_id: string | null;
+  }>;
+  const funnel = {
+    windowDays: funnelWindowDays,
+    stages: funnelDefinitions.map((definition) => {
+      const matching = funnelRows.filter((row) => row.event_name === definition.event);
+      return {
+        ...definition,
+        learners: new Set(matching.map((row) => row.user_id).filter(Boolean)).size,
+        events: matching.length,
+      };
+    }),
+  };
+
   return {
     courses: hydrated,
     paths: adminPaths.map((item) => ({
@@ -660,6 +699,7 @@ export async function getTrainingAdminSummary() {
       published: hydrated.filter((course) => course.status === "published").length,
       lessons: lessons.length,
     },
+    funnel,
     error: null,
   };
 }

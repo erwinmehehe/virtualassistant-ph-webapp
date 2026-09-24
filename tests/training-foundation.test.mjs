@@ -235,20 +235,22 @@ test("training library and admin inventory use roadmap order", async () => {
 });
 
 
-test("learners can submit practical assessments and admins can review them", async () => {
+test("learners take server-scored final checks without an admin review queue", async () => {
   const learnerAction = await readFile("src/app/actions/training.ts", "utf8");
   const learnerPage = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
-  const adminAction = await readFile("src/app/actions/training-admin.ts", "utf8");
   const adminPage = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
 
   assert.match(learnerAction, /submitTrainingAssessmentAction/);
   assert.match(learnerAction, /training_assessment_submissions/);
-  assert.match(learnerPage, /Submit assessment/);
-  assert.match(learnerPage, /Needs revision/);
-  assert.match(adminAction, /reviewTrainingAssessmentSubmissionAction/);
-  assert.match(adminAction, /finalizeTrainingCourseIfEligible/);
-  assert.match(adminPage, /Assessment submissions/);
-  assert.match(adminPage, /Save review/);
+  assert.match(learnerAction, /buildAssessmentQuestionsFromLessons/);
+  assert.match(learnerAction, /status: passed \? "reviewed" : "needs_revision"/);
+  assert.match(learnerAction, /finalizeTrainingCourseIfEligible/);
+  assert.match(learnerPage, /Submit final check/);
+  assert.match(learnerPage, /Server-scored/);
+  assert.match(learnerPage, /Randomized each attempt/);
+  assert.match(adminPage, /Automatic learner assessment/);
+  assert.doesNotMatch(adminPage, /Assessment submissions/);
+  assert.doesNotMatch(adminPage, /Save review/);
 });
 
 test("course publication requires assessment readiness", async () => {
@@ -274,7 +276,7 @@ test("assessment-pending courses remain active on the learner dashboard", async 
 test("final assessment cannot be submitted before all published lessons are complete", async () => {
   const action = await readFile("src/app/actions/training.ts", "utf8");
   const page = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
-  assert.match(action, /Complete all published lessons before submitting the final assessment/);
+  assert.match(action, /Complete every published lesson before taking the final assessment/);
   assert.match(page, /Complete the lessons first/);
   assert.match(page, /course\.completedLessons === course\.lessonCount/);
 });

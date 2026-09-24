@@ -8,7 +8,7 @@ const migrationPath = "supabase/migrations/20260923211800_strengthen_australian_
 test("signed-in training adds four Australian specialization routes without creating public course URLs", async () => {
   const page = await readFile(pagePath, "utf8");
 
-  assert.match(page, /Australian specialisations/);
+  assert.match(page, /Choose one specialisation/);
   assert.match(page, /Tradie & home-service operations/);
   assert.match(page, /Property management administration/);
   assert.match(page, /NDIS & allied health administration/);
@@ -24,14 +24,17 @@ test("signed-in training adds four Australian specialization routes without crea
   assert.match(page, /\/workspace\/training\/courses/);
 });
 
-test("specialization chooser only starts published courses returned by the training dashboard", async () => {
+test("specialization chooser only acts on published courses and uses real learner states", async () => {
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /courses\.find\(\(course\) => course\.slug === slug\)/);
   assert.match(page, /published\.length === specialization\.courses\.length/);
-  assert.match(page, /In development/);
   assert.match(page, /startTrainingCourseAction/);
-  assert.match(page, /status === "Available"/);
+  assert.match(page, /Not started/);
+  assert.match(page, /In progress/);
+  assert.match(page, /Completed/);
+  assert.match(page, /Start path/);
+  assert.match(page, /Continue path/);
 });
 
 test("tradie capstone covers the full enquiry-to-review lifecycle", async () => {

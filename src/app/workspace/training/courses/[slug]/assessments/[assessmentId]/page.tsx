@@ -39,10 +39,20 @@ export default async function TrainingAssessmentPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; assessmentId: string }>;
-  searchParams: Promise<{ result?: string }>;
+  searchParams: Promise<{ result?: string; assessment_error?: string }>;
 }) {
   const { slug, assessmentId } = await params;
   const query = await searchParams;
+  const assessmentErrorCopy: Record<string, string> = {
+    lessons: "Complete every published lesson before taking the final check.",
+    stale: "This attempt is out of date. The final has been refreshed with your current attempt.",
+    limit: "You have used three attempts in the current 24-hour window. Review the lessons and try again when the next attempt opens.",
+    not_ready: "This final check is temporarily unavailable because there are not enough valid questions yet.",
+    question_set: "This question set is no longer valid for your current attempt. The final has been refreshed safely.",
+  };
+  const assessmentError = query.assessment_error
+    ? assessmentErrorCopy[query.assessment_error] || null
+    : null;
   const { userId } = await requireAuthenticatedUserFast(
     `/workspace/training/courses/${slug}/assessments/${assessmentId}`,
   );
@@ -128,6 +138,12 @@ export default async function TrainingAssessmentPage({
       <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
+
+      {assessmentError ? (
+        <div className="alert" role="alert">
+          {assessmentError}
+        </div>
+      ) : null}
 
       <section className="card training-assessment-journey" aria-label="Course completion steps">
         <div className={`training-assessment-step ${lessonsComplete ? "is-complete" : "is-current"}`}>

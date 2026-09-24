@@ -104,7 +104,7 @@ test("brief success screen offers matches, an account, and a call", () => {
   const claims = source("src/lib/lead-claims.ts");
 
   // Three options after the brief: see the fit, claim the request, or talk.
-  assert.match(form, /<TopMatches category=\{category\} leadId=\{leadId\} \/>/);
+  assert.match(form, /<TopMatches category=\{category\} feedbackToken=\{feedbackToken\} \/>/);
   assert.match(form, /\/auth\/join\/client\?\$\{joinParams\.toString\(\)\}/);
   assert.match(form, /Create my account/);
   assert.match(form, /hb-secondary[\s\S]*Book a 20-minute call instead/);

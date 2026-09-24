@@ -130,7 +130,9 @@ test("discovery bookings support Google Meet, reminders, self-service changes, a
   assert.match(operations, /conferenceDataVersion=1/);
   assert.match(operations, /hangoutsMeet/);
   assert.match(operations, /createCalendarInvite/);
-  assert.match(bookingAction, /hashBookingManageToken/);
+  assert.match(bookingAction, /bookingManageTokenLookup/);
+  assert.match(operations, /createHmac/);
+  assert.match(operations, /timingSafeEqual/);
   assert.match(bookingAction, /rescheduleDiscoveryBookingAction/);
   assert.match(bookingAction, /cancelDiscoveryBookingAction/);
   assert.match(reminders, /discovery_reminder_24h_sent_at/);

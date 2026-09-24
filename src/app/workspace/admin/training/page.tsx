@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -31,6 +31,29 @@ export default async function AdminTrainingPage() {
       </div>
 
       {error ? <section className="card dashboard-section-card"><h2>Migration required</h2><p className="muted">Apply the free training foundation migration before using course administration.</p></section> : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-admin-funnel">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>Learner completion funnel</h2>
+              <p>Unique signed-in learners who reached each training milestone in the last {funnel.windowDays} days. This is an activity funnel, not a fixed start-date cohort.</p>
+            </div>
+            <span className="badge">{funnel.windowDays} days</span>
+          </div>
+          <div className="compact-list training-funnel-list">
+            {funnel.stages.map((stage, index) => (
+              <div key={stage.event}>
+                <span>
+                  <strong>{index + 1}. {stage.label}</strong>
+                  <small>{stage.events} event{stage.events === 1 ? "" : "s"} recorded</small>
+                </span>
+                <span className="badge">{stage.learners} learner{stage.learners === 1 ? "" : "s"}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {paths.length ? (
         <section className="card dashboard-section-card">

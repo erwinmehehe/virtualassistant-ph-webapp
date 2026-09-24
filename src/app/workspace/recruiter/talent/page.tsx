@@ -11,7 +11,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
 import { APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION, publicVisibilityRequirements } from "@/lib/public-visibility";
 import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
-import type { JobOptionRow, RecruiterVaDirectoryRow, VaProfileReminderRow } from "@/lib/workspace-rows";
+import type {
+  JobOptionRow,
+  RecruiterTalentPageMetaRow,
+  RecruiterTalentSummaryRow,
+  RecruiterVaDirectoryRow,
+} from "@/lib/workspace-rows";
 
 const PAGE_SIZE = 25;
 
@@ -62,7 +67,7 @@ export default async function RecruiterTalentDirectory({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = admin
     .from("recruiter_va_directory")
-    .select("*", { count: "exact" });
+    .select("user_id,full_name,avatar_url,headline,primary_category,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status", { count: "exact" });
 
   if (sort === "completion") query = query.order("completion_score", { ascending: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
   else if (sort === "experience") query = query.order("years_experience", { ascending: false, nullsFirst: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
@@ -86,12 +91,11 @@ export default async function RecruiterTalentDirectory({
   });
 
   const from = (page - 1) * PAGE_SIZE;
-  const viewCountQueries = SAVED_VIEWS.map((preset) => {
-    let countQuery: any = admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true });
-    countQuery = applyRecruiterTalentFilters(countQuery, preset.filters);
-    return countQuery;
-  });
-  const [{ data: rowData, count, error }, { data: roles }, ...viewCountResults] = await Promise.all([
+  const [
+    { data: rowData, count, error },
+    { data: roles, error: rolesError },
+    { data: summaryData, error: summaryError },
+  ] = await Promise.all([
     query.range(from, from + PAGE_SIZE - 1),
     admin
       .from("jobs")
@@ -99,44 +103,50 @@ export default async function RecruiterTalentDirectory({
       .in("status", ["pending", "published"])
       .order("created_at", { ascending: false })
       .limit(100),
-    ...viewCountQueries
+    admin
+      .from("recruiter_talent_summary")
+      .select("*")
+      .eq("id", 1)
+      .single(),
   ]);
   if (error) throw error;
+  if (rolesError) throw rolesError;
+  if (summaryError) throw summaryError;
 
-  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-  const { data: onboardingData, error: onboardingError } = await admin
-    .from("recruiter_va_directory")
-    .select("user_id,full_name,email_verified,account_created_at,last_activity_at,completion_score,stage,account_status")
-    .eq("account_status", "active")
-    .gte("account_created_at", sevenDaysAgo)
-    .order("account_created_at", { ascending: false })
-    .limit(100);
-  if (onboardingError) throw onboardingError;
-  const newAccounts = (onboardingData || []) as RecruiterVaDirectoryRow[];
-  const recentZeroProfiles = newAccounts.filter((row) => Number(row.completion_score || 0) === 0);
-  const verifiedRecentZero = recentZeroProfiles.filter((row) => Boolean(row.email_verified));
-  const stalled = [...recentZeroProfiles].sort((a,b) =>
-    Number(b.email_verified) - Number(a.email_verified) ||
-    new Date(b.account_created_at || 0).getTime() - new Date(a.account_created_at || 0).getTime()
-  ).slice(0, 6);
+  const summary = summaryData as RecruiterTalentSummaryRow;
+  const newAccountsCount = Number(summary.new_accounts_7d || 0);
+  const recentZeroCount = Number(summary.recent_zero_7d || 0);
+  const verifiedRecentZeroCount = Number(summary.verified_recent_zero_7d || 0);
+  const stalled = Array.isArray(summary.stalled)
+    ? summary.stalled as RecruiterVaDirectoryRow[]
+    : [];
 
   const rows = (rowData || []) as RecruiterVaDirectoryRow[];
   const ids = rows.map((row) => row.user_id);
-  const [{ data: reminders }, { data: publicRows }, { data: visibilityRows }] = ids.length
-    ? await Promise.all([
-        admin
-          .from("va_profile_reminders")
-          .select("va_id,last_sent_at,reminder_count")
-          .in("va_id", ids),
-        admin.from("public_va_directory").select("user_id").in("user_id", ids),
-        admin.from("va_profiles").select("*").in("user_id", ids)
-      ])
-    : [{ data: [] }, { data: [] }, { data: [] }];
+  let metaRows: RecruiterTalentPageMetaRow[] = [];
+  if (ids.length) {
+    const { data: pageMeta, error: pageMetaError } = await admin
+      .from("recruiter_talent_page_meta")
+      .select("*")
+      .in("va_id", ids);
+    if (pageMetaError) throw pageMetaError;
+    metaRows = (pageMeta || []) as RecruiterTalentPageMetaRow[];
+  }
 
-  const reminderMap = new Map(((reminders || []) as VaProfileReminderRow[]).map((row) => [row.va_id, row]));
-  const publicIds = new Set(((publicRows || []) as { user_id: string }[]).map((row) => row.user_id));
-  const visibilityMap = new Map((visibilityRows || []).map((row: any) => [row.user_id, row]));
-  const savedViewCounts = new Map(SAVED_VIEWS.map((preset, index) => [preset.key, Number((viewCountResults[index] as any)?.count || 0)]));
+  const reminderMap = new Map(metaRows.map((row) => [row.va_id, row]));
+  const publicIds = new Set(metaRows.filter((row) => row.public_now).map((row) => row.va_id));
+  const visibilityMap = new Map(metaRows.map((row) => [row.va_id, row]));
+  const savedViewCounts = new Map<string, number>([
+    ["all", Number(summary.all_count || 0)],
+    ["approval_ready", Number(summary.approval_ready_count || 0)],
+    ["approval_cleanup", Number(summary.approval_cleanup_count || 0)],
+    ["missing_photo", Number(summary.missing_photo_count || 0)],
+    ["approved_hidden", Number(summary.approved_hidden_count || 0)],
+    ["bench", Number(summary.bench_count || 0)],
+    ["stale_60", Number(summary.stale_60_count || 0)],
+    ["available", Number(summary.available_count || 0)],
+    ["needs_review", Number(summary.needs_review_count || 0)],
+  ]);
   const total = count || 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentUrl = `/workspace/recruiter/talent${qs(params, { page })}`;
@@ -222,9 +232,9 @@ export default async function RecruiterTalentDirectory({
         <Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all 0% profiles</Link>
       </div>
       <div className="talent-onboarding-stats">
-        <div><span>New accounts · 7 days</span><strong>{newAccounts.length}</strong><small>Recent VA signups</small></div>
-        <div><span>Recent 0% profiles · 7 days</span><strong>{recentZeroProfiles.length}</strong><small>Setup has not started</small></div>
-        <div><span>Verified recent 0%</span><strong>{verifiedRecentZero.length}</strong><small>Highest-priority rescue queue</small></div>
+        <div><span>New accounts · 7 days</span><strong>{newAccountsCount}</strong><small>Recent VA signups</small></div>
+        <div><span>Recent 0% profiles · 7 days</span><strong>{recentZeroCount}</strong><small>Setup has not started</small></div>
+        <div><span>Verified recent 0%</span><strong>{verifiedRecentZeroCount}</strong><small>Highest-priority rescue queue</small></div>
       </div>
       {stalled.length ? <div className="talent-onboarding-list">{stalled.map((row) => {
         const lastActiveDays = row.last_activity_at ? Math.max(0, Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000)) : null;
@@ -358,7 +368,7 @@ export default async function RecruiterTalentDirectory({
               const activity = row.last_activity_at ? Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000) : null;
               const publicNow = publicIds.has(row.user_id);
               const approved = ["approved", "bench"].includes(String(row.stage || ""));
-              const publicProfile: any = visibilityMap.get(row.user_id) || {};
+              const publicProfile = visibilityMap.get(row.user_id) || {};
               const activeConsent = publicProfile.public_profile_consent === true
                 && Boolean(publicProfile.public_profile_consent_at)
                 && !publicProfile.public_profile_consent_withdrawn_at

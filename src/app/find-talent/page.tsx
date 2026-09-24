@@ -5,10 +5,10 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { PublicAvatar } from "@/components/public-avatar";
-import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
+import { searchPublicTalent } from "@/lib/talent-search";
 import { canonicalPath } from "@/lib/seo-url";
 import "../cro-hiring-tools.css";
 
@@ -18,12 +18,6 @@ export const metadata: Metadata = {
   keywords: ["vetted virtual assistants philippines", "hire filipino virtual assistant", "browse virtual assistants", "filipino va directory"],
   alternates: { canonical: canonicalPath("/find-talent") }
 };
-
-function includesText(value: unknown, query: string) {
-  if (!query) return true;
-  if (Array.isArray(value)) return value.some((x) => String(x).toLowerCase().includes(query));
-  return String(value ?? "").toLowerCase().includes(query);
-}
 
 const TALENT_PAGE_SIZE = 24;
 function talentPageHref(params: Record<string,string|undefined>, page: number) {
@@ -36,47 +30,43 @@ function talentPageHref(params: Record<string,string|undefined>, page: number) {
 
 export default async function FindTalentPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const params = await searchParams;
-  let data: any[] | null = null;
-  try {
-    const supabase = await createClient();
-    const result = await supabase.from("public_va_directory").select("*").gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE).limit(200);
-    data = result.data;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.warn("[find-talent] Supabase unavailable:", (err as Error).message);
-  }
-
-  const q = String(params.q ?? "").trim().toLowerCase();
+  const q = String(params.q ?? "").trim();
   const category = String(params.category ?? "").trim();
-  const tool = String(params.tool ?? "").trim().toLowerCase();
+  const tool = String(params.tool ?? "").trim();
   const minHours = Number(params.min_hours || 0);
   const minExperience = Math.max(PUBLIC_VA_MIN_EXPERIENCE, Number(params.min_experience || PUBLIC_VA_MIN_EXPERIENCE));
   const minOverlap = Number(params.min_overlap || 0);
-  const timezone = String(params.timezone ?? "").trim().toLowerCase();
+  const timezone = String(params.timezone ?? "").trim();
   const portfolioOnly = params.portfolio === "1";
   const sort = params.sort || "recommended";
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
 
-  let vas = (data || []).filter((va:any) => {
-    if (!va.slug) return false;
-    const categories = [va.primary_category, ...(va.categories || [])].filter(Boolean);
-    const matchesCategory = !category || categories.includes(category);
-    const matchesQuery = !q || [va.full_name, va.headline, va.bio, va.primary_category].some((v) => includesText(v, q)) || [va.categories, va.skills, va.tools, va.industries, va.languages].some((v) => includesText(v, q));
-    const matchesTool = !tool || (va.tools || []).some((x:string) => x.toLowerCase().includes(tool));
-    const matchesHours = !minHours || Number(va.weekly_hours || 0) >= minHours;
-    const matchesExperience = Number(va.years_experience || 0) >= minExperience;
-    const matchesOverlap = !minOverlap || Number(va.overlap_hours || 0) >= minOverlap;
-    const matchesTimezone = !timezone || String(va.preferred_timezone || va.schedule || "").toLowerCase().includes(timezone);
-    const matchesPortfolio = !portfolioOnly || Boolean(va.has_portfolio);
-    return matchesCategory && matchesQuery && matchesTool && matchesHours && matchesExperience && matchesOverlap && matchesTimezone && matchesPortfolio;
-  });
+  let pageVas: any[] = [];
+  let totalResults = 0;
+  let semanticSearchActive = false;
+  try {
+    const result = await searchPublicTalent({
+      query: q,
+      category,
+      tool,
+      minHours,
+      minExperience,
+      minOverlap,
+      timezone,
+      portfolioOnly,
+      sort,
+      page: requestedPage,
+      pageSize: TALENT_PAGE_SIZE,
+    });
+    pageVas = result.rows;
+    totalResults = result.total;
+    semanticSearchActive = result.semantic;
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") console.warn("[find-talent] Search unavailable:", (err as Error).message);
+  }
 
-  if (sort === "experience") vas = vas.sort((a:any,b:any) => Number(b.years_experience || 0) - Number(a.years_experience || 0));
-  if (sort === "availability") vas = vas.sort((a:any,b:any) => Number(b.weekly_hours || 0) - Number(a.weekly_hours || 0));
-  if (sort === "newest") vas = vas.sort((a:any,b:any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-
-  const totalResults = vas.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / TALENT_PAGE_SIZE));
-  const page = Math.min(totalPages, Math.max(1, Number(params.page || 1) || 1));
-  const pageVas = vas.slice((page - 1) * TALENT_PAGE_SIZE, page * TALENT_PAGE_SIZE);
+  const page = Math.min(requestedPage, totalPages);
 
   return <><SiteHeader/><main id="main-content" className="talent-directory-page">
     <CompactPageHeader
@@ -99,7 +89,7 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
         <Link className="directory-reset" href="/find-talent">Reset</Link>
       </form>
 
-      <div className="directory-result-head"><div><strong>{totalResults} approved profile{totalResults === 1 ? "" : "s"}</strong><span className="small muted">These are talent examples. Your recruiter confirms current fit and availability before presenting anyone to you.</span></div></div>
+      <div className="directory-result-head"><div><strong>{totalResults} approved profile{totalResults === 1 ? "" : "s"}</strong><span className="small muted">{q && semanticSearchActive ? "Search combines meaning, skills, tools, and your structured filters. " : ""}These are talent examples. Your recruiter confirms current fit and availability before presenting anyone to you.</span></div></div>
       {pageVas.length ? <><div className="talent-directory-grid">{pageVas.map((va:any)=>{
         const skills = uniqueStrings(va.skills).slice(0,3);
         return <article className="talent-market-card" key={va.user_id}>

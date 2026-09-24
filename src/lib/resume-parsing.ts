@@ -26,17 +26,87 @@ const EMPTY_RESULT: ParsedResumeFields = {
   years_experience: null
 };
 
-/** Extracts raw text from an uploaded resume file (PDF or DOCX). */
-export async function extractResumeText(buffer: Buffer, mimeType: string): Promise<string> {
+const MAX_EXTRACTED_TEXT = 250_000;
+const MAX_PDF_PAGES = 60;
+const MAX_DOCX_UNCOMPRESSED_BYTES = 25 * 1024 * 1024;
+const MAX_DOCX_COMPRESSION_RATIO = 120;
+const MAX_DOCX_ENTRIES = 1_000;
+
+function validateDocxArchive(buffer: Buffer) {
+  const minEocd = Math.max(0, buffer.length - 65_557);
+  let eocd = -1;
+  for (let offset = buffer.length - 22; offset >= minEocd; offset -= 1) {
+    if (buffer.readUInt32LE(offset) === 0x06054b50) {
+      eocd = offset;
+      break;
+    }
+  }
+  if (eocd < 0) throw new Error("Invalid DOCX archive.");
+
+  const entryCount = buffer.readUInt16LE(eocd + 10);
+  const centralDirectorySize = buffer.readUInt32LE(eocd + 12);
+  const centralDirectoryOffset = buffer.readUInt32LE(eocd + 16);
+  if (entryCount > MAX_DOCX_ENTRIES) throw new Error("DOCX contains too many archive entries.");
+  if (centralDirectoryOffset + centralDirectorySize > buffer.length) throw new Error("Invalid DOCX directory.");
+
+  let offset = centralDirectoryOffset;
+  let compressedTotal = 0;
+  let uncompressedTotal = 0;
+  for (let index = 0; index < entryCount; index += 1) {
+    if (offset + 46 > buffer.length || buffer.readUInt32LE(offset) !== 0x02014b50) {
+      throw new Error("Invalid DOCX directory entry.");
+    }
+    const compressed = buffer.readUInt32LE(offset + 20);
+    const uncompressed = buffer.readUInt32LE(offset + 24);
+    const nameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    compressedTotal += compressed;
+    uncompressedTotal += uncompressed;
+    if (uncompressedTotal > MAX_DOCX_UNCOMPRESSED_BYTES) {
+      throw new Error("DOCX expands beyond the safe processing limit.");
+    }
+    offset += 46 + nameLength + extraLength + commentLength;
+  }
+
+  if (uncompressedTotal > 0 && compressedTotal <= 0) {
+    throw new Error("DOCX compression metadata is invalid.");
+  }
+  if (compressedTotal > 0 && uncompressedTotal / compressedTotal > MAX_DOCX_COMPRESSION_RATIO) {
+    throw new Error("DOCX compression ratio exceeds the safe processing limit.");
+  }
+}
+
+export function validateResumeBuffer(buffer: Buffer, mimeType: string) {
+  if (!buffer.length) throw new Error("Resume file is empty.");
   if (mimeType === "application/pdf") {
-    // pdf-parse uses PDF.js internally. On server runtimes such as Vercel,
-    // DOMMatrix is not a global, so load the package's Node canvas factory
-    // before PDFParse and pass it explicitly.
+    if (buffer.length < 5 || buffer.subarray(0, 5).toString("ascii") !== "%PDF-") {
+      throw new Error("File contents do not match a PDF.");
+    }
+    return;
+  }
+  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    if (buffer.length < 4 || buffer.readUInt32LE(0) !== 0x04034b50) {
+      throw new Error("File contents do not match a DOCX.");
+    }
+    validateDocxArchive(buffer);
+    return;
+  }
+  throw new Error("Unsupported resume type.");
+}
+
+/** Extracts bounded raw text from an uploaded resume file (PDF or DOCX). */
+export async function extractResumeText(buffer: Buffer, mimeType: string): Promise<string> {
+  validateResumeBuffer(buffer, mimeType);
+  if (mimeType === "application/pdf") {
     const { CanvasFactory } = await import("pdf-parse/worker");
     const { PDFParse } = await import("pdf-parse");
     const parser = new PDFParse({ data: buffer, CanvasFactory });
     try {
       const result = await parser.getText();
+      const pages = Number((result as { total?: number }).total || 0);
+      if (pages > MAX_PDF_PAGES) throw new Error("PDF has too many pages for resume auto-fill.");
+      if (result.text.length > MAX_EXTRACTED_TEXT) throw new Error("Resume text exceeds the safe processing limit.");
       return result.text;
     } finally {
       await parser.destroy();
@@ -45,10 +115,9 @@ export async function extractResumeText(buffer: Buffer, mimeType: string): Promi
   if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
     const mammoth = await import("mammoth");
     const result = await mammoth.extractRawText({ buffer });
+    if (result.value.length > MAX_EXTRACTED_TEXT) throw new Error("Resume text exceeds the safe processing limit.");
     return result.value;
   }
-  // Legacy .doc (application/msword) has no reliable pure-JS text extractor;
-  // callers should skip auto-fill for that format and fall back to manual entry.
   throw new Error("Auto-fill only supports PDF and DOCX resumes. DOC files can still be uploaded, just fill the form manually.");
 }
 

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
+import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -341,7 +342,7 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
@@ -349,7 +350,8 @@ export async function GET(request: Request) {
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
+    runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
 }

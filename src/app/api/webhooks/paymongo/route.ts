@@ -199,11 +199,12 @@ export async function POST(request: Request) {
         p_reason: "PayMongo marked the payment as disputed.",
       });
       if (error) throw error;
-      payment = disputedRow;
+      const disputedDescription = disputedRow?.description || payment.description || "a payment";
+      payment = disputedRow || payment;
       await notifyAdmins(
         admin,
         "Provider payment dispute",
-        `PayMongo marked "${payment.description || "a payment"}" as disputed. Payout/reconciliation requires review.`
+        `PayMongo marked "${disputedDescription}" as disputed. Payout/reconciliation requires review.`
       );
     }
 

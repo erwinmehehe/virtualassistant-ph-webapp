@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { CircleUserRound, LogOut, Sparkles } from "lucide-react";
+import { ChevronRight, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
 import { getWorkspaceBadges, type WorkspaceBadges } from "@/lib/workspace-badges";
@@ -20,6 +20,13 @@ const workspaceHome: Record<Role, string> = {
   admin: "/workspace/admin/today",
 };
 
+function accountInitials(name?: string | null) {
+  const parts = (name || "Account").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "A";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
+}
+
 async function WorkspaceNavWithBadges({ role, userId }: { role: Role; userId: string }) {
   const badges = await getWorkspaceBadges(role, userId);
   return <AppNavLinks role={role} badges={badges}/>;
@@ -27,6 +34,7 @@ async function WorkspaceNavWithBadges({ role, userId }: { role: Role; userId: st
 
 export function AppShell({ role, name, avatarUrl, title, children, badges, userId }: { role: Role; name?: string | null; avatarUrl?: string | null; title: string; children: React.ReactNode; badges?: WorkspaceBadges; userId?: string | null }) {
   const roleLabel = roleLabels[role];
+  const initials = accountInitials(name);
   const nav = badges
     ? <AppNavLinks role={role} badges={badges}/>
     : userId
@@ -34,7 +42,7 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
       : <AppNavLinks role={role}/>;
 
   return (
-    <div className="app-shell dashboard-shell">
+    <div className={`app-shell dashboard-shell workspace-role-${role}`}>
       <aside className="app-sidebar">
         <div className="app-sidebar-brand">
           <Link className="app-brand" href={workspaceHome[role]} aria-label={`Go to ${roleLabel} workspace home`}>
@@ -53,11 +61,17 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
             aria-label="Open account settings"
             title="Account settings"
           >
-            <span className="app-account-avatar" aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : <CircleUserRound size={18}/>}</span>
+            <span className={`app-account-avatar ${avatarUrl ? "has-photo" : "has-initials"}`} aria-hidden="true">
+              {avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : <strong>{initials}</strong>}
+            </span>
             <div className="user-copy"><strong>{name || "Account"}</strong><span>{roleLabel}</span></div>
+            <span className="app-account-chevron" aria-hidden="true"><ChevronRight size={14}/></span>
           </Link>
-          <form action={logoutAction}>
-            <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
+          <form action={logoutAction} className="app-logout-form">
+            <button className="btn btn-ghost app-logout-button" type="submit">
+              <span className="app-logout-icon" aria-hidden="true"><LogOut size={15}/></span>
+              <span>Sign out</span>
+            </button>
           </form>
         </div>
       </aside>

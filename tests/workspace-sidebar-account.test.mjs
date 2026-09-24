@@ -11,14 +11,16 @@ test("workspace sidebar removes the global help link",async()=>{
   assert.doesNotMatch(shell,/LifeBuoy/);
 });
 
-test("workspace sidebar renders the saved account avatar with an icon fallback",async()=>{
+test("workspace sidebar renders the saved account avatar with a colored initials fallback",async()=>{
   const [shell,css]=await Promise.all([
     read("src/components/app-shell.tsx"),
     read("src/app/dashboard-premium.css"),
   ]);
   assert.match(shell,/avatarUrl\?: string \| null/);
   assert.match(shell,/avatarUrl \? <img src=\{avatarUrl\}/);
-  assert.match(shell,/: <CircleUserRound size=\{18\}\/?>/);
+  assert.match(shell,/accountInitials\(name\)/);
+  assert.match(shell,/has-initials/);
+  assert.match(shell,/<strong>\{initials\}<\/strong>/);
   assert.match(css,/\.app-account-avatar img/);
   assert.match(css,/object-fit: cover/);
   assert.match(css,/overflow: hidden/);
@@ -52,4 +54,34 @@ test("workspace navigation gives icons distinct restrained color treatments",asy
   assert.match(css,/\.nav-tone-amber/);
   assert.match(css,/\.nav-tone-rose/);
   assert.match(css,/app-nav-mobile > a \.app-nav-icon/);
+});
+
+
+test("shared account footer uses role-aware avatar tones and a styled sign-out icon",async()=>{
+  const [shell,css]=await Promise.all([
+    read("src/components/app-shell.tsx"),
+    read("src/app/dashboard-premium.css"),
+  ]);
+
+  assert.match(shell,/workspace-role-\$\{role\}/);
+  assert.match(shell,/app-account-chevron/);
+  assert.match(shell,/app-logout-icon/);
+
+  for(const role of ["client","recruiter","admin"]){
+    assert.match(css,new RegExp(`workspace-role-${role} \\.sidebar-footer`));
+  }
+
+  assert.match(css,/\.app-account-avatar\.has-initials strong/);
+  assert.match(css,/\.app-logout-icon/);
+  assert.match(css,/\.app-account-card:hover/);
+});
+
+test("all four workspace roles share the colored navigation icon renderer",async()=>{
+  const nav=await read("src/components/app-nav-links.tsx");
+  assert.match(nav,/const nav: Record<Role/);
+  for(const role of ["client","va","recruiter","admin"]){
+    assert.ok(nav.includes(`${role}: [`), `${role} should use the shared navigation renderer`);
+  }
+  assert.match(nav,/app-nav-icon nav-tone-/);
+  assert.match(nav,/navToneFor\(label, href\)/);
 });

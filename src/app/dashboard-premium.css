@@ -156,10 +156,32 @@
 }
 
 .dashboard-shell .sidebar-footer {
+  --account-accent: #4f46e5;
+  --account-accent-soft: #eef2ff;
+  --account-accent-border: #dfe3ff;
   margin-top: auto;
   padding-top: 14px;
   border-top: 1px solid #eef2f7;
 }
+
+.dashboard-shell.workspace-role-client .sidebar-footer {
+  --account-accent: #2563eb;
+  --account-accent-soft: #eff6ff;
+  --account-accent-border: #dbeafe;
+}
+
+.dashboard-shell.workspace-role-recruiter .sidebar-footer {
+  --account-accent: #0f8b78;
+  --account-accent-soft: #ecfdf8;
+  --account-accent-border: #c9f3e7;
+}
+
+.dashboard-shell.workspace-role-admin .sidebar-footer {
+  --account-accent: #7c3aed;
+  --account-accent-soft: #f5f3ff;
+  --account-accent-border: #e8e1ff;
+}
+
 .dashboard-shell .app-support-card {
   margin-bottom: 10px;
   padding: 13px;
@@ -178,55 +200,153 @@
   font-size: 11px;
   font-weight: 800;
 }
+
 .dashboard-shell .app-account-card {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 40px minmax(0, 1fr) 26px;
+  gap: 10px;
   align-items: center;
-  padding: 9px 8px 10px;
+  margin-bottom: 6px;
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
 }
+
+.dashboard-shell .app-account-card:hover {
+  border-color: var(--account-accent-border);
+  background: linear-gradient(135deg, #fff, color-mix(in srgb, var(--account-accent-soft) 72%, white));
+  box-shadow: 0 10px 22px -20px color-mix(in srgb, var(--account-accent) 38%, transparent);
+  transform: translateY(-1px);
+}
+
 .dashboard-shell .app-account-avatar {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   place-items: center;
   overflow: hidden;
-  border-radius: 11px;
-  color: #4338ca;
-  background: #eef2ff;
+  border: 1px solid var(--account-accent-border);
+  border-radius: 12px;
+  color: var(--account-accent);
+  background: var(--account-accent-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.82),
+    0 6px 14px -12px color-mix(in srgb, var(--account-accent) 40%, transparent);
 }
+
+.dashboard-shell .app-account-avatar.has-initials strong {
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 880;
+  letter-spacing: .02em;
+}
+
+.dashboard-shell .app-account-avatar.has-photo {
+  padding: 2px;
+  background: linear-gradient(145deg, var(--account-accent-soft), #fff);
+}
+
 .dashboard-shell .app-account-avatar img {
   display: block;
   width: 100%;
   height: 100%;
+  border-radius: 9px;
   object-fit: cover;
 }
-.dashboard-shell .app-account-card strong,
-.dashboard-shell .app-account-card span { display: block; }
-.dashboard-shell .app-account-card strong {
+
+.dashboard-shell .app-account-card .user-copy {
+  min-width: 0;
+}
+
+.dashboard-shell .app-account-card .user-copy strong,
+.dashboard-shell .app-account-card .user-copy span {
+  display: block;
+}
+
+.dashboard-shell .app-account-card .user-copy strong {
   overflow: hidden;
   color: #1e293b;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 820;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.dashboard-shell .app-account-card span {
-  margin-top: 2px;
-  color: #94a3b8;
-  font-size: 10px;
-  font-weight: 650;
+
+.dashboard-shell .app-account-card .user-copy span {
+  margin-top: 3px;
+  color: var(--account-accent);
+  font-size: 9.5px;
+  font-weight: 760;
   text-transform: capitalize;
 }
+
+.dashboard-shell .app-account-chevron {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  margin: 0 !important;
+  border-radius: 8px;
+  color: #98a2b3 !important;
+  background: #f8fafc;
+  transition: color .16s ease, background .16s ease, transform .16s ease;
+}
+
+.dashboard-shell .app-account-card:hover .app-account-chevron {
+  color: var(--account-accent) !important;
+  background: var(--account-accent-soft);
+  transform: translateX(1px);
+}
+
+.dashboard-shell .app-logout-form {
+  margin: 0;
+}
+
 .dashboard-shell .app-logout-button {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
   width: 100%;
-  min-height: 38px;
-  justify-content: flex-start;
-  border-color: transparent;
+  min-height: 42px;
+  justify-content: stretch;
+  align-items: center;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: #64748b;
   background: transparent;
+  text-align: left;
 }
-.dashboard-shell .app-logout-button:hover { color: #be123c; background: #fff1f2; border-color: #ffe4e6; }
+
+.dashboard-shell .app-logout-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #ffe0e6;
+  border-radius: 9px;
+  color: #e11d48;
+  background: #fff1f2;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.dashboard-shell .app-logout-icon svg {
+  color: currentColor;
+}
+
+.dashboard-shell .app-logout-button:hover {
+  color: #be123c;
+  border-color: #ffe4e6;
+  background: #fff7f8;
+}
+
+.dashboard-shell .app-logout-button:hover .app-logout-icon {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 14px -10px rgba(225, 29, 72, .48);
+}
 
 .dashboard-shell .app-main {
   min-width: 0;

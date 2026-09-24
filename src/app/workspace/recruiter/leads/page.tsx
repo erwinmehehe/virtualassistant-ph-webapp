@@ -11,6 +11,7 @@ import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { scoreLead } from "@/lib/lead-scoring";
 import styles from "./leads.module.css";
 
@@ -215,7 +216,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     <div className={styles.crmPage}>
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
+      {params.contact_already_sent ? <div className="success-banner">That reply is already being sent or was already sent. No duplicate email was created.</div> : null}
       {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
+      {params.discovery_already_saved ? <div className="success-banner">That discovery booking is already saved or being processed. No duplicate booking was created.</div> : null}
       {params.meet_link_created ? <div className="success-banner">Google Meet created and sent to the client.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
@@ -314,7 +317,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
             <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
             <label className="small"><input type="checkbox" name="archive_copy" value="1"/> Send a hidden archive copy to the configured internal archive recipients</label>
-            <div className="row wrap"><button className="btn btn-primary" type="submit">Send reply</button><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
+            <div className="row wrap"><PendingSubmitButton label="Send reply" pendingLabel="Sending…" /><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
           </form>;
 
           return <article className={`card crm-lead-card ${slaMissed || followOverdue ? "needs-attention" : ""}`} key={lead.id}>
@@ -436,13 +439,14 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 <summary><CalendarClock size={16}/><span><strong>{lead.discovery_scheduled_at ? "Reschedule discovery" : "Book discovery"}</strong><small>Send the client a confirmed date, time, and meeting link.</small></span></summary>
                 <form action={scheduleDiscoveryAction} className="crm-tool-form">
                   <input type="hidden" name="lead_id" value={lead.id}/>
+                  <input type="hidden" name="request_id" value={crypto.randomUUID()}/>
                   <input type="hidden" name="return_to" value={returnTo}/>
                   <div className="grid-3">
                     <div className="field"><label>Date & time <span className="muted">(Manila)</span></label><input type="datetime-local" name="discovery_scheduled_at" required defaultValue={dateTimeInput(lead.discovery_scheduled_at)}/></div>
                     <div className="field"><label>Duration</label><select name="discovery_duration_minutes" defaultValue={String(lead.discovery_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>
                     <div className="field"><label>Meeting link</label><input name="discovery_meeting_url" type="url" defaultValue={lead.discovery_meeting_url || ""} placeholder="https://meet.google.com/..."/></div>
                   </div>
-                  <button className="btn btn-primary" type="submit">Book and email client</button>
+                  <PendingSubmitButton label="Book and email client" pendingLabel="Booking…" />
                 </form>
               </details> : null}
 
@@ -488,6 +492,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
             <div className="crm-contact-bar">
               {actionResultForLead && params.contact_sent ? <div className="crm-inline-action-state is-success">Reply sent to {lead.email}. CRM contact and follow-up timestamps were updated.</div> : null}
+              {actionResultForLead && params.contact_already_sent ? <div className="crm-inline-action-state is-success">This reply is already being sent or was already sent. No duplicate email was created.</div> : null}
               {actionResultForLead && params.contact_error ? <div className="crm-inline-action-state is-error" role="alert">{params.contact_error}</div> : null}
               {needsFirstReply ? <div className="staff-followup-details crm-inline-reply">
                 <div className="crm-inline-reply-head"><Mail size={15}/><span><strong>Reply to client</strong><small>The reply form is ready below. Use Send reply when the message is ready.</small></span></div>

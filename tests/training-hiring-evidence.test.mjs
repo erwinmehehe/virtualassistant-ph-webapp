@@ -43,7 +43,7 @@ test("recruiter candidate profiles show training as supporting evidence", async 
 test("client shortlist training data is fetched only for recruiter-released accessible candidates", async () => {
   const page = await source("src/app/workspace/client/candidates/page.tsx");
   const helper = await source("src/lib/client-hiring-room.ts");
-  const migration = await source("supabase/migrations/20260924164500_client_hiring_room_summary.sql");
+  const migration = await source("supabase/migrations/20260924172000_client_hiring_room_summary.sql");
   const detail = await source("src/app/workspace/client/candidates/[id]/page.tsx");
   const card = await source("src/components/client-shortlist-candidate-card.tsx");
 

@@ -40,7 +40,7 @@ test("client shortlist is capped, ordered, and persisted", async () => {
     read("src/app/actions/matching.ts"),
     read("src/app/workspace/client/candidates/page.tsx"),
     read("supabase/migrations/20260922035431_add_shortlist_order.sql"),
-    read("supabase/migrations/20260924164500_client_hiring_room_summary.sql")
+    read("supabase/migrations/20260924172000_client_hiring_room_summary.sql")
   ]);
   assert.match(table, /Aim for 3–5 client-ready candidates/);
   assert.match(table, /moveSelected/);

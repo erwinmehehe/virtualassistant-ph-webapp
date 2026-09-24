@@ -291,8 +291,8 @@ export default async function TrainingDashboardPage({
     ? SPECIALTY_PATHS[specialty] || DEFAULT_PATH
     : DEFAULT_PATH;
   const recommendedCourses: TrainingCourseSummary[] = recommendation.slugs
-    .map((slug: string) => courses.find((course: TrainingCourseSummary) => course.slug === slug) || null)
-    .filter((course: TrainingCourseSummary | null): course is TrainingCourseSummary => Boolean(course));
+    .map((slug) => courses.find((course) => course.slug === slug) || null)
+    .filter((course): course is TrainingCourseSummary => Boolean(course));
   const completedRecommended = recommendedCourses.filter((course) => Boolean(course.completedAt)).length;
   const nextRecommended = recommendedCourses.find((course) => !course.completedAt) || null;
   const recommendedProgress = recommendedCourses.length

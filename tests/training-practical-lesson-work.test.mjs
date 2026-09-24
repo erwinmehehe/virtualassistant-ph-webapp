@@ -26,15 +26,15 @@ test("learner lesson player renders clear practice deliverables and reusable res
     readFile(practiceComponentPath, "utf8"),
   ]);
 
-  assert.match(lesson, /Practice task/);
+  assert.match(lesson, /Try this now/);
   assert.match(lesson, /Your deliverable/);
   assert.match(lesson, /TrainingTemplateBlock/);
   assert.match(lesson, /TrainingChecklistBlock/);
 
-  assert.match(practice, /Reusable template/);
+  assert.match(practice, /Use this template/);
   assert.match(practice, /Copy template/);
   assert.match(practice, /navigator\.clipboard\.writeText/);
-  assert.match(practice, /QA checklist/);
+  assert.match(practice, /Check your work/);
   assert.match(practice, /type="checkbox"/);
   assert.match(practice, /Reset/);
 });

@@ -37,3 +37,26 @@ test("every workspace shell passes the profile avatar",async()=>{
     assert.match(source,/avatarUrl=\{profile\.avatar_url\}/,`${path} should pass the saved avatar`);
   }
 });
+
+
+test("workspace navigation uses colored icon tiles with clear active states",async()=>{
+  const [nav,css]=await Promise.all([
+    read("src/components/app-nav-links.tsx"),
+    read("src/app/dashboard-premium.css"),
+  ]);
+
+  assert.match(nav,/navToneFor\(href\)/);
+  assert.match(nav,/className="app-nav-icon"/);
+  assert.match(nav,/nav-tone-\$\{navToneFor\(href\)\}/);
+  assert.match(nav,/href\.includes\("\/training"\).*"violet"/);
+  assert.match(nav,/href\.includes\("\/payments"\).*"emerald"/);
+  assert.match(nav,/href\.includes\("\/jobs"\).*"cyan"/);
+  assert.match(nav,/href\.includes\("\/work-readiness"\).*"teal"/);
+
+  assert.match(css,/\.dashboard-shell \.app-nav-icon/);
+  assert.match(css,/\.nav-tone-indigo \.app-nav-icon/);
+  assert.match(css,/\.nav-tone-violet \.app-nav-icon/);
+  assert.match(css,/\.nav-tone-cyan \.app-nav-icon/);
+  assert.match(css,/\.nav-tone-emerald \.app-nav-icon/);
+  assert.match(css,/a\[aria-current="page"\] \.app-nav-icon/);
+});

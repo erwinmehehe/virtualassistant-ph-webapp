@@ -60,7 +60,7 @@ export function TrainingChecklistBlock({
     <section className="training-checklist-block">
       <div className="training-practice-block-head">
         <div>
-          <span className="dash-kicker">Check your work</span>
+          <span className="dash-kicker">QA checklist</span>
           {title ? <h3>{title}</h3> : null}
         </div>
         {checked.length ? (

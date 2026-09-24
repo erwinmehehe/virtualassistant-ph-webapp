@@ -232,9 +232,164 @@ export default async function AdminAnalyticsPage() {
     ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
     ["Lesson completions", trainingCount("training_lesson_complete"), "Completed lessons across all learners"],
-    ["Assessment submissions", trainingCount("training_assessment_submit"), "Practical work submitted for reviewer scoring"],
-    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions after required assessment review"]
+    ["Assessment submissions", trainingCount("training_assessment_submit"), "Automatic final-check submissions"],
+    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded automatic course completions"]
   ] as const;
+
+  const trainingEnrollments = (trainingEnrollmentData || []) as TrainingEnrollmentAnalyticsRow[];
+  const trainingProgress = (trainingProgressData || []) as TrainingProgressAnalyticsRow[];
+  const trainingSubmissions = (trainingSubmissionData || []) as TrainingSubmissionAnalyticsRow[];
+  const trainingCertificates = (trainingCertificateData || []) as TrainingCertificateAnalyticsRow[];
+
+  const moduleCourseById = new Map(trainingModules.map((module) => [module.id, module.course_id]));
+  const modulePositionById = new Map(trainingModules.map((module) => [module.id, module.position]));
+  const lessonCourseById = new Map(trainingLessons.map((lesson) => [lesson.id, moduleCourseById.get(lesson.module_id) || ""]));
+  const lessonsByCourse = new Map<string, TrainingLessonAnalyticsRow[]>();
+  for (const lesson of trainingLessons) {
+    const courseId = lessonCourseById.get(lesson.id);
+    if (!courseId) continue;
+    const list = lessonsByCourse.get(courseId) || [];
+    list.push(lesson);
+    lessonsByCourse.set(courseId, list);
+  }
+  for (const list of lessonsByCourse.values()) {
+    list.sort((a, b) =>
+      Number(modulePositionById.get(a.module_id) || 0) - Number(modulePositionById.get(b.module_id) || 0) ||
+      a.position - b.position ||
+      a.title.localeCompare(b.title)
+    );
+  }
+
+  const enrollmentsByCourse = new Map<string, Set<string>>();
+  const completedEnrollmentsByCourse = new Map<string, Set<string>>();
+  for (const enrollment of trainingEnrollments) {
+    const enrolled = enrollmentsByCourse.get(enrollment.course_id) || new Set<string>();
+    enrolled.add(enrollment.user_id);
+    enrollmentsByCourse.set(enrollment.course_id, enrolled);
+    if (enrollment.completed_at) {
+      const completed = completedEnrollmentsByCourse.get(enrollment.course_id) || new Set<string>();
+      completed.add(enrollment.user_id);
+      completedEnrollmentsByCourse.set(enrollment.course_id, completed);
+    }
+  }
+
+  const progressByCourseUser = new Map<string, Map<string, Set<string>>>();
+  const completionsByLesson = new Map<string, Set<string>>();
+  for (const progress of trainingProgress) {
+    const courseId = lessonCourseById.get(progress.lesson_id);
+    if (!courseId) continue;
+    const byUser = progressByCourseUser.get(courseId) || new Map<string, Set<string>>();
+    const userLessons = byUser.get(progress.user_id) || new Set<string>();
+    userLessons.add(progress.lesson_id);
+    byUser.set(progress.user_id, userLessons);
+    progressByCourseUser.set(courseId, byUser);
+    const lessonUsers = completionsByLesson.get(progress.lesson_id) || new Set<string>();
+    lessonUsers.add(progress.user_id);
+    completionsByLesson.set(progress.lesson_id, lessonUsers);
+  }
+
+  const assessmentsByCourse = new Map<string, TrainingAssessmentAnalyticsRow[]>();
+  const assessmentById = new Map(trainingAssessments.map((assessment) => [assessment.id, assessment]));
+  for (const assessment of trainingAssessments) {
+    const list = assessmentsByCourse.get(assessment.course_id) || [];
+    list.push(assessment);
+    assessmentsByCourse.set(assessment.course_id, list);
+  }
+
+  const attemptedUsersByCourse = new Map<string, Set<string>>();
+  const passedAssessmentIdsByCourseUser = new Map<string, Map<string, Set<string>>>();
+  for (const submission of trainingSubmissions) {
+    const assessment = assessmentById.get(submission.assessment_id);
+    if (!assessment) continue;
+    const attempted = attemptedUsersByCourse.get(assessment.course_id) || new Set<string>();
+    attempted.add(submission.user_id);
+    attemptedUsersByCourse.set(assessment.course_id, attempted);
+    const passed =
+      submission.status === "reviewed" &&
+      (assessment.pass_score === null ||
+        (submission.score !== null && Number(submission.score) >= Number(assessment.pass_score)));
+    if (!passed) continue;
+    const byUser = passedAssessmentIdsByCourseUser.get(assessment.course_id) || new Map<string, Set<string>>();
+    const passedIds = byUser.get(submission.user_id) || new Set<string>();
+    passedIds.add(assessment.id);
+    byUser.set(submission.user_id, passedIds);
+    passedAssessmentIdsByCourseUser.set(assessment.course_id, byUser);
+  }
+
+  const certifiedUsersByCourse = new Map<string, Set<string>>();
+  for (const certificate of trainingCertificates) {
+    if (certificate.revoked_at) continue;
+    const users = certifiedUsersByCourse.get(certificate.course_id) || new Set<string>();
+    users.add(certificate.user_id);
+    certifiedUsersByCourse.set(certificate.course_id, users);
+  }
+
+  const trainingCourseFunnels = trainingCourses.map((course) => {
+    const courseLessons = lessonsByCourse.get(course.id) || [];
+    const requiredAssessments = assessmentsByCourse.get(course.id) || [];
+    const progressByUser = progressByCourseUser.get(course.id) || new Map<string, Set<string>>();
+    const allLessonsUsers = new Set<string>();
+    for (const [userId, completedLessons] of progressByUser) {
+      if (courseLessons.length && completedLessons.size >= courseLessons.length) allLessonsUsers.add(userId);
+    }
+    const passedUsers = new Set<string>();
+    const passedByUser = passedAssessmentIdsByCourseUser.get(course.id) || new Map<string, Set<string>>();
+    for (const [userId, passedIds] of passedByUser) {
+      if (requiredAssessments.length && requiredAssessments.every((assessment) => passedIds.has(assessment.id))) {
+        passedUsers.add(userId);
+      }
+    }
+    const stages = [
+      { label: "Enrolled", value: enrollmentsByCourse.get(course.id)?.size || 0 },
+      { label: "≥1 lesson", value: progressByUser.size },
+      { label: "All lessons", value: allLessonsUsers.size },
+      { label: "Final attempted", value: attemptedUsersByCourse.get(course.id)?.size || 0 },
+      { label: "Final passed", value: passedUsers.size },
+      { label: "Completed", value: completedEnrollmentsByCourse.get(course.id)?.size || 0 },
+      { label: "Certified", value: certifiedUsersByCourse.get(course.id)?.size || 0 },
+    ];
+    const transitions = stages.slice(1).map((stage, index) => {
+      const previous = stages[index];
+      const dropRate = previous.value > 0 && stage.value <= previous.value
+        ? Math.round(((previous.value - stage.value) / previous.value) * 100)
+        : null;
+      return { from: previous.label, to: stage.label, previous: previous.value, current: stage.value, dropRate };
+    });
+    const biggestDrop = transitions
+      .filter((transition) => transition.dropRate !== null)
+      .sort((a, b) => (b.dropRate || 0) - (a.dropRate || 0))[0] || null;
+    return { ...course, lessonCount: courseLessons.length, stages, biggestDrop };
+  }).filter((course) => course.stages[0].value > 0 || course.stages[1].value > 0);
+
+  const mostActiveCourse = [...trainingCourseFunnels]
+    .sort((a, b) => b.stages[0].value - a.stages[0].value || a.recommended_order - b.recommended_order)[0] || null;
+  const mostActiveLessons = mostActiveCourse
+    ? (lessonsByCourse.get(mostActiveCourse.id) || []).map((lesson, index, orderedLessons) => {
+        const completed = completionsByLesson.get(lesson.id)?.size || 0;
+        const previous = index === 0
+          ? mostActiveCourse.stages[0].value
+          : completionsByLesson.get(orderedLessons[index - 1].id)?.size || 0;
+        const dropRate = previous > 0 && completed <= previous
+          ? Math.round(((previous - completed) / previous) * 100)
+          : null;
+        return {
+          id: lesson.id,
+          title: lesson.title,
+          completed,
+          completionRate: mostActiveCourse.stages[0].value
+            ? Math.round((completed / mostActiveCourse.stages[0].value) * 100)
+            : 0,
+          dropRate,
+        };
+      })
+    : [];
+
+  const totalTrainingEnrollments = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[0].value, 0);
+  const totalTrainingCompletions = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[5].value, 0);
+  const totalTrainingCertificates = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[6].value, 0);
+  const courseWithLargestDrop = trainingCourseFunnels
+    .filter((course) => course.biggestDrop?.dropRate !== null)
+    .sort((a, b) => (b.biggestDrop?.dropRate || 0) - (a.biggestDrop?.dropRate || 0))[0] || null;
 
   return <>
     <div className="page-head"><div><h1>Conversion analytics</h1><p>First-party acquisition and content-funnel signals for the last 30 days. Server-side lead records remain the conversion source of truth.</p></div><span className="badge">Since {dateShort(since)}</span></div>

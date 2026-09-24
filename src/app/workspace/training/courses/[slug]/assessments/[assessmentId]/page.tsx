@@ -65,9 +65,12 @@ export default async function TrainingAssessmentPage({
           <span>{passed ? <CheckCircle2 size={14}/> : <FileCheck2 size={14}/>}</span>
           <div><strong>Assessment</strong><small>{passed ? "Passed" : waitingForReview ? "In review" : latest?.status === "needs_revision" ? "Revision needed" : "Ready to start"}</small></div>
         </div>
-        <div className={`training-assessment-step ${course.completedAt ? "is-complete" : ""}`}>
-          <span>{course.completedAt ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
-          <div><strong>Certificate</strong><small>{course.completedAt ? "Issued" : "After passing"}</small></div>
+        <div className={`training-assessment-step ${credentialHref ? "is-complete" : ""}`}>
+          <span>{credentialHref ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
+          <div>
+            <strong>Certificate</strong>
+            <small>{credentialHref ? "Issued" : course.completedAt ? "Preparing" : "After passing"}</small>
+          </div>
         </div>
       </section>
 

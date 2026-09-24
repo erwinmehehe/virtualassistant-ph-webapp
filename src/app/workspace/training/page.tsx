@@ -3,15 +3,23 @@ import {
   ArrowRight,
   Award,
   BookOpenCheck,
+  BriefcaseBusiness,
   Building2,
+  Calculator,
   CheckCircle2,
   Clock3,
   Compass,
   FileCheck2,
+  FolderKanban,
   GraduationCap,
+  Headphones,
   HeartPulse,
   Landmark,
+  Megaphone,
+  Search,
+  ShoppingBag,
   Sparkles,
+  Target,
   Wrench,
 } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
@@ -155,6 +163,29 @@ function matchesFilter(course: TrainingCourseSummary, filter: FilterKey) {
   return course.category === "skill" && course.country_focus !== "Australia";
 }
 
+function courseVisual(course: TrainingCourseSummary) {
+  const slug = course.slug.toLowerCase();
+
+  if (slug === "virtual-assistant-foundations") return { tone: "violet", icon: GraduationCap };
+  if (slug.includes("real-estate") || slug.includes("property")) return { tone: "blue", icon: Building2 };
+  if (slug.includes("medical") || slug.includes("health") || slug.includes("cliniko") || slug.includes("ndis")) return { tone: "rose", icon: HeartPulse };
+  if (slug.includes("executive")) return { tone: "violet", icon: BriefcaseBusiness };
+  if (slug.includes("marketing") || slug.includes("social-media") || slug.includes("canva") || slug.includes("pinterest") || slug.includes("content-writing")) return { tone: "pink", icon: Megaphone };
+  if (slug.includes("seo")) return { tone: "cyan", icon: Search };
+  if (slug.includes("customer-support") || slug.includes("reception")) return { tone: "orange", icon: Headphones };
+  if (slug.includes("ecommerce") || slug.includes("airbnb")) return { tone: "amber", icon: ShoppingBag };
+  if (slug.includes("bookkeeping") || slug.includes("xero") || slug.includes("myob") || slug.includes("payroll")) return { tone: "emerald", icon: Calculator };
+  if (slug.includes("sales") || slug.includes("lead-generation") || slug.includes("hubspot")) return { tone: "sky", icon: Target };
+  if (slug.includes("operations") || slug.includes("project-management")) return { tone: "indigo", icon: FolderKanban };
+  if (slug.includes("trades") || slug.includes("servicem8")) return { tone: "amber", icon: Wrench };
+  if (course.category === "industry") return { tone: "blue", icon: Building2 };
+  if (course.category === "software") return { tone: "teal", icon: Wrench };
+  if (course.category === "foundation") return { tone: "violet", icon: GraduationCap };
+  if (course.category === "skill") return { tone: "indigo", icon: BriefcaseBusiness };
+
+  return { tone: "slate", icon: BookOpenCheck };
+}
+
 function CourseCard({
   course,
   mode,
@@ -162,6 +193,8 @@ function CourseCard({
   course: TrainingCourseSummary;
   mode: "active" | "completed" | "not-started";
 }) {
+  const visual = courseVisual(course);
+  const CourseIcon = visual.icon;
   const action = mode === "active" ? (
     <Link className="btn btn-sm btn-primary" href={nextCourseHref(course)} data-track="training_course_continue">
       {nextCourseLabel(course)} <ArrowRight size={14} />
@@ -180,15 +213,18 @@ function CourseCard({
   );
 
   return (
-    <article className="training-course-card">
+    <article className={`training-course-card tone-${visual.tone}`}>
       <div className="training-course-card-top">
-        <div>
-          <div className="training-course-eyebrow">
-            <span>{course.category === "skill" ? "Role" : course.category}</span>
-            {course.country_focus ? <span>{course.country_focus}</span> : null}
+        <div className="training-course-card-heading">
+          <span className="training-course-icon" aria-hidden="true"><CourseIcon size={19} /></span>
+          <div className="training-course-card-copy">
+            <div className="training-course-eyebrow">
+              <span>{course.category === "skill" ? "Role" : course.category}</span>
+              {course.country_focus ? <span>{course.country_focus}</span> : null}
+            </div>
+            <h3>{course.title}</h3>
+            <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
           </div>
-          <h3>{course.title}</h3>
-          <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
         </div>
         {mode === "completed" ? <CheckCircle2 className="training-course-complete-icon" size={20} /> : null}
       </div>

@@ -155,7 +155,7 @@ export default async function TrainingAssessmentPage({
           certificate is issued automatically.
         </p>
         <div className="training-assessment-meta">
-          <span><FileCheck2 size={14}/> 8 questions</span>
+          <span><FileCheck2 size={14}/> {questions.length || 8} questions</span>
           <span><ShieldCheck size={14}/> Pass {passScore}%</span>
           <span><RefreshCw size={14}/> Fresh mix each attempt</span>
           <span className={lessonsComplete ? "is-ready" : ""}>

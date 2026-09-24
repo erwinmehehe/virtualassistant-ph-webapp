@@ -40,14 +40,14 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
   return (
     <div className="dash-page role-overview training-home training-course-page">
-      <Link className="btn btn-sm" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
+      <Link className="btn btn-sm training-course-back" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
-      <section className="card dashboard-section-card">
+      <section className="card dashboard-section-card training-course-hero">
         <div className="dash-kicker">{course.category}{course.country_focus ? ` · ${course.country_focus}` : ""}</div>
         <h1>{course.title}</h1>
-        <p>{course.summary}</p>
+        <p className="training-course-summary">{course.summary}</p>
 
-        <div className="row wrap">
+        <div className="row wrap training-course-meta-row">
           <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
           {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
@@ -55,7 +55,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
         {course.trademark_disclaimer ? <div className="notice" role="note"><strong>About this course.</strong> {course.trademark_disclaimer}</div> : null}
 
-        <div className="row-between" style={{ marginTop: 18 }}>
+        <div className="row-between training-course-progress-row">
           <div>
             <strong>{course.progressPercent}% complete</strong>
             <div className="small muted">{course.completedLessons} of {course.lessonCount} lessons</div>
@@ -82,28 +82,28 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn" href="/workspace/training">My learning</Link>
           )}
         </div>
-        <div className="progress" aria-label={`${course.progressPercent}% complete`}><span style={{ width: `${course.progressPercent}%` }}/></div>
+        <div className="progress training-course-progress-bar" aria-label={`${course.progressPercent}% complete`}><span style={{ width: `${course.progressPercent}%` }}/></div>
       </section>
 
       {course.modules.map((module) => (
-        <section className="card dashboard-section-card" key={module.id}>
-          <div className="dashboard-section-head">
+        <section className="card dashboard-section-card training-module-card" key={module.id}>
+          <div className="dashboard-section-head training-module-head">
             <div>
-              <span className="small">Module {module.position}</span>
+              <span className="small training-module-label">Module {module.position}</span>
               <h2>{module.title}</h2>
               {module.summary ? <p>{module.summary}</p> : null}
             </div>
           </div>
-          <div className="dash-actions">
+          <div className="dash-actions training-module-lessons">
             {module.lessons.map((lesson) => (
-              <Link className="dash-action" href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`} key={lesson.id} data-track="training_lesson_open">
-                <span className="dash-action-count">{lesson.completed ? <CheckCircle2 size={18}/> : lesson.position}</span>
-                <span className="dash-action-copy">
+              <Link className="dash-action training-lesson-row" href={`/workspace/training/courses/${course.slug}/lessons/${lesson.id}`} key={lesson.id} data-track="training_lesson_open">
+                <span className="dash-action-count training-lesson-index">{lesson.completed ? <CheckCircle2 size={18}/> : lesson.position}</span>
+                <span className="dash-action-copy training-lesson-copy">
                   <span className="dash-action-title"><strong>{lesson.title}</strong></span>
                   <small>{lesson.summary || "Detailed lesson with examples and practical application."}</small>
                   <small className="muted">{lesson.estimated_minutes} min</small>
                 </span>
-                <ArrowRight size={16}/>
+                <ArrowRight className="training-lesson-arrow" size={16}/>
               </Link>
             ))}
           </div>
@@ -111,9 +111,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
       ))}
 
       {course.assessments.length ? (
-        <section className="card dashboard-section-card">
-          <div className="dashboard-section-head"><div><h2>Assessment</h2><p>Complete the course work, then use the assessment to show how you would apply it.</p></div></div>
-          <div className="dash-actions">
+        <section className="card dashboard-section-card training-module-card training-assessment-card">
+          <div className="dashboard-section-head training-module-head"><div><h2>Assessment</h2><p>Complete the course work, then use the assessment to show how you would apply it.</p></div></div>
+          <div className="dash-actions training-module-lessons">
             {course.assessments.map((assessment) => {
               const latest = assessment.latestSubmission || null;
               const passed = latest?.status === "reviewed" &&
@@ -127,12 +127,12 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                     : "Not submitted";
               return (
                 <Link
-                  className="dash-action"
+                  className="dash-action training-lesson-row training-assessment-row"
                   href={`/workspace/training/courses/${course.slug}/assessments/${assessment.id}`}
                   key={assessment.id}
                   data-track="training_assessment_open"
                 >
-                  <span className="dash-action-count">{passed ? <CheckCircle2 size={18}/> : <FileCheck2 size={17}/>}</span>
+                  <span className="dash-action-count training-lesson-index">{passed ? <CheckCircle2 size={18}/> : <FileCheck2 size={17}/>}</span>
                   <span className="dash-action-copy">
                     <span className="dash-action-title"><strong>{assessment.title}</strong></span>
                     <small>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Knowledge check"} · {status}</small>

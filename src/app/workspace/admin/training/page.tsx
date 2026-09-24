@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus } from "lucide-react";
+import { Activity, BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus, RefreshCcw, ShieldCheck, TimerReset } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
 import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, integrity, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -52,6 +52,71 @@ export default async function AdminTrainingPage() {
               </div>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-integrity-analytics">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>Learner integrity signals</h2>
+              <p>Signals from the last {integrity.windowDays} days. These help improve lessons and detect unusual patterns; they are not automatic misconduct labels.</p>
+            </div>
+            <span className="badge"><ShieldCheck size={13}/> Integrity</span>
+          </div>
+
+          <div className="va-status-grid">
+            <div className="status-summary-card">
+              <div className="row-between"><span>Checkpoint failure</span><Activity size={18}/></div>
+              <strong>{integrity.checkpointFailureRate}%</strong>
+              <small>{integrity.checkpointAttempts} attempt{integrity.checkpointAttempts === 1 ? "" : "s"}</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>First-attempt pass</span><ShieldCheck size={18}/></div>
+              <strong>{integrity.firstAttemptPassRate}%</strong>
+              <small>Automatic final checks</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Retry rate</span><RefreshCcw size={18}/></div>
+              <strong>{integrity.retryRate}%</strong>
+              <small>Learners using attempt 2+</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Avg. active reading</span><TimerReset size={18}/></div>
+              <strong>{Math.round(integrity.averageActiveSeconds / 60)}m</strong>
+              <small>{integrity.completedLessonsWithEngagement} completed lesson{integrity.completedLessonsWithEngagement === 1 ? "" : "s"} with engagement</small>
+            </div>
+          </div>
+
+          <div className="notice">
+            <strong>{integrity.thresholdHuggingCompletions} threshold-hugging completion{integrity.thresholdHuggingCompletions === 1 ? "" : "s"}</strong>
+            <p>These completed within 20 seconds of the minimum active-reading threshold. Treat this as a review signal, not proof of cheating.</p>
+          </div>
+
+          <div className="dashboard-section-head training-integrity-lessons-head">
+            <div>
+              <h3>Lessons creating the most friction</h3>
+              <p>Checkpoint failures are combined with lessons repeatedly missed in final checks.</p>
+            </div>
+          </div>
+          {integrity.lessonFailures.length ? (
+            <div className="compact-list">
+              {integrity.lessonFailures.map((item) => (
+                <div key={item.lessonId}>
+                  <span>
+                    <strong>{item.lessonTitle}</strong>
+                    <small>{item.courseTitle} · {item.attempts} checkpoint attempt{item.attempts === 1 ? "" : "s"} · {item.failures} failed · {item.finalMisses} final-check miss{item.finalMisses === 1 ? "" : "es"}</small>
+                  </span>
+                  <span className="badge">{item.failureRate}% fail</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="dashboard-caught-up">
+              <ShieldCheck size={22}/>
+              <div><strong>No integrity friction yet.</strong><p>Lesson-level signals will appear after learners begin using the new checkpoints.</p></div>
+            </div>
+          )}
         </section>
       ) : null}
 

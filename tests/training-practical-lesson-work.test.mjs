@@ -34,7 +34,7 @@ test("learner lesson player renders clear practice deliverables and reusable res
   assert.match(practice, /Use this template/);
   assert.match(practice, /Copy template/);
   assert.match(practice, /navigator\.clipboard\.writeText/);
-  assert.match(practice, /Check your work/);
+  assert.match(practice, /QA checklist/);
   assert.match(practice, /type="checkbox"/);
   assert.match(practice, /Reset/);
 });

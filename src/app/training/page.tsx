@@ -501,7 +501,7 @@ export default async function TrainingPage() {
               <article>
                 <span className="tr-completion-number">02</span>
                 <FileCheck2 size={21}/>
-                <h3>Complete the practical checkpoint</h3>
+                <h3>Do the practical work</h3>
                 <p>Exercises ask you to explain what you would do, what evidence you would use, and what you would escalate.</p>
               </article>
               <article>

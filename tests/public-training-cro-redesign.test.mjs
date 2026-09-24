@@ -9,8 +9,9 @@ const publicTrainingPath = "src/lib/public-training.ts";
 test("public training hero sells the live product instead of the old roadmap concept", async () => {
   const page = await readFile(pagePath, "utf8");
 
-  assert.match(page, /free VA courses/);
-  assert.match(page, /Practical skills\. Verified certificates\./);
+  assert.match(page, /Free VA training · \{totalCourseCount\} courses available/);
+  assert.match(page, /Build practical VA skills\./);
+  assert.match(page, /Earn verified certificates\./);
   assert.match(page, /Browse \{totalCourseCount\} courses/);
   assert.match(page, /No course or certificate fees/);
   assert.match(page, /Progress saved automatically/);

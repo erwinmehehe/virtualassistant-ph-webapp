@@ -10,10 +10,10 @@ test("recruiter CRM exposes direct in-platform replies", () => {
   assert.match(leads, /Send reply/);
   assert.match(leads, /action=\{sendClientFollowupAction\}/);
   assert.match(leads, /To: <strong>\{lead\.email\}<\/strong>/);
-  assert.match(leads, /open=\{!lead\.first_contact_at \|\| slaMissed\}/);
+  assert.match(leads, /const needsFirstReply = !lead\.first_contact_at \|\| slaMissed/);\n  assert.match(leads, /The reply form is ready below\. Use Send reply when the message is ready\./);\n  assert.match(leads, /Write another reply/);
   assert.match(leads, /Log external email/);
   assert.doesNotMatch(leads, /Open email app/);
-  assert.doesNotMatch(leads, /href=\{`mailto:/);
+  assert.match(leads, /actionResultForLead = params\.action_lead === lead\.id/);\n  assert.match(leads, /crm-inline-action-state is-success/);\n  assert.doesNotMatch(leads, /href=\{`mailto:/);
 });
 
 test("direct replies update CRM operations state", () => {

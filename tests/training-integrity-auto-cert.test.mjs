@@ -30,6 +30,9 @@ test("lesson completion cannot be earned by clicking through", async () => {
   ]);
 
   assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
+  assert.match(actions, /failLessonCompletion/);
+  assert.match(actions, /lesson_error=/);
+  assert.doesNotMatch(actions, /throw new Error\("Pass the lesson checkpoint before completing this lesson\."\)/);
   assert.match(actions, /active_seconds/);
   assert.match(actions, /max_scroll_percent/);
   assert.match(actions, /< 85/);

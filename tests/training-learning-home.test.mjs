@@ -94,6 +94,23 @@ test("course cards show learning metadata, assessment state, progress, and one a
   assert.match(training, /"passed"/);
 });
 
+test("every course card gets a visible icon and color tone with a fallback", async () => {
+  const [page, css] = await Promise.all([
+    readFile(pagePath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+
+  assert.match(page, /function courseVisual\(course: TrainingCourseSummary\)/);
+  assert.match(page, /const CourseIcon = visual\.icon/);
+  assert.match(page, /training-course-icon/);
+  assert.match(page, /tone-\$\{visual\.tone\}/);
+  assert.match(page, /return \{ tone: "slate", icon: BookOpenCheck \}/);
+
+  for (const tone of ["violet", "blue", "cyan", "teal", "emerald", "amber", "orange", "rose", "pink", "sky", "slate"]) {
+    assert.match(css, new RegExp(`training-course-card\\.tone-${tone}`));
+  }
+});
+
 test("Australian specialisation icons use distinct restrained color treatments", async () => {
   const [page, css] = await Promise.all([
     readFile(pagePath, "utf8"),

@@ -5,6 +5,7 @@ import fs from "node:fs";
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924164500_client_hiring_room_summary.sql", "utf8");
 const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
 const clientActions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");
@@ -43,8 +44,9 @@ test("invite handoff persists exactly the selected VA ids and releases only that
 });
 
 test("client shortlist remains account-scoped, released-only, access-gated, and feeds decisions back to recruiters", () => {
-  assert.match(clientCandidates, /\.eq\("client_id",userId\)/);
-  assert.match(clientCandidates, /\.eq\("shortlist_status","released"\)/);
+  assert.match(clientHiringRoomMigration, /where client_id=p_client_id/);
+  assert.match(clientHiringRoomMigration, /where s\.shortlist_status='released'/);
+  assert.match(clientHiringRoomMigration, /a\.access_status in \('paid','comped'\)/);
   assert.match(clientCandidates, /candidateAccessUnlocked/);
   assert.match(clientActions, /\.eq\("client_id", user\.id\)/);
   assert.match(clientActions, /\.eq\("shortlist_status", "released"\)/);

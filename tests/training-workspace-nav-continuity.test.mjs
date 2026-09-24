@@ -4,6 +4,7 @@ import test from "node:test";
 
 const shellPath = "src/components/training-shell.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
+const dashboardPath = "src/app/workspace/training/page.tsx";
 
 test("signed-in training keeps the public training identity visible", async () => {
   const shell = await readFile(shellPath, "utf8");
@@ -40,4 +41,13 @@ test("mobile training navigation stays compact and connected", async () => {
   assert.match(css, /Training shell continuity with the public training experience/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*training-shell-browse[\s\S]*display: none/);
   assert.match(css, /@media \(max-width: 390px\)[\s\S]*training-shell-public[\s\S]*display: none/);
+});
+
+
+test("certificate navigation always lands on a real learner-dashboard section", async () => {
+  const dashboard = await readFile(dashboardPath, "utf8");
+
+  assert.match(dashboard, /<section id="certificates"/);
+  assert.match(dashboard, /No certificates yet\./);
+  assert.match(dashboard, /Your verified certificate will appear here automatically/);
 });

@@ -22,7 +22,7 @@ test("human-written client follow-ups keep archive copying opt-in", () => {
 
   assert.match(email, /archiveCopy\?: boolean/);
   assert.match(email, /args\.archiveCopy \? staffClientFollowupBccRecipients/);
-  assert.match(email, /"client_followup", \{ archive: false/);
+  assert.match(email, /"client_followup", \{[\s\S]*archive: false,[\s\S]*idempotencyKey: args\.idempotencyKey/);
 });
 
 test("human-written client follow-ups expose an explicit archive opt-in", () => {

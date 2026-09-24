@@ -71,7 +71,7 @@ test("ServiceM8 release remains private-LMS only and does not create a public co
   const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
 
   assert.doesNotMatch(publicTraining, /href=\{?\`?\/training\/courses/);
-  assert.match(publicTraining, /One public training page/);
+  assert.match(publicTraining, /Lessons stay inside your free training account/);
   assert.match(specializations, /servicem8-for-virtual-assistants/);
   assert.match(dashboard, /Choose one specialisation/);
 });

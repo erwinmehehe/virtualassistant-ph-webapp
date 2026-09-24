@@ -996,7 +996,13 @@ export async function reviewTrainingAssessmentSubmissionAction(formData: FormDat
   });
 
   const completion = await finalizeTrainingCourseIfEligible(submission.user_id, courseId);
-  const completionEvents = [];
+  const completionEvents: Array<{
+    event_name: string;
+    path: string;
+    session_id: null;
+    user_id: string;
+    metadata: Record<string, unknown>;
+  }> = [];
   if (completion.newlyCompleted) {
     completionEvents.push({
       event_name: "training_course_complete",

@@ -14,16 +14,26 @@ import type { LessonContentBlock } from "@/lib/training";
 
 function blockFields(block: LessonContentBlock) {
   if (block.type === "list" || block.type === "steps") {
-    return { title: "", text: block.items.join("\n") };
+    return { title: "", text: block.items.join("\n"), output: "" };
   }
-  if (block.type === "callout" || block.type === "scenario") {
-    return { title: block.title || "", text: block.text };
+  if (block.type === "checklist") {
+    return { title: block.title || "", text: block.items.join("\n"), output: "" };
   }
-  return { title: "", text: block.text };
+  if (block.type === "exercise") {
+    return { title: block.title || "", text: block.text, output: block.deliverable || "" };
+  }
+  if (block.type === "callout" || block.type === "scenario" || block.type === "template") {
+    return { title: block.title || "", text: block.text, output: "" };
+  }
+  return { title: "", text: block.text, output: "" };
 }
 
 function blockLabel(block: LessonContentBlock) {
-  return block.type === "scenario" ? "Practice scenario" : block.type.replace(/^./, (letter) => letter.toUpperCase());
+  if (block.type === "scenario") return "Practice scenario";
+  if (block.type === "exercise") return "Practice task";
+  if (block.type === "template") return "Reusable template";
+  if (block.type === "checklist") return "QA checklist";
+  return block.type.replace(/^./, (letter) => letter.toUpperCase());
 }
 
 export default async function AdminTrainingLessonPage({
@@ -129,13 +139,16 @@ export default async function AdminTrainingLessonPage({
                   <input type="hidden" name="lesson_id" value={lesson.id}/>
                   <input type="hidden" name="block_index" value={index}/>
                   <input type="hidden" name="block_type" value={block.type}/>
-                  {(block.type === "callout" || block.type === "scenario") ? (
+                  {(["callout", "scenario", "exercise", "template", "checklist"] as string[]).includes(block.type) ? (
                     <label className="field"><span>Block title</span><input name="block_title" defaultValue={values.title}/></label>
                   ) : <input type="hidden" name="block_title" value=""/>}
                   <label className="field">
-                    <span>{block.type === "list" || block.type === "steps" ? "One item per line" : "Content"}</span>
-                    <textarea name="block_text" rows={block.type === "paragraph" || block.type === "scenario" ? 7 : 4} required defaultValue={values.text}/>
+                    <span>{block.type === "list" || block.type === "steps" || block.type === "checklist" ? "One item per line" : "Content"}</span>
+                    <textarea name="block_text" rows={block.type === "paragraph" || block.type === "scenario" || block.type === "exercise" || block.type === "template" ? 7 : 4} required defaultValue={values.text}/>
                   </label>
+                  {block.type === "exercise" ? (
+                    <label className="field"><span>Expected deliverable</span><textarea name="block_output" rows={3} defaultValue={values.output}/></label>
+                  ) : <input type="hidden" name="block_output" value=""/>}
                   <div><button className="btn btn-sm" type="submit">Save block</button></div>
                 </form>
               </article>
@@ -157,10 +170,14 @@ export default async function AdminTrainingLessonPage({
                 <option value="steps">Numbered steps</option>
                 <option value="callout">Callout / important note</option>
                 <option value="scenario">Practice scenario</option>
+                <option value="exercise">Practice task + deliverable</option>
+                <option value="template">Reusable template</option>
+                <option value="checklist">QA checklist</option>
               </select>
             </label>
-            <label className="field"><span>Optional title for callouts/scenarios</span><input name="block_title"/></label>
-            <label className="field"><span>Content</span><textarea name="block_text" rows={7} required placeholder="For lists or steps, enter one item per line."/></label>
+            <label className="field"><span>Optional block title</span><input name="block_title"/></label>
+            <label className="field"><span>Content</span><textarea name="block_text" rows={7} required placeholder="For lists, steps, or checklists, enter one item per line."/></label>
+            <label className="field"><span>Expected deliverable (practice tasks only)</span><textarea name="block_output" rows={3} placeholder="What the learner should produce."/></label>
             <div><button className="btn btn-primary btn-sm" type="submit">Add block</button></div>
           </form>
         </details>

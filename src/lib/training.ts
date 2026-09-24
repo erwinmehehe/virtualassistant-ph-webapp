@@ -685,6 +685,10 @@ export async function getTrainingAdminSummary() {
         checkpointFailureRate: 0,
         firstAttemptPassRate: 0,
         retryRate: 0,
+        automaticFinalAttempts: 0,
+        averageFinalScore: 0,
+        criticalBoundaryMisses: 0,
+        answerPatternFlags: 0,
         averageActiveSeconds: 0,
         thresholdHuggingCompletions: 0,
         completedLessonsWithEngagement: 0,
@@ -904,6 +908,22 @@ export async function getTrainingAdminSummary() {
     return Number(row.active_seconds || 0) <= required + 20;
   }).length;
 
+  const scoredAutomaticSubmissions = automaticSubmissions.filter(
+    (row) => row.score !== null && Number.isFinite(Number(row.score)),
+  );
+  const averageFinalScore = scoredAutomaticSubmissions.length
+    ? Math.round(
+        scoredAutomaticSubmissions.reduce((sum, row) => sum + Number(row.score || 0), 0) /
+          scoredAutomaticSubmissions.length,
+      )
+    : 0;
+  const criticalBoundaryMisses = automaticSubmissions.filter(
+    (row) => Number(row.response?.critical_miss_count || 0) > 0,
+  ).length;
+  const answerPatternFlags = automaticSubmissions.filter(
+    (row) => row.response?.answer_pattern_flagged === true,
+  ).length;
+
   const firstAttempts = automaticSubmissions.filter(
     (row) => Number(row.response?.attempt || 0) === 1,
   );
@@ -953,6 +973,10 @@ export async function getTrainingAdminSummary() {
     retryRate: assessedLearners.size
       ? Math.round((retryLearners.size / assessedLearners.size) * 100)
       : 0,
+    automaticFinalAttempts: automaticSubmissions.length,
+    averageFinalScore,
+    criticalBoundaryMisses,
+    answerPatternFlags,
     averageActiveSeconds,
     thresholdHuggingCompletions,
     completedLessonsWithEngagement: completedEngagement.length,

@@ -1,4 +1,4 @@
-import { bookingManageUrl } from "@/lib/booking-operations";
+import { bookingManageUrl, createBookingManageToken } from "@/lib/booking-operations";
 import { formatDiscoverySlot } from "@/lib/discovery-booking";
 import { sendDiscoveryReminderEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
   const lower = new Date(now + 30 * 60 * 1000).toISOString();
   const upper = new Date(now + 25 * 60 * 60 * 1000).toISOString();
   const { data: leads, error } = await admin.from("lead_intake")
-    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
+    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
     .not("discovery_scheduled_at", "is", null)
     .is("discovery_completed_at", null)
     .is("discovery_cancelled_at", null)
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
   let claimedElsewhere = 0;
 
   for (const lead of leads || []) {
-    if (!lead.email || !lead.discovery_scheduled_at || !lead.discovery_manage_token) continue;
+    if (!lead.email || !lead.discovery_scheduled_at) continue;
 
     const minutesUntil = (new Date(lead.discovery_scheduled_at).getTime() - now) / 60_000;
     const window: ReminderWindow | null =
@@ -103,7 +103,7 @@ export async function GET(request: Request) {
     }
 
     const scheduledLabel = formatDiscoverySlot(lead.discovery_scheduled_at, lead.timezone || "Asia/Manila");
-    const manageUrl = bookingManageUrl(lead.discovery_manage_token);
+    const manageUrl = bookingManageUrl(createBookingManageToken(lead.id));
 
     try {
       const result = await sendDiscoveryReminderEmail({

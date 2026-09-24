@@ -90,6 +90,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
+  // The booking visual workflow runs an isolated UI fixture. Telemetry is not
+  // part of that visual contract and should never consume shared rate-limit state.
+  if (process.env.BOOKING_VISUAL_FIXTURE === "1") {
+    return NextResponse.json({ ok: true });
+  }
+
   try {
     // Analytics is public by design, but it must not be an unbounded service-role
     // insert endpoint. Session and IP limits are intentionally generous enough

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Target } from "lucide-react";
 import { markTrainingLessonCompleteAction } from "@/app/actions/training";
+import { TrainingChecklistBlock, TrainingTemplateBlock } from "@/components/training-practice-blocks";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingLesson, type LessonContentBlock, type TrainingAssessment } from "@/lib/training";
 
@@ -54,6 +55,31 @@ function LessonContent({ value }: { value: unknown }) {
               <p>{block.text}</p>
             </section>
           );
+        }
+        if (block.type === "exercise") {
+          return (
+            <section className="training-exercise-block" key={index}>
+              <div className="training-practice-block-head">
+                <div>
+                  <span className="dash-kicker"><Target size={13}/> Practice task</span>
+                  {block.title ? <h3>{block.title}</h3> : null}
+                </div>
+              </div>
+              <p>{block.text}</p>
+              {block.deliverable ? (
+                <div className="training-exercise-deliverable">
+                  <strong>Your deliverable</strong>
+                  <p>{block.deliverable}</p>
+                </div>
+              ) : null}
+            </section>
+          );
+        }
+        if (block.type === "template") {
+          return <TrainingTemplateBlock key={index} title={block.title} text={block.text}/>;
+        }
+        if (block.type === "checklist") {
+          return <TrainingChecklistBlock key={index} title={block.title} items={block.items}/>;
         }
         return null;
       })}

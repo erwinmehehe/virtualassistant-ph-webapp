@@ -3,13 +3,15 @@ import {
   ArrowRight,
   Award,
   BookOpenCheck,
+  Building2,
   CheckCircle2,
   Clock3,
   Compass,
   FileCheck2,
   GraduationCap,
-  LockKeyhole,
-  Sparkles,
+  HeartPulse,
+  Landmark,
+  Wrench,
 } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
@@ -169,6 +171,18 @@ const AUSTRALIA_SPECIALIZATIONS = [
     ],
   },
 ] as const;
+
+const SHARED_AUSTRALIA_COURSES = new Set([
+  "virtual-assistant-foundations",
+  "australian-va-fundamentals",
+]);
+
+function AustraliaSpecializationIcon({ slug }: { slug: (typeof AUSTRALIA_SPECIALIZATIONS)[number]["slug"] }) {
+  if (slug === "tradie-operations") return <Wrench size={19} />;
+  if (slug === "property-management") return <Building2 size={19} />;
+  if (slug === "ndis-allied-health") return <HeartPulse size={19} />;
+  return <Landmark size={19} />;
+}
 
 const FILTERS = [
   ["all", "All"],
@@ -449,12 +463,10 @@ export default async function TrainingDashboardPage({
       ) : null}
 
       <section className="card dashboard-section-card training-australia-card">
-        <div className="training-section-heading">
-          <div>
-            <span className="small">Australia</span>
-            <h2>Australian specialisations</h2>
-            <p>Choose a client workflow. Each specialisation shows one clear status instead of repeating the full course chain.</p>
-          </div>
+        <div className="training-australia-heading">
+          <span className="training-australia-eyebrow"><Compass size={14} /> Australian client work</span>
+          <h2>Choose one specialisation</h2>
+          <p>Pick the work you want to get good at. Shared foundations count across every path, so you do not need to complete all four.</p>
         </div>
 
         <div className="training-specialization-grid">
@@ -462,34 +474,87 @@ export default async function TrainingDashboardPage({
             const published = specialization.courses
               .map((slug) => courses.find((course) => course.slug === slug) || null)
               .filter((course): course is TrainingCourseSummary => Boolean(course));
+            const uniqueCourses = published.filter((course) => !SHARED_AUSTRALIA_COURSES.has(course.slug));
+            const pathStarted = uniqueCourses.some((course) =>
+              course.enrolled || Boolean(course.completedAt) || course.completedLessons > 0
+            );
+            const completedCount = published.filter((course) => Boolean(course.completedAt)).length;
+            const sharedCompleted = published.filter((course) =>
+              SHARED_AUSTRALIA_COURSES.has(course.slug) && Boolean(course.completedAt)
+            ).length;
             const next = published.find((course) => !course.completedAt) || null;
             const allExpectedPublished = published.length === specialization.courses.length;
             const allComplete = allExpectedPublished && published.every((course) => Boolean(course.completedAt));
-            const status = allComplete ? "Completed" : next ? "Available" : "In development";
+            const state = allComplete ? "complete" : pathStarted ? "progress" : "not-started";
+            const stateLabel = allComplete ? "Completed" : pathStarted ? "In progress" : "Not started";
+            const reviewCourse = uniqueCourses[0] || published[0] || null;
+            const actionLabel = pathStarted ? "Continue path" : "Start path";
 
             return (
-              <article className="training-specialization" key={specialization.slug}>
-                <div>
-                  <div className="training-specialization-top">
-                    <h3>{specialization.title}</h3>
-                    <span className={`training-specialization-status ${status === "Completed" ? "is-complete" : status === "Available" ? "is-available" : "is-pending"}`}>
-                      {status === "Completed" ? <CheckCircle2 size={13} /> : status === "Available" ? <Sparkles size={13} /> : <LockKeyhole size={13} />}
-                      {status}
-                    </span>
+              <article className={`training-specialization is-${state}`} key={specialization.slug}>
+                <div className="training-specialization-header">
+                  <span className="training-specialization-icon" aria-hidden="true">
+                    <AustraliaSpecializationIcon slug={specialization.slug} />
+                  </span>
+                  <div className="training-specialization-copy">
+                    <div className="training-specialization-top">
+                      <h3>{specialization.title}</h3>
+                      <span className={`training-specialization-status is-${state}`}>
+                        {allComplete ? <CheckCircle2 size={13} /> : null}
+                        {stateLabel}
+                      </span>
+                    </div>
+                    <p>{specialization.bestFor}</p>
                   </div>
-                  <p>{specialization.bestFor}</p>
-                  {next ? <small>Next: {next.title}</small> : null}
                 </div>
-                {next ? (
-                  next.enrolled ? (
-                    <Link className="btn btn-sm" href={nextCourseHref(next)}>Open next</Link>
+
+                <div className="training-specialization-meta">
+                  <span><BookOpenCheck size={14} /> {published.length} courses</span>
+                  {pathStarted || allComplete ? (
+                    <span>{completedCount} complete</span>
+                  ) : sharedCompleted ? (
+                    <span>{sharedCompleted} shared {sharedCompleted === 1 ? "course" : "courses"} already count</span>
                   ) : (
-                    <form action={startTrainingCourseAction}>
-                      <input type="hidden" name="course_id" value={next.id} />
-                      <button className="btn btn-sm" type="submit">Start next</button>
-                    </form>
-                  )
+                    <span>Choose this path when you are ready</span>
+                  )}
+                </div>
+
+                {pathStarted && !allComplete ? (
+                  <div className="progress training-specialization-progress" aria-label={`${specialization.title}: ${completedCount} of ${published.length} courses complete`}>
+                    <span style={{ width: `${Math.round((completedCount / Math.max(published.length, 1)) * 100)}%` }} />
+                  </div>
                 ) : null}
+
+                <div className="training-specialization-next">
+                  <div>
+                    <span className="small">{allComplete ? "Path finished" : pathStarted ? "Next step" : "First step"}</span>
+                    <strong>{allComplete ? "Everything in this path is complete" : next?.title || "More courses are being prepared"}</strong>
+                  </div>
+                  {allComplete && reviewCourse ? (
+                    <Link className="btn btn-sm training-specialization-start" href={`/workspace/training/courses/${reviewCourse.slug}`}>
+                      Review path
+                    </Link>
+                  ) : next ? (
+                    next.enrolled ? (
+                      <Link
+                        className={`btn btn-sm ${pathStarted ? "btn-primary" : "training-specialization-start"}`}
+                        href={nextCourseHref(next)}
+                      >
+                        {actionLabel} <ArrowRight size={14} />
+                      </Link>
+                    ) : (
+                      <form action={startTrainingCourseAction}>
+                        <input type="hidden" name="course_id" value={next.id} />
+                        <button
+                          className={`btn btn-sm ${pathStarted ? "btn-primary" : "training-specialization-start"}`}
+                          type="submit"
+                        >
+                          {actionLabel} <ArrowRight size={14} />
+                        </button>
+                      </form>
+                    )
+                  ) : null}
+                </div>
               </article>
             );
           })}

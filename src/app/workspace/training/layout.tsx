@@ -1,5 +1,6 @@
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { TrainingShell } from "@/components/training-shell";
+import "./training-home.css";
 
 export const metadata = {
   title: "Training | VirtualAssistant.com.ph",

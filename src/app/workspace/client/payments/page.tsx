@@ -5,12 +5,15 @@ import { money, dateShort } from "@/lib/format";
 
 const statusLabel: Record<string, string> = {
   awaiting_payment: "Awaiting payment",
+  checkout_pending: "Checkout ready",
   paid: "Paid",
   disputed: "Disputed, under review",
   release_pending: "Being processed",
   released: "Paid",
   failed: "Payment failed",
+  refund_pending: "Refund in progress",
   refunded: "Refunded",
+  chargeback: "Payment reversed",
   void: "Void"
 };
 
@@ -34,7 +37,7 @@ export default async function ClientPaymentsPage({ searchParams }: { searchParam
           <div style={{ textAlign: "right" }}>
             <strong>{money(p.amount_total)}</strong>
             {p.charged_amount_php ? <div className="small muted">Charged as ₱{Number(p.charged_amount_php).toLocaleString(undefined, { minimumFractionDigits: 2 })}{p.fx_rate_usd_php ? ` (rate: 1 USD = ${Number(p.fx_rate_usd_php).toFixed(2)} PHP)` : ""}</div> : null}
-            {p.status === "awaiting_payment" ? <form action={createCheckoutSessionAction} style={{ marginTop: 8 }}><input type="hidden" name="payment_id" value={p.id}/><button className="btn btn-primary btn-sm" type="submit">Pay now</button></form> : null}
+            {["awaiting_payment", "checkout_pending"].includes(p.status) ? <form action={createCheckoutSessionAction} style={{ marginTop: 8 }}><input type="hidden" name="payment_id" value={p.id}/><button className="btn btn-primary btn-sm" type="submit">Pay now</button></form> : null}
           </div>
         </div>
         {p.status === "paid" ? (

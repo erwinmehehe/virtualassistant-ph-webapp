@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import { submitTrainingAssessmentAction } from "@/app/actions/training";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
+import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
-import { getTrainingAssessment } from "@/lib/training";
+import { getTrainingAssessment, getTrainingDashboard } from "@/lib/training";
+import { recommendNextTrainingCourses } from "@/lib/training-recommendations";
 import {
   buildAssessmentQuestions,
   publicAssessmentQuestions,
@@ -98,6 +100,22 @@ export default async function TrainingAssessmentPage({
   const missedLessons = course.modules
     .flatMap((module) => module.lessons)
     .filter((lesson) => missedLessonIds.includes(lesson.id));
+
+  const completionDashboard =
+    passed && course.completedAt
+      ? await getTrainingDashboard(userId)
+      : null;
+  const completionRecommendations =
+    completionDashboard
+      ? recommendNextTrainingCourses({
+          courses: completionDashboard.courses,
+          currentSlug: course.slug,
+          primaryCategory: completionDashboard.learnerProfile?.primaryCategory || null,
+          australiaSpecialization:
+            completionDashboard.learnerPreferences?.australiaSpecialization || null,
+          limit: 3,
+        })
+      : null;
 
   return (
     <div className="dash-page role-overview training-home training-assessment-page">
@@ -306,48 +324,59 @@ export default async function TrainingAssessmentPage({
       ) : null}
 
       {passed && course.completedAt ? (
-        <section className="card training-completion-card">
-          <div className="training-completion-icon"><Award size={22}/></div>
-          <div className="training-completion-copy">
-            <div className="dash-kicker">Course complete</div>
-            <h2>{course.title}</h2>
-            <p>You passed the final check. Your course is complete and your certificate is ready.</p>
+        <>
+          <section className="card training-completion-card">
+            <div className="training-completion-icon"><Award size={22}/></div>
+            <div className="training-completion-copy">
+              <div className="dash-kicker">Course complete</div>
+              <h2>{course.title}</h2>
+              <p>You passed the final check. Your course is complete and your certificate is ready.</p>
 
-            {course.certificate ? (
-              <div className="training-completion-credential">
-                <div>
-                  <span className="small muted">Credential code</span>
-                  <code>{course.certificate.credential_code}</code>
+              {course.certificate ? (
+                <div className="training-completion-credential">
+                  <div>
+                    <span className="small muted">Credential code</span>
+                    <code>{course.certificate.credential_code}</code>
+                  </div>
+                  <div className="training-certificate-actions">
+                    {credentialHref ? (
+                      <TrainingCertificateActions
+                        href={credentialHref}
+                        courseTitle={course.title}
+                      />
+                    ) : null}
+                  </div>
                 </div>
-                <div className="training-certificate-actions">
-                  {credentialHref ? (
-                    <TrainingCertificateActions
-                      href={credentialHref}
-                      courseTitle={course.title}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            ) : (
-              <p className="small muted">Your completion is saved. Refresh if the certificate does not appear immediately.</p>
-            )}
+              ) : (
+                <p className="small muted">Your completion is saved. Refresh if the certificate does not appear immediately.</p>
+              )}
 
-            <div className="row wrap training-completion-actions">
-              {credentialHref ? (
-                <Link
-                  className="btn btn-primary"
-                  href={credentialHref}
-                  data-track="training_certificate_open"
-                >
-                  View certificate
+              <div className="row wrap training-completion-actions">
+                {credentialHref ? (
+                  <Link
+                    className="btn btn-primary"
+                    href={credentialHref}
+                    data-track="training_certificate_open"
+                  >
+                    View certificate
+                  </Link>
+                ) : null}
+                <Link className={credentialHref ? "btn" : "btn btn-primary"} href="/workspace/training">
+                  My learning
                 </Link>
-              ) : null}
-              <Link className={credentialHref ? "btn" : "btn btn-primary"} href="/workspace/training">
-                My learning
-              </Link>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+
+          {completionRecommendations?.courses.length ? (
+            <TrainingNextSteps
+              sourceCourseTitle={course.title}
+              title={completionRecommendations.title}
+              reason={completionRecommendations.reason}
+              courses={completionRecommendations.courses}
+            />
+          ) : null}
+        </>
       ) : null}
 
       {passed && !course.completedAt ? (

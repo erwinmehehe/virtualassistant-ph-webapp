@@ -11,6 +11,7 @@ import {
   GraduationCap,
   HeartPulse,
   Landmark,
+  Sparkles,
   Wrench,
 } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";

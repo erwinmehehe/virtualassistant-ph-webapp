@@ -173,6 +173,7 @@ export type TrainingCourseDetail = CourseRow & {
   lessonCount: number;
   completedLessons: number;
   progressPercent: number;
+  certificate: CertificateRow | null;
 };
 
 function percent(done: number, total: number) {
@@ -443,7 +444,12 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
   const modules = (moduleData || []) as ModuleRow[];
   const moduleIds = modules.map((module) => module.id);
 
-  const [{ data: lessonData }, { data: enrollmentData }, { data: assessmentData }] = await Promise.all([
+  const [
+    { data: lessonData },
+    { data: enrollmentData },
+    { data: assessmentData },
+    { data: certificateData },
+  ] = await Promise.all([
     moduleIds.length
       ? supabase
           .from("training_lessons")
@@ -464,6 +470,13 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       .eq("course_id", course.id)
       .eq("is_published", true)
       .order("position"),
+    supabase
+      .from("training_certificates")
+      .select("course_id,credential_code,issued_at,revoked_at")
+      .eq("user_id", userId)
+      .eq("course_id", course.id)
+      .is("revoked_at", null)
+      .maybeSingle(),
   ]);
 
   const lessons = (lessonData || []) as LessonRow[];
@@ -525,6 +538,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
         : lessons.length > 0 && completedLessons === lessons.length
           ? 95
           : percent(completedLessons, lessons.length),
+      certificate: (certificateData as CertificateRow | null) || null,
     },
     error: null,
   };

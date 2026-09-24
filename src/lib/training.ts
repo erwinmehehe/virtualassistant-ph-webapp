@@ -1007,7 +1007,6 @@ export async function getTrainingAdminSummary() {
             .select("subject_id,recipient_id,reminder_count,last_sent_at")
             .eq("subject_type", "va")
             .like("action", "resume_training_%")
-            .in("recipient_id", incompleteUserIds)
             .limit(5000)
         : Promise.resolve({ data: [] }),
     ]);

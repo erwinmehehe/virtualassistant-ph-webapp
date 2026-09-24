@@ -206,7 +206,7 @@ export function TrainingJoinForm({
           data-course-slug={course?.slug}
         >
           <BookOpenCheck size={16}/>
-          {pending ? "Creating account…" : course ? "Create account and continue" : "Create free training account"}
+          {pending ? "Creating account…" : "Create account"}
         </button>
       </form>
 

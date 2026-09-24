@@ -166,7 +166,7 @@ begin
       (p_expected_status = 'paid' and p_new_status in ('disputed','refund_pending','release_pending','released','refunded','chargeback')) or
       (p_expected_status = 'disputed' and p_new_status in ('paid','refund_pending','refunded','chargeback','void')) or
       (p_expected_status = 'refund_pending' and p_new_status in ('refunded','disputed','failed','chargeback')) or
-      (p_expected_status = 'release_pending' and p_new_status in ('released','disputed','chargeback')) or
+      (p_expected_status = 'release_pending' and p_new_status in ('released','disputed','refund_pending','refunded','chargeback')) or
       (p_expected_status = 'released' and p_new_status in ('chargeback')) or
       (p_expected_status = 'failed' and p_new_status in ('awaiting_payment','void'));
   end if;

@@ -51,6 +51,9 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
   assert.match(component, /20_000/);
   assert.match(component, /Check answer/);
   assert.match(component, /Complete lesson when ready/);
+  assert.match(page, /lessonCompletionErrorCopy/);
+  assert.match(page, /training-lesson-completion-error/);
+  assert.match(page, /Almost there\./);
   assert.match(component, /Ready to complete this lesson\?/);
   assert.match(component, /Still to do:/);
 

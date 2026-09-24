@@ -137,10 +137,11 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
 }
 
 type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
-async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low" }) {
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string }) {
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
-  if (Number(previous?.reminder_count || 0) >= MAX_WORKFLOW_REMINDERS || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
+  const maxReminders = args.maxReminders ?? MAX_WORKFLOW_REMINDERS;
+  if (Number(previous?.reminder_count || 0) >= maxReminders || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
   const now = new Date().toISOString();
   const reminderCount = Number(previous?.reminder_count || 0) + 1;
   const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: reminderCount, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
@@ -159,9 +160,10 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
         heading: args.title,
         body: args.body,
         href: `${appUrl}${args.href}`,
-        hrefLabel: "Open workspace",
+        hrefLabel: args.emailHrefLabel || "Open workspace",
         priority: args.emailPriority || "standard",
         idempotencyKey: `workflow-reminder-${args.subjectType}-${args.subjectId}-${args.action}-${reminderCount}`,
+        eventType: args.emailEventType,
       });
     } catch (error) {
       console.error("[email] Workflow reminder delivery failed", error);
@@ -265,6 +267,144 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   return { recruiterNudges, client24h, client48h, vaNudges, interviewScheduleNudges, offerNudges };
 }
 
+async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClient>) {
+  const inactivityCutoff = daysAgo(3);
+  const { data: enrollmentData } = await admin
+    .from("training_enrollments")
+    .select("id,user_id,course_id,started_at")
+    .is("completed_at", null)
+    .lte("started_at", inactivityCutoff)
+    .limit(500);
+
+  const enrollments = enrollmentData || [];
+  if (!enrollments.length) return { checked: 0, eligible: 0, sent: 0 };
+
+  const courseIds = [...new Set(enrollments.map((row: any) => row.course_id))];
+  const userIds = [...new Set(enrollments.map((row: any) => row.user_id))];
+  const [{ data: courseData }, { data: moduleData }, { data: assessmentData }] = await Promise.all([
+    admin.from("training_courses").select("id,slug,title,status").in("id", courseIds),
+    admin.from("training_modules").select("id,course_id,position").in("course_id", courseIds).order("position"),
+    admin.from("training_assessments").select("id,course_id,title,position").in("course_id", courseIds).eq("is_published", true).order("position"),
+  ]);
+
+  const courses = (courseData || []).filter((course: any) => course.status === "published");
+  const courseMap = new Map(courses.map((course: any) => [course.id, course]));
+  const modules = moduleData || [];
+  const moduleIds = modules.map((row: any) => row.id);
+  const moduleMap = new Map(modules.map((row: any) => [row.id, row]));
+  const { data: lessonData } = moduleIds.length
+    ? await admin
+        .from("training_lessons")
+        .select("id,module_id,title,position")
+        .in("module_id", moduleIds)
+        .eq("is_published", true)
+    : { data: [] as any[] };
+
+  const lessons = (lessonData || []).sort((a: any, b: any) => {
+    const am = moduleMap.get(a.module_id) as any;
+    const bm = moduleMap.get(b.module_id) as any;
+    return Number(am?.position || 0) - Number(bm?.position || 0) || Number(a.position || 0) - Number(b.position || 0);
+  });
+  const lessonIds = lessons.map((row: any) => row.id);
+  const [{ data: progressData }, { data: engagementData }] = await Promise.all([
+    lessonIds.length
+      ? admin.from("training_lesson_progress").select("user_id,lesson_id,completed_at").in("user_id", userIds).in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [] as any[] }),
+    lessonIds.length
+      ? admin.from("training_lesson_engagement").select("user_id,lesson_id,last_activity_at,updated_at").in("user_id", userIds).in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [] as any[] }),
+  ]);
+
+  const lessonsByCourse = new Map<string, any[]>();
+  const lessonCourseById = new Map<string, string>();
+  for (const lesson of lessons) {
+    const moduleRow = moduleMap.get(lesson.module_id) as any;
+    if (!moduleRow?.course_id) continue;
+    lessonCourseById.set(lesson.id, moduleRow.course_id);
+    const list = lessonsByCourse.get(moduleRow.course_id) || [];
+    list.push(lesson);
+    lessonsByCourse.set(moduleRow.course_id, list);
+  }
+
+  const completedByEnrollment = new Map<string, Set<string>>();
+  const latestActivityByEnrollment = new Map<string, number>();
+  for (const row of progressData || []) {
+    const courseId = lessonCourseById.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const set = completedByEnrollment.get(key) || new Set<string>();
+    set.add(row.lesson_id);
+    completedByEnrollment.set(key, set);
+    const timestamp = new Date(row.completed_at).getTime();
+    latestActivityByEnrollment.set(key, Math.max(latestActivityByEnrollment.get(key) || 0, timestamp));
+  }
+  for (const row of engagementData || []) {
+    const courseId = lessonCourseById.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const timestamp = new Date(row.last_activity_at || row.updated_at).getTime();
+    latestActivityByEnrollment.set(key, Math.max(latestActivityByEnrollment.get(key) || 0, timestamp));
+  }
+  const assessmentsByCourse = new Map<string, any[]>();
+  for (const assessment of assessmentData || []) {
+    const list = assessmentsByCourse.get(assessment.course_id) || [];
+    list.push(assessment);
+    assessmentsByCourse.set(assessment.course_id, list);
+  }
+
+  let eligible = 0;
+  let sent = 0;
+  for (const enrollment of enrollments as any[]) {
+    const course: any = courseMap.get(enrollment.course_id);
+    if (!course) continue;
+
+    const enrollmentKey = `${enrollment.user_id}:${enrollment.course_id}`;
+    const latestActivity = Math.max(
+      new Date(enrollment.started_at).getTime(),
+      latestActivityByEnrollment.get(enrollmentKey) || 0,
+    );
+    if (!Number.isFinite(latestActivity) || latestActivity > Date.now() - 3 * 24 * 60 * 60 * 1000) continue;
+
+    const courseLessons = lessonsByCourse.get(enrollment.course_id) || [];
+    if (!courseLessons.length) continue;
+    const completed = completedByEnrollment.get(enrollmentKey) || new Set<string>();
+    const nextLesson = courseLessons.find((lesson: any) => !completed.has(lesson.id)) || null;
+    const nextAssessment = (assessmentsByCourse.get(enrollment.course_id) || [])[0] || null;
+    if (!nextLesson && !nextAssessment) continue;
+
+    const href = nextLesson
+      ? `/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`
+      : `/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`;
+    const title = nextLesson
+      ? `Continue ${course.title}`
+      : `Your ${course.title} final check is ready`;
+    const body = nextLesson
+      ? completed.size
+        ? `You're ${completed.size} of ${courseLessons.length} lessons complete. Continue with "${nextLesson.title}" when you're ready.`
+        : `Your course is saved. Start with "${nextLesson.title}" when you're ready.`
+      : "You finished every lesson. Complete the final check to finish the course and issue your certificate.";
+
+    eligible += 1;
+    if (await sendWorkflowReminder(admin, {
+      subjectType: "va",
+      subjectId: enrollment.user_id,
+      recipientId: enrollment.user_id,
+      action: `resume_training_${enrollment.course_id}`,
+      title,
+      body,
+      href,
+      repeatDays: 7,
+      maxReminders: 2,
+      email: true,
+      emailPriority: "low",
+      emailEventType: "product_training_resume_reminder",
+      emailHrefLabel: "Resume training",
+    })) sent += 1;
+  }
+
+  return { checked: enrollments.length, eligible, sent };
+}
+
 async function runTalentHealthNudges(admin: ReturnType<typeof createAdminClient>) {
   const { data, error } = await admin.rpc("recruiter_talent_health");
   if (error) throw error;
@@ -342,16 +482,17 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
     runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
 }

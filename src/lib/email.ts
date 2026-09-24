@@ -1047,7 +1047,7 @@ export async function sendStaffClientFollowupEmail(args: {
     : { sent: false as const, reason: delivery.reason };
 }
 
-export async function sendTransactionalEventEmail(args: { to?: string | null; firstName?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority; senderName?: string; teamLabel?: string; footerText?: string }) {
+export async function sendTransactionalEventEmail(args: { to?: string | null; firstName?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority; senderName?: string; teamLabel?: string; footerText?: string; eventType?: string }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1079,7 +1079,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
       ctaHref: args.href,
       ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
     })
-  }, "transactional_event", { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
+  }, args.eventType || "transactional_event", { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

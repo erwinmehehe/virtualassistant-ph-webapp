@@ -13,7 +13,7 @@ test("public training hero sells the live product instead of the old roadmap con
   assert.match(page, /Practical skills\. Verified certificates\./);
   assert.match(page, /Browse \{totalCourseCount\} courses/);
   assert.match(page, /No course or certificate fees/);
-  assert.match(page, /No admin review wait/);
+  assert.match(page, /Progress saved automatically/);
   assert.doesNotMatch(page, /courses mapped/);
   assert.doesNotMatch(page, /First course being prepared/);
 });
@@ -31,6 +31,9 @@ test("public catalogue is driven by published LMS courses and keeps one public t
   assert.match(page, /id="australia-training"/);
   assert.match(page, /Recommended first/);
   assert.match(page, /CourseCard course=\{course\}/);
+  assert.match(page, /training_course_interest_click/);
+  assert.match(page, /Start this course/);
+  assert.match(page, /View all \{globalCourseCount\} global courses/);
   assert.doesNotMatch(page, /href=\{?["'`]\/training\/courses\//);
   assert.match(helper, /lesson_count/);
 });
@@ -44,6 +47,7 @@ test("public training explains the real integrity and automatic certificate flow
   assert.match(page, /Certificate issued automatically/);
   assert.match(page, /answer key is not shown/i);
   assert.match(page, /No admin approval queue/);
+  assert.match(page, /Certificates require real course completion/);
   assert.doesNotMatch(page, /required practical assessment/);
   assert.doesNotMatch(page, /Specialist courses stay unpublished until reviewed/);
 });

@@ -35,7 +35,7 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(signup, /account_type:\s*"training"/);
   assert.match(signup, /type:\s*"signup"/);
   assert.match(signup, /sendAccountConfirmationEmail/);
-  assert.match(signup, /next:\s*"\/workspace\/training"/);
+  assert.match(signup, /const next = trainingCourseDestination\(courseSlug\)/);
   assert.match(signup, /training_account_created/);
 
   // Confirmation is verified on the app domain and training accounts are not
@@ -86,8 +86,8 @@ test("training learner journey remains connected from signup through verified hi
   ]) {
     assert.match(analyticsRoute, new RegExp(eventName));
   }
-  // Account creation is a server-side product event, so it intentionally does
-  // not need to be accepted by the public browser analytics endpoint.
+  assert.match(analyticsRoute, /training_account_created/);
+  assert.match(analyticsRoute, /training_email_confirmed/);
   assert.match(signup, /recordProductEvent\("training_account_created"/);
   assert.match(adminAnalytics, /Training engagement/);
   assert.match(adminAnalytics, /Assessment submissions|Training engagement/);

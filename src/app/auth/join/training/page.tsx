@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/site-header";
+import { TrainingSiteHeader } from "@/components/training-site-header";
 import { TrainingJoinForm } from "@/components/training-join-form";
+import { getPublicTrainingOverview } from "@/lib/public-training";
+import { safeTrainingCourseSlug } from "@/lib/training-intent";
 
 export const metadata: Metadata = {
   title: "Create a Free Training Account",
@@ -10,14 +12,25 @@ export const metadata: Metadata = {
 export default async function TrainingJoinPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ course?: string }>;
 }) {
   const params = await searchParams;
+  const requestedSlug = safeTrainingCourseSlug(params.course);
+  let course: { slug: string; title: string } | null = null;
+
+  if (requestedSlug) {
+    const { courses } = await getPublicTrainingOverview();
+    const match = courses.find(
+      (item) => item.slug === requestedSlug && item.status === "published",
+    );
+    if (match) course = { slug: match.slug, title: match.title };
+  }
+
   return (
     <>
-      <SiteHeader/>
-      <main id="main-content" className="auth-page">
-        <TrainingJoinForm error={params.error}/>
+      <TrainingSiteHeader courseSlug={course?.slug}/>
+      <main id="main-content" className="auth-page training-auth-page">
+        <TrainingJoinForm course={course}/>
       </main>
     </>
   );

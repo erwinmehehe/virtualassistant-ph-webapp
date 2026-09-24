@@ -8,6 +8,7 @@ import {
   BriefcaseBusiness,
   Check,
   CheckCircle2,
+  ChevronDown,
   Clock3,
   FileCheck2,
   Globe2,
@@ -18,13 +19,15 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
+import { TrainingSiteHeader } from "@/components/training-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import {
   getPublicTrainingOverview,
   type PublicTrainingCourse,
 } from "@/lib/public-training";
+import { trainingJoinHref } from "@/lib/training-intent";
+import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
 
 function safeJson(value: unknown) {
@@ -62,9 +65,10 @@ function courseVisual(course: PublicTrainingCourse) {
   return { Icon: BookOpenCheck, tone: "skill" };
 }
 
-function CourseCard({ course }: { course: PublicTrainingCourse }) {
+function CourseCard({ course, position }: { course: PublicTrainingCourse; position: string }) {
   const { Icon, tone } = courseVisual(course);
   const recommended = course.slug === "virtual-assistant-foundations";
+  const joinHref = trainingJoinHref(course.slug);
 
   return (
     <article className={`tr-course-card tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
@@ -81,6 +85,15 @@ function CourseCard({ course }: { course: PublicTrainingCourse }) {
           <span>{duration(course.estimated_minutes)}</span>
         </div>
       </div>
+      <Link
+        className="tr-course-cta"
+        href={joinHref}
+        data-track="training_course_interest_click"
+        data-course-slug={course.slug}
+        data-cta-position={position}
+      >
+        {recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
+      </Link>
     </article>
   );
 }
@@ -114,7 +127,7 @@ export const metadata: Metadata = {
   }
 };
 
-const JOIN_HREF = "/auth/join/training";
+const JOIN_HREF = trainingJoinHref();
 const LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Ftraining";
 
 const FAQS = [
@@ -194,14 +207,14 @@ export default async function TrainingPage() {
 
   return (
     <>
-      <SiteHeader />
+      <TrainingSiteHeader />
       <main id="main-content" className="tr">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJson(schema) }}
         />
 
-        <section className="tr-hero">
+        <section className="tr-hero" data-training-hero>
           <div className="container tr-hero-grid">
             <div className="tr-hero-copy">
               <span className="tr-eyebrow">
@@ -225,6 +238,7 @@ export default async function TrainingPage() {
                   className="tr-btn tr-btn-primary"
                   href={JOIN_HREF}
                   data-track="training_account_click"
+                  data-cta-position="hero"
                 >
                   Start free training <ArrowRight size={17}/>
                 </Link>
@@ -240,7 +254,7 @@ export default async function TrainingPage() {
               <div className="tr-hero-proofline">
                 <span><Check size={14}/> No course or certificate fees</span>
                 <span><Check size={14}/> Mobile-friendly</span>
-                <span><Check size={14}/> No admin review wait</span>
+                <span><Check size={14}/> Progress saved automatically</span>
               </div>
 
               <p className="tr-login-note">
@@ -298,6 +312,8 @@ export default async function TrainingPage() {
           </div>
         </section>
 
+        <TrainingMobileCta href={JOIN_HREF}/>
+
         <section className="tr-proof-strip" aria-label="Training catalogue summary">
           <div className="container tr-proof-grid">
             <div>
@@ -352,6 +368,15 @@ export default async function TrainingPage() {
                 <span><Clock3 size={13}/>{foundationDuration}</span>
                 <span><FileCheck2 size={13}/>{foundation?.lesson_count || 10} lessons</span>
                 <span><BadgeCheck size={13}/>Certificate included</span>
+                <Link
+                  className="tr-foundation-cta"
+                  href={trainingJoinHref("virtual-assistant-foundations")}
+                  data-track="training_course_interest_click"
+                  data-course-slug="virtual-assistant-foundations"
+                  data-cta-position="foundations_callout"
+                >
+                  Start Foundations free <ArrowRight size={13}/>
+                </Link>
               </div>
             </div>
 
@@ -368,9 +393,25 @@ export default async function TrainingPage() {
               </div>
 
               {globalCourses.length ? (
-                <div className="tr-course-grid">
-                  {globalCourses.map((course) => <CourseCard course={course} key={course.id}/>)}
-                </div>
+                <>
+                  <div className="tr-course-grid">
+                    {globalCourses.slice(0, 6).map((course) => (
+                      <CourseCard course={course} position="global_visible" key={course.id}/>
+                    ))}
+                  </div>
+                  {globalCourses.length > 6 ? (
+                    <details className="tr-course-more">
+                      <summary>
+                        View all {globalCourseCount} global courses <ChevronDown size={15}/>
+                      </summary>
+                      <div className="tr-course-grid tr-course-grid-more">
+                        {globalCourses.slice(6).map((course) => (
+                          <CourseCard course={course} position="global_expanded" key={course.id}/>
+                        ))}
+                      </div>
+                    </details>
+                  ) : null}
+                </>
               ) : (
                 <div className="tr-library-fallback">
                   The live course catalogue is temporarily unavailable. Create a free training account to view the current library.
@@ -391,9 +432,25 @@ export default async function TrainingPage() {
               </div>
 
               {australiaCourses.length ? (
-                <div className="tr-course-grid">
-                  {australiaCourses.map((course) => <CourseCard course={course} key={course.id}/>)}
-                </div>
+                <>
+                  <div className="tr-course-grid">
+                    {australiaCourses.slice(0, 6).map((course) => (
+                      <CourseCard course={course} position="australia_visible" key={course.id}/>
+                    ))}
+                  </div>
+                  {australiaCourses.length > 6 ? (
+                    <details className="tr-course-more">
+                      <summary>
+                        View all {australiaCourseCount} Australia courses <ChevronDown size={15}/>
+                      </summary>
+                      <div className="tr-course-grid tr-course-grid-more">
+                        {australiaCourses.slice(6).map((course) => (
+                          <CourseCard course={course} position="australia_expanded" key={course.id}/>
+                        ))}
+                      </div>
+                    </details>
+                  ) : null}
+                </>
               ) : (
                 <div className="tr-library-fallback">
                   Australia-specific training is available after you create your free account.
@@ -407,7 +464,7 @@ export default async function TrainingPage() {
           <div className="container">
             <div className="tr-section-heading">
               <span className="tr-kicker">How completion works</span>
-              <h2>You cannot earn a certificate by clicking through the course.</h2>
+              <h2>Certificates require real course completion.</h2>
               <p>
                 The system asks you to work through the lesson, complete practical responses,
                 pass lesson checks, and then pass a randomized final check.
@@ -461,8 +518,8 @@ export default async function TrainingPage() {
               </ul>
 
               <div className="tr-cta-row">
-                <Link className="tr-btn tr-btn-primary" href={JOIN_HREF} data-track="training_account_click">
-                  Start earning certificates <ArrowRight size={16}/>
+                <Link className="tr-btn tr-btn-primary" href={JOIN_HREF} data-track="training_account_click" data-cta-position="certificate">
+                  Start free training <ArrowRight size={16}/>
                 </Link>
               </div>
             </div>
@@ -536,7 +593,7 @@ export default async function TrainingPage() {
           </div>
         </section>
 
-        <section className="tr-close">
+        <section className="tr-close" data-training-final-cta>
           <div className="container tr-close-inner">
             <div>
               <span>Free Virtual Assistant training</span>
@@ -548,7 +605,7 @@ export default async function TrainingPage() {
             </div>
 
             <div className="tr-close-actions">
-              <Link className="tr-btn tr-btn-light" href={JOIN_HREF} data-track="training_account_click">
+              <Link className="tr-btn tr-btn-light" href={JOIN_HREF} data-track="training_account_click" data-cta-position="final">
                 Start free training <ArrowRight size={16}/>
               </Link>
               <Link className="tr-close-login" href={LOGIN_HREF} data-track="training_login_click">

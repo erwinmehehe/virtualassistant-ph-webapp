@@ -642,6 +642,75 @@
   content: "•";
 }
 
+.tr-course-cta,
+.tr-foundation-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  border: 1px solid var(--course-border, #dfe3ff);
+  border-radius: 10px;
+  color: var(--course-fg, var(--tr-brand-strong));
+  background: var(--course-bg, #f8f8ff);
+  font-size: .73rem;
+  font-weight: 790;
+  text-decoration: none;
+}
+
+.tr-course-cta {
+  width: 100%;
+  margin-top: 13px;
+}
+
+.tr-course-cta:hover,
+.tr-foundation-cta:hover {
+  border-color: #c7d2fe;
+  background: #fff;
+}
+
+.tr-foundation-cta {
+  border-color: #c7d2fe;
+  color: var(--tr-brand-strong);
+  background: #fff;
+}
+
+.tr-course-more {
+  margin-top: 14px;
+}
+
+.tr-course-more summary {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--tr-brand-strong);
+  font-size: .78rem;
+  font-weight: 790;
+  list-style: none;
+}
+
+.tr-course-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.tr-course-more summary svg {
+  transition: transform .16s ease;
+}
+
+.tr-course-more[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.tr-course-grid-more {
+  margin-top: 10px;
+}
+
+.tr-mobile-cta {
+  display: none;
+}
+
 .tr-library-fallback {
   padding: 22px;
   border: 1px dashed var(--tr-line-strong);
@@ -1110,6 +1179,41 @@
 }
 
 @media (max-width: 640px) {
+  .tr-mobile-cta {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    z-index: 35;
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .16s ease, transform .16s ease;
+  }
+
+  .tr-mobile-cta.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tr-mobile-cta a {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--tr-brand);
+    border-radius: 13px;
+    color: #fff;
+    background: var(--tr-brand);
+    box-shadow: 0 14px 30px rgba(68, 76, 231, .28);
+    font-size: .88rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
   .tr-hero {
     padding: 46px 0 42px;
   }

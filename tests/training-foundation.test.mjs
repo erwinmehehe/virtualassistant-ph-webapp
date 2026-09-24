@@ -67,7 +67,7 @@ test("VA and admin workspaces expose the training system", async () => {
 test("training-only signup never creates candidate or hiring records", async () => {
   const action = await readFile("src/app/actions/training-auth.ts", "utf8");
   assert.match(action, /account_type:\s*"training"/);
-  assert.match(action, /next:\s*"\/workspace\/training"/);
+  assert.match(action, /const next = trainingCourseDestination\(courseSlug\)/);
   assert.doesNotMatch(action, /va_profiles|va_vetting|client_profiles|applications|directory_visible/i);
 
   const page = await readFile("src/app/auth/join/training/page.tsx", "utf8");

@@ -11,6 +11,11 @@ import { verifyTurnstile } from "@/lib/turnstile";
 import { siteOrigin } from "@/lib/seo-url";
 import { sendAccountConfirmationEmail } from "@/lib/email";
 import { recordProductEvent } from "@/lib/product-events";
+import {
+  safeTrainingCourseSlug,
+  trainingCourseDestination,
+} from "@/lib/training-intent";
+import type { TrainingJoinState } from "@/lib/training-auth-state";
 
 const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admin", "iloveyou", "123456"];
 
@@ -27,10 +32,6 @@ const trainingJoinSchema = z.object({
     .refine((value) => !COMMON_PASSWORD_PARTS.some((part) => value.toLowerCase().includes(part))),
 });
 
-function joinError(message: string): never {
-  redirect(`/auth/join/training?error=${encodeURIComponent(message)}`);
-}
-
 function tokenFromGeneratedActionLink(actionLink: string | undefined | null) {
   if (!actionLink) return null;
   try {
@@ -40,17 +41,47 @@ function tokenFromGeneratedActionLink(actionLink: string | undefined | null) {
   }
 }
 
-export async function joinTrainingAction(formData: FormData) {
+async function joinError(
+  previousState: TrainingJoinState,
+  message: string,
+  reason: string,
+  fieldErrors: TrainingJoinState["fieldErrors"] = {},
+): Promise<TrainingJoinState> {
+  await recordProductEvent("training_signup_error", {
+    path: "/auth/join/training",
+    metadata: { reason },
+  });
+  return {
+    status: "error",
+    message,
+    fieldErrors,
+    attempt: previousState.attempt + 1,
+  };
+}
+
+export async function joinTrainingAction(
+  previousState: TrainingJoinState,
+  formData: FormData,
+): Promise<TrainingJoinState> {
   const rawEmail = String(formData.get("email") || "").trim().toLowerCase();
+  const requestedCourseSlug = safeTrainingCourseSlug(String(formData.get("course_slug") || ""));
 
   try {
     await enforceEmailAndIpRateLimit("training_join", rawEmail, 5, 15, 60);
   } catch (error) {
-    joinError((error as Error).message || "Too many attempts. Please wait before trying again.");
+    return joinError(
+      previousState,
+      (error as Error).message || "Too many attempts. Please wait before trying again.",
+      "rate_limit",
+    );
   }
 
   if (!(await verifyTurnstile(formData))) {
-    joinError("Please complete the security check.");
+    return joinError(
+      previousState,
+      "Please complete the security check and try again.",
+      "turnstile",
+    );
   }
 
   const parsed = trainingJoinSchema.safeParse({
@@ -61,27 +92,66 @@ export async function joinTrainingAction(formData: FormData) {
 
   if (!parsed.success) {
     const fields = new Set(parsed.error.issues.map((issue) => String(issue.path[0] || "form")));
+    const fieldErrors: TrainingJoinState["fieldErrors"] = {};
+    if (fields.has("full_name")) fieldErrors.full_name = "Enter your full name.";
+    if (fields.has("email")) fieldErrors.email = "Enter a valid email address.";
     if (fields.has("password")) {
-      joinError("Use 12+ characters with uppercase, lowercase, a number, and a symbol. Avoid common password phrases.");
+      fieldErrors.password = "Use 12+ characters with uppercase, lowercase, a number, and a symbol. Avoid common password phrases.";
     }
-    if (fields.has("email")) joinError("Enter a valid email address.");
-    joinError("Enter your full name.");
+    return joinError(
+      previousState,
+      fieldErrors.password || fieldErrors.email || fieldErrors.full_name || "Check the highlighted fields.",
+      "validation",
+      fieldErrors,
+    );
   }
 
   if (isDisposableEmail(parsed.data.email)) {
-    joinError("Please use a permanent email address so you can recover your progress and certificates.");
+    return joinError(
+      previousState,
+      "Please use a permanent email address so you can recover your progress and certificates.",
+      "disposable_email",
+      { email: "Use a permanent email address." },
+    );
   }
 
   if (await isKnownCompromisedPassword(parsed.data.password)) {
-    joinError("That password appears in known data breaches. Choose a different password.");
+    return joinError(
+      previousState,
+      "That password appears in known data breaches. Choose a different password.",
+      "compromised_password",
+      { password: "Choose a different password." },
+    );
   }
 
   const origin = siteOrigin();
   if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
-    joinError("Training signup is temporarily unavailable. Please try again later.");
+    return joinError(
+      previousState,
+      "Training signup is temporarily unavailable. Please try again later.",
+      "origin_configuration",
+    );
   }
 
   const admin = createAdminClient();
+  let courseSlug: string | null = null;
+  let courseTitle: string | null = null;
+
+  if (requestedCourseSlug) {
+    const { data: requestedCourse } = await admin
+      .from("training_courses")
+      .select("slug,title")
+      .eq("slug", requestedCourseSlug)
+      .eq("status", "published")
+      .maybeSingle();
+    if (requestedCourse) {
+      courseSlug = requestedCourse.slug;
+      courseTitle = requestedCourse.title;
+    }
+  }
+
+  const next = trainingCourseDestination(courseSlug);
+
   const { data, error } = await admin.auth.admin.generateLink({
     type: "signup",
     email: parsed.data.email,
@@ -90,6 +160,7 @@ export async function joinTrainingAction(formData: FormData) {
       data: {
         full_name: parsed.data.full_name,
         account_type: "training",
+        ...(courseSlug ? { intended_training_course: courseSlug } : {}),
       },
       redirectTo: origin,
     },
@@ -101,31 +172,44 @@ export async function joinTrainingAction(formData: FormData) {
 
     if (accountMayExist) {
       const params = new URLSearchParams({
-        message: "An account may already exist for this email. Log in to continue your free training.",
-        next: "/workspace/training",
+        message: courseTitle
+          ? `An account may already exist for this email. Log in to continue to ${courseTitle}.`
+          : "An account may already exist for this email. Log in to continue your free training.",
+        next,
       });
       redirect(`/auth/login?${params.toString()}`);
     }
 
-    joinError(error?.message || "We could not create your training account. Please try again.");
+    return joinError(
+      previousState,
+      error?.message || "We could not create your training account. Please try again.",
+      "account_creation",
+    );
   }
 
   const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
   if (!tokenHash) {
     await admin.auth.admin.deleteUser(data.user.id);
-    joinError("We could not create a secure confirmation link. Please try again.");
+    return joinError(
+      previousState,
+      "We could not create a secure confirmation link. Please try again.",
+      "confirmation_link",
+    );
   }
 
   await recordProductEvent("training_account_created", {
     userId: data.user.id,
     path: "/auth/join/training",
-    metadata: { account_type: "training" },
+    metadata: {
+      account_type: "training",
+      course_slug: courseSlug,
+    },
   });
 
   const confirmationParams = new URLSearchParams({
     token_hash: tokenHash,
     type: "signup",
-    next: "/workspace/training",
+    next,
   });
   const confirmationUrl = `${origin}/auth/confirm?${confirmationParams.toString()}`;
 
@@ -148,7 +232,7 @@ export async function joinTrainingAction(formData: FormData) {
         type: "signup",
         email: parsed.data.email,
         options: {
-          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/workspace/training")}`,
+          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
       fallbackConfirmationSent = !resendError;
@@ -157,12 +241,26 @@ export async function joinTrainingAction(formData: FormData) {
     }
   }
 
-  const params = new URLSearchParams({
-    next: "/workspace/training",
-    confirm: "1",
-    message: brandedConfirmationSent || fallbackConfirmationSent
-      ? "Check your email to confirm your free training account."
-      : "Your training account was created, but the confirmation email could not be sent. Use Resend email below.",
+  const emailSent = brandedConfirmationSent || fallbackConfirmationSent;
+  await recordProductEvent("training_confirmation_sent", {
+    userId: data.user.id,
+    path: "/auth/join/training",
+    metadata: {
+      course_slug: courseSlug,
+      delivery: brandedConfirmationSent ? "branded" : fallbackConfirmationSent ? "supabase" : "failed",
+    },
   });
-  redirect(`/auth/login?${params.toString()}`);
+
+  return {
+    status: "success",
+    message: emailSent
+      ? "Check your email to confirm your free training account."
+      : "Your training account was created, but the confirmation email could not be sent. Use the resend option below.",
+    fieldErrors: {},
+    attempt: previousState.attempt + 1,
+    email: parsed.data.email,
+    next,
+    courseTitle,
+    emailSent,
+  };
 }

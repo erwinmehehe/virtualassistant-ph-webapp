@@ -2715,3 +2715,139 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   .auth-confirmation-form { grid-template-columns: 1fr; }
   .auth-confirmation-form .btn { width: 100%; }
 }
+
+
+/* Training acquisition funnel */
+.training-site-header .training-header-cta,
+.training-site-header .mobile-menu-primary {
+  background: #444ce7;
+  border-color: #444ce7;
+}
+
+.training-site-header .training-header-cta:hover,
+.training-site-header .mobile-menu-primary:hover {
+  background: #3538cd;
+  border-color: #3538cd;
+}
+
+.training-auth-page {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(68, 76, 231, .07), transparent 30%),
+    var(--bg);
+}
+
+.training-password-wrap {
+  position: relative;
+}
+
+.training-password-wrap input {
+  padding-right: 44px;
+}
+
+.training-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  color: #667085;
+  background: transparent;
+}
+
+.training-password-toggle:hover {
+  color: #344054;
+  background: #f2f4f7;
+}
+
+.training-password-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.training-password-checks span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border: 1px solid #e4e7ec;
+  border-radius: 999px;
+  color: #667085;
+  background: #f9fafb;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.training-password-checks span.is-valid {
+  border-color: #b7e8cf;
+  color: #067647;
+  background: #f0fdf4;
+}
+
+.training-confirmation-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 18px 0;
+}
+
+.training-confirmation-summary > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #f9fafb;
+}
+
+.training-confirmation-summary span,
+.training-confirmation-summary strong {
+  display: block;
+}
+
+.training-confirmation-summary span {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.training-confirmation-summary strong {
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  color: #1d2939;
+  font-size: 12px;
+}
+
+.training-confirmation-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.training-confirmation-actions form,
+.training-confirmation-actions .btn {
+  width: 100%;
+}
+
+.training-success-icon {
+  color: #067647;
+  background: #ecfdf3;
+}
+
+@media (max-width: 680px) {
+  .training-confirmation-summary,
+  .training-confirmation-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .training-site-header .nav-actions > .va-nav-account-login,
+  .training-site-header .desktop-hire-cta {
+    display: none;
+  }
+}

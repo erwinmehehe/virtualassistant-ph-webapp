@@ -243,7 +243,7 @@ test("learners can submit practical assessments and admins can review them", asy
 
   assert.match(learnerAction, /submitTrainingAssessmentAction/);
   assert.match(learnerAction, /training_assessment_submissions/);
-  assert.match(learnerPage, /Submit for review/);
+  assert.match(learnerPage, /Submit assessment/);
   assert.match(learnerPage, /Needs revision/);
   assert.match(adminAction, /reviewTrainingAssessmentSubmissionAction/);
   assert.match(adminAction, /finalizeTrainingCourseIfEligible/);

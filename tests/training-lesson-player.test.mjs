@@ -33,8 +33,9 @@ test("completing a lesson saves progress and continues to the next lesson or ass
   ]);
 
   assert.match(lessonPage, /name="continue_to"/);
-  assert.match(lessonPage, /Complete & continue/);
-  assert.match(lessonPage, /Complete lesson & start assessment/);
+  assert.match(lessonPage, /Complete lesson/);
+  assert.match(lessonPage, /Continue lesson/);
+  assert.match(lessonPage, /Start assessment/);
   assert.match(lessonPage, /course\.assessments\.find/);
   assert.match(lessonPage, /assessments\/\$\{nextAssessment\.id\}/);
 
@@ -48,7 +49,7 @@ test("assessment flow exposes requirements, revision recovery, and clear learner
   const assessmentPage = await readFile(assessmentPagePath, "utf8");
 
   assert.match(assessmentPage, /Before you submit/);
-  assert.match(assessmentPage, /Human review/);
+  assert.match(assessmentPage, /Reviewed by a person/);
   assert.match(assessmentPage, /Revision needed/);
   assert.match(assessmentPage, /Review course lessons/);
   assert.match(assessmentPage, /Review pending/);
@@ -63,9 +64,9 @@ test("passed assessment surfaces course completion and the issued certificate", 
 
   assert.match(assessmentPage, /Course complete/);
   assert.match(assessmentPage, /course\.certificate\.credential_code/);
-  assert.match(assessmentPage, /Verify credential/);
+  assert.match(assessmentPage, /View certificate/);
   assert.match(assessmentPage, /TrainingCertificateActions/);
-  assert.match(assessmentPage, /Continue to My learning/);
+  assert.match(assessmentPage, />My learning</);
 
   assert.match(trainingLib, /certificate: CertificateRow \| null/);
   assert.match(trainingLib, /from\("training_certificates"\)/);
@@ -80,4 +81,6 @@ test("lesson and completion UI stays compact on 375 and 390 pixel screens", asyn
   assert.match(css, /flex-direction: column-reverse/);
   assert.match(css, /\.training-assessment-journey/);
   assert.match(css, /\.training-completion-card/);
+  assert.match(css, /\.training-assessment-submit textarea/);
+  assert.match(css, /\.training-course-page > \.dashboard-section-card:first-of-type \.row-between/);
 });

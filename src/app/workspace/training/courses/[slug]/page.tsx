@@ -6,9 +6,9 @@ import { getTrainingCourse } from "@/lib/training";
 import { startTrainingCourseAction } from "@/app/actions/training";
 
 function reviewedLabel(value: string | null) {
-  if (!value) return "Review date pending";
+  if (!value) return null;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Review date pending";
+  if (Number.isNaN(date.getTime())) return null;
   return `Last reviewed ${new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric" }).format(date)}`;
 }
 
@@ -19,11 +19,27 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   if (!course && !error) notFound();
 
   if (!course) {
-    return <div className="dash-page"><section className="card dashboard-section-card"><h1>Course unavailable</h1><p className="muted">This course could not be loaded in the current environment.</p><Link className="btn" href="/workspace/training">Back to training</Link></section></div>;
+    return <div className="dash-page"><section className="card dashboard-section-card"><h1>Course unavailable</h1><p className="muted">We could not load this course right now.</p><Link className="btn" href="/workspace/training">Back to My learning</Link></section></div>;
   }
 
+  const orderedLessons = course.modules.flatMap((module) => module.lessons);
+  const nextLesson = orderedLessons.find((lesson) => !lesson.completed) || null;
+  const nextAssessment = course.assessments.find((assessment) => {
+    const latest = assessment.latestSubmission || null;
+    return !(
+      latest?.status === "reviewed" &&
+      (assessment.pass_score === null ||
+        (latest.score !== null && Number(latest.score) >= assessment.pass_score))
+    );
+  }) || null;
+  const credentialHref = course.certificate
+    ? `/training/certificates/${course.certificate.credential_code}`
+    : null;
+  const assessmentInReview = nextAssessment?.latestSubmission?.status === "submitted";
+  const reviewLabel = reviewedLabel(course.last_reviewed_at);
+
   return (
-    <div className="dash-page role-overview">
+    <div className="dash-page role-overview training-home training-course-page">
       <Link className="btn btn-sm" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
       <section className="card dashboard-section-card">
@@ -33,11 +49,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
         <div className="row wrap">
           <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
-          <span className="badge">{reviewedLabel(course.last_reviewed_at)}</span>
+          {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
 
-        {course.trademark_disclaimer ? <div className="notice" role="note"><strong>Course notice.</strong> {course.trademark_disclaimer}</div> : null}
+        {course.trademark_disclaimer ? <div className="notice" role="note"><strong>About this course.</strong> {course.trademark_disclaimer}</div> : null}
 
         <div className="row-between" style={{ marginTop: 18 }}>
           <div>
@@ -47,9 +63,24 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {!course.enrolled ? (
             <form action={startTrainingCourseAction}>
               <input type="hidden" name="course_id" value={course.id}/>
-              <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start free training</button>
+              <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start course</button>
             </form>
-          ) : null}
+          ) : course.completedAt && credentialHref ? (
+            <Link className="btn btn-primary" href={credentialHref}>View certificate <ArrowRight size={14}/></Link>
+          ) : nextLesson ? (
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`}>Continue lesson <ArrowRight size={14}/></Link>
+          ) : nextAssessment && !assessmentInReview ? (
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`}>Start assessment <ArrowRight size={14}/></Link>
+          ) : assessmentInReview ? (
+            <span className="badge">Assessment in review</span>
+          ) : course.completedAt ? (
+            <div className="row wrap">
+              <span className="badge">Certificate preparing</span>
+              <Link className="btn" href="/workspace/training">My learning</Link>
+            </div>
+          ) : (
+            <Link className="btn" href="/workspace/training">My learning</Link>
+          )}
         </div>
         <div className="progress" aria-label={`${course.progressPercent}% complete`}><span style={{ width: `${course.progressPercent}%` }}/></div>
       </section>
@@ -81,7 +112,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
       {course.assessments.length ? (
         <section className="card dashboard-section-card">
-          <div className="dashboard-section-head"><div><h2>Assessments</h2><p>Assessments are part of learning, not a requirement to access jobs.</p></div></div>
+          <div className="dashboard-section-head"><div><h2>Assessment</h2><p>Complete the course work, then use the assessment to show how you would apply it.</p></div></div>
           <div className="dash-actions">
             {course.assessments.map((assessment) => {
               const latest = assessment.latestSubmission || null;

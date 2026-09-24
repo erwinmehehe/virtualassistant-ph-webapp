@@ -25,8 +25,8 @@ function LessonContent({ value }: { value: unknown }) {
     return (
       <div className="dashboard-caught-up">
         <div>
-          <strong>Lesson content is being prepared.</strong>
-          <p>This lesson has been created but does not have published content yet.</p>
+          <strong>This lesson is not ready yet.</strong>
+          <p>Return to the course overview and choose another available lesson.</p>
         </div>
       </div>
     );
@@ -50,7 +50,7 @@ function LessonContent({ value }: { value: unknown }) {
         if (block.type === "scenario") {
           return (
             <section className="training-practice-block" key={index}>
-              <div className="dash-kicker">Practice scenario</div>
+              <div className="dash-kicker">Client scenario</div>
               {block.title ? <h3>{block.title}</h3> : null}
               <p>{block.text}</p>
             </section>
@@ -115,17 +115,22 @@ export default async function TrainingLessonPage({
   const currentModule = course.modules.find((module) => module.id === lesson.module_id) || null;
   const nextAssessment = course.assessments.find((assessment) => !assessmentPassed(assessment)) || null;
   const courseHref = `/workspace/training/courses/${course.slug}`;
+  const certificateHref = course.certificate
+    ? `/training/certificates/${course.certificate.credential_code}`
+    : null;
   const nextHref = next
     ? `${courseHref}/lessons/${next.id}`
     : nextAssessment
       ? `${courseHref}/assessments/${nextAssessment.id}`
-      : courseHref;
-  const nextLabel = next ? "Next lesson" : nextAssessment ? "Start assessment" : "Course overview";
-  const completeLabel = next
-    ? "Complete & continue"
+      : certificateHref || courseHref;
+  const nextLabel = next
+    ? "Continue lesson"
     : nextAssessment
-      ? "Complete lesson & start assessment"
-      : "Complete lesson";
+      ? "Start assessment"
+      : certificateHref
+        ? "View certificate"
+        : "Course overview";
+  const completeLabel = "Complete lesson";
   const lessonProgress = course.lessonCount
     ? Math.round((course.completedLessons / course.lessonCount) * 100)
     : 0;
@@ -192,7 +197,7 @@ export default async function TrainingLessonPage({
               )}
             </div>
             <p className="small muted">
-              Your completion is saved when you continue. You can return from My learning at any time.
+              Progress is saved when you complete a lesson. You can come back anytime from My learning.
             </p>
           </footer>
         </article>
@@ -201,10 +206,10 @@ export default async function TrainingLessonPage({
           <details className="card training-player-outline">
             <summary>
               <span>
-                <strong>Course outline</strong>
-                <small>{course.completedLessons} of {course.lessonCount} lessons complete</small>
+                <strong>{currentModule ? currentModule.title : "Course progress"}</strong>
+                <small>Lesson {lessonIndex + 1} of {course.lessonCount} · {course.completedLessons} complete</small>
               </span>
-              <span className="small muted">View</span>
+              <span className="small muted">Lessons</span>
             </summary>
             <div className="training-player-outline-body">
               {course.modules.map((module) => (

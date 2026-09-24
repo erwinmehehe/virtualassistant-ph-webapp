@@ -14,9 +14,9 @@ test("public credential verification exposes only valid published-course credent
   assert.match(credentials, /\.eq\("status", "published"\)/);
   assert.doesNotMatch(credentials, /full_name|email|phone/);
 
-  assert.match(page, /Valid credential/);
-  assert.match(page, /Credential not verified/);
-  assert.match(page, /Training credential verification/);
+  assert.match(page, /Certificate of completion/);
+  assert.match(page, /Verified/);
+  assert.match(page, /Not verified/);
   assert.match(page, /robots:\s*\{ index: false, follow: false \}/);
   assert.doesNotMatch(page, /learner name|full_name|email|phone/i);
 });

@@ -1431,11 +1431,44 @@
 }
 
 @media (max-width: 430px) {
+  .training-course-page > .btn:first-child,
+  .training-player-page > .btn:first-child,
+  .training-assessment-page > .btn:first-child {
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.35;
+  }
+
+  .training-course-page > .dashboard-section-card:first-of-type .row-between {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .training-course-page > .dashboard-section-card:first-of-type .row-between .btn,
+  .training-course-page > .dashboard-section-card:first-of-type .row-between form,
+  .training-course-page > .dashboard-section-card:first-of-type .row-between form .btn {
+    width: 100%;
+  }
+
   .training-player-progress {
     top: 6px;
     margin: 10px 0;
     padding: 11px 12px;
     border-radius: 14px;
+  }
+
+  .training-player-progress-copy > div {
+    min-width: 0;
+  }
+
+  .training-player-progress-copy .small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .training-player-progress-copy strong {
@@ -1499,6 +1532,12 @@
     padding: 8px;
   }
 
+  .training-assessment-submit textarea {
+    width: 100%;
+    min-width: 0;
+    resize: vertical;
+  }
+
   .training-assessment-submit .btn {
     width: 100%;
   }
@@ -1517,6 +1556,13 @@
     grid-template-columns: 1fr;
   }
 
+  .training-completion-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .training-completion-actions .btn,
   .training-completion-copy > .btn {
     width: 100%;
   }
@@ -1658,6 +1704,19 @@
 
   .training-practice-block-head .btn {
     width: 100%;
+  }
+
+  .training-player-outline summary > span:first-child {
+    min-width: 0;
+  }
+
+  .training-player-outline summary strong {
+    overflow-wrap: anywhere;
+  }
+
+  .training-player-lesson-link strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .training-template-block pre {

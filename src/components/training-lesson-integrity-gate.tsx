@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Circle, Clock3, FileCheck2, Gauge, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   checkTrainingLessonCheckpointAction,
   markTrainingLessonCompleteAction,
@@ -52,6 +52,7 @@ export function TrainingLessonIntegrityGate({
   );
   const [exerciseResponse, setExerciseResponse] = useState(initialExerciseResponse || "");
   const [isChecking, startChecking] = useTransition();
+  const lastInteractionAt = useRef(Date.now());
 
   useEffect(() => {
     let cancelled = false;
@@ -66,12 +67,18 @@ export function TrainingLessonIntegrityGate({
       return Math.max(0, Math.min(100, Math.round((window.scrollY / total) * 100)));
     }
 
+    function markInteraction() {
+      lastInteractionAt.current = Date.now();
+    }
+
     function captureScroll() {
+      markInteraction();
       setMaxScrollPercent((current) => Math.max(current, readingProgress()));
     }
 
     async function heartbeat() {
       if (document.visibilityState !== "visible" || !document.hasFocus()) return;
+      if (Date.now() - lastInteractionAt.current > 45_000) return;
       const scrollPercent = readingProgress();
       try {
         const result = await recordTrainingLessonEngagementAction({
@@ -91,11 +98,17 @@ export function TrainingLessonIntegrityGate({
     captureScroll();
     void heartbeat();
     window.addEventListener("scroll", captureScroll, { passive: true });
+    window.addEventListener("pointerdown", markInteraction, { passive: true });
+    window.addEventListener("keydown", markInteraction);
+    window.addEventListener("touchstart", markInteraction, { passive: true });
     const timer = window.setInterval(() => void heartbeat(), 20_000);
 
     return () => {
       cancelled = true;
       window.removeEventListener("scroll", captureScroll);
+      window.removeEventListener("pointerdown", markInteraction);
+      window.removeEventListener("keydown", markInteraction);
+      window.removeEventListener("touchstart", markInteraction);
       window.clearInterval(timer);
     };
   }, [courseSlug, lessonId]);

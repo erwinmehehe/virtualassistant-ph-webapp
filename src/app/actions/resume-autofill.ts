@@ -49,7 +49,13 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const text = await extractResumeText(buffer, resumeType);
+    const text = await Promise.race([
+      extractResumeText(buffer, resumeType),
+      new Promise<never>((_, reject) => {
+        const timeout = setTimeout(() => reject(new Error("Resume parsing exceeded the safe processing time.")), 8_000);
+        timeout.unref?.();
+      }),
+    ]);
     if (!text.trim()) {
       return { status: "error", message: "No readable text was found. If the PDF is scanned or image-only, export a text-based PDF or DOCX and try again." };
     }

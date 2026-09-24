@@ -7,6 +7,7 @@ const lessonPath = "src/app/workspace/training/courses/[slug]/lessons/[lessonId]
 const practiceComponentPath = "src/components/training-practice-blocks.tsx";
 const adminActionPath = "src/app/actions/training-admin.ts";
 const adminLessonPath = "src/app/workspace/admin/training/[courseId]/lessons/[lessonId]/page.tsx";
+const trainingAdminPath = "src/lib/training-admin.ts";
 const cssPath = "src/app/workspace/training/training-home.css";
 const migrationPath = "supabase/migrations/20260924094500_foundations_practical_lesson_work.sql";
 
@@ -39,9 +40,10 @@ test("learner lesson player renders clear practice deliverables and reusable res
 });
 
 test("training admin can create and edit the new practical block types", async () => {
-  const [actions, admin] = await Promise.all([
+  const [actions, admin, loader] = await Promise.all([
     readFile(adminActionPath, "utf8"),
     readFile(adminLessonPath, "utf8"),
+    readFile(trainingAdminPath, "utf8"),
   ]);
 
   assert.match(actions, /type === "exercise"/);
@@ -53,6 +55,7 @@ test("training admin can create and edit the new practical block types", async (
   assert.match(admin, /Reusable template/);
   assert.match(admin, /QA checklist/);
   assert.match(admin, /Expected deliverable/);
+  assert.match(loader, /"exercise", "template", "checklist"/);
 });
 
 test("Foundations practical migration enriches every published learner lesson without changing lesson IDs", async () => {

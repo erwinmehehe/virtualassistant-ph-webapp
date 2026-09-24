@@ -9,7 +9,7 @@ function source(path) {
 const page = source("src/app/training/page.tsx");
 
 test("the public training page targets the search term and is indexable", () => {
-  assert.match(page, /const META_TITLE = "Virtual Assistant Training Philippines \| Free VA Course"/);
+  assert.match(page, /const META_TITLE = "Free Virtual Assistant Training Philippines \| VA Courses"/);
   assert.match(page, /title: \{ absolute: META_TITLE \}/);
   assert.match(page, /virtual assistant training philippines/i);
   assert.match(page, /canonicalPath\("\/training"\)/);
@@ -17,22 +17,24 @@ test("the public training page targets the search term and is indexable", () => 
   assert.match(source("src/lib/public-seo-routes.ts"), /path: "\/training"/);
 });
 
-test("the public roadmap comes from the LMS, not a second static catalogue", () => {
+test("the public course library comes from the LMS, not a second static catalogue", () => {
   const publicTraining = source("src/lib/public-training.ts");
   assert.match(page, /getPublicTrainingOverview/);
   assert.doesNotMatch(page, /TRAINING_LEVELS|STATUS_LABEL|training-catalogue/);
   assert.match(publicTraining, /from\("training_courses"\)/);
   assert.match(publicTraining, /from\("training_learning_paths"\)/);
   assert.match(publicTraining, /from\("training_learning_path_courses"\)/);
-  assert.match(page, /Global course roadmap/);
-  assert.match(page, /Australia specialisation/);
+  assert.match(page, /Global VA training/);
+  assert.match(page, /Work with Australian businesses/);
+  assert.match(page, /CourseCard course=\{course\}/);
 });
 
-test("the landing page tells the truth about release state", () => {
-  assert.match(page, /statusLabel/);
-  assert.match(page, /Available now/);
-  assert.match(page, /In development/);
-  assert.match(page, /foundationLive/);
+test("the landing page only promotes currently published LMS courses", () => {
+  assert.match(page, /publishedCourses = courses\.filter\(\(course\) => course\.status === "published"\)/);
+  assert.match(page, /Available/);
+  assert.match(page, /Recommended first/);
+  assert.doesNotMatch(page, /In development/);
+  assert.doesNotMatch(page, /courses mapped/);
 });
 
 test("the landing page separates new training signup from returning-user login", () => {
@@ -53,7 +55,7 @@ test("the VA page never leads with the client CTA", () => {
 test("training social metadata is page-specific and Course schema follows production release state", () => {
   assert.match(page, /\/training\/opengraph-image/);
   assert.match(page, /getPublicTrainingOverview/);
-  assert.match(page, /foundationLive && foundation/);
+  assert.match(page, /\.\.\.\(foundation \? \[\{/);
   assert.match(page, /"@type": "Course"/);
   const publicTraining = source("src/lib/public-training.ts");
   const trainingAdmin = source("src/app/actions/training-admin.ts");
@@ -96,15 +98,16 @@ test("the training funnel records successful product actions", () => {
 
 
 test("the public training page keeps individual course pages private", () => {
-  assert.doesNotMatch(page, /href=\{?`?\/training\/[^"'`#]/);
+  assert.doesNotMatch(page, /href=\{?`?\/training\/courses/);
   assert.doesNotMatch(page, /workspace\/training\/courses/);
-  assert.match(page, /One public training page/);
-  assert.match(page, /Course content, progress, assessments, and certificates live inside the signed-in training area/);
+  assert.match(page, /Lessons stay inside your free training account/);
+  assert.match(page, /single public training-page strategy|one public training page/i);
 });
 
 test("training landing copy does not treat learning as a hiring gate", () => {
-  assert.match(page, /Training is a learning product, not a recruitment gate/);
-  assert.match(page, /does not automatically make you a job candidate/);
-  assert.match(page, /Separate from hiring and shortlisting/);
+  assert.match(page, /completely separate from hiring/);
+  assert.match(page, /does not automatically create a candidate profile/);
+  assert.match(page, /Training is never a recruitment gate/);
+  assert.match(page, /not employment history, professional experience, or hiring eligibility/i);
   assert.doesNotMatch(page, /get you picked by clients|client-ready proof|guaranteed placement/i);
 });

@@ -67,3 +67,12 @@ test("recruiter reply and booking forms disable while a submit is pending", asyn
   assert.match(button, /disabled=\{pending\}/);
   assert.match(button, /aria-disabled=\{pending\}/);
 });
+
+
+test("historical cancelled discovery rows no longer remain labelled rescheduled", async () => {
+  const migration = await read("supabase/migrations/20260924081000_normalize_cancelled_discovery_outcomes.sql");
+  assert.match(migration, /set discovery_outcome = 'cancelled'/);
+  assert.match(migration, /where discovery_outcome = 'rescheduled'/);
+  assert.match(migration, /discovery_cancelled_at is not null/);
+  assert.match(migration, /discovery_scheduled_at is null/);
+});

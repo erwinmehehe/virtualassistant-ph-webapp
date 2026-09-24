@@ -473,16 +473,17 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
     runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
 }

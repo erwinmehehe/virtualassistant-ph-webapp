@@ -24,15 +24,16 @@ test("learner home resumes exact next lesson or assessment and has no retired sp
   assert.doesNotMatch(home, /Specialist-review pending/);
 });
 
-test("final completed lesson links directly to the first final assessment", async () => {
+test("final lesson saves progress and continues directly to the next required assessment", async () => {
   const lesson = await readFile(lessonPath, "utf8");
 
-  assert.match(lesson, /const finalAssessment = course\.assessments\[0\] \|\| null/);
-  assert.match(lesson, /lesson\.completed && finalAssessment/);
-  assert.match(lesson, /assessments\/\$\{finalAssessment\.id\}/);
-  assert.match(lesson, />Final assessment </);
-  assert.match(lesson, />Next lesson </);
-  assert.match(lesson, />Course overview </);
+  assert.match(lesson, /course\.assessments\.find/);
+  assert.match(lesson, /assessmentPassed/);
+  assert.match(lesson, /assessments\/\$\{nextAssessment\.id\}/);
+  assert.match(lesson, /name="continue_to"/);
+  assert.match(lesson, /Complete lesson & start assessment/);
+  assert.match(lesson, /Start assessment/);
+  assert.match(lesson, /Next lesson/);
 });
 
 test("assessment remains locked until lessons complete and exposes real review states", async () => {
@@ -43,18 +44,19 @@ test("assessment remains locked until lessons complete and exposes real review s
   assert.match(assessment, /Review pending/);
   assert.match(assessment, /Needs revision/);
   assert.match(assessment, /Assessment passed/);
-  assert.match(assessment, /waitingForReview \? "In review" : "Review required"/);
+  assert.match(assessment, /waitingForReview \? "In review"/);
+  assert.match(assessment, /training-assessment-journey/);
 });
 
-test("passed assessment leads to training home and certificate section when course completion exists", async () => {
+test("passed course exposes the issued credential and returns to the learning home", async () => {
   const assessment = await readFile(assessmentPath, "utf8");
 
-  assert.match(assessment, /course\.completedAt/);
-  assert.match(assessment, /credential is available from the training home/);
-  assert.match(assessment, /href="\/workspace\/training#certificates"/);
-  assert.match(assessment, />View certificate</);
-  assert.match(assessment, /href="\/workspace\/training"/);
-  assert.match(assessment, />Back to training</);
+  assert.match(assessment, /passed && course\.completedAt/);
+  assert.match(assessment, /course\.certificate\.credential_code/);
+  assert.match(assessment, /Verify credential/);
+  assert.match(assessment, /TrainingCertificateActions/);
+  assert.match(assessment, /Continue to My learning/);
+  assert.match(assessment, /passed && !course\.completedAt/);
 });
 
 test("course completion requires all published lessons and all published assessments to pass", async () => {

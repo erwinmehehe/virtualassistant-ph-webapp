@@ -79,12 +79,15 @@ test("automatic final check is locked until lessons complete and never waits for
 
   assert.match(assessment, /lessonsComplete/);
   assert.match(assessment, /Complete the lessons first/);
-  assert.match(assessment, /Server-scored/);
-  assert.match(assessment, /Randomized each attempt/);
-  assert.match(assessment, /Up to 3 attempts \/ 24h/);
-  assert.match(assessment, /No answer key is revealed/);
+  assert.match(assessment, /Course-based questions/);
+  assert.match(assessment, /Fresh mix each attempt/);
+  assert.match(assessment, /3 attempts in a rolling 24-hour period/);
+  assert.match(assessment, /answer key is not shown/i);
   assert.match(assessment, /training-auto-assessment-questions/);
   assert.match(assessment, /Submit final check/);
+  assert.match(assessment, /Review and try again/);
+  assert.match(assessment, /Use this time to review/);
+  assert.match(assessment, /Certificate after passing/);
   assert.doesNotMatch(assessment, /Reviewed by a person/);
   assert.doesNotMatch(assessment, /Review pending/);
 });

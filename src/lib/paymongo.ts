@@ -134,6 +134,17 @@ export async function refundPaymongoPayment(
   };
 }
 
+export type PaymongoRefundSummary = {
+  id?: string;
+  type?: string;
+  attributes?: {
+    status?: string;
+    amount?: number;
+    currency?: string;
+    payment_id?: string;
+  };
+};
+
 export type PaymongoPayment = {
   data: {
     id: string;
@@ -142,12 +153,45 @@ export type PaymongoPayment = {
       amount?: number;
       currency?: string;
       payment_intent_id?: string;
+      disputed?: boolean;
+      refunds?: PaymongoRefundSummary[];
+      paid_at?: number;
+      updated_at?: number;
     };
   };
 };
 
 export async function retrievePaymongoPayment(paymentId: string) {
   return paymongoRequest<PaymongoPayment>(`/payments/${encodeURIComponent(paymentId)}`, "GET");
+}
+
+export type PaymongoCheckoutSessionResource = {
+  data: {
+    id: string;
+    attributes: {
+      status?: string;
+      reference_number?: string;
+      payment_intent?: { data?: { id?: string } };
+      payments?: Array<{
+        id?: string;
+        type?: string;
+        attributes?: {
+          status?: string;
+          payment_intent_id?: string;
+          disputed?: boolean;
+          refunds?: PaymongoRefundSummary[];
+          paid_at?: number;
+        };
+      }>;
+    };
+  };
+};
+
+export async function retrievePaymongoCheckoutSession(sessionId: string) {
+  return paymongoRequest<PaymongoCheckoutSessionResource>(
+    `/checkout_sessions/${encodeURIComponent(sessionId)}`,
+    "GET",
+  );
 }
 
 export type PaymongoRefundResource = {

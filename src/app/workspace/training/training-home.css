@@ -1247,6 +1247,25 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
+.training-lesson-completion-error {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin: 0;
+  padding: 10px 12px;
+  border-color: #fedf89;
+  background: #fffcf5;
+  color: #475467;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.training-lesson-completion-error strong {
+  flex: none;
+  color: #93370d;
+  font-size: 12.5px;
+}
+
 .training-player-progress {
   position: sticky;
   z-index: 5;

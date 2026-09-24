@@ -23,11 +23,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ applicatio
   // resume can contain a VA's direct contact details and home address. Recruiters
   // summarize it instead. Authorize against the application relationship first,
   // then resolve the current private resume path from va_profiles. Resume paths
-  // are intentionally no longer copied into application.profile_snapshot.
-  const allowed =
-    profile.role === "admin" ||
-    profile.role === "recruiter" ||
-    application.va_id === user.id;
+  // are intentionally no longer copied into the application snapshot.
+  const allowed = profile.role === "admin" || profile.role === "recruiter" || application.va_id === user.id;
   if (!allowed) {
     return NextResponse.json(
       {

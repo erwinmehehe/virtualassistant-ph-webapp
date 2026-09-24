@@ -570,19 +570,95 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
 
 export async function getTrainingLesson(courseSlug: string, lessonId: string, userId: string) {
   const result = await getTrainingCourse(courseSlug, userId);
-  if (!result.course) return { course: null, lesson: null, error: result.error };
+  if (!result.course) return { course: null, lesson: null, engagement: null, error: result.error };
   for (const courseModule of result.course.modules) {
     const lesson = courseModule.lessons.find((item) => item.id === lessonId);
-    if (lesson) return { course: result.course, lesson, error: null };
+    if (lesson) {
+      const admin = createAdminClient();
+      const { data: engagement } = await admin
+        .from("training_lesson_engagement")
+        .select("active_seconds,max_scroll_percent,checkpoint_passed_at,checkpoint_key,exercise_response,last_activity_at")
+        .eq("user_id", userId)
+        .eq("lesson_id", lesson.id)
+        .maybeSingle();
+
+      return {
+        course: result.course,
+        lesson,
+        engagement: engagement
+          ? {
+              activeSeconds: Number(engagement.active_seconds || 0),
+              maxScrollPercent: Number(engagement.max_scroll_percent || 0),
+              checkpointPassedAt: engagement.checkpoint_passed_at || null,
+              checkpointKey: engagement.checkpoint_key || null,
+              exerciseResponse: engagement.exercise_response || "",
+              lastActivityAt: engagement.last_activity_at || null,
+            }
+          : {
+              activeSeconds: 0,
+              maxScrollPercent: 0,
+              checkpointPassedAt: null,
+              checkpointKey: null,
+              exerciseResponse: "",
+              lastActivityAt: null,
+            },
+        error: null,
+      };
+    }
   }
-  return { course: result.course, lesson: null, error: null };
+  return { course: result.course, lesson: null, engagement: null, error: null };
 }
 
 export async function getTrainingAssessment(courseSlug: string, assessmentId: string, userId: string) {
   const result = await getTrainingCourse(courseSlug, userId);
-  if (!result.course) return { course: null, assessment: null, error: result.error };
+  if (!result.course) {
+    return {
+      course: null,
+      assessment: null,
+      attemptState: { total: 0, last24Hours: 0, retryAt: null as string | null },
+      error: result.error,
+    };
+  }
   const assessment = result.course.assessments.find((item) => item.id === assessmentId) || null;
-  return { course: result.course, assessment, error: null };
+  if (!assessment) {
+    return {
+      course: result.course,
+      assessment: null,
+      attemptState: { total: 0, last24Hours: 0, retryAt: null as string | null },
+      error: null,
+    };
+  }
+
+  const admin = createAdminClient();
+  const since = new Date(Date.now() - 86_400_000).toISOString();
+  const { data: attempts } = await admin
+    .from("training_assessment_submissions")
+    .select("submitted_at,status,score")
+    .eq("user_id", userId)
+    .eq("assessment_id", assessment.id)
+    .order("submitted_at", { ascending: true });
+
+  const attemptRows = (attempts || []) as Array<{
+    submitted_at: string;
+    status: "submitted" | "reviewed" | "needs_revision";
+    score: number | null;
+  }>;
+  const recentAttempts = attemptRows.filter((row) => row.submitted_at >= since);
+  const retryAt =
+    recentAttempts.length >= 3
+      ? new Date(new Date(recentAttempts[0].submitted_at).getTime() + 86_400_000).toISOString()
+      : null;
+
+  return {
+    course: result.course,
+    assessment,
+    attemptState: {
+      total: attemptRows.length,
+      last24Hours: recentAttempts.length,
+      retryAt,
+    },
+    error: null,
+  };
 }
 
 export async function getTrainingAdminSummary() {

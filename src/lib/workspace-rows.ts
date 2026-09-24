@@ -128,6 +128,46 @@ export type RecruiterVaDirectoryRow = {
   account_status?: string | null;
 };
 
+export type RecruiterTalentSummaryRow = {
+  id: number;
+  all_count: number | null;
+  approval_ready_count: number | null;
+  approval_cleanup_count: number | null;
+  missing_photo_count: number | null;
+  approved_hidden_count: number | null;
+  bench_count: number | null;
+  stale_60_count: number | null;
+  available_count: number | null;
+  needs_review_count: number | null;
+  new_accounts_7d: number | null;
+  recent_zero_7d: number | null;
+  verified_recent_zero_7d: number | null;
+  stalled: RecruiterVaDirectoryRow[] | null;
+};
+
+export type RecruiterTalentPageMetaRow = {
+  va_id: string;
+  last_sent_at: string | null;
+  reminder_count: number | null;
+  public_now: boolean;
+  headline: string | null;
+  bio: string | null;
+  primary_category: string | null;
+  skills: string[] | null;
+  tools: string[] | null;
+  years_experience: number | null;
+  weekly_hours: number | null;
+  hourly_rate: number | null;
+  resume_path: string | null;
+  portfolio_url: string | null;
+  linkedin_url: string | null;
+  availability_status: string | null;
+  public_profile_consent: boolean | null;
+  public_profile_consent_at: string | null;
+  public_profile_consent_withdrawn_at: string | null;
+  public_profile_consent_version: string | null;
+};
+
 /** va_profiles work-readiness evidence. */
 export type WorkSetupRow = {
   user_id: string;

@@ -16,6 +16,7 @@ const social = fs.readFileSync("src/lib/social-login.ts", "utf8");
 const envExample = fs.readFileSync(".env.example", "utf8");
 const roles = fs.readFileSync("src/app/workspace/recruiter/roles/page.tsx", "utf8");
 const talent = fs.readFileSync("src/app/workspace/recruiter/talent/page.tsx", "utf8");
+const talentFastPath = fs.readFileSync("supabase/migrations/20260924173000_recruiter_talent_fast_path.sql", "utf8");
 const categories = fs.readFileSync("src/app/workspace/recruiter/categories/page.tsx", "utf8");
 const constants = fs.readFileSync("src/lib/constants.ts", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
@@ -113,9 +114,11 @@ test("quick setup returns VAs to a guided dashboard rather than dropping them in
 });
 
 test("recruiter Talent onboarding rescue focuses on recent zero-completion VAs and prioritizes verified accounts", () => {
-  assert.match(talent, /recentZeroProfiles/);
-  assert.match(talent, /verifiedRecentZero/);
-  assert.match(talent, /Number\(b\.email_verified\) - Number\(a\.email_verified\)/);
+  assert.match(talent, /recentZeroCount/);
+  assert.match(talent, /verifiedRecentZeroCount/);
+  assert.match(talent, /summary\.stalled/);
+  assert.match(talentFastPath, /where completion_score = 0/);
+  assert.match(talentFastPath, /order by email_verified desc nulls last, account_created_at desc/);
   assert.match(talent, /Recent 0% profiles · 7 days/);
 });
 

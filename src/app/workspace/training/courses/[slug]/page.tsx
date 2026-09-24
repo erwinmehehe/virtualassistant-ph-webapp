@@ -37,7 +37,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
     : null;
 
   return (
-    <div className="dash-page role-overview">
+    <div className="dash-page role-overview training-home training-course-page">
       <Link className="btn btn-sm" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
       <section className="card dashboard-section-card">

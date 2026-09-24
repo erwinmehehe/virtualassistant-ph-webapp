@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
 import type { TopMatch } from "@/lib/talent-preview";
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
   let rows: DirectoryRow[] = [];
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data } = await supabase
       .from("public_va_directory")
       .select("user_id,slug,full_name,headline,primary_category,categories,skills,avatar_url,years_experience,weekly_hours")

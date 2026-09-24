@@ -66,11 +66,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start course</button>
             </form>
           ) : course.completedAt && credentialHref ? (
-            <Link className="btn btn-primary" href={credentialHref}>View certificate <ArrowRight size={14}/></Link>
+            <Link className="btn btn-primary" href={credentialHref} data-track="training_certificate_open">View certificate <ArrowRight size={14}/></Link>
           ) : nextLesson ? (
-            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`}>Continue lesson <ArrowRight size={14}/></Link>
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`} data-track="training_course_continue">Continue lesson <ArrowRight size={14}/></Link>
           ) : nextAssessment && !assessmentInReview ? (
-            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`}>Start assessment <ArrowRight size={14}/></Link>
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start assessment <ArrowRight size={14}/></Link>
           ) : assessmentInReview ? (
             <span className="badge">Assessment in review</span>
           ) : course.completedAt ? (

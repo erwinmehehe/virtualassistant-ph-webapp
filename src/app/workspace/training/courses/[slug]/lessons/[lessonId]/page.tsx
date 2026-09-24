@@ -182,7 +182,11 @@ export default async function TrainingLessonPage({
               )}
 
               {lesson.completed ? (
-                <Link className="btn btn-primary" href={nextHref}>
+                <Link
+                  className="btn btn-primary"
+                  href={nextHref}
+                  data-track={next ? "training_course_continue" : nextAssessment ? "training_assessment_open" : certificateHref ? "training_certificate_open" : undefined}
+                >
                   {nextLabel} <ArrowRight size={14}/>
                 </Link>
               ) : (

@@ -125,13 +125,37 @@ export function Analytics() {
     if (!trackablePath(pathname)) return;
 
     if (pathname.startsWith("/workspace/training")) {
-      if (pathname === "/workspace/training") send("training_dashboard_view");
-      else if (pathname.includes("/lessons/")) send("training_lesson_view");
-      else if (pathname.startsWith("/workspace/training/courses/")) send("training_course_view");
+      if (pathname === "/workspace/training") {
+        send("training_dashboard_view");
+        return;
+      }
+
+      const segments = pathname.split("/").filter(Boolean);
+      const courseIndex = segments.indexOf("courses");
+      const courseSlug = courseIndex >= 0 ? segments[courseIndex + 1] || null : null;
+      const lessonIndex = segments.indexOf("lessons");
+      const assessmentIndex = segments.indexOf("assessments");
+
+      if (assessmentIndex >= 0) {
+        send("training_assessment_view", {
+          course_slug: courseSlug,
+          assessment_id: segments[assessmentIndex + 1] || null,
+        });
+      } else if (lessonIndex >= 0) {
+        send("training_lesson_view", {
+          course_slug: courseSlug,
+          lesson_id: segments[lessonIndex + 1] || null,
+        });
+      } else if (courseSlug) {
+        send("training_course_view", { course_slug: courseSlug });
+      }
       return;
     }
 
     send("page_view");
+    if (pathname.startsWith("/training/certificates/")) {
+      send("training_certificate_view");
+    }
     if (pathname === "/training") send("training_landing_view");
     if (pathname === "/pricing") send("pricing_view");
     if (pathname === "/hire") send("hire_page_view");

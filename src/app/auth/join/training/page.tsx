@@ -28,7 +28,7 @@ export default async function TrainingJoinPage({
 
   return (
     <>
-      <TrainingSiteHeader courseSlug={course?.slug}/>
+      <TrainingSiteHeader courseSlug={course?.slug} current="join"/>
       <main id="main-content" className="auth-page training-auth-page">
         <TrainingJoinForm course={course}/>
       </main>

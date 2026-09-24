@@ -6,9 +6,9 @@ import { getTrainingCourse } from "@/lib/training";
 import { startTrainingCourseAction } from "@/app/actions/training";
 
 function reviewedLabel(value: string | null) {
-  if (!value) return "Review date pending";
+  if (!value) return "Course reviewed";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Review date pending";
+  if (Number.isNaN(date.getTime())) return "Course reviewed";
   return `Last reviewed ${new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric" }).format(date)}`;
 }
 
@@ -51,7 +51,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
 
-        {course.trademark_disclaimer ? <div className="notice" role="note"><strong>Course notice.</strong> {course.trademark_disclaimer}</div> : null}
+        {course.trademark_disclaimer ? <div className="notice" role="note"><strong>About this course.</strong> {course.trademark_disclaimer}</div> : null}
 
         <div className="row-between" style={{ marginTop: 18 }}>
           <div>
@@ -70,7 +70,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           ) : nextAssessment ? (
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`}>Start assessment <ArrowRight size={14}/></Link>
           ) : (
-            <Link className="btn btn-primary" href="/workspace/training">Continue learning <ArrowRight size={14}/></Link>
+            <Link className="btn" href="/workspace/training">My learning</Link>
           )}
         </div>
         <div className="progress" aria-label={`${course.progressPercent}% complete`}><span style={{ width: `${course.progressPercent}%` }}/></div>

@@ -509,7 +509,7 @@ export default async function TrainingDashboardPage({
             const pathMinutes = published.reduce((total, course) => total + course.estimated_minutes, 0);
 
             return (
-              <article className={`training-specialization is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
+              <article className={`training-specialization specialization-${specialization.slug} is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
                 <div className="training-specialization-header">
                   <span className={`training-specialization-icon specialization-icon-${specialization.slug}`} aria-hidden="true">
                     <AustraliaSpecializationIcon slug={specialization.slug} />
@@ -527,8 +527,8 @@ export default async function TrainingDashboardPage({
                 </div>
 
                 <div className="training-specialization-meta">
-                  <span><BookOpenCheck size={14} /> {published.length} courses</span>
-                  <span><Clock3 size={14} /> {duration(pathMinutes)}</span>
+                  <span className="training-specialization-meta-item is-courses"><BookOpenCheck size={14} /> {published.length} courses</span>
+                  <span className="training-specialization-meta-item is-duration"><Clock3 size={14} /> {duration(pathMinutes)}</span>
                   {pathStarted || allComplete ? (
                     <span>{completedCount} complete</span>
                   ) : sharedCompleted ? (

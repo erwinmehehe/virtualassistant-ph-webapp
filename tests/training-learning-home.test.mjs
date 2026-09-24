@@ -43,16 +43,18 @@ test("training home recommends a sequenced path from the VA primary specialty", 
   assert.match(training, /primary_category,categories,tools,industries/);
 });
 
-test("course discovery uses one not-started library with the six simple filters", async () => {
+test("course discovery keeps one standalone library and leaves Australia in specialisation paths", async () => {
   const page = await readFile(pagePath, "utf8");
 
-  for (const label of ["All", "Foundation", "Role", "Software", "Industry", "Australia"]) {
+  for (const label of ["All", "Foundation", "Role", "Software", "Industry"]) {
     assert.ok(page.includes(`"${label}"`), "Missing training filter: " + label);
   }
 
+  assert.doesNotMatch(page, /\["australia", "Australia"\]/);
   assert.match(page, /const notStarted = courses\.filter/);
   assert.match(page, /filteredNotStarted/);
-  assert.match(page, /Each course appears once/);
+  assert.match(page, /course\.country_focus !== "Australia"/);
+  assert.match(page, /Australian courses stay in the specialisation paths above/);
   assert.doesNotMatch(page, /generalCourses|pathCourseIds|australiaCourseIds/);
 });
 

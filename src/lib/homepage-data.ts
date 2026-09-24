@@ -7,6 +7,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 export const getHomepageFeaturedVas = unstable_cache(
   async () => {
     const supabase = createPublicClient();
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from("public_va_directory")
       .select(

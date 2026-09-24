@@ -149,7 +149,7 @@ begin
       (p_expected_status = 'checkout_pending' and p_new_status in ('awaiting_payment','paid','failed','void')) or
       (p_expected_status = 'paid' and p_new_status in ('disputed','refund_pending','release_pending','released','refunded','chargeback')) or
       (p_expected_status = 'disputed' and p_new_status in ('paid','refund_pending','refunded','chargeback','void')) or
-      (p_expected_status = 'refund_pending' and p_new_status in ('refunded','disputed','failed')) or
+      (p_expected_status = 'refund_pending' and p_new_status in ('refunded','disputed','failed','chargeback')) or
       (p_expected_status = 'release_pending' and p_new_status in ('released','disputed','chargeback')) or
       (p_expected_status = 'released' and p_new_status in ('chargeback')) or
       (p_expected_status = 'failed' and p_new_status in ('awaiting_payment','void'));
@@ -161,7 +161,7 @@ begin
 
   if p_expected_status = 'disputed'
      and p_new_status = 'paid'
-     and coalesce(v_payment.provider_dispute_status, '') in ('under_review','pending','open') then
+     and coalesce(nullif(p_context->>'provider_dispute_status',''), v_payment.provider_dispute_status, '') in ('under_review','pending','open') then
     raise exception 'provider_dispute_still_open';
   end if;
 

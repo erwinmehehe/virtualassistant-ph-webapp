@@ -2172,3 +2172,145 @@
     font-size: 10px;
   }
 }
+
+
+/* Final learner-flow phone QA: 375px and 390px */
+@media (max-width: 430px) {
+  .training-course-page,
+  .training-player-page,
+  .training-assessment-page {
+    min-width: 0;
+  }
+
+  .training-course-page .training-course-hero h1,
+  .training-player-lesson-head h1,
+  .training-assessment-page h1,
+  .training-completion-copy h2,
+  .training-course-page .training-lesson-copy .dash-action-title strong {
+    overflow-wrap: anywhere;
+  }
+
+  .training-course-page .training-course-meta-row,
+  .training-player-lesson-head .row,
+  .training-assessment-page .row {
+    min-width: 0;
+  }
+
+  .training-course-page .training-course-meta-row .badge,
+  .training-player-lesson-head .badge,
+  .training-assessment-page .badge {
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  .training-player-progress {
+    max-width: 100%;
+  }
+
+  .training-player-progress-copy {
+    gap: 8px;
+  }
+
+  .training-player-progress-copy > div,
+  .training-player-outline summary > span:first-child,
+  .training-assessment-page .dashboard-section-head > div {
+    min-width: 0;
+  }
+
+  .training-player-outline summary {
+    align-items: flex-start;
+  }
+
+  .training-player-outline summary > span:last-child {
+    flex: none;
+  }
+
+  .training-player-footer-nav .btn {
+    min-height: 44px;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .training-assessment-page .dashboard-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .training-assessment-page .dashboard-section-head > .badge {
+    align-self: flex-start;
+  }
+
+  .training-assessment-resource {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .training-assessment-resource pre {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .training-assessment-page .compact-list > div {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .training-assessment-page .compact-list > div > span:first-child {
+    min-width: 0;
+  }
+
+  .training-assessment-page .compact-list small,
+  .training-assessment-page .prose,
+  .training-exercise-block,
+  .training-template-block,
+  .training-checklist-block {
+    overflow-wrap: anywhere;
+  }
+
+  .training-assessment-submit textarea {
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .training-completion-credential,
+  .training-completion-credential > div {
+    min-width: 0;
+  }
+
+  .training-completion-credential code {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .training-certificate-actions,
+  .training-certificate-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .training-player-content,
+  .training-assessment-page .dashboard-section-card {
+    padding-inline: 12px;
+  }
+
+  .training-player-progress {
+    padding-inline: 10px;
+  }
+
+  .training-player-lesson-head h1,
+  .training-assessment-page h1 {
+    font-size: 23px;
+  }
+
+  .training-course-page .training-lesson-row {
+    grid-template-columns: 30px minmax(0, 1fr) 22px;
+    gap: 8px;
+  }
+}

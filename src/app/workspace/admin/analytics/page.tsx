@@ -37,6 +37,56 @@ type EventRow = {
   user_id?: string | null;
 };
 
+type TrainingCourseAnalyticsRow = {
+  id: string;
+  slug: string;
+  title: string;
+  recommended_order: number;
+};
+
+type TrainingModuleAnalyticsRow = {
+  id: string;
+  course_id: string;
+  position: number;
+};
+
+type TrainingLessonAnalyticsRow = {
+  id: string;
+  module_id: string;
+  title: string;
+  position: number;
+};
+
+type TrainingEnrollmentAnalyticsRow = {
+  user_id: string;
+  course_id: string;
+  completed_at: string | null;
+};
+
+type TrainingProgressAnalyticsRow = {
+  user_id: string;
+  lesson_id: string;
+};
+
+type TrainingAssessmentAnalyticsRow = {
+  id: string;
+  course_id: string;
+  pass_score: number | null;
+};
+
+type TrainingSubmissionAnalyticsRow = {
+  user_id: string;
+  assessment_id: string;
+  status: string;
+  score: number | null;
+};
+
+type TrainingCertificateAnalyticsRow = {
+  user_id: string;
+  course_id: string;
+  revoked_at: string | null;
+};
+
 type AnalyticsSummary = {
   event_counts: { event_name: string; total: number }[];
   sessions: number;

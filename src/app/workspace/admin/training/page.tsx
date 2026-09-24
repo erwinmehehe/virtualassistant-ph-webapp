@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, integrity, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, recovery, integrity, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -51,6 +51,44 @@ export default async function AdminTrainingPage() {
                 <span className="badge">{stage.learners} learner{stage.learners === 1 ? "" : "s"}</span>
               </div>
             ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-recovery-analytics">
+          <div className="dashboard-section-head">
+            <div>
+              <h2>Stalled learner recovery</h2>
+              <p>Incomplete course enrolments are nudged only after {recovery.inactivityHours} hours without training activity. The automation sends at most two reminders per course and stops automatically after the learner resumes or completes the course.</p>
+            </div>
+            <span className="badge"><RefreshCcw size={13}/> Recovery</span>
+          </div>
+          <div className="va-status-grid">
+            <div className="status-summary-card">
+              <div className="row-between"><span>Incomplete</span><BookOpenCheck size={18}/></div>
+              <strong>{recovery.incompleteEnrollments}</strong>
+              <small>Current incomplete course enrolments</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Stalled 72h+</span><TimerReset size={18}/></div>
+              <strong>{recovery.stalled72h}</strong>
+              <small>Eligible for a resume nudge</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Stalled 7d+</span><Clock3 size={18}/></div>
+              <strong>{recovery.stalled7d}</strong>
+              <small>Needs the one follow-up reminder</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Reminders sent</span><Activity size={18}/></div>
+              <strong>{recovery.remindersSent}</strong>
+              <small>In-app + preference-aware low-priority email</small>
+            </div>
+          </div>
+          <div className="notice">
+            <strong>Conservative by design</strong>
+            <p>Resume emails use the Product Emails preference, respect suppression lists and email quota, and never send more than two reminders for the same learner and course.</p>
           </div>
         </section>
       ) : null}

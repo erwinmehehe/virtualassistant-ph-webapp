@@ -30,12 +30,12 @@ test("every public discovery booking sends Jervis and Bryan the full internal br
   assert.match(email, /What the VA should own/);
   assert.match(email, /"discovery_booking_internal_team", \{[\s\S]*archive: false,[\s\S]*priority: "critical",[\s\S]*idempotencyKey: `booking-internal-\$\{args\.leadId\}`/);
   assert.match(action, /await sendInternalDiscoveryBookingNotificationEmail\(\{/);
-  assert.match(action, /leadId: lead\.id/);
+  assert.match(action, /leadId,/);
   assert.match(action, /service: parsed\.data\.service/);
   assert.match(action, /hours: parsed\.data\.hours/);
   assert.match(action, /budget: parsed\.data\.budget/);
   assert.match(action, /startTime: parsed\.data\.start_time/);
   assert.match(action, /message: parsed\.data\.message/);
   assert.match(action, /meetingUrl: meeting\?\.joinUrl \|\| null/);
-  assert.match(action, /manageUrl: bookingManageUrl\(manage\.token\)/);
+  assert.match(action, /manageUrl: bookingManageUrl\(manageToken\)/);
 });

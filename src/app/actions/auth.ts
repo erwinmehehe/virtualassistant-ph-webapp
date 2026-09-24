@@ -405,14 +405,14 @@ export async function requestPasswordResetAction(formData: FormData) {
       });
       if (!error) {
         const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
-        if (tokenHash) {
+        if (tokenHash && data.user?.id) {
           const recoveryUrl = appAuthConfirmUrl({
             origin: siteOrigin(),
             tokenHash,
             type: "recovery",
             next: "/auth/update-password",
           });
-          const recoverySubject = data.user?.id || email;
+          const recoverySubject = data.user.id;
           const recoveryWindow = Math.floor(Date.now() / (5 * 60 * 1000));
           const result = await sendPasswordRecoveryEmail({
             to: email,

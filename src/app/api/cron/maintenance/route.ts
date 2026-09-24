@@ -136,11 +136,12 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
   return { jobsMatched: null, candidatesProposed: Number(data || 0), candidatesReleased: 0 };
 }
 
-type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
-async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low" }) {
+type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va" | "training";
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string }) {
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
-  if (Number(previous?.reminder_count || 0) >= MAX_WORKFLOW_REMINDERS || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
+  const maxReminders = args.maxReminders ?? MAX_WORKFLOW_REMINDERS;
+  if (Number(previous?.reminder_count || 0) >= maxReminders || (previous?.last_sent_at && previous.last_sent_at > repeatCutoff)) return false;
   const now = new Date().toISOString();
   const reminderCount = Number(previous?.reminder_count || 0) + 1;
   const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: reminderCount, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
@@ -159,9 +160,10 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
         heading: args.title,
         body: args.body,
         href: `${appUrl}${args.href}`,
-        hrefLabel: "Open workspace",
+        hrefLabel: args.emailHrefLabel || "Open workspace",
         priority: args.emailPriority || "standard",
         idempotencyKey: `workflow-reminder-${args.subjectType}-${args.subjectId}-${args.action}-${reminderCount}`,
+        eventType: args.emailEventType,
       });
     } catch (error) {
       console.error("[email] Workflow reminder delivery failed", error);

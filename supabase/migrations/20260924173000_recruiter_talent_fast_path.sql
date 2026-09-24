@@ -68,7 +68,8 @@ select
   (select count(*)::integer from recent where completion_score = 0 and email_verified = true) as verified_recent_zero_7d,
   stalled.rows as stalled
 from directory
-cross join stalled;
+cross join stalled
+group by stalled.rows;
 
 revoke all on public.recruiter_talent_summary from public, anon, authenticated;
 grant select on public.recruiter_talent_summary to service_role;

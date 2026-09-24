@@ -109,6 +109,7 @@ export async function createCheckoutSessionAction(formData: FormData) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  let providerSessionCreated = false;
   try {
     const { amountPhp, rate } = await usdToPhp(Number(claim.amount_total));
     const session = await createPaymongoCheckoutSession({
@@ -119,6 +120,8 @@ export async function createCheckoutSessionAction(formData: FormData) {
       cancelUrl: `${appUrl}/workspace/client/payments?cancelled=1`,
       idempotencyKey: claim.idempotency_key,
     });
+
+    providerSessionCreated = true;
 
     const { error: finalizeError } = await admin.rpc("finalize_payment_checkout", {
       p_payment_id: claim.payment_id,
@@ -141,11 +144,13 @@ export async function createCheckoutSessionAction(formData: FormData) {
       throw checkoutError;
     }
 
-    await admin.rpc("release_payment_checkout_claim", {
-      p_payment_id: claim.payment_id,
-      p_claim_token: claim.claim_token,
-      p_reason: checkoutError instanceof Error ? checkoutError.message : "checkout_failed",
-    });
+    if (!providerSessionCreated) {
+      await admin.rpc("release_payment_checkout_claim", {
+        p_payment_id: claim.payment_id,
+        p_claim_token: claim.claim_token,
+        p_reason: checkoutError instanceof Error ? checkoutError.message : "checkout_failed",
+      });
+    }
     throw checkoutError;
   }
 }

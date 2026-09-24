@@ -31,7 +31,7 @@ test("learner home resumes the exact next lesson or automatic final check", asyn
 test("course overview always exposes the learner's next meaningful action", async () => {
   const course = await readFile(coursePath, "utf8");
 
-  assert.match(course, /Start course/);
+  assert.match(course, /Start first lesson/);
   assert.match(course, /Continue lesson/);
   assert.match(course, /Start final check/);
   assert.match(course, /View certificate/);
@@ -71,7 +71,7 @@ test("incomplete lessons use the integrity gate and continue to the next require
   assert.match(lesson, /course\.assessments\.find/);
   assert.match(lesson, /assessments\/\$\{nextAssessment\.id\}/);
   assert.match(lesson, /Continue lesson/);
-  assert.match(lesson, /Start assessment/);
+  assert.match(lesson, /Start final check/);
 });
 
 test("automatic final check is locked until lessons complete and never waits for admin review", async () => {

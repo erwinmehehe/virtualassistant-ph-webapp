@@ -62,7 +62,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {!course.enrolled ? (
             <form action={startTrainingCourseAction}>
               <input type="hidden" name="course_id" value={course.id}/>
-              <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start course</button>
+              <button className="btn btn-primary" type="submit" data-track="training_course_start_click">Start first lesson <ArrowRight size={14}/></button>
             </form>
           ) : course.completedAt && credentialHref ? (
             <Link className="btn btn-primary" href={credentialHref} data-track="training_certificate_open">View certificate <ArrowRight size={14}/></Link>
@@ -74,7 +74,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start final check <ArrowRight size={14}/></Link>
           ) : course.completedAt ? (
             <div className="row wrap">
-              <span className="badge">Certificate preparing</span>
+              <span className="badge">Completion saved · Certificate preparing</span>
               <Link className="btn" href="/workspace/training">My learning</Link>
             </div>
           ) : (

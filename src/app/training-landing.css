@@ -476,7 +476,7 @@
 }
 
 .tr-proof-grid > div:first-child {
-  padding-left: 0;
+  padding-left: 24px;
 }
 
 .tr-proof-grid > div:last-child {
@@ -644,8 +644,10 @@
   margin-top: 46px;
 }
 
-.tr-library-group {
-  scroll-margin-top: 110px;
+.tr-library-group,
+.tr-section[id],
+.tr-library-section {
+  scroll-margin-top: 136px;
 }
 
 .tr-library-group-head {
@@ -763,8 +765,8 @@
 
 .tr-course-icon {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   place-items: center;
   border: 1px solid var(--course-border);
   border-radius: 10px;
@@ -1489,7 +1491,16 @@
 
   .tr-path-preview-head {
     align-items: flex-start;
+  }
+
+  .tr-path-chips {
+    grid-template-columns: 1fr;
+  }
+
+  .tr-path-next-head {
+    align-items: flex-start;
     flex-direction: column;
+    gap: 2px;
   }
 
   .tr-proof-grid {

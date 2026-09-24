@@ -116,7 +116,8 @@ test("learner UI only exposes published paths and avoids duplicate course cards"
   assert.match(training, /\.eq\("status", "published"\)/);
   assert.match(page, /const notStarted = courses\.filter/);
   assert.match(page, /filteredNotStarted/);
-  assert.match(page, /Each course appears once/);
+  assert.match(page, /course\.country_focus !== "Australia"/);
+  assert.match(page, /Australian courses stay in the specialisation paths above/);
   assert.doesNotMatch(page, /paths\.map/);
 });
 

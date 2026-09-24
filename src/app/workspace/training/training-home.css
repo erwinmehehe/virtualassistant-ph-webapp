@@ -3509,3 +3509,93 @@
 .training-certificate-empty {
   margin-top: 2px;
 }
+
+
+/* Learner journey visual continuity */
+.training-course-page,
+.training-player-page,
+.training-assessment-page {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.training-course-page > .btn:first-child,
+.training-player-page > .btn:first-child,
+.training-assessment-page > .btn:first-child {
+  align-self: flex-start;
+  border-color: #e4e7ec;
+  color: #475467;
+  background: #fff;
+}
+
+.training-course-hero,
+.training-player-content,
+.training-assessment-hero,
+.training-assessment-submit,
+.training-completion-card {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .03), 0 10px 28px rgba(16, 24, 40, .035);
+}
+
+.training-player-next-hint {
+  max-width: 280px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.training-assessment-submit .training-auto-question {
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.training-assessment-submit .training-auto-question:focus-within {
+  border-color: #a5b4fc;
+  background: #fdfdff;
+  box-shadow: 0 0 0 3px rgba(68, 76, 231, .08);
+}
+
+.training-auto-question-options label:has(input:checked) {
+  border-color: #a5b4fc;
+  color: #312e81;
+  background: #f5f3ff;
+  box-shadow: inset 0 0 0 1px rgba(68, 76, 231, .08);
+}
+
+.training-course-progress-row .btn-primary,
+.training-player-footer-nav .btn-primary,
+.training-integrity-complete,
+.training-assessment-submit-actions .btn-primary,
+.training-completion-actions .btn-primary {
+  min-height: 44px;
+}
+
+@media (max-width: 430px) {
+  .training-course-page > .btn:first-child,
+  .training-player-page > .btn:first-child,
+  .training-assessment-page > .btn:first-child {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .training-course-progress-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .training-course-progress-row form,
+  .training-course-progress-row .btn {
+    width: 100%;
+  }
+
+  .training-course-progress-row .btn {
+    justify-content: center;
+  }
+
+  .training-player-next-hint {
+    max-width: none;
+    text-align: center;
+  }
+
+  .training-auto-question-options label {
+    min-height: 48px;
+  }
+}

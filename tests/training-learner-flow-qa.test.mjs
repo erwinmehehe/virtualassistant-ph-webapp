@@ -37,6 +37,8 @@ test("course overview always exposes the learner's next meaningful action", asyn
   assert.match(course, /View certificate/);
   assert.match(course, /nextLesson/);
   assert.match(course, /nextAssessment/);
+  assert.match(course, /assessmentInReview/);
+  assert.match(course, /Assessment in review/);
 });
 
 test("final lesson saves progress and continues directly to the next required assessment", async () => {

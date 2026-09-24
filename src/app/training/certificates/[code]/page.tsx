@@ -48,13 +48,13 @@ export default async function TrainingCredentialVerificationPage({
               <div>
                 <span className="credential-status">Verified</span>
                 <h1>{credential.courseTitle}</h1>
-                <p>{credential.courseSummary || "This certificate confirms completion of a published VirtualAssistant.com.ph training course."}</p>
+                <p>{credential.courseSummary || "This certificate confirms completion of a VirtualAssistant.com.ph training course."}</p>
 
                 <dl className="credential-facts">
                   <div><dt>Credential</dt><dd>{credential.credentialCode}</dd></div>
                   <div><dt>Issued</dt><dd>{issuedDate(credential.issuedAt)}</dd></div>
                   <div><dt>Course length</dt><dd>{duration(credential.estimatedMinutes)}</dd></div>
-                  <div><dt>Status</dt><dd>Valid and not revoked</dd></div>
+                  <div><dt>Status</dt><dd>Verified</dd></div>
                 </dl>
 
                 <div className="credential-note">
@@ -77,8 +77,7 @@ export default async function TrainingCredentialVerificationPage({
                 <span className="credential-status">Not verified</span>
                 <h1>We could not verify this certificate.</h1>
                 <p>
-                  The code may be incorrect, the credential may have been revoked, or the associated course may no
-                  longer be published.
+                  The code may be incorrect, or this certificate may no longer be active.
                 </p>
                 <Link className="credential-link" href="/training">Explore training</Link>
               </div>

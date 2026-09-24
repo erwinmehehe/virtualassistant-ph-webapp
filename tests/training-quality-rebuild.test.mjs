@@ -27,7 +27,7 @@ test("practical assessment publishing requires real evidence and grading criteri
 test("learner and reviewer assessment screens use the same rubric", async () => {
   const learner = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
   const admin = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
-  assert.match(learner, /Fictional client source pack/);
+  assert.match(learner, /Practice client materials/);
   assert.match(learner, /How your work will be graded/);
   assert.match(learner, /rubric_scores/);
   assert.match(admin, /Grading rubric/);

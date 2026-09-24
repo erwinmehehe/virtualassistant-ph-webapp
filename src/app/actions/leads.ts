@@ -15,6 +15,7 @@ import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -757,6 +758,12 @@ export async function submitContactAction(formData: FormData) {
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/contact?error=Please%20complete%20the%20required%20fields");
   if (parsed.data.website) redirect("/contact?sent=1");
+  if (shouldSilentlyDropContactSubmission({
+    email: parsed.data.email,
+    company: parsed.data.company,
+    topic: parsed.data.topic,
+    message: parsed.data.message,
+  })) redirect("/contact?sent=1");
   if (!(await verifyTurnstile(formData))) redirect("/contact?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_contact", parsed.data.email, 3, 8, 60); }
   catch { redirect("/contact?error=Too%20many%20requests.%20Please%20try%20again%20later."); }

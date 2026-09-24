@@ -340,30 +340,34 @@ export const softwarePages: SoftwareSeoPage[] = [
     primaryKeyword: "servicem8 virtual assistant",
     metaTitle: "Hire ServiceM8 Virtual Assistant Philippines",
     metaDescription:
-      "Outsource ServiceM8 job creation, scheduling, customer updates, technician paperwork, quoting and invoice administration.",
-    h1: "Keep Every ServiceM8 Job Moving From First Call to Invoice",
+      "Hire a ServiceM8 Virtual Assistant for job setup, dispatch, quote follow-up, customer updates, completion paperwork, invoicing and workflow QA for tradies.",
+    h1: "Keep ServiceM8 Jobs Moving From Enquiry to Payment",
     intro:
-      "A ServiceM8 Virtual Assistant can manage the office workflow around your field technicians. Jobs are created, scheduled, updated and prepared for invoicing while your licensed tradespeople handle technical decisions and field work.",
-    focus: "servicem8 job administration",
+      "A ServiceM8 Virtual Assistant can run the repeatable office workflow around your field team: clean job records, accurate scheduling, quote follow-up, completion checks, invoice administration and automation QA. Your technicians and authorised managers keep technical, pricing, safety and finance decisions.",
+    focus: "servicem8 job and dispatch administration",
     workflows: [
-      "receive the customer enquiry",
-      "create the customer and job record",
-      "record approved job scope",
-      "schedule the technician",
-      "send appointment confirmations",
-      "track job notes and photos",
-      "prepare approved quote or invoice data",
-      "follow outstanding paperwork",
-      "close the administrative workflow"
+      "receive the customer enquiry and check the existing client record",
+      "create the job as Quote or Work Order under the approved workflow",
+      "use Queues only when the job is genuinely waiting on something",
+      "schedule the right technician using capability, travel, duration and access rules",
+      "send approved booking confirmations and customer updates",
+      "prepare and follow approved quotes without changing scope or price",
+      "track online quote acceptance and move the next action into scheduling",
+      "check technician notes, photos, checklists and Forms before completion",
+      "prepare approved invoices and monitor payment status",
+      "audit booking, quote and payment automations for replies, acceptance and exceptions"
     ],
     tasks: [
-      "job creation",
-      "technician scheduling",
-      "customer updates",
-      "quote preparation",
-      "invoice preparation",
-      "job note follow-up",
-      "service administration"
+      "client and job-card maintenance",
+      "job status and Queue administration",
+      "dispatch and technician scheduling",
+      "booking communication",
+      "quote preparation and follow-up",
+      "checklist and Form follow-up",
+      "completion evidence review",
+      "invoice and payment administration",
+      "automation QA",
+      "accounting exception handoff"
     ],
     bestFor: [
       "electricians",
@@ -373,14 +377,19 @@ export const softwarePages: SoftwareSeoPage[] = [
       "field service businesses"
     ],
     outcomes: [
-      "Incoming work becomes scheduled jobs faster.",
-      "Technicians spend less time updating office systems.",
-      "Completed jobs move toward invoicing with fewer administrative delays."
+      "Jobs show the correct operational state instead of getting lost in custom admin labels.",
+      "Scheduling reflects technician capability, travel and customer constraints.",
+      "Accepted quotes, return visits and missing field paperwork trigger the right next action.",
+      "Completed jobs move toward invoicing with fewer avoidable delays.",
+      "Quote and payment reminders are less likely to fire after the customer has already replied, accepted or paid."
     ],
     hiringNotes: [
-      "Define booking rules, service areas and technician capabilities.",
-      "Keep technical and safety decisions with qualified field staff.",
-      "The licensed local trade professional retains final technical advice, approvals and compliance responsibility."
+      "Document when new work starts as Quote versus Work Order and how the business uses ServiceM8 Queues.",
+      "Define technician capabilities, service areas, booking durations, travel rules and urgent-job escalation.",
+      "Set clear authority for quote sending, pricing changes, invoice issue, credits, write-offs and payment disputes.",
+      "Require the VA to inspect the job Diary, checklist/Form evidence and return-work notes before marking work ready for invoicing.",
+      "Review booking, quote-follow-up and payment-follow-up automation against customer replies, acceptance and payment exceptions.",
+      "Keep technical diagnosis, scope changes, trade compliance, safety decisions and accounting judgment with authorised staff."
     ],
     relatedServiceSlugs: [
       "trades-service-administration-virtual-assistant",

@@ -36,7 +36,7 @@ test("heading cleanup covers the known templated labels", async () => {
     "Common mistakes",
     "Before you move on",
     "What you will learn",
-    "What you'll learn",
+    "What you''ll learn",
     "Why this matters",
     "Key takeaways",
     "Decision rules",

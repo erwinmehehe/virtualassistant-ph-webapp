@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendLeadNotificationEmail } from "@/lib/email";
+import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 
 const schema = z.object({
   name: z.string().optional().nullable(),
@@ -41,6 +42,14 @@ export async function POST(request: Request) {
 
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid lead payload", details: parsed.error.flatten() }, { status: 400 });
+  if (parsed.data.source_page === "contact" && shouldSilentlyDropContactSubmission({
+    email: parsed.data.email,
+    company: parsed.data.company,
+    topic: parsed.data.service,
+    message: parsed.data.message || "",
+  })) {
+    return NextResponse.json({ ok: true, filtered: true }, { status: 202 });
+  }
   const admin = createAdminClient();
   const { data, error } = await admin.from("lead_intake").insert(parsed.data).select("id").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

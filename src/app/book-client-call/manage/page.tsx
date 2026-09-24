@@ -15,7 +15,7 @@ export default async function ManageBookingPage({ searchParams }: { searchParams
   const token = query.token || "";
   if (token.length < 32) notFound();
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
   if (!lead) notFound();
   const now = new Date();
   const until = new Date(now.getTime() + 15 * 86400000).toISOString();

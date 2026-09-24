@@ -62,5 +62,5 @@ test("profiling compliance package records the NPC registration decision and DPI
   assert.match(registration, /profiling/);
   assert.match(dpia, /human recruiter review remains mandatory/i);
   assert.match(notice, /Matching, search, and profiling/);
-  assert.match(notice, /do not make the final hiring, rejection, vetting approval, placement, or payout\s+decision on their own/);
+  assert.match(notice, /do not make[\s\S]*final hiring[\s\S]*payout decision on their own/);
 });

@@ -24,14 +24,14 @@ test("signed-in training adds four Australian specialization routes without crea
   assert.match(page, /\/workspace\/training\/courses/);
 });
 
-test("specialization chooser only starts reviewed published courses returned by the training dashboard", async () => {
+test("specialization chooser only starts published courses returned by the training dashboard", async () => {
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /courses\.find\(\(course\) => course\.slug === slug\)/);
-  assert.match(page, /publishedCount/);
-  assert.match(page, /in development/);
+  assert.match(page, /published\.length === specialization\.courses\.length/);
+  assert.match(page, /Specialist-review pending/);
   assert.match(page, /startTrainingCourseAction/);
-  assert.match(page, /Draft specialist courses stay unavailable until they pass the normal review process/);
+  assert.match(page, /status === "Available"/);
 });
 
 test("tradie capstone covers the full enquiry-to-review lifecycle", async () => {

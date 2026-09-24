@@ -15,6 +15,9 @@ test("homepage featured talent is cookie-free and explicitly cached", async () =
   assert.match(page, /export const revalidate = 300/);
   assert.match(page, /getFeaturedPublicVas/);
   assert.match(data, /unstable_cache/);
+  assert.match(data, /NEXT_PUBLIC_SUPABASE_URL/);
+  assert.match(data, /NEXT_PUBLIC_SUPABASE_ANON_KEY/);
+  assert.match(data, /return \[\]/);
   assert.match(data, /revalidate: 300/);
   assert.doesNotMatch(data, /user_id/);
   assert.match(publicClient, /NEXT_PUBLIC_SUPABASE_ANON_KEY/);

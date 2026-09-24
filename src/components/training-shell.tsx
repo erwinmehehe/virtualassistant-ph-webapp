@@ -65,7 +65,7 @@ export function TrainingShell({
 
         <nav className="app-nav app-nav-desktop training-shell-nav" aria-label="Training navigation">
           <div className="app-nav-group">
-            <div className="sidebar-label">Learning</div>
+            <div className="sidebar-label">Training</div>
             <Link href="/workspace/training" aria-current="page">
               <TrainingNavIcon tone="violet"><GraduationCap size={16}/></TrainingNavIcon>
               <span>My learning</span>

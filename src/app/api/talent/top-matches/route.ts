@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
 import type { TopMatch } from "@/lib/talent-preview";
@@ -30,7 +30,8 @@ export async function GET(request: Request) {
 
   let rows: DirectoryRow[] = [];
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
+    if (!supabase) return NextResponse.json({ category, exact: false, total: 0, matches: [] as TopMatch[] });
     const { data } = await supabase
       .from("public_va_directory")
       .select("user_id,slug,full_name,headline,primary_category,categories,skills,avatar_url,years_experience,weekly_hours")
@@ -65,5 +66,5 @@ export async function GET(request: Request) {
 
   // Size of the pool these three came from, so three faces do not read as "that is all".
   const total = exact ? inCategory.length : eligible.length;
-  return NextResponse.json({ category, exact, total, matches });
+  return NextResponse.json({ category, exact, total, matches }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } });
 }

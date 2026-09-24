@@ -1,4 +1,4 @@
-import { bookingManageUrl } from "@/lib/booking-operations";
+import { bookingManageUrl, createBookingManageToken, recreateBookingManageToken } from "@/lib/booking-operations";
 import { formatDiscoverySlot } from "@/lib/discovery-booking";
 import { sendDiscoveryReminderEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -60,7 +60,43 @@ async function releaseDiscoveryReminderClaim(
     .update({ [field]: null })
     .eq("id", leadId)
     .eq(field, claimAt);
-  if (error) console.error("[discovery-reminders] Could not release failed reminder claim", { leadId, window, error: error.message });
+  if (error) {
+    console.error("[discovery-reminders] Could not release failed reminder claim", {
+      leadId,
+      window,
+      error: error.message,
+    });
+  }
+}
+
+async function ensureManageCapability(
+  admin: ReturnType<typeof createAdminClient>,
+  lead: {
+    id: string;
+    discovery_manage_token_hash?: string | null;
+    discovery_manage_token_id?: string | null;
+    discovery_manage_token_expires_at?: string | null;
+  },
+) {
+  let manage = recreateBookingManageToken(
+    lead.discovery_manage_token_id,
+    lead.discovery_manage_token_expires_at,
+  );
+
+  if (manage && manage.hash === lead.discovery_manage_token_hash) return manage;
+
+  manage = createBookingManageToken();
+  const { error } = await admin
+    .from("lead_intake")
+    .update({
+      discovery_manage_token: null,
+      discovery_manage_token_hash: manage.hash,
+      discovery_manage_token_id: manage.tokenId,
+      discovery_manage_token_expires_at: manage.expiresAt,
+    })
+    .eq("id", lead.id);
+  if (error) throw error;
+  return manage;
 }
 
 export async function GET(request: Request) {
@@ -70,8 +106,11 @@ export async function GET(request: Request) {
   const now = Date.now();
   const lower = new Date(now + 30 * 60 * 1000).toISOString();
   const upper = new Date(now + 25 * 60 * 60 * 1000).toISOString();
-  const { data: leads, error } = await admin.from("lead_intake")
-    .select("id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at")
+  const { data: leads, error } = await admin
+    .from("lead_intake")
+    .select(
+      "id,name,email,timezone,discovery_scheduled_at,discovery_meeting_url,discovery_manage_token_hash,discovery_manage_token_id,discovery_manage_token_expires_at,discovery_reminder_24h_sent_at,discovery_reminder_1h_sent_at",
+    )
     .not("discovery_scheduled_at", "is", null)
     .is("discovery_completed_at", null)
     .is("discovery_cancelled_at", null)
@@ -85,7 +124,7 @@ export async function GET(request: Request) {
   let claimedElsewhere = 0;
 
   for (const lead of leads || []) {
-    if (!lead.email || !lead.discovery_scheduled_at || !lead.discovery_manage_token) continue;
+    if (!lead.email || !lead.discovery_scheduled_at) continue;
 
     const minutesUntil = (new Date(lead.discovery_scheduled_at).getTime() - now) / 60_000;
     const window: ReminderWindow | null =
@@ -102,17 +141,19 @@ export async function GET(request: Request) {
       continue;
     }
 
-    const scheduledLabel = formatDiscoverySlot(lead.discovery_scheduled_at, lead.timezone || "Asia/Manila");
-    const manageUrl = bookingManageUrl(lead.discovery_manage_token);
-
     try {
+      const manage = await ensureManageCapability(admin, lead);
+      const scheduledLabel = formatDiscoverySlot(
+        lead.discovery_scheduled_at,
+        lead.timezone || "Asia/Manila",
+      );
       const result = await sendDiscoveryReminderEmail({
         leadId: lead.id,
         to: lead.email,
         clientName: lead.name,
         scheduledLabel,
         meetingUrl: lead.discovery_meeting_url,
-        manageUrl,
+        manageUrl: bookingManageUrl(manage.token),
         window,
       });
 
@@ -127,9 +168,19 @@ export async function GET(request: Request) {
       else reminder24h += 1;
     } catch (sendError) {
       await releaseDiscoveryReminderClaim(admin, lead.id, window, claimAt);
-      console.error("[discovery-reminders] Reminder send failed", { leadId: lead.id, window, error: sendError instanceof Error ? sendError.message : String(sendError) });
+      console.error("[discovery-reminders] Reminder send failed", {
+        leadId: lead.id,
+        window,
+        error: sendError instanceof Error ? sendError.message : String(sendError),
+      });
     }
   }
 
-  return Response.json({ ok: true, checked: leads?.length || 0, reminder24h, reminder1h, claimedElsewhere });
+  return Response.json({
+    ok: true,
+    checked: leads?.length || 0,
+    reminder24h,
+    reminder1h,
+    claimedElsewhere,
+  });
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { requireAnyRole } from "@/lib/auth";
 import { saveJobShortlistAction } from "@/app/actions/matching";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
@@ -30,6 +31,7 @@ function clientReviewError(formData: FormData, message: string): never {
 }
 
 export async function bulkRecruiterTalentAction(formData: FormData) {
+  await requireAnyRole(["admin", "recruiter"]);
   const action = String(formData.get("bulk_action") || "");
   const filteredScope = String(formData.get("selection_scope") || "selected") === "filtered";
 

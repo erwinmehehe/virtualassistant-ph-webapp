@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -8,14 +9,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import "../booking.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Manage discovery call", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Manage discovery call", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
 export default async function ManageBookingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
   const token = query.token || "";
   if (token.length < 32) notFound();
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
   if (!lead) notFound();
   const now = new Date();
   const until = new Date(now.getTime() + 15 * 86400000).toISOString();

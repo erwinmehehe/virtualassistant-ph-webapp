@@ -16,6 +16,7 @@ import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManage
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
+import { createSignedCapability } from "@/lib/public-capability";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -23,11 +24,21 @@ export type ServiceMatchState = {
   leadId?: string;
   jobId?: string;
   clientLinked?: boolean;
+  matchFeedbackToken?: string;
   /** The submission read like a Virtual Assistant applying for work. */
   vaApplicant?: boolean;
 };
 
 const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30;
+const MATCH_FEEDBACK_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+function matchFeedbackToken(leadId: string) {
+  return createSignedCapability({
+    scope: "match_feedback",
+    subject: leadId,
+    ttlSeconds: MATCH_FEEDBACK_TTL_SECONDS,
+  }).token;
+}
 
 /**
  * Stores a hiring-form submission that reads like a VA applying for work as a
@@ -326,6 +337,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
+        matchFeedbackToken: matchFeedbackToken(duplicate.id),
         message: `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
       };
     }
@@ -398,6 +410,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       leadId: lead.id,
       jobId,
       clientLinked: Boolean(clientId),
+      matchFeedbackToken: matchFeedbackToken(lead.id),
       message: clientId
         ? `Your ${service.name.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
         : `Your ${service.name.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
@@ -477,6 +490,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         leadId: duplicate.id,
         jobId: duplicate.job_id || undefined,
         clientLinked: Boolean(duplicate.client_id),
+        matchFeedbackToken: matchFeedbackToken(duplicate.id),
         message: "Your hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided."
       };
     }
@@ -549,6 +563,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       leadId: lead.id,
       jobId,
       clientLinked: Boolean(clientId),
+      matchFeedbackToken: matchFeedbackToken(lead.id),
       message: clientId
         ? `Your ${industry.label.toLowerCase()} hiring request is saved in your Client Portal and our recruiting team will review it.`
         : `Your ${industry.label.toLowerCase()} hiring request is with our recruiting team. We will review the role and follow up using the contact details you provided.`
@@ -639,7 +654,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const pageUrl = `${base}${sourcePath}`;
 
   const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category);
-  if (duplicate) redirect(`${returnTo}?sent=1&cat=${encodeURIComponent(category)}`);
+  if (duplicate) redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(duplicate.id)}&cat=${encodeURIComponent(category)}#feedback=${encodeURIComponent(matchFeedbackToken(duplicate.id))}`);
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name?.trim() || null,
@@ -741,7 +756,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";
   const shortlist = shortlistSlugs.length ? `&shortlist=${encodeURIComponent(shortlistSlugs.join(","))}` : "";
-  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}&cat=${encodeURIComponent(category)}${talent}${shortlist}`);
+  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}&cat=${encodeURIComponent(category)}${talent}${shortlist}#feedback=${encodeURIComponent(matchFeedbackToken(lead.id))}`);
 }
 
 const contactSchema = z.object({
@@ -896,7 +911,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     discovery_calendar_event_id: meeting?.eventId || null,
     discovery_meeting_provider: meeting ? "google_meet" : null,
     discovery_manage_token_hash: manage.hash,
-    discovery_manage_token: manage.token,
+    discovery_manage_token_id: manage.tokenId,
+    discovery_manage_token_expires_at: manage.expiresAt,
+    discovery_manage_token: null,
     discovery_notes: [
       "Booked by a prospective client through the public qualification calendar.",
       meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
@@ -932,6 +949,16 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     if (merged) {
       leadId = merged.leadId;
       jobId = merged.jobId;
+      const { error: capabilityError } = await admin
+        .from("lead_intake")
+        .update({
+          discovery_manage_token: null,
+          discovery_manage_token_hash: manage.hash,
+          discovery_manage_token_id: manage.tokenId,
+          discovery_manage_token_expires_at: manage.expiresAt,
+        })
+        .eq("id", leadId);
+      if (capabilityError) throw capabilityError;
     } else {
       jobId = await createPendingJobForLead({
         admin,

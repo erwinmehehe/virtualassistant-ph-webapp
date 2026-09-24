@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
 
 const fixedEvents = new Set([
   "page_view",
@@ -65,27 +66,67 @@ const fixedEvents = new Set([
   "training_assessment_reviewed",
   "training_course_complete",
   "training_certificate_issued",
-  "web_vital"
+  "web_vital",
 ]);
 
 const schema = z.object({
+  event_id: z.string().uuid().optional(),
   event: z.string().min(1).max(80).regex(/^[a-z0-9_]+$/i),
   path: z.string().min(1).max(1000).refine((value) => value.startsWith("/") && !value.startsWith("//")),
   referrer: z.string().max(2000).nullable().optional(),
   session_id: z.string().uuid().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional()
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
+const BOT_USER_AGENT =
+  /(?:bot|crawler|spider|slurp|headlesschrome|lighthouse|pagespeed|facebookexternalhit|bingpreview|preview|uptime|monitoring)/i;
+
 function allowedEvent(event: string) {
-  return fixedEvents.has(event) || /^specialty_[a-z0-9_]+_brief$/.test(event) || /^service_[a-z0-9_]+_(brief|browse|match|profile|intro)$/.test(event);
+  return (
+    fixedEvents.has(event) ||
+    /^specialty_[a-z0-9_]+_brief$/.test(event) ||
+    /^service_[a-z0-9_]+_(brief|browse|match|profile|intro)$/.test(event)
+  );
+}
+
+function requestIp(request: Request) {
+  const forwarded =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown";
+  return forwarded.split(",")[0]?.trim().slice(0, 128) || "unknown";
 }
 
 export async function POST(request: Request) {
+  const userAgent = request.headers.get("user-agent") || "";
+  if (!userAgent || BOT_USER_AGENT.test(userAgent)) {
+    return NextResponse.json({ ok: true, dropped: "bot" }, { status: 202 });
+  }
+
   let body: unknown;
-  try { body = await request.json(); } catch { return NextResponse.json({ ok: false }, { status: 400 }); }
-  const parsed = schema.safeParse(body);
-  if (!parsed.success || !allowedEvent(parsed.data.event) || JSON.stringify(parsed.data.metadata ?? {}).length > 8000) {
+  try {
+    body = await request.json();
+  } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
+  const parsed = schema.safeParse(body);
+  if (
+    !parsed.success ||
+    !allowedEvent(parsed.data.event) ||
+    JSON.stringify(parsed.data.metadata ?? {}).length > 8000
+  ) {
+    return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
+  try {
+    await enforceActionRateLimit("public_analytics:ip", requestIp(request), 240, 10);
+    if (parsed.data.session_id) {
+      await enforceActionRateLimit("public_analytics:session", parsed.data.session_id, 120, 10);
+    }
+  } catch {
+    return NextResponse.json({ ok: true, dropped: "rate_limited" }, { status: 202 });
   }
 
   try {
@@ -93,16 +134,27 @@ export async function POST(request: Request) {
     const { data: claimsData } = await supabase.auth.getClaims();
     const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
-    await admin.from("analytics_events").insert({
+    const payload = {
+      event_id: parsed.data.event_id ?? null,
       event_name: parsed.data.event,
       path: parsed.data.path,
       referrer: parsed.data.referrer ?? null,
       session_id: parsed.data.session_id ?? null,
       user_id: userId,
-      metadata: parsed.data.metadata ?? {}
-    });
+      metadata: parsed.data.metadata ?? {},
+    };
+
+    if (parsed.data.event_id) {
+      await admin
+        .from("analytics_events")
+        .upsert(payload, { onConflict: "event_id", ignoreDuplicates: true });
+    } else {
+      await admin.from("analytics_events").insert(payload);
+    }
   } catch {
-    // Never fail a product request because analytics storage is unavailable or the migration is pending.
+    // Never fail a product request because analytics storage is unavailable.
+    // Analytics is intentionally lossy, including auth enrichment and limiter failures.
   }
+
   return NextResponse.json({ ok: true });
 }

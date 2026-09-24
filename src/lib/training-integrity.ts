@@ -26,6 +26,8 @@ export type TrainingAssessmentQuestion = {
   questionKey: string;
 };
 
+const QUESTION_VARIANTS_PER_LESSON = 6;
+
 function hashInt(value: string) {
   const digest = createHash("sha256").update(value).digest("hex").slice(0, 12);
   return Number.parseInt(digest, 16);
@@ -57,31 +59,76 @@ function checklistItems(content: unknown) {
     .filter(Boolean);
 }
 
-function practicalContext(content: unknown) {
+function truncateContext(value: string, max = 340) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  if (compact.length <= max) return compact;
+  return compact.slice(0, max - 1).trimEnd() + "…";
+}
+
+function practicalContext(content: unknown, lessonTitle: string) {
   const blocks = lessonBlocks(content);
-  const workedExample = blocks.find(
-    (block): block is Extract<LessonContentBlock, { type: "callout" }> =>
-      block.type === "callout" && Boolean(block.title?.toLowerCase().startsWith("worked example")),
+  const scenarios = blocks.filter(
+    (block): block is Extract<LessonContentBlock, { type: "scenario" }> => block.type === "scenario",
   );
-  if (workedExample?.title) return workedExample.title.replace(/^Worked example:\s*/i, "").trim();
+  const worked = scenarios.find((block) =>
+    /worked example|judgment|final challenge|practice scenario/i.test(block.title || ""),
+  ) || scenarios[scenarios.length - 1];
+
+  if (worked?.text) {
+    return truncateContext(
+      worked.title ? `${worked.title}: ${worked.text}` : worked.text,
+    );
+  }
 
   const exercise = blocks.find(
     (block): block is Extract<LessonContentBlock, { type: "exercise" }> => block.type === "exercise",
   );
-  return exercise?.title?.trim() || null;
+  if (exercise?.text) {
+    return truncateContext(
+      exercise.title ? `${exercise.title}: ${exercise.text}` : exercise.text,
+    );
+  }
+
+  return lessonTitle;
 }
 
 function stripTerminal(value: string) {
   return value.trim().replace(/[.!?]+$/, "");
 }
 
-function weakenedRuleVariants(rule: string) {
-  const base = stripTerminal(rule);
-  return [
-    `${base}, unless the request is time-sensitive and the likely outcome seems clear.`,
-    `${base} after the work has already moved forward, if a reviewer later asks for evidence.`,
-    `${base} only when two records directly conflict; routine cases can proceed without that control.`,
-  ];
+function ruleFor(
+  items: string[],
+  pattern: RegExp,
+  fallbackIndex: number,
+) {
+  return items.find((item) => pattern.test(item)) || items[fallbackIndex % items.length] || items[0];
+}
+
+function actionFromRule(rule: string) {
+  return `Apply this control before moving forward: ${stripTerminal(rule)}.`;
+}
+
+function closureFromRule(rule: string) {
+  return `Keep the item open until this control is satisfied: ${stripTerminal(rule)}.`;
+}
+
+function authorityFromRule(rule: string) {
+  return `Do the administrative work that is supported by evidence, but preserve this boundary: ${stripTerminal(rule)}.`;
+}
+
+function handoffFromRule(rule: string) {
+  return `Make the handoff decision-ready by applying this standard: ${stripTerminal(rule)}.`;
+}
+
+function plausibleShortcutOptions(seed: string) {
+  return stableShuffle([
+    "Use the current system state as the working answer and document the assumption so it can be corrected later.",
+    "Follow the closest previous case unless new information proves that the current case is different.",
+    "Keep the work moving through the reversible steps and leave the unresolved control for the final handoff.",
+    "Ask for a full reviewer decision before doing any of the routine administrative preparation.",
+    "Treat a clean-looking status or matching total as sufficient unless someone raises an exception.",
+    "Use the client’s likely intention as the default when the source information is incomplete.",
+  ], seed);
 }
 
 function makeQuestion(args: {
@@ -93,7 +140,16 @@ function makeQuestion(args: {
   distractors: string[];
 }) {
   const questionSeed = `${args.seed}:question:${args.index}`;
-  const rawOptions = [args.correctText, ...args.distractors].slice(0, 4);
+  const unique = [args.correctText, ...args.distractors].filter(
+    (text, index, values) => text && values.indexOf(text) === index,
+  );
+  const filler = plausibleShortcutOptions(questionSeed + ":fill");
+  for (const option of filler) {
+    if (unique.length >= 4) break;
+    if (!unique.includes(option)) unique.push(option);
+  }
+
+  const rawOptions = unique.slice(0, 4);
   const options = stableShuffle(rawOptions, questionSeed + ":options").map((text) => ({
     id: optionId(questionSeed, text),
     text,
@@ -133,55 +189,99 @@ export function buildLessonQuestionBank(args: {
   const seed = [args.lessonId, args.userId, args.seedSuffix || "lesson-bank"].join(":");
   const orderedRules = stableShuffle(items, seed + ":rules");
   const primary = orderedRules[0];
-  const second = orderedRules[1] || primary;
-  const evidenceRule =
-    orderedRules.find((item) => /evidence|source|verify|approval|owner|record|audit|document/i.test(item)) ||
-    orderedRules[2] ||
-    primary;
-  const context = practicalContext(args.content) || args.lessonTitle;
+  const evidenceRule = ruleFor(
+    orderedRules,
+    /evidence|source|verify|record|document|audit|check|match|confirm/i,
+    1,
+  );
+  const authorityRule = ruleFor(
+    orderedRules,
+    /approval|authori|decision|escalat|licensed|clinical|tax|gst|bas|payroll|specialist|owner|boundary/i,
+    2,
+  );
+  const handoffRule = ruleFor(
+    orderedRules,
+    /handoff|owner|checkpoint|deadline|status|next action|open item|follow-up/i,
+    3,
+  );
+  const sequenceRule = ruleFor(
+    orderedRules,
+    /before|first|until|only when|prior|after|ready|complete/i,
+    4,
+  );
+  const context = practicalContext(args.content, args.lessonTitle);
+  const shortcuts = plausibleShortcutOptions(seed + ":shortcuts");
 
-  const positive = makeQuestion({
+  const scenarioDecision = makeQuestion({
     lessonId: args.lessonId,
     seed,
     index: 0,
-    prompt: `Which statement accurately reflects the QA standard for "${args.lessonTitle}"?`,
-    correctText: primary,
-    distractors: weakenedRuleVariants(primary),
+    prompt: `Case: ${context} What is the strongest next move?`,
+    correctText: actionFromRule(sequenceRule),
+    distractors: [shortcuts[0], shortcuts[1], shortcuts[2]],
   });
 
-  const unsafeShortcut = weakenedRuleVariants(second)[0];
-  const safeAlternatives = orderedRules
-    .filter((item) => item !== second)
-    .slice(0, 3);
-  while (safeAlternatives.length < 3) safeAlternatives.push(primary);
-  const negative = makeQuestion({
+  const evidenceDecision = makeQuestion({
     lessonId: args.lessonId,
     seed,
     index: 1,
-    prompt: "Which option introduces a shortcut this lesson does NOT allow?",
-    correctText: unsafeShortcut,
-    distractors: safeAlternatives,
+    prompt: `In the same case from "${args.lessonTitle}", the status looks nearly complete but one source or fact may still be unresolved. What should control closure?`,
+    correctText: closureFromRule(evidenceRule),
+    distractors: [shortcuts[4], shortcuts[0], shortcuts[5]],
   });
 
-  const firstStep = makeQuestion({
+  const authorityDecision = makeQuestion({
     lessonId: args.lessonId,
     seed,
     index: 2,
-    prompt: `For "${context}", which rule should govern the next step before you move the work forward?`,
-    correctText: second,
-    distractors: weakenedRuleVariants(second),
+    prompt: `The client wants this handled quickly and the administrative steps are clear, but one judgment or approval is outside the VA role. Which response is best?`,
+    correctText: authorityFromRule(authorityRule),
+    distractors: [shortcuts[5], shortcuts[1], shortcuts[3]],
   });
 
-  const evidence = makeQuestion({
+  const handoffDecision = makeQuestion({
     lessonId: args.lessonId,
     seed,
     index: 3,
-    prompt: "The work looks nearly complete, but a source, approval, or handoff may still be unresolved. Which rule should you apply before closing it?",
-    correctText: evidenceRule,
-    distractors: weakenedRuleVariants(evidenceRule),
+    prompt: `You cannot fully resolve the case before handoff. Which approach best protects continuity and accountability?`,
+    correctText: handoffFromRule(handoffRule),
+    distractors: [shortcuts[2], shortcuts[3], shortcuts[4]],
   });
 
-  return [positive, negative, firstStep, evidence];
+  const pressureDecision = makeQuestion({
+    lessonId: args.lessonId,
+    seed,
+    index: 4,
+    prompt: `A deadline is close and the likely answer seems obvious. Which choice best reflects the lesson under time pressure?`,
+    correctText: actionFromRule(primary),
+    distractors: [
+      "Use the likely answer now, then add evidence only if the outcome is challenged.",
+      "Apply the full control only to unusual cases; routine-looking work can use the system state.",
+      "Choose the fastest reversible action and let the next owner verify the underlying assumption.",
+    ],
+  });
+
+  const subtleFailure = makeQuestion({
+    lessonId: args.lessonId,
+    seed,
+    index: 5,
+    prompt: `Which response is the most subtle process failure in this lesson?`,
+    correctText: `Apply this control only after the work has moved forward: ${stripTerminal(primary)}.`,
+    distractors: [
+      actionFromRule(evidenceRule),
+      authorityFromRule(authorityRule),
+      handoffFromRule(handoffRule),
+    ],
+  });
+
+  return [
+    scenarioDecision,
+    evidenceDecision,
+    authorityDecision,
+    handoffDecision,
+    pressureDecision,
+    subtleFailure,
+  ];
 }
 
 export function buildLessonCheckpoint(args: {
@@ -205,12 +305,28 @@ export function buildAssessmentQuestionsFromLessons(args: {
   questionCount?: number;
 }) {
   const eligible = args.lessons.filter((lesson) => checklistItems(lesson.content).length > 0);
-  const count = Math.min(args.questionCount || 8, eligible.length);
-  const seed = `${args.assessmentId}:${args.userId}:attempt:${args.attemptNumber}`;
-  const chosen = stableShuffle(eligible, seed + ":lessons").slice(0, count);
+  if (!eligible.length) return [];
 
-  return chosen
-    .map((lesson, index) => {
+  const targetCount = Math.min(
+    args.questionCount || 8,
+    eligible.length * QUESTION_VARIANTS_PER_LESSON,
+  );
+  const seed = `${args.assessmentId}:${args.userId}:attempt:${args.attemptNumber}`;
+  const orderedLessons = stableShuffle(eligible, seed + ":lessons");
+  const slots: Array<{ lesson: (typeof eligible)[number]; occurrence: number }> = [];
+
+  let round = 0;
+  while (slots.length < targetCount) {
+    const roundLessons = stableShuffle(orderedLessons, `${seed}:round:${round}`);
+    for (const lesson of roundLessons) {
+      if (slots.length >= targetCount) break;
+      slots.push({ lesson, occurrence: round });
+    }
+    round += 1;
+  }
+
+  return slots
+    .map(({ lesson, occurrence }, index) => {
       const bank = buildLessonQuestionBank({
         lessonId: lesson.id,
         lessonTitle: lesson.title,
@@ -221,12 +337,17 @@ export function buildAssessmentQuestionsFromLessons(args: {
       if (!bank.length) return null;
 
       const variantIndex =
-        (args.attemptNumber + index + hashInt(seed + ":" + lesson.id + ":variant")) % bank.length;
+        (
+          args.attemptNumber +
+          index +
+          occurrence +
+          hashInt(`${seed}:${lesson.id}:variant`)
+        ) % bank.length;
       const checkpoint = bank[variantIndex];
 
       return {
         id: createHash("sha256")
-          .update(`${seed}:${lesson.id}:${checkpoint.questionKey}`)
+          .update(`${seed}:${index}:${lesson.id}:${checkpoint.questionKey}`)
           .digest("hex")
           .slice(0, 16),
         lessonId: lesson.id,

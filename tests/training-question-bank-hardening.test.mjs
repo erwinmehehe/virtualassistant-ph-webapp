@@ -4,43 +4,51 @@ import test from "node:test";
 
 const integrityPath = "src/lib/training-integrity.ts";
 const actionsPath = "src/app/actions/training.ts";
+const pagePath = "src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx";
 
-test("every lesson checkpoint is selected from a four-variant lesson-specific bank", async () => {
+test("lesson checkpoints use six applied-judgment variants instead of checklist recall", async () => {
   const source = await readFile(integrityPath, "utf8");
 
-  assert.match(source, /export function buildLessonQuestionBank/);
-  assert.match(source, /return \[positive, negative, firstStep, evidence\]/);
-  assert.match(source, /Which option introduces a shortcut this lesson does NOT allow\?/);
-  assert.match(source, /which rule should govern the next step before you move the work forward\?/);
-  assert.match(source, /a source, approval, or handoff may still be unresolved/);
+  assert.match(source, /QUESTION_VARIANTS_PER_LESSON = 6/);
+  assert.match(source, /What is the strongest next move/);
+  assert.match(source, /What should control closure/);
+  assert.match(source, /one judgment or approval is outside the VA role/);
+  assert.match(source, /best protects continuity and accountability/);
+  assert.match(source, /deadline is close and the likely answer seems obvious/);
+  assert.match(source, /most subtle process failure/);
   assert.match(source, /practicalContext/);
-  assert.match(source, /worked example/i);
+  assert.match(source, /scenario/);
+  assert.doesNotMatch(source, /Which statement accurately reflects the QA standard/);
 });
 
-test("wrong answers are lesson-specific weakened versions of the real QA rule", async () => {
+test("question distractors are plausible process errors rather than cartoonishly unsafe answers", async () => {
   const source = await readFile(integrityPath, "utf8");
 
-  assert.match(source, /function weakenedRuleVariants\(rule: string\)/);
-  assert.match(source, /unless the request is time-sensitive and the likely outcome seems clear/);
-  assert.match(source, /after the work has already moved forward/);
-  assert.match(source, /only when two records directly conflict/);
-  assert.doesNotMatch(source, /const distractors = \[/);
+  assert.match(source, /current system state as the working answer/);
+  assert.match(source, /closest previous case/);
+  assert.match(source, /reversible steps/);
+  assert.match(source, /full reviewer decision before doing any of the routine administrative preparation/);
+  assert.match(source, /clean-looking status or matching total/);
+  assert.match(source, /client’s likely intention/);
   assert.doesNotMatch(source, /Prioritize speed over verification whenever the task looks routine/);
 });
 
-test("negative questions contain one unsafe shortcut beside real lesson rules", async () => {
+test("final assessment can still produce eight questions for courses with fewer than eight lessons", async () => {
   const source = await readFile(integrityPath, "utf8");
 
-  assert.match(source, /const unsafeShortcut = weakenedRuleVariants\(second\)\[0\]/);
-  assert.match(source, /const safeAlternatives = orderedRules/);
-  assert.match(source, /correctText: unsafeShortcut/);
-  assert.match(source, /distractors: safeAlternatives/);
+  assert.match(source, /eligible\.length \* QUESTION_VARIANTS_PER_LESSON/);
+  assert.match(source, /while \(slots\.length < targetCount\)/);
+  assert.match(source, /occurrence: round/);
+  assert.match(source, /round:/);
+  assert.match(source, /questionKey/);
+  assert.doesNotMatch(source, /Math\.min\(args\.questionCount \|\| 8, eligible\.length\)/);
 });
 
-test("final assessment rotates bank variants across attempts and keeps answer keys server-only", async () => {
+test("final assessment rotates variants across attempts and keeps answer keys server-only", async () => {
   const source = await readFile(integrityPath, "utf8");
 
-  assert.match(source, /attemptNumber \+ index \+ hashInt/);
+  assert.match(source, /args\.attemptNumber \+/);
+  assert.match(source, /:variant/);
   assert.match(source, /% bank\.length/);
   assert.match(source, /questionKey: checkpoint\.questionKey/);
   assert.match(source, /publicAssessmentQuestions/);
@@ -48,6 +56,13 @@ test("final assessment rotates bank variants across attempts and keeps answer ke
   const publicBlock = source.match(/export function publicAssessmentQuestions[\s\S]*?\n}/)?.[0] || "";
   assert.doesNotMatch(publicBlock, /correctOptionId:/);
   assert.doesNotMatch(publicBlock, /questionKey:/);
+});
+
+test("assessment UI displays the actual generated question count", async () => {
+  const page = await readFile(pagePath, "utf8");
+
+  assert.match(page, /\{questions\.length \|\| 8\} questions/);
+  assert.match(page, /Answer \{questions\.length \|\| 8\} questions based on the course/);
 });
 
 test("checkpoint attempts record lesson, question variant, and correctness server-side", async () => {

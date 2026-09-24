@@ -88,16 +88,24 @@ function TrainingNav({
                   Start free training
                 </Link>
               ) : (
-                <Link className="mobile-menu-primary" href="/training">
-                  Training home
+                <Link
+                  className="mobile-menu-primary"
+                  href={loginHref}
+                  data-track="training_login_click"
+                >
+                  Training login
                 </Link>
               )}
               <Link href="/training">Training home</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse VA jobs</Link>
               <Link href="/blog">VA guides</Link>
-              <span className="va-mobile-panel-label">Account</span>
-              <Link href={loginHref} data-track="training_login_click">Training login</Link>
+              {!isJoin ? (
+                <>
+                  <span className="va-mobile-panel-label">Account</span>
+                  <Link href={loginHref} data-track="training_login_click">Training login</Link>
+                </>
+              ) : null}
             </nav>
           </details>
         </div>

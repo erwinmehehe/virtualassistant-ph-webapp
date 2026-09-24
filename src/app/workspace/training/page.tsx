@@ -50,12 +50,12 @@ function dateLabel(value: string | null | undefined) {
 }
 
 function assessmentLabel(course: TrainingCourseSummary) {
-  if (course.assessmentStatus === "passed") return "Assessment passed";
-  if (course.assessmentStatus === "in_review") return "Assessment in review";
-  if (course.assessmentStatus === "needs_revision") return "Assessment needs revision";
-  if (course.assessmentStatus === "ready") return "Assessment ready";
-  if (course.assessmentStatus === "not_required") return "No final assessment";
-  return "Assessment not started";
+  if (course.assessmentStatus === "passed") return "Final check passed";
+  if (course.assessmentStatus === "in_review") return "Final check processing";
+  if (course.assessmentStatus === "needs_revision") return "Review and retry";
+  if (course.assessmentStatus === "ready") return "Final check ready";
+  if (course.assessmentStatus === "not_required") return "No final check";
+  return "Final check not started";
 }
 
 function nextCourseHref(course: TrainingCourseSummary) {
@@ -70,7 +70,7 @@ function nextCourseHref(course: TrainingCourseSummary) {
 
 function nextCourseLabel(course: TrainingCourseSummary) {
   if (course.nextLesson) return "Continue lesson";
-  if (course.nextAssessment) return "Open assessment";
+  if (course.nextAssessment) return "Open final check";
   return "Open course";
 }
 

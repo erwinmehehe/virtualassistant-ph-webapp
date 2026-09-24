@@ -47,7 +47,6 @@ type Icon = typeof ArrowRight;
 type Faq = readonly [string, string];
 
 type FeaturedVa = {
-  user_id: string;
   slug?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
@@ -372,7 +371,7 @@ export function TalentSection({ talent }: { talent: FeaturedVa[] }) {
         {talent.length ? (
           <div className="hs-talent-grid">
             {talent.map((va) => (
-              <article className="hs-talent-card" key={va.user_id}>
+              <article className="hs-talent-card" key={va.slug || `${va.full_name || "va"}-${va.headline || va.primary_category || "profile"}`}>
                 <div className="hs-talent-top">
                   <PublicAvatar name={va.full_name} src={va.avatar_url} />
                   <div className="hs-talent-badges">

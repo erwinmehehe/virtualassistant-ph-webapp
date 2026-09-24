@@ -29,7 +29,7 @@ test("lesson completion cannot be earned by clicking through", async () => {
     readFile(gatePath, "utf8"),
   ]);
 
-  assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
+  assert.match(actions, /failLessonCompletion\("sequence"\)/);
   assert.match(actions, /failLessonCompletion/);
   assert.match(actions, /lesson_error=/);
   assert.doesNotMatch(actions, /throw new Error\("Pass the lesson checkpoint before completing this lesson\."\)/);

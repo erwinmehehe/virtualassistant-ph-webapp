@@ -31,10 +31,11 @@ test("lesson player shows progress, outline, practical content, and integrity ga
 });
 
 test("lesson completion enforces active reading, content progress, checkpoint, practical work, and sequence", async () => {
-  const [actions, component, integrity] = await Promise.all([
+  const [actions, component, integrity, page] = await Promise.all([
     readFile(trainingActionsPath, "utf8"),
     readFile(integrityComponentPath, "utf8"),
     readFile(integrityLibPath, "utf8"),
+    readFile(lessonPagePath, "utf8"),
   ]);
 
   assert.match(actions, /training_lesson_engagement/);

@@ -25,8 +25,8 @@ function LessonContent({ value }: { value: unknown }) {
     return (
       <div className="dashboard-caught-up">
         <div>
-          <strong>Lesson content is being prepared.</strong>
-          <p>This lesson has been created but does not have published content yet.</p>
+          <strong>This lesson is not ready yet.</strong>
+          <p>Return to the course overview and choose another available lesson.</p>
         </div>
       </div>
     );

@@ -37,13 +37,13 @@ test("training home recommends a sequenced path from the VA primary specialty", 
   assert.match(page, /executive-virtual-assistant/);
   assert.match(page, /project-management-for-virtual-assistants/);
   assert.match(page, /completedRecommended/);
-  assert.match(page, /Automatically selected next/);
+  assert.match(page, /Next in your path/);
 
   assert.match(training, /from\("va_profiles"\)/);
   assert.match(training, /primary_category,categories,tools,industries/);
 });
 
-test("course discovery keeps one standalone library and leaves Australia in specialisation paths", async () => {
+test("course discovery keeps one standalone library, leaves Australia in paths, and stays collapsed by default", async () => {
   const page = await readFile(pagePath, "utf8");
 
   for (const label of ["All", "Foundation", "Role", "Software", "Industry"]) {
@@ -52,10 +52,27 @@ test("course discovery keeps one standalone library and leaves Australia in spec
 
   assert.doesNotMatch(page, /\["australia", "Australia"\]/);
   assert.match(page, /const notStarted = courses\.filter/);
+  assert.match(page, /standaloneNotStarted/);
   assert.match(page, /filteredNotStarted/);
   assert.match(page, /course\.country_focus !== "Australia"/);
+  assert.match(page, /libraryOpen/);
+  assert.match(page, /params\.browse === "1"/);
+  assert.match(page, /Browse courses/);
+  assert.match(page, /Hide library/);
   assert.match(page, /Australian courses stay in the specialisation paths above/);
   assert.doesNotMatch(page, /generalCourses|pathCourseIds|australiaCourseIds/);
+});
+
+test("brand-new learners get one clear Foundations start before path detail", async () => {
+  const page = await readFile(pagePath, "utf8");
+
+  assert.match(page, /isNewLearner = active\.length === 0 && completed\.length === 0/);
+  assert.match(page, /foundationsCourse/);
+  assert.match(page, /Start here/);
+  assert.match(page, /Start VA Foundations/);
+  assert.match(page, /training_foundations_start/);
+  assert.match(page, /recommendedCourses\.length && !isNewLearner/);
+  assert.match(page, /!isNewLearner \? \(/);
 });
 
 test("course cards show learning metadata, assessment state, progress, and one action area", async () => {

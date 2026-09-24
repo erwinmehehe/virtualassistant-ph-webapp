@@ -41,6 +41,8 @@ const fixedEvents = new Set([
   "training_course_request",
   "training_dashboard_view",
   "training_course_view",
+  "training_assessment_view",
+  "training_certificate_view",
   "training_course_start_click",
   "training_course_start",
   "training_course_continue",

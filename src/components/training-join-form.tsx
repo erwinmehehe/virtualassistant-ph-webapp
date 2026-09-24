@@ -12,10 +12,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
-import {
-  initialTrainingJoinState,
-  joinTrainingAction,
-} from "@/app/actions/training-auth";
+import { joinTrainingAction } from "@/app/actions/training-auth";
+import { initialTrainingJoinState } from "@/lib/training-auth-state";
 import { resendSignupConfirmationAction } from "@/app/actions/resend-confirmation";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import {

@@ -4,6 +4,7 @@ import test from "node:test";
 
 const trainingPage = "src/app/training/page.tsx";
 const headerPath = "src/components/training-site-header.tsx";
+const siteNavPath = "src/components/site-nav.tsx";
 const joinPage = "src/app/auth/join/training/page.tsx";
 const joinForm = "src/components/training-join-form.tsx";
 const joinAction = "src/app/actions/training-auth.ts";
@@ -16,19 +17,24 @@ const migrationPath = "supabase/migrations/20260924162000_training_analytics_aut
 const cssPath = "src/app/training-landing.css";
 
 test("training public header stays learner-focused and removes the buyer CTA", async () => {
-  const [page, header] = await Promise.all([
+  const [page, header, siteNav] = await Promise.all([
     readFile(trainingPage, "utf8"),
     readFile(headerPath, "utf8"),
+    readFile(siteNavPath, "utf8"),
   ]);
 
   assert.match(page, /TrainingSiteHeader/);
-  assert.match(header, /Start free training/);
-  assert.match(header, /Training login/);
-  assert.match(header, /Browse courses/);
-  assert.match(header, /For VAs/);
-  assert.match(header, /VA jobs/);
-  assert.doesNotMatch(header, /Hire a Virtual Assistant/);
-  assert.doesNotMatch(header, /href="\/hire"/);
+  assert.match(header, /SiteNav/);
+  assert.match(header, /mode="training"/);
+  assert.match(siteNav, /Start free training/);
+  assert.match(siteNav, /Training login/);
+  assert.match(siteNav, /Training home/);
+  assert.match(siteNav, /For VAs/);
+  assert.match(siteNav, /VA jobs/);
+  assert.match(siteNav, /VA guides/);
+  const trainingNav = siteNav.slice(siteNav.indexOf("function TrainingNav"), siteNav.indexOf("export function SiteNav"));
+  assert.doesNotMatch(trainingNav, /Hire a Virtual Assistant/);
+  assert.doesNotMatch(trainingNav, /href="\/hire"/);
 });
 
 test("course cards and Foundations preserve the selected course through signup", async () => {

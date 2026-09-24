@@ -79,6 +79,7 @@ function CourseCard({ course, position }: { course: PublicTrainingCourse; positi
       <div className="tr-course-card-copy">
         {recommended ? <span className="tr-course-recommended">Recommended first</span> : null}
         <h3>{course.title}</h3>
+        {course.summary ? <p className="tr-course-summary">{course.summary}</p> : null}
         <div className="tr-course-card-meta">
           <span>{categoryLabel(course.category)}</span>
           <span>{course.lesson_count} lessons</span>
@@ -164,6 +165,9 @@ export default async function TrainingPage() {
   const australiaCourses = publishedCourses.filter((course) => course.country_focus === "Australia");
   const foundation =
     publishedCourses.find((course) => course.slug === "virtual-assistant-foundations") || null;
+  const heroCourses = globalCourses
+    .filter((course) => course.slug !== "virtual-assistant-foundations")
+    .slice(0, 4);
 
   const totalCourseCount = publishedCourses.length || 26;
   const globalCourseCount = globalCourses.length || 15;
@@ -213,6 +217,16 @@ export default async function TrainingPage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJson(schema) }}
         />
+
+        <nav className="tr-page-nav" aria-label="Training page sections">
+          <div className="container tr-page-nav-inner">
+            <span>Training</span>
+            <a href="#course-library">Courses</a>
+            <a href="#how-training-works">How it works</a>
+            <a href="#certificate">Certificates</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </nav>
 
         <section className="tr-hero" data-training-hero>
           <div className="container tr-hero-grid">
@@ -265,49 +279,55 @@ export default async function TrainingPage() {
               </p>
             </div>
 
-            <aside className="tr-flow-card" aria-label="How a course works">
-              <div className="tr-flow-card-head">
+            <aside className="tr-path-preview" aria-label="Training learning path preview">
+              <div className="tr-path-preview-head">
                 <div>
-                  <span>Inside every course</span>
-                  <strong>Learn → practise → prove it</strong>
+                  <span>Recommended learning path</span>
+                  <strong>Start broad, then specialise.</strong>
                 </div>
-                <span className="tr-flow-live"><Sparkles size={13}/> Self-paced</span>
+                <span className="tr-path-free"><Sparkles size={13}/> Free</span>
               </div>
 
-              <ol className="tr-flow-list">
-                <li>
-                  <span className="tr-flow-icon tr-flow-icon-indigo"><BookOpenCheck size={18}/></span>
-                  <div>
-                    <b>01</b>
-                    <strong>Learn the workflow</strong>
-                    <p>Text-first lessons, examples, QA checks, and clear boundaries.</p>
+              <div className="tr-path-featured">
+                <span className="tr-path-featured-icon"><GraduationCap size={22}/></span>
+                <div>
+                  <span>01 · Start here</span>
+                  <strong>Virtual Assistant Foundations</strong>
+                  <p>Build the communication, admin, research, QA, and escalation habits every VA needs.</p>
+                  <div className="tr-path-featured-meta">
+                    <span><Clock3 size={13}/>{foundationDuration}</span>
+                    <span><BookOpenCheck size={13}/>{foundation?.lesson_count || 10} lessons</span>
                   </div>
-                </li>
-                <li>
-                  <span className="tr-flow-icon tr-flow-icon-amber"><FileCheck2 size={18}/></span>
-                  <div>
-                    <b>02</b>
-                    <strong>Do the practical work</strong>
-                    <p>Write a response and complete the lesson checkpoint before moving on.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className="tr-flow-icon tr-flow-icon-violet"><ShieldCheck size={18}/></span>
-                  <div>
-                    <b>03</b>
-                    <strong>Pass the randomized final check</strong>
-                    <p>Course-specific questions are scored automatically. Failed attempts point you back to the lessons.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className="tr-flow-icon tr-flow-icon-emerald"><Award size={18}/></span>
-                  <div>
-                    <b>04</b>
-                    <strong>Receive a verified certificate</strong>
-                    <p>Your credential is issued automatically after you pass.</p>
-                  </div>
-                </li>
-              </ol>
+                </div>
+              </div>
+
+              <div className="tr-path-next">
+                <div className="tr-path-next-head">
+                  <span>02 · Pick the work you want to do</span>
+                  <small>Role, software, or industry</small>
+                </div>
+                <div className="tr-path-chips">
+                  {heroCourses.length ? heroCourses.map((course) => {
+                    const { Icon } = courseVisual(course);
+                    return <span key={course.id}><Icon size={14}/>{course.title}</span>;
+                  }) : (
+                    <>
+                      <span><BriefcaseBusiness size={14}/>Executive VA</span>
+                      <span><BookOpenCheck size={14}/>Customer Support</span>
+                      <span><Globe2 size={14}/>SEO</span>
+                      <span><WalletCards size={14}/>Bookkeeping tools</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="tr-path-outcome">
+                <span className="tr-path-outcome-icon"><Award size={18}/></span>
+                <div>
+                  <span>03 · Prove completion</span>
+                  <strong>Pass the final check and receive a verified certificate.</strong>
+                </div>
+              </div>
             </aside>
           </div>
         </section>
@@ -460,7 +480,7 @@ export default async function TrainingPage() {
           </div>
         </section>
 
-        <section className="tr-section tr-section-soft">
+        <section className="tr-section tr-section-soft" id="how-training-works">
           <div className="container">
             <div className="tr-section-heading">
               <span className="tr-kicker">How completion works</span>
@@ -481,14 +501,14 @@ export default async function TrainingPage() {
               <article>
                 <span className="tr-completion-number">02</span>
                 <FileCheck2 size={21}/>
-                <h3>Complete the practical checkpoint</h3>
+                <h3>Do the practical work</h3>
                 <p>Exercises ask you to explain what you would do, what evidence you would use, and what you would escalate.</p>
               </article>
               <article>
                 <span className="tr-completion-number">03</span>
                 <ShieldCheck size={21}/>
-                <h3>Pass the course final check</h3>
-                <p>Questions and answer order change between attempts. The answer key is not shown after a failed attempt.</p>
+                <h3>Pass the randomized final check</h3>
+                <p>Course-specific questions are scored automatically, and question order changes between attempts. The answer key is not shown after a failed attempt.</p>
               </article>
               <article>
                 <span className="tr-completion-number">04</span>
@@ -500,7 +520,7 @@ export default async function TrainingPage() {
           </div>
         </section>
 
-        <section className="tr-section">
+        <section className="tr-section" id="certificate">
           <div className="container tr-credential-layout">
             <div className="tr-credential-copy">
               <span className="tr-kicker">Verified completion</span>

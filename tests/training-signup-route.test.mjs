@@ -40,15 +40,19 @@ test("training confirmation allows users without candidate profiles into trainin
 });
 
 test("training signup navigation does not repeat the signup CTA on the signup page", async () => {
-  const [page, header] = await Promise.all([
+  const [page, header, nav] = await Promise.all([
     read("src/app/auth/join/training/page.tsx"),
     read("src/components/training-site-header.tsx"),
+    read("src/components/site-nav.tsx"),
   ]);
 
   assert.match(page, /current="join"/);
-  assert.match(header, /const isJoin = current === "join"/);
-  assert.match(header, /isJoin \? \([\s\S]*Training login[\s\S]*\) : \([\s\S]*Start free training/);
-  assert.match(header, /isJoin \? "Training home" : "Courses"/);
+  assert.match(header, /trainingCurrent=\{current\}/);
+  assert.match(nav, /const isJoin = current === "join"/);
+  const trainingNav = nav.slice(nav.indexOf("function TrainingNav"), nav.indexOf("export function SiteNav"));
+  assert.match(trainingNav, /Training login/);
+  assert.match(trainingNav, /!isJoin \? \([\s\S]*Start free training/);
+  assert.match(trainingNav, /isJoin \? \([\s\S]*Training home/);
 });
 
 

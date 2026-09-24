@@ -43,13 +43,23 @@ test("Australian specialisation copy is calmer and avoids availability counters"
   assert.doesNotMatch(page, />Available</);
 });
 
-test("Australian specialisation design uses quiet cards and active-only emphasis", async () => {
-  const css = await readFile("src/app/workspace/training/training-home.css", "utf8");
+test("Australian specialisation design stays readable and uses restrained path color", async () => {
+  const [page, css] = await Promise.all([
+    readFile("src/app/workspace/training/page.tsx", "utf8"),
+    readFile("src/app/workspace/training/training-home.css", "utf8"),
+  ]);
 
   assert.match(css, /\.training-australia-heading h2/);
-  assert.match(css, /font-size: 18px/);
+  assert.match(css, /font-size: 21px/);
   assert.match(css, /\.training-specialization\.is-progress/);
   assert.match(css, /\.training-specialization-start/);
   assert.match(css, /\.training-specialization-icon/);
   assert.match(css, /\.training-specialization-next/);
+  assert.match(page, /training-specialization-meta-item is-courses/);
+  assert.match(page, /training-specialization-meta-item is-duration/);
+  assert.match(css, /\.training-specialization-meta-item svg/);
+  assert.match(css, /var\(--specialization-accent-soft\)/);
+  assert.match(css, /\.training-specialization h3[\s\S]*font-size: 16px/);
+  assert.match(css, /\.training-specialization p[\s\S]*font-size: 13px/);
+  assert.match(css, /@media \(max-width: 430px\)[\s\S]*\.training-specialization h3[\s\S]*font-size: 15\.5px/);
 });

@@ -5,6 +5,7 @@ import { saveJobShortlistAction } from "@/app/actions/matching";
 import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAnyRoleFast } from "@/lib/auth";
 
 function filterValue(formData: FormData, name: string) {
   return String(formData.get(name) || "");
@@ -30,6 +31,8 @@ function clientReviewError(formData: FormData, message: string): never {
 }
 
 export async function bulkRecruiterTalentAction(formData: FormData) {
+  // Authorize before any service-role directory read, including filtered-scope counts.
+  await requireAnyRoleFast(["admin", "recruiter"]);
   const action = String(formData.get("bulk_action") || "");
   const filteredScope = String(formData.get("selection_scope") || "selected") === "filtered";
 

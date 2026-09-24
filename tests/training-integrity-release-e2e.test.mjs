@@ -30,8 +30,10 @@ test("release path remains connected from anti-skip lesson work to automatic cer
   assert.match(actions, /buildAssessmentQuestionsFromLessons/);
   assert.match(actions, /recentAttempts\.length >= 3/);
   assert.match(actions, /Math\.round\(\(correct \/ questions\.length\) \* 100\)/);
-  assert.match(assessment, /Randomized each attempt/);
-  assert.match(assessment, /No answer key is revealed/);
+  assert.match(assessment, /Fresh mix each attempt/);
+  assert.match(assessment, /answer key is not shown/i);
+  assert.match(assessment, /3 attempts in a rolling 24-hour period/);
+  assert.match(assessment, /Review and try again/);
 
   // Passing immediately enters the existing completion/certificate path.
   assert.match(actions, /finalizeTrainingCourseIfEligible/);

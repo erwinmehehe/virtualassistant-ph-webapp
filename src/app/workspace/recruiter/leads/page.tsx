@@ -143,7 +143,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     ? await admin.from("outbound_email_events")
         .select("idempotency_key,created_at,status")
         .eq("event_type", "discovery_no_show_rebook")
-        .eq("status", "sent")
+        .in("status", ["sent", "delivered"])
         .in("idempotency_key", rebookKeys)
         .order("created_at", { ascending: false })
     : { data: [] };
@@ -305,6 +305,17 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             : followOverdue
               ? "Follow-up overdue. Move this lead forward or close it."
               : null;
+          const needsFirstReply = !lead.first_contact_at || slaMissed;
+          const actionResultForLead = params.action_lead === lead.id;
+          const replyForm = <form action={sendClientFollowupAction} className="stack staff-followup-form">
+            <input type="hidden" name="lead_id" value={lead.id}/>
+            <input type="hidden" name="return_to" value={returnTo}/>
+            <div className="small muted">To: <strong>{lead.email}</strong></div>
+            <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
+            <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
+            <label className="small"><input type="checkbox" name="archive_copy" value="1"/> Send a hidden archive copy to the configured internal archive recipients</label>
+            <div className="row wrap"><button className="btn btn-primary" type="submit">Send reply</button><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
+          </form>;
 
           return <article className={`card crm-lead-card ${slaMissed || followOverdue ? "needs-attention" : ""}`} key={lead.id}>
             <div className="crm-lead-head">
@@ -375,7 +386,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                         <strong>{noShowRebookSentAt ? "Rebooking email sent" : "Client missed the call"}</strong>
                         <span>{noShowRebookSentAt ? `Sent ${dateShort(noShowRebookSentAt)}. Waiting for the client to choose another time.` : "Review the email below, then send one rebooking link."}</span>
                       </div>
-                      {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction}>
+                      {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction} className="crm-rebook-send-form">
                         <input type="hidden" name="lead_id" value={lead.id}/>
                         <input type="hidden" name="return_to" value={returnTo}/>
                         <button className="btn btn-sm btn-primary" type="submit"><Mail size={13}/> Send rebooking email</button>
@@ -476,18 +487,15 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             </div> : null}
 
             <div className="crm-contact-bar">
-              <details className="staff-followup-details" open={!lead.first_contact_at || slaMissed}>
-                <summary className="btn btn-sm btn-primary"><Mail size={14}/> Reply to client</summary>
-                <form action={sendClientFollowupAction} className="stack staff-followup-form">
-                  <input type="hidden" name="lead_id" value={lead.id}/>
-                  <input type="hidden" name="return_to" value={returnTo}/>
-                  <div className="small muted">To: <strong>{lead.email}</strong></div>
-                  <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-                  <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
-                  <label className="small"><input type="checkbox" name="archive_copy" value="1"/> Send a hidden archive copy to the configured internal archive recipients</label>
-                  <div className="row wrap"><button className="btn btn-primary" type="submit">Send reply</button><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
-                </form>
-              </details>
+              {actionResultForLead && params.contact_sent ? <div className="crm-inline-action-state is-success">Reply sent to {lead.email}. CRM contact and follow-up timestamps were updated.</div> : null}
+              {actionResultForLead && params.contact_error ? <div className="crm-inline-action-state is-error" role="alert">{params.contact_error}</div> : null}
+              {needsFirstReply ? <div className="staff-followup-details crm-inline-reply">
+                <div className="crm-inline-reply-head"><Mail size={15}/><span><strong>Reply to client</strong><small>The reply form is ready below. Use Send reply when the message is ready.</small></span></div>
+                {replyForm}
+              </div> : <details className="staff-followup-details">
+                <summary className="btn btn-sm btn-primary"><Mail size={14}/> Write another reply</summary>
+                {replyForm}
+              </details>}
 
               <div className="row wrap">
                 <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Log external email</button></form>

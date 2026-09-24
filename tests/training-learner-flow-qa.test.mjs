@@ -11,7 +11,7 @@ const credentialPath = "src/lib/training-credentials.ts";
 const credentialPagePath = "src/app/training/certificates/[code]/page.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
-test("learner home resumes exact next lesson or assessment and has no retired specialist gate label", async () => {
+test("learner home resumes the exact next lesson or automatic final check", async () => {
   const home = await readFile(homePath, "utf8");
 
   assert.match(home, /Continue where you left off/);
@@ -24,22 +24,21 @@ test("learner home resumes exact next lesson or assessment and has no retired sp
   assert.match(home, /"Not started"/);
   assert.match(home, /"Start path"/);
   assert.match(home, /"Continue path"/);
+  assert.match(home, /Open final check/);
   assert.doesNotMatch(home, /Specialist-review pending/);
 });
-
 
 test("course overview always exposes the learner's next meaningful action", async () => {
   const course = await readFile(coursePath, "utf8");
 
   assert.match(course, /Start course/);
   assert.match(course, /Continue lesson/);
-  assert.match(course, /Start assessment/);
+  assert.match(course, /Start final check/);
   assert.match(course, /View certificate/);
   assert.match(course, /nextLesson/);
   assert.match(course, /nextAssessment/);
-  assert.match(course, /assessmentInReview/);
-  assert.match(course, /Assessment in review/);
-  assert.match(course, /Certificate preparing/);
+  assert.match(course, /Randomized knowledge check/);
+  assert.doesNotMatch(course, /Assessment in review/);
   assert.match(course, /reviewLabel \? <span className="badge">/);
 });
 
@@ -62,29 +61,32 @@ test("course overview uses a focused, responsive learning layout", async () => {
   assert.match(css, /\.training-course-page \.training-lesson-row/);
 });
 
-test("final lesson saves progress and continues directly to the next required assessment", async () => {
+test("incomplete lessons use the integrity gate and continue to the next required step", async () => {
   const lesson = await readFile(lessonPath, "utf8");
 
+  assert.match(lesson, /TrainingLessonIntegrityGate/);
+  assert.match(lesson, /buildLessonCheckpoint/);
+  assert.match(lesson, /lessonActiveSecondsRequired/);
+  assert.match(lesson, /data-training-content-end/);
   assert.match(lesson, /course\.assessments\.find/);
-  assert.match(lesson, /assessmentPassed/);
   assert.match(lesson, /assessments\/\$\{nextAssessment\.id\}/);
-  assert.match(lesson, /name="continue_to"/);
-  assert.match(lesson, /Complete lesson/);
-  assert.match(lesson, /Start assessment/);
   assert.match(lesson, /Continue lesson/);
+  assert.match(lesson, /Start assessment/);
 });
 
-test("assessment remains locked until lessons complete and exposes real review states", async () => {
+test("automatic final check is locked until lessons complete and never waits for admin review", async () => {
   const assessment = await readFile(assessmentPath, "utf8");
 
-  assert.match(assessment, /const lessonsComplete = course\.lessonCount > 0 && course\.completedLessons === course\.lessonCount/);
+  assert.match(assessment, /lessonsComplete/);
   assert.match(assessment, /Complete the lessons first/);
-  assert.match(assessment, /Review pending/);
-  assert.match(assessment, /Needs revision/);
-  assert.match(assessment, /Assessment passed/);
-  assert.match(assessment, /waitingForReview \? "In review"/);
-  assert.match(assessment, /training-assessment-journey/);
-  assert.match(assessment, /credentialHref \? "Issued" : course\.completedAt \? "Preparing" : "After passing"/);
+  assert.match(assessment, /Server-scored/);
+  assert.match(assessment, /Randomized each attempt/);
+  assert.match(assessment, /Up to 3 attempts \/ 24h/);
+  assert.match(assessment, /No answer key is revealed/);
+  assert.match(assessment, /training-auto-assessment-questions/);
+  assert.match(assessment, /Submit final check/);
+  assert.doesNotMatch(assessment, /Reviewed by a person/);
+  assert.doesNotMatch(assessment, /Review pending/);
 });
 
 test("passed course exposes the issued credential and returns to the learning home", async () => {
@@ -94,7 +96,7 @@ test("passed course exposes the issued credential and returns to the learning ho
   assert.match(assessment, /course\.certificate\.credential_code/);
   assert.match(assessment, /View certificate/);
   assert.match(assessment, /TrainingCertificateActions/);
-  assert.match(assessment, />My learning</);
+  assert.match(assessment, />\s*My learning\s*</);
   assert.match(assessment, /passed && !course\.completedAt/);
 });
 
@@ -146,6 +148,7 @@ test("training home retains compact mobile layouts for phone widths", async () =
   assert.match(css, /grid-template-columns: 1fr/);
   assert.match(css, /training-filter-tabs/);
   assert.match(css, /training-certificate-actions/);
-  assert.match(css, /training-assessment-submit textarea/);
+  assert.match(css, /training-integrity-gate/);
+  assert.match(css, /training-auto-question/);
   assert.match(css, /training-player-lesson-link strong/);
 });

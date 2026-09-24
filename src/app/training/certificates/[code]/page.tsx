@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, ShieldCheck, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getPublicTrainingCredentialByCode } from "@/lib/training-credentials";
@@ -66,7 +66,7 @@ export default async function TrainingCredentialVerificationPage({
                 </div>
 
                 <Link className="credential-link" href="/training">
-                  Explore training <ExternalLink size={14}/>
+                  Explore training <ArrowRight size={14}/>
                 </Link>
               </div>
             </section>

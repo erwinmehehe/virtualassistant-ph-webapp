@@ -19,7 +19,8 @@ import { TrainingCertificateActions } from "@/components/training-certificate-ac
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
 import { vaCategoryLabel } from "@/lib/constants";
-import { startTrainingCourseAction } from "@/app/actions/training";
+import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
+import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
 
 function duration(minutes: number) {
   if (!minutes) return "Self-paced";
@@ -125,63 +126,6 @@ const DEFAULT_PATH = {
   slugs: ["virtual-assistant-foundations", "operations-virtual-assistant", "project-management-for-virtual-assistants"],
 };
 
-const AUSTRALIA_SPECIALIZATIONS = [
-  {
-    slug: "tradie-operations",
-    title: "Tradie & home-service operations",
-    bestFor: "Field-service businesses such as plumbing, electrical, HVAC, cleaning, pest control, and maintenance.",
-    startSignals: ["australian-trades-administration", "servicem8-for-virtual-assistants"],
-    courses: [
-      "virtual-assistant-foundations",
-      "australian-va-fundamentals",
-      "australian-trades-administration",
-      "servicem8-for-virtual-assistants",
-      "xero-workflows-for-virtual-assistants",
-    ],
-  },
-  {
-    slug: "property-management",
-    title: "Property management administration",
-    bestFor: "Property managers, real-estate teams, maintenance coordinators, and residential portfolio support.",
-    startSignals: ["property-management-administration-australia"],
-    courses: [
-      "virtual-assistant-foundations",
-      "australian-va-fundamentals",
-      "property-management-administration-australia",
-      "xero-workflows-for-virtual-assistants",
-    ],
-  },
-  {
-    slug: "ndis-allied-health",
-    title: "NDIS & allied health administration",
-    bestFor: "NDIS providers, allied-health clinics, therapy practices, and non-clinical healthcare administration.",
-    startSignals: ["ndis-administration-fundamentals", "australian-allied-health-administration"],
-    courses: [
-      "virtual-assistant-foundations",
-      "australian-va-fundamentals",
-      "ndis-administration-fundamentals",
-      "australian-allied-health-administration",
-      "cliniko-for-virtual-assistants",
-    ],
-  },
-  {
-    slug: "mortgage-broking",
-    title: "Mortgage broking administration",
-    bestFor: "Mortgage brokers and finance teams needing organised document, CRM, milestone, and client administration.",
-    startSignals: ["mortgage-broking-administration-australia"],
-    courses: [
-      "virtual-assistant-foundations",
-      "australian-va-fundamentals",
-      "mortgage-broking-administration-australia",
-    ],
-  },
-] as const;
-
-const SHARED_AUSTRALIA_COURSES = new Set([
-  "virtual-assistant-foundations",
-  "australian-va-fundamentals",
-]);
-
 function AustraliaSpecializationIcon({ slug }: { slug: (typeof AUSTRALIA_SPECIALIZATIONS)[number]["slug"] }) {
   if (slug === "tradie-operations") return <Wrench size={19} />;
   if (slug === "property-management") return <Building2 size={19} />;
@@ -195,7 +139,6 @@ const FILTERS = [
   ["role", "Role"],
   ["software", "Software"],
   ["industry", "Industry"],
-  ["australia", "Australia"],
 ] as const;
 
 type FilterKey = (typeof FILTERS)[number][0];
@@ -209,7 +152,6 @@ function matchesFilter(course: TrainingCourseSummary, filter: FilterKey) {
   if (filter === "foundation") return course.category === "foundation";
   if (filter === "software") return course.category === "software";
   if (filter === "industry") return course.category === "industry";
-  if (filter === "australia") return course.country_focus === "Australia";
   return course.category === "skill" && course.country_focus !== "Australia";
 }
 
@@ -282,7 +224,7 @@ export default async function TrainingDashboardPage({
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
-  const { courses, learnerProfile, error } = await getTrainingDashboard(userId);
+  const { courses, learnerProfile, learnerPreferences, error } = await getTrainingDashboard(userId);
 
   const active = courses
     .filter((course) => course.enrolled && !course.completedAt)
@@ -295,7 +237,9 @@ export default async function TrainingDashboardPage({
     .filter((course) => Boolean(course.completedAt))
     .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime());
   const notStarted = courses.filter((course) => !course.enrolled && !course.completedAt);
-  const filteredNotStarted = notStarted.filter((course) => matchesFilter(course, filter));
+  const filteredNotStarted = notStarted
+    .filter((course) => course.country_focus !== "Australia")
+    .filter((course) => matchesFilter(course, filter));
   const certificates = courses
     .filter((course) => course.certificate && !course.certificate.revoked_at)
     .sort(
@@ -483,9 +427,11 @@ export default async function TrainingDashboardPage({
             const signalCourses = published.filter((course) =>
               specialization.startSignals.some((slug) => slug === course.slug)
             );
-            const pathStarted = signalCourses.some((course) =>
+            const pathSelected = learnerPreferences?.australiaSpecialization === specialization.slug;
+            const hasSpecializationProgress = signalCourses.some((course) =>
               course.enrolled || Boolean(course.completedAt) || course.completedLessons > 0
             );
+            const pathStarted = pathSelected || hasSpecializationProgress;
             const completedCount = published.filter((course) => Boolean(course.completedAt)).length;
             const sharedCompleted = published.filter((course) =>
               SHARED_AUSTRALIA_COURSES.has(course.slug) && Boolean(course.completedAt)
@@ -494,12 +440,19 @@ export default async function TrainingDashboardPage({
             const allExpectedPublished = published.length === specialization.courses.length;
             const allComplete = allExpectedPublished && published.every((course) => Boolean(course.completedAt));
             const state = allComplete ? "complete" : pathStarted ? "progress" : "not-started";
-            const stateLabel = allComplete ? "Completed" : pathStarted ? "In progress" : "Not started";
+            const stateLabel = allComplete ? "Completed" : pathSelected ? "Your path" : pathStarted ? "In progress" : "Not started";
             const reviewCourse = uniqueCourses[0] || published[0] || null;
-            const actionLabel = pathStarted ? "Continue path" : "Start path";
+            const actionLabel = pathSelected
+              ? "Continue path"
+              : learnerPreferences?.australiaSpecialization
+                ? "Switch path"
+                : pathStarted
+                  ? "Continue path"
+                  : "Start path";
+            const pathMinutes = published.reduce((total, course) => total + course.estimated_minutes, 0);
 
             return (
-              <article className={`training-specialization is-${state}`} key={specialization.slug}>
+              <article className={`training-specialization is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
                 <div className="training-specialization-header">
                   <span className="training-specialization-icon" aria-hidden="true">
                     <AustraliaSpecializationIcon slug={specialization.slug} />
@@ -518,6 +471,7 @@ export default async function TrainingDashboardPage({
 
                 <div className="training-specialization-meta">
                   <span><BookOpenCheck size={14} /> {published.length} courses</span>
+                  <span><Clock3 size={14} /> {duration(pathMinutes)}</span>
                   {pathStarted || allComplete ? (
                     <span>{completedCount} complete</span>
                   ) : sharedCompleted ? (
@@ -543,18 +497,15 @@ export default async function TrainingDashboardPage({
                       Review path
                     </Link>
                   ) : next ? (
-                    next.enrolled ? (
-                      <Link
-                        className={`btn btn-sm ${pathStarted ? "btn-primary" : "training-specialization-start"}`}
-                        href={nextCourseHref(next)}
-                      >
-                        {actionLabel} <ArrowRight size={14} />
+                    pathSelected && next.enrolled ? (
+                      <Link className="btn btn-sm btn-primary" href={nextCourseHref(next)}>
+                        Continue path <ArrowRight size={14} />
                       </Link>
                     ) : (
-                      <form action={startTrainingCourseAction}>
-                        <input type="hidden" name="course_id" value={next.id} />
+                      <form action={selectAustraliaSpecializationAction}>
+                        <input type="hidden" name="specialization_slug" value={specialization.slug} />
                         <button
-                          className={`btn btn-sm ${pathStarted ? "btn-primary" : "training-specialization-start"}`}
+                          className={`btn btn-sm ${pathSelected ? "btn-primary" : "training-specialization-start"}`}
                           type="submit"
                         >
                           {actionLabel} <ArrowRight size={14} />
@@ -588,7 +539,7 @@ export default async function TrainingDashboardPage({
           <div>
             <span className="small">Not started</span>
             <h2 id="course-library-title">Explore courses</h2>
-            <p>Each course appears once. Filter the library without duplicating Australia or learning-path listings.</p>
+            <p>Browse standalone role, software, and industry courses. Australian courses stay in the specialisation paths above so they are not duplicated here.</p>
           </div>
         </div>
 

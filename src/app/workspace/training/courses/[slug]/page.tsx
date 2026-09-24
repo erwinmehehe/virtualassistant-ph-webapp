@@ -35,6 +35,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const credentialHref = course.certificate
     ? `/training/certificates/${course.certificate.credential_code}`
     : null;
+  const assessmentInReview = nextAssessment?.latestSubmission?.status === "submitted";
 
   return (
     <div className="dash-page role-overview training-home training-course-page">
@@ -67,8 +68,10 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn btn-primary" href={credentialHref}>View certificate <ArrowRight size={14}/></Link>
           ) : nextLesson ? (
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`}>Continue lesson <ArrowRight size={14}/></Link>
-          ) : nextAssessment ? (
+          ) : nextAssessment && !assessmentInReview ? (
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`}>Start assessment <ArrowRight size={14}/></Link>
+          ) : assessmentInReview ? (
+            <span className="badge">Assessment in review</span>
           ) : (
             <Link className="btn" href="/workspace/training">My learning</Link>
           )}

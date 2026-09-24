@@ -8,7 +8,7 @@ const migrationPath = "supabase/migrations/20260923211800_strengthen_australian_
 test("signed-in training adds four Australian specialization routes without creating public course URLs", async () => {
   const page = await readFile(pagePath, "utf8");
 
-  assert.match(page, /Choose your Australian VA specialization/);
+  assert.match(page, /Australian specialisations/);
   assert.match(page, /Tradie & home-service operations/);
   assert.match(page, /Property management administration/);
   assert.match(page, /NDIS & allied health administration/);

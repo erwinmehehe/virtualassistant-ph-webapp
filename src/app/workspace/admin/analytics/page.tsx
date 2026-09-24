@@ -37,6 +37,56 @@ type EventRow = {
   user_id?: string | null;
 };
 
+type TrainingCourseAnalyticsRow = {
+  id: string;
+  slug: string;
+  title: string;
+  recommended_order: number;
+};
+
+type TrainingModuleAnalyticsRow = {
+  id: string;
+  course_id: string;
+  position: number;
+};
+
+type TrainingLessonAnalyticsRow = {
+  id: string;
+  module_id: string;
+  title: string;
+  position: number;
+};
+
+type TrainingEnrollmentAnalyticsRow = {
+  user_id: string;
+  course_id: string;
+  completed_at: string | null;
+};
+
+type TrainingProgressAnalyticsRow = {
+  user_id: string;
+  lesson_id: string;
+};
+
+type TrainingAssessmentAnalyticsRow = {
+  id: string;
+  course_id: string;
+  pass_score: number | null;
+};
+
+type TrainingSubmissionAnalyticsRow = {
+  user_id: string;
+  assessment_id: string;
+  status: string;
+  score: number | null;
+};
+
+type TrainingCertificateAnalyticsRow = {
+  user_id: string;
+  course_id: string;
+  revoked_at: string | null;
+};
+
 type AnalyticsSummary = {
   event_counts: { event_name: string; total: number }[];
   sessions: number;
@@ -58,12 +108,49 @@ export default async function AdminAnalyticsPage() {
   await requireRoleFast("admin");
   const admin = createAdminClient();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }, { data: trainingRows }] = await Promise.all([
+  const [{ data: summaryData }, { data: blogViewRows }, { data: funnelRows }, { data: trainingRows }, { data: trainingCourseData }] = await Promise.all([
     admin.rpc("admin_analytics_summary", { p_since: since }),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).eq("event_name", "page_view").like("path", "/blog%").limit(10000),
     admin.from("analytics_events").select("event_name,path,session_id").gte("created_at", since).or(FUNNEL_EVENTS).limit(10000),
-    admin.from("analytics_events").select("event_name,path,session_id,user_id").gte("created_at", since).like("event_name", "training_%").limit(10000)
+    admin.from("analytics_events").select("event_name,path,session_id,user_id").gte("created_at", since).like("event_name", "training_%").limit(10000),
+    admin.from("training_courses").select("id,slug,title,recommended_order").eq("status", "published").order("recommended_order").order("title")
   ]);
+
+  const trainingCourses = (trainingCourseData || []) as TrainingCourseAnalyticsRow[];
+  const trainingCourseIds = trainingCourses.map((course) => course.id);
+  const [
+    { data: trainingModuleData },
+    { data: trainingEnrollmentData },
+    { data: trainingAssessmentData },
+    { data: trainingCertificateData },
+  ] = trainingCourseIds.length
+    ? await Promise.all([
+        admin.from("training_modules").select("id,course_id,position").in("course_id", trainingCourseIds),
+        admin.from("training_enrollments").select("user_id,course_id,completed_at").in("course_id", trainingCourseIds),
+        admin.from("training_assessments").select("id,course_id,pass_score").in("course_id", trainingCourseIds).eq("is_published", true),
+        admin.from("training_certificates").select("user_id,course_id,revoked_at").in("course_id", trainingCourseIds),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
+
+  const trainingModules = (trainingModuleData || []) as TrainingModuleAnalyticsRow[];
+  const trainingModuleIds = trainingModules.map((module) => module.id);
+  const trainingAssessments = (trainingAssessmentData || []) as TrainingAssessmentAnalyticsRow[];
+  const trainingAssessmentIds = trainingAssessments.map((assessment) => assessment.id);
+
+  const [{ data: trainingLessonData }, { data: trainingSubmissionData }] = await Promise.all([
+    trainingModuleIds.length
+      ? admin.from("training_lessons").select("id,module_id,title,position").in("module_id", trainingModuleIds).eq("is_published", true)
+      : Promise.resolve({ data: [] }),
+    trainingAssessmentIds.length
+      ? admin.from("training_assessment_submissions").select("user_id,assessment_id,status,score").in("assessment_id", trainingAssessmentIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const trainingLessons = (trainingLessonData || []) as TrainingLessonAnalyticsRow[];
+  const trainingLessonIds = trainingLessons.map((lesson) => lesson.id);
+  const { data: trainingProgressData } = trainingLessonIds.length
+    ? await admin.from("training_lesson_progress").select("user_id,lesson_id").in("lesson_id", trainingLessonIds)
+    : { data: [] };
 
   const summary = (summaryData || EMPTY_SUMMARY) as AnalyticsSummary;
   const blogViews = (blogViewRows || []) as EventRow[];
@@ -145,9 +232,164 @@ export default async function AdminAnalyticsPage() {
     ["Training accounts created", trainingCount("training_account_created"), "Successful server-recorded free training account creations"],
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
     ["Lesson completions", trainingCount("training_lesson_complete"), "Completed lessons across all learners"],
-    ["Assessment submissions", trainingCount("training_assessment_submit"), "Practical work submitted for reviewer scoring"],
-    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded course completions after required assessment review"]
+    ["Assessment submissions", trainingCount("training_assessment_submit"), "Automatic final-check submissions"],
+    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded automatic course completions"]
   ] as const;
+
+  const trainingEnrollments = (trainingEnrollmentData || []) as TrainingEnrollmentAnalyticsRow[];
+  const trainingProgress = (trainingProgressData || []) as TrainingProgressAnalyticsRow[];
+  const trainingSubmissions = (trainingSubmissionData || []) as TrainingSubmissionAnalyticsRow[];
+  const trainingCertificates = (trainingCertificateData || []) as TrainingCertificateAnalyticsRow[];
+
+  const moduleCourseById = new Map(trainingModules.map((module) => [module.id, module.course_id]));
+  const modulePositionById = new Map(trainingModules.map((module) => [module.id, module.position]));
+  const lessonCourseById = new Map(trainingLessons.map((lesson) => [lesson.id, moduleCourseById.get(lesson.module_id) || ""]));
+  const lessonsByCourse = new Map<string, TrainingLessonAnalyticsRow[]>();
+  for (const lesson of trainingLessons) {
+    const courseId = lessonCourseById.get(lesson.id);
+    if (!courseId) continue;
+    const list = lessonsByCourse.get(courseId) || [];
+    list.push(lesson);
+    lessonsByCourse.set(courseId, list);
+  }
+  for (const list of lessonsByCourse.values()) {
+    list.sort((a, b) =>
+      Number(modulePositionById.get(a.module_id) || 0) - Number(modulePositionById.get(b.module_id) || 0) ||
+      a.position - b.position ||
+      a.title.localeCompare(b.title)
+    );
+  }
+
+  const enrollmentsByCourse = new Map<string, Set<string>>();
+  const completedEnrollmentsByCourse = new Map<string, Set<string>>();
+  for (const enrollment of trainingEnrollments) {
+    const enrolled = enrollmentsByCourse.get(enrollment.course_id) || new Set<string>();
+    enrolled.add(enrollment.user_id);
+    enrollmentsByCourse.set(enrollment.course_id, enrolled);
+    if (enrollment.completed_at) {
+      const completed = completedEnrollmentsByCourse.get(enrollment.course_id) || new Set<string>();
+      completed.add(enrollment.user_id);
+      completedEnrollmentsByCourse.set(enrollment.course_id, completed);
+    }
+  }
+
+  const progressByCourseUser = new Map<string, Map<string, Set<string>>>();
+  const completionsByLesson = new Map<string, Set<string>>();
+  for (const progress of trainingProgress) {
+    const courseId = lessonCourseById.get(progress.lesson_id);
+    if (!courseId) continue;
+    const byUser = progressByCourseUser.get(courseId) || new Map<string, Set<string>>();
+    const userLessons = byUser.get(progress.user_id) || new Set<string>();
+    userLessons.add(progress.lesson_id);
+    byUser.set(progress.user_id, userLessons);
+    progressByCourseUser.set(courseId, byUser);
+    const lessonUsers = completionsByLesson.get(progress.lesson_id) || new Set<string>();
+    lessonUsers.add(progress.user_id);
+    completionsByLesson.set(progress.lesson_id, lessonUsers);
+  }
+
+  const assessmentsByCourse = new Map<string, TrainingAssessmentAnalyticsRow[]>();
+  const assessmentById = new Map(trainingAssessments.map((assessment) => [assessment.id, assessment]));
+  for (const assessment of trainingAssessments) {
+    const list = assessmentsByCourse.get(assessment.course_id) || [];
+    list.push(assessment);
+    assessmentsByCourse.set(assessment.course_id, list);
+  }
+
+  const attemptedUsersByCourse = new Map<string, Set<string>>();
+  const passedAssessmentIdsByCourseUser = new Map<string, Map<string, Set<string>>>();
+  for (const submission of trainingSubmissions) {
+    const assessment = assessmentById.get(submission.assessment_id);
+    if (!assessment) continue;
+    const attempted = attemptedUsersByCourse.get(assessment.course_id) || new Set<string>();
+    attempted.add(submission.user_id);
+    attemptedUsersByCourse.set(assessment.course_id, attempted);
+    const passed =
+      submission.status === "reviewed" &&
+      (assessment.pass_score === null ||
+        (submission.score !== null && Number(submission.score) >= Number(assessment.pass_score)));
+    if (!passed) continue;
+    const byUser = passedAssessmentIdsByCourseUser.get(assessment.course_id) || new Map<string, Set<string>>();
+    const passedIds = byUser.get(submission.user_id) || new Set<string>();
+    passedIds.add(assessment.id);
+    byUser.set(submission.user_id, passedIds);
+    passedAssessmentIdsByCourseUser.set(assessment.course_id, byUser);
+  }
+
+  const certifiedUsersByCourse = new Map<string, Set<string>>();
+  for (const certificate of trainingCertificates) {
+    if (certificate.revoked_at) continue;
+    const users = certifiedUsersByCourse.get(certificate.course_id) || new Set<string>();
+    users.add(certificate.user_id);
+    certifiedUsersByCourse.set(certificate.course_id, users);
+  }
+
+  const trainingCourseFunnels = trainingCourses.map((course) => {
+    const courseLessons = lessonsByCourse.get(course.id) || [];
+    const requiredAssessments = assessmentsByCourse.get(course.id) || [];
+    const progressByUser = progressByCourseUser.get(course.id) || new Map<string, Set<string>>();
+    const allLessonsUsers = new Set<string>();
+    for (const [userId, completedLessons] of progressByUser) {
+      if (courseLessons.length && completedLessons.size >= courseLessons.length) allLessonsUsers.add(userId);
+    }
+    const passedUsers = new Set<string>();
+    const passedByUser = passedAssessmentIdsByCourseUser.get(course.id) || new Map<string, Set<string>>();
+    for (const [userId, passedIds] of passedByUser) {
+      if (requiredAssessments.length && requiredAssessments.every((assessment) => passedIds.has(assessment.id))) {
+        passedUsers.add(userId);
+      }
+    }
+    const stages = [
+      { label: "Enrolled", value: enrollmentsByCourse.get(course.id)?.size || 0 },
+      { label: "≥1 lesson", value: progressByUser.size },
+      { label: "All lessons", value: allLessonsUsers.size },
+      { label: "Final attempted", value: attemptedUsersByCourse.get(course.id)?.size || 0 },
+      { label: "Final passed", value: passedUsers.size },
+      { label: "Completed", value: completedEnrollmentsByCourse.get(course.id)?.size || 0 },
+      { label: "Certified", value: certifiedUsersByCourse.get(course.id)?.size || 0 },
+    ];
+    const transitions = stages.slice(1).map((stage, index) => {
+      const previous = stages[index];
+      const dropRate = previous.value > 0 && stage.value <= previous.value
+        ? Math.round(((previous.value - stage.value) / previous.value) * 100)
+        : null;
+      return { from: previous.label, to: stage.label, previous: previous.value, current: stage.value, dropRate };
+    });
+    const biggestDrop = transitions
+      .filter((transition) => transition.dropRate !== null)
+      .sort((a, b) => (b.dropRate || 0) - (a.dropRate || 0))[0] || null;
+    return { ...course, lessonCount: courseLessons.length, stages, biggestDrop };
+  }).filter((course) => course.stages[0].value > 0 || course.stages[1].value > 0);
+
+  const mostActiveCourse = [...trainingCourseFunnels]
+    .sort((a, b) => b.stages[0].value - a.stages[0].value || a.recommended_order - b.recommended_order)[0] || null;
+  const mostActiveLessons = mostActiveCourse
+    ? (lessonsByCourse.get(mostActiveCourse.id) || []).map((lesson, index, orderedLessons) => {
+        const completed = completionsByLesson.get(lesson.id)?.size || 0;
+        const previous = index === 0
+          ? mostActiveCourse.stages[0].value
+          : completionsByLesson.get(orderedLessons[index - 1].id)?.size || 0;
+        const dropRate = previous > 0 && completed <= previous
+          ? Math.round(((previous - completed) / previous) * 100)
+          : null;
+        return {
+          id: lesson.id,
+          title: lesson.title,
+          completed,
+          completionRate: mostActiveCourse.stages[0].value
+            ? Math.round((completed / mostActiveCourse.stages[0].value) * 100)
+            : 0,
+          dropRate,
+        };
+      })
+    : [];
+
+  const totalTrainingEnrollments = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[0].value, 0);
+  const totalTrainingCompletions = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[5].value, 0);
+  const totalTrainingCertificates = trainingCourseFunnels.reduce((sum, course) => sum + course.stages[6].value, 0);
+  const courseWithLargestDrop = trainingCourseFunnels
+    .filter((course) => course.biggestDrop?.dropRate !== null)
+    .sort((a, b) => (b.biggestDrop?.dropRate || 0) - (a.biggestDrop?.dropRate || 0))[0] || null;
 
   return <>
     <div className="page-head"><div><h1>Conversion analytics</h1><p>First-party acquisition and content-funnel signals for the last 30 days. Server-side lead records remain the conversion source of truth.</p></div><span className="badge">Since {dateShort(since)}</span></div>
@@ -203,6 +445,127 @@ export default async function AdminAnalyticsPage() {
         </table>
       </div>
     </section>
+
+    <section className="card" style={{ marginBottom: 18 }}>
+      <div className="section-head">
+        <div>
+          <div className="kicker">Course completion</div>
+          <h2>Where learners drop by course</h2>
+          <p>Database-backed learner state across all time. These counts come from enrolments, lesson progress, final submissions, course completion, and certificates rather than click events.</p>
+        </div>
+      </div>
+
+      <div className="stats">
+        <div className="stat-card">
+          <span className="small muted">Courses with learners</span>
+          <strong>{trainingCourseFunnels.length}</strong>
+          <span className="small muted">Published courses with an enrolment or lesson completion</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Course enrolments</span>
+          <strong>{totalTrainingEnrollments}</strong>
+          <span className="small muted">Course-level enrolments, not unique people</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Course completions</span>
+          <strong>{totalTrainingCompletions}</strong>
+          <span className="small muted">Learners who passed every course requirement</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Certificates</span>
+          <strong>{totalTrainingCertificates}</strong>
+          <span className="small muted">Active certificates issued automatically</span>
+        </div>
+      </div>
+
+      {courseWithLargestDrop?.biggestDrop ? (
+        <div className="review-answer" style={{ marginTop: 14 }}>
+          <span className="small muted">Largest current course drop-off</span>
+          <strong style={{ display: "block", marginTop: 3 }}>
+            {courseWithLargestDrop.title}: {courseWithLargestDrop.biggestDrop.from} → {courseWithLargestDrop.biggestDrop.to} ({courseWithLargestDrop.biggestDrop.dropRate}%)
+          </strong>
+          <span className="small muted">
+            {courseWithLargestDrop.biggestDrop.previous} at the previous stage, {courseWithLargestDrop.biggestDrop.current} at the next stage.
+          </span>
+        </div>
+      ) : null}
+
+      <div className="table-wrap responsive-table" style={{ marginTop: 16 }}>
+        <table>
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Enrolled</th>
+              <th>≥1 lesson</th>
+              <th>All lessons</th>
+              <th>Final tried</th>
+              <th>Passed</th>
+              <th>Completed</th>
+              <th>Certified</th>
+              <th>Biggest drop</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trainingCourseFunnels
+              .sort((a, b) => b.stages[0].value - a.stages[0].value || a.recommended_order - b.recommended_order)
+              .map((course) => (
+                <tr key={course.id}>
+                  <td data-label="Course">
+                    <strong>{course.title}</strong>
+                    <div className="small muted">{course.lessonCount} published lessons</div>
+                  </td>
+                  <td data-label="Enrolled">{course.stages[0].value}</td>
+                  <td data-label="≥1 lesson">{course.stages[1].value}</td>
+                  <td data-label="All lessons">{course.stages[2].value}</td>
+                  <td data-label="Final tried">{course.stages[3].value}</td>
+                  <td data-label="Passed">{course.stages[4].value}</td>
+                  <td data-label="Completed">{course.stages[5].value}</td>
+                  <td data-label="Certified">{course.stages[6].value}</td>
+                  <td data-label="Biggest drop">
+                    {course.biggestDrop?.dropRate !== null && course.biggestDrop ? (
+                      <>
+                        <strong>{course.biggestDrop.dropRate}%</strong>
+                        <div className="small muted">{course.biggestDrop.from} → {course.biggestDrop.to}</div>
+                      </>
+                    ) : (
+                      <span className="small muted">Not enough data</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {mostActiveCourse ? (
+      <section className="card" style={{ marginBottom: 18 }}>
+        <div className="section-head">
+          <div>
+            <div className="kicker">Lesson progression</div>
+            <h2>{mostActiveCourse.title}</h2>
+            <p>Shows how many enrolled learners have completed each published lesson. This surfaces the first real lesson-level drop without exposing individual learners.</p>
+          </div>
+        </div>
+        <div className="table-wrap responsive-table">
+          <table>
+            <thead><tr><th>Lesson</th><th>Completed learners</th><th>Of enrolled</th><th>Drop from previous step</th></tr></thead>
+            <tbody>
+              {mostActiveLessons.map((lesson, index) => (
+                <tr key={lesson.id}>
+                  <td data-label="Lesson"><strong>{index + 1}. {lesson.title}</strong></td>
+                  <td data-label="Completed learners">{lesson.completed}</td>
+                  <td data-label="Of enrolled">{lesson.completionRate}%</td>
+                  <td data-label="Drop from previous step">
+                    {lesson.dropRate === null ? <span className="small muted">—</span> : `${lesson.dropRate}%`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ) : null}
 
     <div className="grid-2">
       <section className="card"><h3>Tracked acquisition events</h3><div className="table-wrap responsive-table"><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>{Object.entries(labels).map(([event, label]) => <tr key={event}><td data-label="Event"><strong>{label}</strong><div className="small muted">{event}</div></td><td data-label="Count">{counts.get(event) || 0}</td></tr>)}</tbody></table></div></section>

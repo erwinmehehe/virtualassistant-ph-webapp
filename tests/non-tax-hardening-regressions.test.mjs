@@ -49,6 +49,8 @@ test("booking manage capabilities are signed and raw values are not persisted", 
 
   assert.match(ops, /createHmac/);
   assert.match(ops, /timingSafeEqual/);
+  assert.match(ops, /BOOKING_MANAGE_TOKEN_TTL_SECONDS = 90 \* 24 \* 60 \* 60/);
+  assert.match(ops, /expiresAt < nowSeconds/);
   assert.match(ops, /v2\.\$\{leadId\}/);
   assert.match(ops, /legacyHash/);
 

@@ -105,7 +105,7 @@ export default async function TrainingLessonPage({
 }) {
   const [{ slug, lessonId }, query] = await Promise.all([
     params,
-    searchParams ?? Promise.resolve({}),
+    searchParams ?? Promise.resolve<{ lesson_error?: string }>({}),
   ]);
   const completionError = query.lesson_error
     ? lessonCompletionErrorCopy[query.lesson_error] || null

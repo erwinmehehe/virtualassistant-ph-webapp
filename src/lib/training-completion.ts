@@ -57,7 +57,7 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     const assessmentIds = publishedAssessments.map((assessment) => assessment.id);
     const { data: submissions } = await admin
       .from("training_assessment_submissions")
-      .select("assessment_id,status,score,submitted_at")
+      .select("assessment_id,status,score,submitted_at,response")
       .eq("user_id", userId)
       .in("assessment_id", assessmentIds)
       .eq("status", "reviewed")
@@ -65,12 +65,21 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
 
     const passingAssessmentIds = new Set<string>();
     for (const assessment of publishedAssessments) {
-      const passing = (submissions || []).some((submission) =>
-        submission.assessment_id === assessment.id &&
-        submission.status === "reviewed" &&
-        (assessment.pass_score === null || assessment.pass_score === undefined ||
-          (submission.score !== null && Number(submission.score) >= Number(assessment.pass_score)))
-      );
+      const passing = (submissions || []).some((submission) => {
+        const response =
+          submission.response &&
+          typeof submission.response === "object" &&
+          !Array.isArray(submission.response)
+            ? submission.response
+            : null;
+        return (
+          submission.assessment_id === assessment.id &&
+          submission.status === "reviewed" &&
+          response?.kind === "automatic_knowledge_check" &&
+          (assessment.pass_score === null || assessment.pass_score === undefined ||
+            (submission.score !== null && Number(submission.score) >= Number(assessment.pass_score)))
+        );
+      });
       if (passing) passingAssessmentIds.add(assessment.id);
     }
 

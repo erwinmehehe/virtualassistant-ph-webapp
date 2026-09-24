@@ -104,3 +104,24 @@ test("last lesson auto-handoff is visible and recorded in the training funnel", 
   assert.match(lessonPage, /Complete lesson & start final check/);
   assert.match(gate, /completionLabel/);
 });
+
+
+test("final submissions reject incomplete or forged answer values before scoring", async () => {
+  const [actions, assessment] = await Promise.all([
+    source("src/app/actions/training.ts"),
+    source("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx"),
+  ]);
+
+  assert.match(actions, /questions\.length !== 8/);
+  assert.match(actions, /new Set\(question\.options\.map/);
+  assert.match(actions, /!answer \|\| !validOptionIds\.has\(answer\)/);
+  assert.match(actions, /failAssessmentSubmission\("answers"\)/);
+  assert.match(assessment, /Answer every question using one of the available choices/);
+});
+
+test("course completion only trusts automatic server-scored final evidence", async () => {
+  const completion = await source("src/lib/training-completion.ts");
+
+  assert.match(completion, /\.select\("assessment_id,status,score,submitted_at,response"\)/);
+  assert.match(completion, /response\?\.kind === "automatic_knowledge_check"/);
+});

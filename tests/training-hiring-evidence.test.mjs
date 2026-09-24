@@ -42,11 +42,17 @@ test("recruiter candidate profiles show training as supporting evidence", async 
 
 test("client shortlist training data is fetched only for recruiter-released accessible candidates", async () => {
   const page = await source("src/app/workspace/client/candidates/page.tsx");
+  const helper = await source("src/lib/client-hiring-room.ts");
+  const migration = await source("supabase/migrations/20260924172000_client_hiring_room_summary.sql");
   const detail = await source("src/app/workspace/client/candidates/[id]/page.tsx");
   const card = await source("src/components/client-shortlist-candidate-card.tsx");
 
-  assert.match(page, /releasedVaIds=selectedPublished&&selectedAccessUnlocked/);
-  assert.match(page, /getTrainingCredentialsForUsers\(releasedVaIds\)/);
+  assert.match(migration, /selected_released/);
+  assert.match(migration, /j\.status='published'/);
+  assert.match(migration, /a\.access_status in \('paid','comped'\)/);
+  assert.match(migration, /from training_certificates tc/);
+  assert.match(migration, /where tc\.revoked_at is null/);
+  assert.match(helper, /trainingCredentialsByUser/);
   assert.match(page, /trainingCredentials=\{trainingByUser\.get\(row\.va_id\) \|\| \[\]\}/);
   assert.match(detail, /if\(!shortlist\)notFound\(\)/);
   assert.match(detail, /candidateAccessUnlocked/);

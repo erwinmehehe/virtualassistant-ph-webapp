@@ -35,19 +35,21 @@ test("legacy role board redirects into canonical Roles views", async () => {
 });
 
 test("client shortlist is capped, ordered, and persisted", async () => {
-  const [table, actions, clientPage, migration] = await Promise.all([
+  const [table, actions, clientPage, migration, hiringRoomMigration] = await Promise.all([
     read("src/components/matching-candidate-table.tsx"),
     read("src/app/actions/matching.ts"),
     read("src/app/workspace/client/candidates/page.tsx"),
-    read("supabase/migrations/20260922035431_add_shortlist_order.sql")
+    read("supabase/migrations/20260922035431_add_shortlist_order.sql"),
+    read("supabase/migrations/20260924172000_client_hiring_room_summary.sql")
   ]);
   assert.match(table, /Aim for 3–5 client-ready candidates/);
   assert.match(table, /moveSelected/);
   assert.match(table, /shortlist_order/);
   assert.match(actions, /selected\.length > 5/);
   assert.match(actions, /shortlist_order:/);
-  assert.match(clientPage, /shortlist_order/);
-  assert.match(clientPage, /order\("shortlist_order",\{ascending:true,nullsFirst:false\}\)/);
+  assert.match(clientPage, /selectedReleased/);
+  assert.match(hiringRoomMigration, /shortlist_order/);
+  assert.match(hiringRoomMigration, /order by r\.shortlist_order asc nulls last/);
   assert.match(migration, /add column if not exists shortlist_order integer/);
   assert.match(migration, /job_shortlist_candidates_job_order_idx/);
 });

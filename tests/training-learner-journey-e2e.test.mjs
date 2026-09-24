@@ -15,6 +15,8 @@ test("training learner journey remains connected from signup through verified hi
     recruiterCandidate,
     clientCandidate,
     clientShortlist,
+    clientHiringRoom,
+    clientHiringRoomMigration,
     analyticsRoute,
     adminAnalytics,
   ] = await Promise.all([
@@ -27,6 +29,8 @@ test("training learner journey remains connected from signup through verified hi
     source("src/app/workspace/recruiter/candidates/[id]/page.tsx"),
     source("src/app/workspace/client/candidates/[id]/page.tsx"),
     source("src/app/workspace/client/candidates/page.tsx"),
+    source("src/lib/client-hiring-room.ts"),
+    source("supabase/migrations/20260924172000_client_hiring_room_summary.sql"),
     source("src/app/api/analytics/route.ts"),
     source("src/app/workspace/admin/analytics/page.tsx"),
   ]);
@@ -73,7 +77,11 @@ test("training learner journey remains connected from signup through verified hi
   assert.doesNotMatch(credentials, /training_lesson_progress/);
   assert.match(recruiterCandidate, /getTrainingCredentialsForUser/);
   assert.match(clientCandidate, /getTrainingCredentialsForUser/);
-  assert.match(clientShortlist, /getTrainingCredentialsForUsers\(releasedVaIds\)/);
+  assert.match(clientShortlist, /trainingCredentialsByUser\(summary\.credentials \|\| \[\]\)/);
+  assert.match(clientHiringRoomMigration, /from training_certificates tc/);
+  assert.match(clientHiringRoomMigration, /where tc\.revoked_at is null/);
+  assert.match(clientHiringRoomMigration, /c\.status='published'/);
+  assert.match(clientHiringRoom, /credentialCode: row\.credential_code/);
 
   // Funnel events remain accepted and visible to admins.
   for (const eventName of [

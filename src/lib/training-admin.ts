@@ -1,7 +1,8 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { LessonContentBlock, LessonRow, TrainingAssessment } from "@/lib/training";\nimport { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
+import type { LessonContentBlock, LessonRow, TrainingAssessment } from "@/lib/training";
+import { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 
 type AdminCourse = {
   id: string;

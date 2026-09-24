@@ -480,7 +480,9 @@ export default async function TrainingDashboardPage({
               .map((slug) => courses.find((course) => course.slug === slug) || null)
               .filter((course): course is TrainingCourseSummary => Boolean(course));
             const uniqueCourses = published.filter((course) => !SHARED_AUSTRALIA_COURSES.has(course.slug));
-            const signalCourses = published.filter((course) => specialization.startSignals.includes(course.slug as never));
+            const signalCourses = published.filter((course) =>
+              specialization.startSignals.some((slug) => slug === course.slug)
+            );
             const pathStarted = signalCourses.some((course) =>
               course.enrolled || Boolean(course.completedAt) || course.completedLessons > 0
             );

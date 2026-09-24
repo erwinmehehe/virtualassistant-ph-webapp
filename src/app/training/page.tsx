@@ -230,7 +230,7 @@ export default async function TrainingPage() {
               <p className="tr-hero-lede">
                 Learn through text-first lessons, practise real VA workflows, and prove what you
                 understood through checkpoints and a randomized final check. Training is free,
-                self-paced, and separate from hiring.
+                self-paced, and completely separate from hiring.
               </p>
 
               <div className="tr-cta-row">

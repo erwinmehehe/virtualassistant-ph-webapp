@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock, LessonRow, TrainingAssessment } from "@/lib/training";
+import { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 
 type AdminCourse = {
   id: string;
@@ -197,7 +198,7 @@ export async function getTrainingSpecialistReviewQueue() {
       .in("course_id", courseIds),
     admin
       .from("training_assessments")
-      .select("course_id,is_published,instructions,pass_score")
+      .select("course_id,is_published,instructions,pass_score,assessment_type,rubric,resource_pack")
       .in("course_id", courseIds),
     admin
       .from("training_specialist_reviews")
@@ -236,6 +237,9 @@ export async function getTrainingSpecialistReviewQueue() {
     is_published: boolean;
     instructions: string | null;
     pass_score: number | null;
+    assessment_type: "knowledge" | "practical";
+    rubric: unknown;
+    resource_pack: unknown;
   }>;
   const reviews = new Map(
     ((reviewData || []) as Array<{
@@ -332,14 +336,12 @@ export async function getTrainingSpecialistReviewQueue() {
     const courseAssessments = assessments.filter((assessment) => assessment.course_id === course.id);
     const publishedLessonCount = courseLessons.filter((lesson) => lesson.is_published).length;
     const substantiveLessonCount = courseLessons.filter(
-      (lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3,
+      (lesson) =>
+        Array.isArray(lesson.content) &&
+        lesson.content.length >= 3 &&
+        hasCompleteTrainingPracticalLesson(lesson.content),
     ).length;
-    const assessmentReadyCount = courseAssessments.filter(
-      (assessment) =>
-        assessment.is_published &&
-        Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
-        assessment.pass_score !== null,
-    ).length;
+    const assessmentReadyCount = courseAssessments.filter(isTrainingAssessmentPublishReady).length;
     const editorialReady = Boolean(course.reviewed_by && course.last_reviewed_at);
     const contentReady =
       courseLessons.length > 0 &&
@@ -347,7 +349,8 @@ export async function getTrainingSpecialistReviewQueue() {
       substantiveLessonCount === courseLessons.length;
     const assessmentReady =
       courseAssessments.length > 0 &&
-      assessmentReadyCount === courseAssessments.length;
+      assessmentReadyCount === courseAssessments.length &&
+      courseAssessments.some(isTrainingPracticalAssessmentReady);
     const review = reviews.get(course.id) || null;
     const assignmentCurrent = Boolean(
       review?.assigned_reviewer_name &&

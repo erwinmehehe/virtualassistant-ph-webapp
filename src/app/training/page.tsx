@@ -219,18 +219,18 @@ export default async function TrainingPage() {
             <div className="tr-hero-copy">
               <span className="tr-eyebrow">
                 <GraduationCap size={15}/>
-                Free Virtual Assistant training for Filipinos
+                Free VA training · {totalCourseCount} courses available
               </span>
 
               <h1>
-                {totalCourseCount} free VA courses.
-                <span>Practical skills. Verified certificates.</span>
+                Build practical VA skills.
+                <span>Earn verified certificates.</span>
               </h1>
 
               <p className="tr-hero-lede">
-                Learn in text-first lessons, practise real VA workflows, pass course checkpoints,
-                and keep a certificate that can be verified online. Training is optional and
-                completely separate from hiring.
+                Learn through text-first lessons, practise real VA workflows, and prove what you
+                understood through checkpoints and a randomized final check. Training is free,
+                self-paced, and separate from hiring.
               </p>
 
               <div className="tr-cta-row">
@@ -269,7 +269,7 @@ export default async function TrainingPage() {
               <div className="tr-flow-card-head">
                 <div>
                   <span>Inside every course</span>
-                  <strong>Learn → prove it → keep the credential</strong>
+                  <strong>Learn → practise → prove it</strong>
                 </div>
                 <span className="tr-flow-live"><Sparkles size={13}/> Self-paced</span>
               </div>

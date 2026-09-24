@@ -24,11 +24,16 @@ import {
 } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
+import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
 import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
+import {
+  getSpecialtyTrainingPath,
+  recommendNextTrainingCourses,
+} from "@/lib/training-recommendations";
 
 function duration(minutes: number) {
   if (!minutes) return "Self-paced";
@@ -73,66 +78,6 @@ function nextCourseLabel(course: TrainingCourseSummary) {
   if (course.nextAssessment) return "Open final check";
   return "Open course";
 }
-
-const SPECIALTY_PATHS: Record<string, { title: string; slugs: string[] }> = {
-  "Administrative Support": {
-    title: "Administrative Support path",
-    slugs: ["virtual-assistant-foundations", "operations-virtual-assistant", "project-management-for-virtual-assistants"],
-  },
-  "Bookkeeping & Finance": {
-    title: "Bookkeeping & Finance path",
-    slugs: ["virtual-assistant-foundations", "bookkeeping-administration", "xero-workflows-for-virtual-assistants", "payroll-administration"],
-  },
-  "Customer Service": {
-    title: "Customer Service path",
-    slugs: ["virtual-assistant-foundations", "customer-support-virtual-assistant", "operations-virtual-assistant"],
-  },
-  "Dental & Healthcare": {
-    title: "Healthcare Administration path",
-    slugs: ["virtual-assistant-foundations", "medical-healthcare-virtual-assistant", "cliniko-for-virtual-assistants"],
-  },
-  Ecommerce: {
-    title: "Ecommerce path",
-    slugs: ["virtual-assistant-foundations", "ecommerce-virtual-assistant", "customer-support-virtual-assistant", "marketing-virtual-assistant"],
-  },
-  "Executive Assistance": {
-    title: "Executive VA path",
-    slugs: ["virtual-assistant-foundations", "executive-virtual-assistant", "project-management-for-virtual-assistants"],
-  },
-  "Lead Generation & Sales": {
-    title: "Lead Generation & Sales path",
-    slugs: ["virtual-assistant-foundations", "sales-lead-generation-virtual-assistant", "customer-support-virtual-assistant"],
-  },
-  "Marketing & Social Media": {
-    title: "Marketing & Social Media path",
-    slugs: ["virtual-assistant-foundations", "marketing-virtual-assistant", "social-media-virtual-assistant"],
-  },
-  "Phone & Reception": {
-    title: "Reception & Client Support path",
-    slugs: ["virtual-assistant-foundations", "customer-support-virtual-assistant", "operations-virtual-assistant"],
-  },
-  "Real Estate": {
-    title: "Real Estate VA path",
-    slugs: ["virtual-assistant-foundations", "real-estate-virtual-assistant", "project-management-for-virtual-assistants"],
-  },
-  SEO: {
-    title: "SEO Virtual Assistant path",
-    slugs: ["virtual-assistant-foundations", "seo-virtual-assistant", "marketing-virtual-assistant"],
-  },
-  "Video Editing & Creative": {
-    title: "Creative Operations path",
-    slugs: ["virtual-assistant-foundations", "marketing-virtual-assistant", "social-media-virtual-assistant"],
-  },
-  "Web & WordPress": {
-    title: "Web Operations path",
-    slugs: ["virtual-assistant-foundations", "operations-virtual-assistant", "project-management-for-virtual-assistants"],
-  },
-};
-
-const DEFAULT_PATH = {
-  title: "Core VA path",
-  slugs: ["virtual-assistant-foundations", "operations-virtual-assistant", "project-management-for-virtual-assistants"],
-};
 
 function AustraliaSpecializationIcon({ slug }: { slug: (typeof AUSTRALIA_SPECIALIZATIONS)[number]["slug"] }) {
   if (slug === "tradie-operations") return <Wrench size={19} />;
@@ -288,9 +233,7 @@ export default async function TrainingDashboardPage({
   const isNewLearner = active.length === 0 && completed.length === 0;
   const foundationsCourse = courses.find((course) => course.slug === "virtual-assistant-foundations") || null;
   const specialty = learnerProfile?.primaryCategory || null;
-  const recommendation: { title: string; slugs: string[] } = specialty
-    ? SPECIALTY_PATHS[specialty] || DEFAULT_PATH
-    : DEFAULT_PATH;
+  const recommendation = getSpecialtyTrainingPath(specialty);
   const recommendedCourses: TrainingCourseSummary[] = recommendation.slugs
     .map((slug) => courses.find((course) => course.slug === slug) || null)
     .filter((course): course is TrainingCourseSummary => Boolean(course));
@@ -299,6 +242,17 @@ export default async function TrainingDashboardPage({
   const recommendedProgress = recommendedCourses.length
     ? Math.round((completedRecommended / recommendedCourses.length) * 100)
     : 0;
+  const latestCompleted = completed[0] || null;
+  const postCompletion = latestCompleted
+    ? recommendNextTrainingCourses({
+        courses,
+        currentSlug: latestCompleted.slug,
+        primaryCategory: specialty,
+        australiaSpecialization: learnerPreferences?.australiaSpecialization || null,
+        limit: 3,
+      })
+    : null;
+  const postCompletionPrimary = postCompletion?.courses[0] || null;
 
   return (
     <div className="dash-page role-overview training-home">
@@ -341,6 +295,39 @@ export default async function TrainingDashboardPage({
               Start VA Foundations <ArrowRight size={15} />
             </button>
           </form>
+        </section>
+      ) : postCompletionPrimary && latestCompleted ? (
+        <section className="training-resume-card" aria-labelledby="continue-learning-title">
+          <div className="training-resume-icon"><Compass size={20} /></div>
+          <div className="training-resume-copy">
+            <span className="small">Next after {latestCompleted.title}</span>
+            <h2 id="continue-learning-title">{postCompletionPrimary.title}</h2>
+            <p>{postCompletion?.reason}</p>
+          </div>
+          {postCompletionPrimary.enrolled ? (
+            <Link
+              className="btn btn-primary training-resume-action"
+              href={nextCourseHref(postCompletionPrimary as TrainingCourseSummary)}
+              data-track="training_recommendation_click"
+              data-course-slug={postCompletionPrimary.slug}
+              data-cta-position="dashboard_resume"
+            >
+              Continue <ArrowRight size={15} />
+            </Link>
+          ) : (
+            <form action={startTrainingCourseAction}>
+              <input type="hidden" name="course_id" value={postCompletionPrimary.id} />
+              <button
+                className="btn btn-primary training-resume-action"
+                type="submit"
+                data-track="training_recommendation_click"
+                data-course-slug={postCompletionPrimary.slug}
+                data-cta-position="dashboard_resume"
+              >
+                Start next <ArrowRight size={15} />
+              </button>
+            </form>
+          )}
         </section>
       ) : nextRecommended ? (
         <section className="training-resume-card" aria-labelledby="continue-learning-title">
@@ -386,6 +373,16 @@ export default async function TrainingDashboardPage({
           <span><strong>{completed.length}</strong> completed</span>
           <span><strong>{certificates.length}</strong> certificates</span>
         </div>
+      ) : null}
+
+      {!active.length && latestCompleted && postCompletion?.courses.length ? (
+        <TrainingNextSteps
+          sourceCourseTitle={latestCompleted.title}
+          title={postCompletion.title}
+          reason={postCompletion.reason}
+          courses={postCompletion.courses}
+          compact
+        />
       ) : null}
 
       {recommendedCourses.length && !isNewLearner ? (

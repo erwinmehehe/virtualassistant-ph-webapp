@@ -48,6 +48,7 @@ export default async function TrainingLessonPage({
   const lessonIndex = orderedLessons.findIndex((item) => item.id === lesson.id);
   const previous = lessonIndex > 0 ? orderedLessons[lessonIndex - 1] : null;
   const next = lessonIndex >= 0 && lessonIndex < orderedLessons.length - 1 ? orderedLessons[lessonIndex + 1] : null;
+  const finalAssessment = course.assessments[0] || null;
 
   return (
     <div className="dash-page role-overview">
@@ -80,7 +81,13 @@ export default async function TrainingLessonPage({
 
       <div className="row-between">
         {previous ? <Link className="btn" href={`/workspace/training/courses/${course.slug}/lessons/${previous.id}`}><ArrowLeft size={14}/> Previous</Link> : <span/>}
-        {next ? <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${next.id}`}>Next lesson <ArrowRight size={14}/></Link> : <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}`}>Course overview <ArrowRight size={14}/></Link>}
+        {next ? (
+          <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${next.id}`}>Next lesson <ArrowRight size={14}/></Link>
+        ) : lesson.completed && finalAssessment ? (
+          <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${finalAssessment.id}`}>Final assessment <ArrowRight size={14}/></Link>
+        ) : (
+          <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}`}>Course overview <ArrowRight size={14}/></Link>
+        )}
       </div>
     </div>
   );

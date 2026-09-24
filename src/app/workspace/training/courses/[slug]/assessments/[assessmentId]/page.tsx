@@ -58,7 +58,10 @@ export default async function TrainingAssessmentPage({
         <div className="row wrap">
           <span className="badge"><FileCheck2 size={13}/> {assessment.assessment_type === "practical" ? "Work sample" : "Assessment"}</span>
           {assessment.pass_score !== null ? <span className="badge">Pass score {assessment.pass_score}%</span> : null}
-          <span className="badge"><Clock3 size={13}/> Review required</span>
+          <span className={"badge " + (passed ? "badge-success" : "")}>
+            {passed ? <CheckCircle2 size={13}/> : <Clock3 size={13}/>}
+            {passed ? "Assessment passed" : waitingForReview ? "In review" : "Review required"}
+          </span>
         </div>
       </section>
 
@@ -199,7 +202,15 @@ export default async function TrainingAssessmentPage({
       {passed ? (
         <section className="card dashboard-section-card">
           <h2>Assessment complete</h2>
-          <p className="muted">If all course lessons are also complete, your course completion and certificate are issued automatically.</p>
+          <p className="muted">
+            {course.completedAt
+              ? "Your course is complete and your credential is available from the training home."
+              : "This assessment passed. Complete any remaining course requirements to receive your credential."}
+          </p>
+          <div className="row wrap">
+            {course.completedAt ? <Link className="btn btn-primary" href="/workspace/training#certificates">View certificate</Link> : null}
+            <Link className="btn" href="/workspace/training">Back to training</Link>
+          </div>
         </section>
       ) : null}
     </div>

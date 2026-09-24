@@ -465,7 +465,7 @@ export default async function TrainingDashboardPage({
             const next = published.find((course) => !course.completedAt) || null;
             const allExpectedPublished = published.length === specialization.courses.length;
             const allComplete = allExpectedPublished && published.every((course) => Boolean(course.completedAt));
-            const status = allComplete ? "Completed" : next ? "Available" : "Specialist-review pending";
+            const status = allComplete ? "Completed" : next ? "Available" : "In development";
 
             return (
               <article className="training-specialization" key={specialization.slug}>

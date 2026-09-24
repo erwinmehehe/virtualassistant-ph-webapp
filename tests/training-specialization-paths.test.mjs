@@ -29,7 +29,7 @@ test("specialization chooser only starts published courses returned by the train
 
   assert.match(page, /courses\.find\(\(course\) => course\.slug === slug\)/);
   assert.match(page, /published\.length === specialization\.courses\.length/);
-  assert.match(page, /Specialist-review pending/);
+  assert.match(page, /In development/);
   assert.match(page, /startTrainingCourseAction/);
   assert.match(page, /status === "Available"/);
 });

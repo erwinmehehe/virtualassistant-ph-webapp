@@ -80,7 +80,7 @@ test("Australian specialisations use clear status labels rather than x-of-y avai
 
   assert.match(page, /"Completed"/);
   assert.match(page, /"Available"/);
-  assert.match(page, /"Specialist-review pending"/);
+  assert.match(page, /"In development"/);
   assert.doesNotMatch(page, /\/\{steps\.length\} available/);
   assert.doesNotMatch(page, /in development/);
 });

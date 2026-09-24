@@ -654,7 +654,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const pageUrl = `${base}${sourcePath}`;
 
   const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category);
-  if (duplicate) redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(duplicate.id)}&cat=${encodeURIComponent(category)}&feedback=${encodeURIComponent(matchFeedbackToken(duplicate.id))}`);
+  if (duplicate) redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(duplicate.id)}&cat=${encodeURIComponent(category)}#feedback=${encodeURIComponent(matchFeedbackToken(duplicate.id))}`);
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name?.trim() || null,
@@ -756,7 +756,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";
   const shortlist = shortlistSlugs.length ? `&shortlist=${encodeURIComponent(shortlistSlugs.join(","))}` : "";
-  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}&cat=${encodeURIComponent(category)}&feedback=${encodeURIComponent(matchFeedbackToken(lead.id))}${talent}${shortlist}`);
+  redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(lead.id)}&cat=${encodeURIComponent(category)}${talent}${shortlist}#feedback=${encodeURIComponent(matchFeedbackToken(lead.id))}`);
 }
 
 const contactSchema = z.object({

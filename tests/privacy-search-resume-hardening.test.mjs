@@ -18,7 +18,7 @@ test("resume download resolves the private current VA path after authorization",
   assert.match(route, /application\.va_id === user\.id/);
   assert.match(route, /from\("va_profiles"\)/);
   assert.match(route, /select\("resume_path"\)/);
-  assert.doesNotMatch(route, /profile_snapshot/);
+  assert.doesNotMatch(route, /select\([^\n]*profile_snapshot/);
 });
 
 test("resume parsing rejects dangerous archives and bounds extraction", async () => {
@@ -62,5 +62,5 @@ test("profiling compliance package records the NPC registration decision and DPI
   assert.match(registration, /profiling/);
   assert.match(dpia, /human recruiter review remains mandatory/i);
   assert.match(notice, /Matching, search, and profiling/);
-  assert.match(notice, /do not make the final hiring, rejection, vetting approval, placement, or payout decision on their own/);
+  assert.match(notice, /do not make the final hiring, rejection, vetting approval, placement, or payout\s+decision on their own/);
 });

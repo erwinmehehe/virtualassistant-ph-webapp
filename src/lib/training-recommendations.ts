@@ -237,6 +237,7 @@ export function recommendNextTrainingCourses(args: {
   const current = args.currentSlug
     ? args.courses.find((course) => course.slug === args.currentSlug) || null
     : null;
+  const allowAustralia = Boolean(australiaPath || current?.country_focus === "Australia");
 
   let priority: string[] = [];
 
@@ -263,6 +264,7 @@ export function recommendNextTrainingCourses(args: {
     .map((slug) => bySlug.get(slug) || null)
     .filter((course): course is TrainingRecommendationCourse => Boolean(course))
     .filter((course) => !course.completedAt)
+    .filter((course) => allowAustralia || course.country_focus !== "Australia")
     .slice(0, limit);
 
   if (recommendations.length < limit) {
@@ -271,6 +273,7 @@ export function recommendNextTrainingCourses(args: {
         recommendations.length >= limit ||
         course.slug === args.currentSlug ||
         course.completedAt ||
+        (!allowAustralia && course.country_focus === "Australia") ||
         recommendations.some((item) => item.slug === course.slug)
       ) {
         continue;

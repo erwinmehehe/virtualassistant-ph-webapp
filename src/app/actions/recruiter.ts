@@ -930,23 +930,14 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
 
   const { data: lead, error: leadError } = await admin
     .from("lead_intake")
-    .select("id,name,email,job_id,owner_id,first_contact_at,discovery_outcome,discovery_manage_token,discovery_manage_token_hash")
+    .select("id,name,email,job_id,owner_id,first_contact_at,discovery_outcome")
     .eq("id", leadId)
     .maybeSingle();
   if (leadError || !lead) return fail("Lead not found.");
   if (lead.discovery_outcome !== "no_show") return fail("Rebooking email is only available for a client marked No show.");
   if (!lead.email) return fail("This lead has no client email address.");
 
-  let manageToken = String(lead.discovery_manage_token || "").trim();
-  if (!manageToken) {
-    const manage = createBookingManageToken();
-    manageToken = manage.token;
-    const { error: tokenError } = await admin.from("lead_intake").update({
-      discovery_manage_token: manage.token,
-      discovery_manage_token_hash: manage.hash,
-    }).eq("id", leadId);
-    if (tokenError) return fail("Could not create the client rebooking link.");
-  }
+  const manageToken = createBookingManageToken(lead.id);
 
   const recruiterName = profile.full_name?.trim() || "Hiring Team";
   const emailResult = await sendDiscoveryNoShowRebookEmail({

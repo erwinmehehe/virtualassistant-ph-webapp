@@ -88,6 +88,24 @@ export default async function AdminTrainingPage() {
             </div>
           </div>
 
+          <div className="va-status-grid" style={{ marginTop: 16 }}>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Avg. final score</span><FileCheck2 size={18}/></div>
+              <strong>{integrity.automaticFinalAttempts ? integrity.averageFinalScore + "%" : "No data"}</strong>
+              <small>{integrity.automaticFinalAttempts} automatic final attempt{integrity.automaticFinalAttempts === 1 ? "" : "s"}</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Critical misses</span><ShieldCheck size={18}/></div>
+              <strong>{integrity.criticalBoundaryMisses}</strong>
+              <small>Authority-boundary questions missed</small>
+            </div>
+            <div className="status-summary-card">
+              <div className="row-between"><span>Answer-pattern flags</span><Activity size={18}/></div>
+              <strong>{integrity.answerPatternFlags}</strong>
+              <small>Telemetry only, never an automatic cheating verdict</small>
+            </div>
+          </div>
+
           <div className="notice">
             <strong>{integrity.thresholdHuggingCompletions} threshold-hugging completion{integrity.thresholdHuggingCompletions === 1 ? "" : "s"}</strong>
             <p>These completed within 20 seconds of the minimum active-reading threshold. Treat this as a review signal, not proof of cheating.</p>

@@ -48,3 +48,42 @@ test("release path remains connected from anti-skip lesson work to automatic cer
   assert.match(css, /training-integrity-gate/);
   assert.match(css, /training-auto-question/);
 });
+
+
+test("final assessment failure, retry, pass, and certificate states stay connected", async () => {
+  const [actions, assessment, completion] = await Promise.all([
+    source("src/app/actions/training.ts"),
+    source("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx"),
+    source("src/lib/training-completion.ts"),
+  ]);
+
+  // Expected learner mistakes and stale forms return to the assessment instead of throwing raw errors.
+  assert.match(actions, /failAssessmentSubmission\("lessons"\)/);
+  assert.match(actions, /failAssessmentSubmission\("stale"\)/);
+  assert.match(actions, /failAssessmentSubmission\("limit"\)/);
+  assert.match(actions, /failAssessmentSubmission\("question_set"\)/);
+  assert.match(assessment, /assessment_error/);
+  assert.match(assessment, /This attempt is out of date/);
+  assert.match(assessment, /question set is no longer valid/i);
+
+  // A failed attempt is persisted as needs_revision and feeds lesson-level retry guidance.
+  assert.match(actions, /status: passed \? "reviewed" : "needs_revision"/);
+  assert.match(actions, /missed_lesson_ids: missedLessonIds/);
+  assert.match(assessment, /Review and try again/);
+  assert.match(assessment, /Try again/);
+  assert.match(assessment, /missedLessons/);
+
+  // The next attempt increments from persisted submissions and receives a fresh question set.
+  assert.match(actions, /const nextAttempt = attemptRows\.length \+ 1/);
+  assert.match(actions, /attemptNumber: nextAttempt/);
+  assert.match(actions, /assessmentQuestionSetKey\(questions\)/);
+
+  // A passing retry enters the automatic completion path and the certificate becomes visible.
+  assert.match(actions, /if \(passed\) \{/);
+  assert.match(actions, /finalizeTrainingCourseIfEligible\(userId, course\.id\)/);
+  assert.match(completion, /training_enrollments/);
+  assert.match(completion, /completed_at: completedAt/);
+  assert.match(completion, /training_certificates/);
+  assert.match(assessment, /course\.certificate\.credential_code/);
+  assert.match(assessment, /View certificate/);
+});

@@ -57,7 +57,7 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(trainingAction, /training_lesson_progress/);
   assert.match(trainingAction, /training_lesson_complete/);
   assert.match(trainingAction, /submitTrainingAssessmentAction/);
-  assert.match(trainingAction, /Complete every published lesson before taking the final assessment/);
+  assert.match(trainingAction, /failAssessmentSubmission\("lessons"\)/);
   assert.match(trainingAction, /training_assessment_submit/);
   assert.match(trainingAction, /source: "automatic"/);
   assert.match(trainingAction, /finalizeTrainingCourseIfEligible/);

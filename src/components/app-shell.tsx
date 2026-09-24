@@ -53,11 +53,11 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
             aria-label="Open account settings"
             title="Account settings"
           >
-            <span className="app-account-avatar" aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : <CircleUserRound size={18}/>}</span>
+            <span className={`app-account-avatar${avatarUrl ? " has-image" : " is-fallback"}`} aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : <CircleUserRound size={18}/>}</span>
             <div className="user-copy"><strong>{name || "Account"}</strong><span>{roleLabel}</span></div>
           </Link>
           <form action={logoutAction}>
-            <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
+            <button className="btn btn-ghost app-logout-button" type="submit"><span className="app-footer-icon app-footer-icon-signout" aria-hidden="true"><LogOut size={15}/></span><span>Sign out</span></button>
           </form>
         </div>
       </aside>

@@ -865,8 +865,11 @@ export async function getTrainingAdminSummary() {
     checkpointByLesson.set(lessonId, current);
   }
 
+  const automaticSubmissions = submissions.filter(
+    (row) => row.response?.kind === "automatic_knowledge_check",
+  );
   const finalMissesByLesson = new Map<string, number>();
-  for (const submission of submissions) {
+  for (const submission of automaticSubmissions) {
     const missed = Array.isArray(submission.response?.missed_lesson_ids)
       ? submission.response?.missed_lesson_ids
       : [];
@@ -898,12 +901,12 @@ export async function getTrainingAdminSummary() {
     return Number(row.active_seconds || 0) <= required + 20;
   }).length;
 
-  const firstAttempts = submissions.filter(
+  const firstAttempts = automaticSubmissions.filter(
     (row) => Number(row.response?.attempt || 0) === 1,
   );
   const firstAttemptPasses = firstAttempts.filter((row) => row.status === "reviewed");
-  const retries = submissions.filter((row) => Number(row.response?.attempt || 0) > 1);
-  const assessedLearners = new Set(submissions.map((row) => row.user_id));
+  const retries = automaticSubmissions.filter((row) => Number(row.response?.attempt || 0) > 1);
+  const assessedLearners = new Set(automaticSubmissions.map((row) => row.user_id));
   const retryLearners = new Set(retries.map((row) => row.user_id));
 
   const lessonFailures = [...new Set([

@@ -45,7 +45,7 @@ test("worked examples cover high-judgment Australian VA and trades tasks", async
   const sql = await readFile(artifactPath, "utf8");
 
   for (const phrase of [
-    "Australia time' is not a usable scheduling rule",
+    "'Australia time' is not a usable scheduling rule",
     "access to a spreadsheet does not make every field necessary",
     "recognising GST language is not the same as deciding GST treatment",
     "handoff priority follows the Australian workday, not inbox order",

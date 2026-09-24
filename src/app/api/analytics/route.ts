@@ -152,8 +152,8 @@ export async function POST(request: Request) {
       await admin.from("analytics_events").insert(payload);
     }
   } catch {
-    // Analytics is intentionally lossy. Never fail a product request because
-    // telemetry storage, auth enrichment, or the limiter is unavailable.
+    // Never fail a product request because analytics storage is unavailable.
+    // Analytics is intentionally lossy, including auth enrichment and limiter failures.
   }
 
   return NextResponse.json({ ok: true });

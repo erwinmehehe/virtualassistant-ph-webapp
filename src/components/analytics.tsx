@@ -63,7 +63,9 @@ function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
 
 function send(event: string, metadata?: Record<string, unknown>) {
   forwardToGa4(event, metadata);
+  const eventId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : undefined;
   const payload = JSON.stringify({
+    event_id: eventId,
     event,
     // Keep analytics acquisition-focused and avoid persisting query-string values.
     path: window.location.pathname,

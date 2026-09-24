@@ -75,7 +75,7 @@ test("learner and admin UI present the field as one course-level notice", async 
   const newCourse = await readFile("src/app/workspace/admin/training/new/page.tsx", "utf8");
   const inventory = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
 
-  assert.match(learner, /<strong>Course notice\.<\/strong>/);
+  assert.match(learner, /<strong>About this course\.<\/strong>/);
   assert.match(editor, /Course notice \/ affiliation disclosure/);
   assert.match(newCourse, /Course notice \/ affiliation disclosure/);
   assert.match(inventory, /Course notice recorded/);

@@ -71,11 +71,11 @@ create or replace function public.reject_payment_state_event_mutation()
 returns trigger
 language plpgsql
 set search_path = pg_catalog
-as $
+as $$
 begin
   raise exception 'payment_state_events_are_immutable';
 end;
-$;
+$$;
 
 drop trigger if exists payment_state_events_immutable on public.payment_state_events;
 create trigger payment_state_events_immutable

@@ -140,3 +140,51 @@
 @media (max-width: 1180px) {
   .va-site-nav .va-nav-account-login { display: none; }
 }
+
+
+/* Training reuses the shared site nav instead of behaving like a separate microsite. */
+.training-connected-nav .site-nav {
+  gap: 18px;
+}
+.training-nav-brand-group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 11px;
+}
+.training-nav-context {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 0 9px;
+  border-left: 1px solid #e4e7ec;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 760;
+  text-decoration: none;
+}
+.training-connected-nav .nav-links {
+  margin-left: 8px;
+}
+.training-connected-nav .nav-links > a[aria-current="page"] {
+  color: #3538cd;
+  background: rgba(68, 76, 231, .07);
+}
+.training-connected-nav .training-header-cta {
+  min-height: 40px;
+  white-space: nowrap;
+}
+@media (max-width: 1180px) {
+  .training-connected-nav .training-nav-context {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+@media (max-width: 680px) {
+  .training-nav-brand-group {
+    gap: 8px;
+  }
+  .training-nav-context {
+    font-size: 11px;
+  }
+}

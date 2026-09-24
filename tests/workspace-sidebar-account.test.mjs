@@ -80,7 +80,7 @@ test("all four workspace roles share the colored navigation icon renderer",async
   const nav=await read("src/components/app-nav-links.tsx");
   assert.match(nav,/const nav: Record<Role/);
   for(const role of ["client","va","recruiter","admin"]){
-    assert.match(nav,new RegExp(`\\b${role}: \\\[`));
+    assert.ok(nav.includes(`${role}: [`), `${role} should use the shared navigation renderer`);
   }
   assert.match(nav,/app-nav-icon nav-tone-/);
   assert.match(nav,/navToneFor\(label, href\)/);

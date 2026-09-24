@@ -26,7 +26,7 @@ test("learner lesson player renders clear practice deliverables and reusable res
     readFile(practiceComponentPath, "utf8"),
   ]);
 
-  assert.match(lesson, /Try this now/);
+  assert.match(lesson, /Practice task/);
   assert.match(lesson, /Your deliverable/);
   assert.match(lesson, /TrainingTemplateBlock/);
   assert.match(lesson, /TrainingChecklistBlock/);

@@ -65,5 +65,5 @@ export async function GET(request: Request) {
 
   // Size of the pool these three came from, so three faces do not read as "that is all".
   const total = exact ? inCategory.length : eligible.length;
-  return NextResponse.json({ category, exact, total, matches });
+  return NextResponse.json({ category, exact, total, matches }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } });
 }

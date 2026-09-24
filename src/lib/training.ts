@@ -276,7 +276,6 @@ export async function getTrainingDashboard(userId: string) {
   const certificates = new Map(
     ((certificateData || []) as CertificateRow[]).map((row) => [row.course_id, row]),
   );
-  const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
   const assessments = (assessmentData || []) as AssessmentSummaryRow[];
   const assessmentIds = assessments.map((assessment) => assessment.id);
   const { data: submissionData } = assessmentIds.length

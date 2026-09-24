@@ -143,5 +143,11 @@ export function buildAssessmentQuestions(args: {
 }
 
 export function publicAssessmentQuestions(questions: TrainingAssessmentQuestion[]) {
-  return questions.map(({ correctOptionId: _correctOptionId, ...question }) => question);
+  return questions.map((question) => ({
+    id: question.id,
+    lessonId: question.lessonId,
+    lessonTitle: question.lessonTitle,
+    prompt: question.prompt,
+    options: question.options,
+  }));
 }

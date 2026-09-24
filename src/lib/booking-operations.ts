@@ -1,9 +1,28 @@
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { createSignedCapability } from "@/lib/public-capability";
 
-export function createBookingManageToken() {
-  const token = randomBytes(32).toString("base64url");
-  return { token, hash: hashBookingManageToken(token) };
+const BOOKING_MANAGE_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+export function createBookingManageToken(options: { tokenId?: string; expiresAt?: string } = {}) {
+  const tokenId = options.tokenId || randomUUID();
+  const signed = createSignedCapability({
+    scope: "booking_manage",
+    subject: tokenId,
+    expiresAt: options.expiresAt,
+    ttlSeconds: BOOKING_MANAGE_TTL_SECONDS,
+  });
+  return {
+    token: signed.token,
+    hash: hashBookingManageToken(signed.token),
+    tokenId,
+    expiresAt: signed.expiresAt,
+  };
+}
+
+export function recreateBookingManageToken(tokenId?: string | null, expiresAt?: string | null) {
+  if (!tokenId || !expiresAt || new Date(expiresAt).getTime() <= Date.now()) return null;
+  return createBookingManageToken({ tokenId, expiresAt });
 }
 
 export function hashBookingManageToken(token: string) {

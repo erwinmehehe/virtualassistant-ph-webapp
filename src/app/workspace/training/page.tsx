@@ -684,16 +684,16 @@ export default async function TrainingDashboardPage({
         )}
       </section>
 
-      {certificates.length ? (
-        <section id="certificates" className="card dashboard-section-card training-certificates-card">
-          <div className="training-section-heading">
-            <div>
-              <span className="small">Credentials</span>
-              <h2>Your certificates</h2>
-              <p>Every credential has a public verification page you can share with a client or recruiter.</p>
-            </div>
+      <section id="certificates" className="card dashboard-section-card training-certificates-card">
+        <div className="training-section-heading">
+          <div>
+            <span className="small">Credentials</span>
+            <h2>Your certificates</h2>
+            <p>Every credential has a public verification page you can share with a client or recruiter.</p>
           </div>
+        </div>
 
+        {certificates.length ? (
           <div className="training-certificate-list">
             {certificates.map((course) => {
               const credential = course.certificate;
@@ -715,8 +715,16 @@ export default async function TrainingDashboardPage({
               );
             })}
           </div>
-        </section>
-      ) : null}
+        ) : (
+          <div className="dashboard-caught-up training-certificate-empty">
+            <Award size={22} />
+            <div>
+              <strong>No certificates yet.</strong>
+              <p>Complete a course and pass its final check. Your verified certificate will appear here automatically.</p>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

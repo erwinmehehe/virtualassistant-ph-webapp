@@ -46,7 +46,7 @@ test("recruiter booking confirmation is idempotent for the lead and scheduled ti
     read("src/lib/email.ts"),
   ]);
 
-  assert.match(actions, /idempotencyKey: `discovery-booking-\$\{leadId\}-\$\{scheduledIso\}`/);
+  assert.match(actions, /stableEmailIdempotencyKey\("discovery-booking", \[leadId, scheduledIso\]\)/);
   assert.match(email, /sendDiscoveryBookingEmail\(args:[\s\S]*idempotencyKey\?: string/);
   assert.match(email, /"discovery_booking",[\s\S]*idempotencyKey: args\.idempotencyKey/);
 });

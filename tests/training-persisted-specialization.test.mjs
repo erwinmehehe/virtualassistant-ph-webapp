@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("learner preference table persists one Australian specialization with own-user RLS", async () => {
-  const sql = await readFile("supabase/migrations/20260924092000_training_learner_specialization_preference.sql", "utf8");
+  const sql = await readFile("supabase/migrations/20260924095500_training_learner_specialization_preference.sql", "utf8");
 
   assert.match(sql, /create table if not exists public\.training_learner_preferences/);
   assert.match(sql, /user_id uuid primary key references auth\.users\(id\)/);
@@ -17,7 +17,7 @@ test("learner preference table persists one Australian specialization with own-u
 });
 
 test("existing specialization activity is backfilled from the latest defining course", async () => {
-  const sql = await readFile("supabase/migrations/20260924092000_training_learner_specialization_preference.sql", "utf8");
+  const sql = await readFile("supabase/migrations/20260924095500_training_learner_specialization_preference.sql", "utf8");
 
   assert.match(sql, /row_number\(\) over \(partition by user_id order by started_at desc\)/);
   assert.match(sql, /australian-trades-administration/);
@@ -78,7 +78,7 @@ test("Australian path configuration is shared between learner UI and server acti
 
 test("selected path gets visual emphasis without changing progress or certificates", async () => {
   const css = await readFile("src/app/workspace/training/training-home.css", "utf8");
-  const sql = await readFile("supabase/migrations/20260924092000_training_learner_specialization_preference.sql", "utf8");
+  const sql = await readFile("supabase/migrations/20260924095500_training_learner_specialization_preference.sql", "utf8");
 
   assert.match(css, /\.training-specialization\.is-selected/);
   assert.doesNotMatch(sql, /training_lesson_progress/);

@@ -104,9 +104,15 @@ test("certificate issuance is idempotent and public verification rejects revoked
   assert.match(credentials, /eq\("status", "published"\)/);
   assert.match(credentials, /\^VAT-\[A-Z0-9-\]\{8,64\}\$/);
 
-  assert.match(page, /Valid credential/);
-  assert.match(page, /Credential not verified/);
+  assert.match(page, /Certificate of completion/);
+  assert.match(page, /Verified/);
+  assert.match(page, /Not verified/);
   assert.match(page, /It does not verify employment/);
+
+  const certificateCss = await readFile("src/app/training/certificates/[code]/certificate.css", "utf8");
+  assert.match(certificateCss, /@media \(max-width: 430px\)/);
+  assert.match(certificateCss, /\.credential-link/);
+  assert.match(certificateCss, /min-height: 44px/);
 });
 
 test("training home retains compact mobile layouts for phone widths", async () => {

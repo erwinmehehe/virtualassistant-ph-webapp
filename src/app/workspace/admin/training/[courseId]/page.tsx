@@ -54,6 +54,10 @@ export default async function AdminTrainingCoursePage({
       assessment.resource_pack.length >= 2
     ))
   );
+  const calibration = course.assessmentCalibration;
+  const firstAttemptPassRate = calibration.firstAttemptCount
+    ? Math.round((calibration.firstAttemptPasses / calibration.firstAttemptCount) * 100)
+    : null;
   const publishReady =
     Boolean(course.reviewed_by && course.last_reviewed_at) &&
     lessons.length > 0 &&
@@ -241,8 +245,30 @@ export default async function AdminTrainingCoursePage({
         </div>
         <div className="compact-list">
           <div><span><strong>Lesson integrity</strong><small>Active reading, lesson-end progress, one knowledge checkpoint, practical response, and sequential completion.</small></span></div>
-          <div><span><strong>Final check</strong><small>Randomized course questions, server-side scoring, no answer key after a failed attempt, and three attempts per 24 hours.</small></span></div>
+          <div><span><strong>Final check</strong><small>Balanced judgment modes, server-side scoring, question-set replay protection, one critical authority-boundary question, no answer key after failure, and three attempts per 24 hours.</small></span></div>
           <div><span><strong>Certificate</strong><small>Issued automatically when every published lesson is complete and the final check passes.</small></span></div>
+        </div>
+        <div className="va-status-grid" style={{ marginTop: 16 }}>
+          <div className="status-summary-card">
+            <div className="row-between"><span>Attempts</span><FilePlus2 size={18}/></div>
+            <strong>{calibration.attempts}</strong>
+            <small>{calibration.learners} learner{calibration.learners === 1 ? "" : "s"}</small>
+          </div>
+          <div className="status-summary-card">
+            <div className="row-between"><span>First-attempt pass</span><BookOpenCheck size={18}/></div>
+            <strong>{firstAttemptPassRate === null ? "No data" : firstAttemptPassRate + "%"}</strong>
+            <small>{calibration.firstAttemptCount ? calibration.firstAttemptPasses + "/" + calibration.firstAttemptCount + " first attempts" : "Waiting for learner attempts"}</small>
+          </div>
+          <div className="status-summary-card">
+            <div className="row-between"><span>Average score</span><ShieldCheck size={18}/></div>
+            <strong>{calibration.averageScore === null ? "No data" : calibration.averageScore + "%"}</strong>
+            <small>{calibration.criticalBoundaryMisses} critical-boundary miss{calibration.criticalBoundaryMisses === 1 ? "" : "es"}</small>
+          </div>
+          <div className="status-summary-card">
+            <div className="row-between"><span>Pattern flags</span><ShieldCheck size={18}/></div>
+            <strong>{calibration.answerPatternFlags}</strong>
+            <small>Telemetry only. Never an automatic cheating verdict.</small>
+          </div>
         </div>
       </section>
 

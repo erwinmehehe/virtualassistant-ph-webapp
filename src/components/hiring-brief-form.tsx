@@ -269,7 +269,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
       error: params.get("error") || undefined,
       lead: params.get("lead") || undefined,
       category: params.get("cat") || undefined,
-      feedback: params.get("feedback") || undefined
+      feedback: new URLSearchParams(window.location.hash.replace(/^#/, "")).get("feedback") || undefined
     });
   }, []);
 

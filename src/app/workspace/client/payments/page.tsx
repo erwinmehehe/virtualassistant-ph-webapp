@@ -5,8 +5,11 @@ import { money, dateShort } from "@/lib/format";
 
 const statusLabel: Record<string, string> = {
   awaiting_payment: "Awaiting payment",
+  checkout_pending: "Secure checkout ready",
   paid: "Paid",
   disputed: "Disputed, under review",
+  provider_disputed: "Payment provider review",
+  refund_pending: "Refund being confirmed",
   release_pending: "Being processed",
   released: "Paid",
   failed: "Payment failed",
@@ -28,13 +31,13 @@ export default async function ClientPaymentsPage({ searchParams }: { searchParam
       {payments?.length ? payments.map((p: any) => <div className="card" key={p.id}>
         <div className="row-between wrap">
           <div>
-            <div className="row wrap"><span className={`badge ${p.status === "paid" || p.status === "released" ? "badge-success" : p.status === "disputed" ? "badge-warning" : ""}`}>{statusLabel[p.status] || p.status}</span><span className="small muted">{dateShort(p.created_at)}</span></div>
+            <div className="row wrap"><span className={`badge ${p.status === "paid" || p.status === "released" ? "badge-success" : p.status === "disputed" || p.status === "provider_disputed" || p.status === "refund_pending" || p.status === "checkout_pending" ? "badge-warning" : ""}`}>{statusLabel[p.status] || p.status}</span><span className="small muted">{dateShort(p.created_at)}</span></div>
             <h3 style={{ margin: "8px 0 3px" }}>{p.description}</h3>
           </div>
           <div style={{ textAlign: "right" }}>
             <strong>{money(p.amount_total)}</strong>
             {p.charged_amount_php ? <div className="small muted">Charged as ₱{Number(p.charged_amount_php).toLocaleString(undefined, { minimumFractionDigits: 2 })}{p.fx_rate_usd_php ? ` (rate: 1 USD = ${Number(p.fx_rate_usd_php).toFixed(2)} PHP)` : ""}</div> : null}
-            {p.status === "awaiting_payment" ? <form action={createCheckoutSessionAction} style={{ marginTop: 8 }}><input type="hidden" name="payment_id" value={p.id}/><button className="btn btn-primary btn-sm" type="submit">Pay now</button></form> : null}
+            {(p.status === "awaiting_payment" || p.status === "checkout_pending") ? <form action={createCheckoutSessionAction} style={{ marginTop: 8 }}><input type="hidden" name="payment_id" value={p.id}/><button className="btn btn-primary btn-sm" type="submit">Pay now</button></form> : null}
           </div>
         </div>
         {p.status === "paid" ? (

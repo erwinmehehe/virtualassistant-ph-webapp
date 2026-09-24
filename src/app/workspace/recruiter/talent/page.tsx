@@ -368,7 +368,25 @@ export default async function RecruiterTalentDirectory({
               const activity = row.last_activity_at ? Math.floor((Date.now() - new Date(row.last_activity_at).getTime()) / 86400000) : null;
               const publicNow = publicIds.has(row.user_id);
               const approved = ["approved", "bench"].includes(String(row.stage || ""));
-              const publicProfile = visibilityMap.get(row.user_id) || {};
+              const meta = visibilityMap.get(row.user_id);
+              const publicProfile = meta ? {
+                headline: meta.headline,
+                bio: meta.bio,
+                primary_category: meta.primary_category,
+                skills: meta.skills || [],
+                tools: meta.tools || [],
+                years_experience: meta.years_experience,
+                weekly_hours: meta.weekly_hours,
+                hourly_rate: meta.hourly_rate,
+                resume_path: meta.resume_path,
+                portfolio_url: meta.portfolio_url,
+                linkedin_url: meta.linkedin_url,
+                availability_status: meta.availability_status || "",
+                public_profile_consent: meta.public_profile_consent === true,
+                public_profile_consent_at: meta.public_profile_consent_at,
+                public_profile_consent_withdrawn_at: meta.public_profile_consent_withdrawn_at,
+                public_profile_consent_version: meta.public_profile_consent_version,
+              } : {};
               const activeConsent = publicProfile.public_profile_consent === true
                 && Boolean(publicProfile.public_profile_consent_at)
                 && !publicProfile.public_profile_consent_withdrawn_at

@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
@@ -18,6 +19,70 @@ const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+}
+
+function isRequestId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function emailIdempotencyDigest(parts: Array<string | null | undefined>) {
+  return createHash("sha256")
+    .update(parts.map((part) => String(part || "").trim()).join("\u001f"))
+    .digest("hex")
+    .slice(0, 24);
+}
+
+function dailyEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
+  const day = new Date().toISOString().slice(0, 10);
+  return `${prefix}-${day}-${emailIdempotencyDigest(parts)}`;
+}
+
+function stableEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
+  return `${prefix}-${emailIdempotencyDigest(parts)}`;
+}
+
+async function claimRecruiterAction(
+  admin: ReturnType<typeof createAdminClient>,
+  requestId: string,
+  actionType: string,
+  actorId: string,
+  subjectId: string,
+) {
+  const { error } = await admin.from("recruiter_action_claims").insert({
+    request_id: requestId,
+    action_type: actionType,
+    actor_id: actorId,
+    subject_id: subjectId,
+  });
+  if (!error) return true;
+  if (error.code === "23505") return false;
+  throw error;
+}
+
+async function releaseRecruiterAction(
+  admin: ReturnType<typeof createAdminClient>,
+  requestId: string,
+  actorId: string,
+) {
+  const { error } = await admin
+    .from("recruiter_action_claims")
+    .delete()
+    .eq("request_id", requestId)
+    .eq("actor_id", actorId);
+  if (error) console.error("[recruiter-action] Could not release idempotency claim", { requestId, error: error.message });
+}
+
+async function completeRecruiterAction(
+  admin: ReturnType<typeof createAdminClient>,
+  requestId: string,
+  actorId: string,
+) {
+  const { error } = await admin
+    .from("recruiter_action_claims")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("request_id", requestId)
+    .eq("actor_id", actorId);
+  if (error) console.error("[recruiter-action] Could not complete idempotency claim", { requestId, error: error.message });
 }
 
 function talentFiltersFromFormData(formData: FormData): RecruiterTalentFilters {
@@ -271,16 +336,27 @@ export async function sendClientFollowupAction(formData: FormData) {
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const href = linkedJobId ? `${appUrl}/workspace/client/jobs/${linkedJobId}` : undefined;
+  const followupIdempotencyKey = dailyEmailIdempotencyKey("client-followup", [
+    activityId,
+    recipient,
+    subject,
+    message,
+    user.id,
+  ]);
   const result = await sendStaffClientFollowupEmail({
     to: recipient,
     subject,
     message,
     senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
     href,
-    archiveCopy
+    archiveCopy,
+    idempotencyKey: followupIdempotencyKey,
   });
   if (!result.sent) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check Email Health and the recipient address, then try again.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
+  }
+  if (result.duplicatePrevented) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_already_sent=1${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
   }
 
   const now = new Date();
@@ -505,6 +581,7 @@ export async function updateLeadCrmAction(formData: FormData) {
 export async function scheduleDiscoveryAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
+  const requestId = String(formData.get("request_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const raw = String(formData.get("discovery_scheduled_at") || "").trim();
   const duration = Math.max(15, Math.min(120, Number(formData.get("discovery_duration_minutes") || 30)));
@@ -512,6 +589,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
 
   if (!leadId || !raw) return fail("Choose a discovery call date and time.");
+  if (!isRequestId(requestId)) return fail("This booking form expired. Refresh the page and try again.");
   const scheduled = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)
     ? new Date(`${raw}:00+08:00`)
     : new Date(raw);
@@ -521,10 +599,26 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,company,owner_id,crm_stage,discovery_calendar_event_id")
+    .select("id,name,email,company,owner_id,crm_stage,discovery_calendar_event_id,discovery_scheduled_at,discovery_meeting_url,discovery_completed_at,discovery_cancelled_at")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
+
+  const scheduledIso = scheduled.toISOString();
+  const sameActiveBooking = Boolean(
+    lead.discovery_scheduled_at === scheduledIso
+      && !lead.discovery_completed_at
+      && !lead.discovery_cancelled_at
+      && lead.discovery_meeting_url,
+  );
+  if (sameActiveBooking) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_already_saved=1&action_lead=${encodeURIComponent(leadId)}`);
+  }
+
+  const claimed = await claimRecruiterAction(admin, requestId, "schedule_discovery", user.id, leadId);
+  if (!claimed) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_already_saved=1&action_lead=${encodeURIComponent(leadId)}`);
+  }
 
   let generatedMeetingUrl = meetingUrl || null;
   let generatedEventId: string | null = null;
@@ -539,6 +633,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
       generatedMeetingUrl = meet.joinUrl;
       generatedEventId = meet.eventId;
     } catch (error) {
+      await releaseRecruiterAction(admin, requestId, user.id);
       return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");
     }
   }
@@ -562,6 +657,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     if (generatedEventId) {
       try { await cancelGoogleMeetDiscoveryMeeting(generatedEventId); } catch { /* best-effort cleanup */ }
     }
+    await releaseRecruiterAction(admin, requestId, user.id);
     return fail(error.message || "Could not schedule the discovery call.");
   }
   if (lead.discovery_calendar_event_id && generatedEventId !== lead.discovery_calendar_event_id) {
@@ -574,14 +670,26 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     timeZone: "Asia/Manila"
   }).format(scheduled);
 
-  const emailResult = await sendDiscoveryBookingEmail({
-    to: lead.email,
-    clientName: lead.name,
-    scheduledLabel,
-    durationMinutes: duration,
-    meetingUrl: generatedMeetingUrl,
-    recruiterName: profile.full_name
-  });
+  let emailResult: Awaited<ReturnType<typeof sendDiscoveryBookingEmail>>;
+  try {
+    emailResult = await sendDiscoveryBookingEmail({
+      to: lead.email,
+      clientName: lead.name,
+      scheduledLabel,
+      durationMinutes: duration,
+      meetingUrl: generatedMeetingUrl,
+      recruiterName: profile.full_name,
+      idempotencyKey: stableEmailIdempotencyKey("discovery-booking", [leadId, scheduledIso]),
+    });
+  } catch (emailError) {
+    console.error("[discovery-booking] Confirmation email failed after booking was saved", {
+      leadId,
+      error: emailError instanceof Error ? emailError.message : String(emailError),
+    });
+    emailResult = { sent: false as const, reason: "provider_error" };
+  }
+
+  await completeRecruiterAction(admin, requestId, user.id);
 
   await writeRecruiterActivity({
     subjectType: "lead",

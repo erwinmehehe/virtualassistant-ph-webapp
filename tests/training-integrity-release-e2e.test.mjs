@@ -21,7 +21,7 @@ test("release path remains connected from anti-skip lesson work to automatic cer
   assert.match(gate, /> 45_000/);
 
   // Lesson completion is sequential and server-authoritative.
-  assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
+  assert.match(actions, /failLessonCompletion\("sequence"\)/);
   assert.match(actions, /max_scroll_percent/);
   assert.match(actions, /checkpoint_key !== checkpoint\.checkpointKey/);
   assert.match(actions, /exerciseResponse\.length < 80/);

@@ -88,12 +88,28 @@ function LessonContent({ value }: { value: unknown }) {
   );
 }
 
+const lessonCompletionErrorCopy: Record<string, string> = {
+  sequence: "Complete the earlier lessons before finishing this lesson.",
+  time: "Spend a little more active time with this lesson, then try again.",
+  scroll: "Reach the end of the lesson before completing it.",
+  checkpoint: "Answer the quick check correctly before completing this lesson.",
+  exercise: "Add a few useful sentences to your practical note before completing this lesson.",
+};
+
 export default async function TrainingLessonPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; lessonId: string }>;
+  searchParams?: Promise<{ lesson_error?: string }>;
 }) {
-  const { slug, lessonId } = await params;
+  const [{ slug, lessonId }, query] = await Promise.all([
+    params,
+    searchParams ?? Promise.resolve<{ lesson_error?: string }>({}),
+  ]);
+  const completionError = query.lesson_error
+    ? lessonCompletionErrorCopy[query.lesson_error] || null
+    : null;
   const { userId } = await requireAuthenticatedUserFast(`/workspace/training/courses/${slug}/lessons/${lessonId}`);
   const { course, lesson, engagement, error } = await getTrainingLesson(slug, lessonId, userId);
   if ((!course || !lesson) && !error) notFound();
@@ -154,6 +170,13 @@ export default async function TrainingLessonPage({
       <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
+
+      {completionError ? (
+        <div className="notice training-lesson-completion-error" role="alert">
+          <strong>Almost there.</strong>
+          <span>{completionError}</span>
+        </div>
+      ) : null}
 
       <section className="card training-player-progress" aria-label="Course progress">
         <div className="training-player-progress-copy">

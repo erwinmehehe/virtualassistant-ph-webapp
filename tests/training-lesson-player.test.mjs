@@ -31,10 +31,11 @@ test("lesson player shows progress, outline, practical content, and integrity ga
 });
 
 test("lesson completion enforces active reading, content progress, checkpoint, practical work, and sequence", async () => {
-  const [actions, component, integrity] = await Promise.all([
+  const [actions, component, integrity, page] = await Promise.all([
     readFile(trainingActionsPath, "utf8"),
     readFile(integrityComponentPath, "utf8"),
     readFile(integrityLibPath, "utf8"),
+    readFile(lessonPagePath, "utf8"),
   ]);
 
   assert.match(actions, /training_lesson_engagement/);
@@ -42,7 +43,7 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
   assert.match(actions, /max_scroll_percent/);
   assert.match(actions, /checkpoint_key/);
   assert.match(actions, /exerciseResponse\.length < 80/);
-  assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
+  assert.match(actions, /failLessonCompletion\("sequence"\)/);
 
   assert.match(component, /document\.visibilityState !== "visible"/);
   assert.match(component, /document\.hasFocus\(\)/);
@@ -51,6 +52,9 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
   assert.match(component, /20_000/);
   assert.match(component, /Check answer/);
   assert.match(component, /Complete lesson when ready/);
+  assert.match(page, /lessonCompletionErrorCopy/);
+  assert.match(page, /training-lesson-completion-error/);
+  assert.match(page, /Almost there\./);
   assert.match(component, /Ready to complete this lesson\?/);
   assert.match(component, /Still to do:/);
 

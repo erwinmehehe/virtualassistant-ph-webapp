@@ -321,6 +321,11 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   const lessonIndex = orderedLessons.findIndex((item) => item.id === lessonId);
   if (lessonIndex < 0) redirect(`/workspace/training/courses/${course.slug}`);
   const lesson = orderedLessons[lessonIndex];
+  const lessonPath = `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`;
+  type LessonCompletionErrorReason = "sequence" | "time" | "scroll" | "checkpoint" | "exercise";
+  const failLessonCompletion = (reason: LessonCompletionErrorReason): never => {
+    redirect(`${lessonPath}?lesson_error=${reason}`);
+  };
 
   const previousIds = orderedLessons.slice(0, lessonIndex).map((item) => item.id);
   if (previousIds.length) {
@@ -331,7 +336,7 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
       .in("lesson_id", previousIds);
     const completedPrevious = new Set((previousProgress || []).map((item) => item.lesson_id));
     if (!previousIds.every((id) => completedPrevious.has(id))) {
-      throw new Error("Complete the earlier lessons before finishing this lesson.");
+      failLessonCompletion("sequence");
     }
   }
 
@@ -344,10 +349,10 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
 
   const requiredActiveSeconds = lessonActiveSecondsRequired(Number(lesson.estimated_minutes || 1));
   if (Number(engagement?.active_seconds || 0) < requiredActiveSeconds) {
-    throw new Error("Spend a little more active time reading this lesson before completing it.");
+    failLessonCompletion("time");
   }
   if (Number(engagement?.max_scroll_percent || 0) < 85) {
-    throw new Error("Read through the lesson before completing it.");
+    failLessonCompletion("scroll");
   }
 
   const checkpoint = buildLessonCheckpoint({
@@ -357,14 +362,14 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     content: lesson.content,
   });
   if (checkpoint && engagement?.checkpoint_key !== checkpoint.checkpointKey) {
-    throw new Error("Pass the lesson checkpoint before completing this lesson.");
+    failLessonCompletion("checkpoint");
   }
 
   const hasExercise =
     Array.isArray(lesson.content) &&
     lesson.content.some((block) => block && typeof block === "object" && (block as { type?: string }).type === "exercise");
   if (hasExercise && (exerciseResponse.length < 80 || exerciseResponse.length > 5000)) {
-    throw new Error("Add a short practical response of at least 80 characters before completing the lesson.");
+    failLessonCompletion("exercise");
   }
 
   const now = new Date().toISOString();

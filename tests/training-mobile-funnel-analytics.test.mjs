@@ -30,6 +30,8 @@ test("training route analytics distinguish course, lesson, assessment, and certi
 
   for (const event of [
     "training_assessment_view",
+    "training_assessment_reviewed",
+    "training_certificate_issued",
     "training_certificate_view",
     "training_certificate_open",
     "training_certificate_share",
@@ -56,11 +58,14 @@ test("admin training exposes a 30-day milestone funnel without presenting it as 
   ]);
 
   for (const event of [
+    "training_course_view",
     "training_course_start",
     "training_lesson_complete",
+    "training_assessment_view",
     "training_assessment_submit",
     "training_assessment_reviewed",
     "training_course_complete",
+    "training_certificate_issued",
     "training_certificate_view",
   ]) {
     assert.ok(lib.includes(`event: "${event}"`), "Missing funnel stage " + event);
@@ -68,6 +73,9 @@ test("admin training exposes a 30-day milestone funnel without presenting it as 
 
   assert.match(lib, /funnelWindowDays = 30/);
   assert.match(lib, /new Set\(matching\.map/);
+  assert.match(lib, /label: "Viewed a course"/);
+  assert.match(lib, /label: "Opened final check"/);
+  assert.match(lib, /label: "Certificate issued"/);
   assert.match(page, /Learner completion funnel/);
   assert.match(page, /activity funnel, not a fixed start-date cohort/);
   assert.match(page, /stage\.learners/);

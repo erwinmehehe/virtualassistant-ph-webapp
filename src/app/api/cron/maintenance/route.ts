@@ -315,27 +315,35 @@ async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClien
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
-  const completedByUser = new Map<string, Set<string>>();
-  const latestActivityByUser = new Map<string, number>();
-  for (const row of progressData || []) {
-    const set = completedByUser.get(row.user_id) || new Set<string>();
-    set.add(row.lesson_id);
-    completedByUser.set(row.user_id, set);
-    const timestamp = new Date(row.completed_at).getTime();
-    latestActivityByUser.set(row.user_id, Math.max(latestActivityByUser.get(row.user_id) || 0, timestamp));
-  }
-  for (const row of engagementData || []) {
-    const timestamp = new Date(row.last_activity_at || row.updated_at).getTime();
-    latestActivityByUser.set(row.user_id, Math.max(latestActivityByUser.get(row.user_id) || 0, timestamp));
-  }
-
   const lessonsByCourse = new Map<string, any[]>();
+  const lessonCourseById = new Map<string, string>();
   for (const lesson of lessons) {
     const moduleRow = moduleMap.get(lesson.module_id) as any;
     if (!moduleRow?.course_id) continue;
+    lessonCourseById.set(lesson.id, moduleRow.course_id);
     const list = lessonsByCourse.get(moduleRow.course_id) || [];
     list.push(lesson);
     lessonsByCourse.set(moduleRow.course_id, list);
+  }
+
+  const completedByEnrollment = new Map<string, Set<string>>();
+  const latestActivityByEnrollment = new Map<string, number>();
+  for (const row of progressData || []) {
+    const courseId = lessonCourseById.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const set = completedByEnrollment.get(key) || new Set<string>();
+    set.add(row.lesson_id);
+    completedByEnrollment.set(key, set);
+    const timestamp = new Date(row.completed_at).getTime();
+    latestActivityByEnrollment.set(key, Math.max(latestActivityByEnrollment.get(key) || 0, timestamp));
+  }
+  for (const row of engagementData || []) {
+    const courseId = lessonCourseById.get(row.lesson_id);
+    if (!courseId) continue;
+    const key = `${row.user_id}:${courseId}`;
+    const timestamp = new Date(row.last_activity_at || row.updated_at).getTime();
+    latestActivityByEnrollment.set(key, Math.max(latestActivityByEnrollment.get(key) || 0, timestamp));
   }
   const assessmentsByCourse = new Map<string, any[]>();
   for (const assessment of assessmentData || []) {
@@ -350,15 +358,16 @@ async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClien
     const course: any = courseMap.get(enrollment.course_id);
     if (!course) continue;
 
+    const enrollmentKey = `${enrollment.user_id}:${enrollment.course_id}`;
     const latestActivity = Math.max(
       new Date(enrollment.started_at).getTime(),
-      latestActivityByUser.get(enrollment.user_id) || 0,
+      latestActivityByEnrollment.get(enrollmentKey) || 0,
     );
     if (!Number.isFinite(latestActivity) || latestActivity > Date.now() - 3 * 24 * 60 * 60 * 1000) continue;
 
     const courseLessons = lessonsByCourse.get(enrollment.course_id) || [];
     if (!courseLessons.length) continue;
-    const completed = completedByUser.get(enrollment.user_id) || new Set<string>();
+    const completed = completedByEnrollment.get(enrollmentKey) || new Set<string>();
     const nextLesson = courseLessons.find((lesson: any) => !completed.has(lesson.id)) || null;
     const nextAssessment = (assessmentsByCourse.get(enrollment.course_id) || [])[0] || null;
     if (!nextLesson && !nextAssessment) continue;

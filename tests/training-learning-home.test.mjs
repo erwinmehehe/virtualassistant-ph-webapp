@@ -6,6 +6,7 @@ const pagePath = "src/app/workspace/training/page.tsx";
 const trainingPath = "src/lib/training.ts";
 const cssPath = "src/app/workspace/training/training-home.css";
 const certificateActionsPath = "src/components/training-certificate-actions.tsx";
+const recommendationsPath = "src/lib/training-recommendations.ts";
 
 test("training home resumes the learner at the exact next lesson or assessment", async () => {
   const [page, training] = await Promise.all([
@@ -26,16 +27,18 @@ test("training home resumes the learner at the exact next lesson or assessment",
 });
 
 test("training home recommends a sequenced path from the VA primary specialty", async () => {
-  const [page, training] = await Promise.all([
+  const [page, training, recommendations] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(trainingPath, "utf8"),
+    readFile(recommendationsPath, "utf8"),
   ]);
 
   assert.match(page, /learnerProfile\?\.primaryCategory/);
-  assert.match(page, /"Executive Assistance"/);
-  assert.match(page, /virtual-assistant-foundations/);
-  assert.match(page, /executive-virtual-assistant/);
-  assert.match(page, /project-management-for-virtual-assistants/);
+  assert.match(page, /getSpecialtyTrainingPath\(specialty\)/);
+  assert.match(recommendations, /"Executive Assistance"/);
+  assert.match(recommendations, /virtual-assistant-foundations/);
+  assert.match(recommendations, /executive-virtual-assistant/);
+  assert.match(recommendations, /project-management-for-virtual-assistants/);
   assert.match(page, /completedRecommended/);
   assert.match(page, /Next in your path/);
 

@@ -39,6 +39,7 @@ const fixedEvents = new Set([
   "training_learning_paths_click",
   "training_login_click",
   "training_course_interest_click",
+  "training_recommendation_click",
   "training_signup_submit_click",
   "training_signup_error",
   "training_account_created",

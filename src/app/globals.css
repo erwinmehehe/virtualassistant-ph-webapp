@@ -2730,6 +2730,25 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   border-color: #3538cd;
 }
 
+.training-site-header .training-header-login {
+  min-height: 40px;
+  border-color: #d0d5dd;
+  background: #fff;
+  color: #344054;
+  font-weight: 700;
+}
+
+.training-site-header .training-header-login:hover {
+  border-color: #a5b4fc;
+  background: #f8f9ff;
+  color: #3538cd;
+}
+
+.training-site-header.is-join .nav-links a:first-child {
+  color: #3538cd;
+  font-weight: 750;
+}
+
 .training-auth-page {
   background:
     radial-gradient(circle at 15% 10%, rgba(68, 76, 231, .07), transparent 30%),
@@ -2847,7 +2866,8 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
   }
 
   .training-site-header .nav-actions > .va-nav-account-login,
-  .training-site-header .desktop-hire-cta {
+  .training-site-header .desktop-hire-cta,
+  .training-site-header .training-header-login {
     display: none;
   }
 }

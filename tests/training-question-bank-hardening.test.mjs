@@ -84,3 +84,41 @@ test("automatic final submission stores question evidence without storing an ans
   assert.doesNotMatch(actions, /correct_answers/);
   assert.doesNotMatch(actions, /answer_key/);
 });
+
+
+test("finals balance competency modes and mark authority judgment as critical", async () => {
+  const source = await readFile(integrityPath, "utf8");
+
+  assert.match(source, /ASSESSMENT_KIND_SEQUENCE/);
+  assert.match(source, /"scenario"/);
+  assert.match(source, /"evidence"/);
+  assert.match(source, /"authority"/);
+  assert.match(source, /"handoff"/);
+  assert.match(source, /"pressure"/);
+  assert.match(source, /"subtle_failure"/);
+  assert.match(source, /critical: true/);
+  assert.match(source, /usedKindsByLesson/);
+});
+
+test("question-set fingerprint and answer-pattern telemetry are server-generated", async () => {
+  const source = await readFile(integrityPath, "utf8");
+
+  assert.match(source, /export function assessmentQuestionSetKey/);
+  assert.match(source, /question\.questionKey/);
+  assert.match(source, /question\.options\.map/);
+  assert.match(source, /export function summarizeAssessmentAnswerPattern/);
+  assert.match(source, /uniquePositions/);
+  assert.match(source, /longestSamePositionRun/);
+  assert.match(source, /histogram/);
+  assert.match(source, /flagged/);
+});
+
+test("assessment page is non-cacheable and binds form to the exact question set", async () => {
+  const page = await readFile(pagePath, "utf8");
+
+  assert.match(page, /export const dynamic = "force-dynamic"/);
+  assert.match(page, /export const revalidate = 0/);
+  assert.match(page, /assessmentQuestionSetKey\(generatedQuestions\)/);
+  assert.match(page, /name="question_set_key"/);
+  assert.match(page, /authority-boundary question/);
+});

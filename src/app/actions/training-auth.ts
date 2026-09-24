@@ -15,6 +15,7 @@ import {
   safeTrainingCourseSlug,
   trainingCourseDestination,
 } from "@/lib/training-intent";
+import type { TrainingJoinState } from "@/lib/training-auth-state";
 
 const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admin", "iloveyou", "123456"];
 
@@ -30,28 +31,6 @@ const trainingJoinSchema = z.object({
     .regex(/[^A-Za-z0-9]/)
     .refine((value) => !COMMON_PASSWORD_PARTS.some((part) => value.toLowerCase().includes(part))),
 });
-
-export type TrainingJoinState = {
-  status: "idle" | "error" | "success";
-  message: string;
-  fieldErrors: {
-    full_name?: string;
-    email?: string;
-    password?: string;
-  };
-  attempt: number;
-  email?: string;
-  next?: string;
-  courseTitle?: string | null;
-  emailSent?: boolean;
-};
-
-export const initialTrainingJoinState: TrainingJoinState = {
-  status: "idle",
-  message: "",
-  fieldErrors: {},
-  attempt: 0,
-};
 
 function tokenFromGeneratedActionLink(actionLink: string | undefined | null) {
   if (!actionLink) return null;

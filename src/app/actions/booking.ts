@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
-import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { sendTransactionalEventEmail } from "@/lib/email";
 
@@ -15,7 +15,7 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   if (token.length < 32) redirect("/book-client-call/manage?error=invalid");
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at,discovery_calendar_event_id").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,discovery_scheduled_at,discovery_calendar_event_id,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
   const now = new Date().toISOString();
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
@@ -30,7 +30,7 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   const scheduledAt = String(formData.get("scheduled_at") || "").trim();
   if (token.length < 32 || !isAllowedDiscoverySlot(scheduledAt)) redirect(managePath(token, "error=slot"));
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_cancelled_at,discovery_outcome").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,service,timezone,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_cancelled_at,discovery_outcome,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
 
   const now = new Date().toISOString();
@@ -90,7 +90,7 @@ export async function openClientDiscoveryBookingAction() {
   const admin = createAdminClient();
   const { data: leads, error } = await admin
     .from("lead_intake")
-    .select("id,lead_type,client_id,created_at,discovery_scheduled_at,discovery_outcome,discovery_manage_token,discovery_manage_token_hash")
+    .select("id,lead_type,client_id,created_at,discovery_scheduled_at,discovery_outcome,discovery_manage_token_hash,discovery_manage_token_id,discovery_manage_token_expires_at")
     .eq("client_id", userId)
     .eq("lead_type", "client_hiring")
     .order("created_at", { ascending: false })
@@ -102,17 +102,24 @@ export async function openClientDiscoveryBookingAction() {
   );
   if (!lead?.id) redirect("/book-client-call");
 
-  let token = String(lead.discovery_manage_token || "").trim();
-  if (!token) {
-    const manage = createBookingManageToken();
-    token = manage.token;
+  let manage = recreateBookingManageToken(
+    lead.discovery_manage_token_id,
+    lead.discovery_manage_token_expires_at,
+  );
+  if (!manage || manage.hash !== lead.discovery_manage_token_hash) {
+    manage = createBookingManageToken();
     const { error: tokenError } = await admin
       .from("lead_intake")
-      .update({ discovery_manage_token: manage.token, discovery_manage_token_hash: manage.hash })
+      .update({
+        discovery_manage_token: null,
+        discovery_manage_token_hash: manage.hash,
+        discovery_manage_token_id: manage.tokenId,
+        discovery_manage_token_expires_at: manage.expiresAt,
+      })
       .eq("id", lead.id)
       .eq("client_id", userId);
     if (tokenError) redirect("/workspace/client?booking_error=1");
   }
 
-  redirect(`/book-client-call/manage?token=${encodeURIComponent(token)}`);
+  redirect(`/book-client-call/manage?token=${encodeURIComponent(manage.token)}`);
 }

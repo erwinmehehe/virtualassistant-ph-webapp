@@ -4,12 +4,15 @@ import { money, dateShort } from "@/lib/format";
 
 const statusLabel: Record<string, string> = {
   awaiting_payment: "Client has not paid yet",
+  checkout_pending: "Client checkout in progress",
   paid: "Client paid, payout in progress",
   disputed: "Under review, payout paused",
   release_pending: "Payout in progress",
   released: "Paid out to you",
   failed: "Payment failed",
+  refund_pending: "Refund in progress",
   refunded: "Refunded",
+  chargeback: "Payment reversed by provider",
   void: "Void"
 };
 

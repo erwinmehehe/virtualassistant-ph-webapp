@@ -71,6 +71,59 @@ export async function getTrainingCourseForAdmin(courseId: string) {
   ]);
 
   const lessons = (lessonData || []) as LessonRow[];
+  const assessments = (assessmentData || []) as TrainingAssessment[];
+  const assessmentIds = assessments.map((assessment) => assessment.id);
+  const { data: submissionData } = assessmentIds.length
+    ? await admin
+        .from("training_assessment_submissions")
+        .select("user_id,assessment_id,status,score,response,submitted_at")
+        .in("assessment_id", assessmentIds)
+        .order("submitted_at", { ascending: true })
+    : { data: [] };
+
+  const automaticSubmissions = (submissionData || []).filter(
+    (submission) =>
+      submission.response &&
+      typeof submission.response === "object" &&
+      !Array.isArray(submission.response) &&
+      submission.response.kind === "automatic_knowledge_check",
+  );
+  const scored = automaticSubmissions.filter(
+    (submission) => submission.score !== null && Number.isFinite(Number(submission.score)),
+  );
+  const firstAttempts = automaticSubmissions.filter(
+    (submission) =>
+      submission.response &&
+      typeof submission.response === "object" &&
+      !Array.isArray(submission.response) &&
+      Number(submission.response.attempt || 0) === 1,
+  );
+  const assessmentCalibration = {
+    attempts: automaticSubmissions.length,
+    learners: new Set(automaticSubmissions.map((submission) => submission.user_id)).size,
+    averageScore: scored.length
+      ? Math.round(
+          (scored.reduce((sum, submission) => sum + Number(submission.score || 0), 0) / scored.length) * 10,
+        ) / 10
+      : null,
+    firstAttemptCount: firstAttempts.length,
+    firstAttemptPasses: firstAttempts.filter((submission) => submission.status === "reviewed").length,
+    criticalBoundaryMisses: automaticSubmissions.filter(
+      (submission) =>
+        submission.response &&
+        typeof submission.response === "object" &&
+        !Array.isArray(submission.response) &&
+        Number(submission.response.critical_miss_count || 0) > 0,
+    ).length,
+    answerPatternFlags: automaticSubmissions.filter(
+      (submission) =>
+        submission.response &&
+        typeof submission.response === "object" &&
+        !Array.isArray(submission.response) &&
+        submission.response.answer_pattern_flagged === true,
+    ).length,
+  };
+
   const hydratedModules = modules.map((item) => ({
     ...item,
     lessons: lessons.filter((lesson) => lesson.module_id === item.id),
@@ -80,7 +133,8 @@ export async function getTrainingCourseForAdmin(courseId: string) {
     course: {
       ...course,
       modules: hydratedModules,
-      assessments: (assessmentData || []) as TrainingAssessment[],
+      assessments,
+      assessmentCalibration,
     },
     error: null,
   };

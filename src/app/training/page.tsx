@@ -507,8 +507,8 @@ export default async function TrainingPage() {
               <article>
                 <span className="tr-completion-number">03</span>
                 <ShieldCheck size={21}/>
-                <h3>Pass the course final check</h3>
-                <p>Questions and answer order change between attempts. The answer key is not shown after a failed attempt.</p>
+                <h3>Pass the randomized final check</h3>
+                <p>Course-specific questions are scored automatically, and question order changes between attempts. The answer key is not shown after a failed attempt.</p>
               </article>
               <article>
                 <span className="tr-completion-number">04</span>

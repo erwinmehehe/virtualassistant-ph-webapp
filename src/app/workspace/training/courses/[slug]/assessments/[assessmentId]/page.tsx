@@ -130,75 +130,64 @@ export default async function TrainingAssessmentPage({
       </section>
 
       <section className="card dashboard-section-card training-assessment-hero">
-        <div className="dash-kicker">Automatic final assessment</div>
+        <div className="dash-kicker">Final check</div>
         <h1>{assessment.title}</h1>
         <p>
-          Practical work is completed inside the lessons. This final check confirms that you
-          understood the course QA standards before a certificate is issued.
+          Answer {questions.length || 8} questions based on the course. Pass once and your
+          certificate is issued automatically.
         </p>
-        <div className="row wrap">
-          <span className="badge"><ShieldCheck size={13}/> Server-scored</span>
-          <span className="badge"><RefreshCw size={13}/> Randomized each attempt</span>
-          <span className="badge">Pass score {passScore}%</span>
-          <span className="badge">Up to 3 attempts / 24h</span>
-          <span className={`badge ${lessonsComplete ? "badge-success" : ""}`}>
-            {lessonsComplete
+        <div className="training-assessment-meta">
+          <span><FileCheck2 size={14}/> 8 questions</span>
+          <span><ShieldCheck size={14}/> Pass {passScore}%</span>
+          <span><RefreshCw size={14}/> Fresh mix each attempt</span>
+          <span className={lessonsComplete ? "is-ready" : ""}>
+            <CheckCircle2 size={14}/> {lessonsComplete
               ? "Lessons complete"
               : `${course.completedLessons}/${course.lessonCount} lessons complete`}
           </span>
         </div>
+        <p className="training-assessment-attempt-note">
+          You can make up to 3 attempts in a rolling 24-hour period.
+        </p>
       </section>
 
-      <section className="card dashboard-section-card">
-        <div className="dashboard-section-head">
+      <section className="card dashboard-section-card training-assessment-guide">
+        <div>
+          <span><FileCheck2 size={17}/></span>
           <div>
-            <h2>How the final check works</h2>
-            <p>No answer key is revealed after a failed attempt.</p>
+            <strong>Course-based questions</strong>
+            <p>Each question comes from material you already completed.</p>
           </div>
         </div>
-        <div className="compact-list">
+        <div>
+          <span><RefreshCw size={17}/></span>
           <div>
-            <span>
-              <strong>Questions come from this course</strong>
-              <small>Each attempt samples lesson-specific QA standards from the material you completed.</small>
-            </span>
-          </div>
-          <div>
-            <span>
-              <strong>Questions and option order change</strong>
-              <small>Refreshing after a submitted attempt produces a new mix based on the next attempt number.</small>
-            </span>
-          </div>
-          <div>
-            <span>
-              <strong>Failed attempts point back to lessons</strong>
-              <small>You will see which lessons to review, not which answer was correct.</small>
-            </span>
-          </div>
-          <div>
-            <span>
-              <strong>Passing is automatic</strong>
-              <small>When you meet the pass score, course completion and the certificate are issued immediately.</small>
-            </span>
+            <strong>Useful retry guidance</strong>
+            <p>If you miss the pass score, you will see which lessons to review before a fresh question mix.</p>
           </div>
         </div>
+        <div>
+          <span><Award size={17}/></span>
+          <div>
+            <strong>Certificate after passing</strong>
+            <p>Passing completes the course and issues your certificate automatically.</p>
+          </div>
+        </div>
+        <p className="training-assessment-guide-note">The answer key is not shown after a failed attempt.</p>
       </section>
 
       {latest ? (
-        <section className="card dashboard-section-card">
+        <section className={`card dashboard-section-card training-assessment-result ${passed ? "is-passed" : "is-review"}`}>
           <div className="dashboard-section-head">
             <div>
-              <h2>{passed ? "Final check passed" : "Latest attempt"}</h2>
-              <p>Attempt {attemptState.total}</p>
+              <div className="dash-kicker">{passed ? "Passed" : "Latest result"}</div>
+              <h2>{passed ? "Final check complete" : "Review and try again"}</h2>
+              <p>Attempt {attemptState.total}{latest.score !== null ? ` · ${latest.score}% score` : ""} · Pass {passScore}%</p>
             </div>
             <span className={`badge ${passed ? "badge-success" : failed ? "badge-warning" : ""}`}>
               {passed ? "Passed" : latest.score !== null ? `${latest.score}%` : latest.status}
             </span>
           </div>
-
-          {latest.score !== null ? (
-            <p><strong>Score:</strong> {latest.score}% · Pass score {passScore}%</p>
-          ) : null}
 
           {latest.feedback ? (
             <div className={passed ? "success-banner" : "notice"}>
@@ -208,7 +197,8 @@ export default async function TrainingAssessmentPage({
 
           {!passed && missedLessons.length ? (
             <div className="training-assessment-review-lessons">
-              <strong>Review these lessons</strong>
+              <strong>Review these lessons before your next attempt</strong>
+              <p>Focus on these topics, then come back for a fresh question mix.</p>
               <div className="training-assessment-review-links">
                 {missedLessons.map((lesson) => (
                   <Link
@@ -223,8 +213,15 @@ export default async function TrainingAssessmentPage({
             </div>
           ) : null}
 
-          {query.result === "failed" && !passed ? (
-            <p className="notice">Your attempt was scored. Review the listed lessons before trying the new question mix below.</p>
+          {query.result === "failed" && !passed && !retryLocked ? (
+            <div className="training-assessment-result-actions">
+              {missedLessons[0] ? (
+                <Link className="btn" href={`${courseHref}/lessons/${missedLessons[0].id}`}>
+                  Review first lesson
+                </Link>
+              ) : null}
+              <Link className="btn btn-primary" href="#final-check-questions">Try again</Link>
+            </div>
           ) : null}
         </section>
       ) : null}
@@ -241,22 +238,26 @@ export default async function TrainingAssessmentPage({
       ) : null}
 
       {retryLocked && !passed ? (
-        <section className="card dashboard-section-card">
-          <h2>Review before another attempt</h2>
-          <p className="muted">
-            You have used three attempts in the last 24 hours. This prevents brute-force guessing.
-            {retryAt ? ` You can try again after ${retryAt}.` : ""}
+        <section className="card dashboard-section-card training-assessment-retry-lock">
+          <div className="dash-kicker">Next attempt</div>
+          <h2>Use this time to review</h2>
+          <p>
+            You have reached the 3-attempt limit for the current 24-hour window.
+            {retryAt ? ` Your next attempt opens after ${retryAt}.` : ""}
           </p>
-          <Link className="btn" href={courseHref}>Review course lessons</Link>
+          <Link className="btn btn-primary" href={missedLessons[0] ? `${courseHref}/lessons/${missedLessons[0].id}` : courseHref}>
+            Review lessons
+          </Link>
         </section>
       ) : null}
 
       {lessonsComplete && !passed && !retryLocked && questions.length ? (
-        <section className="card dashboard-section-card training-assessment-submit">
+        <section className="card dashboard-section-card training-assessment-submit" id="final-check-questions">
           <div className="dashboard-section-head">
             <div>
-              <h2>Attempt {attemptNumber}</h2>
-              <p>Choose the best answer for each course scenario. All questions are required.</p>
+              <div className="dash-kicker">Attempt {attemptNumber}</div>
+              <h2>Answer the final check</h2>
+              <p>Choose the best response for all {questions.length} questions. Pass {passScore}% to complete the course.</p>
             </div>
             <span className="badge">{questions.length} questions</span>
           </div>
@@ -270,7 +271,7 @@ export default async function TrainingAssessmentPage({
               {questions.map((question, index) => (
                 <fieldset className="training-auto-question" key={question.id}>
                   <legend>
-                    <span className="small muted">Question {index + 1} · {question.lessonTitle}</span>
+                    <span className="training-auto-question-meta">Question {index + 1} of {questions.length} · {question.lessonTitle}</span>
                     <strong>{question.prompt}</strong>
                   </legend>
                   <div className="training-auto-question-options">
@@ -290,7 +291,7 @@ export default async function TrainingAssessmentPage({
               ))}
             </div>
 
-            <div>
+            <div className="training-assessment-submit-actions">
               <button
                 className="btn btn-primary"
                 type="submit"
@@ -298,6 +299,7 @@ export default async function TrainingAssessmentPage({
               >
                 <CheckCircle2 size={15}/> Submit final check
               </button>
+              <span>Results are scored immediately. If you miss the pass score, you will get lesson-level review guidance.</span>
             </div>
           </form>
         </section>
@@ -309,7 +311,7 @@ export default async function TrainingAssessmentPage({
           <div className="training-completion-copy">
             <div className="dash-kicker">Course complete</div>
             <h2>{course.title}</h2>
-            <p>You passed the automatic final check. Your certificate is ready.</p>
+            <p>You passed the final check. Your course is complete and your certificate is ready.</p>
 
             {course.certificate ? (
               <div className="training-completion-credential">

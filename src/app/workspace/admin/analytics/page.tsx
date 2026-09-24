@@ -446,6 +446,127 @@ export default async function AdminAnalyticsPage() {
       </div>
     </section>
 
+    <section className="card" style={{ marginBottom: 18 }}>
+      <div className="section-head">
+        <div>
+          <div className="kicker">Course completion</div>
+          <h2>Where learners drop by course</h2>
+          <p>Database-backed learner state across all time. These counts come from enrolments, lesson progress, final submissions, course completion, and certificates rather than click events.</p>
+        </div>
+      </div>
+
+      <div className="stats">
+        <div className="stat-card">
+          <span className="small muted">Courses with learners</span>
+          <strong>{trainingCourseFunnels.length}</strong>
+          <span className="small muted">Published courses with an enrolment or lesson completion</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Course enrolments</span>
+          <strong>{totalTrainingEnrollments}</strong>
+          <span className="small muted">Course-level enrolments, not unique people</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Course completions</span>
+          <strong>{totalTrainingCompletions}</strong>
+          <span className="small muted">Learners who passed every course requirement</span>
+        </div>
+        <div className="stat-card">
+          <span className="small muted">Certificates</span>
+          <strong>{totalTrainingCertificates}</strong>
+          <span className="small muted">Active certificates issued automatically</span>
+        </div>
+      </div>
+
+      {courseWithLargestDrop?.biggestDrop ? (
+        <div className="review-answer" style={{ marginTop: 14 }}>
+          <span className="small muted">Largest current course drop-off</span>
+          <strong style={{ display: "block", marginTop: 3 }}>
+            {courseWithLargestDrop.title}: {courseWithLargestDrop.biggestDrop.from} → {courseWithLargestDrop.biggestDrop.to} ({courseWithLargestDrop.biggestDrop.dropRate}%)
+          </strong>
+          <span className="small muted">
+            {courseWithLargestDrop.biggestDrop.previous} at the previous stage, {courseWithLargestDrop.biggestDrop.current} at the next stage.
+          </span>
+        </div>
+      ) : null}
+
+      <div className="table-wrap responsive-table" style={{ marginTop: 16 }}>
+        <table>
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Enrolled</th>
+              <th>≥1 lesson</th>
+              <th>All lessons</th>
+              <th>Final tried</th>
+              <th>Passed</th>
+              <th>Completed</th>
+              <th>Certified</th>
+              <th>Biggest drop</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trainingCourseFunnels
+              .sort((a, b) => b.stages[0].value - a.stages[0].value || a.recommended_order - b.recommended_order)
+              .map((course) => (
+                <tr key={course.id}>
+                  <td data-label="Course">
+                    <strong>{course.title}</strong>
+                    <div className="small muted">{course.lessonCount} published lessons</div>
+                  </td>
+                  <td data-label="Enrolled">{course.stages[0].value}</td>
+                  <td data-label="≥1 lesson">{course.stages[1].value}</td>
+                  <td data-label="All lessons">{course.stages[2].value}</td>
+                  <td data-label="Final tried">{course.stages[3].value}</td>
+                  <td data-label="Passed">{course.stages[4].value}</td>
+                  <td data-label="Completed">{course.stages[5].value}</td>
+                  <td data-label="Certified">{course.stages[6].value}</td>
+                  <td data-label="Biggest drop">
+                    {course.biggestDrop?.dropRate !== null && course.biggestDrop ? (
+                      <>
+                        <strong>{course.biggestDrop.dropRate}%</strong>
+                        <div className="small muted">{course.biggestDrop.from} → {course.biggestDrop.to}</div>
+                      </>
+                    ) : (
+                      <span className="small muted">Not enough data</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {mostActiveCourse ? (
+      <section className="card" style={{ marginBottom: 18 }}>
+        <div className="section-head">
+          <div>
+            <div className="kicker">Lesson progression</div>
+            <h2>{mostActiveCourse.title}</h2>
+            <p>Shows how many enrolled learners have completed each published lesson. This surfaces the first real lesson-level drop without exposing individual learners.</p>
+          </div>
+        </div>
+        <div className="table-wrap responsive-table">
+          <table>
+            <thead><tr><th>Lesson</th><th>Completed learners</th><th>Of enrolled</th><th>Drop from previous step</th></tr></thead>
+            <tbody>
+              {mostActiveLessons.map((lesson, index) => (
+                <tr key={lesson.id}>
+                  <td data-label="Lesson"><strong>{index + 1}. {lesson.title}</strong></td>
+                  <td data-label="Completed learners">{lesson.completed}</td>
+                  <td data-label="Of enrolled">{lesson.completionRate}%</td>
+                  <td data-label="Drop from previous step">
+                    {lesson.dropRate === null ? <span className="small muted">—</span> : `${lesson.dropRate}%`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ) : null}
+
     <div className="grid-2">
       <section className="card"><h3>Tracked acquisition events</h3><div className="table-wrap responsive-table"><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>{Object.entries(labels).map(([event, label]) => <tr key={event}><td data-label="Event"><strong>{label}</strong><div className="small muted">{event}</div></td><td data-label="Count">{counts.get(event) || 0}</td></tr>)}</tbody></table></div></section>
       <section className="card"><h3>Lead outcomes</h3><div className="stack"><div className="review-answer"><span className="small muted">Saved role briefs</span><strong className="score-big" style={{ display: "block" }}>{roleBriefCount}</strong></div><div className="review-answer"><span className="small muted">Talent-specific introduction requests</span><strong style={{ fontSize: 24, display: "block" }}>{introBriefCount}</strong></div><div className="review-answer"><span className="small muted">Private job drafts created</span><strong style={{ fontSize: 24, display: "block" }}>{convertedLeads}</strong></div><p className="small muted">Event counts measure interaction, not unique people. For experiments, compare session-based rates and keep server-side lead records as the conversion outcome.</p></div></section>

@@ -34,7 +34,7 @@ export function TrainingCertificateActions({
   }
 
   return (
-    <button className="btn btn-sm training-certificate-share" type="button" onClick={copyOrShare}>
+    <button className="btn btn-sm training-certificate-share" type="button" onClick={copyOrShare} data-track="training_certificate_share">
       {copied ? <Check size={14} /> : <Share2 size={14} />}
       {copied ? "Copied" : "Copy / share link"}
     </button>

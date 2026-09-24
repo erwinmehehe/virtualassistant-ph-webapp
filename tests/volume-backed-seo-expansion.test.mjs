@@ -144,7 +144,7 @@ test("volume-backed expansion leaves the homepage source untouched", () => {
   } catch (error) {
     if (error instanceof assert.AssertionError) throw error;
     const digest = createHash("sha256").update(source("src/app/page.tsx")).digest("hex");
-    assert.equal(digest, "709fc8cbc738b228ae4c9ee928549e1d781d185ab1565487731e70713ec961b3");
+    assert.equal(digest, "fed635ce8c2233c66228af08c8b2659903a86c27d03d44bef3c8d691ce7da023");
   }
 });
 

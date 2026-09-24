@@ -43,6 +43,25 @@ test("course overview always exposes the learner's next meaningful action", asyn
   assert.match(course, /reviewLabel \? <span className="badge">/);
 });
 
+test("course overview uses a focused, responsive learning layout", async () => {
+  const [course, css] = await Promise.all([
+    readFile(coursePath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+
+  assert.match(course, /training-course-hero/);
+  assert.match(course, /training-module-card/);
+  assert.match(course, /training-module-lessons/);
+  assert.match(course, /training-lesson-row/);
+  assert.match(course, /training-lesson-copy/);
+
+  assert.match(css, /\.training-course-page \{/);
+  assert.match(css, /width: min\(100%, 1120px\)/);
+  assert.match(css, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css, /@media \(max-width: 900px\)/);
+  assert.match(css, /\.training-course-page \.training-lesson-row/);
+});
+
 test("final lesson saves progress and continues directly to the next required assessment", async () => {
   const lesson = await readFile(lessonPath, "utf8");
 

@@ -5,10 +5,12 @@ import test from "node:test";
 const lessonPagePath = "src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx";
 const assessmentPagePath = "src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx";
 const trainingActionsPath = "src/app/actions/training.ts";
+const integrityComponentPath = "src/components/training-lesson-integrity-gate.tsx";
+const integrityLibPath = "src/lib/training-integrity.ts";
 const trainingLibPath = "src/lib/training.ts";
 const cssPath = "src/app/workspace/training/training-home.css";
 
-test("lesson player shows progress, a compact outline, and practical content treatment", async () => {
+test("lesson player shows progress, outline, practical content, and integrity gate", async () => {
   const [lessonPage, css] = await Promise.all([
     readFile(lessonPagePath, "utf8"),
     readFile(cssPath, "utf8"),
@@ -20,43 +22,66 @@ test("lesson player shows progress, a compact outline, and practical content tre
   assert.match(lessonPage, /aria-current/);
   assert.match(lessonPage, /training-practice-block/);
   assert.match(lessonPage, /training-note-block/);
+  assert.match(lessonPage, /TrainingLessonIntegrityGate/);
 
   assert.match(css, /\.training-player-layout/);
   assert.match(css, /\.training-player-sidebar/);
   assert.match(css, /\.training-practice-block/);
+  assert.match(css, /\.training-integrity-gate/);
 });
 
-test("completing a lesson saves progress and continues to the next lesson or assessment", async () => {
-  const [lessonPage, actions] = await Promise.all([
-    readFile(lessonPagePath, "utf8"),
+test("lesson completion enforces active reading, content progress, checkpoint, practical work, and sequence", async () => {
+  const [actions, component, integrity] = await Promise.all([
     readFile(trainingActionsPath, "utf8"),
+    readFile(integrityComponentPath, "utf8"),
+    readFile(integrityLibPath, "utf8"),
   ]);
 
-  assert.match(lessonPage, /name="continue_to"/);
-  assert.match(lessonPage, /Complete lesson/);
-  assert.match(lessonPage, /Continue lesson/);
-  assert.match(lessonPage, /Start assessment/);
-  assert.match(lessonPage, /course\.assessments\.find/);
-  assert.match(lessonPage, /assessments\/\$\{nextAssessment\.id\}/);
+  assert.match(actions, /training_lesson_engagement/);
+  assert.match(actions, /requiredActiveSeconds/);
+  assert.match(actions, /max_scroll_percent/);
+  assert.match(actions, /checkpoint_key/);
+  assert.match(actions, /exerciseResponse\.length < 80/);
+  assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
 
-  assert.match(actions, /const continueTo = String\(formData\.get\("continue_to"\)/);
-  assert.match(actions, /const safeContinueTo/);
-  assert.match(actions, /continueTo\.startsWith/);
-  assert.match(actions, /if \(safeContinueTo\) redirect\(safeContinueTo\)/);
+  assert.match(component, /document\.visibilityState !== "visible"/);
+  assert.match(component, /document\.hasFocus\(\)/);
+  assert.match(component, /lastInteractionAt/);
+  assert.match(component, /> 45_000/);
+  assert.match(component, /20_000/);
+  assert.match(component, /Check answer/);
+  assert.match(component, /Finish the requirements above/);
+
+  assert.match(integrity, /Math\.max\(60, Math\.min\(300/);
+  assert.match(integrity, /buildLessonCheckpoint/);
+  assert.match(integrity, /stableShuffle/);
 });
 
-test("assessment flow exposes requirements, revision recovery, and clear learner states", async () => {
-  const assessmentPage = await readFile(assessmentPagePath, "utf8");
+test("automatic final assessment randomizes, rate limits, scores server-side, and never reveals the answer key", async () => {
+  const [assessmentPage, actions, integrity] = await Promise.all([
+    readFile(assessmentPagePath, "utf8"),
+    readFile(trainingActionsPath, "utf8"),
+    readFile(integrityLibPath, "utf8"),
+  ]);
 
-  assert.match(assessmentPage, /Before you submit/);
-  assert.match(assessmentPage, /Reviewed by a person/);
-  assert.match(assessmentPage, /Revision needed/);
-  assert.match(assessmentPage, /Review course lessons/);
-  assert.match(assessmentPage, /Review pending/);
-  assert.match(assessmentPage, /training-assessment-journey/);
+  assert.match(assessmentPage, /buildAssessmentQuestions/);
+  assert.match(assessmentPage, /publicAssessmentQuestions/);
+  assert.match(assessmentPage, /attemptNumber/);
+  assert.match(assessmentPage, /three attempts in the last 24 hours|Up to 3 attempts \/ 24h/i);
+  assert.match(assessmentPage, /No answer key is revealed/);
+
+  assert.match(actions, /buildAssessmentQuestionsFromLessons/);
+  assert.match(actions, /recentAttempts\.length >= 3/);
+  assert.match(actions, /Math\.round\(\(correct \/ questions\.length\) \* 100\)/);
+  assert.match(actions, /status: passed \? "reviewed" : "needs_revision"/);
+  assert.match(actions, /The answer key is not shown/);
+  assert.match(actions, /finalizeTrainingCourseIfEligible/);
+
+  assert.match(integrity, /attemptNumber/);
+  assert.match(integrity, /questionCount \|\| 8/);
 });
 
-test("passed assessment surfaces course completion and the issued certificate", async () => {
+test("passed assessment surfaces automatic completion and the issued certificate", async () => {
   const [assessmentPage, trainingLib] = await Promise.all([
     readFile(assessmentPagePath, "utf8"),
     readFile(trainingLibPath, "utf8"),
@@ -66,14 +91,14 @@ test("passed assessment surfaces course completion and the issued certificate", 
   assert.match(assessmentPage, /course\.certificate\.credential_code/);
   assert.match(assessmentPage, /View certificate/);
   assert.match(assessmentPage, /TrainingCertificateActions/);
-  assert.match(assessmentPage, />My learning</);
+  assert.match(assessmentPage, />\s*My learning\s*</);
 
   assert.match(trainingLib, /certificate: CertificateRow \| null/);
   assert.match(trainingLib, /from\("training_certificates"\)/);
   assert.match(trainingLib, /certificateData as CertificateRow/);
 });
 
-test("lesson and completion UI stays compact on 375 and 390 pixel screens", async () => {
+test("lesson and automatic assessment UI stays compact on phone screens", async () => {
   const css = await readFile(cssPath, "utf8");
 
   assert.match(css, /@media \(max-width: 430px\)/);
@@ -81,6 +106,7 @@ test("lesson and completion UI stays compact on 375 and 390 pixel screens", asyn
   assert.match(css, /flex-direction: column-reverse/);
   assert.match(css, /\.training-assessment-journey/);
   assert.match(css, /\.training-completion-card/);
-  assert.match(css, /\.training-assessment-submit textarea/);
-  assert.match(css, /\.training-course-page > \.dashboard-section-card:first-of-type \.row-between/);
+  assert.match(css, /\.training-integrity-status-grid/);
+  assert.match(css, /\.training-auto-question/);
+  assert.match(css, /font-size: 16px/);
 });

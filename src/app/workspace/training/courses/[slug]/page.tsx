@@ -35,7 +35,6 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const credentialHref = course.certificate
     ? `/training/certificates/${course.certificate.credential_code}`
     : null;
-  const assessmentInReview = nextAssessment?.latestSubmission?.status === "submitted";
   const reviewLabel = reviewedLabel(course.last_reviewed_at);
 
   return (
@@ -69,10 +68,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn btn-primary" href={credentialHref} data-track="training_certificate_open">View certificate <ArrowRight size={14}/></Link>
           ) : nextLesson ? (
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/lessons/${nextLesson.id}`} data-track="training_course_continue">Continue lesson <ArrowRight size={14}/></Link>
-          ) : nextAssessment && !assessmentInReview ? (
-            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start assessment <ArrowRight size={14}/></Link>
-          ) : assessmentInReview ? (
-            <span className="badge">Assessment in review</span>
+          ) : nextAssessment ? (
+            <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start final check <ArrowRight size={14}/></Link>
           ) : course.completedAt ? (
             <div className="row wrap">
               <span className="badge">Certificate preparing</span>
@@ -112,7 +109,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
       {course.assessments.length ? (
         <section className="card dashboard-section-card training-module-card training-assessment-card">
-          <div className="dashboard-section-head training-module-head"><div><h2>Assessment</h2><p>Complete the course work, then use the assessment to show how you would apply it.</p></div></div>
+          <div className="dashboard-section-head training-module-head"><div><h2>Final check</h2><p>Complete every lesson, then pass the randomized automatic knowledge check to receive your certificate.</p></div></div>
           <div className="dash-actions training-module-lessons">
             {course.assessments.map((assessment) => {
               const latest = assessment.latestSubmission || null;
@@ -121,10 +118,10 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               const status = passed
                 ? "Passed"
                 : latest?.status === "needs_revision"
-                  ? "Needs revision"
+                  ? "Review and retry"
                   : latest?.status === "submitted"
-                    ? "In review"
-                    : "Not submitted";
+                    ? "Processing"
+                    : "Not attempted";
               return (
                 <Link
                   className="dash-action training-lesson-row training-assessment-row"
@@ -135,7 +132,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                   <span className="dash-action-count training-lesson-index">{passed ? <CheckCircle2 size={18}/> : <FileCheck2 size={17}/>}</span>
                   <span className="dash-action-copy">
                     <span className="dash-action-title"><strong>{assessment.title}</strong></span>
-                    <small>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Knowledge check"} · {status}</small>
+                    <small>Randomized knowledge check · {status}</small>
                   </span>
                   <ArrowRight size={16}/>
                 </Link>

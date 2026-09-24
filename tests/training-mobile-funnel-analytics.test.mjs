@@ -4,7 +4,7 @@ import test from "node:test";
 
 const analyticsPath = "src/components/analytics.tsx";
 const analyticsApiPath = "src/app/api/analytics/route.ts";
-const adminActionsPath = "src/app/actions/training-admin.ts";
+const trainingActionsPath = "src/app/actions/training.ts";
 const trainingLibPath = "src/lib/training.ts";
 const adminTrainingPath = "src/app/workspace/admin/training/page.tsx";
 const coursePath = "src/app/workspace/training/courses/[slug]/page.tsx";
@@ -38,14 +38,14 @@ test("training route analytics distinguish course, lesson, assessment, and certi
   }
 });
 
-test("assessment review closes the learner funnel through completion and certificate issuance", async () => {
-  const actions = await readFile(adminActionsPath, "utf8");
+test("automatic assessment scoring closes the learner funnel through certificate issuance", async () => {
+  const actions = await readFile(trainingActionsPath, "utf8");
 
-  assert.match(actions, /event_name: "training_assessment_reviewed"/);
-  assert.match(actions, /outcome: decision/);
-  assert.match(actions, /course_slug: reviewedCourse\?\.slug \|\| null/);
-  assert.match(actions, /event_name: "training_course_complete"/);
-  assert.match(actions, /event_name: "training_certificate_issued"/);
+  assert.match(actions, /recordProductEvent\("training_assessment_reviewed"/);
+  assert.match(actions, /outcome: passed \? "pass" : "needs_revision"/);
+  assert.match(actions, /source: "automatic"/);
+  assert.match(actions, /recordProductEvent\("training_course_complete"/);
+  assert.match(actions, /recordProductEvent\("training_certificate_issued"/);
   assert.match(actions, /completion\.certificateIssued/);
 });
 
@@ -92,17 +92,16 @@ test("primary learner CTAs emit the funnel interactions", async () => {
   assert.match(certificateActions, /data-track="training_certificate_share"/);
 });
 
-test("375px and 390px learner flow protects long titles, forms, resources, and completion actions", async () => {
+test("375px and 390px learner flow protects integrity controls and automatic assessment actions", async () => {
   const css = await readFile(cssPath, "utf8");
 
   assert.match(css, /Final learner-flow phone QA: 375px and 390px/);
   assert.match(css, /@media \(max-width: 430px\)/);
   assert.match(css, /@media \(max-width: 390px\)/);
   assert.match(css, /overflow-wrap: anywhere/);
-  assert.match(css, /training-assessment-resource/);
-  assert.match(css, /training-assessment-submit textarea/);
+  assert.match(css, /training-integrity-gate/);
+  assert.match(css, /training-auto-question/);
   assert.match(css, /font-size: 16px/);
-  assert.match(css, /training-player-footer-nav \.btn/);
   assert.match(css, /min-height: 44px/);
   assert.match(css, /training-completion-credential code/);
   assert.match(css, /training-certificate-actions \.btn/);

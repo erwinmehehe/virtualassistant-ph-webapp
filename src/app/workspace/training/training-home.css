@@ -2398,3 +2398,274 @@
     gap: 8px;
   }
 }
+
+
+/* Learner integrity + automatic final assessment */
+.training-integrity-gate {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #d9ddff;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(79, 70, 229, 0.08), transparent 34%),
+    linear-gradient(180deg, #ffffff, #fbfbff);
+}
+
+.training-integrity-head h3 {
+  margin: 4px 0 5px;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.training-integrity-head p {
+  max-width: 720px;
+  margin: 0;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.training-integrity-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.training-integrity-status-grid > div {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.training-integrity-status-grid > div.is-ready {
+  border-color: #b7e8cf;
+  background: #f6fef9;
+}
+
+.training-integrity-status-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  color: #667085;
+  background: #f2f4f7;
+}
+
+.training-integrity-status-grid > div.is-ready .training-integrity-status-icon {
+  color: #067647;
+  background: #dcfae6;
+}
+
+.training-integrity-status-grid strong,
+.training-integrity-status-grid small {
+  display: block;
+}
+
+.training-integrity-status-grid strong {
+  color: #1d2939;
+  font-size: 11.5px;
+}
+
+.training-integrity-status-grid small {
+  margin-top: 2px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.training-inline-checkpoint {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #c7d2fe;
+  border-radius: 14px;
+  background: #f8f9ff;
+}
+
+.training-inline-checkpoint > strong {
+  display: block;
+  color: #1d2939;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.training-checkpoint-options,
+.training-auto-question-options {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.training-checkpoint-options label,
+.training-auto-question-options label {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 10px 11px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.training-checkpoint-options label:hover,
+.training-auto-question-options label:hover {
+  border-color: #c7d2fe;
+  background: #fafaff;
+}
+
+.training-checkpoint-options input,
+.training-auto-question-options input {
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  accent-color: var(--training-indigo);
+}
+
+.training-checkpoint-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.training-checkpoint-success {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.training-integrity-complete-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.training-integrity-response textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+}
+
+.training-integrity-response small {
+  display: block;
+  margin-top: 5px;
+  color: #667085;
+  line-height: 1.45;
+}
+
+.training-integrity-complete {
+  width: 100%;
+  min-height: 46px;
+  justify-content: center;
+}
+
+.training-integrity-complete:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.training-auto-assessment-questions {
+  display: grid;
+  gap: 14px;
+}
+
+.training-auto-question {
+  min-width: 0;
+  margin: 0;
+  padding: 15px;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: #fcfcfd;
+}
+
+.training-auto-question legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.training-auto-question legend span,
+.training-auto-question legend strong {
+  display: block;
+}
+
+.training-auto-question legend strong {
+  margin-top: 4px;
+  color: #1d2939;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.training-assessment-review-lessons {
+  margin-top: 14px;
+}
+
+.training-assessment-review-lessons > strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.training-assessment-review-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+@media (max-width: 430px) {
+  .training-integrity-gate {
+    padding: 14px 12px;
+    border-radius: 15px;
+  }
+
+  .training-integrity-status-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .training-checkpoint-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .training-checkpoint-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .training-checkpoint-options label,
+  .training-auto-question-options label {
+    padding: 10px;
+  }
+
+  .training-integrity-response textarea {
+    font-size: 16px;
+  }
+
+  .training-auto-question {
+    padding: 12px 10px;
+  }
+
+  .training-assessment-review-links {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .training-assessment-review-links .btn {
+    width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+}

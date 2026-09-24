@@ -14,14 +14,21 @@ test("practical assessments store rubrics, source packs, and criterion scores", 
   assert.match(training, /rubric_scores: Record<string, number>/);
 });
 
-test("practical assessment publishing requires real evidence and grading criteria", async () => {
-  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
+test("practical assessment publishing keeps evidence and grading criteria while learner scoring stays automatic", async () => {
+  const [action, learnerAction, integrity] = await Promise.all([
+    readFile("src/app/actions/training-admin.ts", "utf8"),
+    readFile("src/app/actions/training.ts", "utf8"),
+    readFile("src/lib/training-integrity.ts", "utf8"),
+  ]);
+
   assert.match(action, /Every practical assessment needs a grading rubric with at least four criteria/);
   assert.match(action, /Every practical assessment needs at least two fictional source resources/);
   assert.match(action, /Assessment rubric weights must total 100/);
-  assert.match(action, /criterion\.hard_fail && value < 70/);
-  assert.match(action, /rubric_scores: rubricScores/);
-  assert.match(action, /score = Math\.round\(score\)/);
+  assert.doesNotMatch(action, /reviewTrainingAssessmentSubmissionAction/);
+
+  assert.match(learnerAction, /buildAssessmentQuestionsFromLessons/);
+  assert.match(learnerAction, /Math\.round\(\(correct \/ questions\.length\) \* 100\)/);
+  assert.match(integrity, /buildLessonQuestionBank/);
 });
 
 test("assessment source packs remain in admin while learner scoring is automatic", async () => {

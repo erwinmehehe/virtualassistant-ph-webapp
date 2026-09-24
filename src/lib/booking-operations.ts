@@ -1,13 +1,46 @@
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
-export function createBookingManageToken() {
-  const token = randomBytes(32).toString("base64url");
-  return { token, hash: hashBookingManageToken(token) };
+function bookingManageSecret() {
+  const secret = process.env.BOOKING_MANAGE_SECRET?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!secret) throw new Error("Booking management signing is not configured.");
+  return secret;
+}
+
+/**
+ * Stateless signed capability for one lead. The raw capability never needs to
+ * be persisted, which means a database read cannot recover a working manage URL.
+ */
+export function createBookingManageToken(leadId: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(leadId)) throw new Error("Invalid booking lead id.");
+  const payload = `v2.${leadId}`;
+  const signature = createHmac("sha256", bookingManageSecret()).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
 }
 
 export function hashBookingManageToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
+}
+
+export function bookingManageTokenLookup(token: string): { leadId?: string; legacyHash?: string } | null {
+  const value = token.trim();
+  const match = /^v2\.([0-9a-f-]{36})\.([A-Za-z0-9_-]{40,})$/i.exec(value);
+  if (match) {
+    const payload = `v2.${match[1]}`;
+    const expected = createHmac("sha256", bookingManageSecret()).update(payload).digest();
+    let supplied: Buffer;
+    try {
+      supplied = Buffer.from(match[2], "base64url");
+    } catch {
+      return null;
+    }
+    if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return null;
+    return { leadId: match[1] };
+  }
+
+  // Preserve old emailed links while legacy token hashes remain in the DB.
+  if (value.length >= 32) return { legacyHash: hashBookingManageToken(value) };
+  return null;
 }
 
 export function bookingManageUrl(token: string) {

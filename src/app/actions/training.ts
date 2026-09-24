@@ -245,7 +245,20 @@ export async function checkTrainingLessonCheckpointAction(input: {
     userId,
     content: lesson.content,
   });
-  if (!checkpoint || optionId !== checkpoint.correctOptionId) return { correct: false };
+  if (!checkpoint) return { correct: false };
+
+  const correct = optionId === checkpoint.correctOptionId;
+  await recordProductEvent("training_checkpoint_attempt", {
+    userId,
+    path: `/workspace/training/courses/${courseSlug}/lessons/${lesson.id}`,
+    metadata: {
+      course_slug: courseSlug,
+      lesson_id: lesson.id,
+      question_key: checkpoint.questionKey,
+      correct,
+    },
+  });
+  if (!correct) return { correct: false };
 
   const now = new Date().toISOString();
   const { data: existing } = await admin
@@ -555,6 +568,7 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
         kind: "automatic_knowledge_check",
         attempt: nextAttempt,
         question_ids: questions.map((question) => question.id),
+        question_keys: questions.map((question) => question.questionKey),
         answers,
         missed_lesson_ids: missedLessonIds,
       },
@@ -581,6 +595,9 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
       score,
       source: "automatic",
       attempt: nextAttempt,
+      question_count: questions.length,
+      correct_count: correct,
+      missed_lesson_count: missedLessonTitles.length,
     },
   });
 

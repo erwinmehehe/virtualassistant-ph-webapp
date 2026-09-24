@@ -8,12 +8,22 @@ export type TrainingCheckpointOption = {
   text: string;
 };
 
+export type TrainingQuestionKind =
+  | "scenario"
+  | "evidence"
+  | "authority"
+  | "handoff"
+  | "pressure"
+  | "subtle_failure";
+
 export type TrainingLessonCheckpoint = {
   prompt: string;
   options: TrainingCheckpointOption[];
   correctOptionId: string;
   checkpointKey: string;
   questionKey: string;
+  kind: TrainingQuestionKind;
+  critical: boolean;
 };
 
 export type TrainingAssessmentQuestion = {
@@ -24,9 +34,21 @@ export type TrainingAssessmentQuestion = {
   options: TrainingCheckpointOption[];
   correctOptionId: string;
   questionKey: string;
+  kind: TrainingQuestionKind;
+  critical: boolean;
 };
 
 const QUESTION_VARIANTS_PER_LESSON = 6;
+const ASSESSMENT_KIND_SEQUENCE: TrainingQuestionKind[] = [
+  "scenario",
+  "evidence",
+  "authority",
+  "handoff",
+  "pressure",
+  "subtle_failure",
+  "scenario",
+  "evidence",
+];
 
 function hashInt(value: string) {
   const digest = createHash("sha256").update(value).digest("hex").slice(0, 12);
@@ -138,6 +160,8 @@ function makeQuestion(args: {
   prompt: string;
   correctText: string;
   distractors: string[];
+  kind: TrainingQuestionKind;
+  critical?: boolean;
 }) {
   const questionSeed = `${args.seed}:question:${args.index}`;
   const unique = [args.correctText, ...args.distractors].filter(
@@ -165,6 +189,8 @@ function makeQuestion(args: {
     options,
     correctOptionId,
     questionKey,
+    kind: args.kind,
+    critical: Boolean(args.critical),
     checkpointKey: createHash("sha256")
       .update(`${args.lessonId}:${questionKey}:${correctOptionId}`)
       .digest("hex")
@@ -219,6 +245,7 @@ export function buildLessonQuestionBank(args: {
     prompt: `Case: ${context} What is the strongest next move?`,
     correctText: actionFromRule(sequenceRule),
     distractors: [shortcuts[0], shortcuts[1], shortcuts[2]],
+    kind: "scenario",
   });
 
   const evidenceDecision = makeQuestion({
@@ -228,6 +255,7 @@ export function buildLessonQuestionBank(args: {
     prompt: `In the same case from "${args.lessonTitle}", the status looks nearly complete but one source or fact may still be unresolved. What should control closure?`,
     correctText: closureFromRule(evidenceRule),
     distractors: [shortcuts[4], shortcuts[0], shortcuts[5]],
+    kind: "evidence",
   });
 
   const authorityDecision = makeQuestion({
@@ -237,6 +265,8 @@ export function buildLessonQuestionBank(args: {
     prompt: `The client wants this handled quickly and the administrative steps are clear, but one judgment or approval is outside the VA role. Which response is best?`,
     correctText: authorityFromRule(authorityRule),
     distractors: [shortcuts[5], shortcuts[1], shortcuts[3]],
+    kind: "authority",
+    critical: true,
   });
 
   const handoffDecision = makeQuestion({
@@ -246,6 +276,7 @@ export function buildLessonQuestionBank(args: {
     prompt: `You cannot fully resolve the case before handoff. Which approach best protects continuity and accountability?`,
     correctText: handoffFromRule(handoffRule),
     distractors: [shortcuts[2], shortcuts[3], shortcuts[4]],
+    kind: "handoff",
   });
 
   const pressureDecision = makeQuestion({
@@ -259,6 +290,7 @@ export function buildLessonQuestionBank(args: {
       "Apply the full control only to unusual cases; routine-looking work can use the system state.",
       "Choose the fastest reversible action and let the next owner verify the underlying assumption.",
     ],
+    kind: "pressure",
   });
 
   const subtleFailure = makeQuestion({
@@ -272,6 +304,7 @@ export function buildLessonQuestionBank(args: {
       authorityFromRule(authorityRule),
       handoffFromRule(handoffRule),
     ],
+    kind: "subtle_failure",
   });
 
   return [
@@ -325,6 +358,10 @@ export function buildAssessmentQuestionsFromLessons(args: {
     round += 1;
   }
 
+  const usedKindsByLesson = new Map<string, Set<TrainingQuestionKind>>();
+  const kindOffset =
+    (args.attemptNumber - 1 + hashInt(seed + ":kind-offset")) % ASSESSMENT_KIND_SEQUENCE.length;
+
   return slots
     .map(({ lesson, occurrence }, index) => {
       const bank = buildLessonQuestionBank({
@@ -336,14 +373,21 @@ export function buildAssessmentQuestionsFromLessons(args: {
       });
       if (!bank.length) return null;
 
-      const variantIndex =
-        (
-          args.attemptNumber +
-          index +
-          occurrence +
-          hashInt(`${seed}:${lesson.id}:variant`)
-        ) % bank.length;
-      const checkpoint = bank[variantIndex];
+      const usedKinds = usedKindsByLesson.get(lesson.id) || new Set<TrainingQuestionKind>();
+      const preferredKind =
+        ASSESSMENT_KIND_SEQUENCE[(index + kindOffset) % ASSESSMENT_KIND_SEQUENCE.length];
+      const kindOrder = [
+        preferredKind,
+        ...ASSESSMENT_KIND_SEQUENCE.filter((kind) => kind !== preferredKind),
+      ];
+      const checkpoint =
+        kindOrder
+          .map((kind) => bank.find((item) => item.kind === kind && !usedKinds.has(kind)))
+          .find((item): item is TrainingLessonCheckpoint => Boolean(item)) ||
+        bank[(index + occurrence) % bank.length];
+
+      usedKinds.add(checkpoint.kind);
+      usedKindsByLesson.set(lesson.id, usedKinds);
 
       return {
         id: createHash("sha256")
@@ -356,6 +400,8 @@ export function buildAssessmentQuestionsFromLessons(args: {
         options: checkpoint.options,
         correctOptionId: checkpoint.correctOptionId,
         questionKey: checkpoint.questionKey,
+        kind: checkpoint.kind,
+        critical: checkpoint.critical,
       } satisfies TrainingAssessmentQuestion;
     })
     .filter((item): item is TrainingAssessmentQuestion => Boolean(item));
@@ -375,6 +421,61 @@ export function buildAssessmentQuestions(args: {
     attemptNumber: args.attemptNumber,
     questionCount: args.questionCount,
   });
+}
+
+export function assessmentQuestionSetKey(questions: TrainingAssessmentQuestion[]) {
+  return createHash("sha256")
+    .update(
+      questions
+        .map((question) =>
+          [
+            question.id,
+            question.questionKey,
+            ...question.options.map((option) => option.id),
+          ].join(":")
+        )
+        .join("|"),
+    )
+    .digest("hex")
+    .slice(0, 32);
+}
+
+export function summarizeAssessmentAnswerPattern(
+  questions: TrainingAssessmentQuestion[],
+  answers: Record<string, string>,
+) {
+  const positions = questions.map((question) => {
+    const answer = answers[question.id] || "";
+    const index = question.options.findIndex((option) => option.id === answer);
+    return index >= 0 ? index + 1 : 0;
+  });
+  const answered = positions.filter((position) => position > 0);
+  const uniquePositions = new Set(answered).size;
+  let longestSamePositionRun = 0;
+  let currentRun = 0;
+  let previous = -1;
+
+  for (const position of answered) {
+    if (position === previous) currentRun += 1;
+    else currentRun = 1;
+    previous = position;
+    longestSamePositionRun = Math.max(longestSamePositionRun, currentRun);
+  }
+
+  const histogram = [1, 2, 3, 4].map(
+    (position) => answered.filter((value) => value === position).length,
+  );
+  const flagged =
+    answered.length >= 6 &&
+    (uniquePositions === 1 || longestSamePositionRun >= 6);
+
+  return {
+    positions,
+    uniquePositions,
+    longestSamePositionRun,
+    histogram,
+    flagged,
+  };
 }
 
 export function publicAssessmentQuestions(questions: TrainingAssessmentQuestion[]) {

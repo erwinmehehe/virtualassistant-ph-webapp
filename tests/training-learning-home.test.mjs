@@ -75,14 +75,18 @@ test("course cards show learning metadata, assessment state, progress, and one a
   assert.match(training, /"passed"/);
 });
 
-test("Australian specialisations use clear status labels rather than x-of-y availability chains", async () => {
+test("Australian specialisations use real learner states rather than availability chains", async () => {
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /"Completed"/);
-  assert.match(page, /"Available"/);
-  assert.match(page, /"In development"/);
+  assert.match(page, /"In progress"/);
+  assert.match(page, /"Not started"/);
+  assert.match(page, /"Start path"/);
+  assert.match(page, /"Continue path"/);
+  assert.match(page, /startSignals/);
   assert.doesNotMatch(page, /\/\{steps\.length\} available/);
-  assert.doesNotMatch(page, /in development/);
+  assert.doesNotMatch(page, />Available</);
+  assert.doesNotMatch(page, /In development/);
 });
 
 test("certificates expose completion date, credential verification, and copy or share", async () => {

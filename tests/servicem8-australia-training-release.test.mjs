@@ -72,5 +72,5 @@ test("ServiceM8 release remains private-LMS only and does not create a public co
   assert.doesNotMatch(publicTraining, /href=\{?\`?\/training\/courses/);
   assert.match(publicTraining, /One public training page/);
   assert.match(dashboard, /servicem8-for-virtual-assistants/);
-  assert.match(dashboard, /Australian specialisations/);
+  assert.match(dashboard, /Choose one specialisation/);
 });

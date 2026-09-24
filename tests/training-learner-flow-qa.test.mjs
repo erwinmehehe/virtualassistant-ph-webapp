@@ -19,8 +19,10 @@ test("learner home resumes exact next lesson or assessment and has no retired sp
   assert.match(home, /lessons\/\$\{course\.nextLesson\.id\}/);
   assert.match(home, /assessments\/\$\{course\.nextAssessment\.id\}/);
   assert.match(home, /"Completed"/);
-  assert.match(home, /"Available"/);
-  assert.match(home, /"In development"/);
+  assert.match(home, /"In progress"/);
+  assert.match(home, /"Not started"/);
+  assert.match(home, /"Start path"/);
+  assert.match(home, /"Continue path"/);
   assert.doesNotMatch(home, /Specialist-review pending/);
 });
 

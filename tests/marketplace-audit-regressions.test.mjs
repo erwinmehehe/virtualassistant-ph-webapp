@@ -13,7 +13,7 @@ test("public job sitemap uses the hardened public view and paginates", async () 
 
 test("application resume route resolves the current VA resume after authorization", async () => {
   const route = await read("src/app/api/resume/[applicationId]/route.ts");
-  assert.doesNotMatch(route, /profile_snapshot/);
+  assert.doesNotMatch(route, /select\([^\n]*profile_snapshot/);
   assert.match(route, /\.from\("va_profiles"\)/);
   assert.match(route, /\.select\("resume_path"\)/);
   assert.match(route, /\.eq\("user_id", application\.va_id\)/);

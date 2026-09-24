@@ -307,7 +307,7 @@ export default async function TrainingDashboardPage({
           {postCompletionPrimary.enrolled ? (
             <Link
               className="btn btn-primary training-resume-action"
-              href={nextCourseHref(postCompletionPrimary as TrainingCourseSummary)}
+              href={`/workspace/training/courses/${postCompletionPrimary.slug}`}
               data-track="training_recommendation_click"
               data-course-slug={postCompletionPrimary.slug}
               data-cta-position="dashboard_resume"

@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ManageBookingForm } from "@/components/manage-booking-form";
 import { buildDiscoverySlotDays, formatDiscoverySlot } from "@/lib/discovery-booking";
-import { hashBookingManageToken } from "@/lib/booking-operations";
+import { bookingManageTokenLookup } from "@/lib/booking-operations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import "../booking.css";
 
@@ -15,7 +15,11 @@ export default async function ManageBookingPage({ searchParams }: { searchParams
   const token = query.token || "";
   if (token.length < 32) notFound();
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome").eq("discovery_manage_token_hash", hashBookingManageToken(token)).maybeSingle();
+  const lookup = bookingManageTokenLookup(token);
+  if (!lookup) notFound();
+  let leadQuery = admin.from("lead_intake").select("id,company,timezone,discovery_scheduled_at,discovery_cancelled_at,discovery_outcome");
+  leadQuery = lookup.leadId ? leadQuery.eq("id", lookup.leadId) : leadQuery.eq("discovery_manage_token_hash", lookup.legacyHash!);
+  const { data: lead } = await leadQuery.maybeSingle();
   if (!lead) notFound();
   const now = new Date();
   const until = new Date(now.getTime() + 15 * 86400000).toISOString();

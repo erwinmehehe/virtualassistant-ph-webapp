@@ -322,14 +322,8 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   if (lessonIndex < 0) redirect(`/workspace/training/courses/${course.slug}`);
   const lesson = orderedLessons[lessonIndex];
   const lessonPath = `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`;
-  const lessonCompletionErrors = {
-    sequence: "Complete the earlier lessons before finishing this lesson.",
-    time: "Spend a little more active time reading this lesson before completing it.",
-    scroll: "Read through the lesson before completing it.",
-    checkpoint: "Pass the lesson checkpoint before completing this lesson.",
-    exercise: "Add a short practical response of at least 80 characters before completing the lesson.",
-  } as const;
-  const failLessonCompletion = (reason: keyof typeof lessonCompletionErrors): never => {
+  type LessonCompletionErrorReason = "sequence" | "time" | "scroll" | "checkpoint" | "exercise";
+  const failLessonCompletion = (reason: LessonCompletionErrorReason): never => {
     redirect(`${lessonPath}?lesson_error=${reason}`);
   };
 

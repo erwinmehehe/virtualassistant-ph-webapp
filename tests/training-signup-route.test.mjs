@@ -50,3 +50,11 @@ test("training signup navigation does not repeat the signup CTA on the signup pa
   assert.match(header, /isJoin \? \([\s\S]*Training login[\s\S]*\) : \([\s\S]*Start free training/);
   assert.match(header, /isJoin \? "Training home" : "Courses"/);
 });
+
+
+test("training signup primary CTA is simply Create account", async () => {
+  const form = await read("src/components/training-join-form.tsx");
+  assert.match(form, /pending \? "Creating account…" : "Create account"/);
+  assert.doesNotMatch(form, /Create account and continue/);
+  assert.doesNotMatch(form, /Create free training account/);
+});

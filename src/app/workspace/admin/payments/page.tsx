@@ -10,7 +10,7 @@ type ApprovedTimeRow = { id: string; workroom_id: string; work_date: string; hou
 type AdminPaymentRow = { id: string; description: string | null; amount_total: number; currency: string | null; status: string; paid_at: string | null; released_at: string | null; created_at: string; client_id: string | null; va_id: string | null; workroom_id: string | null; dispute_reason: string | null; dispute_resolution: string | null; provider_payment_id: string | null; release_note: string | null; profiles_client: { full_name: string | null } | null; profiles_va: { full_name: string | null } | null };
 import { isPaymongoConfigured } from "@/lib/paymongo";
 
-const statusLabel:Record<string,string>={draft:"Draft",awaiting_payment:"Awaiting client payment",paid:"Paid, ready to release",disputed:"Disputed, payout frozen",release_pending:"Release pending",released:"Released to VA",failed:"Payment failed",refunded:"Refunded",void:"Void"};
+const statusLabel:Record<string,string>={draft:"Draft",awaiting_payment:"Awaiting client payment",checkout_pending:"Client checkout open",paid:"Paid, ready to release",disputed:"Disputed, payout frozen",refund_pending:"Refund in progress",release_pending:"Release pending",released:"Released to VA",failed:"Payment failed",refunded:"Refunded",chargeback:"Provider reversal / chargeback",void:"Void"};
 
 export default async function AdminPaymentsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;

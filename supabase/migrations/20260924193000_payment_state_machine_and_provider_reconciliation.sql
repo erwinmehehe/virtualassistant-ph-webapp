@@ -145,7 +145,7 @@ begin
     v_allowed := p_source in ('paymongo_api','paymongo_webhook','stripe_webhook','system');
   else
     v_allowed :=
-      (p_expected_status = 'awaiting_payment' and p_new_status in ('checkout_pending','failed','void')) or
+      (p_expected_status = 'awaiting_payment' and p_new_status in ('checkout_pending','paid','failed','void')) or
       (p_expected_status = 'checkout_pending' and p_new_status in ('awaiting_payment','paid','failed','void')) or
       (p_expected_status = 'paid' and p_new_status in ('disputed','refund_pending','release_pending','released','refunded','chargeback')) or
       (p_expected_status = 'disputed' and p_new_status in ('paid','refund_pending','refunded','chargeback','void')) or

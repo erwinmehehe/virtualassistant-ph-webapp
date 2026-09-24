@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarCheck, ChevronDown, Menu } from "lucide-react";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
+import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
 
 const serviceGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
@@ -27,7 +28,97 @@ function CallCard({ title, body }: { title: string; body: string }) {
   );
 }
 
-export function SiteNav() {
+function TrainingNav({
+  courseSlug,
+  current,
+}: {
+  courseSlug?: string | null;
+  current: "landing" | "join";
+}) {
+  const joinHref = trainingJoinHref(courseSlug);
+  const loginHref = trainingLoginHref(courseSlug);
+  const isJoin = current === "join";
+
+  return (
+    <header className={`site-header va-site-nav training-connected-nav ${isJoin ? "is-join" : ""}`}>
+      <div className="container site-nav">
+        <div className="training-nav-brand-group">
+          <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
+            VirtualAssistant<span className="ph">.com.ph</span>
+          </Link>
+          <Link className="training-nav-context" href="/training" aria-label="Training home">
+            Training
+          </Link>
+        </div>
+
+        <nav className="nav-links" aria-label="Training navigation">
+          <Link href="/training" aria-current={!isJoin ? "page" : undefined}>Training</Link>
+          <Link href="/for-virtual-assistants">For VAs</Link>
+          <Link href="/jobs">VA jobs</Link>
+          <Link href="/blog">Guides</Link>
+        </nav>
+
+        <div className="nav-actions">
+          <Link className="va-nav-account-login" href={loginHref} data-track="training_login_click">
+            Training login
+          </Link>
+          {!isJoin ? (
+            <Link
+              className="btn btn-primary desktop-hire-cta training-header-cta"
+              href={joinHref}
+              data-track="training_account_click"
+              data-cta-position="header"
+            >
+              Start free training <ArrowRight size={14} aria-hidden="true"/>
+            </Link>
+          ) : null}
+
+          <details className="va-mobile-drawer">
+            <summary className="btn" aria-label="Training navigation menu">
+              <Menu size={18} aria-hidden="true"/><span>Menu</span>
+            </summary>
+            <nav className="va-mobile-panel" aria-label="Mobile training navigation">
+              {!isJoin ? (
+                <Link
+                  className="mobile-menu-primary"
+                  href={joinHref}
+                  data-track="training_account_click"
+                  data-cta-position="mobile_menu"
+                >
+                  Start free training
+                </Link>
+              ) : (
+                <Link className="mobile-menu-primary" href="/training">
+                  Training home
+                </Link>
+              )}
+              <Link href="/training">Training home</Link>
+              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
+              <Link href="/jobs">Browse VA jobs</Link>
+              <Link href="/blog">VA guides</Link>
+              <span className="va-mobile-panel-label">Account</span>
+              <Link href={loginHref} data-track="training_login_click">Training login</Link>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export function SiteNav({
+  mode = "default",
+  trainingCourseSlug,
+  trainingCurrent = "landing",
+}: {
+  mode?: "default" | "training";
+  trainingCourseSlug?: string | null;
+  trainingCurrent?: "landing" | "join";
+} = {}) {
+  if (mode === "training") {
+    return <TrainingNav courseSlug={trainingCourseSlug} current={trainingCurrent}/>;
+  }
+
   return (
     <header className="site-header va-site-nav">
       <div className="container site-nav">

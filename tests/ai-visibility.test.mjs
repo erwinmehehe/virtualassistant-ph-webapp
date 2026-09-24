@@ -31,7 +31,8 @@ test("IndexNow submits only changed URLs and stays off until it is configured", 
   // Only pages that changed in the last day are sent.
   assert.match(cron, /const since = daysAgo\(1\)/);
   assert.match(cron, /\(post\.updatedAt \|\| post\.publishedAt\) >= since/);
-  assert.match(cron, /\.gte\("published_at", since\)/);
+  assert.match(cron, /\.in\("status", \["published", "closed"\]\)/);
+  assert.match(cron, /\.gte\("updated_at", since\)/);
   assert.match(cron, /runIndexNowSubmission\(admin\)/);
 });
 

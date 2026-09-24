@@ -327,7 +327,8 @@ export default async function TrainingPage() {
                 <h2>Choose training that matches the work you want to do.</h2>
                 <p>
                   Start with Foundations if you are new, then move into role, industry,
-                  software, or Australia-specific training. Lessons stay inside your free training account.
+                  software, or Australia-specific training. We keep one public training page.
+                  Lessons stay inside your free training account.
                 </p>
               </div>
 

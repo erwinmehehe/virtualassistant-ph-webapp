@@ -203,7 +203,9 @@ export function Analytics() {
       if (!clicked.dataset.track) return;
       send(String(clicked.dataset.track), {
         label: clicked.textContent?.trim().slice(0, 120) || null,
-        href
+        href,
+        course_slug: clicked.dataset.courseSlug || null,
+        cta_position: clicked.dataset.ctaPosition || null,
       });
     };
 

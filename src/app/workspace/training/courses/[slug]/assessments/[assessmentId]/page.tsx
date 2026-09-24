@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Clock3, FileCheck2 } from "lucide-react";
+import { ArrowLeft, Award, CheckCircle2, Clock3, FileCheck2 } from "lucide-react";
 import { submitTrainingAssessmentAction } from "@/app/actions/training";
+import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingAssessment } from "@/lib/training";
 
@@ -44,24 +45,47 @@ export default async function TrainingAssessmentPage({
   const passed =
     latest?.status === "reviewed" &&
     (assessment.pass_score === null || (latest.score !== null && Number(latest.score) >= assessment.pass_score));
+  const courseHref = `/workspace/training/courses/${course.slug}`;
+  const credentialHref = course.certificate
+    ? `/training/certificates/${course.certificate.credential_code}`
+    : null;
 
   return (
-    <div className="dash-page role-overview">
-      <Link className="btn btn-sm" href={`/workspace/training/courses/${course.slug}`}>
+    <div className="dash-page role-overview training-home training-assessment-page">
+      <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
 
-      <section className="card dashboard-section-card">
+      <section className="card training-assessment-journey" aria-label="Course completion steps">
+        <div className={`training-assessment-step ${lessonsComplete ? "is-complete" : "is-current"}`}>
+          <span>{lessonsComplete ? <CheckCircle2 size={14}/> : <Clock3 size={14}/>}</span>
+          <div><strong>Lessons</strong><small>{course.completedLessons} of {course.lessonCount}</small></div>
+        </div>
+        <div className={`training-assessment-step ${passed ? "is-complete" : lessonsComplete ? "is-current" : ""}`}>
+          <span>{passed ? <CheckCircle2 size={14}/> : <FileCheck2 size={14}/>}</span>
+          <div><strong>Assessment</strong><small>{passed ? "Passed" : waitingForReview ? "In review" : latest?.status === "needs_revision" ? "Revision needed" : "Current step"}</small></div>
+        </div>
+        <div className={`training-assessment-step ${course.completedAt ? "is-complete" : ""}`}>
+          <span>{course.completedAt ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
+          <div><strong>Certificate</strong><small>{course.completedAt ? "Issued" : "After passing"}</small></div>
+        </div>
+      </section>
+
+      <section className="card dashboard-section-card training-assessment-hero">
         <div className="dash-kicker">Final assessment</div>
         <h1>{assessment.title}</h1>
         <p>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Knowledge check"}</p>
         <div className="row wrap">
           <span className="badge"><FileCheck2 size={13}/> {assessment.assessment_type === "practical" ? "Work sample" : "Assessment"}</span>
           {assessment.pass_score !== null ? <span className="badge">Pass score {assessment.pass_score}%</span> : null}
-          <span className={"badge " + (passed ? "badge-success" : "")}>
-            {passed ? <CheckCircle2 size={13}/> : <Clock3 size={13}/>}
-            {passed ? "Assessment passed" : waitingForReview ? "In review" : "Review required"}
+          <span className="badge"><Clock3 size={13}/> Human review</span>
+          <span className={`badge ${lessonsComplete ? "badge-success" : ""}`}>
+            {lessonsComplete ? "Lessons complete" : `${course.completedLessons}/${course.lessonCount} lessons complete`}
           </span>
+        </div>
+        <div className="training-assessment-readiness">
+          <strong>Before you submit</strong>
+          <p>Complete every lesson, follow the requested deliverables, and use only the fictional source pack. Your submission should show the work you would hand to a real client.</p>
         </div>
       </section>
 
@@ -76,12 +100,12 @@ export default async function TrainingAssessmentPage({
           </div>
           <div className="stack">
             {assessment.resource_pack.map((resource) => (
-              <article className="card" key={resource.id}>
+              <article className="card training-assessment-resource" key={resource.id}>
                 <div className="row-between wrap">
                   <strong>{resource.title}</strong>
                   <span className="badge">{resource.kind.toUpperCase()}</span>
                 </div>
-                <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", margin: "12px 0 0", font: "inherit" }}>{resource.content}</pre>
+                <pre>{resource.content}</pre>
               </article>
             ))}
           </div>
@@ -151,11 +175,16 @@ export default async function TrainingAssessmentPage({
           ) : null}
           {latest.feedback ? <div className="notice"><strong>Reviewer feedback</strong><p>{latest.feedback}</p></div> : null}
           {query.submitted === "1" && latest.status === "submitted" ? <p className="success-banner">Your assessment was submitted for review.</p> : null}
+          {latest.status === "needs_revision" ? (
+            <div className="training-assessment-review-lessons">
+              <Link className="btn" href={courseHref}><ArrowLeft size={14}/> Review course lessons</Link>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
       {lessonsComplete && !waitingForReview && !passed ? (
-        <section className="card dashboard-section-card">
+        <section className="card dashboard-section-card training-assessment-submit">
           <div className="dashboard-section-head">
             <div>
               <h2>{latest?.status === "needs_revision" ? "Submit a revised response" : "Submit your work"}</h2>
@@ -189,28 +218,48 @@ export default async function TrainingAssessmentPage({
         <section className="card dashboard-section-card">
           <h2>Complete the lessons first</h2>
           <p className="muted">The final simulation unlocks after all {course.lessonCount} published lessons are complete. You have finished {course.completedLessons}.</p>
+          <Link className="btn" href={courseHref}>Back to lessons</Link>
         </section>
       ) : null}
 
       {waitingForReview ? (
         <section className="card dashboard-section-card">
           <h2>Review pending</h2>
-          <p className="muted">You do not need to resubmit while this version is waiting for review.</p>
+          <p className="muted">You do not need to resubmit while this version is waiting for review. Your work and submission status are saved here.</p>
         </section>
       ) : null}
 
-      {passed ? (
-        <section className="card dashboard-section-card">
-          <h2>Assessment complete</h2>
-          <p className="muted">
-            {course.completedAt
-              ? "Your course is complete and your credential is available from the training home."
-              : "This assessment passed. Complete any remaining course requirements to receive your credential."}
-          </p>
-          <div className="row wrap">
-            {course.completedAt ? <Link className="btn btn-primary" href="/workspace/training#certificates">View certificate</Link> : null}
-            <Link className="btn" href="/workspace/training">Back to training</Link>
+      {passed && course.completedAt ? (
+        <section className="card training-completion-card">
+          <div className="training-completion-icon"><Award size={22}/></div>
+          <div className="training-completion-copy">
+            <div className="dash-kicker">Course complete</div>
+            <h2>{course.title}</h2>
+            <p>You passed the assessment. Your learning home will automatically select the next course in your recommended path.</p>
+            {course.certificate ? (
+              <div className="training-completion-credential">
+                <div>
+                  <span className="small muted">Credential code</span>
+                  <code>{course.certificate.credential_code}</code>
+                </div>
+                <div className="training-certificate-actions">
+                  <Link className="btn btn-sm" href={credentialHref || "/workspace/training"}>Verify credential</Link>
+                  {credentialHref ? <TrainingCertificateActions href={credentialHref} courseTitle={course.title}/> : null}
+                </div>
+              </div>
+            ) : (
+              <p className="small muted">Your completion is saved. The certificate will appear in My learning when issued.</p>
+            )}
+            <Link className="btn btn-primary" href="/workspace/training">Continue to My learning</Link>
           </div>
+        </section>
+      ) : null}
+
+      {passed && !course.completedAt ? (
+        <section className="card dashboard-section-card">
+          <h2>Assessment passed</h2>
+          <p className="muted">This assessment is complete. If the course has another published assessment, continue from the course overview.</p>
+          <Link className="btn btn-primary" href={courseHref}>Continue course</Link>
         </section>
       ) : null}
     </div>

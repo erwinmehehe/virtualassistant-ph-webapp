@@ -107,8 +107,8 @@ test("substantive NDIS edits invalidate stale specialist evidence and revision a
 
 test("NDIS training remains private-LMS only", async () => {
   const publicTraining = await readFile("src/app/training/page.tsx", "utf8");
-  const dashboard = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
 
   assert.doesNotMatch(publicTraining, /\/training\/courses\/ndis-administration-fundamentals/);
-  assert.match(dashboard, /ndis-administration-fundamentals/);
+  assert.match(specializations, /ndis-administration-fundamentals/);
 });

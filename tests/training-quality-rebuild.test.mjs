@@ -122,10 +122,11 @@ test("Australia finance and healthcare software courses now require specialist r
 
 test("Australia courses are not duplicated in the general learner library", async () => {
   const page = await readFile("src/app/workspace/training/page.tsx", "utf8");
-  assert.match(page, /course\.country_focus === "Australia"/);
+  assert.match(page, /course\.country_focus !== "Australia"/);
   assert.match(page, /filteredNotStarted/);
   assert.match(page, /matchesFilter/);
-  assert.doesNotMatch(page, /australiaCourseIds|generalCourses/);
+  assert.doesNotMatch(page, /\["australia", "Australia"\]/);
+  assert.doesNotMatch(page, /filter === "australia"/);
 });
 
 test("current software refresh covers Xero, ServiceM8, Cliniko, MYOB, and NDIS", async () => {

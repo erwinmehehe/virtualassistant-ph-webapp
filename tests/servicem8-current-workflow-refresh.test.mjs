@@ -101,11 +101,11 @@ test("ServiceM8 hiring page reflects current workflow without creating a duplica
 });
 
 test("ServiceM8 training remains private while the software hiring page stays public", async () => {
-  const learner = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
   const publicTraining = await readFile("src/app/training/page.tsx", "utf8");
   const softwareRoute = await readFile("src/app/software/[slug]/page.tsx", "utf8");
 
-  assert.match(learner, /servicem8-for-virtual-assistants/);
+  assert.match(specializations, /servicem8-for-virtual-assistants/);
   assert.doesNotMatch(publicTraining, /\/training\/courses\/servicem8-for-virtual-assistants/);
   assert.match(softwareRoute, /software-pages/);
 });

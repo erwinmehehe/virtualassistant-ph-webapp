@@ -6,6 +6,7 @@ import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { recordProductEvent } from "@/lib/product-events";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
+import { getAustraliaSpecialization, isAustraliaSpecializationSlug } from "@/lib/training-specializations";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -40,6 +41,95 @@ export async function startTrainingCourseAction(formData: FormData) {
 
   revalidatePath("/workspace/training");
   redirect(`/workspace/training/courses/${course.slug}`);
+}
+
+export async function selectAustraliaSpecializationAction(formData: FormData) {
+  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
+  const specializationSlug = String(formData.get("specialization_slug") || "").trim();
+
+  if (!isAustraliaSpecializationSlug(specializationSlug)) {
+    redirect("/workspace/training");
+  }
+
+  const specialization = getAustraliaSpecialization(specializationSlug);
+  if (!specialization) redirect("/workspace/training");
+
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+
+  const { error: preferenceError } = await supabase
+    .from("training_learner_preferences")
+    .upsert({
+      user_id: userId,
+      australia_specialization: specialization.slug,
+      australia_selected_at: now,
+      updated_at: now,
+    }, { onConflict: "user_id" });
+
+  if (preferenceError) {
+    throw new Error("Could not save your Australian specialisation.");
+  }
+
+  const { data: courseRows } = await supabase
+    .from("training_courses")
+    .select("id,slug")
+    .in("slug", [...specialization.courses])
+    .eq("status", "published");
+
+  const courseBySlug = new Map((courseRows || []).map((course) => [course.slug, course]));
+  const pathCourses = specialization.courses
+    .map((slug) => courseBySlug.get(slug) || null)
+    .filter((course): course is { id: string; slug: string } => Boolean(course));
+
+  const courseIds = pathCourses.map((course) => course.id);
+  const { data: enrollmentRows } = courseIds.length
+    ? await supabase
+        .from("training_enrollments")
+        .select("course_id,completed_at")
+        .eq("user_id", userId)
+        .in("course_id", courseIds)
+    : { data: [] };
+
+  const enrollmentByCourse = new Map(
+    (enrollmentRows || []).map((row) => [row.course_id, row]),
+  );
+  const next = pathCourses.find((course) => !enrollmentByCourse.get(course.id)?.completed_at) || null;
+
+  await recordProductEvent("training_australia_specialization_select", {
+    userId,
+    path: "/workspace/training",
+    metadata: { specialization_slug: specialization.slug },
+  });
+
+  if (!next) {
+    revalidatePath("/workspace/training");
+    redirect("/workspace/training");
+  }
+
+  if (!enrollmentByCourse.has(next.id)) {
+    const { error: enrollmentError } = await supabase
+      .from("training_enrollments")
+      .insert({ user_id: userId, course_id: next.id });
+
+    if (enrollmentError && enrollmentError.code !== "23505") {
+      throw new Error("Could not start the first course in this path.");
+    }
+
+    if (!enrollmentError) {
+      await recordProductEvent("training_course_start", {
+        userId,
+        path: `/workspace/training/courses/${next.slug}`,
+        metadata: {
+          course_slug: next.slug,
+          source: "australia_specialization",
+          specialization_slug: specialization.slug,
+        },
+      });
+    }
+  }
+
+  revalidatePath("/workspace/training");
+  redirect(`/workspace/training/courses/${next.slug}`);
 }
 
 export async function markTrainingLessonCompleteAction(formData: FormData) {

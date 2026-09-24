@@ -97,6 +97,11 @@ export type TrainingDashboardLearnerProfile = {
   industries: string[];
 };
 
+export type TrainingLearnerPreferences = {
+  australiaSpecialization: string | null;
+  australiaSelectedAt: string | null;
+};
+
 export type TrainingCourseSummary = CourseRow & {
   lessonCount: number;
   completedLessons: number;
@@ -198,6 +203,7 @@ export async function getTrainingDashboard(userId: string) {
       courses: [] as TrainingCourseSummary[],
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
+      learnerPreferences: null as TrainingLearnerPreferences | null,
       error: error.message,
     };
   }
@@ -209,6 +215,7 @@ export async function getTrainingDashboard(userId: string) {
       courses: [] as TrainingCourseSummary[],
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
+      learnerPreferences: null as TrainingLearnerPreferences | null,
       error: null,
     };
   }
@@ -240,6 +247,7 @@ export async function getTrainingDashboard(userId: string) {
     { data: certificateData },
     { data: assessmentData },
     { data: learnerProfileData },
+    { data: learnerPreferencesData },
   ] = await Promise.all([
     supabase
       .from("training_enrollments")
@@ -267,6 +275,11 @@ export async function getTrainingDashboard(userId: string) {
     supabase
       .from("va_profiles")
       .select("primary_category,categories,tools,industries")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    supabase
+      .from("training_learner_preferences")
+      .select("australia_specialization,australia_selected_at")
       .eq("user_id", userId)
       .maybeSingle(),
   ]);
@@ -423,7 +436,14 @@ export async function getTrainingDashboard(userId: string) {
       }
     : null;
 
-  return { courses: summaries, paths, learnerProfile, error: null };
+  const learnerPreferences: TrainingLearnerPreferences | null = learnerPreferencesData
+    ? {
+        australiaSpecialization: learnerPreferencesData.australia_specialization || null,
+        australiaSelectedAt: learnerPreferencesData.australia_selected_at || null,
+      }
+    : null;
+
+  return { courses: summaries, paths, learnerProfile, learnerPreferences, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {

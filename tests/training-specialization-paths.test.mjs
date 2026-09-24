@@ -7,18 +7,19 @@ const migrationPath = "supabase/migrations/20260923211800_strengthen_australian_
 
 test("signed-in training adds four Australian specialization routes without creating public course URLs", async () => {
   const page = await readFile(pagePath, "utf8");
+  const config = await readFile("src/lib/training-specializations.ts", "utf8");
 
   assert.match(page, /Choose one specialisation/);
-  assert.match(page, /Tradie & home-service operations/);
-  assert.match(page, /Property management administration/);
-  assert.match(page, /NDIS & allied health administration/);
-  assert.match(page, /Mortgage broking administration/);
+  assert.match(config, /Tradie & home-service operations/);
+  assert.match(config, /Property management administration/);
+  assert.match(config, /NDIS & allied health administration/);
+  assert.match(config, /Mortgage broking administration/);
 
-  assert.match(page, /australian-trades-administration/);
-  assert.match(page, /servicem8-for-virtual-assistants/);
-  assert.match(page, /property-management-administration-australia/);
-  assert.match(page, /ndis-administration-fundamentals/);
-  assert.match(page, /mortgage-broking-administration-australia/);
+  assert.match(config, /australian-trades-administration/);
+  assert.match(config, /servicem8-for-virtual-assistants/);
+  assert.match(config, /property-management-administration-australia/);
+  assert.match(config, /ndis-administration-fundamentals/);
+  assert.match(config, /mortgage-broking-administration-australia/);
 
   assert.doesNotMatch(page, /href=\{?\`\/training\/courses/);
   assert.match(page, /\/workspace\/training\/courses/);
@@ -29,7 +30,7 @@ test("specialization chooser only acts on published courses and uses real learne
 
   assert.match(page, /courses\.find\(\(course\) => course\.slug === slug\)/);
   assert.match(page, /published\.length === specialization\.courses\.length/);
-  assert.match(page, /startTrainingCourseAction/);
+  assert.match(page, /selectAustraliaSpecializationAction/);
   assert.match(page, /Not started/);
   assert.match(page, /In progress/);
   assert.match(page, /Completed/);

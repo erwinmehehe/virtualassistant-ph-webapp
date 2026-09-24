@@ -458,6 +458,11 @@
     #fff;
 }
 
+.training-specialization.is-selected {
+  border-color: #a5b4fc;
+  box-shadow: 0 10px 28px -24px rgba(79, 70, 229, 0.55);
+}
+
 .training-specialization.is-complete {
   border-color: #d1fadf;
   background:

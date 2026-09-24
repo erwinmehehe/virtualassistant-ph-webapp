@@ -70,10 +70,10 @@ export function shouldSilentlyDropContactSubmission(input: {
   if (/\b(generate|get|bring|capture|convert)(?:\s+\w+){0,3}\s+leads?\b/i.test(input.message)) score += 2;
   if (/\blead[ -]?generation\b|\bweb visitors? into leads?\b/i.test(input.message)) score += 2;
   if (/\b(?:live|free) demo\b|\bbook (?:a )?demo\b|\btry (?:it|this|our) (?:out )?(?:now|today)\b/i.test(input.message)) score += 1;
-  if (/\b(?:increase|boost|grow)\b.{0,45}\b(?:traffic|sales|revenue|leads?|customers?)\b/is.test(input.message)) score += 1;
+  if (/\b(?:increase|boost|grow)\b[\s\S]{0,45}\b(?:traffic|sales|revenue|leads?|customers?)\b/i.test(input.message)) score += 1;
   if (/\bseo services?\b|\bguest post(?:ing)?\b|\blink insertion\b|\bbacklinks?\b/i.test(input.message)) score += 2;
   if (/\b(?:cost[- ]effective|profitable|special offer|free trial)\b/i.test(input.message)) score += 1;
-  if (/\b(?:we|i) (?:can|could|would like to|want to) help\b.{0,80}\b(?:website|business|company)\b/is.test(input.message)) score += 1;
+  if (/\b(?:we|i) (?:can|could|would like to|want to) help\b[\s\S]{0,80}\b(?:website|business|company)\b/i.test(input.message)) score += 1;
   if (externalHosts.length >= 2) score += 1;
 
   return score >= 5;

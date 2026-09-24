@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { createClient } from "@/lib/supabase/server";
-import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
@@ -32,6 +30,7 @@ import "./homepage-seo-evidence.css";
 import "./homepage-growth.css";
 import "./homepage-sections.css";
 import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
+import { getFeaturedPublicVas } from "@/lib/public-home-data";
 
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | Vetted Filipino VA Agency" },
@@ -126,28 +125,10 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
-  await searchParams;
-  const supabase = await createClient();
-  const { data: featured } = await supabase
-    .from("public_va_directory")
-    .select(
-      "user_id,slug,full_name,avatar_url,headline,primary_category,categories,skills,weekly_hours,years_experience,hourly_rate,schedule,availability_status",
-    )
-    .gte("years_experience", PUBLIC_VA_MIN_EXPERIENCE)
-    .not("avatar_url", "is", null)
-    .order("years_experience", { ascending: false })
-    .order("weekly_hours", { ascending: false })
-    .order("full_name", { ascending: true })
-    .limit(30);
+export const revalidate = 300;
 
-  const featuredWithPhotos = (featured ?? [])
-    .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
-    .slice(0, 6);
+export default async function HomePage() {
+  const featuredWithPhotos = await getFeaturedPublicVas();
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const schema = [
     {

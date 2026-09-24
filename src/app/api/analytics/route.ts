@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { enforceActionRateLimit, enforceIpRateLimit } from "@/lib/rate-limit";
 
 const fixedEvents = new Set([
   "page_view",
@@ -69,6 +70,7 @@ const fixedEvents = new Set([
 ]);
 
 const schema = z.object({
+  event_id: z.string().uuid().optional(),
   event: z.string().min(1).max(80).regex(/^[a-z0-9_]+$/i),
   path: z.string().min(1).max(1000).refine((value) => value.startsWith("/") && !value.startsWith("//")),
   referrer: z.string().max(2000).nullable().optional(),
@@ -89,11 +91,24 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Analytics is public by design, but it must not be an unbounded service-role
+    // insert endpoint. Session and IP limits are intentionally generous enough
+    // for page views, interaction events, and Web Vitals.
+    if (parsed.data.session_id) {
+      await enforceActionRateLimit("public_analytics:session", parsed.data.session_id, 180, 5);
+    }
+    await enforceIpRateLimit("public_analytics", 500, 5);
+  } catch {
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
+
+  try {
     const supabase = await createClient();
     const { data: claimsData } = await supabase.auth.getClaims();
     const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
-    await admin.from("analytics_events").insert({
+    const { error } = await admin.from("analytics_events").insert({
+      event_id: parsed.data.event_id ?? null,
       event_name: parsed.data.event,
       path: parsed.data.path,
       referrer: parsed.data.referrer ?? null,
@@ -101,6 +116,7 @@ export async function POST(request: Request) {
       user_id: userId,
       metadata: parsed.data.metadata ?? {}
     });
+    if (error && error.code !== "23505") throw error;
   } catch {
     // Never fail a product request because analytics storage is unavailable or the migration is pending.
   }

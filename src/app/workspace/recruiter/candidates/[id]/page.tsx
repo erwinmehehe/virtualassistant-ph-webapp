@@ -14,11 +14,12 @@ import { publicVisibilityRequirements } from "@/lib/public-visibility";
 import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
 import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
 import { TrainingCredentials } from "@/components/training-credentials";
+import { recordProductEvent } from "@/lib/product-events";
 
 const Rating=({name,label}:{name:string;label:string})=><div className="field"><label>{label}</label><select name={name} defaultValue="3" required><option value="1">1 - weak</option><option value="2">2 - below standard</option><option value="3">3 - meets standard</option><option value="4">4 - strong</option><option value="5">5 - excellent</option></select></div>;
 
 export default async function RecruiterCandidate({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
-  const {id}=await params;const query=await searchParams;await requireRoleFast("recruiter");const admin=createAdminClient();
+  const {id}=await params;const query=await searchParams;const {userId:recruiterId}=await requireRoleFast("recruiter");const admin=createAdminClient();
   const [{data:profile},{data:va},{data:vetting},{data:attempt},{data:scorecards},{data:authUser},{data:roles},{data:notes},{data:activity},{data:publicListing}]=await Promise.all([
     admin.from("profiles").select("id,full_name,avatar_url,created_at,email_verified,identity_verified_at,last_active_at").eq("id",id).eq("role","va").maybeSingle(),
     admin.from("va_profiles").select("*").eq("user_id",id).maybeSingle(),
@@ -31,7 +32,15 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
     admin.from("recruiter_activity").select("id,action,description,created_at,metadata").eq("subject_type","va").eq("subject_id",id).order("created_at",{ascending:false}).limit(30),
     admin.from("public_va_directory").select("slug").eq("user_id",id).maybeSingle()
   ]);
-  if(!profile)notFound();const trainingCredentials=await getTrainingCredentialsForUser(id);const candidateVa=va||{};const stage=vetting?.stage||"profile";const vaEmail=authUser.user?.email||null;const questions=Array.isArray(attempt?.skills_tests?.questions)?attempt.skills_tests.questions:[];const answers=attempt?.answers||{};const completionData=getVaCompletion(va,profile.avatar_url);const missing=completionData.items.filter(x=>!x.done).map(x=>x.label);const reviewable=stage==="recruiter_review";
+  if(!profile)notFound();const trainingCredentials=await getTrainingCredentialsForUser(id);
+  if(trainingCredentials.length){
+    await recordProductEvent("training_certificate_recruiter_view",{
+      userId:id,
+      path:`/workspace/recruiter/candidates/${id}`,
+      metadata:{viewer_user_id:recruiterId,certificate_count:trainingCredentials.length}
+    });
+  }
+  const candidateVa=va||{};const stage=vetting?.stage||"profile";const vaEmail=authUser.user?.email||null;const questions=Array.isArray(attempt?.skills_tests?.questions)?attempt.skills_tests.questions:[];const answers=attempt?.answers||{};const completionData=getVaCompletion(va,profile.avatar_url);const missing=completionData.items.filter(x=>!x.done).map(x=>x.label);const reviewable=stage==="recruiter_review";
   const approved=["approved","bench"].includes(stage);
   const consentActive=Boolean(candidateVa.public_profile_consent&&candidateVa.public_profile_consent_at&&!candidateVa.public_profile_consent_withdrawn_at&&candidateVa.public_profile_consent_version===PUBLIC_PROFILE_CONSENT_VERSION);
   const visibilityRequirements=publicVisibilityRequirements(candidateVa,profile.avatar_url);

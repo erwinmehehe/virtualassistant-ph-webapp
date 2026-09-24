@@ -233,7 +233,10 @@ export default async function AdminAnalyticsPage() {
     ["Course starts", trainingCount("training_course_start"), "Successful server-recorded course enrolments"],
     ["Lesson completions", trainingCount("training_lesson_complete"), "Completed lessons across all learners"],
     ["Assessment submissions", trainingCount("training_assessment_submit"), "Automatic final-check submissions"],
-    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded automatic course completions"]
+    ["Course completions", trainingCount("training_course_complete"), "Successful server-recorded automatic course completions"],
+    ["Certificates issued", trainingCount("training_certificate_issued"), "Automatic verifiable certificates created after course completion"],
+    ["Certificates added publicly", trainingCount("training_certificate_profile_added"), "Learner opt-ins to show a certificate on the public talent card"],
+    ["Recruiter training views", trainingCount("training_certificate_recruiter_view"), "Internal recruiter profile views where verified training evidence was present"]
   ] as const;
 
   const trainingEnrollments = (trainingEnrollmentData || []) as TrainingEnrollmentAnalyticsRow[];

@@ -104,7 +104,7 @@ test("passed assessment surfaces automatic completion and the issued certificate
 
   assert.match(trainingLib, /certificate: CertificateRow \| null/);
   assert.match(trainingLib, /from\("training_certificates"\)/);
-  assert.match(trainingLib, /certificateData as CertificateRow/);
+  assert.match(trainingLib, /certificateData as Omit<CertificateRow, "publicVisible">/);
 });
 
 test("lesson and automatic assessment UI stays compact on phone screens", async () => {

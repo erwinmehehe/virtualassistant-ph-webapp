@@ -65,10 +65,13 @@ type EnrollmentRow = {
 };
 
 type CertificateRow = {
+  id: string;
   course_id: string;
   credential_code: string;
   issued_at: string;
   revoked_at: string | null;
+  metadata: Record<string, unknown> | null;
+  publicVisible: boolean;
 };
 
 type LessonProgressRow = {
@@ -264,7 +267,7 @@ export async function getTrainingDashboard(userId: string) {
       : Promise.resolve({ data: [] }),
     supabase
       .from("training_certificates")
-      .select("course_id,credential_code,issued_at,revoked_at")
+      .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .in("course_id", courseIds),
     supabase
@@ -292,7 +295,13 @@ export async function getTrainingDashboard(userId: string) {
   const completed = new Set(progressRows.map((row) => row.lesson_id));
   const progressByLesson = new Map(progressRows.map((row) => [row.lesson_id, row.completed_at]));
   const certificates = new Map(
-    ((certificateData || []) as CertificateRow[]).map((row) => [row.course_id, row]),
+    ((certificateData || []) as Array<Omit<CertificateRow, "publicVisible">>).map((row) => [
+      row.course_id,
+      {
+        ...row,
+        publicVisible: row.metadata?.public_profile_visible === true,
+      } satisfies CertificateRow,
+    ]),
   );
   const assessments = (assessmentData || []) as AssessmentSummaryRow[];
   const assessmentIds = assessments.map((assessment) => assessment.id);
@@ -496,7 +505,7 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       .order("position"),
     supabase
       .from("training_certificates")
-      .select("course_id,credential_code,issued_at,revoked_at")
+      .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .eq("course_id", course.id)
       .is("revoked_at", null)
@@ -562,7 +571,14 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
         : lessons.length > 0 && completedLessons === lessons.length
           ? 95
           : percent(completedLessons, lessons.length),
-      certificate: (certificateData as CertificateRow | null) || null,
+      certificate: certificateData
+        ? {
+            ...(certificateData as Omit<CertificateRow, "publicVisible">),
+            publicVisible:
+              (certificateData as Omit<CertificateRow, "publicVisible">).metadata
+                ?.public_profile_visible === true,
+          }
+        : null,
     },
     error: null,
   };
@@ -778,6 +794,8 @@ export async function getTrainingAdminSummary() {
     { event: "training_assessment_reviewed", label: "Final check scored" },
     { event: "training_course_complete", label: "Completed a course" },
     { event: "training_certificate_issued", label: "Certificate issued" },
+    { event: "training_certificate_profile_added", label: "Added certificate to public profile" },
+    { event: "training_certificate_recruiter_view", label: "Recruiter viewed verified training" },
     { event: "training_certificate_view", label: "Viewed certificate" },
   ] as const;
   const { data: funnelEventData } = await admin

@@ -67,6 +67,12 @@ export default async function VaProfilePage({
       {params.consent === "withdrawn" ? (
         <div className="success-banner" role="status">Your profile is private.</div>
       ) : null}
+      {params.certificate_visibility === "shown" ? (
+        <div className="success-banner" role="status">Certificate can now appear on your public talent card when your public profile is active.</div>
+      ) : null}
+      {params.certificate_visibility === "hidden" ? (
+        <div className="success-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
+      ) : null}
 
       <div className="page-head va-profile-head">
         <div>

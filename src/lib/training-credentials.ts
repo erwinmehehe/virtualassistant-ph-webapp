@@ -12,6 +12,7 @@ export type TrainingCredential = {
   courseSummary: string | null;
   category: string;
   estimatedMinutes: number;
+  publicVisible: boolean;
 };
 
 type CredentialRow = {
@@ -20,6 +21,7 @@ type CredentialRow = {
   issued_at: string;
   revoked_at: string | null;
   course_id: string;
+  metadata: Record<string, unknown> | null;
 };
 
 type CourseRow = {
@@ -32,7 +34,10 @@ type CourseRow = {
   status: string;
 };
 
-export async function getTrainingCredentialsForUsers(userIds: string[]) {
+export async function getTrainingCredentialsForUsers(
+  userIds: string[],
+  options: { publicOnly?: boolean } = {},
+) {
   const uniqueUserIds = [...new Set(userIds.filter(Boolean))];
   const byUser = new Map<string, TrainingCredential[]>();
   for (const userId of uniqueUserIds) byUser.set(userId, []);
@@ -41,14 +46,20 @@ export async function getTrainingCredentialsForUsers(userIds: string[]) {
   const admin = createAdminClient();
   const { data: certificateData, error: certificateError } = await admin
     .from("training_certificates")
-    .select("id,user_id,credential_code,issued_at,revoked_at,course_id")
+    .select("id,user_id,credential_code,issued_at,revoked_at,course_id,metadata")
     .in("user_id", uniqueUserIds)
     .is("revoked_at", null)
     .order("issued_at", { ascending: false });
 
   if (certificateError || !(certificateData || []).length) return byUser;
 
-  const certificateRows = (certificateData || []) as Array<CredentialRow & { user_id: string }>;
+  const certificateRows = ((certificateData || []) as Array<CredentialRow & { user_id: string }>).filter(
+    (certificate) =>
+      !options.publicOnly ||
+      certificate.metadata?.public_profile_visible === true,
+  );
+  if (!certificateRows.length) return byUser;
+
   const courseIds = [...new Set(certificateRows.map((certificate) => certificate.course_id))];
   const { data: courseData, error: courseError } = await admin
     .from("training_courses")
@@ -72,6 +83,7 @@ export async function getTrainingCredentialsForUsers(userIds: string[]) {
       courseSummary: course.summary,
       category: course.category,
       estimatedMinutes: course.estimated_minutes,
+      publicVisible: certificate.metadata?.public_profile_visible === true,
     };
     byUser.set(certificate.user_id, [...(byUser.get(certificate.user_id) || []), credential]);
   }
@@ -79,8 +91,11 @@ export async function getTrainingCredentialsForUsers(userIds: string[]) {
   return byUser;
 }
 
-export async function getTrainingCredentialsForUser(userId: string) {
-  const byUser = await getTrainingCredentialsForUsers([userId]);
+export async function getTrainingCredentialsForUser(
+  userId: string,
+  options: { publicOnly?: boolean } = {},
+) {
+  const byUser = await getTrainingCredentialsForUsers([userId], options);
   return byUser.get(userId) || [];
 }
 

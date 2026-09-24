@@ -111,6 +111,10 @@ export function trainingCredentialsByUser(rows: RawCredential[]) {
       courseSummary: row.course_summary,
       category: row.category,
       estimatedMinutes: row.estimated_minutes,
+      // The legacy hiring-room RPC does not carry certificate visibility metadata.
+      // Fail closed for external client surfaces rather than treating internal
+      // certificate evidence as publicly shareable.
+      publicVisible: false,
     };
     byUser.set(row.user_id, [...(byUser.get(row.user_id) || []), credential]);
   }

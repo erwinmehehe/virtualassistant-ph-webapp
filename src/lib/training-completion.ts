@@ -106,7 +106,10 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
         user_id: userId,
         course_id: courseId,
         issued_at: completedAt,
-        metadata: { credential_type: "certificate_of_completion" },
+        metadata: {
+          credential_type: "certificate_of_completion",
+          public_profile_visible: false,
+        },
       });
 
     if (error && error.code !== "23505") {

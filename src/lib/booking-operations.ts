@@ -7,13 +7,18 @@ function bookingManageSecret() {
   return secret;
 }
 
+const BOOKING_MANAGE_TOKEN_TTL_SECONDS = 90 * 24 * 60 * 60;
+
 /**
  * Stateless signed capability for one lead. The raw capability never needs to
  * be persisted, which means a database read cannot recover a working manage URL.
+ * Public-email links expire after 90 days; reminders and authenticated dashboard
+ * visits automatically mint a fresh capability.
  */
-export function createBookingManageToken(leadId: string) {
+export function createBookingManageToken(leadId: string, now = new Date()) {
   if (!/^[0-9a-f-]{36}$/i.test(leadId)) throw new Error("Invalid booking lead id.");
-  const payload = `v2.${leadId}`;
+  const expiresAt = Math.floor(now.getTime() / 1000) + BOOKING_MANAGE_TOKEN_TTL_SECONDS;
+  const payload = `v2.${leadId}.${expiresAt}`;
   const signature = createHmac("sha256", bookingManageSecret()).update(payload).digest("base64url");
   return `${payload}.${signature}`;
 }
@@ -22,15 +27,18 @@ export function hashBookingManageToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-export function bookingManageTokenLookup(token: string): { leadId?: string; legacyHash?: string } | null {
+export function bookingManageTokenLookup(token: string, now = new Date()): { leadId?: string; legacyHash?: string } | null {
   const value = token.trim();
-  const match = /^v2\.([0-9a-f-]{36})\.([A-Za-z0-9_-]{40,})$/i.exec(value);
+  const match = /^v2\.([0-9a-f-]{36})\.(\d{10})\.([A-Za-z0-9_-]{40,})$/i.exec(value);
   if (match) {
-    const payload = `v2.${match[1]}`;
+    const expiresAt = Number(match[2]);
+    const nowSeconds = Math.floor(now.getTime() / 1000);
+    if (!Number.isSafeInteger(expiresAt) || expiresAt < nowSeconds) return null;
+    const payload = `v2.${match[1]}.${match[2]}`;
     const expected = createHmac("sha256", bookingManageSecret()).update(payload).digest();
     let supplied: Buffer;
     try {
-      supplied = Buffer.from(match[2], "base64url");
+      supplied = Buffer.from(match[3], "base64url");
     } catch {
       return null;
     }

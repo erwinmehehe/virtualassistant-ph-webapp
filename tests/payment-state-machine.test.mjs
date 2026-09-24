@@ -24,14 +24,15 @@ test("payment status changes are locked behind the database state machine", asyn
 });
 
 test("PayMongo writes and webhooks are idempotent and reconcile reversals", async () => {
-  const [paymongo, webhook, sql] = await Promise.all([
+  const [paymongo, webhook, sql, actions] = await Promise.all([
     read("src/lib/paymongo.ts"),
     read("src/app/api/webhooks/paymongo/route.ts"),
     read("supabase/migrations/20260924193000_payment_state_machine_and_provider_reconciliation.sql"),
+    read("src/app/actions/payments.ts"),
   ]);
 
   assert.match(paymongo, /Idempotency-Key/);
-  assert.match(paymongo, /payment-refund/);
+  assert.match(actions, /payment-refund-/);
   assert.match(webhook, /claimPaymongoEvent/);
   assert.match(webhook, /refund\.succeeded/);
   assert.match(webhook, /payment\.refunded/);

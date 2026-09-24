@@ -896,7 +896,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     discovery_calendar_event_id: meeting?.eventId || null,
     discovery_meeting_provider: meeting ? "google_meet" : null,
     discovery_manage_token_hash: manage.hash,
-    discovery_manage_token: manage.token,
+    discovery_manage_token_id: manage.tokenId,
+    discovery_manage_token_expires_at: manage.expiresAt,
+    discovery_manage_token: null,
     discovery_notes: [
       "Booked by a prospective client through the public qualification calendar.",
       meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
@@ -932,6 +934,16 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     if (merged) {
       leadId = merged.leadId;
       jobId = merged.jobId;
+      const { error: capabilityError } = await admin
+        .from("lead_intake")
+        .update({
+          discovery_manage_token: null,
+          discovery_manage_token_hash: manage.hash,
+          discovery_manage_token_id: manage.tokenId,
+          discovery_manage_token_expires_at: manage.expiresAt,
+        })
+        .eq("id", leadId);
+      if (capabilityError) throw capabilityError;
     } else {
       jobId = await createPendingJobForLead({
         admin,

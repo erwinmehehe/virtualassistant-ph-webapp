@@ -6,6 +6,7 @@ const actions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");
 const matching = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/page.tsx", "utf8");
+const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924164500_client_hiring_room_summary.sql", "utf8");
 const clientCandidateCard = fs.readFileSync("src/components/client-shortlist-candidate-card.tsx", "utf8");
 const recruiterRole = fs.readFileSync("src/app/workspace/recruiter/roles/[id]/page.tsx", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
@@ -31,10 +32,11 @@ test("recruiters can attach client-facing recommendations and matcher uses curre
 });
 
 test("client shortlist records viewed state and offers interested interview and pass decisions", () => {
-  assert.match(clientCandidates, /client_shortlist_viewed/);
-  assert.match(clientCandidates, />Interested</);
-  assert.match(clientCandidates, />Request interview</);
-  assert.match(clientCandidates, />Confirm pass</);
+  assert.match(clientCandidates, /recordClientShortlistView/);
+  assert.match(clientHiringRoomMigration, /client_shortlist_viewed/);
+  assert.match(clientCandidates, /label="Interested"/);
+  assert.match(clientCandidates, /label="Request interview"/);
+  assert.match(clientCandidates, /label="Confirm pass"/);
   assert.match(clientCandidateCard, /Why we recommend this VA/);
   assert.match(clientCandidates, /ClientShortlistCandidateCard/);
 });

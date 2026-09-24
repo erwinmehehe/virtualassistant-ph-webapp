@@ -31,7 +31,8 @@ test("clients can reach discovery call management from their dashboard",()=>{
   assert.match(page,/openClientDiscoveryBookingAction/);
   assert.match(booking,/export async function openClientDiscoveryBookingAction/);
   assert.match(booking,/\.eq\("client_id", userId\)/);
-  assert.match(booking,/discovery_manage_token_hash: manage\.hash/);
+  assert.match(booking,/createBookingManageToken\(lead\.id\)/);
+  assert.doesNotMatch(booking,/discovery_manage_token_hash: manage\.hash/);
 });
 
 test("Recruiter Today exposes an actionable call rebooking queue",()=>{

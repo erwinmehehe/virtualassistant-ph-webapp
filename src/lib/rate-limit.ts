@@ -24,10 +24,18 @@ export async function enforceActionRateLimit(actionKey: string, subject: string,
   if (!data) throw new Error("Too many attempts. Please wait a few minutes and try again.");
 }
 
-async function requestIp() {
+export async function requestIp() {
   const requestHeaders = await headers();
   const forwarded = requestHeaders.get("x-forwarded-for") || requestHeaders.get("x-real-ip") || "unknown";
   return forwarded.split(",")[0]?.trim().slice(0, 128) || "unknown";
+}
+
+export async function enforceIpRateLimit(
+  actionKey: string,
+  maxPerIp: number,
+  windowMinutes: number,
+) {
+  await enforceActionRateLimit(`${actionKey}:ip`, await requestIp(), maxPerIp, windowMinutes);
 }
 
 export async function enforceEmailAndIpRateLimit(
@@ -38,5 +46,5 @@ export async function enforceEmailAndIpRateLimit(
   windowMinutes: number,
 ) {
   await enforceActionRateLimit(`${actionKey}:email`, email, maxPerEmail, windowMinutes);
-  await enforceActionRateLimit(`${actionKey}:ip`, await requestIp(), maxPerIp, windowMinutes);
+  await enforceIpRateLimit(actionKey, maxPerIp, windowMinutes);
 }

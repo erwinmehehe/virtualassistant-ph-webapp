@@ -484,6 +484,17 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     .maybeSingle();
   if (!assessment) redirect(`/workspace/training/courses/${course.slug}`);
 
+  const assessmentPath = `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`;
+  type AssessmentSubmissionErrorReason =
+    | "lessons"
+    | "stale"
+    | "limit"
+    | "not_ready"
+    | "question_set";
+  const failAssessmentSubmission = (reason: AssessmentSubmissionErrorReason): never => {
+    redirect(`${assessmentPath}?assessment_error=${reason}`);
+  };
+
   const { data: modules } = await admin
     .from("training_modules")
     .select("id,position")
@@ -513,7 +524,7 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     : { data: [] };
   const completedIds = new Set((completedRows || []).map((item) => item.lesson_id));
   if (!lessonIds.length || !lessonIds.every((id) => completedIds.has(id))) {
-    throw new Error("Complete every published lesson before taking the final assessment.");
+    failAssessmentSubmission("lessons");
   }
 
   const { data: attempts } = await admin
@@ -526,13 +537,13 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
   const attemptRows = attempts || [];
   const nextAttempt = attemptRows.length + 1;
   if (requestedAttempt && requestedAttempt !== nextAttempt) {
-    throw new Error("This assessment attempt is stale. Refresh the page and try again.");
+    failAssessmentSubmission("stale");
   }
 
   const since = Date.now() - 86_400_000;
   const recentAttempts = attemptRows.filter((row) => new Date(row.submitted_at).getTime() >= since);
   if (recentAttempts.length >= 3) {
-    throw new Error("You have used three assessment attempts in 24 hours. Review the lessons and try again later.");
+    failAssessmentSubmission("limit");
   }
 
   const questions = buildAssessmentQuestionsFromLessons({
@@ -543,12 +554,12 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     questionCount: 8,
   });
   if (questions.length < 4) {
-    throw new Error("This assessment is not ready for automatic scoring yet.");
+    failAssessmentSubmission("not_ready");
   }
 
   const expectedQuestionSetKey = assessmentQuestionSetKey(questions);
   if (!submittedQuestionSetKey || submittedQuestionSetKey !== expectedQuestionSetKey) {
-    throw new Error("This assessment question set is stale or does not belong to this attempt. Refresh and try again.");
+    failAssessmentSubmission("question_set");
   }
 
   const answers: Record<string, string> = {};

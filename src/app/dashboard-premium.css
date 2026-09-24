@@ -87,6 +87,47 @@
   transition: color .16s ease, background .16s ease, border-color .16s ease, transform .16s ease;
 }
 .dashboard-shell .app-nav-desktop a svg { color: #94a3b8; transition: color .16s ease; }
+
+.dashboard-shell .app-nav-icon {
+  --nav-icon-fg: #4f46e5;
+  --nav-icon-bg: #eef2ff;
+  --nav-icon-border: #dfe3ff;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 1px solid var(--nav-icon-border);
+  border-radius: 10px;
+  color: var(--nav-icon-fg);
+  background: var(--nav-icon-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.dashboard-shell .app-nav-icon svg { color: currentColor !important; }
+.dashboard-shell .nav-tone-indigo { --nav-icon-fg: #4f46e5; --nav-icon-bg: #eef2ff; --nav-icon-border: #dfe3ff; }
+.dashboard-shell .nav-tone-cyan { --nav-icon-fg: #0284c7; --nav-icon-bg: #effaff; --nav-icon-border: #cceeff; }
+.dashboard-shell .nav-tone-amber { --nav-icon-fg: #d97706; --nav-icon-bg: #fff8e8; --nav-icon-border: #fde7b2; }
+.dashboard-shell .nav-tone-sky { --nav-icon-fg: #2563eb; --nav-icon-bg: #eff6ff; --nav-icon-border: #dbeafe; }
+.dashboard-shell .nav-tone-purple { --nav-icon-fg: #7c3aed; --nav-icon-bg: #f5f3ff; --nav-icon-border: #e8e1ff; }
+.dashboard-shell .nav-tone-teal { --nav-icon-fg: #0f8b78; --nav-icon-bg: #ecfdf8; --nav-icon-border: #c9f3e7; }
+.dashboard-shell .nav-tone-violet { --nav-icon-fg: #7c3aed; --nav-icon-bg: #f4f0ff; --nav-icon-border: #e4dcff; }
+.dashboard-shell .nav-tone-emerald { --nav-icon-fg: #059669; --nav-icon-bg: #ecfdf3; --nav-icon-border: #ccefdc; }
+.dashboard-shell .nav-tone-rose { --nav-icon-fg: #e11d48; --nav-icon-bg: #fff1f2; --nav-icon-border: #ffe0e6; }
+.dashboard-shell .nav-tone-blue { --nav-icon-fg: #2563eb; --nav-icon-bg: #eef5ff; --nav-icon-border: #d8e7ff; }
+.dashboard-shell .nav-tone-slate { --nav-icon-fg: #64748b; --nav-icon-bg: #f8fafc; --nav-icon-border: #e2e8f0; }
+
+.dashboard-shell .app-nav-desktop a:hover .app-nav-icon {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, .08);
+  filter: saturate(1.08);
+}
+.dashboard-shell .app-nav-desktop a[aria-current="page"] .app-nav-icon {
+  border-color: color-mix(in srgb, var(--nav-icon-fg) 32%, white);
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--nav-icon-fg) 15%, transparent);
+  filter: saturate(1.12);
+}
+
 .dashboard-shell .app-nav-desktop a:hover {
   color: #312e81;
   background: #f7f7ff;
@@ -857,6 +898,19 @@
   }
   .dashboard-shell .app-nav-mobile > a svg,
   .dashboard-shell .app-nav-mobile > details > summary svg { color: #94a3b8; }
+  .dashboard-shell .app-nav-mobile > a .app-nav-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    border-color: transparent;
+    border-radius: 9px;
+    box-shadow: none;
+  }
+  .dashboard-shell .app-nav-mobile > a[aria-current="page"] .app-nav-icon {
+    border-color: rgba(255,255,255,.18);
+    color: #fff;
+    background: rgba(255,255,255,.16);
+  }
   .dashboard-shell .app-nav-mobile > a[aria-current="page"] {
     color: #fff;
     background: linear-gradient(135deg, #4f46e5, #7c3aed);

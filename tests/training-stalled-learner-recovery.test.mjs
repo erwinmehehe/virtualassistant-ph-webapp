@@ -67,3 +67,14 @@ test("admin training shows stalled learner recovery health without learner ident
   assert.match(page, /Product Emails preference/);
   assert.doesNotMatch(page, /recipientEmail|fullName|user_id/);
 });
+
+test("multi-course learners are evaluated independently per course", async () => {
+  const maintenance = await readFile(maintenancePath, "utf8");
+
+  assert.match(maintenance, /lessonCourseById/);
+  assert.match(maintenance, /completedByEnrollment/);
+  assert.match(maintenance, /latestActivityByEnrollment/);
+  assert.match(maintenance, /const enrollmentKey = `\$\{enrollment\.user_id\}:\$\{enrollment\.course_id\}`/);
+  assert.doesNotMatch(maintenance, /latestActivityByUser/);
+  assert.doesNotMatch(maintenance, /completedByUser/);
+});

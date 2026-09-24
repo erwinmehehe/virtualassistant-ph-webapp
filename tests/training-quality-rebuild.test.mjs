@@ -34,9 +34,9 @@ test("practical assessment publishing keeps evidence and grading criteria while 
 test("assessment source packs remain in admin while learner scoring is automatic", async () => {
   const learner = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
   const admin = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
-  assert.match(learner, /Automatic final assessment/);
-  assert.match(learner, /Server-scored/);
-  assert.match(learner, /Randomized each attempt/);
+  assert.match(learner, /Final check/);
+  assert.match(learner, /Course-based questions/);
+  assert.match(learner, /Fresh mix each attempt/);
   assert.doesNotMatch(learner, /How your work will be graded/);
   assert.match(admin, /Assessment source material/);
   assert.match(admin, /Rubric JSON/);

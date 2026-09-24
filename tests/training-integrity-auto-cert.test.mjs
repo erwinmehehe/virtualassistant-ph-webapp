@@ -43,8 +43,11 @@ test("lesson completion cannot be earned by clicking through", async () => {
   assert.match(gate, /document\.visibilityState !== "visible"/);
   assert.match(gate, /document\.hasFocus\(\)/);
   assert.match(gate, /20_000/);
-  assert.match(gate, /Reached the lesson end/);
-  assert.match(gate, /Your practical response/);
+  assert.match(gate, /Reach the lesson end/);
+  assert.match(gate, /Your practical note/);
+  assert.match(gate, /Ready to complete this lesson\?/);
+  assert.match(gate, /Still to do:/);
+  assert.doesNotMatch(gate, /Show that you worked through it/);
 });
 
 test("final assessments are randomized and server scored with retry controls", async () => {

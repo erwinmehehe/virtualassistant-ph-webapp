@@ -203,12 +203,77 @@ export async function recordTrainingLessonEngagementAction(input: {
   return { activeSeconds, maxScrollPercent };
 }
 
+export async function checkTrainingLessonCheckpointAction(input: {
+  lessonId: string;
+  courseSlug: string;
+  optionId: string;
+}) {
+  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
+  const lessonId = String(input.lessonId || "").trim();
+  const courseSlug = String(input.courseSlug || "").trim();
+  const optionId = String(input.optionId || "").trim();
+  if (!lessonId || !courseSlug || !optionId) return { correct: false };
+
+  const admin = createAdminClient();
+  const { data: course } = await admin
+    .from("training_courses")
+    .select("id")
+    .eq("slug", courseSlug)
+    .eq("status", "published")
+    .maybeSingle();
+  if (!course) return { correct: false };
+
+  const { data: modules } = await admin
+    .from("training_modules")
+    .select("id")
+    .eq("course_id", course.id);
+  const moduleIds = (modules || []).map((item) => item.id);
+  if (!moduleIds.length) return { correct: false };
+
+  const { data: lesson } = await admin
+    .from("training_lessons")
+    .select("id,title,content")
+    .eq("id", lessonId)
+    .eq("is_published", true)
+    .in("module_id", moduleIds)
+    .maybeSingle();
+  if (!lesson) return { correct: false };
+
+  const checkpoint = buildLessonCheckpoint({
+    lessonId: lesson.id,
+    lessonTitle: lesson.title,
+    userId,
+    content: lesson.content,
+  });
+  if (!checkpoint || optionId !== checkpoint.correctOptionId) return { correct: false };
+
+  const now = new Date().toISOString();
+  const { data: existing } = await admin
+    .from("training_lesson_engagement")
+    .select("active_seconds,max_scroll_percent,last_activity_at")
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
+    .maybeSingle();
+
+  await admin.from("training_lesson_engagement").upsert({
+    user_id: userId,
+    lesson_id: lesson.id,
+    active_seconds: Number(existing?.active_seconds || 0),
+    max_scroll_percent: Number(existing?.max_scroll_percent || 0),
+    checkpoint_passed_at: now,
+    checkpoint_key: checkpoint.checkpointKey,
+    last_activity_at: existing?.last_activity_at || now,
+    updated_at: now,
+  }, { onConflict: "user_id,lesson_id" });
+
+  return { correct: true };
+}
+
 export async function markTrainingLessonCompleteAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const lessonId = String(formData.get("lesson_id") || "");
   const courseSlug = String(formData.get("course_slug") || "");
   const continueTo = String(formData.get("continue_to") || "").trim();
-  const checkpointOption = String(formData.get("checkpoint_option") || "").trim();
   const exerciseResponse = String(formData.get("exercise_response") || "").trim();
   if (!lessonId || !courseSlug) redirect("/workspace/training");
 
@@ -259,7 +324,7 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
 
   const { data: engagement } = await admin
     .from("training_lesson_engagement")
-    .select("active_seconds,max_scroll_percent")
+    .select("active_seconds,max_scroll_percent,checkpoint_key")
     .eq("user_id", userId)
     .eq("lesson_id", lesson.id)
     .maybeSingle();
@@ -278,8 +343,8 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     userId,
     content: lesson.content,
   });
-  if (checkpoint && checkpointOption !== checkpoint.correctOptionId) {
-    throw new Error("Check the lesson QA section and try the checkpoint again.");
+  if (checkpoint && engagement?.checkpoint_key !== checkpoint.checkpointKey) {
+    throw new Error("Pass the lesson checkpoint before completing this lesson.");
   }
 
   const hasExercise =

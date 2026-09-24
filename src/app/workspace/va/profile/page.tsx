@@ -321,6 +321,14 @@ export default async function VaProfilePage({
             </div>
           </form>
 
+          <TrainingCredentials
+            credentials={trainingCredentials}
+            heading="Training & certificates"
+            showEmpty
+            selfService
+            audience="self"
+          />
+
           <section className="profile-section profile-section-flat" id="visibility">
             <div className="profile-section-head profile-section-head-simple">
               <div>
@@ -369,13 +377,6 @@ export default async function VaProfilePage({
 
         <aside className="profile-editor-sidebar">
           <LiveProfileStrength formId="va-profile-form" initial={va || {}} hasAvatar={Boolean(profile.avatar_url)} />
-
-          <TrainingCredentials
-            credentials={trainingCredentials}
-            heading="Your completed training"
-            showEmpty
-            selfService
-          />
 
           <section className="profile-side-actions">
             <div className="profile-side-actions-head">

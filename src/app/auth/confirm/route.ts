@@ -3,6 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
+import { recordProductEvent } from "@/lib/product-events";
 
 const ALLOWED_TYPES = new Set<EmailOtpType>(["signup", "recovery", "magiclink"]);
 
@@ -60,6 +61,14 @@ export async function GET(request: Request) {
     } catch {
       // A stale or already-claimed hiring request must not block account confirmation.
     }
+  }
+
+  if (user && trainingDestination) {
+    await recordProductEvent("training_email_confirmed", {
+      userId: user.id,
+      path: requestedNext || "/workspace/training",
+      metadata: { confirmation_route: "confirm" },
+    });
   }
 
   const fallback = profile ? `/workspace/${profile.role}` : "/workspace/training";

@@ -85,7 +85,7 @@ export default async function TrainingAssessmentPage({
         </div>
         <div className="training-assessment-readiness">
           <strong>Before you submit</strong>
-          <p>Complete every lesson, follow the requested deliverables, and use only the fictional source pack. Your submission should show the work you would hand to a real client.</p>
+          <p>Complete every lesson, follow the requested deliverables, and use only the practice materials provided here. Your submission should look like work you would hand to a real client.</p>
         </div>
       </section>
 
@@ -217,7 +217,7 @@ export default async function TrainingAssessmentPage({
       {!lessonsComplete ? (
         <section className="card dashboard-section-card">
           <h2>Complete the lessons first</h2>
-          <p className="muted">The final simulation unlocks after all {course.lessonCount} published lessons are complete. You have finished {course.completedLessons}.</p>
+          <p className="muted">This assessment becomes available after you complete all {course.lessonCount} lessons. You have completed {course.completedLessons}.</p>
           <Link className="btn" href={courseHref}>Back to lessons</Link>
         </section>
       ) : null}
@@ -225,7 +225,7 @@ export default async function TrainingAssessmentPage({
       {waitingForReview ? (
         <section className="card dashboard-section-card">
           <h2>Review pending</h2>
-          <p className="muted">You do not need to resubmit while this version is waiting for review. Your work and submission status are saved here.</p>
+          <p className="muted">You do not need to resubmit while this version is being reviewed. Your work is saved here.</p>
         </section>
       ) : null}
 
@@ -260,7 +260,7 @@ export default async function TrainingAssessmentPage({
       {passed && !course.completedAt ? (
         <section className="card dashboard-section-card">
           <h2>Assessment passed</h2>
-          <p className="muted">This assessment is complete. If the course has another published assessment, continue from the course overview.</p>
+          <p className="muted">This assessment is complete. If there is another assessment in this course, continue from the course overview.</p>
           <Link className="btn btn-primary" href={courseHref}>Course overview</Link>
         </section>
       ) : null}

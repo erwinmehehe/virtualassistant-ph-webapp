@@ -242,3 +242,58 @@
 @media (max-width: 420px) {
   .cro-directory-actions { grid-template-columns: 1fr; }
 }
+
+
+.talent-training-preview {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(148, 163, 184, .22);
+}
+
+.talent-training-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #067647;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+.talent-training-preview > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.talent-training-preview a {
+  max-width: 100%;
+  border: 1px solid #d9e7e0;
+  border-radius: 999px;
+  background: #f4fbf8;
+  color: #176247;
+  padding: 6px 9px;
+  font-size: .72rem;
+  font-weight: 760;
+  line-height: 1.25;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.talent-training-preview a:hover {
+  border-color: #b7d6c7;
+  background: #ecfdf3;
+}
+
+@media (max-width: 520px) {
+  .talent-training-preview > div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .talent-training-preview a {
+    border-radius: 10px;
+  }
+}

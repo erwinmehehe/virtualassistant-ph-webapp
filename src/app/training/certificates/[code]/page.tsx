@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { getPublicTrainingCredentialByCode } from "@/lib/training-credentials";
 import "./certificate.css";
 
@@ -56,6 +57,14 @@ export default async function TrainingCredentialVerificationPage({
                   <div><dt>Course length</dt><dd>{duration(credential.estimatedMinutes)}</dd></div>
                   <div><dt>Status</dt><dd>Verified</dd></div>
                 </dl>
+
+                <div className="credential-print-actions">
+                  <TrainingCertificateActions
+                    href={`/training/certificates/${encodeURIComponent(credential.credentialCode)}`}
+                    courseTitle={credential.courseTitle}
+                    showPrint
+                  />
+                </div>
 
                 <div className="credential-note">
                   <strong>What this certificate means</strong>

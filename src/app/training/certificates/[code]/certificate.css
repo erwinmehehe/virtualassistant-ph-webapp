@@ -218,3 +218,49 @@
     background: #fff;
   }
 }
+
+
+.credential-print-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 430px) {
+  .credential-print-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .credential-print-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  .credential-print-actions,
+  .credential-link {
+    display: none !important;
+  }
+
+  .credential-page {
+    min-height: auto;
+    padding: 0;
+    background: #fff;
+  }
+
+  .credential-shell {
+    max-width: none;
+    padding: 0;
+  }
+
+  .credential-card {
+    border: 1px solid #cbd5e1;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

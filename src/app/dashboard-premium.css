@@ -1944,3 +1944,39 @@
     align-items: flex-start;
   }
 }
+
+
+.training-credential-visibility {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, .2);
+}
+
+.training-credential-visibility > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.training-credential-visibility > span.is-visible {
+  color: #067647;
+}
+
+@media (max-width: 620px) {
+  .training-credential-visibility {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .training-credential-visibility .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

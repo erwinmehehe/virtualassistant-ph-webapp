@@ -6,6 +6,8 @@ import {
   Calculator,
   CalendarDays,
   ExternalLink,
+  Eye,
+  EyeOff,
   FolderKanban,
   GraduationCap,
   Headphones,
@@ -17,6 +19,7 @@ import {
   ShoppingCart,
   WalletCards,
 } from "lucide-react";
+import { updateTrainingCertificateVisibilityAction } from "@/app/actions/training-credentials";
 import type { TrainingCredential } from "@/lib/training-credentials";
 
 function issuedLabel(value: string) {
@@ -80,13 +83,15 @@ export function TrainingCredentials({
     audience === "recruiter"
       ? "Platform-issued course completions that can be independently verified."
       : audience === "self"
-        ? "Certificates are added here automatically after you pass a course."
+        ? "Certificates are added here automatically after you pass a course. You choose which ones may appear on your public talent card."
         : "Verified course completions from the training workspace.";
 
   const note =
     audience === "recruiter"
       ? "Training completion is supporting evidence only. It does not verify employment history, role experience, or hiring eligibility."
-      : "Training completion supports your profile, but it is separate from work experience and is never required for recruiter approval or client selection.";
+      : selfService
+        ? "Your private profile and recruiters can see completed training automatically. Public display is optional per certificate and only matters when your overall public-profile consent and listing are active."
+        : "Training completion supports your profile, but it is separate from work experience and is never required for recruiter approval or client selection.";
 
   return (
     <section className={`training-credentials-card training-credentials-${audience}`}>
@@ -144,6 +149,28 @@ export function TrainingCredentials({
                       Verify credential <ExternalLink size={13}/>
                     </Link>
                   </div>
+
+                  {selfService ? (
+                    <form
+                      action={updateTrainingCertificateVisibilityAction}
+                      className="training-credential-visibility"
+                    >
+                      <input type="hidden" name="certificate_id" value={credential.id}/>
+                      <input
+                        type="hidden"
+                        name="public_visible"
+                        value={credential.publicVisible ? "false" : "true"}
+                      />
+                      <input type="hidden" name="return_to" value="/workspace/va/profile"/>
+                      <span className={credential.publicVisible ? "is-visible" : "is-private"}>
+                        {credential.publicVisible ? <Eye size={13}/> : <EyeOff size={13}/>}
+                        {credential.publicVisible ? "Public profile: shown" : "Public profile: private"}
+                      </span>
+                      <button className="btn btn-sm" type="submit">
+                        {credential.publicVisible ? "Hide publicly" : "Show publicly"}
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
               </article>
             );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Filter, Search } from "lucide-react";
+import { ArrowRight, BadgeCheck, CheckCircle2, Filter, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
@@ -10,6 +10,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
 import { searchPublicTalent } from "@/lib/talent-search";
 import { canonicalPath } from "@/lib/seo-url";
+import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 import "../cro-hiring-tools.css";
 
 export const metadata: Metadata = {
@@ -65,6 +66,11 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
     if (process.env.NODE_ENV !== "production") console.warn("[find-talent] Search unavailable:", (err as Error).message);
   }
 
+  const publicTrainingByUser = await getTrainingCredentialsForUsers(
+    pageVas.map((va) => String(va.user_id || "")).filter(Boolean),
+    { publicOnly: true },
+  );
+
   const totalPages = Math.max(1, Math.ceil(totalResults / TALENT_PAGE_SIZE));
   const page = Math.min(requestedPage, totalPages);
 
@@ -92,11 +98,28 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
       <div className="directory-result-head"><div><strong>{totalResults} approved profile{totalResults === 1 ? "" : "s"}</strong><span className="small muted">{q && semanticSearchActive ? "Search combines meaning, skills, tools, and your structured filters. " : ""}These are talent examples. Your recruiter confirms current fit and availability before presenting anyone to you.</span></div></div>
       {pageVas.length ? <><div className="talent-directory-grid">{pageVas.map((va:any)=>{
         const skills = uniqueStrings(va.skills).slice(0,3);
+        const publicTraining = (publicTrainingByUser.get(String(va.user_id)) || []).slice(0, 2);
         return <article className="talent-market-card" key={va.user_id}>
           <div className="talent-market-head"><PublicAvatar name={va.full_name} src={va.avatar_url}/><div><div className="talent-name-row"><h2>{va.full_name}</h2><span className="verified-dot" title="Recruiter reviewed"><CheckCircle2 size={15}/></span></div><p>{va.headline || va.primary_category || "Virtual Assistant"}</p></div></div>
           <div className="talent-market-meta"><span><strong>{va.years_experience} yrs</strong> experience</span><span><strong>{va.weekly_hours || "Flexible"}</strong>{va.weekly_hours ? " hrs/week" : " availability"}</span></div>
           <p className="talent-market-summary">{va.bio ? `${va.bio.slice(0,155)}${va.bio.length>155?"…":""}` : "Review this profile for experience, skills, tools, and schedule fit. Our recruiter confirms the final match before client introduction."}</p>
           {skills.length ? <div className="talent-skill-preview">{skills.map((skill,index)=><span key={`${String(skill)}-${index}`}>{skill}</span>)}</div> : null}
+          {publicTraining.length ? (
+            <div className="talent-training-preview" aria-label="Public training certificates">
+              <span className="talent-training-label"><BadgeCheck size={13}/> Verified training</span>
+              <div>
+                {publicTraining.map((credential) => (
+                  <Link
+                    key={credential.id}
+                    href={`/training/certificates/${encodeURIComponent(credential.credentialCode)}`}
+                    target="_blank"
+                  >
+                    {credential.courseTitle}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </article>;
       })}</div>{totalPages > 1 ? <nav className="pagination" aria-label="Talent results pages"><Link className={`btn btn-sm ${page <= 1 ? "disabled" : ""}`} aria-disabled={page <= 1} href={talentPageHref(params, Math.max(1,page-1))}>Previous</Link><span className="small muted">Page {page} of {totalPages}</span><Link className={`btn btn-sm ${page >= totalPages ? "disabled" : ""}`} aria-disabled={page >= totalPages} href={talentPageHref(params, Math.min(totalPages,page+1))}>Next</Link></nav> : null}</> : <div className="card empty"><h3>No profiles match those filters.</h3><p>Try a broader specialty or availability range, or send us the role and we can match the approved pool directly.</p><div className="row wrap" style={{justifyContent:"center"}}><Link className="btn" href="/find-talent">Clear filters</Link><Link className="btn btn-primary" href="/hire">Get a vetted shortlist</Link></div></div>}
     </div></section>

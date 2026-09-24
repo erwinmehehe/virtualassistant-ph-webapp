@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { submitTrainingAssessmentAction } from "@/app/actions/training";
+import { updateTrainingCertificateVisibilityAction } from "@/app/actions/training-credentials";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
@@ -383,6 +384,22 @@ export default async function TrainingAssessmentPage({
                   >
                     View certificate
                   </Link>
+                ) : null}
+                {course.certificate && !course.certificate.publicVisible ? (
+                  <form action={updateTrainingCertificateVisibilityAction}>
+                    <input type="hidden" name="certificate_id" value={course.certificate.id}/>
+                    <input type="hidden" name="public_visible" value="true"/>
+                    <input
+                      type="hidden"
+                      name="return_to"
+                      value={`/workspace/training/courses/${course.slug}/assessments/${assessment.id}`}
+                    />
+                    <button className="btn" type="submit" data-track="training_certificate_profile_add">
+                      Show on public profile
+                    </button>
+                  </form>
+                ) : course.certificate?.publicVisible ? (
+                  <span className="badge badge-success">Shown on public profile</span>
                 ) : null}
                 <Link className={credentialHref ? "btn" : "btn btn-primary"} href="/workspace/training">
                   My learning

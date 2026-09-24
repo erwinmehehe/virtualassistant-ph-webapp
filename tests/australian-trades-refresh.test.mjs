@@ -107,11 +107,11 @@ test("final assessment is practical editorial-only and retains 80 percent pass s
 });
 
 test("trades course remains private and the Australia path still links ServiceM8 and Xero", async () => {
-  const learner = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
   const publicTraining = await readFile("src/app/training/page.tsx", "utf8");
 
-  assert.match(learner, /australian-trades-administration/);
-  assert.match(learner, /servicem8-for-virtual-assistants/);
-  assert.match(learner, /xero-workflows-for-virtual-assistants/);
+  assert.match(specializations, /australian-trades-administration/);
+  assert.match(specializations, /servicem8-for-virtual-assistants/);
+  assert.match(specializations, /xero-workflows-for-virtual-assistants/);
   assert.doesNotMatch(publicTraining, /\/training\/courses\/australian-trades-administration/);
 });

@@ -726,3 +726,547 @@
     padding-right: 12px;
   }
 }
+
+
+/* Learner lesson player */
+.training-player-page,
+.training-assessment-page {
+  max-width: 1180px;
+}
+
+.training-player-progress,
+.training-assessment-journey {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--training-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.training-player-progress {
+  position: sticky;
+  z-index: 5;
+  top: 12px;
+  box-shadow: 0 10px 24px -24px rgba(15, 23, 42, 0.45);
+}
+
+.training-player-progress-copy {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.training-player-progress-copy strong,
+.training-player-progress-copy span {
+  display: block;
+}
+
+.training-player-progress-copy strong {
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.training-player-progress-value {
+  flex: none;
+  color: var(--training-indigo);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.training-player-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+.training-player-content {
+  min-width: 0;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.training-player-lesson-head {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--training-border);
+}
+
+.training-player-lesson-head h1 {
+  max-width: 820px;
+  margin-bottom: 8px;
+  font-size: clamp(26px, 4vw, 38px);
+  letter-spacing: -0.035em;
+}
+
+.training-player-lesson-head > p {
+  max-width: 780px;
+  color: var(--dash-muted);
+  line-height: 1.65;
+}
+
+.training-lesson-prose {
+  max-width: 800px;
+  margin: 28px auto 0;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.training-lesson-prose h2 {
+  margin-top: 32px;
+  margin-bottom: 10px;
+  font-size: 21px;
+  letter-spacing: -0.025em;
+}
+
+.training-lesson-prose p,
+.training-lesson-prose li {
+  color: #334155;
+}
+
+.training-lesson-prose ul,
+.training-lesson-prose ol {
+  padding-left: 22px;
+}
+
+.training-note-block,
+.training-practice-block {
+  margin: 24px 0;
+  padding: 16px 18px;
+  border-radius: 15px;
+}
+
+.training-note-block {
+  border: 1px solid #c7d2fe;
+  background: #fafaff;
+}
+
+.training-note-block p {
+  margin-bottom: 0;
+}
+
+.training-practice-block {
+  border: 1px solid #bae6d3;
+  background: #f7fffb;
+}
+
+.training-practice-block h3 {
+  margin: 4px 0 8px;
+  font-size: 17px;
+}
+
+.training-practice-block p {
+  margin: 0;
+}
+
+.training-player-footer {
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid var(--training-border);
+}
+
+.training-player-footer-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.training-player-footer-nav form {
+  margin: 0;
+}
+
+.training-player-footer > p {
+  margin: 10px 0 0;
+  text-align: right;
+}
+
+.training-player-sidebar {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 94px;
+}
+
+.training-player-outline {
+  padding: 0;
+  overflow: hidden;
+}
+
+.training-player-outline summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.training-player-outline summary::-webkit-details-marker {
+  display: none;
+}
+
+.training-player-outline summary strong,
+.training-player-outline summary small {
+  display: block;
+}
+
+.training-player-outline summary strong {
+  font-size: 13px;
+}
+
+.training-player-outline summary small {
+  margin-top: 2px;
+  font-size: 10.5px;
+}
+
+.training-player-outline-body {
+  max-height: calc(100vh - 190px);
+  overflow: auto;
+  padding: 0 10px 10px;
+  border-top: 1px solid var(--training-border);
+}
+
+.training-player-outline-body section + section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--training-border);
+}
+
+.training-player-module-title {
+  padding: 8px 5px 6px;
+}
+
+.training-player-module-title span,
+.training-player-module-title strong {
+  display: block;
+}
+
+.training-player-module-title span {
+  color: var(--dash-faint);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.training-player-module-title strong {
+  margin-top: 2px;
+  font-size: 11.5px;
+}
+
+.training-player-lesson-list {
+  display: grid;
+  gap: 4px;
+}
+
+.training-player-lesson-link {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  color: var(--dash-muted);
+  text-decoration: none;
+}
+
+.training-player-lesson-link:hover {
+  background: var(--training-soft);
+}
+
+.training-player-lesson-link.is-current {
+  background: var(--training-indigo-soft);
+  color: var(--training-indigo);
+}
+
+.training-player-lesson-link.is-complete > span:first-child {
+  color: var(--training-green);
+}
+
+.training-player-lesson-link > span:first-child {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.training-player-lesson-link strong,
+.training-player-lesson-link small {
+  display: block;
+}
+
+.training-player-lesson-link strong {
+  overflow: hidden;
+  font-size: 10.5px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.training-player-lesson-link small {
+  margin-top: 1px;
+  color: var(--dash-faint);
+  font-size: 9px;
+}
+
+.training-player-next-step {
+  padding: 14px;
+}
+
+.training-player-next-step strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+}
+
+.training-player-next-step p {
+  margin: 5px 0 0;
+}
+
+/* Assessment and completion */
+.training-assessment-journey {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.training-assessment-step {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: var(--training-soft);
+  color: var(--dash-muted);
+}
+
+.training-assessment-step > span:first-child {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  place-items: center;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.training-assessment-step strong,
+.training-assessment-step small {
+  display: block;
+}
+
+.training-assessment-step strong {
+  font-size: 11.5px;
+}
+
+.training-assessment-step small {
+  margin-top: 1px;
+  font-size: 9.5px;
+}
+
+.training-assessment-step.is-current {
+  background: var(--training-indigo-soft);
+  color: var(--training-indigo);
+}
+
+.training-assessment-step.is-complete {
+  background: var(--training-green-soft);
+  color: var(--training-green);
+}
+
+.training-assessment-readiness {
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 13px;
+  background: #f8fbff;
+}
+
+.training-assessment-readiness strong {
+  font-size: 12px;
+}
+
+.training-assessment-readiness p {
+  margin: 4px 0 0;
+  color: var(--dash-muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.training-assessment-resource pre {
+  overflow-x: auto;
+  margin: 12px 0 0;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.training-assessment-review-lessons {
+  margin-top: 14px;
+}
+
+.training-completion-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid #c7d2fe;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 15%, rgba(79, 70, 229, 0.10), transparent 30%),
+    linear-gradient(135deg, #fff, #fafaff);
+}
+
+.training-completion-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--training-indigo-soft);
+  color: var(--training-indigo);
+}
+
+.training-completion-copy h2 {
+  margin: 3px 0 6px;
+  font-size: 21px;
+}
+
+.training-completion-copy > p {
+  max-width: 720px;
+  margin: 0 0 14px;
+  color: var(--dash-muted);
+}
+
+.training-completion-credential {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid var(--training-border);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.training-completion-credential code {
+  display: block;
+  margin-top: 2px;
+  color: var(--dash-ink);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .training-player-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .training-player-sidebar {
+    position: static;
+    order: -1;
+  }
+
+  .training-player-outline-body {
+    max-height: 420px;
+  }
+}
+
+@media (max-width: 430px) {
+  .training-player-progress {
+    top: 6px;
+    margin: 10px 0;
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+
+  .training-player-progress-copy strong {
+    font-size: 11.5px;
+  }
+
+  .training-player-progress-value {
+    font-size: 11px;
+  }
+
+  .training-player-content {
+    padding: 15px 13px;
+  }
+
+  .training-player-lesson-head {
+    padding-bottom: 16px;
+  }
+
+  .training-player-lesson-head h1 {
+    font-size: 24px;
+  }
+
+  .training-lesson-prose {
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.68;
+  }
+
+  .training-lesson-prose h2 {
+    margin-top: 26px;
+    font-size: 18px;
+  }
+
+  .training-note-block,
+  .training-practice-block {
+    margin: 18px 0;
+    padding: 13px;
+  }
+
+  .training-player-footer-nav {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .training-player-footer-nav .btn,
+  .training-player-footer-nav form,
+  .training-player-footer-nav form .btn {
+    width: 100%;
+  }
+
+  .training-player-footer > p {
+    text-align: left;
+  }
+
+  .training-assessment-journey {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .training-assessment-step {
+    padding: 8px;
+  }
+
+  .training-assessment-submit .btn {
+    width: 100%;
+  }
+
+  .training-completion-card {
+    grid-template-columns: 1fr;
+    padding: 16px 13px;
+  }
+
+  .training-completion-credential {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .training-completion-credential .training-certificate-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .training-completion-copy > .btn {
+    width: 100%;
+  }
+}

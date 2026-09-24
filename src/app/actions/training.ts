@@ -46,6 +46,7 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const lessonId = String(formData.get("lesson_id") || "");
   const courseSlug = String(formData.get("course_slug") || "");
+  const continueTo = String(formData.get("continue_to") || "").trim();
   if (!lessonId || !courseSlug) redirect("/workspace/training");
 
   const supabase = await createClient();
@@ -120,6 +121,13 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   revalidatePath("/workspace/training");
   revalidatePath(`/workspace/training/courses/${course.slug}`);
   revalidatePath(`/workspace/training/courses/${course.slug}/lessons/${lessonId}`);
+
+  const coursePath = `/workspace/training/courses/${course.slug}`;
+  const safeContinueTo =
+    continueTo === coursePath || continueTo.startsWith(`${coursePath}/`)
+      ? continueTo
+      : "";
+  if (safeContinueTo) redirect(safeContinueTo);
 }
 
 

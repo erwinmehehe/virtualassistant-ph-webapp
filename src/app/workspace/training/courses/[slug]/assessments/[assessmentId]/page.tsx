@@ -16,9 +16,13 @@ import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingAssessment, getTrainingDashboard } from "@/lib/training";
 import { recommendNextTrainingCourses } from "@/lib/training-recommendations";
 import {
+  assessmentQuestionSetKey,
   buildAssessmentQuestions,
   publicAssessmentQuestions,
 } from "@/lib/training-integrity";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function retryLabel(value: string | null) {
   if (!value) return null;
@@ -79,18 +83,20 @@ export default async function TrainingAssessmentPage({
   const retryAt = retryLabel(attemptState.retryAt);
   const retryLocked = !passed && attemptState.last24Hours >= 3 && Boolean(attemptState.retryAt);
 
-  const questions =
+  const generatedQuestions =
     lessonsComplete && !passed && !retryLocked
-      ? publicAssessmentQuestions(
-          buildAssessmentQuestions({
-            course,
-            assessmentId: assessment.id,
-            userId,
-            attemptNumber,
-            questionCount: 8,
-          }),
-        )
+      ? buildAssessmentQuestions({
+          course,
+          assessmentId: assessment.id,
+          userId,
+          attemptNumber,
+          questionCount: 8,
+        })
       : [];
+  const questionSetKey = generatedQuestions.length
+    ? assessmentQuestionSetKey(generatedQuestions)
+    : "";
+  const questions = publicAssessmentQuestions(generatedQuestions);
 
   const missedLessonIds = Array.isArray(latest?.response?.missed_lesson_ids)
     ? latest.response.missed_lesson_ids.filter(
@@ -165,7 +171,7 @@ export default async function TrainingAssessmentPage({
           </span>
         </div>
         <p className="training-assessment-attempt-note">
-          You can make up to 3 attempts in a rolling 24-hour period.
+          You can make up to 3 attempts in a rolling 24-hour period. A passing score still requires the authority-boundary question to be correct.
         </p>
       </section>
 
@@ -284,6 +290,7 @@ export default async function TrainingAssessmentPage({
             <input type="hidden" name="course_slug" value={course.slug}/>
             <input type="hidden" name="assessment_id" value={assessment.id}/>
             <input type="hidden" name="attempt_number" value={attemptNumber}/>
+            <input type="hidden" name="question_set_key" value={questionSetKey}/>
 
             <div className="training-auto-assessment-questions">
               {questions.map((question, index) => (

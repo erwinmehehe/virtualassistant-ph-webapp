@@ -853,7 +853,6 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
-  const manage = createBookingManageToken();
   let meeting: Awaited<ReturnType<typeof createGoogleMeetDiscoveryMeeting>> | null = null;
   let meetingError: string | null = null;
   try {
@@ -895,8 +894,6 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     discovery_meeting_url: meeting?.joinUrl || null,
     discovery_calendar_event_id: meeting?.eventId || null,
     discovery_meeting_provider: meeting ? "google_meet" : null,
-    discovery_manage_token_hash: manage.hash,
-    discovery_manage_token: manage.token,
     discovery_notes: [
       "Booked by a prospective client through the public qualification calendar.",
       meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
@@ -960,6 +957,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     metadata: { lead_id: leadId, job_id: jobId, service: parsed.data.service, audience: "client" },
   });
 
+  const manageToken = createBookingManageToken(leadId);
   const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
   const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
   try {
@@ -981,7 +979,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientTimeZone: parsed.data.timezone,
       meetingUrl: meeting?.joinUrl || null,
       calendarEventId: meeting?.eventId || null,
-      manageUrl: bookingManageUrl(manage.token),
+      manageUrl: bookingManageUrl(manageToken),
     });
   } catch {
     // The database booking remains the source of truth if delivery is unavailable.
@@ -1001,7 +999,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientLabel,
       manilaLabel,
       meetingUrl: meeting?.joinUrl || null,
-      manageUrl: bookingManageUrl(manage.token),
+      manageUrl: bookingManageUrl(manageToken),
     });
   } catch {
     // Never lose a confirmed client booking because an internal alert failed.

@@ -478,27 +478,63 @@
 }
 
 .training-specialization-icon {
+  --specialization-icon-fg: #475467;
+  --specialization-icon-bg: #f8fafc;
+  --specialization-icon-border: #eaecf0;
   display: grid;
   width: 40px;
   height: 40px;
   flex: none;
   place-items: center;
-  border: 1px solid #eaecf0;
+  border: 1px solid var(--specialization-icon-border);
   border-radius: 12px;
-  background: #f8fafc;
-  color: #475467;
+  background: var(--specialization-icon-bg);
+  color: var(--specialization-icon-fg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+
+.training-specialization:hover .training-specialization-icon {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--specialization-icon-fg) 36%, transparent);
+  filter: saturate(1.08);
+}
+
+.training-specialization-icon.specialization-icon-tradie-operations {
+  --specialization-icon-fg: #d97706;
+  --specialization-icon-bg: #fff8e8;
+  --specialization-icon-border: #fde7b2;
+}
+
+.training-specialization-icon.specialization-icon-property-management {
+  --specialization-icon-fg: #2563eb;
+  --specialization-icon-bg: #eff6ff;
+  --specialization-icon-border: #dbeafe;
+}
+
+.training-specialization-icon.specialization-icon-ndis-allied-health {
+  --specialization-icon-fg: #e11d48;
+  --specialization-icon-bg: #fff1f2;
+  --specialization-icon-border: #ffe0e6;
+}
+
+.training-specialization-icon.specialization-icon-mortgage-broking {
+  --specialization-icon-fg: #059669;
+  --specialization-icon-bg: #ecfdf3;
+  --specialization-icon-border: #ccefdc;
 }
 
 .training-specialization.is-progress .training-specialization-icon {
-  border-color: #d9ddff;
-  background: #f3f4ff;
-  color: var(--training-indigo);
+  border-color: var(--specialization-icon-border);
+  background: var(--specialization-icon-bg);
+  color: var(--specialization-icon-fg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--specialization-icon-fg) 8%, transparent);
 }
 
 .training-specialization.is-complete .training-specialization-icon {
-  border-color: #d1fadf;
-  background: var(--training-green-soft);
-  color: var(--training-green);
+  --specialization-icon-fg: var(--training-green);
+  --specialization-icon-bg: var(--training-green-soft);
+  --specialization-icon-border: #d1fadf;
 }
 
 .training-specialization-copy {

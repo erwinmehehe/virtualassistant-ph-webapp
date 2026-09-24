@@ -130,6 +130,22 @@ function activeFor(pathname: string, href: string) {
   return pathname.startsWith(`${href}/`);
 }
 
+function navToneFor(label: string, href: string) {
+  const key = `${label} ${href}`.toLowerCase();
+
+  if (key.includes("training")) return "violet";
+  if (key.includes("payout") || key.includes("payment") || key.includes("finance")) return "emerald";
+  if (key.includes("support")) return "rose";
+  if (key.includes("work readiness") || key.includes("coverage")) return "teal";
+  if (key.includes("interview")) return "sky";
+  if (key.includes("opportunit") || key.includes("/jobs") || key.includes("hiring") || key.includes("roles")) return "amber";
+  if (key.includes("placement") || key.includes("client success")) return "purple";
+  if (key.includes("profile") || key.includes("talent") || key.includes("users")) return "cyan";
+  if (key.includes("analytics") || key.includes("funnel")) return "blue";
+  if (key.includes("settings") || key.includes("audit") || key.includes("email health") || key.includes("deletion")) return "slate";
+  return "indigo";
+}
+
 function Badge({ count }: { count: number }) {
   if (!count) return null;
   return <span className="nav-badge" aria-label={`${count} unread`}>{count > 99 ? "99+" : count}</span>;
@@ -160,7 +176,9 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
         aria-current={active ? "page" : undefined}
         onClick={mobile ? (event) => event.currentTarget.closest("details")?.removeAttribute("open") : undefined}
       >
-        <Icon size={mobile ? 18 : 17} />
+        <span className={`app-nav-icon nav-tone-${navToneFor(label, href)}`} aria-hidden="true">
+          <Icon size={mobile ? 17 : 16} />
+        </span>
         <span>{label}</span>
         <Badge count={badges[href] || 0} />
       </Link>

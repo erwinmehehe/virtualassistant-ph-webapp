@@ -94,6 +94,19 @@ test("course cards show learning metadata, assessment state, progress, and one a
   assert.match(training, /"passed"/);
 });
 
+test("Australian specialisation icons use distinct restrained color treatments", async () => {
+  const [page, css] = await Promise.all([
+    readFile(pagePath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+
+  assert.match(page, /specialization-icon-\$\{specialization\.slug\}/);
+  assert.match(css, /specialization-icon-tradie-operations/);
+  assert.match(css, /specialization-icon-property-management/);
+  assert.match(css, /specialization-icon-ndis-allied-health/);
+  assert.match(css, /specialization-icon-mortgage-broking/);
+});
+
 test("Australian specialisations use real learner states rather than availability chains", async () => {
   const page = await readFile(pagePath, "utf8");
 

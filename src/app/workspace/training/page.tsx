@@ -475,7 +475,7 @@ export default async function TrainingDashboardPage({
             return (
               <article className={`training-specialization is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
                 <div className="training-specialization-header">
-                  <span className="training-specialization-icon" aria-hidden="true">
+                  <span className={`training-specialization-icon specialization-icon-${specialization.slug}`} aria-hidden="true">
                     <AustraliaSpecializationIcon slug={specialization.slug} />
                   </span>
                   <div className="training-specialization-copy">

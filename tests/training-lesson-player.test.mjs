@@ -43,7 +43,7 @@ test("lesson completion enforces active reading, content progress, checkpoint, p
   assert.match(actions, /max_scroll_percent/);
   assert.match(actions, /checkpoint_key/);
   assert.match(actions, /exerciseResponse\.length < 80/);
-  assert.match(actions, /Complete the earlier lessons before finishing this lesson/);
+  assert.match(actions, /failLessonCompletion\("sequence"\)/);
 
   assert.match(component, /document\.visibilityState !== "visible"/);
   assert.match(component, /document\.hasFocus\(\)/);

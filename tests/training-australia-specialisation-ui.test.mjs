@@ -2,26 +2,32 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("Australian specialisation CTA only continues after path-specific work starts", async () => {
+test("Australian specialisation CTA uses path-specific progress plus the persisted selection", async () => {
   const page = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const config = await readFile("src/lib/training-specializations.ts", "utf8");
 
   assert.match(page, /SHARED_AUSTRALIA_COURSES/);
   assert.match(page, /startSignals/);
   assert.match(page, /signalCourses\.some/);
-  assert.match(page, /pathStarted \? "Continue path" : "Start path"/);
+  assert.match(page, /pathSelected/);
+  assert.match(page, /Continue path/);
+  assert.match(page, /Start path/);
+  assert.match(page, /Switch path/);
 
-  assert.match(page, /australian-trades-administration/);
-  assert.match(page, /property-management-administration-australia/);
-  assert.match(page, /ndis-administration-fundamentals/);
-  assert.match(page, /mortgage-broking-administration-australia/);
+  assert.match(config, /australian-trades-administration/);
+  assert.match(config, /property-management-administration-australia/);
+  assert.match(config, /ndis-administration-fundamentals/);
+  assert.match(config, /mortgage-broking-administration-australia/);
 });
 
 test("shared prerequisites do not make every Australian path active", async () => {
   const page = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const config = await readFile("src/lib/training-specializations.ts", "utf8");
 
-  assert.match(page, /"virtual-assistant-foundations"/);
-  assert.match(page, /"australian-va-fundamentals"/);
+  assert.match(config, /"virtual-assistant-foundations"/);
+  assert.match(config, /"australian-va-fundamentals"/);
   assert.match(page, /const signalCourses = published\.filter/);
+  assert.match(page, /learnerPreferences\?\.australiaSpecialization/);
   assert.doesNotMatch(page, /const pathStarted = published\.some/);
 });
 

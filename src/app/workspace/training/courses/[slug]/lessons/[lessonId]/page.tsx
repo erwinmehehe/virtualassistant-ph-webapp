@@ -61,7 +61,7 @@ function LessonContent({ value }: { value: unknown }) {
             <section className="training-exercise-block" key={index}>
               <div className="training-practice-block-head">
                 <div>
-                  <span className="dash-kicker"><Target size={13}/> Try this now</span>
+                  <span className="dash-kicker"><Target size={13}/> Practice task</span>
                   {block.title ? <h3>{block.title}</h3> : null}
                 </div>
               </div>

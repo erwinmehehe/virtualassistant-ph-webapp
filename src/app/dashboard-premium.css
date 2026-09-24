@@ -102,6 +102,88 @@
   font-weight: 820;
 }
 .dashboard-shell .app-nav-desktop a[aria-current="page"] svg { color: #4f46e5; }
+
+.dashboard-shell .app-nav-icon {
+  --nav-icon-color: #4f46e5;
+  --nav-icon-bg: #eef2ff;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--nav-icon-color) 14%, white);
+  border-radius: 10px;
+  color: var(--nav-icon-color);
+  background: var(--nav-icon-bg);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--nav-icon-color) 9%, transparent);
+  transition: transform .16s ease, color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.dashboard-shell .app-nav-icon svg { color: currentColor; }
+.dashboard-shell .app-nav-desktop a:hover .app-nav-icon {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 7px 14px color-mix(in srgb, var(--nav-icon-color) 14%, transparent);
+}
+.dashboard-shell .app-nav-desktop a[aria-current="page"] .app-nav-icon {
+  color: #fff;
+  background: linear-gradient(145deg, var(--nav-icon-color), color-mix(in srgb, var(--nav-icon-color) 72%, #312e81));
+  border-color: transparent;
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--nav-icon-color) 26%, transparent);
+}
+.dashboard-shell .app-nav-desktop a[aria-current="page"] .app-nav-icon svg { color: #fff; }
+
+.dashboard-shell .nav-tone-indigo .app-nav-icon {
+  --nav-icon-color: #4f46e5;
+  --nav-icon-bg: #eef2ff;
+}
+.dashboard-shell .nav-tone-violet .app-nav-icon {
+  --nav-icon-color: #7c3aed;
+  --nav-icon-bg: #f5f3ff;
+}
+.dashboard-shell .nav-tone-cyan .app-nav-icon {
+  --nav-icon-color: #0891b2;
+  --nav-icon-bg: #ecfeff;
+}
+.dashboard-shell .nav-tone-blue .app-nav-icon {
+  --nav-icon-color: #2563eb;
+  --nav-icon-bg: #eff6ff;
+}
+.dashboard-shell .nav-tone-amber .app-nav-icon {
+  --nav-icon-color: #d97706;
+  --nav-icon-bg: #fffbeb;
+}
+.dashboard-shell .nav-tone-emerald .app-nav-icon {
+  --nav-icon-color: #059669;
+  --nav-icon-bg: #ecfdf5;
+}
+.dashboard-shell .nav-tone-teal .app-nav-icon {
+  --nav-icon-color: #0f766e;
+  --nav-icon-bg: #f0fdfa;
+}
+.dashboard-shell .nav-tone-rose .app-nav-icon {
+  --nav-icon-color: #e11d48;
+  --nav-icon-bg: #fff1f2;
+}
+.dashboard-shell .nav-tone-orange .app-nav-icon {
+  --nav-icon-color: #ea580c;
+  --nav-icon-bg: #fff7ed;
+}
+.dashboard-shell .nav-tone-slate .app-nav-icon {
+  --nav-icon-color: #64748b;
+  --nav-icon-bg: #f1f5f9;
+}
+
+.dashboard-shell .app-nav-mobile .app-nav-icon {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  border-radius: 9px;
+  box-shadow: none;
+}
+.dashboard-shell .app-nav-mobile a[aria-current="page"] .app-nav-icon {
+  color: #fff;
+  background: var(--nav-icon-color);
+  border-color: transparent;
+}
 .dashboard-shell .nav-badge {
   margin-left: auto;
   min-width: 20px;

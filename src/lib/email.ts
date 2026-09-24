@@ -1016,6 +1016,7 @@ export async function sendStaffClientFollowupEmail(args: {
   senderName?: string | null;
   href?: string | null;
   archiveCopy?: boolean;
+  idempotencyKey?: string;
 }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -1036,8 +1037,14 @@ export async function sendStaffClientFollowupEmail(args: {
       senderName: sender,
       appendSignature: false
     })
-  }, "client_followup", { archive: false, priority: "critical" });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  }, "client_followup", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: args.idempotencyKey,
+  });
+  return delivery.sent
+    ? { sent: true as const, duplicatePrevented: delivery.duplicatePrevented === true }
+    : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendTransactionalEventEmail(args: { to?: string | null; firstName?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority; senderName?: string; teamLabel?: string; footerText?: string }) {
@@ -1131,6 +1138,7 @@ export async function sendDiscoveryBookingEmail(args: {
   durationMinutes: number;
   meetingUrl?: string | null;
   recruiterName?: string | null;
+  idempotencyKey?: string;
 }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -1151,8 +1159,14 @@ export async function sendDiscoveryBookingEmail(args: {
       ctaHref: args.meetingUrl || undefined,
       ctaLabel: args.meetingUrl ? "Join Google Meet" : undefined
     })
-  }, "discovery_booking", { archive: false, priority: "critical" });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  }, "discovery_booking", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: args.idempotencyKey,
+  });
+  return delivery.sent
+    ? { sent: true as const, duplicatePrevented: delivery.duplicatePrevented === true }
+    : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendPublicDiscoveryBookingEmail(args: {

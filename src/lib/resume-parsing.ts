@@ -291,6 +291,9 @@ function extractBio(text: string): string | null {
     if (candidate.length >= 40) return candidate.slice(0, 600);
   }
 
+  // Many resumes start with a short professional paragraph but omit a
+  // dedicated Summary heading. Keep that useful fallback after the parser
+  // safety checks above.
   const fallback = lines
     .slice(0, 18)
     .filter(

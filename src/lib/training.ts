@@ -759,11 +759,14 @@ export async function getTrainingAdminSummary() {
   const funnelWindowDays = 30;
   const funnelSince = new Date(Date.now() - funnelWindowDays * 86_400_000).toISOString();
   const funnelDefinitions = [
+    { event: "training_course_view", label: "Viewed a course" },
     { event: "training_course_start", label: "Started a course" },
     { event: "training_lesson_complete", label: "Completed a lesson" },
+    { event: "training_assessment_view", label: "Opened final check" },
     { event: "training_assessment_submit", label: "Submitted final check" },
     { event: "training_assessment_reviewed", label: "Final check scored" },
     { event: "training_course_complete", label: "Completed a course" },
+    { event: "training_certificate_issued", label: "Certificate issued" },
     { event: "training_certificate_view", label: "Viewed certificate" },
   ] as const;
   const { data: funnelEventData } = await admin

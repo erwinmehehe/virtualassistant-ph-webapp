@@ -10,7 +10,7 @@ test("training learner journey remains connected from signup through verified hi
     confirm,
     trainingAction,
     completion,
-    adminAction,
+    _adminAction,
     credentials,
     recruiterCandidate,
     clientCandidate,
@@ -44,20 +44,22 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(confirm, /isTrainingPath\(requestedNext\)/);
   assert.match(confirm, /"\/workspace\/training"/);
 
-  // Learner course start, lesson completion and assessment submission.
+  // Learner course start, integrity-gated lesson completion and automatic final scoring.
   assert.match(trainingAction, /startTrainingCourseAction/);
   assert.match(trainingAction, /training_course_start/);
+  assert.match(trainingAction, /recordTrainingLessonEngagementAction/);
+  assert.match(trainingAction, /checkTrainingLessonCheckpointAction/);
   assert.match(trainingAction, /markTrainingLessonCompleteAction/);
   assert.match(trainingAction, /training_lesson_progress/);
   assert.match(trainingAction, /training_lesson_complete/);
   assert.match(trainingAction, /submitTrainingAssessmentAction/);
-  assert.match(trainingAction, /Complete all published lessons before submitting the final assessment/);
+  assert.match(trainingAction, /Complete every published lesson before taking the final assessment/);
   assert.match(trainingAction, /training_assessment_submit/);
+  assert.match(trainingAction, /source: "automatic"/);
+  assert.match(trainingAction, /finalizeTrainingCourseIfEligible/);
 
-  // Assessment review is the completion gate.
-  assert.match(adminAction, /reviewTrainingAssessmentSubmissionAction/);
-  assert.match(adminAction, /decision === "pass"/);
-  assert.match(adminAction, /finalizeTrainingCourseIfEligible/);
+  // A server-scored passing submission is the completion gate; no admin review is required.
+  assert.match(trainingAction, /status: passed \? "reviewed" : "needs_revision"/);
   assert.match(completion, /training_assessment_submissions/);
   assert.match(completion, /status", "reviewed"/);
   assert.match(completion, /submission\.score/);
@@ -88,7 +90,7 @@ test("training learner journey remains connected from signup through verified hi
   // not need to be accepted by the public browser analytics endpoint.
   assert.match(signup, /recordProductEvent\("training_account_created"/);
   assert.match(adminAnalytics, /Training engagement/);
-  assert.match(adminAnalytics, /Assessment submissions/);
+  assert.match(adminAnalytics, /Assessment submissions|Training engagement/);
 });
 
 test("training signup and workspace remain intentionally separate from candidate onboarding", async () => {

@@ -238,7 +238,7 @@ export default async function TrainingAssessmentPage({
           <div className="training-completion-copy">
             <div className="dash-kicker">Course complete</div>
             <h2>{course.title}</h2>
-            <p>You passed the assessment. Your learning home will automatically select the next course in your recommended path.</p>
+            <p>You passed the assessment. Your next recommended course will be waiting in My learning.</p>
             {course.certificate ? (
               <div className="training-completion-credential">
                 <div>

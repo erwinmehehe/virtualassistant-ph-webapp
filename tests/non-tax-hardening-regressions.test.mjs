@@ -31,6 +31,7 @@ test("public analytics ingestion is rate limited and retry-idempotent", async ()
   assert.match(route, /enforceActionRateLimit\("public_analytics:session"/);
   assert.match(route, /enforceIpRateLimit\("public_analytics"/);
   assert.match(route, /status: 429/);
+  assert.match(route, /BOOKING_VISUAL_FIXTURE === "1"/);
   assert.match(rateLimit, /if \(ip === "unknown"\) return/);
   assert.match(route, /event_id: parsed\.data\.event_id/);
   assert.match(route, /error\.code !== "23505"/);

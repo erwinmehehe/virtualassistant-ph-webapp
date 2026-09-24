@@ -3,9 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { recordProductEvent } from "@/lib/product-events";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
+import {
+  buildAssessmentQuestionsFromLessons,
+  buildLessonCheckpoint,
+  lessonActiveSecondsRequired,
+} from "@/lib/training-integrity";
 import { getAustraliaSpecialization, isAustraliaSpecializationSlug } from "@/lib/training-specializations";
 
 export async function startTrainingCourseAction(formData: FormData) {
@@ -132,76 +138,217 @@ export async function selectAustraliaSpecializationAction(formData: FormData) {
   redirect(`/workspace/training/courses/${next.slug}`);
 }
 
+export async function recordTrainingLessonEngagementAction(input: {
+  lessonId: string;
+  courseSlug: string;
+  scrollPercent: number;
+}) {
+  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
+  const lessonId = String(input.lessonId || "").trim();
+  const courseSlug = String(input.courseSlug || "").trim();
+  const scrollPercent = Math.max(0, Math.min(100, Math.round(Number(input.scrollPercent || 0))));
+  if (!lessonId || !courseSlug) return { activeSeconds: 0, maxScrollPercent: 0 };
+
+  const admin = createAdminClient();
+  const { data: course } = await admin
+    .from("training_courses")
+    .select("id")
+    .eq("slug", courseSlug)
+    .eq("status", "published")
+    .maybeSingle();
+  if (!course) return { activeSeconds: 0, maxScrollPercent: 0 };
+
+  const { data: modules } = await admin
+    .from("training_modules")
+    .select("id")
+    .eq("course_id", course.id);
+  const moduleIds = (modules || []).map((item) => item.id);
+  if (!moduleIds.length) return { activeSeconds: 0, maxScrollPercent: 0 };
+
+  const { data: lesson } = await admin
+    .from("training_lessons")
+    .select("id")
+    .eq("id", lessonId)
+    .eq("is_published", true)
+    .in("module_id", moduleIds)
+    .maybeSingle();
+  if (!lesson) return { activeSeconds: 0, maxScrollPercent: 0 };
+
+  const { data: existing } = await admin
+    .from("training_lesson_engagement")
+    .select("active_seconds,max_scroll_percent,last_activity_at")
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
+    .maybeSingle();
+
+  const now = new Date();
+  let earnedSeconds = 0;
+  if (existing?.last_activity_at) {
+    const elapsed = Math.floor((now.getTime() - new Date(existing.last_activity_at).getTime()) / 1000);
+    if (elapsed >= 5 && elapsed <= 45) earnedSeconds = Math.min(30, elapsed);
+  }
+
+  const activeSeconds = Number(existing?.active_seconds || 0) + earnedSeconds;
+  const maxScrollPercent = Math.max(Number(existing?.max_scroll_percent || 0), scrollPercent);
+
+  await admin.from("training_lesson_engagement").upsert({
+    user_id: userId,
+    lesson_id: lesson.id,
+    active_seconds: activeSeconds,
+    max_scroll_percent: maxScrollPercent,
+    last_activity_at: now.toISOString(),
+    updated_at: now.toISOString(),
+  }, { onConflict: "user_id,lesson_id" });
+
+  return { activeSeconds, maxScrollPercent };
+}
+
 export async function markTrainingLessonCompleteAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
   const lessonId = String(formData.get("lesson_id") || "");
   const courseSlug = String(formData.get("course_slug") || "");
   const continueTo = String(formData.get("continue_to") || "").trim();
+  const checkpointOption = String(formData.get("checkpoint_option") || "").trim();
+  const exerciseResponse = String(formData.get("exercise_response") || "").trim();
   if (!lessonId || !courseSlug) redirect("/workspace/training");
 
-  const supabase = await createClient();
-  const { data: course } = await supabase
+  const admin = createAdminClient();
+  const { data: course } = await admin
     .from("training_courses")
     .select("id,slug")
     .eq("slug", courseSlug)
     .eq("status", "published")
     .maybeSingle();
-
   if (!course) redirect("/workspace/training");
 
-  const { data: moduleRows } = await supabase
+  const { data: modules } = await admin
     .from("training_modules")
-    .select("id")
-    .eq("course_id", course.id);
-
-  const moduleIds = (moduleRows || []).map((module) => module.id);
+    .select("id,position")
+    .eq("course_id", course.id)
+    .order("position");
+  const moduleIds = (modules || []).map((module) => module.id);
   if (!moduleIds.length) redirect(`/workspace/training/courses/${course.slug}`);
 
-  const { data: lesson } = await supabase
+  const { data: lessons } = await admin
     .from("training_lessons")
-    .select("id,module_id")
-    .eq("id", lessonId)
-    .eq("is_published", true)
+    .select("id,module_id,title,content,estimated_minutes,position,is_published")
     .in("module_id", moduleIds)
+    .eq("is_published", true);
+
+  const modulePosition = new Map((modules || []).map((module) => [module.id, module.position]));
+  const orderedLessons = (lessons || []).sort((a, b) =>
+    Number(modulePosition.get(a.module_id) || 0) - Number(modulePosition.get(b.module_id) || 0) ||
+    Number(a.position) - Number(b.position)
+  );
+  const lessonIndex = orderedLessons.findIndex((item) => item.id === lessonId);
+  if (lessonIndex < 0) redirect(`/workspace/training/courses/${course.slug}`);
+  const lesson = orderedLessons[lessonIndex];
+
+  const previousIds = orderedLessons.slice(0, lessonIndex).map((item) => item.id);
+  if (previousIds.length) {
+    const { data: previousProgress } = await admin
+      .from("training_lesson_progress")
+      .select("lesson_id")
+      .eq("user_id", userId)
+      .in("lesson_id", previousIds);
+    const completedPrevious = new Set((previousProgress || []).map((item) => item.lesson_id));
+    if (!previousIds.every((id) => completedPrevious.has(id))) {
+      throw new Error("Complete the earlier lessons before finishing this lesson.");
+    }
+  }
+
+  const { data: engagement } = await admin
+    .from("training_lesson_engagement")
+    .select("active_seconds,max_scroll_percent")
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
     .maybeSingle();
 
-  if (!lesson) redirect(`/workspace/training/courses/${course.slug}`);
+  const requiredActiveSeconds = lessonActiveSecondsRequired(Number(lesson.estimated_minutes || 1));
+  if (Number(engagement?.active_seconds || 0) < requiredActiveSeconds) {
+    throw new Error("Spend a little more active time reading this lesson before completing it.");
+  }
+  if (Number(engagement?.max_scroll_percent || 0) < 85) {
+    throw new Error("Read through the lesson before completing it.");
+  }
 
-  const { error: enrollmentError } = await supabase
+  const checkpoint = buildLessonCheckpoint({
+    lessonId: lesson.id,
+    lessonTitle: lesson.title,
+    userId,
+    content: lesson.content,
+  });
+  if (checkpoint && checkpointOption !== checkpoint.correctOptionId) {
+    throw new Error("Check the lesson QA section and try the checkpoint again.");
+  }
+
+  const hasExercise =
+    Array.isArray(lesson.content) &&
+    lesson.content.some((block) => block && typeof block === "object" && (block as { type?: string }).type === "exercise");
+  if (hasExercise && (exerciseResponse.length < 80 || exerciseResponse.length > 5000)) {
+    throw new Error("Add a short practical response of at least 80 characters before completing the lesson.");
+  }
+
+  const now = new Date().toISOString();
+  await admin.from("training_lesson_engagement").upsert({
+    user_id: userId,
+    lesson_id: lesson.id,
+    active_seconds: Number(engagement?.active_seconds || 0),
+    max_scroll_percent: Number(engagement?.max_scroll_percent || 0),
+    checkpoint_passed_at: checkpoint ? now : null,
+    checkpoint_key: checkpoint?.checkpointKey || null,
+    exercise_response: hasExercise ? exerciseResponse : null,
+    last_activity_at: now,
+    updated_at: now,
+  }, { onConflict: "user_id,lesson_id" });
+
+  const { error: enrollmentError } = await admin
     .from("training_enrollments")
     .insert({ user_id: userId, course_id: course.id });
-
   if (enrollmentError && enrollmentError.code !== "23505") {
     throw new Error("Could not start this training course.");
   }
 
-  const { data: existingProgress } = await supabase
+  const { data: existingProgress } = await admin
     .from("training_lesson_progress")
     .select("completed_at")
     .eq("user_id", userId)
     .eq("lesson_id", lesson.id)
     .maybeSingle();
 
-  const { error: progressError } = await supabase
+  const { error: progressError } = await admin
     .from("training_lesson_progress")
     .upsert(
-      { user_id: userId, lesson_id: lesson.id, completed_at: new Date().toISOString() },
+      { user_id: userId, lesson_id: lesson.id, completed_at: now },
       { onConflict: "user_id,lesson_id" },
     );
-
   if (progressError) throw new Error("Could not save lesson progress.");
 
   if (!existingProgress?.completed_at) {
     await recordProductEvent("training_lesson_complete", {
       userId,
       path: `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
-      metadata: { course_slug: course.slug, lesson_id: lesson.id },
+      metadata: {
+        course_slug: course.slug,
+        lesson_id: lesson.id,
+        active_seconds: Number(engagement?.active_seconds || 0),
+        max_scroll_percent: Number(engagement?.max_scroll_percent || 0),
+        checkpoint_required: Boolean(checkpoint),
+        practical_response_required: hasExercise,
+      },
     });
   }
 
   const completion = await finalizeTrainingCourseIfEligible(userId, course.id);
   if (completion.newlyCompleted) {
     await recordProductEvent("training_course_complete", {
+      userId,
+      path: `/workspace/training/courses/${course.slug}`,
+      metadata: { course_slug: course.slug, completion_source: "automatic_integrity" },
+    });
+  }
+  if (completion.certificateIssued) {
+    await recordProductEvent("training_certificate_issued", {
       userId,
       path: `/workspace/training/courses/${course.slug}`,
       metadata: { course_slug: course.slug },
@@ -218,58 +365,61 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
       ? continueTo
       : "";
   if (safeContinueTo) redirect(safeContinueTo);
+  redirect(coursePath);
 }
 
 
 export async function submitTrainingAssessmentAction(formData: FormData) {
   const courseSlug = String(formData.get("course_slug") || "").trim();
   const assessmentId = String(formData.get("assessment_id") || "").trim();
-  const responseText = String(formData.get("response_text") || "").trim();
+  const requestedAttempt = Number(formData.get("attempt_number") || 0);
   const { userId } = await requireAuthenticatedUserFast(
     courseSlug && assessmentId
       ? `/workspace/training/courses/${courseSlug}/assessments/${assessmentId}`
       : "/workspace/training",
   );
+  if (!courseSlug || !assessmentId) redirect("/workspace/training");
 
-  if (!courseSlug || !assessmentId || responseText.length < 100 || responseText.length > 20000) {
-    throw new Error("Submit at least 100 characters and no more than 20,000.");
-  }
-
-  const supabase = await createClient();
-  const { data: course } = await supabase
+  const admin = createAdminClient();
+  const { data: course } = await admin
     .from("training_courses")
     .select("id,slug")
     .eq("slug", courseSlug)
     .eq("status", "published")
     .maybeSingle();
-
   if (!course) redirect("/workspace/training");
 
-  const { data: assessment } = await supabase
+  const { data: assessment } = await admin
     .from("training_assessments")
-    .select("id,course_id")
+    .select("id,course_id,pass_score")
     .eq("id", assessmentId)
     .eq("course_id", course.id)
     .eq("is_published", true)
     .maybeSingle();
-
   if (!assessment) redirect(`/workspace/training/courses/${course.slug}`);
 
-  const { data: moduleRows } = await supabase
+  const { data: modules } = await admin
     .from("training_modules")
-    .select("id")
-    .eq("course_id", course.id);
-  const moduleIds = (moduleRows || []).map((module) => module.id);
-  const { data: lessonRows } = moduleIds.length
-    ? await supabase
+    .select("id,position")
+    .eq("course_id", course.id)
+    .order("position");
+  const moduleIds = (modules || []).map((module) => module.id);
+  const { data: lessons } = moduleIds.length
+    ? await admin
         .from("training_lessons")
-        .select("id")
+        .select("id,module_id,title,content,position,is_published")
         .in("module_id", moduleIds)
         .eq("is_published", true)
     : { data: [] };
-  const lessonIds = (lessonRows || []).map((lesson) => lesson.id);
+
+  const modulePosition = new Map((modules || []).map((module) => [module.id, module.position]));
+  const orderedLessons = (lessons || []).sort((a, b) =>
+    Number(modulePosition.get(a.module_id) || 0) - Number(modulePosition.get(b.module_id) || 0) ||
+    Number(a.position) - Number(b.position)
+  );
+  const lessonIds = orderedLessons.map((lesson) => lesson.id);
   const { data: completedRows } = lessonIds.length
-    ? await supabase
+    ? await admin
         .from("training_lesson_progress")
         .select("lesson_id")
         .eq("user_id", userId)
@@ -277,48 +427,120 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     : { data: [] };
   const completedIds = new Set((completedRows || []).map((item) => item.lesson_id));
   if (!lessonIds.length || !lessonIds.every((id) => completedIds.has(id))) {
-    throw new Error("Complete all published lessons before submitting the final assessment.");
+    throw new Error("Complete every published lesson before taking the final assessment.");
   }
 
-  const { error: enrollmentError } = await supabase
-    .from("training_enrollments")
-    .insert({ user_id: userId, course_id: course.id });
-
-  if (enrollmentError && enrollmentError.code !== "23505") {
-    throw new Error("Could not enroll you in this course.");
-  }
-
-  const { data: pendingSubmission } = await supabase
+  const { data: attempts } = await admin
     .from("training_assessment_submissions")
-    .select("id")
+    .select("id,submitted_at,status,score")
     .eq("user_id", userId)
     .eq("assessment_id", assessment.id)
-    .eq("status", "submitted")
-    .order("submitted_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("submitted_at", { ascending: true });
 
-  if (!pendingSubmission) {
-    const { error } = await supabase
-      .from("training_assessment_submissions")
-      .insert({
-        user_id: userId,
-        assessment_id: assessment.id,
-        response: { text: responseText },
-        status: "submitted",
-      });
+  const attemptRows = attempts || [];
+  const nextAttempt = attemptRows.length + 1;
+  if (requestedAttempt && requestedAttempt !== nextAttempt) {
+    throw new Error("This assessment attempt is stale. Refresh the page and try again.");
+  }
 
-    if (error) throw new Error("Could not submit your assessment.");
+  const since = Date.now() - 86_400_000;
+  const recentAttempts = attemptRows.filter((row) => new Date(row.submitted_at).getTime() >= since);
+  if (recentAttempts.length >= 3) {
+    throw new Error("You have used three assessment attempts in 24 hours. Review the lessons and try again later.");
+  }
 
-    await recordProductEvent("training_assessment_submit", {
-      userId,
-      path: `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`,
-      metadata: { course_slug: course.slug, assessment_id: assessment.id },
+  const questions = buildAssessmentQuestionsFromLessons({
+    lessons: orderedLessons,
+    assessmentId: assessment.id,
+    userId,
+    attemptNumber: nextAttempt,
+    questionCount: 8,
+  });
+  if (questions.length < 4) {
+    throw new Error("This assessment is not ready for automatic scoring yet.");
+  }
+
+  const answers: Record<string, string> = {};
+  const missedLessonIds: string[] = [];
+  let correct = 0;
+  for (const question of questions) {
+    const answer = String(formData.get("question_" + question.id) || "").trim();
+    answers[question.id] = answer;
+    if (answer === question.correctOptionId) correct += 1;
+    else missedLessonIds.push(question.lessonId);
+  }
+
+  const score = Math.round((correct / questions.length) * 100);
+  const passScore = Number(assessment.pass_score ?? 80);
+  const passed = score >= passScore;
+  const missedLessonTitles = questions
+    .filter((question) => missedLessonIds.includes(question.lessonId))
+    .map((question) => question.lessonTitle)
+    .filter((value, index, values) => values.indexOf(value) === index);
+  const feedback = passed
+    ? "Passed automatically. Your course completion and certificate are being issued now."
+    : `Not passed yet. Review these lessons before retrying: ${missedLessonTitles.join(", ")}. The answer key is not shown.`;
+
+  const { error: submissionError } = await admin
+    .from("training_assessment_submissions")
+    .insert({
+      user_id: userId,
+      assessment_id: assessment.id,
+      response: {
+        kind: "automatic_knowledge_check",
+        attempt: nextAttempt,
+        question_ids: questions.map((question) => question.id),
+        answers,
+        missed_lesson_ids: missedLessonIds,
+      },
+      status: passed ? "reviewed" : "needs_revision",
+      score,
+      feedback,
+      reviewer_id: null,
+      reviewed_at: new Date().toISOString(),
     });
+  if (submissionError) throw new Error("Could not save your assessment result.");
+
+  await recordProductEvent("training_assessment_submit", {
+    userId,
+    path: `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`,
+    metadata: { course_slug: course.slug, assessment_id: assessment.id, attempt: nextAttempt },
+  });
+  await recordProductEvent("training_assessment_reviewed", {
+    userId,
+    path: `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`,
+    metadata: {
+      course_slug: course.slug,
+      assessment_id: assessment.id,
+      outcome: passed ? "pass" : "needs_revision",
+      score,
+      source: "automatic",
+      attempt: nextAttempt,
+    },
+  });
+
+  if (passed) {
+    const completion = await finalizeTrainingCourseIfEligible(userId, course.id);
+    if (completion.newlyCompleted) {
+      await recordProductEvent("training_course_complete", {
+        userId,
+        path: `/workspace/training/courses/${course.slug}`,
+        metadata: { course_slug: course.slug, completion_source: "automatic_assessment" },
+      });
+    }
+    if (completion.certificateIssued) {
+      await recordProductEvent("training_certificate_issued", {
+        userId,
+        path: `/workspace/training/courses/${course.slug}`,
+        metadata: { course_slug: course.slug },
+      });
+    }
   }
 
   revalidatePath("/workspace/training");
   revalidatePath(`/workspace/training/courses/${course.slug}`);
   revalidatePath(`/workspace/training/courses/${course.slug}/assessments/${assessment.id}`);
-  redirect(`/workspace/training/courses/${course.slug}/assessments/${assessment.id}?submitted=1`);
+  redirect(
+    `/workspace/training/courses/${course.slug}/assessments/${assessment.id}?result=${passed ? "passed" : "failed"}`
+  );
 }

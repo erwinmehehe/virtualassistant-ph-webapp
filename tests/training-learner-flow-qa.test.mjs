@@ -39,6 +39,8 @@ test("course overview always exposes the learner's next meaningful action", asyn
   assert.match(course, /nextAssessment/);
   assert.match(course, /assessmentInReview/);
   assert.match(course, /Assessment in review/);
+  assert.match(course, /Certificate preparing/);
+  assert.match(course, /reviewLabel \? <span className="badge">/);
 });
 
 test("final lesson saves progress and continues directly to the next required assessment", async () => {
@@ -63,6 +65,7 @@ test("assessment remains locked until lessons complete and exposes real review s
   assert.match(assessment, /Assessment passed/);
   assert.match(assessment, /waitingForReview \? "In review"/);
   assert.match(assessment, /training-assessment-journey/);
+  assert.match(assessment, /credentialHref \? "Issued" : course\.completedAt \? "Preparing" : "After passing"/);
 });
 
 test("passed course exposes the issued credential and returns to the learning home", async () => {

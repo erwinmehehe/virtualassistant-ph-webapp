@@ -136,7 +136,7 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
   return { jobsMatched: null, candidatesProposed: Number(data || 0), candidatesReleased: 0 };
 }
 
-type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va" | "training";
+type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
 async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string }) {
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
@@ -377,10 +377,10 @@ async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClien
 
     eligible += 1;
     if (await sendWorkflowReminder(admin, {
-      subjectType: "training",
-      subjectId: enrollment.course_id,
+      subjectType: "va",
+      subjectId: enrollment.user_id,
       recipientId: enrollment.user_id,
-      action: "resume_training",
+      action: `resume_training_${enrollment.course_id}`,
       title,
       body,
       href,

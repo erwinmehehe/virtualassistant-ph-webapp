@@ -18,10 +18,10 @@ test("workspace sidebar renders the saved account avatar with an icon fallback",
   ]);
   assert.match(shell,/avatarUrl\?: string \| null/);
   assert.match(shell,/avatarUrl \? <img src=\{avatarUrl\}/);
-  assert.match(shell,/: <CircleUserRound size=\{18\}\/?>/);
+  assert.match(shell,/: <CircleUserRound size=\{18\}\/?>/);\n  assert.match(shell,/app-account-avatar\$\{avatarUrl \? " has-image" : " is-fallback"\}/);\n  assert.match(shell,/app-footer-icon-signout/);
   assert.match(css,/\.app-account-avatar img/);
   assert.match(css,/object-fit: cover/);
-  assert.match(css,/overflow: hidden/);
+  assert.match(css,/overflow: hidden/);\n  assert.match(css,/\.app-account-avatar\.is-fallback svg/);\n  assert.match(css,/\.app-footer-icon-signout/);
 });
 
 test("every workspace shell passes the profile avatar",async()=>{

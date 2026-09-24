@@ -6,7 +6,8 @@ import { z } from "zod";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock } from "@/lib/training";
-import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";\nimport { hasCompleteTrainingPracticalLesson, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
+import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
+import { hasCompleteTrainingPracticalLesson, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 
 const courseSchema = z.object({
   title: z.string().trim().min(4).max(140),

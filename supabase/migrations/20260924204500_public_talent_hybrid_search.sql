@@ -195,7 +195,7 @@ as $$
       end as lexical_score,
       case
         when p_query_embedding is null or f.embedding is null then 0::double precision
-        else greatest(0::double precision, 1 - (f.embedding <=> p_query_embedding))
+        else greatest(0::double precision, 1 - (f.embedding operator(extensions.<=>) p_query_embedding))
       end as semantic_score
     from filtered f
     where
@@ -204,7 +204,7 @@ as $$
       or (
         p_query_embedding is not null
         and f.embedding is not null
-        and (1 - (f.embedding <=> p_query_embedding)) >= 0.35
+        and (1 - (f.embedding operator(extensions.<=>) p_query_embedding)) >= 0.35
       )
   ),
   ranked as (

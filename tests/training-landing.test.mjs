@@ -37,11 +37,13 @@ test("the landing page only promotes currently published LMS courses", () => {
   assert.doesNotMatch(page, /courses mapped/);
 });
 
-test("the landing page separates new training signup from returning-user login", () => {
-  // New learners should not be dumped on a login screen. The dedicated training
-  // account flow keeps learning separate from candidate onboarding.
-  assert.match(page, /const JOIN_HREF = "\/auth\/join\/training"/);
+test("the landing page separates new training signup from returning-user login and preserves course intent", () => {
+  const intent = source("src/lib/training-intent.ts");
+  assert.match(page, /const JOIN_HREF = trainingJoinHref\(\)/);
   assert.match(page, /const LOGIN_HREF = "\/auth\/login\?next=%2Fworkspace%2Ftraining"/);
+  assert.match(page, /trainingJoinHref\(course\.slug\)/);
+  assert.match(intent, /\/workspace\/training\/courses\/\$\{slug\}/);
+  assert.match(intent, /\/auth\/join\/training\?course=/);
   assert.doesNotMatch(page, /workspace%2Fva%2Ftraining/);
 });
 
@@ -88,6 +90,8 @@ test("the training funnel records successful product actions", () => {
   assert.match(browserAnalytics, /training_landing_view/);
   assert.match(browserAnalytics, /training_dashboard_view/);
   assert.match(analyticsRoute, /training_account_click/);
+  assert.match(analyticsRoute, /training_course_interest_click/);
+  assert.match(analyticsRoute, /training_email_confirmed/);
   assert.match(analyticsRoute, /training_lesson_complete/);
   assert.match(trainingAuth, /recordProductEvent\("training_account_created"/);
   assert.match(trainingActions, /recordProductEvent\("training_course_start"/);

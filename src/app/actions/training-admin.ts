@@ -6,7 +6,7 @@ import { z } from "zod";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock } from "@/lib/training";
-import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
+import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";\nimport { hasCompleteTrainingPracticalLesson, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 
 const courseSchema = z.object({
   title: z.string().trim().min(4).max(140),
@@ -523,6 +523,12 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
     if ((lessons || []).some((lesson) => !Array.isArray(lesson.content) || lesson.content.length < 3)) {
       throw new Error("Every published lesson needs substantive content before the course can go live.");
     }
+    if ((lessons || []).some((lesson) => !hasCompleteTrainingPracticalLesson(lesson.content))) {
+      throw new Error("Every published lesson needs exactly one complete practice task, reusable template, and QA checklist.");
+    }
+    if (!(assessments || []).length) {
+      throw new Error("Add a final assessment before publishing the course.");
+    }
     if ((assessments || []).some((assessment) => !assessment.is_published)) {
       throw new Error("Publish every assessment that belongs in this course before publishing the course.");
     }
@@ -550,6 +556,9 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
       assessment.rubric.reduce((sum: number, item: { weight?: number }) => sum + Number(item.weight || 0), 0) !== 100
     )) {
       throw new Error("Assessment rubric weights must total 100.");
+    }
+    if (!(assessments || []).some((assessment) => isTrainingPracticalAssessmentReady(assessment))) {
+      throw new Error("Publish at least one complete practical final assessment before the course can go live.");
     }
   }
 
@@ -762,6 +771,9 @@ export async function setTrainingLessonPublishedAction(formData: FormData) {
     }
     if (!Array.isArray(lesson.content) || lesson.content.length < 3) {
       throw new Error("Add substantive lesson content before publishing.");
+    }
+    if (!hasCompleteTrainingPracticalLesson(lesson.content)) {
+      throw new Error("Add exactly one complete practice task, reusable template, and QA checklist before publishing.");
     }
   }
 

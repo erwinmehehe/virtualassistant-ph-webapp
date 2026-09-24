@@ -6,9 +6,9 @@ import { getTrainingCourse } from "@/lib/training";
 import { startTrainingCourseAction } from "@/app/actions/training";
 
 function reviewedLabel(value: string | null) {
-  if (!value) return "Course reviewed";
+  if (!value) return null;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Course reviewed";
+  if (Number.isNaN(date.getTime())) return null;
   return `Last reviewed ${new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric" }).format(date)}`;
 }
 
@@ -36,6 +36,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
     ? `/training/certificates/${course.certificate.credential_code}`
     : null;
   const assessmentInReview = nextAssessment?.latestSubmission?.status === "submitted";
+  const reviewLabel = reviewedLabel(course.last_reviewed_at);
 
   return (
     <div className="dash-page role-overview training-home training-course-page">
@@ -48,7 +49,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
         <div className="row wrap">
           <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
-          <span className="badge">{reviewedLabel(course.last_reviewed_at)}</span>
+          {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
 
@@ -72,6 +73,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`}>Start assessment <ArrowRight size={14}/></Link>
           ) : assessmentInReview ? (
             <span className="badge">Assessment in review</span>
+          ) : course.completedAt ? (
+            <div className="row wrap">
+              <span className="badge">Certificate preparing</span>
+              <Link className="btn" href="/workspace/training">My learning</Link>
+            </div>
           ) : (
             <Link className="btn" href="/workspace/training">My learning</Link>
           )}

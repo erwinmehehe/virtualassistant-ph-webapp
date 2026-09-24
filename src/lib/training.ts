@@ -37,7 +37,10 @@ export type LessonContentBlock =
   | { type: "list"; items: string[] }
   | { type: "steps"; items: string[] }
   | { type: "callout"; title?: string; text: string }
-  | { type: "scenario"; title?: string; text: string };
+  | { type: "scenario"; title?: string; text: string }
+  | { type: "exercise"; title?: string; text: string; deliverable?: string }
+  | { type: "template"; title?: string; text: string }
+  | { type: "checklist"; title?: string; items: string[] };
 
 export type LessonRow = {
   id: string;

@@ -999,6 +999,7 @@ function blockFromForm(formData: FormData): LessonContentBlock {
   const type = requiredString(formData, "block_type");
   const title = requiredString(formData, "block_title");
   const text = requiredString(formData, "block_text");
+  const output = requiredString(formData, "block_output");
   if (!text) throw new Error("Lesson block content cannot be empty.");
 
   if (type === "heading") return { type: "heading", text };
@@ -1007,6 +1008,9 @@ function blockFromForm(formData: FormData): LessonContentBlock {
   if (type === "steps") return { type: "steps", items: parseList(text) };
   if (type === "callout") return { type: "callout", title: title || undefined, text };
   if (type === "scenario") return { type: "scenario", title: title || undefined, text };
+  if (type === "exercise") return { type: "exercise", title: title || undefined, text, deliverable: output || undefined };
+  if (type === "template") return { type: "template", title: title || undefined, text };
+  if (type === "checklist") return { type: "checklist", title: title || undefined, items: parseList(text) };
   throw new Error("Unsupported lesson block type.");
 }
 

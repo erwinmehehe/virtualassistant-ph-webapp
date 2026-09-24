@@ -102,7 +102,7 @@ export function lessonBlocks(value: unknown): LessonContentBlock[] {
   return value.filter((block): block is LessonContentBlock => {
     if (!block || typeof block !== "object" || !("type" in block)) return false;
     const type = String((block as { type?: unknown }).type || "");
-    return ["heading", "paragraph", "list", "steps", "callout", "scenario"].includes(type);
+    return ["heading", "paragraph", "list", "steps", "callout", "scenario", "exercise", "template", "checklist"].includes(type);
   });
 }
 

@@ -81,9 +81,9 @@ test("mortgage course uses normal editorial release and stays published", async 
 });
 
 test("mortgage training remains private inside authenticated training", async () => {
-  const learner = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
   const publicTraining = await readFile("src/app/training/page.tsx", "utf8");
 
-  assert.match(learner, /mortgage-broking-administration-australia/);
+  assert.match(specializations, /mortgage-broking-administration-australia/);
   assert.doesNotMatch(publicTraining, /\/training\/courses\/mortgage-broking-administration-australia/);
 });

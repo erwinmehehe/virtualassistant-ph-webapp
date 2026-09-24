@@ -13,6 +13,10 @@ test("admin integrity analytics cover failures, first-pass rate, retries, readin
   assert.match(source, /checkpointFailureRate/);
   assert.match(source, /firstAttemptPassRate/);
   assert.match(source, /retryRate/);
+  assert.match(source, /automaticFinalAttempts/);
+  assert.match(source, /averageFinalScore/);
+  assert.match(source, /criticalBoundaryMisses/);
+  assert.match(source, /answerPatternFlags/);
   assert.match(source, /averageActiveSeconds/);
   assert.match(source, /thresholdHuggingCompletions/);
   assert.match(source, /lessonFailures/);
@@ -29,6 +33,10 @@ test("fast completion is explicitly treated as a review signal, not proof of che
   assert.match(page, /Learner integrity signals/);
   assert.match(page, /not automatic misconduct labels/);
   assert.match(page, /threshold-hugging completion/);
+  assert.match(page, /Avg\. final score/);
+  assert.match(page, /Critical misses/);
+  assert.match(page, /Answer-pattern flags/);
+  assert.match(page, /never an automatic cheating verdict/);
   assert.match(page, /review signal, not proof of cheating/);
   assert.match(page, /Lessons creating the most friction/);
   assert.match(page, /final-check miss/);
@@ -53,4 +61,22 @@ test("integrity analytics only use automatic-assessment attempts for pass and re
   assert.match(source, /row\.response\?\.kind === "automatic_knowledge_check"/);
   assert.match(source, /const firstAttempts = automaticSubmissions\.filter/);
   assert.match(source, /const retries = automaticSubmissions\.filter/);
+});
+
+
+test("course admin exposes calibration without exposing learner answer keys", async () => {
+  const [lib, page] = await Promise.all([
+    readFile(adminLibPath, "utf8"),
+    readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8"),
+  ]);
+
+  assert.match(lib, /assessmentCalibration/);
+  assert.match(lib, /firstAttemptPasses/);
+  assert.match(lib, /criticalBoundaryMisses/);
+  assert.match(lib, /answerPatternFlags/);
+  assert.match(page, /First-attempt pass/);
+  assert.match(page, /Average score/);
+  assert.match(page, /Pattern flags/);
+  assert.match(page, /Telemetry only/);
+  assert.doesNotMatch(page, /correctOptionId/);
 });

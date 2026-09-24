@@ -64,6 +64,10 @@ test("final assessments are randomized and server scored with retry controls", a
   assert.match(actions, /requestedAttempt !== nextAttempt/);
   assert.match(actions, /recentAttempts\.length >= 3/);
   assert.match(actions, /Math\.round\(\(correct \/ questions\.length\) \* 100\)/);
+  assert.match(actions, /submittedQuestionSetKey !== expectedQuestionSetKey/);
+  assert.match(actions, /criticalMisses\.length === 0/);
+  assert.match(actions, /summarizeAssessmentAnswerPattern/);
+  assert.match(actions, /answer_pattern_flagged/);
   assert.match(actions, /status: passed \? "reviewed" : "needs_revision"/);
   assert.match(actions, /reviewer_id: null/);
   assert.match(actions, /source: "automatic"/);

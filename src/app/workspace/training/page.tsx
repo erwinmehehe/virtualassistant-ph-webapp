@@ -567,7 +567,7 @@ export default async function TrainingDashboardPage({
                   <div className="training-certificate-icon"><Award size={18} /></div>
                   <div className="training-certificate-copy">
                     <strong>{course.title}</strong>
-                    <span>Completed {dateLabel(credential.issued_at)}</span>
+                    <span>Completed {dateLabel(course.completedAt || credential.issued_at)}</span>
                     <code>{credential.credential_code}</code>
                   </div>
                   <div className="training-certificate-actions">

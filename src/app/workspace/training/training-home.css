@@ -3424,3 +3424,79 @@
     gap: 2px;
   }
 }
+
+
+/* Training shell continuity with the public training experience */
+.training-shell .training-shell-brand .app-brand-copy small {
+  color: #4f46e5;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: none;
+}
+
+.training-shell .training-shell-nav {
+  gap: 12px;
+}
+
+.training-shell .training-shell-nav .app-nav-group + .app-nav-group {
+  padding-top: 8px;
+  border-top: 1px solid #eef2f7;
+}
+
+.training-shell .training-shell-public-link {
+  border-color: #e0e7ff;
+  background: #fafaff;
+}
+
+.training-shell .training-shell-public-link:hover {
+  border-color: #c7d2fe;
+  background: #f5f3ff;
+}
+
+.training-shell .training-shell-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.training-shell .training-shell-public {
+  border-color: #dfe3ff;
+  color: #4338ca;
+  background: #f7f7ff;
+}
+
+.training-shell .training-shell-public:hover {
+  border-color: #c7d2fe;
+  color: #3538cd;
+  background: #fff;
+}
+
+.training-shell .training-shell-mobile-nav {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+@media (max-width: 760px) {
+  .training-shell .training-shell-browse {
+    display: none;
+  }
+
+  .training-shell .training-shell-public {
+    min-width: auto;
+    min-height: 38px;
+    padding-inline: 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .training-shell .training-shell-mobile-nav > a {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 390px) {
+  .training-shell .training-shell-public {
+    display: none;
+  }
+}

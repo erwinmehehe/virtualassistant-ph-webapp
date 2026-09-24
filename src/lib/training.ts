@@ -67,6 +67,33 @@ type CertificateRow = {
   revoked_at: string | null;
 };
 
+type LessonProgressRow = {
+  lesson_id: string;
+  completed_at: string;
+};
+
+type AssessmentSummaryRow = {
+  id: string;
+  course_id: string;
+  title: string;
+  pass_score: number | null;
+  position: number;
+};
+
+type AssessmentSubmissionSummaryRow = {
+  assessment_id: string;
+  status: "submitted" | "reviewed" | "needs_revision";
+  score: number | null;
+  submitted_at: string;
+};
+
+export type TrainingDashboardLearnerProfile = {
+  primaryCategory: string | null;
+  categories: string[];
+  tools: string[];
+  industries: string[];
+};
+
 export type TrainingCourseSummary = CourseRow & {
   lessonCount: number;
   completedLessons: number;
@@ -75,6 +102,10 @@ export type TrainingCourseSummary = CourseRow & {
   startedAt: string | null;
   completedAt: string | null;
   certificate: CertificateRow | null;
+  nextLesson: { id: string; title: string; estimatedMinutes: number } | null;
+  nextAssessment: { id: string; title: string } | null;
+  assessmentStatus: "not_required" | "not_started" | "ready" | "in_review" | "needs_revision" | "passed";
+  lastActivityAt: string | null;
 };
 
 export type TrainingLearningPathSummary = {
@@ -158,11 +189,25 @@ export async function getTrainingDashboard(userId: string) {
     .order("recommended_order", { ascending: true })
     .order("title");
 
-  if (error) return { courses: [] as TrainingCourseSummary[], paths: [] as TrainingLearningPathSummary[], error: error.message };
+  if (error) {
+    return {
+      courses: [] as TrainingCourseSummary[],
+      paths: [] as TrainingLearningPathSummary[],
+      learnerProfile: null as TrainingDashboardLearnerProfile | null,
+      error: error.message,
+    };
+  }
 
   const courses = (courseData || []) as CourseRow[];
   const courseIds = courses.map((course) => course.id);
-  if (!courseIds.length) return { courses: [] as TrainingCourseSummary[], paths: [] as TrainingLearningPathSummary[], error: null };
+  if (!courseIds.length) {
+    return {
+      courses: [] as TrainingCourseSummary[],
+      paths: [] as TrainingLearningPathSummary[],
+      learnerProfile: null as TrainingDashboardLearnerProfile | null,
+      error: null,
+    };
+  }
 
   const { data: moduleData } = await supabase
     .from("training_modules")
@@ -185,7 +230,13 @@ export async function getTrainingDashboard(userId: string) {
   const lessons = (lessonData || []) as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
 
-  const [{ data: enrollmentData }, { data: progressData }, { data: certificateData }] = await Promise.all([
+  const [
+    { data: enrollmentData },
+    { data: progressData },
+    { data: certificateData },
+    { data: assessmentData },
+    { data: learnerProfileData },
+  ] = await Promise.all([
     supabase
       .from("training_enrollments")
       .select("course_id,started_at,completed_at")
@@ -194,7 +245,7 @@ export async function getTrainingDashboard(userId: string) {
     lessonIds.length
       ? supabase
           .from("training_lesson_progress")
-          .select("lesson_id")
+          .select("lesson_id,completed_at")
           .eq("user_id", userId)
           .in("lesson_id", lessonIds)
       : Promise.resolve({ data: [] }),
@@ -203,23 +254,101 @@ export async function getTrainingDashboard(userId: string) {
       .select("course_id,credential_code,issued_at,revoked_at")
       .eq("user_id", userId)
       .in("course_id", courseIds),
+    supabase
+      .from("training_assessments")
+      .select("id,course_id,title,pass_score,position")
+      .in("course_id", courseIds)
+      .eq("is_published", true)
+      .order("position"),
+    supabase
+      .from("va_profiles")
+      .select("primary_category,categories,tools,industries")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   const enrollments = new Map(
     ((enrollmentData || []) as EnrollmentRow[]).map((row) => [row.course_id, row]),
   );
-  const completed = new Set(
-    ((progressData || []) as Array<{ lesson_id: string }>).map((row) => row.lesson_id),
-  );
+  const progressRows = (progressData || []) as LessonProgressRow[];
+  const completed = new Set(progressRows.map((row) => row.lesson_id));
+  const progressByLesson = new Map(progressRows.map((row) => [row.lesson_id, row.completed_at]));
   const certificates = new Map(
     ((certificateData || []) as CertificateRow[]).map((row) => [row.course_id, row]),
   );
-  const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
+  const assessments = (assessmentData || []) as AssessmentSummaryRow[];
+  const assessmentIds = assessments.map((assessment) => assessment.id);
+  const { data: submissionData } = assessmentIds.length
+    ? await supabase
+        .from("training_assessment_submissions")
+        .select("assessment_id,status,score,submitted_at")
+        .eq("user_id", userId)
+        .in("assessment_id", assessmentIds)
+        .order("submitted_at", { ascending: false })
+    : { data: [] };
+
+  const latestSubmissionByAssessment = new Map<string, AssessmentSubmissionSummaryRow>();
+  for (const submission of (submissionData || []) as AssessmentSubmissionSummaryRow[]) {
+    if (!latestSubmissionByAssessment.has(submission.assessment_id)) {
+      latestSubmissionByAssessment.set(submission.assessment_id, submission);
+    }
+  }
 
   const summaries = courses.map((course) => {
-    const courseLessons = lessons.filter((lesson) => moduleCourse.get(lesson.module_id) === course.id);
+    const courseModules = modules
+      .filter((module) => module.course_id === course.id)
+      .sort((a, b) => a.position - b.position);
+    const courseLessons = courseModules.flatMap((module) =>
+      lessons
+        .filter((lesson) => lesson.module_id === module.id)
+        .sort((a, b) => a.position - b.position),
+    );
     const completedLessons = courseLessons.filter((lesson) => completed.has(lesson.id)).length;
     const enrollment = enrollments.get(course.id) || null;
+    const courseAssessments = assessments
+      .filter((assessment) => assessment.course_id === course.id)
+      .sort((a, b) => a.position - b.position);
+    const assessmentPassed = (assessment: AssessmentSummaryRow) => {
+      const latest = latestSubmissionByAssessment.get(assessment.id);
+      return Boolean(
+        latest &&
+          latest.status === "reviewed" &&
+          (assessment.pass_score === null ||
+            (latest.score !== null && Number(latest.score) >= assessment.pass_score)),
+      );
+    };
+    const nextAssessmentRow = courseAssessments.find((assessment) => !assessmentPassed(assessment)) || null;
+    const hasNeedsRevision = courseAssessments.some(
+      (assessment) => latestSubmissionByAssessment.get(assessment.id)?.status === "needs_revision",
+    );
+    const hasInReview = courseAssessments.some(
+      (assessment) => latestSubmissionByAssessment.get(assessment.id)?.status === "submitted",
+    );
+    const allAssessmentsPassed =
+      courseAssessments.length > 0 && courseAssessments.every((assessment) => assessmentPassed(assessment));
+    const assessmentStatus: TrainingCourseSummary["assessmentStatus"] = !courseAssessments.length
+      ? "not_required"
+      : allAssessmentsPassed
+        ? "passed"
+        : hasNeedsRevision
+          ? "needs_revision"
+          : hasInReview
+            ? "in_review"
+            : courseLessons.length > 0 && completedLessons === courseLessons.length
+              ? "ready"
+              : "not_started";
+    const nextLessonRow = courseLessons.find((lesson) => !completed.has(lesson.id)) || null;
+    const activityDates = [
+      enrollment?.started_at || null,
+      ...courseLessons.map((lesson) => progressByLesson.get(lesson.id) || null),
+      ...courseAssessments.map(
+        (assessment) => latestSubmissionByAssessment.get(assessment.id)?.submitted_at || null,
+      ),
+    ].filter((value): value is string => Boolean(value));
+    const lastActivityAt = activityDates.length
+      ? activityDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0]
+      : null;
+
     return {
       ...course,
       lessonCount: courseLessons.length,
@@ -233,6 +362,18 @@ export async function getTrainingDashboard(userId: string) {
       startedAt: enrollment?.started_at || null,
       completedAt: enrollment?.completed_at || null,
       certificate: certificates.get(course.id) || null,
+      nextLesson: nextLessonRow
+        ? {
+            id: nextLessonRow.id,
+            title: nextLessonRow.title,
+            estimatedMinutes: nextLessonRow.estimated_minutes,
+          }
+        : null,
+      nextAssessment: !nextLessonRow && nextAssessmentRow
+        ? { id: nextAssessmentRow.id, title: nextAssessmentRow.title }
+        : null,
+      assessmentStatus,
+      lastActivityAt,
     };
   });
 
@@ -269,7 +410,16 @@ export async function getTrainingDashboard(userId: string) {
       .filter((course): course is TrainingCourseSummary => Boolean(course)),
   }));
 
-  return { courses: summaries, paths, error: null };
+  const learnerProfile = learnerProfileData
+    ? {
+        primaryCategory: learnerProfileData.primary_category || null,
+        categories: Array.isArray(learnerProfileData.categories) ? learnerProfileData.categories : [],
+        tools: Array.isArray(learnerProfileData.tools) ? learnerProfileData.tools : [],
+        industries: Array.isArray(learnerProfileData.industries) ? learnerProfileData.industries : [],
+      }
+    : null;
+
+  return { courses: summaries, paths, learnerProfile, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {

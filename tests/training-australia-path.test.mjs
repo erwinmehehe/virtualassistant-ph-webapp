@@ -114,10 +114,10 @@ test("learner UI only exposes published paths and avoids duplicate course cards"
 
   assert.match(training, /from\("training_learning_paths"\)/);
   assert.match(training, /\.eq\("status", "published"\)/);
-  assert.match(page, /pathCourseIds/);
-  assert.match(page, /generalCourses/);
-  assert.match(page, /paths\.map/);
-  assert.match(page, /paths\.length === 0/);
+  assert.match(page, /const notStarted = courses\.filter/);
+  assert.match(page, /filteredNotStarted/);
+  assert.match(page, /Each course appears once/);
+  assert.doesNotMatch(page, /paths\.map/);
 });
 
 test("admin surfaces optional learning paths without changing hiring rules", async () => {

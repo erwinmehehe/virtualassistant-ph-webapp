@@ -92,15 +92,14 @@ export function buildLessonCheckpoint(args: {
   };
 }
 
-export function buildAssessmentQuestions(args: {
-  course: TrainingCourseDetail;
+export function buildAssessmentQuestionsFromLessons(args: {
+  lessons: Array<{ id: string; title: string; content: unknown }>;
   assessmentId: string;
   userId: string;
   attemptNumber: number;
   questionCount?: number;
 }) {
-  const lessons = args.course.modules.flatMap((module) => module.lessons);
-  const eligible = lessons.filter((lesson) => checklistItems(lesson.content).length > 0);
+  const eligible = args.lessons.filter((lesson) => checklistItems(lesson.content).length > 0);
   const count = Math.min(args.questionCount || 8, eligible.length);
   const seed = `${args.assessmentId}:${args.userId}:attempt:${args.attemptNumber}`;
   const chosen = stableShuffle(eligible, seed + ":lessons").slice(0, count);
@@ -125,6 +124,22 @@ export function buildAssessmentQuestions(args: {
       } satisfies TrainingAssessmentQuestion;
     })
     .filter((item): item is TrainingAssessmentQuestion => Boolean(item));
+}
+
+export function buildAssessmentQuestions(args: {
+  course: TrainingCourseDetail;
+  assessmentId: string;
+  userId: string;
+  attemptNumber: number;
+  questionCount?: number;
+}) {
+  return buildAssessmentQuestionsFromLessons({
+    lessons: args.course.modules.flatMap((module) => module.lessons),
+    assessmentId: args.assessmentId,
+    userId: args.userId,
+    attemptNumber: args.attemptNumber,
+    questionCount: args.questionCount,
+  });
 }
 
 export function publicAssessmentQuestions(questions: TrainingAssessmentQuestion[]) {

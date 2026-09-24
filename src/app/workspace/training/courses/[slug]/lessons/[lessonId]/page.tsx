@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Target } from "lucide-react";
-import { markTrainingLessonCompleteAction } from "@/app/actions/training";
+import { TrainingLessonIntegrityGate } from "@/components/training-lesson-integrity-gate";
 import { TrainingChecklistBlock, TrainingTemplateBlock } from "@/components/training-practice-blocks";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingLesson, type LessonContentBlock, type TrainingAssessment } from "@/lib/training";
+import { buildLessonCheckpoint, lessonActiveSecondsRequired } from "@/lib/training-integrity";
 
 function contentBlocks(value: unknown): LessonContentBlock[] {
   return Array.isArray(value) ? value as LessonContentBlock[] : [];
@@ -94,7 +95,7 @@ export default async function TrainingLessonPage({
 }) {
   const { slug, lessonId } = await params;
   const { userId } = await requireAuthenticatedUserFast(`/workspace/training/courses/${slug}/lessons/${lessonId}`);
-  const { course, lesson, error } = await getTrainingLesson(slug, lessonId, userId);
+  const { course, lesson, engagement, error } = await getTrainingLesson(slug, lessonId, userId);
   if ((!course || !lesson) && !error) notFound();
 
   if (!course || !lesson) {
@@ -130,10 +131,23 @@ export default async function TrainingLessonPage({
       : certificateHref
         ? "View certificate"
         : "Course overview";
-  const completeLabel = "Complete lesson";
   const lessonProgress = course.lessonCount
     ? Math.round((course.completedLessons / course.lessonCount) * 100)
     : 0;
+  const blocks = contentBlocks(lesson.content);
+  const requiresExercise = blocks.some((block) => block.type === "exercise");
+  const checkpoint = buildLessonCheckpoint({
+    lessonId: lesson.id,
+    lessonTitle: lesson.title,
+    userId,
+    content: lesson.content,
+  });
+  const requiredActiveSeconds = lessonActiveSecondsRequired(lesson.estimated_minutes);
+  const checkpointAlreadyPassed = Boolean(
+    checkpoint &&
+    engagement?.checkpointPassedAt &&
+    engagement.checkpointKey === checkpoint.checkpointKey,
+  );
 
   return (
     <div className="dash-page role-overview training-home training-player-page">
@@ -170,6 +184,7 @@ export default async function TrainingLessonPage({
           </div>
 
           <LessonContent value={lesson.content}/>
+          <div data-training-content-end={lesson.id} aria-hidden="true"/>
 
           <footer className="training-player-footer">
             <div className="training-player-footer-nav">
@@ -190,20 +205,31 @@ export default async function TrainingLessonPage({
                   {nextLabel} <ArrowRight size={14}/>
                 </Link>
               ) : (
-                <form action={markTrainingLessonCompleteAction}>
-                  <input type="hidden" name="lesson_id" value={lesson.id}/>
-                  <input type="hidden" name="course_slug" value={course.slug}/>
-                  <input type="hidden" name="continue_to" value={nextHref}/>
-                  <button className="btn btn-primary" type="submit" data-track="training_lesson_complete_click">
-                    <CheckCircle2 size={15}/> {completeLabel} <ArrowRight size={14}/>
-                  </button>
-                </form>
+                <span className="small muted">Complete the integrity check below to continue.</span>
               )}
             </div>
             <p className="small muted">
               Progress is saved when you complete a lesson. You can come back anytime from My learning.
             </p>
           </footer>
+
+          {!lesson.completed ? (
+            <TrainingLessonIntegrityGate
+              lessonId={lesson.id}
+              courseSlug={course.slug}
+              nextHref={nextHref}
+              requiredActiveSeconds={requiredActiveSeconds}
+              initialActiveSeconds={engagement?.activeSeconds || 0}
+              initialScrollPercent={engagement?.maxScrollPercent || 0}
+              checkpoint={checkpoint ? {
+                prompt: checkpoint.prompt,
+                options: checkpoint.options,
+              } : null}
+              checkpointAlreadyPassed={checkpointAlreadyPassed}
+              requiresExercise={requiresExercise}
+              initialExerciseResponse={engagement?.exerciseResponse || ""}
+            />
+          ) : null}
         </article>
 
         <aside className="training-player-sidebar">

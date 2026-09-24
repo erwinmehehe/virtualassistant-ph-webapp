@@ -63,6 +63,15 @@ function assessmentLabel(course: TrainingCourseSummary) {
   return "Final check not started";
 }
 
+function assessmentMetaClass(course: TrainingCourseSummary) {
+  if (course.assessmentStatus === "passed") return "is-final is-success";
+  if (course.assessmentStatus === "ready") return "is-final is-ready";
+  if (course.assessmentStatus === "needs_revision") return "is-final is-warning";
+  if (course.assessmentStatus === "in_review") return "is-final is-processing";
+  if (course.assessmentStatus === "not_required") return "is-final is-neutral";
+  return "is-final is-pending";
+}
+
 function nextCourseHref(course: TrainingCourseSummary) {
   if (course.nextLesson) {
     return `/workspace/training/courses/${course.slug}/lessons/${course.nextLesson.id}`;
@@ -190,9 +199,9 @@ function CourseCard({
       </div>
 
       <div className="training-course-meta">
-        <span><BookOpenCheck size={14} /> {course.lessonCount} lessons</span>
-        <span><Clock3 size={14} /> {duration(course.estimated_minutes)}</span>
-        <span><FileCheck2 size={14} /> {assessmentLabel(course)}</span>
+        <span className="training-course-meta-item is-lessons"><BookOpenCheck size={14} /> {course.lessonCount} lessons</span>
+        <span className="training-course-meta-item is-duration"><Clock3 size={14} /> {duration(course.estimated_minutes)}</span>
+        <span className={`training-course-meta-item ${assessmentMetaClass(course)}`}><FileCheck2 size={14} /> {assessmentLabel(course)}</span>
       </div>
 
       {mode !== "not-started" ? (
@@ -547,11 +556,11 @@ export default async function TrainingDashboardPage({
                   <span className="training-specialization-meta-item is-courses"><BookOpenCheck size={14} /> {published.length} courses</span>
                   <span className="training-specialization-meta-item is-duration"><Clock3 size={14} /> {duration(pathMinutes)}</span>
                   {pathStarted || allComplete ? (
-                    <span>{completedCount} complete</span>
+                    <span className="training-specialization-meta-item is-progress">{completedCount} complete</span>
                   ) : sharedCompleted ? (
-                    <span>{sharedCompleted} shared {sharedCompleted === 1 ? "course" : "courses"} already count</span>
+                    <span className="training-specialization-meta-item is-progress">{sharedCompleted} shared {sharedCompleted === 1 ? "course" : "courses"} already count</span>
                   ) : (
-                    <span>Choose this path when you are ready</span>
+                    <span className="training-specialization-meta-item is-status">Choose this path when you are ready</span>
                   )}
                 </div>
 

@@ -509,7 +509,8 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     | "stale"
     | "limit"
     | "not_ready"
-    | "question_set";
+    | "question_set"
+    | "answers";
   const failAssessmentSubmission = (reason: AssessmentSubmissionErrorReason): never => {
     redirect(`${assessmentPath}?assessment_error=${reason}`);
   };
@@ -572,7 +573,7 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     attemptNumber: nextAttempt,
     questionCount: 8,
   });
-  if (questions.length < 4) {
+  if (questions.length !== 8) {
     failAssessmentSubmission("not_ready");
   }
 
@@ -586,6 +587,10 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
   let correct = 0;
   for (const question of questions) {
     const answer = String(formData.get("question_" + question.id) || "").trim();
+    const validOptionIds = new Set(question.options.map((option) => option.id));
+    if (!answer || !validOptionIds.has(answer)) {
+      failAssessmentSubmission("answers");
+    }
     answers[question.id] = answer;
     if (answer === question.correctOptionId) correct += 1;
     else missedLessonIds.push(question.lessonId);

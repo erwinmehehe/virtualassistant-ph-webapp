@@ -50,6 +50,7 @@ export default async function TrainingAssessmentPage({
     limit: "You have used three attempts in the current 24-hour window. Review the lessons and try again when the next attempt opens.",
     not_ready: "This final check is temporarily unavailable because there are not enough valid questions yet.",
     question_set: "This question set is no longer valid for your current attempt. The final has been refreshed safely.",
+    answers: "Answer every question using one of the available choices before submitting the final check.",
   };
   const assessmentError = query.assessment_error
     ? assessmentErrorCopy[query.assessment_error] || null

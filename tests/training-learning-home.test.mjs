@@ -191,3 +191,23 @@ test("training home makes the last lesson and ready final check explicit", async
   assert.match(page, /course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
   assert.match(page, /resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
 });
+
+
+test("course and Australian path metadata use consistent colored pills", async () => {
+  const [page, css] = await Promise.all([
+    readFile(pagePath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+
+  assert.match(page, /training-course-meta-item is-lessons/);
+  assert.match(page, /training-course-meta-item is-duration/);
+  assert.match(page, /assessmentMetaClass\(course\)/);
+  assert.match(page, /training-specialization-meta-item is-courses/);
+  assert.match(page, /training-specialization-meta-item is-duration/);
+  assert.match(page, /training-specialization-meta-item is-status/);
+  assert.match(css, /training-course-meta-item\.is-lessons/);
+  assert.match(css, /training-course-meta-item\.is-duration/);
+  assert.match(css, /training-course-meta-item\.is-final\.is-pending/);
+  assert.match(css, /training-specialization-meta-item\.is-courses/);
+  assert.match(css, /training-specialization-meta-item\.is-status/);
+});

@@ -24,15 +24,17 @@ test("practical assessment publishing requires real evidence and grading criteri
   assert.match(action, /score = Math\.round\(score\)/);
 });
 
-test("learner and reviewer assessment screens use the same rubric", async () => {
+test("assessment source packs remain in admin while learner scoring is automatic", async () => {
   const learner = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
   const admin = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
-  assert.match(learner, /Practice client materials/);
-  assert.match(learner, /How your work will be graded/);
-  assert.match(learner, /rubric_scores/);
-  assert.match(admin, /Grading rubric/);
-  assert.match(admin, /rubric_/);
-  assert.match(admin, /overall score is calculated from the rubric weights/);
+  assert.match(learner, /Automatic final assessment/);
+  assert.match(learner, /Server-scored/);
+  assert.match(learner, /Randomized each attempt/);
+  assert.doesNotMatch(learner, /How your work will be graded/);
+  assert.match(admin, /Assessment source material/);
+  assert.match(admin, /Rubric JSON/);
+  assert.match(admin, /Resource pack JSON/);
+  assert.doesNotMatch(admin, /Save review/);
 });
 
 test("all current courses receive fictional final-assessment evidence packs", async () => {

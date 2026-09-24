@@ -89,9 +89,9 @@ test("property course stays editorial-only and published", async () => {
 });
 
 test("property training remains private and inside the Australia training path", async () => {
-  const learner = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const specializations = await readFile("src/lib/training-specializations.ts", "utf8");
   const publicTraining = await readFile("src/app/training/page.tsx", "utf8");
 
-  assert.match(learner, /property-management-administration-australia/);
+  assert.match(specializations, /property-management-administration-australia/);
   assert.doesNotMatch(publicTraining, /\/training\/courses\/property-management-administration-australia/);
 });

@@ -679,6 +679,25 @@ export async function getTrainingAdminSummary() {
         windowDays: 30,
         stages: [] as Array<{ event: string; label: string; learners: number; events: number }>,
       },
+      integrity: {
+        windowDays: 30,
+        checkpointAttempts: 0,
+        checkpointFailureRate: 0,
+        firstAttemptPassRate: 0,
+        retryRate: 0,
+        averageActiveSeconds: 0,
+        thresholdHuggingCompletions: 0,
+        completedLessonsWithEngagement: 0,
+        lessonFailures: [] as Array<{
+          lessonId: string;
+          lessonTitle: string;
+          courseTitle: string;
+          attempts: number;
+          failures: number;
+          failureRate: number;
+          finalMisses: number;
+        }>,
+      },
       error: error.message,
     };
   }
@@ -693,10 +712,16 @@ export async function getTrainingAdminSummary() {
   const { data: lessonData } = moduleIds.length
     ? await supabase
         .from("training_lessons")
-        .select("id,module_id,is_published")
+        .select("id,module_id,title,estimated_minutes,is_published")
         .in("module_id", moduleIds)
     : { data: [] };
-  const lessons = (lessonData || []) as Array<{ id: string; module_id: string; is_published: boolean }>;
+  const lessons = (lessonData || []) as Array<{
+    id: string;
+    module_id: string;
+    title: string;
+    estimated_minutes: number;
+    is_published: boolean;
+  }>;
   const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
 
   const hydrated = courses.map((course) => {
@@ -764,6 +789,173 @@ export async function getTrainingAdminSummary() {
     }),
   };
 
+  const courseById = new Map(courses.map((course) => [course.id, course]));
+  const lessonMeta = new Map(
+    lessons.map((lesson) => {
+      const courseId = moduleCourse.get(lesson.module_id) || "";
+      const course = courseById.get(courseId);
+      return [
+        lesson.id,
+        {
+          title: lesson.title,
+          estimatedMinutes: Number(lesson.estimated_minutes || 1),
+          courseTitle: course?.title || "Course",
+          courseSlug: course?.slug || "",
+        },
+      ] as const;
+    }),
+  );
+
+  const [{ data: checkpointEventData }, { data: engagementData }, { data: completionData }, { data: submissionData }] =
+    await Promise.all([
+      admin
+        .from("analytics_events")
+        .select("metadata,user_id")
+        .eq("event_name", "training_checkpoint_attempt")
+        .gte("created_at", funnelSince)
+        .limit(10000),
+      admin
+        .from("training_lesson_engagement")
+        .select("lesson_id,user_id,active_seconds,max_scroll_percent,updated_at")
+        .gte("updated_at", funnelSince)
+        .limit(10000),
+      admin
+        .from("training_lesson_progress")
+        .select("lesson_id,user_id,completed_at")
+        .gte("completed_at", funnelSince)
+        .limit(10000),
+      admin
+        .from("training_assessment_submissions")
+        .select("user_id,status,score,response,submitted_at")
+        .gte("submitted_at", funnelSince)
+        .limit(10000),
+    ]);
+
+  const checkpointRows = (checkpointEventData || []) as Array<{
+    metadata: Record<string, unknown> | null;
+    user_id: string | null;
+  }>;
+  const engagements = (engagementData || []) as Array<{
+    lesson_id: string;
+    user_id: string;
+    active_seconds: number;
+    max_scroll_percent: number;
+    updated_at: string;
+  }>;
+  const completions = (completionData || []) as Array<{
+    lesson_id: string;
+    user_id: string;
+    completed_at: string | null;
+  }>;
+  const submissions = (submissionData || []) as Array<{
+    user_id: string;
+    status: "submitted" | "reviewed" | "needs_revision";
+    score: number | null;
+    response: Record<string, unknown> | null;
+    submitted_at: string;
+  }>;
+
+  const checkpointByLesson = new Map<string, { attempts: number; failures: number }>();
+  for (const row of checkpointRows) {
+    const lessonId = typeof row.metadata?.lesson_id === "string" ? row.metadata.lesson_id : "";
+    if (!lessonId) continue;
+    const current = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
+    current.attempts += 1;
+    if (row.metadata?.correct !== true) current.failures += 1;
+    checkpointByLesson.set(lessonId, current);
+  }
+
+  const automaticSubmissions = submissions.filter(
+    (row) => row.response?.kind === "automatic_knowledge_check",
+  );
+  const finalMissesByLesson = new Map<string, number>();
+  for (const submission of automaticSubmissions) {
+    const missed = Array.isArray(submission.response?.missed_lesson_ids)
+      ? submission.response?.missed_lesson_ids
+      : [];
+    for (const value of missed) {
+      if (typeof value !== "string") continue;
+      finalMissesByLesson.set(value, (finalMissesByLesson.get(value) || 0) + 1);
+    }
+  }
+
+  const completionKeys = new Set(
+    completions.map((row) => `${row.user_id}:${row.lesson_id}`),
+  );
+  const completedEngagement = engagements.filter((row) =>
+    completionKeys.has(`${row.user_id}:${row.lesson_id}`),
+  );
+  const averageActiveSeconds = completedEngagement.length
+    ? Math.round(
+        completedEngagement.reduce((sum, row) => sum + Number(row.active_seconds || 0), 0) /
+          completedEngagement.length,
+      )
+    : 0;
+  const thresholdHuggingCompletions = completedEngagement.filter((row) => {
+    const meta = lessonMeta.get(row.lesson_id);
+    if (!meta) return false;
+    const required = Math.max(
+      60,
+      Math.min(300, Math.ceil(meta.estimatedMinutes * 60 * 0.2)),
+    );
+    return Number(row.active_seconds || 0) <= required + 20;
+  }).length;
+
+  const firstAttempts = automaticSubmissions.filter(
+    (row) => Number(row.response?.attempt || 0) === 1,
+  );
+  const firstAttemptPasses = firstAttempts.filter((row) => row.status === "reviewed");
+  const retries = automaticSubmissions.filter((row) => Number(row.response?.attempt || 0) > 1);
+  const assessedLearners = new Set(automaticSubmissions.map((row) => row.user_id));
+  const retryLearners = new Set(retries.map((row) => row.user_id));
+
+  const lessonFailures = [...new Set([
+    ...checkpointByLesson.keys(),
+    ...finalMissesByLesson.keys(),
+  ])]
+    .map((lessonId) => {
+      const checkpoint = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
+      const meta = lessonMeta.get(lessonId);
+      return {
+        lessonId,
+        lessonTitle: meta?.title || "Lesson",
+        courseTitle: meta?.courseTitle || "Course",
+        attempts: checkpoint.attempts,
+        failures: checkpoint.failures,
+        failureRate: checkpoint.attempts
+          ? Math.round((checkpoint.failures / checkpoint.attempts) * 100)
+          : 0,
+        finalMisses: finalMissesByLesson.get(lessonId) || 0,
+      };
+    })
+    .filter((item) => item.attempts || item.finalMisses)
+    .sort((a, b) =>
+      b.finalMisses - a.finalMisses ||
+      b.failureRate - a.failureRate ||
+      b.attempts - a.attempts
+    )
+    .slice(0, 10);
+
+  const checkpointAttempts = checkpointRows.length;
+  const checkpointFailures = checkpointRows.filter((row) => row.metadata?.correct !== true).length;
+  const integrity = {
+    windowDays: funnelWindowDays,
+    checkpointAttempts,
+    checkpointFailureRate: checkpointAttempts
+      ? Math.round((checkpointFailures / checkpointAttempts) * 100)
+      : 0,
+    firstAttemptPassRate: firstAttempts.length
+      ? Math.round((firstAttemptPasses.length / firstAttempts.length) * 100)
+      : 0,
+    retryRate: assessedLearners.size
+      ? Math.round((retryLearners.size / assessedLearners.size) * 100)
+      : 0,
+    averageActiveSeconds,
+    thresholdHuggingCompletions,
+    completedLessonsWithEngagement: completedEngagement.length,
+    lessonFailures,
+  };
+
   return {
     courses: hydrated,
     paths: adminPaths.map((item) => ({
@@ -776,6 +968,7 @@ export async function getTrainingAdminSummary() {
       lessons: lessons.length,
     },
     funnel,
+    integrity,
     error: null,
   };
 }

@@ -15,7 +15,8 @@ test("public training signup route renders the dedicated training account flow",
   assert.match(page, /current="join"/);
   assert.match(form, /useActionState\(joinTrainingAction/);
   assert.match(form, /training_signup_submit_click/);
-  assert.match(form, /This account does not create a candidate profile or enter you into recruiter vetting/);
+  assert.match(form, /Training is separate from job applications/);
+  assert.match(page, /description: "Create a free training account/);
 });
 
 test("training signup creates a training-only auth user and sends confirmation", async () => {

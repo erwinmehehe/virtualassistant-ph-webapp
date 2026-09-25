@@ -186,7 +186,7 @@ const newAuSoftware = [
   "myob-virtual-assistant"
 ];
 
-const forbiddenAmericanSpellings = /\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled)\b/i;
+const forbiddenAmericanSpellings = /\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled|modeling|modeled)\b/i;
 
 test("all Australian-target service, industry and software records are explicitly en-AU", () => {
   const services = source("src/lib/service-pages.ts");

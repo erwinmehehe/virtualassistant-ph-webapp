@@ -59,6 +59,43 @@ function objectForSlug(text, slug) {
   assert.fail(`missing object end for ${slug}`);
 }
 
+
+function keyedObjectForSlug(text, slug) {
+  const marker = `"${slug}":`;
+  const keyIndex = text.indexOf(marker);
+  assert.ok(keyIndex >= 0, `missing keyed object for ${slug}`);
+  const start = text.indexOf("{", keyIndex + marker.length);
+  assert.ok(start >= 0, `missing keyed object start for ${slug}`);
+
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  for (let i = start; i < text.length; i += 1) {
+    const ch = text[i];
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) quote = "";
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      continue;
+    }
+    if (ch === "{") depth += 1;
+    if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  assert.fail(`missing keyed object end for ${slug}`);
+}
 function arrayField(objectText, field) {
   const match = objectText.match(new RegExp(`${field}:?\\s*\\[([\\s\\S]*?)\\]`));
   if (!match) return [];
@@ -180,6 +217,12 @@ test("Australian-target records do not regress to common US spellings", () => {
       const objectText = objectForSlug(text, slug);
       assert.doesNotMatch(objectText, forbiddenAmericanSpellings, `${slug} contains US English in ${path}`);
     }
+  }
+
+  const industrySeo = source("src/lib/industry-seo-content.ts");
+  for (const slug of [...existingAuIndustries, ...newAuIndustries]) {
+    const objectText = keyedObjectForSlug(industrySeo, slug);
+    assert.doesNotMatch(objectText, forbiddenAmericanSpellings, `${slug} contains US English in industry SEO source copy`);
   }
 });
 

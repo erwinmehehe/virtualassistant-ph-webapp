@@ -306,6 +306,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           </div>
         ) : null}
 
+        {isShortTermRentalCourse ? (
+          <div className="training-work-outcomes" aria-label="Short-Term Rental Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A short-term-rental operations pack from reservation control through owner handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><CalendarDays size={17}/><span><strong>Reservation + calendar control</strong><small>Track booking state, source-of-truth dates, holds, modifications, and double-booking risk.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Guest messaging + escalation queue</strong><small>Handle arrivals, stay issues, complaints, safety concerns, and approval boundaries.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Turnover + vendor readiness board</strong><small>Coordinate cleaning, linen, supplies, maintenance, evidence, and guest-ready status.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Owner report + shift handoff</strong><small>Surface open risks, commercial exceptions, vendor status, reviews, and next checkpoints.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
         {course.trademark_disclaimer ? <div className="notice" role="note"><strong>About this course.</strong> {course.trademark_disclaimer}</div> : null}
 
         <div className="row-between training-course-progress-row">

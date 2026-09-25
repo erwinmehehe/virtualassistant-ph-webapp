@@ -69,13 +69,32 @@ export function localizeEnglish(value: string, locale?: ContentLocale) {
   );
 }
 
-export function localizeContent<T>(value: T, locale?: ContentLocale): T {
+const NON_LOCALIZED_CONTENT_KEYS = new Set([
+  "slug",
+  "clusterSlug",
+  "primaryKeyword",
+  "directoryCategory",
+  "relatedSlugs",
+  "serviceSlugs",
+  "relatedServiceSlugs",
+  "relatedIndustrySlugs",
+  "href",
+  "url",
+  "path",
+  "sourcePath"
+]);
+
+export function localizeContent<T>(value: T, locale?: ContentLocale, key?: string): T {
   if (locale !== "en-AU") return value;
+  if (key && NON_LOCALIZED_CONTENT_KEYS.has(key)) return value;
   if (typeof value === "string") return localizeEnglish(value, locale) as T;
-  if (Array.isArray(value)) return value.map((item) => localizeContent(item, locale)) as T;
+  if (Array.isArray(value)) return value.map((item) => localizeContent(item, locale, key)) as T;
   if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, localizeContent(item, locale)])
+      Object.entries(value as Record<string, unknown>).map(([entryKey, item]) => [
+        entryKey,
+        localizeContent(item, locale, entryKey)
+      ])
     ) as T;
   }
   return value;

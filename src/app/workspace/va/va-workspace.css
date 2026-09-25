@@ -1715,3 +1715,431 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* VA mobile pass: notifications, offers, onboarding */
+/* Notifications */
+.va-notifications-page,
+.va-offers-page,
+.va-quick-setup-page {
+  width: min(100%, 1080px);
+}
+
+.va-notifications-list,
+.va-offers-list {
+  gap: 10px;
+}
+
+.va-notification-card,
+.va-offer-card {
+  border-radius: 15px;
+}
+
+.va-notification-card.unread {
+  border-color: #c7d7fe;
+  background: #fbfcff;
+}
+
+.va-notification-actions {
+  gap: 7px;
+}
+
+/* Offers */
+.va-offer-card {
+  padding: 18px;
+}
+
+.va-offer-terms {
+  gap: 8px;
+}
+
+.va-offer-terms > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #fcfcfd;
+}
+
+.va-offer-terms span {
+  display: block;
+  margin-bottom: 4px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-offer-terms strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.va-offer-note {
+  border-radius: 11px;
+}
+
+.va-offer-actions {
+  gap: 8px;
+}
+
+/* Onboarding */
+.va-quick-setup-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.va-quick-setup-progress,
+.va-quick-setup-form-card {
+  border-radius: 16px;
+}
+
+.va-quick-setup-progress {
+  display: grid;
+  gap: 15px;
+  padding: 18px;
+}
+
+.va-quick-setup-progress h2 {
+  margin: 3px 0 0;
+  font-size: 20px;
+  letter-spacing: -.02em;
+}
+
+.va-quick-setup-meter {
+  width: 100%;
+  height: 8px;
+}
+
+.va-quick-setup-step-list {
+  display: grid;
+  gap: 9px;
+}
+
+.va-quick-setup-step {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.va-quick-setup-step > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  color: #3538cd;
+  background: #eef0ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.va-quick-setup-step > div {
+  display: grid;
+  gap: 2px;
+}
+
+.va-quick-setup-step strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.va-quick-setup-step small {
+  color: #667085;
+  font-size: 10.75px;
+  line-height: 1.4;
+}
+
+.va-quick-setup-note {
+  padding: 11px 12px;
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.va-quick-setup-note strong {
+  font-size: 11.5px;
+}
+
+.va-quick-setup-note p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 10.75px;
+  line-height: 1.45;
+}
+
+.va-quick-setup-form-card {
+  padding: 20px;
+}
+
+.va-quick-setup-card-head {
+  margin-bottom: 16px;
+}
+
+.va-quick-setup-card-head h2 {
+  margin: 3px 0 4px;
+  font-size: 20px;
+  letter-spacing: -.02em;
+}
+
+.va-quick-setup-card-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.va-quick-setup-form {
+  display: grid;
+  gap: 14px;
+}
+
+.va-quick-setup-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.va-quick-setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+@media (max-width: 900px) {
+  .va-quick-setup-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  /* Notifications */
+  .va-notifications-page {
+    display: grid;
+    gap: 12px;
+  }
+
+  .va-notifications-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .va-notifications-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-notifications-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-notifications-mark-all {
+    min-height: 40px;
+  }
+
+  .va-notification-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-notification-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px !important;
+  }
+
+  .va-notification-card button[aria-label^="Open "] strong {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .va-notification-card button[aria-label^="Open "] p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .va-notification-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .va-notification-actions > * {
+    min-width: 0;
+  }
+
+  .va-notification-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  /* Offers */
+  .va-offers-page {
+    display: grid;
+    gap: 12px;
+  }
+
+  .va-offers-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .va-offers-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-offers-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-offer-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-offer-summary {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .va-offer-summary h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .va-offer-terms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .va-offer-terms > div {
+    padding: 10px;
+  }
+
+  .va-offer-terms .span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .va-offer-note {
+    padding: 11px;
+  }
+
+  .va-offer-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .va-offer-actions > * {
+    min-width: 0;
+  }
+
+  .va-offer-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Onboarding */
+  .va-onboarding-head {
+    margin-bottom: 11px;
+  }
+
+  .va-onboarding-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-onboarding-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-quick-setup-layout {
+    gap: 10px;
+  }
+
+  .va-onboarding-progress,
+  .va-onboarding-form-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-quick-setup-progress h2 {
+    font-size: 18px;
+  }
+
+  .va-quick-setup-step {
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .va-quick-setup-step > span {
+    width: 26px;
+    height: 26px;
+  }
+
+  .va-quick-setup-card-head {
+    margin-bottom: 13px;
+  }
+
+  .va-quick-setup-card-head h2 {
+    font-size: 18px;
+  }
+
+  .va-quick-setup-metrics {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .va-onboarding-form input,
+  .va-onboarding-form select,
+  .va-onboarding-form textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .va-onboarding-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .va-onboarding-actions .btn {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-notifications-head h1,
+  .va-offers-head h1,
+  .va-onboarding-head h1 {
+    font-size: 25px;
+  }
+
+  .va-notifications-mark-all,
+  .va-offers-overview {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .va-notification-actions,
+  .va-offer-actions,
+  .va-offer-terms {
+    grid-template-columns: 1fr;
+  }
+
+  .va-offer-terms .span-2 {
+    grid-column: auto;
+  }
+}

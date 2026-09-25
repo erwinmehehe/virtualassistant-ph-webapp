@@ -2,6 +2,7 @@
 
 export type SoftwareSeoPage = {
   slug: string;
+  locale?: "en-AU";
   name: string;
   software: string;
   category: string;
@@ -38,6 +39,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 1. ApplyOnline ---
   {
     slug: "applyonline-virtual-assistant",
+    locale: "en-AU",
     name: "ApplyOnline Virtual Assistant",
     software: "ApplyOnline",
     category: "Mortgage & Finance",
@@ -99,6 +101,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 2. Salestrekker ---
   {
     slug: "salestrekker-virtual-assistant",
+    locale: "en-AU",
     name: "Salestrekker Virtual Assistant",
     software: "Salestrekker",
     category: "Mortgage & Finance",
@@ -157,6 +160,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 3. BrokerEngine ---
   {
     slug: "brokerengine-virtual-assistant",
+    locale: "en-AU",
     name: "BrokerEngine Virtual Assistant",
     software: "BrokerEngine",
     category: "Mortgage & Finance",
@@ -215,6 +219,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 4. PropertyMe ---
   {
     slug: "propertyme-virtual-assistant",
+    locale: "en-AU",
     name: "PropertyMe Virtual Assistant",
     software: "PropertyMe",
     category: "Property Management",
@@ -275,6 +280,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 5. Console Cloud ---
   {
     slug: "console-cloud-virtual-assistant",
+    locale: "en-AU",
     name: "Console Cloud Virtual Assistant",
     software: "Console Cloud",
     category: "Property Management",
@@ -333,6 +339,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 6. ServiceM8 ---
   {
     slug: "servicem8-virtual-assistant",
+    locale: "en-AU",
     name: "ServiceM8 Virtual Assistant",
     software: "ServiceM8",
     category: "Trades & Field Service",
@@ -404,6 +411,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 7. simPRO ---
   {
     slug: "simpro-virtual-assistant",
+    locale: "en-AU",
     name: "simPRO Virtual Assistant",
     software: "simPRO",
     category: "Trades & Field Service",
@@ -463,6 +471,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 8. AroFlo ---
   {
     slug: "aroflo-virtual-assistant",
+    locale: "en-AU",
     name: "AroFlo Virtual Assistant",
     software: "AroFlo",
     category: "Trades & Field Service",
@@ -521,6 +530,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 9. Tradify ---
   {
     slug: "tradify-virtual-assistant",
+    locale: "en-AU",
     name: "Tradify Virtual Assistant",
     software: "Tradify",
     category: "Trades & Field Service",
@@ -580,6 +590,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 10. Cliniko ---
   {
     slug: "cliniko-virtual-assistant",
+    locale: "en-AU",
     name: "Cliniko Virtual Assistant",
     software: "Cliniko",
     category: "Allied Health",
@@ -646,6 +657,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 11. Halaxy ---
   {
     slug: "halaxy-virtual-assistant",
+    locale: "en-AU",
     name: "Halaxy Virtual Assistant",
     software: "Halaxy",
     category: "Allied Health",
@@ -703,6 +715,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 12. Power Diary ---
   {
     slug: "power-diary-virtual-assistant",
+    locale: "en-AU",
     name: "Power Diary Virtual Assistant",
     software: "Power Diary",
     category: "Allied Health",
@@ -760,6 +773,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 13. JobAdder ---
   {
     slug: "jobadder-virtual-assistant",
+    locale: "en-AU",
     name: "JobAdder Virtual Assistant",
     software: "JobAdder",
     category: "Recruitment",
@@ -819,6 +833,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 14. Bullhorn ---
   {
     slug: "bullhorn-virtual-assistant",
+    locale: "en-AU",
     name: "Bullhorn Virtual Assistant",
     software: "Bullhorn",
     category: "Recruitment",
@@ -875,6 +890,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 15. Vincere ---
   {
     slug: "vincere-virtual-assistant",
+    locale: "en-AU",
     name: "Vincere Virtual Assistant",
     software: "Vincere",
     category: "Recruitment",
@@ -932,6 +948,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 16. StrataMax ---
   {
     slug: "stratamax-virtual-assistant",
+    locale: "en-AU",
     name: "StrataMax Virtual Assistant",
     software: "StrataMax",
     category: "Strata Management",
@@ -988,6 +1005,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 17. MRI Strata Master ---
   {
     slug: "strata-master-virtual-assistant",
+    locale: "en-AU",
     name: "MRI Strata Master Virtual Assistant",
     software: "MRI Strata Master",
     category: "Strata Management",
@@ -1044,6 +1062,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 18. BGL Simple Fund 360 ---
   {
     slug: "bgl-simple-fund-360-virtual-assistant",
+    locale: "en-AU",
     name: "BGL Simple Fund 360 Virtual Assistant",
     software: "BGL Simple Fund 360",
     category: "SMSF & Accounting",
@@ -1102,6 +1121,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 19. Class Super ---
   {
     slug: "class-super-virtual-assistant",
+    locale: "en-AU",
     name: "Class Super Virtual Assistant",
     software: "Class Super",
     category: "SMSF & Accounting",
@@ -1159,6 +1179,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   // --- 20. Autodesk Revit ---
   {
     slug: "revit-virtual-assistant",
+    locale: "en-AU",
     name: "Revit Virtual Assistant",
     software: "Autodesk Revit",
     category: "Architecture & Engineering",
@@ -1375,6 +1396,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   },
   {
     slug: "xero-virtual-assistant",
+    locale: "en-AU",
     name: "Xero Virtual Assistant",
     software: "Xero",
     category: "Accounting & Bookkeeping",
@@ -1432,7 +1454,219 @@ export const softwarePages: SoftwareSeoPage[] = [
     hiringNotes: ["Use role-based access and approval rules.","Keep payment authority and bank changes restricted.","Keep tax, final accounting and financial advice with qualified professionals."],
     relatedServiceSlugs: ["quickbooks-virtual-assistant","bookkeeping","accounting-virtual-assistant"],
     relatedIndustrySlugs: ["small-business","accountants-cpas","accounting-firms-month-end"]
+  },
+{
+    slug: "shiftcare-virtual-assistant",
+    locale: "en-AU",
+    name: "ShiftCare Virtual Assistant",
+    software: "ShiftCare",
+    category: "NDIS & Care Management",
+    directoryCategory: "Dental & Healthcare",
+    primaryKeyword: "shiftcare virtual assistant",
+    metaTitle: "Hire ShiftCare Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based ShiftCare support for Australian NDIS and aged-care rostering, participant records, worker availability, notes and service admin.",
+    h1: "Keep ShiftCare Rosters and Participant Administration Current",
+    intro: "A ShiftCare Virtual Assistant can maintain approved rosters, participant records, worker availability, timesheet follow-up and service administration while care decisions and compliance accountability stay with the Australian provider.",
+    focus: "shiftcare rostering and participant administration",
+    workflows: ["review approved participant schedules","update worker availability","maintain roster changes","record participant and service updates","follow up missing notes or timesheets","track service booking administration","prepare exception queues","escalate urgent care or roster issues"],
+    tasks: ["rostering support","participant record administration","worker availability updates","timesheet follow-up","service note follow-up","schedule change administration","exception reporting"],
+    bestFor: ["NDIS providers","aged-care providers","community care teams"],
+    outcomes: ["Roster changes remain visible.","Participant and worker records stay more current.","Managers spend less time chasing routine service administration."],
+    hiringNotes: ["Define which roster changes may be processed without manager approval.","Limit access to assigned participants and workflows where possible.","Keep care decisions, incidents, safeguarding and compliance responsibility with qualified local staff."],
+    relatedServiceSlugs: ["ndis-rostering-virtual-assistant","ndis-billing-virtual-assistant","aged-care-virtual-assistant"],
+    relatedIndustrySlugs: ["ndis-providers","aged-care-providers"]
+  },
+{
+    slug: "best-practice-premier-virtual-assistant",
+    locale: "en-AU",
+    name: "Best Practice Premier Virtual Assistant",
+    software: "Best Practice Premier",
+    category: "Medical Practice Management",
+    directoryCategory: "Dental & Healthcare",
+    primaryKeyword: "best practice virtual assistant",
+    metaTitle: "Hire Best Practice Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based Best Practice Premier support for Australian clinics covering appointments, recalls, referrals, patient records and reception admin.",
+    h1: "Keep Best Practice Reception and Patient Administration Moving",
+    intro: "A Best Practice Premier Virtual Assistant can support Australian clinics with appointments, recalls, referral follow-up, inbox administration and routine patient-record updates while clinical judgement remains with qualified staff.",
+    focus: "best practice premier reception and patient administration",
+    workflows: ["review the clinic reception queue","book or update approved appointments","maintain recall and reminder tasks","record referral administration","route approved documents and messages","update routine patient details","track outstanding reception items","escalate clinical questions immediately"],
+    tasks: ["appointment administration","recalls and reminders","referral follow-up","patient record updates","inbox administration","document routing","reception follow-up"],
+    bestFor: ["Australian GP clinics","specialist practices","multi-doctor medical centres"],
+    outcomes: ["Reception queues stay more current.","Routine patient follow-up takes less local staff time.","Clinical questions are separated from administrative work more clearly."],
+    hiringNotes: ["Keep all clinical triage and advice with qualified clinicians.","Use individual accounts and minimum necessary patient access.","Document privacy, message routing and escalation rules before live work."],
+    relatedServiceSlugs: ["medical-receptionist-virtual-assistant","medical-virtual-assistant","phone-receptionist"],
+    relatedIndustrySlugs: ["medical-practices","healthcare-dental"]
+  },
+{
+    slug: "xplan-virtual-assistant",
+    locale: "en-AU",
+    name: "Xplan Virtual Assistant",
+    software: "Xplan",
+    category: "Financial Planning",
+    directoryCategory: "Bookkeeping & Finance",
+    primaryKeyword: "xplan virtual assistant",
+    metaTitle: "Hire Xplan Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based Xplan support for Australian financial planning firms covering client records, review prep, workflows, documents and implementation admin.",
+    h1: "Keep Xplan Client Administration Ready for Adviser Review",
+    intro: "An Xplan Virtual Assistant can maintain client records, prepare review administration, track implementation actions and keep workflow tasks current while personal advice and regulated approvals remain with authorised Australian advisers.",
+    focus: "xplan financial planning administration",
+    workflows: ["open the approved client workflow","update client and household records","prepare annual review administration","collect supporting documents","maintain tasks and review dates","track implementation actions","prepare exception lists","close completed administrative steps"],
+    tasks: ["client record maintenance","review preparation","fact-find administration","document follow-up","implementation tracking","workflow updates","service calendar administration"],
+    bestFor: ["Australian financial planning firms","wealth advisers","paraplanning teams"],
+    outcomes: ["Client records stay better prepared.","Review workflows become easier to track.","Advisers spend less time maintaining routine Xplan administration."],
+    hiringNotes: ["Separate data preparation from personal financial advice.","Use role-based permissions and documented review gates.","Keep recommendations, advice documents and regulated approvals with authorised advisers."],
+    relatedServiceSlugs: ["financial-planning-virtual-assistant","financial-advisor-virtual-assistant","admin-inbox"],
+    relatedIndustrySlugs: ["financial-planning-firms","financial-advisers"]
+  },
+{
+    slug: "pexa-virtual-assistant",
+    locale: "en-AU",
+    name: "PEXA Virtual Assistant",
+    software: "PEXA",
+    category: "Conveyancing",
+    directoryCategory: "Legal",
+    primaryKeyword: "pexa virtual assistant",
+    metaTitle: "Hire PEXA Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based PEXA administration support for Australian conveyancing teams covering workspace preparation, documents, milestones and follow-up.",
+    h1: "Keep PEXA Administration Prepared for Conveyancer Review",
+    intro: "A PEXA Virtual Assistant can support workspace preparation, matter administration, document follow-up and settlement milestone tracking while signing, legal judgement and regulated settlement responsibility remain with authorised Australian professionals.",
+    focus: "pexa workspace preparation and conveyancing administration",
+    workflows: ["open the approved matter checklist","prepare workspace information","upload or organise approved supporting documents","track outstanding client and transaction details","maintain settlement milestones","prepare status updates","flag exceptions for conveyancer review","complete approved post-settlement administration"],
+    tasks: ["workspace preparation support","document administration","settlement milestone tracking","client follow-up","matter updates","exception reporting","post-settlement administration"],
+    bestFor: ["Australian conveyancers","property law firms","settlement teams"],
+    outcomes: ["PEXA preparation becomes more consistent.","Outstanding matter inputs remain visible.","Conveyancers receive cleaner files before regulated review."],
+    hiringNotes: ["Do not delegate signing authority or legal advice.","Use documented matter checklists and role-based access.","Keep regulated conveyancing decisions and final settlement approval with authorised professionals."],
+    relatedServiceSlugs: ["conveyancing-virtual-assistant","paralegal-virtual-assistant","legal-virtual-assistant"],
+    relatedIndustrySlugs: ["conveyancing-firms","law-firms"]
+  },
+{
+    slug: "leap-virtual-assistant",
+    locale: "en-AU",
+    name: "LEAP Virtual Assistant",
+    software: "LEAP",
+    category: "Legal Practice Management",
+    directoryCategory: "Legal",
+    primaryKeyword: "leap virtual assistant",
+    metaTitle: "Hire LEAP Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based LEAP support for Australian legal and conveyancing teams covering matters, documents, tasks, client follow-up and file administration.",
+    h1: "Keep LEAP Matters, Documents and Tasks Current",
+    intro: "A LEAP Virtual Assistant can maintain approved matter records, document workflows, tasks and client follow-up while legal advice, privileged strategy and regulated legal decisions remain with Australian practitioners.",
+    focus: "leap matter and document administration",
+    workflows: ["open approved matters","maintain contact and matter details","organise approved documents","update tasks and key dates","prepare routine correspondence from templates","track client follow-up","maintain matter notes","escalate legal decisions"],
+    tasks: ["matter administration","document organisation","task updates","client follow-up","template correspondence support","key-date tracking","file maintenance"],
+    bestFor: ["Australian law firms","conveyancing practices","small legal teams"],
+    outcomes: ["Matter records remain more current.","Routine file administration takes less practitioner time.","Deadlines and follow-up become easier to see."],
+    hiringNotes: ["Keep legal advice and privileged judgement with qualified practitioners.","Use approved templates and document naming standards.","Restrict sensitive matter access to the work assigned."],
+    relatedServiceSlugs: ["conveyancing-virtual-assistant","legal-virtual-assistant","paralegal-virtual-assistant"],
+    relatedIndustrySlugs: ["conveyancing-firms","law-firms"]
+  },
+{
+    slug: "vaultre-virtual-assistant",
+    locale: "en-AU",
+    name: "VaultRE Virtual Assistant",
+    software: "VaultRE",
+    category: "Real Estate CRM",
+    directoryCategory: "Real Estate",
+    primaryKeyword: "vaultre virtual assistant",
+    metaTitle: "Hire VaultRE Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based VaultRE support for Australian real-estate and buyers agency teams covering CRM, properties, contacts, tasks and follow-up.",
+    h1: "Keep VaultRE Contacts, Properties and Follow-Up Current",
+    intro: "A VaultRE Virtual Assistant can maintain CRM records, property data, tasks and approved follow-up so Australian agents and buyers agents spend less time on routine database administration.",
+    focus: "vaultre real-estate CRM administration",
+    workflows: ["capture approved contacts and enquiries","maintain property records","update pipeline stages","record calls and follow-up tasks","prepare inspection or appraisal lists","clean duplicate records","track outstanding actions","prepare routine reports"],
+    tasks: ["CRM updates","property record administration","contact management","task follow-up","database cleanup","pipeline updates","report preparation"],
+    bestFor: ["Australian real-estate agencies","buyers agencies","property sales teams"],
+    outcomes: ["CRM data stays easier to trust.","Follow-up tasks remain visible.","Agents spend less time maintaining records."],
+    hiringNotes: ["Define CRM stages and required fields.","Keep negotiation and licensed real-estate decisions with agents.","Use role-based access and review bulk data changes."],
+    relatedServiceSlugs: ["buyers-agent-virtual-assistant","real-estate","admin-inbox"],
+    relatedIndustrySlugs: ["buyers-agents","real-estate-agents"]
+  },
+{
+    slug: "agentbox-virtual-assistant",
+    locale: "en-AU",
+    name: "AgentBox Virtual Assistant",
+    software: "AgentBox",
+    category: "Real Estate CRM",
+    directoryCategory: "Real Estate",
+    primaryKeyword: "agentbox virtual assistant",
+    metaTitle: "Hire AgentBox Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based AgentBox CRM support for Australian real-estate teams covering contacts, properties, tasks, campaigns and follow-up administration.",
+    h1: "Keep AgentBox CRM Administration Current",
+    intro: "An AgentBox Virtual Assistant can maintain contacts, property records, tasks, campaign administration and approved follow-up while Australian agents retain negotiation, advice and licensed real-estate responsibilities.",
+    focus: "agentbox CRM and property administration",
+    workflows: ["capture approved enquiries","maintain contact records","update property records","record tasks and next actions","support campaign administration","prepare call or follow-up lists","clean database records","report outstanding actions"],
+    tasks: ["CRM data entry","contact administration","property record updates","task follow-up","campaign support","database cleanup","reporting"],
+    bestFor: ["Australian real-estate agencies","buyers agents","property sales teams"],
+    outcomes: ["AgentBox data stays more current.","Follow-up is easier to manage.","Agents spend less time on repeatable CRM work."],
+    hiringNotes: ["Document required fields and pipeline stages.","Review bulk changes before they are applied.","Keep negotiation, pricing and licensed decisions with Australian agents."],
+    relatedServiceSlugs: ["buyers-agent-virtual-assistant","real-estate","admin-inbox"],
+    relatedIndustrySlugs: ["buyers-agents","real-estate-agents"]
+  },
+{
+    slug: "property-tree-virtual-assistant",
+    locale: "en-AU",
+    name: "Property Tree Virtual Assistant",
+    software: "Property Tree",
+    category: "Property Management",
+    directoryCategory: "Real Estate",
+    primaryKeyword: "property tree virtual assistant",
+    metaTitle: "Hire Property Tree Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based Property Tree support for Australian property management teams covering maintenance, tenants, ledgers, inspections and admin.",
+    h1: "Keep Property Tree Property Administration Moving",
+    intro: "A Property Tree Virtual Assistant can maintain approved tenant, property, maintenance and trust-administration workflows while property managers retain tenancy decisions, spending authority and regulated trust-account responsibility.",
+    focus: "property tree portfolio and property administration",
+    workflows: ["review the property administration queue","update tenant and property records","log approved maintenance items","track contractor follow-up","maintain inspection administration","prepare ledger or trust review items","record outstanding actions","prepare manager exception lists"],
+    tasks: ["tenant administration","property record updates","maintenance coordination","inspection administration","trust-account support","contractor follow-up","exception reporting"],
+    bestFor: ["Australian property management agencies","real-estate agencies","portfolio teams"],
+    outcomes: ["Property records stay more current.","Maintenance follow-up becomes easier to track.","Managers receive cleaner exception queues."],
+    hiringNotes: ["Define spending and maintenance approval limits.","Keep trust-account authority and tenancy decisions with authorised local staff.","Use one documented workflow for tenant and contractor communication."],
+    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting-virtual-assistant"],
+    relatedIndustrySlugs: ["property-management-companies","property-management-maintenance-coordination"]
+  },
+{
+    slug: "ailo-virtual-assistant",
+    locale: "en-AU",
+    name: "Ailo Virtual Assistant",
+    software: "Ailo",
+    category: "Property Management",
+    directoryCategory: "Real Estate",
+    primaryKeyword: "ailo virtual assistant",
+    metaTitle: "Hire Ailo Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based Ailo support for Australian property management teams covering tenant communication, maintenance, payments admin and portfolio follow-up.",
+    h1: "Keep Ailo Tenant and Portfolio Administration Current",
+    intro: "An Ailo Virtual Assistant can support routine tenant communication, maintenance administration, portfolio follow-up and payment-related administration while property managers retain tenancy decisions, trust authority and regulated responsibilities.",
+    focus: "ailo tenant communication and property administration",
+    workflows: ["review approved tenant enquiries","record property and tenancy updates","log maintenance requests","track contractor and tenant follow-up","prepare payment or arrears admin queues","maintain communication notes","report unresolved exceptions","prepare manager handoffs"],
+    tasks: ["tenant communication","maintenance administration","portfolio updates","payment admin support","follow-up","record maintenance","exception reporting"],
+    bestFor: ["Australian property managers","real-estate agencies","residential portfolio teams"],
+    outcomes: ["Tenant follow-up remains more consistent.","Property administration queues stay visible.","Managers spend less time chasing routine updates."],
+    hiringNotes: ["Define which tenant messages may be handled from approved templates.","Keep trust, tenancy and legal decisions with authorised local staff.","Escalate sensitive disputes, hardship and safety issues immediately."],
+    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting-virtual-assistant"],
+    relatedIndustrySlugs: ["property-management-companies","property-management-maintenance-coordination"]
+  },
+{
+    slug: "myob-virtual-assistant",
+    locale: "en-AU",
+    name: "MYOB Virtual Assistant",
+    software: "MYOB",
+    category: "Accounting & Bookkeeping",
+    directoryCategory: "Bookkeeping & Finance",
+    primaryKeyword: "myob virtual assistant",
+    metaTitle: "Hire MYOB Virtual Assistant Australia",
+    metaDescription: "Hire Philippines-based MYOB support for Australian businesses covering bookkeeping admin, invoices, bills, reconciliations and month-end preparation.",
+    h1: "Keep MYOB Bookkeeping Administration Ready for Review",
+    intro: "A MYOB Virtual Assistant can prepare recurring bookkeeping administration, maintain supporting records and flag exceptions while payment authority, tax positions and final accounting judgement remain with qualified staff.",
+    focus: "myob bookkeeping and finance administration",
+    workflows: ["collect source documents","prepare transaction entries","maintain invoices and bills","support bank matching","track receivables and payables","prepare reconciliation items","flag exceptions","support month-end review"],
+    tasks: ["bookkeeping administration","transaction preparation","invoice administration","accounts payable support","accounts receivable follow-up","reconciliation support","month-end preparation"],
+    bestFor: ["Australian SMEs","bookkeeping firms","accounting practices"],
+    outcomes: ["MYOB records stay more current.","Reviewers receive cleaner supporting information.","Outstanding finance-administration items become easier to track."],
+    hiringNotes: ["Separate data preparation from approval.","Restrict payment and banking permissions.","Keep tax, final accounting and financial advice with qualified professionals."],
+    relatedServiceSlugs: ["bookkeeping","accounting-virtual-assistant","month-end-production-virtual-assistant"],
+    relatedIndustrySlugs: ["accountants-cpas","accounting-firms-month-end","small-business"]
   }
+
+
 ];
 
 export const softwarePagesBySlug = Object.fromEntries(

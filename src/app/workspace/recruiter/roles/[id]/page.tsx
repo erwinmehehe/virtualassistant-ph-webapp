@@ -344,7 +344,8 @@ export default async function RoleControlCenter({
         </section>
       </div>
 
-      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request sent to the client.</div> : null}
+      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request added to the client workspace{query.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
+      {query.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
       <RoleReadinessForm
         job={job}
         returnTo={`/workspace/recruiter/roles/${job.id}`}

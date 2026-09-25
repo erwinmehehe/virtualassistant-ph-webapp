@@ -2857,3 +2857,50 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Global VA training announcement */
+.va-training-announcement {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid #c7d7fe;
+  border-radius: 14px;
+  background: #f5f7ff;
+  box-shadow: 0 4px 14px rgba(68, 76, 231, .06);
+}
+.va-training-announcement-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 11px;
+  background: #e9edff;
+  color: #444ce7;
+}
+.va-training-announcement strong {
+  display: block;
+  color: #101828;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.va-training-announcement p {
+  margin: 3px 0 0;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+@media (max-width: 680px) {
+  .va-training-announcement {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 12px;
+  }
+  .va-training-announcement .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+}

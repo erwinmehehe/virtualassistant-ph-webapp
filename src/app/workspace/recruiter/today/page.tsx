@@ -251,7 +251,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
     {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
     {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
-    {params.role_details_requested ? <div className="success-banner">Missing role details request sent to the client.</div> : null}
+    {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace{params.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
+    {params.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
     {params.role_details_complete ? <div className="info-banner">This role is already complete. No request was sent.</div> : null}
     <DashHeader
       kicker="Agency daily workflow"

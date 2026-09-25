@@ -145,32 +145,52 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
   const missing = publicationMissingDetails(job);
   if (!missing.length) redirect(`${returnTo}?role_details_complete=1#role-readiness`);
 
-  const { data: client } = await admin
-    .from("profiles")
-    .select("email,full_name")
-    .eq("id", job.client_id)
-    .maybeSingle();
+  const [{ data: clientProfile }, { data: authUserData, error: authUserError }] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", job.client_id)
+      .maybeSingle(),
+    admin.auth.admin.getUserById(job.client_id),
+  ]);
 
-  if (!client?.email) throw new Error("The linked client account does not have an email address.");
+  const authUser = authUserData?.user || null;
+  const clientEmail = String(authUser?.email || "").trim();
+  const clientName =
+    clientProfile?.full_name ||
+    (typeof authUser?.user_metadata?.full_name === "string" ? authUser.user_metadata.full_name : null) ||
+    (typeof authUser?.user_metadata?.name === "string" ? authUser.user_metadata.name : null);
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const { sendRoleDetailsRequestEmail } = await import("@/lib/email");
-  const result = await sendRoleDetailsRequestEmail({
-    to: client.email,
-    clientName: client.full_name,
-    jobTitle: job.title || "Virtual Assistant role",
-    jobId,
-    missing,
-    appUrl,
-  });
-  if (!result.sent) throw new Error("The client details request could not be sent.");
+  let emailSent = false;
+  let emailWarning = false;
+  let emailReason: string | null = null;
 
-  await admin.from("notifications").insert({
+  if (!authUserError && clientEmail) {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+    const { sendRoleDetailsRequestEmail } = await import("@/lib/email");
+    const result = await sendRoleDetailsRequestEmail({
+      to: clientEmail,
+      clientName,
+      jobTitle: job.title || "Virtual Assistant role",
+      jobId,
+      missing,
+      appUrl,
+    });
+    emailSent = result.sent;
+    emailReason = result.sent ? null : String(result.reason || "email_unavailable");
+    emailWarning = !result.sent;
+  } else {
+    emailWarning = true;
+    emailReason = authUserError ? "client_auth_lookup_failed" : "client_email_missing";
+  }
+
+  const { error: notificationError } = await admin.from("notifications").insert({
     user_id: job.client_id,
     title: "Complete your hiring brief",
     body: `Your recruiter needs a few more details for “${job.title || "your Virtual Assistant role"}”: ${missing.join(", ")}.`,
     href: `/workspace/client/jobs/${jobId}?complete=1#role-readiness`,
   });
+  if (notificationError) throw notificationError;
 
   await writeRecruiterActivity({
     subjectType: "job",
@@ -178,7 +198,12 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
     action: "role_details_requested",
     description: `Requested missing hiring details from the client: ${missing.join(", ")}`,
     actorId: user.id,
-    metadata: { missing_fields: missing, role: profile.role },
+    metadata: {
+      missing_fields: missing,
+      role: profile.role,
+      email_sent: emailSent,
+      email_reason: emailReason,
+    },
   });
 
   if (profile.role === "admin") {
@@ -193,7 +218,9 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
 
   revalidatePath(returnTo);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
-  redirect(`${returnTo}?role_details_requested=1#role-readiness`);
+  const outcome = new URLSearchParams({ role_details_requested: "1" });
+  if (emailWarning) outcome.set("role_details_email_warning", "1");
+  redirect(`${returnTo}?${outcome.toString()}#role-readiness`);
 }
 
 export async function saveRoleReadinessDetailsAction(formData: FormData) {

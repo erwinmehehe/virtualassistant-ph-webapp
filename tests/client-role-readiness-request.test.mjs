@@ -11,7 +11,11 @@ test("staff can request missing role details only for linked client roles", asyn
   assert.match(action, /job\.recruiter_id !== user\.id/);
   assert.match(action, /Link the client account before requesting missing details/);
   assert.match(action, /publicationMissingDetails\(job\)/);
+  assert.match(action, /admin\.auth\.admin\.getUserById\(job\.client_id\)/);
+  assert.doesNotMatch(action, /\.select\("email,full_name"\)/);
   assert.match(action, /sendRoleDetailsRequestEmail/);
+  assert.match(action, /email_sent: emailSent/);
+  assert.match(action, /role_details_email_warning/);
   assert.match(action, /role_details_requested/);
 });
 
@@ -52,4 +56,18 @@ test("client and staff workspaces expose the missing-details workflow", async ()
   assert.match(admin, /requestClientRoleDetailsAction/);
   assert.match(form, /Request missing details from client/);
   assert.match(form, /Complete your hiring brief/);
+});
+
+
+test("missing profile email no longer blocks the client-details request", async () => {
+  const [action, today, role] = await Promise.all([
+    read("src/app/actions/agency-role.ts"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
+    read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
+  ]);
+  assert.match(action, /const clientEmail = String\(authUser\?\.email \|\| ""\)\.trim\(\)/);
+  assert.match(action, /await admin\.from\("notifications"\)\.insert/);
+  assert.match(action, /emailWarning = true/);
+  assert.match(today, /role_details_email_warning/);
+  assert.match(role, /role_details_email_warning/);
 });

@@ -37,10 +37,16 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
     : null;
   const reviewLabel = reviewedLabel(course.last_reviewed_at);
   const isExecutiveCourse = course.slug === "executive-virtual-assistant";
+  const isCustomerSupportCourse = course.slug === "customer-support-virtual-assistant";
+  const courseVariant = isExecutiveCourse
+    ? " training-executive-course"
+    : isCustomerSupportCourse
+      ? " training-support-course"
+      : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
-    <div className={`dash-page role-overview training-home training-course-page${isExecutiveCourse ? " training-executive-course" : ""}`}>
+    <div className={`dash-page role-overview training-home training-course-page${courseVariant}`}>
       <Link className="btn btn-sm training-course-back" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
       <section className="card dashboard-section-card training-course-hero">
@@ -65,6 +71,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><CalendarDays size={17}/><span><strong>Calendar + meeting briefs</strong><small>Protect time, preparation, and follow-through.</small></span></div>
               <div><Plane size={17}/><span><strong>Travel + disruption plan</strong><small>Handle changes without inventing authority.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Daily handoff</strong><small>Leave owners, risks, deadlines, and next steps clear.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isCustomerSupportCourse ? (
+          <div className="training-support-outcomes" aria-label="Customer Support VA course work outputs">
+            <div className="training-support-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>Support artifacts you can use during a real queue shift</strong>
+            </div>
+            <div className="training-support-outcome-grid">
+              <div><Inbox size={17}/><span><strong>Queue triage board</strong><small>Prioritise by consequence, SLA, and ownership.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Reply + case record</strong><small>Write clear customer responses and internal notes.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Policy + escalation control</strong><small>Handle refunds, security, and exceptions safely.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>QA + shift handoff</strong><small>Leave every unresolved case owned and traceable.</small></span></div>
             </div>
           </div>
         ) : null}

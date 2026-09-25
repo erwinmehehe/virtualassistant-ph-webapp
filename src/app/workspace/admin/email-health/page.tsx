@@ -3,6 +3,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { DAILY_RECIPIENT_LIMIT } from "@/lib/email";
+import { sendVaTrainingAnnouncementBatchAction } from "@/app/actions/admin-training-email";
 
 type EmailRow = {
   id: string;
@@ -142,6 +143,18 @@ export default async function AdminEmailHealthPage() {
           <p>App-tracked recipient usage for the current UTC day. The final 20 daily recipients are reserved for critical transactional mail.</p>
         </div>
       </div>
+
+      <section className="card" style={{ marginBottom: 18 }}>
+        <div className="row-between" style={{ gap: 16, alignItems: "center" }}>
+          <div>
+            <h2 style={{ marginBottom: 4 }}>Free VA training announcement</h2>
+            <p className="muted" style={{ margin: 0 }}>Send the approved training announcement in safe batches. Previously sent VAs are skipped automatically, explicit opt-outs and suppressed addresses are respected, and critical email capacity stays reserved.</p>
+          </div>
+          <form action={sendVaTrainingAnnouncementBatchAction}>
+            <button className="btn btn-primary" type="submit">Send next VA batch</button>
+          </form>
+        </div>
+      </section>
 
       <div className="health-grid">
         <div className="health-card ok">

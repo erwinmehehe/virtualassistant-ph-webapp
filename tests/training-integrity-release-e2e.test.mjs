@@ -70,7 +70,7 @@ test("final assessment failure, retry, pass, and certificate states stay connect
   assert.match(actions, /status: passed \? "reviewed" : "needs_revision"/);
   assert.match(actions, /missed_lesson_ids: missedLessonIds/);
   assert.match(assessment, /Review and try again/);
-  assert.match(assessment, /Try again/);
+  assert.match(assessment, /Start final check again/);
   assert.match(assessment, /missedLessons/);
 
   // The next attempt increments from persisted submissions and receives a fresh question set.

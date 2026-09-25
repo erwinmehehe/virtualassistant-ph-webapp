@@ -143,7 +143,7 @@ export default async function TrainingLessonPage({
   const nextLabel = next
     ? "Continue lesson"
     : nextAssessment
-      ? "Start assessment"
+      ? "Start final check"
       : certificateHref
         ? "View certificate"
         : "Course overview";
@@ -228,7 +228,7 @@ export default async function TrainingLessonPage({
                   {nextLabel} <ArrowRight size={14}/>
                 </Link>
               ) : (
-                <span className="small muted">Complete the integrity check below to continue.</span>
+                <span className="small muted training-player-next-hint">Finish the lesson checks below to unlock your next step.</span>
               )}
             </div>
             <p className="small muted">

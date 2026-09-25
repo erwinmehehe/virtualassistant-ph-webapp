@@ -5190,3 +5190,37 @@
   --training-work-border: #ffd6ae;
   --training-work-hero: rgba(196, 50, 10, 0.08);
 }
+
+
+/* Australia software-workflow palettes */
+.training-servicem8-course,
+.training-servicem8-player {
+  --training-work-accent: #0e7490;
+  --training-work-soft: #ecfeff;
+  --training-work-border: #a5f3fc;
+  --training-work-hero: rgba(14, 116, 144, 0.09);
+}
+
+.training-cliniko-course,
+.training-cliniko-player {
+  --training-work-accent: #067647;
+  --training-work-soft: #ecfdf3;
+  --training-work-border: #abefc6;
+  --training-work-hero: rgba(6, 118, 71, 0.09);
+}
+
+.training-xero-course,
+.training-xero-player {
+  --training-work-accent: #175cd3;
+  --training-work-soft: #eff8ff;
+  --training-work-border: #b2ddff;
+  --training-work-hero: rgba(23, 92, 211, 0.09);
+}
+
+.training-myob-course,
+.training-myob-player {
+  --training-work-accent: #6938ef;
+  --training-work-soft: #f4f3ff;
+  --training-work-border: #d9d6fe;
+  --training-work-hero: rgba(105, 56, 239, 0.09);
+}

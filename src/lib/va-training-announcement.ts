@@ -16,11 +16,24 @@ export async function sendVaTrainingAnnouncementBatch(maxSends = 20) {
     .limit(500);
   if (error) throw error;
 
+  const staleCutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  await admin
+    .from("outbound_email_events")
+    .update({
+      status: "failed",
+      idempotency_key: null,
+      error_message: "Recovered stale sending claim for retry.",
+      skip_reason: "stale_sending_recovered",
+    })
+    .eq("event_type", VA_TRAINING_EVENT_TYPE)
+    .eq("status", "sending")
+    .lt("created_at", staleCutoff);
+
   const { data: sentEvents } = await admin
     .from("outbound_email_events")
     .select("idempotency_key")
     .eq("event_type", VA_TRAINING_EVENT_TYPE)
-    .in("status", ["sending", "sent", "delivered"])
+    .in("status", ["sending", "sent", "delivered", "suppressed", "bounced", "complained"])
     .limit(1000);
 
   const done = new Set((sentEvents || []).map((row: any) => String(row.idempotency_key || "")).filter(Boolean));

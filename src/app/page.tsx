@@ -23,6 +23,7 @@ import {
   ServicesSection,
   TalentSection,
   WhyPhilippinesSection,
+  WhyChooseSection,
 } from "@/components/homepage-sections";
 import { TalentShortlistBar } from "@/components/talent-shortlist";
 import "./premium-home.css";
@@ -257,6 +258,7 @@ export default async function HomePage() {
           <ServicesSection />
           <WhyPhilippinesSection />
           <HiringModelsSection bookingUrl={BOOKING_URL} />
+          <WhyChooseSection bookingUrl={BOOKING_URL} />
           <TalentSection talent={featuredWithPhotos} />
           <HowItWorksSection />
           <IndustriesSection />

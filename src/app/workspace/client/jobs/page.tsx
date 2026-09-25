@@ -24,24 +24,24 @@ export default async function ClientJobsPage(){
   const counts=new Map<string,number>();
   for(const row of applicationRows||[]) counts.set(row.job_id,(counts.get(row.job_id)||0)+1);
 
-  return <>
-    <div className="page-head">
+  return <div className="client-jobs-page">
+    <div className="page-head client-jobs-head">
       <div><h1>Your hiring requests</h1><p>Follow each role from brief review through recruiting, shortlist, interviews, and hire.</p></div>
-      <Link className="btn btn-primary" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs?"Post a job":"New hiring request"}</Link>
+      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs?"Post a job":"New hiring request"}</Link>
     </div>
-    <div className="table-wrap responsive-table">
+    <div className="table-wrap responsive-table client-jobs-table">
       {clientProfile?.can_self_publish_jobs?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for your account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:null}
       {jobs?.length?<table>
         <thead><tr><th>Role</th><th>Status</th><th>Hours</th><th>Candidates</th><th>Created</th><th></th></tr></thead>
-        <tbody>{jobs.map((job:any)=><tr key={job.id}>
+        <tbody>{jobs.map((job:any)=><tr className="client-job-row" key={job.id}>
           <td data-label="Role"><strong>{job.title}</strong><div className="small muted">VA pay from USD {job.min_hourly_rate||5}/hr</div></td>
           <td data-label="Status"><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</span></td>
           <td data-label="Hours">{job.hours_per_week?`${job.hours_per_week}/week`:"Flexible"}</td>
           <td data-label="Candidates">{counts.get(job.id)||0}</td>
           <td data-label="Created">{dateShort(job.created_at)}</td>
-          <td data-label="Action"><Link className="btn btn-sm" href={`/workspace/client/jobs/${job.id}`}>View progress</Link></td>
+          <td data-label="Action"><Link className="btn btn-sm client-job-progress" href={`/workspace/client/jobs/${job.id}`}>View progress</Link></td>
         </tr>)}</tbody>
       </table>:<div className="empty"><p>You have not sent a hiring request yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start your first hiring request</Link></div>}
     </div>
-  </>;
+  </div>;
 }

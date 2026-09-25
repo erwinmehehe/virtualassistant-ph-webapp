@@ -144,7 +144,8 @@ const GENERIC_COST_FACTORS = [
 ];
 
 function costFactorsFor(s: ServiceSeoPage) {
-  const specific = s.costFactors.filter((factor) => !GENERIC_COST_FACTORS.includes(factor));
+  const genericCostFactors = localizeContent(GENERIC_COST_FACTORS, s.locale);
+  const specific = s.costFactors.filter((factor) => !genericCostFactors.includes(factor));
   const derived = [
     `How much ${s.tasks[0]} you need each week, and whether it is steady or seasonal`,
     `Depth in ${s.tools.slice(0, 2).join(" and ")} rather than general familiarity`,

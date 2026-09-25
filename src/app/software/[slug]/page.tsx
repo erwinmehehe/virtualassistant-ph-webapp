@@ -68,9 +68,9 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const isAu = page.locale === "en-AU";
   const loc = (value: string) => localizeEnglish(value, page.locale);
 
-  const relatedServices = page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean);
-  const relatedIndustries = page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean);
-  const relatedGuides = softwareBlogPosts(page.slug, 4);
+  const relatedServices = localizeContent(page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
+  const relatedIndustries = localizeContent(page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean), page.locale);
+  const relatedGuides = localizeContent(softwareBlogPosts(page.slug, 4), page.locale);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;

@@ -42,3 +42,14 @@ test("training signup owns its metadata and uses learner-facing separation copy"
   assert.match(form, /No job application is required to learn/);
   assert.doesNotMatch(form, /enter you into recruiter vetting/);
 });
+
+
+test("login route owns neutral account metadata instead of inheriting hiring copy", async () => {
+  const login = await read("src/app/auth/login/page.tsx");
+
+  assert.match(login, /export const metadata: Metadata/);
+  assert.match(login, /title: "Log In"/);
+  assert.match(login, /continue free VA training/);
+  assert.match(login, /robots: \{ index: false, follow: false \}/);
+  assert.doesNotMatch(login, /Hire vetted virtual assistants from the Philippines/);
+});

@@ -29,9 +29,14 @@ test("training public header stays learner-focused and removes the buyer CTA", a
   assert.match(siteNav, /Start free training/);
   assert.match(siteNav, /Training login/);
   assert.match(siteNav, /Training home/);
-  assert.match(siteNav, /For VAs/);
-  assert.match(siteNav, /VA jobs/);
+  assert.match(siteNav, /Courses/);
+  assert.match(siteNav, /How it works/);
+  assert.match(siteNav, /Certificates/);
+  assert.match(siteNav, /FAQ/);
+  assert.match(siteNav, /For Virtual Assistants/);
   assert.match(siteNav, /VA guides/);
+  assert.doesNotMatch(siteNav, />VA jobs<\/Link>/);
+  assert.doesNotMatch(siteNav, />Browse VA jobs<\/Link>/);
   const trainingNav = siteNav.slice(siteNav.indexOf("function TrainingNav"), siteNav.indexOf("export function SiteNav"));
   assert.doesNotMatch(trainingNav, /Hire a Virtual Assistant/);
   assert.doesNotMatch(trainingNav, /href="\/hire"/);

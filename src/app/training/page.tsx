@@ -218,16 +218,6 @@ export default async function TrainingPage() {
           dangerouslySetInnerHTML={{ __html: safeJson(schema) }}
         />
 
-        <nav className="tr-page-nav" aria-label="Training page sections">
-          <div className="container tr-page-nav-inner">
-            <span>Training</span>
-            <a href="#course-library">Courses</a>
-            <a href="#how-training-works">How it works</a>
-            <a href="#certificate">Certificates</a>
-            <a href="#faq">FAQ</a>
-          </div>
-        </nav>
-
         <section className="tr-hero" data-training-hero>
           <div className="container tr-hero-grid">
             <div className="tr-hero-copy">

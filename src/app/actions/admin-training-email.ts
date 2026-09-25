@@ -84,5 +84,7 @@ export async function sendVaTrainingAnnouncementBatchAction() {
   }
 
   revalidatePath("/workspace/admin/email-health");
-  return { sent, skipped, quotaReached };
+  void sent;
+  void skipped;
+  void quotaReached;
 }

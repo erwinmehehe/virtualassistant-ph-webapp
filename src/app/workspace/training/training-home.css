@@ -3810,3 +3810,53 @@
     font-size: 13px;
   }
 }
+
+
+/* Mobile course focus: keep fixed training nav from covering lesson content */
+@media (max-width: 680px) {
+  .training-shell:has(.training-course-page) .app-sidebar,
+  .training-shell:has(.training-player-page) .app-sidebar,
+  .training-shell:has(.training-assessment-page) .app-sidebar {
+    display: none;
+  }
+
+  .dashboard-shell.training-shell:has(.training-course-page),
+  .dashboard-shell.training-shell:has(.training-player-page),
+  .dashboard-shell.training-shell:has(.training-assessment-page) {
+    padding-bottom: 0;
+  }
+
+  .training-shell:has(.training-course-page) .app-content,
+  .training-shell:has(.training-player-page) .app-content,
+  .training-shell:has(.training-assessment-page) .app-content {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+
+  .training-shell:has(.training-course-page) .app-topbar,
+  .training-shell:has(.training-player-page) .app-topbar,
+  .training-shell:has(.training-assessment-page) .app-topbar {
+    background: rgba(255, 255, 255, .97);
+  }
+
+  .training-course-page .training-module-card,
+  .training-player-page .training-player-content,
+  .training-assessment-page .dashboard-section-card {
+    scroll-margin-top: 76px;
+  }
+}
+
+@media (max-width: 430px) {
+  .training-course-page .training-module-card {
+    padding: 15px 13px;
+  }
+
+  .training-course-page .training-lesson-row {
+    grid-template-columns: 34px minmax(0, 1fr) 28px;
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .training-course-page .training-lesson-arrow {
+    align-self: center;
+  }
+}

@@ -50,6 +50,10 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isBookkeepingCourse = course.slug === "bookkeeping-administration";
   const isPayrollCourse = course.slug === "payroll-administration";
   const isShortTermRentalCourse = course.slug === "airbnb-short-term-rental-virtual-assistant";
+  const isServiceM8Course = course.slug === "servicem8-for-virtual-assistants";
+  const isClinikoCourse = course.slug === "cliniko-for-virtual-assistants";
+  const isXeroCourse = course.slug === "xero-workflows-for-virtual-assistants";
+  const isMyobCourse = course.slug === "myob-workflows-for-virtual-assistants";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -78,7 +82,15 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                             ? " training-work-course training-payroll-course"
                             : isShortTermRentalCourse
                               ? " training-work-course training-rental-course"
-                              : "";
+                              : isServiceM8Course
+                                ? " training-work-course training-servicem8-course"
+                                : isClinikoCourse
+                                  ? " training-work-course training-cliniko-course"
+                                  : isXeroCourse
+                                    ? " training-work-course training-xero-course"
+                                    : isMyobCourse
+                                      ? " training-work-course training-myob-course"
+                                      : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -302,6 +314,66 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><Inbox size={17}/><span><strong>Guest messaging + issue queue</strong><small>Handle arrivals, access, complaints, and commercial requests without overstepping authority.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Turnover + maintenance board</strong><small>Track cleaners, supplies, inspections, vendors, readiness risks, and emergency routing.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Owner + shift handoff</strong><small>Summarize open issues, decisions needed, property risks, and next checkpoints across properties.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isServiceM8Course ? (
+          <div className="training-work-outcomes" aria-label="ServiceM8 for Virtual Assistants course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A field-service operations pack from job intake through completion and finance handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><Inbox size={17}/><span><strong>Job + queue control</strong><small>Keep job status, waiting queues, customer context, and next ownership accurate.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Schedule + dispatch board</strong><small>Coordinate staff, time windows, travel, access, and appointment changes.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Quote + completion evidence</strong><small>Prepare approved documents, capture job evidence, and keep exceptions visible.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Invoice + accounting handoff</strong><small>Check completion, billing readiness, payment state, and finance-system transfer.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isClinikoCourse ? (
+          <div className="training-work-outcomes" aria-label="Cliniko for Virtual Assistants course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>An allied-health admin pack for patients, appointments, billing, privacy, and handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Patient + authority QA</strong><small>Verify identity, permissions, minimum-necessary access, and record boundaries.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Appointment + reminder control</strong><small>Coordinate practitioners, locations, appointment types, forms, and communications.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Invoice + payment exception queue</strong><small>Track approved billing, payment evidence, unresolved allocations, and decision owners.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Privacy + Xero handoff</strong><small>Leave clinical, refund, write-off, tax, and reconciliation decisions with authorised owners.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isXeroCourse ? (
+          <div className="training-work-outcomes" aria-label="Xero Workflows for Virtual Assistants course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A Xero finance-admin control pack from AR and AP through month-end review</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><Inbox size={17}/><span><strong>AR + AP exception queues</strong><small>Track invoices, bills, source evidence, disputes, duplicates, and approval boundaries.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Bank + JAX reconciliation worksheet</strong><small>Verify suggested matches against evidence and leave uncertain items unresolved for review.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>GST/BAS + payroll handoff</strong><small>Prepare evidence and exceptions without making tax, statutory, or payroll decisions.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Month-end reviewer pack</strong><small>Surface anomalies, unresolved balances, evidence links, owners, and next checkpoints.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isMyobCourse ? (
+          <div className="training-work-outcomes" aria-label="MYOB Workflows for Virtual Assistants course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A MYOB finance-admin control pack for transactions, banking, payroll, and reporting</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Sales + purchases control queue</strong><small>Trace transactions to source documents and hold coding, pricing, credit, and payment decisions.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Bank-feed exception worksheet</strong><small>Check automatic and suggested matches, grouped settlements, transfers, and evidence gaps.</small></span></div>
+              <div><Inbox size={17}/><span><strong>GST/BAS + payroll control</strong><small>Prepare exceptions while keeping STP, super, tax, and payroll authority separated.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Finance review handoff</strong><small>Package unresolved work, audit notes, owners, and review-ready reporting evidence.</small></span></div>
             </div>
           </div>
         ) : null}

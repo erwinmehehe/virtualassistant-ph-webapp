@@ -6,7 +6,17 @@ import { safeTrainingCourseSlug } from "@/lib/training-intent";
 
 export const metadata: Metadata = {
   title: "Create a Free Training Account",
+  description: "Create a free training account to save lesson progress and earn verified VirtualAssistant.com.ph course certificates.",
   robots: { index: false, follow: false },
+  openGraph: {
+    title: "Create a Free Training Account | VirtualAssistant.com.ph",
+    description: "Save your free VA training progress and earn verified completion certificates.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Create a Free Training Account | VirtualAssistant.com.ph",
+    description: "Save your free VA training progress and earn verified completion certificates.",
+  },
 };
 
 export default async function TrainingJoinPage({

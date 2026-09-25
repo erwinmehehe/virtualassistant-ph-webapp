@@ -253,6 +253,7 @@ export default async function TrainingLessonPage({
             <div className="row wrap">
               <span className="badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
               {lesson.completed ? <span className="badge badge-success"><CheckCircle2 size={14}/> Completed</span> : <span className="badge">In progress</span>}
+              {course.slug === "virtual-assistant-foundations" && requiresExercise ? <span className="badge training-foundations-practice-badge"><Target size={13}/> Foundation work artifact included</span> : null}
               {course.slug === "executive-virtual-assistant" && requiresExercise ? <span className="badge training-executive-practice-badge"><Target size={13}/> Work output included</span> : null}
               {course.slug === "customer-support-virtual-assistant" && requiresExercise ? <span className="badge training-support-practice-badge"><Target size={13}/> Queue work included</span> : null}
               {course.slug === "operations-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Operations artifact included</span> : null}

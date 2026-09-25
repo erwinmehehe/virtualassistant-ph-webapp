@@ -91,3 +91,18 @@ test("profiling compliance includes a DPIA and processing inventory", async () =
   assert.match(inventory, /Talent semantic search/);
   assert.match(inventory, /refund\/dispute\/chargeback state/);
 });
+
+
+test("legacy Stripe webhook cannot bypass the payment state machine", async () => {
+  const stripeWebhook = await read("src/app/api/webhooks/stripe/route.ts");
+
+  assert.match(stripeWebhook, /claim_payment_provider_event/);
+  assert.match(stripeWebhook, /transition_payment_state/);
+  assert.match(stripeWebhook, /p_provider:\s*"stripe"/);
+  assert.match(stripeWebhook, /complete_payment_provider_event/);
+  assert.doesNotMatch(
+    stripeWebhook,
+    /\.update\(\{\s*status:\s*"paid"/,
+    "Stripe must not directly write payments.status",
+  );
+});

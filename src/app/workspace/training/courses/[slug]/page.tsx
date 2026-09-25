@@ -54,6 +54,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isClinikoCourse = course.slug === "cliniko-for-virtual-assistants";
   const isXeroCourse = course.slug === "xero-workflows-for-virtual-assistants";
   const isMyobCourse = course.slug === "myob-workflows-for-virtual-assistants";
+  const isAustralianFundamentalsCourse = course.slug === "australian-va-fundamentals";
+  const isAustralianTradesCourse = course.slug === "australian-trades-administration";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -90,7 +92,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                                     ? " training-work-course training-xero-course"
                                     : isMyobCourse
                                       ? " training-work-course training-myob-course"
-                                      : "";
+                                      : isAustralianFundamentalsCourse
+                                        ? " training-work-course training-australia-fundamentals-course"
+                                        : isAustralianTradesCourse
+                                          ? " training-work-course training-australia-trades-course"
+                                          : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -374,6 +380,36 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><ListChecks size={17}/><span><strong>Bank-feed exception worksheet</strong><small>Check automatic and suggested matches, grouped settlements, transfers, and evidence gaps.</small></span></div>
               <div><Inbox size={17}/><span><strong>GST/BAS + payroll control</strong><small>Prepare exceptions while keeping STP, super, tax, and payroll authority separated.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Finance review handoff</strong><small>Package unresolved work, audit notes, owners, and review-ready reporting evidence.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isAustralianFundamentalsCourse ? (
+          <div className="training-work-outcomes" aria-label="Australian VA Fundamentals work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually practise</span>
+              <strong>A safe Australia-ready operating system for routine VA work, decisions, and handoffs</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><ListChecks size={17}/><span><strong>Decision-rights + source-of-truth map</strong><small>Separate routine actions, approvals, specialist decisions, and the system that owns each fact.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Australian communication + scheduling</strong><small>Handle dates, local terminology, time zones, daylight saving, and clear action-first messages.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Privacy + finance-admin boundaries</strong><small>Use minimum-necessary information and recognise when GST, BAS, payroll, legal, or regulated questions need a specialist.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Decision-focused daily handoff</strong><small>Leave completed work, waiting items, risks, decisions needed, owners, and next checkpoints visible.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isAustralianTradesCourse ? (
+          <div className="training-work-outcomes" aria-label="Australian Trades Administration work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually practise</span>
+              <strong>A lead-to-review trades operations desk with safety, scheduling, commercial, and finance controls</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><Inbox size={17}/><span><strong>Enquiry + safety triage queue</strong><small>Preserve customer wording, identify urgency, escalate risk, and keep every open item owned.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Dispatch + return-visit board</strong><small>Match capability, service area, travel, duration, access, parts, and realistic customer timing.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Quote + variation + supplier control</strong><small>Track versions, approvals, parts, purchase authority, blocked jobs, and changes without accidental negotiation.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Invoice + Xero/MYOB handoff</strong><small>Close only from evidence, keep complaints visible, check payment state, and route accounting exceptions correctly.</small></span></div>
             </div>
           </div>
         ) : null}

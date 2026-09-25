@@ -152,6 +152,7 @@ export default async function TrainingLessonPage({
     : 0;
   const blocks = contentBlocks(lesson.content);
   const requiresExercise = blocks.some((block) => block.type === "exercise");
+  const hasAppliedScenario = blocks.some((block) => block.type === "scenario");
   const checkpoint = buildLessonCheckpoint({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
@@ -203,7 +204,11 @@ export default async function TrainingLessonPage({
                                       ? " training-work-player training-xero-player"
                                       : course.slug === "myob-workflows-for-virtual-assistants"
                                         ? " training-work-player training-myob-player"
-                                        : "";
+                                        : course.slug === "australian-va-fundamentals"
+                                          ? " training-work-player training-australia-fundamentals-player"
+                                          : course.slug === "australian-trades-administration"
+                                            ? " training-work-player training-australia-trades-player"
+                                            : "";
 
   return (
     <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
@@ -256,6 +261,8 @@ export default async function TrainingLessonPage({
               {course.slug === "cliniko-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Practice admin artifact included</span> : null}
               {course.slug === "xero-workflows-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Xero control artifact included</span> : null}
               {course.slug === "myob-workflows-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> MYOB control artifact included</span> : null}
+              {course.slug === "australian-va-fundamentals" && hasAppliedScenario ? <span className="badge training-work-practice-badge"><Target size={13}/> Applied Australia scenario</span> : null}
+              {course.slug === "australian-trades-administration" && hasAppliedScenario ? <span className="badge training-work-practice-badge"><Target size={13}/> Trades ops scenario</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

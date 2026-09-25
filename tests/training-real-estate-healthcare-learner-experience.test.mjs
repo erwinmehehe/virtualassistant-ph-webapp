@@ -49,7 +49,7 @@ test("both course finals remain practical work simulations", async () => {
   assert.match(realEstate, /assessment_type = 'practical'/);
   assert.match(realEstate, /prioritized work queue/i);
   assert.match(realEstate, /end-of-day handoff/i);
-  assert.match(healthcare, /Composite Healthcare Admin Simulation/);
+  assert.match(healthcare, /composite healthcare administration simulation/i);
   assert.match(healthcare, /prioritized work queue/i);
   assert.match(healthcare, /privacy-incident note/i);
   assert.match(page, /Practical work simulation/);

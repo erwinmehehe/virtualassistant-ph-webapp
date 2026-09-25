@@ -1637,3 +1637,701 @@
     justify-content: center;
   }
 }
+
+
+/* Client mobile pass: company, notifications, hiring role flow */
+.client-company-page,
+.client-notifications-page,
+.client-role-editor,
+.client-role-detail-page {
+  width: min(100%, 1100px);
+  margin-inline: auto;
+}
+
+.client-company-stack {
+  width: min(100%, 900px);
+}
+
+.client-company-form,
+.client-company-visibility,
+.client-notification-card,
+.client-role-commercial,
+.client-role-handling,
+.client-role-brief {
+  border-radius: 15px;
+}
+
+.client-notifications-list {
+  gap: 9px;
+}
+
+.client-role-wizard-shell {
+  min-width: 0;
+}
+
+@media (max-width: 680px) {
+  /* Company profile */
+  .client-company-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-company-head {
+    margin-bottom: 0;
+  }
+
+  .client-company-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-company-head p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-company-stack {
+    gap: 10px;
+  }
+
+  .client-company-form {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .client-company-form .span-2 {
+    grid-column: auto;
+  }
+
+  .client-company-form input,
+  .client-company-form select,
+  .client-company-form textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-company-form textarea {
+    min-height: 112px;
+  }
+
+  .client-company-form .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-company-visibility {
+    gap: 11px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .client-company-visibility h2 {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .client-company-visibility > div > p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-company-visibility-toggle {
+    align-items: flex-start;
+    gap: 9px;
+    min-height: 0;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-company-visibility-toggle strong {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .client-company-visibility-toggle small {
+    font-size: 10.75px;
+    line-height: 1.45;
+  }
+
+  .client-company-visibility-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .client-company-visibility-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Client notifications */
+  .client-notifications-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-notifications-head {
+    align-items: stretch !important;
+    gap: 9px;
+    margin-bottom: 0;
+  }
+
+  .client-notifications-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-notifications-head p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-notifications-head form,
+  .client-notifications-head .btn {
+    width: 100%;
+  }
+
+  .client-notifications-head .btn {
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .client-notification-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .client-notification-card.unread {
+    border-color: #b2ddff;
+    background: #f5fbff;
+  }
+
+  .client-notification-layout {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px !important;
+  }
+
+  .client-notification-layout > form,
+  .client-notification-layout > div {
+    width: 100%;
+    flex-basis: auto !important;
+  }
+
+  .client-notification-card strong {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .client-notification-card p {
+    font-size: 11.5px;
+    line-height: 1.48;
+  }
+
+  .client-notification-card .small {
+    font-size: 10.5px;
+  }
+
+  .client-notification-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .client-notification-actions > *,
+  .client-notification-actions form,
+  .client-notification-actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .client-notification-actions .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  /* Hiring role create/edit */
+  .client-role-editor {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-role-editor-head {
+    margin-bottom: 0;
+  }
+
+  .client-role-editor-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-role-editor-head p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-role-requested-banner {
+    margin-bottom: 0 !important;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-role-wizard-shell .wizard {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .client-role-wizard-shell .wizard-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(118px, 1fr));
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .client-role-wizard-shell .wizard-step {
+    min-height: 42px;
+    padding: 8px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fff;
+    white-space: normal;
+  }
+
+  .client-role-wizard-shell .wizard-step > span:last-child {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
+  .client-role-wizard-shell .wizard-panel {
+    min-width: 0;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .client-role-wizard-shell .wizard-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .client-role-wizard-shell .wizard-head h2 {
+    margin: 3px 0 0;
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .client-role-wizard-shell .wizard-save {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .client-role-wizard-shell .wizard-save span {
+    font-size: 10.5px;
+  }
+
+  .client-role-wizard-shell .wizard-save .btn {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .client-role-wizard-shell .brief-helper {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-role-wizard-shell .brief-helper strong {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .client-role-wizard-shell .brief-helper .btn {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .client-role-wizard-shell .role-template-picker {
+    gap: 9px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-role-wizard-shell .role-template-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .client-role-wizard-shell .role-template-card {
+    min-height: 0;
+    padding: 10px;
+  }
+
+  .client-role-wizard-shell .form-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .client-role-wizard-shell .form-grid .span-2 {
+    grid-column: auto;
+  }
+
+  .client-role-wizard-shell input,
+  .client-role-wizard-shell select,
+  .client-role-wizard-shell textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-role-wizard-shell textarea {
+    min-height: 118px;
+  }
+
+  .client-role-wizard-shell .category-picker,
+  .client-role-wizard-shell .suggestion-chips {
+    gap: 5px;
+  }
+
+  .client-role-wizard-shell .category-chip {
+    min-height: 36px;
+    padding: 7px 9px;
+    font-size: 10.75px;
+  }
+
+  .client-role-wizard-shell .budget-guidance {
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-role-wizard-shell .budget-guidance-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .client-role-wizard-shell .estimate-strip {
+    gap: 4px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-role-wizard-shell .service-model-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .client-role-wizard-shell .review-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .client-role-wizard-shell .review-section {
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-role-wizard-shell .wizard-actions {
+    position: sticky;
+    bottom: calc(env(safe-area-inset-bottom) + 8px);
+    z-index: 5;
+    gap: 7px;
+    margin: 12px -6px -6px;
+    padding: 8px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(10px);
+  }
+
+  .client-role-wizard-shell .wizard-actions > .btn,
+  .client-role-wizard-shell .wizard-actions-right,
+  .client-role-wizard-shell .wizard-actions-right .btn {
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .client-role-wizard-shell .wizard-actions-right {
+    flex: 1 1 auto;
+  }
+
+  .client-role-wizard-shell .wizard-actions-right .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Role detail */
+  .client-role-detail-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-role-detail-head {
+    align-items: stretch !important;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .client-role-detail-head h1 {
+    margin-top: 6px !important;
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-role-detail-head p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .client-role-detail-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .client-role-detail-actions > *,
+  .client-role-detail-actions form,
+  .client-role-detail-actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .client-role-detail-actions .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-role-detail-page > .alert,
+  .client-role-detail-page > .success-banner {
+    margin-bottom: 0 !important;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-role-detail-page #role-readiness {
+    margin-top: 0 !important;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-role-detail-page #role-readiness > .row-between {
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .client-role-detail-page #role-readiness h2 {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .client-role-detail-page #role-readiness form {
+    gap: 9px;
+    margin-top: 12px !important;
+  }
+
+  .client-role-detail-page #role-readiness .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .client-role-detail-page #role-readiness input,
+  .client-role-detail-page #role-readiness textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-role-detail-page #role-readiness .row.wrap {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .client-role-detail-page #role-readiness .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-role-next-action {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 9px;
+    margin-bottom: 0 !important;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .client-role-next-action .candidate-next-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .client-role-next-action h2 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-role-next-action p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-role-next-action > .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-role-commercial,
+  .client-role-handling,
+  .client-role-brief {
+    margin-bottom: 0 !important;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-role-commercial > .row-between,
+  .client-role-handling > .row-between {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .client-role-commercial form {
+    display: grid;
+    gap: 9px;
+    margin-top: 10px !important;
+  }
+
+  .client-role-commercial .confirmation-check {
+    margin-bottom: 0 !important;
+    padding: 10px;
+  }
+
+  .client-role-commercial .btn,
+  .client-role-handling .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-role-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 0 !important;
+  }
+
+  .client-role-stats > .card {
+    min-width: 0;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .client-role-stats .small {
+    font-size: 9.5px;
+    line-height: 1.35;
+  }
+
+  .client-role-stats strong {
+    display: block;
+    margin-top: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .client-role-handling .candidate-access-steps {
+    gap: 5px;
+    margin: 10px 0 0 !important;
+  }
+
+  .client-role-handling .candidate-access-steps li {
+    font-size: 11.25px;
+    line-height: 1.45;
+  }
+
+  .client-role-brief .dashboard-section-head {
+    margin-bottom: 9px;
+  }
+
+  .client-role-brief .dashboard-section-head h2 {
+    font-size: 16px;
+  }
+
+  .client-role-brief .dashboard-section-head p {
+    font-size: 11.5px;
+  }
+
+  .client-role-brief-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .client-role-brief-grid > div {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #eaecf0;
+    border-radius: 9px;
+    background: #fcfcfd;
+  }
+
+  .client-role-brief-grid .span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .client-role-brief-grid strong {
+    font-size: 10.5px;
+  }
+
+  .client-role-brief-grid p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-company-head h1,
+  .client-notifications-head h1,
+  .client-role-editor-head h1,
+  .client-role-detail-head h1 {
+    font-size: 25px;
+  }
+
+  .client-notification-actions,
+  .client-role-detail-actions,
+  .client-role-stats,
+  .client-role-brief-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .client-role-brief-grid .span-2 {
+    grid-column: auto;
+  }
+
+  .client-role-wizard-shell .wizard-steps {
+    grid-template-columns: repeat(4, minmax(108px, 1fr));
+  }
+
+  .client-role-wizard-shell .wizard-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .client-role-wizard-shell .wizard-actions > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

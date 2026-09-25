@@ -902,3 +902,275 @@
     width: 100%;
   }
 }
+
+
+/* Account Center mobile completion pass */
+@media (max-width: 680px) {
+  .account-center {
+    gap: 12px;
+  }
+
+  .account-settings-header {
+    gap: 11px;
+    padding: 2px 0 13px;
+  }
+
+  .account-settings-header-copy h1 {
+    margin-top: 1px;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .account-settings-header-copy > p {
+    margin-top: 5px;
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .account-settings-identity {
+    gap: 6px;
+    font-size: 11.5px;
+  }
+
+  .account-settings-shell {
+    gap: 10px;
+  }
+
+  .account-settings-nav {
+    margin-inline: -2px;
+    padding: 0 2px 6px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .account-settings-nav a {
+    min-height: 38px;
+    padding: 7px 10px;
+    scroll-snap-align: start;
+    font-size: 11.75px;
+  }
+
+  .account-settings-nav a > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .account-settings-stack {
+    gap: 10px;
+  }
+
+  .account-settings-section {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .account-settings-section-head {
+    margin-bottom: 2px;
+    padding-bottom: 12px;
+  }
+
+  .account-settings-section-head h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .account-settings-section-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .account-setting-row {
+    min-height: 0;
+    padding: 12px 0;
+  }
+
+  .account-setting-copy strong,
+  .account-setting-copy label {
+    font-size: 13px;
+  }
+
+  .account-setting-copy small {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .account-setting-value {
+    font-size: 12px;
+  }
+
+  .account-photo-row {
+    min-height: 0;
+  }
+
+  .account-photo-control {
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .account-upload-button {
+    min-height: 40px;
+  }
+
+  .account-setting-row-form > input,
+  .account-setting-row-form > select,
+  .account-setting-row-form > div > input,
+  .account-setting-row-form > div > select,
+  .account-email-change-form input,
+  .account-deletion-form input,
+  .account-password-form input,
+  .account-display-preferences-form input,
+  .account-display-preferences-form select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .account-email-change-form,
+  .account-deletion-form {
+    gap: 10px;
+    padding-top: 11px;
+  }
+
+  .account-email-change-form .btn,
+  .account-deletion-form .btn,
+  .account-settings-actions .btn {
+    min-height: 44px;
+  }
+
+  .account-settings-actions {
+    gap: 8px;
+    padding-top: 12px;
+  }
+
+  .account-settings-actions > span {
+    font-size: 10.75px;
+    line-height: 1.4;
+  }
+
+  .account-pending-change,
+  .account-deletion-pending {
+    margin: 10px 0;
+    padding: 11px;
+  }
+
+  .account-preference-group {
+    padding-top: 11px;
+  }
+
+  .account-preference-row {
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .account-preference-copy strong {
+    font-size: 13px;
+  }
+
+  .account-preference-copy small {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .account-session-stack {
+    gap: 8px;
+  }
+
+  .account-session-card {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .account-session-title-row > strong {
+    font-size: 13px;
+  }
+
+  .account-session-location {
+    font-size: 11px;
+  }
+
+  .account-session-meta {
+    gap: 8px;
+    margin-top: 9px;
+  }
+
+  .account-session-action {
+    margin-top: 2px;
+  }
+
+  .account-session-action .btn,
+  .account-session-footer-actions .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .account-session-footer {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .account-activity-row {
+    padding: 11px 0;
+  }
+
+  .account-activity-row strong {
+    font-size: 12.5px;
+  }
+
+  .account-activity-row small {
+    font-size: 10.75px;
+  }
+
+  .account-danger-zone {
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .account-settings-header {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .account-avatar-compact {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .account-settings-header-copy h1 {
+    font-size: 23px;
+  }
+
+  .account-settings-header-copy > p {
+    grid-column: 1 / -1;
+  }
+
+  .account-settings-section {
+    padding: 13px;
+  }
+
+  .account-photo-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-upload-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .account-preference-row {
+    align-items: center;
+  }
+
+  .account-session-card {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+
+  .account-session-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+  }
+}

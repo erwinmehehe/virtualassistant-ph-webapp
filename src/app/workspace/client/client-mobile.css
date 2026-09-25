@@ -2335,3 +2335,491 @@
     justify-content: center;
   }
 }
+
+
+/* Client mobile pass: candidate review, compare, payments */
+.client-candidate-review-page,
+.client-compare-page,
+.client-payments-page {
+  width: min(100%, 1040px);
+  margin-inline: auto;
+}
+
+.client-candidate-review-layout {
+  align-items: start;
+}
+
+.client-candidate-review-card,
+.client-candidate-facts,
+.client-candidate-next-step,
+.client-compare-card,
+.client-payment-card {
+  border-radius: 15px;
+}
+
+.client-candidate-video-row,
+.client-compare-score {
+  min-width: 0;
+}
+
+.client-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.client-compare-card {
+  min-width: 0;
+}
+
+.client-compare-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.client-compare-facts > div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #eaecf0;
+  border-radius: 9px;
+  background: #fcfcfd;
+}
+
+.client-compare-facts dt {
+  color: #667085;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.client-compare-facts dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.client-payments-list {
+  gap: 10px;
+}
+
+.client-payment-card {
+  min-width: 0;
+}
+
+.client-payment-amount {
+  min-width: 180px;
+}
+
+@media (max-width: 680px) {
+  /* Candidate detail and access states */
+  .client-candidate-review-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-candidate-review-head {
+    align-items: flex-start !important;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .client-candidate-review-head h1 {
+    margin-top: 6px !important;
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-candidate-review-head p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .client-candidate-review-head > .badge {
+    align-self: flex-start;
+  }
+
+  .client-candidate-review-layout {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .client-candidate-review-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-candidate-review-card > h2 {
+    margin: 15px 0 7px;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-candidate-review-card .profile-copy,
+  .client-candidate-review-card .detail-note p {
+    font-size: 11.75px;
+    line-height: 1.5;
+  }
+
+  .client-candidate-review-card .info-banner {
+    margin-top: 11px !important;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-candidate-video-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 9px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-candidate-video-row > svg {
+    margin-top: 2px;
+  }
+
+  .client-candidate-video-row strong {
+    font-size: 12.5px;
+  }
+
+  .client-candidate-video-row .small {
+    display: block;
+    font-size: 10.75px;
+    line-height: 1.4;
+  }
+
+  .client-candidate-video-row .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-candidate-skill-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .client-candidate-skill-grid h2 {
+    font-size: 15px;
+  }
+
+  .client-candidate-review-card .pill-list {
+    gap: 5px;
+  }
+
+  .client-candidate-review-card .pill-list .badge {
+    white-space: normal;
+    text-align: left;
+  }
+
+  .client-candidate-sidebar {
+    gap: 9px;
+  }
+
+  .client-candidate-facts,
+  .client-candidate-next-step {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .client-candidate-facts h3 {
+    font-size: 15px;
+  }
+
+  .client-candidate-facts > div {
+    gap: 4px;
+    padding-block: 8px;
+  }
+
+  .client-candidate-facts span {
+    font-size: 10.5px;
+  }
+
+  .client-candidate-facts strong {
+    font-size: 12px;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .client-candidate-next-step {
+    gap: 8px;
+  }
+
+  .client-candidate-next-step p,
+  .client-candidate-contact p {
+    font-size: 11.25px;
+    line-height: 1.45;
+  }
+
+  .client-candidate-next-step .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-candidate-contact {
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-candidate-access-page .candidate-access-gate {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-copy h3 {
+    font-size: 16px;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-copy p,
+  .client-candidate-access-page .candidate-access-steps li,
+  .client-candidate-access-page .unlock-benefits span {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-action {
+    grid-column: 1 / -1;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-action .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Compare shortlist */
+  .client-compare-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-compare-head {
+    margin-bottom: 0;
+  }
+
+  .client-compare-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-compare-head p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .client-compare-alert {
+    margin-bottom: 0 !important;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-compare-empty {
+    padding: 15px;
+  }
+
+  .client-compare-empty .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-compare-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .client-compare-card {
+    gap: 10px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-compare-card h2 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .client-compare-card > div > p {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .client-compare-score {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .client-compare-score strong {
+    font-size: 13px;
+  }
+
+  .client-compare-score span {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .client-compare-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .client-compare-facts > div {
+    padding: 8px;
+  }
+
+  .client-compare-review {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Payments */
+  .client-payments-page {
+    display: grid;
+    gap: 10px;
+  }
+
+  .client-payments-head {
+    margin-bottom: 0;
+  }
+
+  .client-payments-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-payments-head p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .client-payments-page > .alert {
+    margin-bottom: 0 !important;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-payments-list {
+    gap: 9px;
+  }
+
+  .client-payment-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .client-payment-summary {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .client-payment-copy h3 {
+    margin: 6px 0 0 !important;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-payment-amount {
+    min-width: 0;
+    width: 100%;
+    padding-top: 9px;
+    border-top: 1px solid #eaecf0;
+    text-align: left !important;
+  }
+
+  .client-payment-amount > strong {
+    display: block;
+    font-size: 18px;
+  }
+
+  .client-payment-amount .small {
+    margin-top: 3px;
+    font-size: 10.75px;
+    line-height: 1.4;
+  }
+
+  .client-payment-amount form,
+  .client-payment-amount .btn {
+    width: 100%;
+  }
+
+  .client-payment-amount .btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-payment-dispute {
+    margin-top: 10px !important;
+    padding-top: 10px;
+    border-top: 1px solid #eaecf0;
+  }
+
+  .client-payment-dispute summary {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .client-payment-dispute-form {
+    gap: 8px;
+    margin-top: 8px !important;
+  }
+
+  .client-payment-dispute-form textarea {
+    width: 100%;
+    min-height: 104px;
+    font-size: 16px;
+  }
+
+  .client-payment-dispute-form .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-payment-card > .alert {
+    margin-top: 10px !important;
+    padding: 10px 11px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-candidate-review-head h1,
+  .client-compare-head h1,
+  .client-payments-head h1 {
+    font-size: 25px;
+  }
+
+  .client-compare-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .client-candidate-access-page .candidate-access-gate {
+    grid-template-columns: 1fr;
+  }
+
+  .client-candidate-access-page .candidate-access-gate-icon {
+    margin-bottom: 1px;
+  }
+}

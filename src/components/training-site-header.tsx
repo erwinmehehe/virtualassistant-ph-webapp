@@ -5,7 +5,7 @@ export function TrainingSiteHeader({
   current = "landing",
 }: {
   courseSlug?: string | null;
-  current?: "landing" | "join";
+  current?: "landing" | "join" | "login";
 }) {
   return (
     <SiteNav

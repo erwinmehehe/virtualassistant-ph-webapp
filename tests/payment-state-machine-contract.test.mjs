@@ -32,7 +32,8 @@ test("payment lifecycle uses locked state transitions and provider reconciliatio
   assert.match(reconciliation, /mark_payment_provider_disputed/i);
   assert.match(webhook, /payment\.refunded/);
   assert.match(webhook, /payment\.refund\.updated/);
-  assert.match(webhook, /payment_provider_events/);
+  assert.match(webhook, /claim_payment_provider_event/);
+  assert.match(webhook, /complete_payment_provider_event/);
   assert.match(webhook, /provider_event_id/);
   assert.match(webhook, /mark_payment_provider_disputed/);
 });

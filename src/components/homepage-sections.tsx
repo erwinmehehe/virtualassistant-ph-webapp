@@ -24,7 +24,6 @@ import {
   ShoppingCart,
   Store,
   Users,
-  UsersRound,
 } from "lucide-react";
 import { PublicAvatar } from "@/components/public-avatar";
 import { VaCostCalculator } from "@/components/va-cost-calculator";
@@ -435,39 +434,6 @@ export function HowItWorksSection() {
             </li>
           ))}
         </ol>
-
-        <div className="hs-support">
-          <div className="hs-support-copy">
-            <Kicker>Hiring is only the beginning</Kicker>
-            <h3>The service continues after your new team member starts.</h3>
-            <p>Recruiting gets the right person into the role. Client Success helps the placement launch well, catches problems early, and coordinates recovery or replacement when needed.</p>
-            <ul className="hs-checks">
-              <li><CheckCircle2 size={17} aria-hidden="true" /> Recruiting, vetting, matching, and client choice</li>
-              <li><CheckCircle2 size={17} aria-hidden="true" /> Structured placement readiness and onboarding</li>
-              <li><CheckCircle2 size={17} aria-hidden="true" /> Day 1 through Day 90 Client Success check-ins</li>
-              <li><CheckCircle2 size={17} aria-hidden="true" /> Monitoring, recovery, and replacement support</li>
-            </ul>
-            <div className="hs-support-actions">
-              <Link className="hs-btn hs-btn-light" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
-              <Link className="hs-btn hs-btn-outline-light" href="/pricing">See transparent pricing</Link>
-            </div>
-          </div>
-
-          <div className="hs-people">
-            <div className="hs-person">
-              <div className="hs-person-head"><span className="hs-avatar" aria-hidden="true">JA</span><div><small>Client Success Manager</small><strong>Jervis Accad</strong></div></div>
-              <p>Owns the post-hire relationship, placement check-ins, early issue recovery, retention, and ongoing client success.</p>
-            </div>
-            <div className="hs-person">
-              <div className="hs-person-head"><span className="hs-avatar" aria-hidden="true">BB</span><div><small>Operations team</small><strong>Bryan Batarina</strong></div></div>
-              <p>Supports the operating workflows that keep client, recruiter, and placement activity connected.</p>
-            </div>
-            <div className="hs-person">
-              <div className="hs-person-head"><span className="hs-avatar" aria-hidden="true"><UsersRound size={17} /></span><div><small>Approval standard</small><strong>Human review before client presentation</strong></div></div>
-              <p>Client shortlists are recruiter-curated. Automated matching can suggest candidates internally, but a human decides who is presented.</p>
-            </div>
-          </div>
-        </div>
 
         <div className="hs-process-links">
           <Link className="hs-link" href="/about">About VirtualAssistant.com.ph <ArrowRight size={14} /></Link>

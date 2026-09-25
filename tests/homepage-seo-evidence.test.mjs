@@ -37,15 +37,14 @@ test("homepage explains Philippines hiring intent and links to core commercial j
   }
 });
 
-test("homepage exposes named operations accountability without inventing recruiter titles", () => {
-  const home = homepageSource();
-  assert.match(home, /<strong>Jervis Accad<\/strong>/);
-  assert.match(home, /<strong>Bryan Batarina<\/strong>/);
-  assert.match(home, /Client Success Manager/);
-  assert.match(home, /Operations team/);
-  assert.match(home, /Human review before client presentation/);
-  assert.doesNotMatch(home, /Jervis Accad[^\n]*Recruiter/);
-  assert.doesNotMatch(home, /Bryan Batarina[^\n]*Recruiter/);
+test("homepage keeps named team schema while leaving the removed post-hire support panel out", () => {
+  const home = source("src/app/page.tsx");
+  const sections = source("src/components/homepage-sections.tsx");
+  assert.match(home, /{ "@type": "Person", name: "Jervis Accad" }/);
+  assert.match(home, /{ "@type": "Person", name: "Bryan Batarina" }/);
+  assert.doesNotMatch(sections, /The service continues after your new team member starts\./);
+  assert.doesNotMatch(sections, /Day 1 through Day 90 Client Success check-ins/);
+  assert.doesNotMatch(sections, /Human review before client presentation/);
 });
 
 test("homepage service section uses explicit Virtual Assistant service entities", () => {

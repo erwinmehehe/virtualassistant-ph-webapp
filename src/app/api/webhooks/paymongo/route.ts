@@ -168,7 +168,6 @@ async function completeProviderEvent(
 async function sendPaidSideEffects(
   admin: ReturnType<typeof createAdminClient>,
   payment: PaymentRow,
-  eventId: string,
 ) {
   await recordProductEvent("payment_completed", {
     userId: payment.client_id,
@@ -279,7 +278,7 @@ export async function POST(request: Request) {
         payment = (paidRow as PaymentRow | null) || payment;
 
         if (payment?.client_id && !wasPaid) {
-          await sendPaidSideEffects(admin, payment, eventId);
+          await sendPaidSideEffects(admin, payment);
         }
       }
     } else if (eventType === "payment.paid" && payment) {
@@ -297,7 +296,7 @@ export async function POST(request: Request) {
       payment = (paidRow as PaymentRow | null) || payment;
 
       if (payment?.client_id && !wasPaid) {
-        await sendPaidSideEffects(admin, payment, eventId);
+        await sendPaidSideEffects(admin, payment);
       }
     }
 

@@ -47,8 +47,8 @@ test("Google and Microsoft signup are enabled independently", () => {
   assert.match(social, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED/);
   assert.match(join, /googleEnabled \? <form action=\{oauthAction\}>/);
   assert.match(join, /microsoftEnabled \? <form action=\{oauthAction\}>/);
-  assert.match(login, /googleEnabled \? <form action=\{oauthAction\}>/);
-  assert.match(login, /microsoftEnabled \? <form action=\{oauthAction\}>/);
+  assert.match(login, /googleEnabled \? \([\s\S]*?<form action=\{oauthAction\}>/);
+  assert.match(login, /microsoftEnabled \? \([\s\S]*?<form action=\{oauthAction\}>/);
   assert.match(join, /name="role" value=\{role\}/);
   assert.match(envExample, /NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED=/);
   assert.match(envExample, /NEXT_PUBLIC_MICROSOFT_LOGIN_ENABLED=/);

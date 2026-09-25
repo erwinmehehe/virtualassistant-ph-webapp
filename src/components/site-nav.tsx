@@ -33,14 +33,15 @@ function TrainingNav({
   current,
 }: {
   courseSlug?: string | null;
-  current: "landing" | "join";
+  current: "landing" | "join" | "login";
 }) {
   const joinHref = trainingJoinHref(courseSlug);
   const loginHref = trainingLoginHref(courseSlug);
   const isJoin = current === "join";
+  const isLogin = current === "login";
 
   return (
-    <header className={`site-header va-site-nav training-connected-nav ${isJoin ? "is-join" : ""}`}>
+    <header className={`site-header va-site-nav training-connected-nav ${isJoin ? "is-join" : ""} ${isLogin ? "is-login" : ""}`}>
       <div className="container site-nav">
         <div className="training-nav-brand-group">
           <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
@@ -52,16 +53,20 @@ function TrainingNav({
         </div>
 
         <nav className="nav-links" aria-label="Training navigation">
-          <Link href="/training" aria-current={!isJoin ? "page" : undefined}>Training</Link>
+          <Link href="/training" aria-current={current === "landing" ? "page" : undefined}>Training</Link>
           <Link href="/for-virtual-assistants">For VAs</Link>
           <Link href="/jobs">VA jobs</Link>
           <Link href="/blog">Guides</Link>
         </nav>
 
         <div className="nav-actions">
-          <Link className="va-nav-account-login" href={loginHref} data-track="training_login_click">
-            Training login
-          </Link>
+          {isLogin ? (
+            <Link className="va-nav-account-login" href="/training">Training home</Link>
+          ) : (
+            <Link className="va-nav-account-login" href={loginHref} data-track="training_login_click">
+              Training login
+            </Link>
+          )}
           {!isJoin ? (
             <Link
               className="btn btn-primary desktop-hire-cta training-header-cta"
@@ -100,7 +105,7 @@ function TrainingNav({
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse VA jobs</Link>
               <Link href="/blog">VA guides</Link>
-              {!isJoin ? (
+              {!isJoin && !isLogin ? (
                 <>
                   <span className="va-mobile-panel-label">Account</span>
                   <Link href={loginHref} data-track="training_login_click">Training login</Link>
@@ -121,7 +126,7 @@ export function SiteNav({
 }: {
   mode?: "default" | "training";
   trainingCourseSlug?: string | null;
-  trainingCurrent?: "landing" | "join";
+  trainingCurrent?: "landing" | "join" | "login";
 } = {}) {
   if (mode === "training") {
     return <TrainingNav courseSlug={trainingCourseSlug} current={trainingCurrent}/>;

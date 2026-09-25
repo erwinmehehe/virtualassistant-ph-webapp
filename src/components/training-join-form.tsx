@@ -103,14 +103,14 @@ export function TrainingJoinForm({
         ) : (
           <>Save your progress, complete practical VA training, and keep verified completion certificates.</>
         )}{" "}
-        This account does not create a candidate profile or enter you into recruiter vetting.
+        Training is separate from job applications. You can learn first and decide later whether you want to apply for VA roles.
       </p>
 
       {state.status === "error" ? <p className="alert" role="alert">{state.message}</p> : null}
 
       <div className="auth-benefits" aria-label="Free training account benefits">
         <div><CheckCircle2 size={16}/><span>All training and completion certificates stay free</span></div>
-        <div><CheckCircle2 size={16}/><span>No candidate profile or job application is required</span></div>
+        <div><CheckCircle2 size={16}/><span>No job application is required to learn</span></div>
         <div><CheckCircle2 size={16}/><span>Your learning progress is saved across devices</span></div>
       </div>
 

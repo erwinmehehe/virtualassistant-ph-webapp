@@ -44,7 +44,7 @@ export function SiteFooter() {
           </details>
         </div>
 
-        <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span className="footer-legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
+        <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span>Founded by <a href="https://www.linkedin.com/in/seo-expert-ph/" target="_blank" rel="noopener noreferrer">Erwin Valles</a> · SEO, Web Design &amp; Development</span><span className="footer-legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
       </footer>
     </>
   );

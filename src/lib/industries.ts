@@ -1476,7 +1476,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "h1": "Virtual Assistants for Australian Aged Care Providers",
     "primaryKeyword": "virtual assistant for aged care provider",
     "metaTitle": "Aged Care Virtual Assistants Australia",
-    "metaDescription": "Philippines-based Virtual Assistants for Australian aged-care providers covering rostering, referrals, records, service updates and routine client administration.",
+    "metaDescription": "Philippines-based Virtual Assistants for Australian aged-care providers covering rostering, referrals, records, service updates and client admin.",
     "intro": "Australian aged-care providers can delegate repeatable scheduling and client administration while keeping care decisions, safeguarding, incidents and compliance accountability with qualified local staff. Build the role around a documented roster and client-record workflow.",
     "audience": "Australian home-care, community-care and aged-care service providers",
     "workflows": ["maintain client and service records","update approved rosters and worker availability","coordinate routine schedule changes","follow up referrals and intake documents","record service changes and outstanding actions","send approved routine client communications","maintain administrative checklists","escalate care, incident or safeguarding issues immediately"],

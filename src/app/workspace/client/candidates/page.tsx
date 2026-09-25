@@ -35,8 +35,8 @@ export default async function ClientCandidatesPage({
 
   const jobRows = summary.jobs || [];
   if (!jobRows.length) {
-    return <>
-      <div className="page-head">
+    return <div className="client-hiring-room client-hiring-room-empty">
+      <div className="page-head client-hiring-room-head">
         <div>
           <h1>Hiring Room</h1>
           <p>Review recruiter-selected candidates and keep every hiring decision in one place.</p>
@@ -46,7 +46,7 @@ export default async function ClientCandidatesPage({
         <p>Start with a hiring request so we have a role to recruit against.</p>
         <Link className="btn btn-primary" href="/workspace/client/jobs/new">Start a hiring request</Link>
       </div>
-    </>;
+    </div>;
   }
 
   const activeJobs = jobRows.filter((job) => job.status !== "closed");
@@ -126,15 +126,15 @@ export default async function ClientCandidatesPage({
                 waiting: "Waiting on our recruiting team",
               };
 
-  return <>
-    <div className="page-head">
+  return <div className="client-hiring-room">
+    <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
         <p>Only candidates selected by our recruiting team appear here. Review recruiter-selected VAs, request interviews, hold candidates for follow-up, and send clear feedback without sorting through raw applicants.</p>
       </div>
     </div>
 
-    <section className="candidate-next-action">
+    <section className="candidate-next-action client-hiring-next-action">
       <div className="candidate-next-icon"><Sparkles size={21}/></div>
       <div>
         <span className="small">Your next action</span>
@@ -146,7 +146,7 @@ export default async function ClientCandidatesPage({
     </section>
 
     {activeJobs.length > 1 ? (
-      <div className="row wrap" style={{ marginBottom: 16 }}>
+      <div className="row wrap client-hiring-role-tabs" style={{ marginBottom: 16 }}>
         <span className="small muted">Role:</span>
         {activeJobs.slice(0, 8).map((job) => (
           <Link
@@ -160,7 +160,7 @@ export default async function ClientCandidatesPage({
       </div>
     ) : null}
 
-    <section className="card dashboard-section-card" id="recruiter-shortlist">
+    <section className="card dashboard-section-card client-shortlist-section" id="recruiter-shortlist">
       <div className="dashboard-section-head">
         <div>
           <h2>Recruiter shortlist{selectedJob ? ` for ${selectedJob.title}` : ""}</h2>
@@ -170,7 +170,7 @@ export default async function ClientCandidatesPage({
 
       {selectedReleased.length ? (
         selectedPublished && selectedAccessUnlocked ? (
-          <div className="grid-3 browse-va-grid">
+          <div className="grid-3 browse-va-grid client-shortlist-grid">
             {selectedReleased.map((row) => {
               const profile = profileMap.get(row.va_id);
               const va = vaMap.get(row.va_id);
@@ -204,8 +204,8 @@ export default async function ClientCandidatesPage({
                   </span>
                 ) : null}
                 actions={selectedJob ? (
-                  <div className="stack" style={{ marginTop: 10 }}>
-                    <div className="row wrap">
+                  <div className="stack client-shortlist-actions" style={{ marginTop: 10 }}>
+                    <div className="row wrap client-shortlist-action-grid">
                       <form action={clientShortlistDecisionAction}>
                         <input type="hidden" name="job_id" value={selectedJob.id}/>
                         <input type="hidden" name="va_id" value={row.va_id}/>
@@ -232,7 +232,7 @@ export default async function ClientCandidatesPage({
 
                       <details>
                         <summary className={`btn btn-sm ${decision === "hold" ? "btn-primary" : ""}`}>Hold</summary>
-                        <form action={clientShortlistDecisionAction} className="stack" style={{ marginTop: 8 }}>
+                        <form action={clientShortlistDecisionAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
                           <input type="hidden" name="job_id" value={selectedJob.id}/>
                           <input type="hidden" name="va_id" value={row.va_id}/>
                           <input type="hidden" name="decision" value="hold"/>
@@ -253,7 +253,7 @@ export default async function ClientCandidatesPage({
 
                       <details>
                         <summary className="btn btn-sm">Pass</summary>
-                        <form action={clientShortlistDecisionAction} className="stack" style={{ marginTop: 8 }}>
+                        <form action={clientShortlistDecisionAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
                           <input type="hidden" name="job_id" value={selectedJob.id}/>
                           <input type="hidden" name="va_id" value={row.va_id}/>
                           <input type="hidden" name="decision" value="pass"/>
@@ -301,5 +301,5 @@ export default async function ClientCandidatesPage({
         </div>
       )}
     </section>
-  </>;
+  </div>;
 }

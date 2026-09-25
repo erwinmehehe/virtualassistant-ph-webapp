@@ -86,20 +86,25 @@ for each row execute function public.reject_payment_state_event_mutation();
 create table if not exists public.payment_provider_events (
   id uuid primary key default gen_random_uuid(),
   provider text not null,
-  event_id text not null,
+  provider_event_id text not null,
   event_type text not null,
-  resource_id text,
+  livemode boolean not null default false,
   payment_id uuid references public.payments(id) on delete set null,
-  processing_started_at timestamptz,
+  provider_object_id text,
+  metadata jsonb not null default '{}'::jsonb,
+  received_at timestamptz not null default now(),
   processed_at timestamptz,
-  processing_status text not null default 'received',
-  error_message text,
-  created_at timestamptz not null default now(),
-  unique(provider, event_id)
+  processing_error text,
+  processing_started_at timestamptz,
+  unique(provider, provider_event_id)
 );
 
 create index if not exists payment_provider_events_payment_idx
-  on public.payment_provider_events(payment_id, created_at desc);
+  on public.payment_provider_events(payment_id, received_at desc);
+
+create index if not exists payment_provider_events_unprocessed_idx
+  on public.payment_provider_events(received_at)
+  where processed_at is null;
 
 alter table public.payment_provider_events enable row level security;
 revoke all on public.payment_provider_events from public, anon, authenticated;
@@ -558,22 +563,24 @@ declare
   v_event public.payment_provider_events%rowtype;
 begin
   insert into public.payment_provider_events(
-    provider, event_id, event_type, resource_id, processing_started_at, processing_status
+    provider, provider_event_id, event_type, provider_object_id,
+    processing_started_at, processing_error, metadata
   ) values (
-    p_provider, p_event_id, p_event_type, p_resource_id, now(), 'processing'
+    p_provider, p_event_id, p_event_type, p_resource_id,
+    now(), null, jsonb_build_object('processing_status','processing')
   )
-  on conflict(provider,event_id) do nothing
+  on conflict(provider,provider_event_id) do nothing
   returning * into v_event;
 
   if found then return 'claimed'; end if;
 
   select * into v_event
   from public.payment_provider_events
-  where provider = p_provider and event_id = p_event_id
+  where provider = p_provider and provider_event_id = p_event_id
   for update;
 
   if v_event.processed_at is not null then return 'processed'; end if;
-  if v_event.processing_status = 'processing'
+  if v_event.processing_error is null
      and v_event.processing_started_at is not null
      and v_event.processing_started_at > now() - interval '5 minutes' then
     return 'in_progress';
@@ -581,8 +588,10 @@ begin
 
   update public.payment_provider_events
   set processing_started_at = now(),
-      processing_status = 'processing',
-      error_message = null
+      processing_error = null,
+      provider_object_id = coalesce(p_resource_id, provider_object_id),
+      metadata = coalesce(metadata,'{}'::jsonb) ||
+        jsonb_build_object('processing_status','processing')
   where id = v_event.id;
 
   return 'claimed';
@@ -610,11 +619,15 @@ as $$
 begin
   update public.payment_provider_events
   set payment_id = coalesce(p_payment_id, payment_id),
-      resource_id = coalesce(p_resource_id, resource_id),
-      processing_status = left(coalesce(p_processing_status,'processed'), 50),
-      error_message = case when p_error_message is null then null else left(p_error_message, 1000) end,
-      processed_at = case when p_processing_status in ('processed','ignored','orphan') then now() else null end
-  where provider = p_provider and event_id = p_event_id;
+      provider_object_id = coalesce(p_resource_id, provider_object_id),
+      processing_error = case when p_error_message is null then null else left(p_error_message, 1000) end,
+      metadata = coalesce(metadata,'{}'::jsonb) ||
+        jsonb_build_object('processing_status', left(coalesce(p_processing_status,'processed'), 50)),
+      processed_at = case
+        when p_processing_status in ('processed','ignored','orphan') then now()
+        else null
+      end
+  where provider = p_provider and provider_event_id = p_event_id;
 end;
 $$;
 

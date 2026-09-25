@@ -35,11 +35,12 @@ test("resume auto-fill bounds untrusted PDF and DOCX processing", async () => {
 });
 
 test("talent directory uses database-side hybrid search without a 200-profile cap", async () => {
-  const [page, service, migration, edge] = await Promise.all([
+  const [page, service, migration, edge, edgeConfig] = await Promise.all([
     read("src/app/find-talent/page.tsx"),
     read("src/lib/talent-search.ts"),
     read("supabase/migrations/20260924204500_public_talent_hybrid_search.sql"),
     read("supabase/functions/talent-embeddings/index.ts"),
+    read("supabase/config.toml"),
   ]);
   assert.match(page, /searchPublicTalent/);
   assert.doesNotMatch(page, /\.limit\(200\)/);
@@ -54,8 +55,11 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(edge, /const MODEL = "gte-small"/);
   assert.match(edge, /RAW_DIMENSIONS = 384/);
   assert.match(edge, /STORED_DIMENSIONS = 768/);
-  assert.match(edge, /authorization !== `Bearer \$\{serviceRoleKey\}`/);
+  assert.match(edge, /SUPABASE_SECRET_KEYS/);
+  assert.match(edge, /allowedKeys\.has\(callerKey\)/);
   assert.match(edge, /upsert_public_va_search_embedding/);
+  assert.match(edgeConfig, /\[functions\.talent-embeddings\]/);
+  assert.match(edgeConfig, /verify_jwt = false/);
   assert.match(migration, /create extension if not exists vector/i);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);

@@ -165,8 +165,14 @@ export default async function TrainingLessonPage({
     engagement.checkpointKey === checkpoint.checkpointKey,
   );
 
+  const playerVariant = course.slug === "virtual-assistant-foundations"
+    ? " training-foundations-player"
+    : course.slug === "executive-virtual-assistant"
+      ? " training-executive-player"
+      : "";
+
   return (
-    <div className={`dash-page role-overview training-home training-player-page${course.slug === "virtual-assistant-foundations" ? " training-foundations-player" : ""}`}>
+    <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
       <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
@@ -198,6 +204,7 @@ export default async function TrainingLessonPage({
             <div className="row wrap">
               <span className="badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
               {lesson.completed ? <span className="badge badge-success"><CheckCircle2 size={14}/> Completed</span> : <span className="badge">In progress</span>}
+              {course.slug === "executive-virtual-assistant" && requiresExercise ? <span className="badge training-executive-practice-badge"><Target size={13}/> Work output included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

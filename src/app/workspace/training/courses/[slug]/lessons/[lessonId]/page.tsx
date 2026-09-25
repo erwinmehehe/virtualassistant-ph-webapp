@@ -189,7 +189,11 @@ export default async function TrainingLessonPage({
                         ? " training-work-player training-real-estate-player"
                         : course.slug === "medical-healthcare-virtual-assistant"
                           ? " training-work-player training-healthcare-player"
-                          : "";
+                          : course.slug === "bookkeeping-administration"
+                            ? " training-work-player training-bookkeeping-player"
+                            : course.slug === "payroll-administration"
+                              ? " training-work-player training-payroll-player"
+                              : "";
 
   return (
     <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
@@ -235,6 +239,8 @@ export default async function TrainingLessonPage({
               {course.slug === "sales-lead-generation-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Pipeline artifact included</span> : null}
               {course.slug === "real-estate-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Property ops artifact included</span> : null}
               {course.slug === "medical-healthcare-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Healthcare admin artifact included</span> : null}
+              {course.slug === "bookkeeping-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Finance control artifact included</span> : null}
+              {course.slug === "payroll-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Payroll control artifact included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

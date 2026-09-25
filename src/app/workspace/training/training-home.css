@@ -210,18 +210,29 @@
   display: block;
 }
 
+.training-path-steps li > span:last-child {
+  min-width: 0;
+}
+
 .training-path-steps strong {
+  display: -webkit-box;
   overflow: hidden;
   color: var(--dash-ink);
   font-size: 12.5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .training-path-steps small {
-  margin-top: 2px;
+  margin-top: 3px;
   color: var(--dash-muted);
   font-size: 10.5px;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .training-path-next {
@@ -2475,12 +2486,12 @@
   width: fit-content;
   margin-top: 7px;
   padding: 3px 7px;
-  border: 1px solid #e4e7ec;
+  border: 1px solid #bae6fd;
   border-radius: 999px;
-  background: #f8fafc;
-  color: #667085;
+  background: #f0f9ff;
+  color: #0369a1;
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 760;
   line-height: 1.25;
 }
 
@@ -5106,4 +5117,66 @@
   --training-work-soft: #eef4ff;
   --training-work-border: #c7d7fe;
   --training-work-hero: rgba(53, 56, 205, 0.09);
+}
+
+
+/* Finance controls + training mobile cleanup */
+.training-bookkeeping-course,
+.training-bookkeeping-player {
+  --training-work-accent: #027a48;
+  --training-work-soft: #ecfdf3;
+  --training-work-border: #abefc6;
+  --training-work-hero: rgba(2, 122, 72, 0.09);
+}
+
+.training-payroll-course,
+.training-payroll-player {
+  --training-work-accent: #175cd3;
+  --training-work-soft: #eff8ff;
+  --training-work-border: #b2ddff;
+  --training-work-hero: rgba(23, 92, 211, 0.09);
+}
+
+@media (max-width: 640px) {
+  .training-path-card {
+    padding: 15px;
+  }
+
+  .training-path-card .training-section-heading {
+    gap: 10px;
+  }
+
+  .training-path-count {
+    min-width: 82px;
+    padding: 8px 9px;
+  }
+
+  .training-path-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .training-path-steps li {
+    align-items: flex-start;
+    min-height: 58px;
+  }
+
+  .training-path-step-number {
+    margin-top: 1px;
+  }
+
+  .training-path-next {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .training-path-next .btn,
+  .training-path-next form,
+  .training-path-next form .btn {
+    width: 100%;
+  }
+
+  .training-path-next .btn {
+    justify-content: center;
+  }
 }

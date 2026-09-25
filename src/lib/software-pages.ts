@@ -1516,7 +1516,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     outcomes: ["Client records stay better prepared.","Review workflows become easier to track.","Advisers spend less time maintaining routine Xplan administration."],
     hiringNotes: ["Separate data preparation from personal financial advice.","Use role-based permissions and documented review gates.","Keep recommendations, advice documents and regulated approvals with authorised advisers."],
     relatedServiceSlugs: ["financial-planning","financial-advisor-virtual-assistant","admin-inbox"],
-    relatedIndustrySlugs: ["financial-planning-firms","financial-advisers"]
+    relatedIndustrySlugs: ["financial-planning-firms","financial-advisors"]
   },
 {
     slug: "pexa",

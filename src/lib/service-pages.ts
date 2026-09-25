@@ -403,7 +403,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "medical-scribe-virtual-assistant",
       "mental-health-virtual-assistant",
       "phone-receptionist",
-      "medical-receptionist-virtual-assistant"]
+      "medical-receptionist"]
   },
   {
     "slug": "property-management-virtual-assistant",
@@ -466,7 +466,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "airbnb-virtual-assistant",
       "short-term-rental-virtual-assistant",
       "phone-receptionist",
-      "trust-accounting-virtual-assistant"]
+      "trust-accounting"]
   },
   {
     "slug": "executive-virtual-assistant",
@@ -845,7 +845,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "paralegal-virtual-assistant",
       "admin-inbox",
       "transcription",
-      "conveyancing-virtual-assistant"]
+      "conveyancing"]
   },
   {
     "slug": "recruitment-hr",
@@ -3300,7 +3300,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "crm",
       "bookkeeping",
       "appointment-setter-virtual-assistant",
-      "financial-planning-virtual-assistant"]
+      "financial-planning"]
   },
   {
     "slug": "payroll-virtual-assistant",
@@ -4119,7 +4119,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "admin-inbox",
       "customer-service",
       "bookkeeping",
-      "ndis-rostering-virtual-assistant"]
+      "ndis-rostering"]
   },
   {
     "slug": "mortgage-loan-processing-virtual-assistant",
@@ -5027,7 +5027,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     ]
   },
 {
-    "slug": "conveyancing-virtual-assistant",
+    "slug": "conveyancing",
     "locale": "en-AU",
     "name": "Conveyancing Virtual Assistant",
     "group": "Legal",
@@ -5046,7 +5046,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "relatedSlugs": ["legal-virtual-assistant","paralegal-virtual-assistant","real-estate","admin-inbox"]
   },
 {
-    "slug": "buyers-agent-virtual-assistant",
+    "slug": "buyers-agent",
     "locale": "en-AU",
     "name": "Buyers Agent Virtual Assistant",
     "group": "Real Estate",
@@ -5065,7 +5065,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "relatedSlugs": ["real-estate","property-management-virtual-assistant","admin-inbox","research-data"]
   },
 {
-    "slug": "financial-planning-virtual-assistant",
+    "slug": "financial-planning",
     "locale": "en-AU",
     "name": "Financial Planning Virtual Assistant",
     "group": "Finance & Insurance",
@@ -5084,7 +5084,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "relatedSlugs": ["financial-advisor-virtual-assistant","admin-inbox","calendar","research-data"]
   },
 {
-    "slug": "ndis-rostering-virtual-assistant",
+    "slug": "ndis-rostering",
     "locale": "en-AU",
     "name": "NDIS Rostering Virtual Assistant",
     "group": "Healthcare",
@@ -5103,7 +5103,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "relatedSlugs": ["ndis-billing-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox","customer-service"]
   },
 {
-    "slug": "aged-care-virtual-assistant",
+    "slug": "aged-care",
     "locale": "en-AU",
     "name": "Aged Care Virtual Assistant",
     "group": "Healthcare",
@@ -5119,10 +5119,10 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "bestFor": ["home-care providers","community care organisations","aged-care service teams","multi-site care businesses"],
     "outcomes": ["Routine service administration has a clear owner.","Roster and client-record updates remain more current.","Local care teams spend less time chasing documents and routine follow-up."],
     "costFactors": ["Client and worker volume","Rostering complexity","Required Australian-hours overlap","Care-management system experience","After-hours and escalation expectations"],
-    "relatedSlugs": ["ndis-rostering-virtual-assistant","medical-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox"]
+    "relatedSlugs": ["ndis-rostering","medical-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox"]
   },
 {
-    "slug": "trust-accounting-virtual-assistant",
+    "slug": "trust-accounting",
     "locale": "en-AU",
     "name": "Trust Accounting Virtual Assistant",
     "group": "Real Estate",
@@ -5141,7 +5141,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "relatedSlugs": ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","bookkeeping","accounting-virtual-assistant"]
   },
 {
-    "slug": "medical-receptionist-virtual-assistant",
+    "slug": "medical-receptionist",
     "locale": "en-AU",
     "name": "Medical Receptionist Virtual Assistant",
     "group": "Healthcare",

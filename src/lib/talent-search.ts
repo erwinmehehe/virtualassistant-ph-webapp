@@ -1,5 +1,6 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const AI_GATEWAY_URL = "https://ai-gateway.vercel.sh/v1/embeddings";
@@ -24,16 +25,27 @@ type EmbeddingResponse = {
   data?: Array<{ index?: number; embedding?: number[] }>;
 };
 
-function gatewayApiKey() {
-  return process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim() || "";
+async function gatewayApiKey() {
+  const configured = process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim();
+  if (configured) return configured;
+
+  // In Vercel Functions, OIDC is supplied on the request context rather than
+  // process.env. Reading it here keeps Gateway auth short-lived and avoids a
+  // static production secret.
+  try {
+    const requestHeaders = await headers();
+    return requestHeaders.get("x-vercel-oidc-token")?.trim() || "";
+  } catch {
+    return "";
+  }
 }
 
 function vectorLiteral(values: number[]) {
   return `[${values.join(",")}]`;
 }
 
-async function embedTexts(values: string[]) {
-  const key = gatewayApiKey();
+async function embedTexts(values: string[], existingKey?: string) {
+  const key = existingKey || await gatewayApiKey();
   if (!key || !values.length) return null;
 
   const response = await fetch(AI_GATEWAY_URL, {
@@ -51,7 +63,10 @@ async function embedTexts(values: string[]) {
     cache: "no-store",
   });
 
-  if (!response.ok) return null;
+  if (!response.ok) {
+    console.error("[talent-search] AI Gateway embedding request failed", { status: response.status });
+    return null;
+  }
   const payload = await response.json() as EmbeddingResponse;
   const rows = [...(payload.data || [])].sort((a, b) => Number(a.index || 0) - Number(b.index || 0));
   if (rows.length !== values.length) return null;
@@ -123,7 +138,7 @@ export async function searchPublicTalent(params: TalentSearchParams) {
  * non-public candidates never enter the embedding provider request.
  */
 export async function syncPublicTalentEmbeddings(limit = 25) {
-  const key = gatewayApiKey();
+  const key = await gatewayApiKey();
   if (!key) return { checked: 0, updated: 0, skipped: "embedding_provider_not_configured" as const };
 
   const admin = createAdminClient();
@@ -135,7 +150,7 @@ export async function syncPublicTalentEmbeddings(limit = 25) {
   const rows = (sources || []) as Array<{ va_id: string; search_text: string; source_hash: string }>;
   if (!rows.length) return { checked: 0, updated: 0 };
 
-  const embeddings = await embedTexts(rows.map((row) => row.search_text));
+  const embeddings = await embedTexts(rows.map((row) => row.search_text), key);
   if (!embeddings) throw new Error("Talent embedding provider returned an invalid response.");
 
   const model = process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL;

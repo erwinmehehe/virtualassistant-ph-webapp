@@ -36,6 +36,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
     ? `/training/certificates/${course.certificate.credential_code}`
     : null;
   const reviewLabel = reviewedLabel(course.last_reviewed_at);
+  const isFoundationsCourse = course.slug === "virtual-assistant-foundations";
   const isExecutiveCourse = course.slug === "executive-virtual-assistant";
   const isCustomerSupportCourse = course.slug === "customer-support-virtual-assistant";
   const isOperationsCourse = course.slug === "operations-virtual-assistant";
@@ -61,8 +62,10 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isMortgageBrokingCourse = course.slug === "mortgage-broking-administration-australia";
   const isAustralianAlliedHealthCourse = course.slug === "australian-allied-health-administration";
   const isAustralianBookkeepingCourse = course.slug === "australian-bookkeeping-administration";
-  const courseVariant = isExecutiveCourse
-    ? " training-executive-course"
+  const courseVariant = isFoundationsCourse
+    ? " training-work-course training-foundations-course"
+    : isExecutiveCourse
+      ? " training-executive-course"
     : isCustomerSupportCourse
       ? " training-support-course"
       : isOperationsCourse
@@ -128,6 +131,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
+
+        {isFoundationsCourse ? (
+          <div className="training-work-outcomes" aria-label="Virtual Assistant Foundations course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A core VA operating pack you can reuse across client work</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Authority + client update pack</strong><small>Separate routine ownership, approvals, escalation boundaries, and decision-ready communication.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Inbox + calendar controls</strong><small>Triage by consequence, clarify time zones, and leave every deferred item with a next action.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Files + spreadsheet QA</strong><small>Protect the source of truth, clean data safely, and prove that important records were not lost.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Research + shift handoff</strong><small>Verify sources, document uncertainty, prioritise work, and leave the next owner a usable handoff.</small></span></div>
+            </div>
+          </div>
+        ) : null}
 
         {isExecutiveCourse ? (
           <div className="training-executive-outcomes" aria-label="Executive VA course work outputs">

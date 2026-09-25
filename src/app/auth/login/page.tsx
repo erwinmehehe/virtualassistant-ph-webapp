@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { TrainingSiteHeader } from "@/components/training-site-header";
@@ -6,6 +7,22 @@ import { resendSignupConfirmationAction } from "@/app/actions/resend-confirmatio
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { googleLoginEnabled, microsoftLoginEnabled } from "@/lib/social-login";
 import { safeTrainingCourseSlug, trainingJoinHref } from "@/lib/training-intent";
+
+export const metadata: Metadata = {
+  title: "Log In",
+  description: "Log in to your VirtualAssistant.com.ph account to access your workspace or continue free VA training.",
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: "Log In | VirtualAssistant.com.ph",
+    description: "Access your VirtualAssistant.com.ph workspace or continue your free VA training.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Log In | VirtualAssistant.com.ph",
+    description: "Access your VirtualAssistant.com.ph workspace or continue your free VA training.",
+  },
+};
+
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const params = await searchParams;

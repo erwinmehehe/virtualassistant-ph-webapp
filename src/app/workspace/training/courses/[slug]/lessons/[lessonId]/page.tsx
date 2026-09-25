@@ -208,7 +208,13 @@ export default async function TrainingLessonPage({
                                           ? " training-work-player training-australia-fundamentals-player"
                                           : course.slug === "australian-trades-administration"
                                             ? " training-work-player training-australia-trades-player"
-                                            : "";
+                                            : course.slug === "ndis-administration-fundamentals"
+                                              ? " training-work-player training-ndis-player"
+                                              : course.slug === "property-management-administration-australia"
+                                                ? " training-work-player training-property-management-player"
+                                                : course.slug === "mortgage-broking-administration-australia"
+                                                  ? " training-work-player training-mortgage-broking-player"
+                                                  : "";
 
   return (
     <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
@@ -263,6 +269,9 @@ export default async function TrainingLessonPage({
               {course.slug === "myob-workflows-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> MYOB control artifact included</span> : null}
               {course.slug === "australian-va-fundamentals" && hasAppliedScenario ? <span className="badge training-work-practice-badge"><Target size={13}/> Applied Australia scenario</span> : null}
               {course.slug === "australian-trades-administration" && hasAppliedScenario ? <span className="badge training-work-practice-badge"><Target size={13}/> Trades ops scenario</span> : null}
+              {course.slug === "ndis-administration-fundamentals" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> NDIS admin artifact included</span> : null}
+              {course.slug === "property-management-administration-australia" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Property admin artifact included</span> : null}
+              {course.slug === "mortgage-broking-administration-australia" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Mortgage admin artifact included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

@@ -5242,3 +5242,29 @@
   --training-work-border: #fedf89;
   --training-work-hero: rgba(181, 71, 8, 0.09);
 }
+
+
+/* Australia regulated-admin palettes */
+.training-ndis-course,
+.training-ndis-player {
+  --training-work-accent: #3538cd;
+  --training-work-soft: #eef4ff;
+  --training-work-border: #c7d7fe;
+  --training-work-hero: rgba(53, 56, 205, 0.09);
+}
+
+.training-property-management-course,
+.training-property-management-player {
+  --training-work-accent: #0e7090;
+  --training-work-soft: #ecfdff;
+  --training-work-border: #a5f0fc;
+  --training-work-hero: rgba(14, 112, 144, 0.09);
+}
+
+.training-mortgage-broking-course,
+.training-mortgage-broking-player {
+  --training-work-accent: #7f56d9;
+  --training-work-soft: #f4f3ff;
+  --training-work-border: #d9d6fe;
+  --training-work-hero: rgba(127, 86, 217, 0.09);
+}

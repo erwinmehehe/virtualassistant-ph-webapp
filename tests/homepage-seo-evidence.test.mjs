@@ -37,15 +37,12 @@ test("homepage explains Philippines hiring intent and links to core commercial j
   }
 });
 
-test("homepage exposes named operations accountability without inventing recruiter titles", () => {
+test("homepage no longer carries the removed post-hire operations block", () => {
   const home = homepageSource();
-  assert.match(home, /<strong>Jervis Accad<\/strong>/);
-  assert.match(home, /<strong>Bryan Batarina<\/strong>/);
-  assert.match(home, /Client Success Manager/);
-  assert.match(home, /Operations team/);
-  assert.match(home, /Human review before client presentation/);
-  assert.doesNotMatch(home, /Jervis Accad[^\n]*Recruiter/);
-  assert.doesNotMatch(home, /Bryan Batarina[^\n]*Recruiter/);
+  assert.doesNotMatch(home, /<strong>Jervis Accad<\/strong>/);
+  assert.doesNotMatch(home, /<strong>Bryan Batarina<\/strong>/);
+  assert.doesNotMatch(home, /Client Success Manager/);
+  assert.doesNotMatch(home, /Human review before client presentation/);
 });
 
 test("homepage service section uses explicit Virtual Assistant service entities", () => {

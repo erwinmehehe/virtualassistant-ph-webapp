@@ -1456,7 +1456,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["small-business","accountants-cpas","accounting-firms-month-end"]
   },
 {
-    slug: "shiftcare-virtual-assistant",
+    slug: "shiftcare",
     locale: "en-AU",
     name: "ShiftCare Virtual Assistant",
     software: "ShiftCare",
@@ -1473,11 +1473,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["NDIS providers","aged-care providers","community care teams"],
     outcomes: ["Roster changes remain visible.","Participant and worker records stay more current.","Managers spend less time chasing routine service administration."],
     hiringNotes: ["Define which roster changes may be processed without manager approval.","Limit access to assigned participants and workflows where possible.","Keep care decisions, incidents, safeguarding and compliance responsibility with qualified local staff."],
-    relatedServiceSlugs: ["ndis-rostering-virtual-assistant","ndis-billing-virtual-assistant","aged-care-virtual-assistant"],
+    relatedServiceSlugs: ["ndis-rostering","ndis-billing-virtual-assistant","aged-care"],
     relatedIndustrySlugs: ["ndis-providers","aged-care-providers"]
   },
 {
-    slug: "best-practice-premier-virtual-assistant",
+    slug: "best-practice-premier",
     locale: "en-AU",
     name: "Best Practice Premier Virtual Assistant",
     software: "Best Practice Premier",
@@ -1494,11 +1494,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian GP clinics","specialist practices","multi-doctor medical centres"],
     outcomes: ["Reception queues stay more current.","Routine patient follow-up takes less local staff time.","Clinical questions are separated from administrative work more clearly."],
     hiringNotes: ["Keep all clinical triage and advice with qualified clinicians.","Use individual accounts and minimum necessary patient access.","Document privacy, message routing and escalation rules before live work."],
-    relatedServiceSlugs: ["medical-receptionist-virtual-assistant","medical-virtual-assistant","phone-receptionist"],
+    relatedServiceSlugs: ["medical-receptionist","medical-virtual-assistant","phone-receptionist"],
     relatedIndustrySlugs: ["medical-practices","healthcare-dental"]
   },
 {
-    slug: "xplan-virtual-assistant",
+    slug: "xplan",
     locale: "en-AU",
     name: "Xplan Virtual Assistant",
     software: "Xplan",
@@ -1515,11 +1515,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian financial planning firms","wealth advisers","paraplanning teams"],
     outcomes: ["Client records stay better prepared.","Review workflows become easier to track.","Advisers spend less time maintaining routine Xplan administration."],
     hiringNotes: ["Separate data preparation from personal financial advice.","Use role-based permissions and documented review gates.","Keep recommendations, advice documents and regulated approvals with authorised advisers."],
-    relatedServiceSlugs: ["financial-planning-virtual-assistant","financial-advisor-virtual-assistant","admin-inbox"],
+    relatedServiceSlugs: ["financial-planning","financial-advisor-virtual-assistant","admin-inbox"],
     relatedIndustrySlugs: ["financial-planning-firms","financial-advisers"]
   },
 {
-    slug: "pexa-virtual-assistant",
+    slug: "pexa",
     locale: "en-AU",
     name: "PEXA Virtual Assistant",
     software: "PEXA",
@@ -1536,11 +1536,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian conveyancers","property law firms","settlement teams"],
     outcomes: ["PEXA preparation becomes more consistent.","Outstanding matter inputs remain visible.","Conveyancers receive cleaner files before regulated review."],
     hiringNotes: ["Do not delegate signing authority or legal advice.","Use documented matter checklists and role-based access.","Keep regulated conveyancing decisions and final settlement approval with authorised professionals."],
-    relatedServiceSlugs: ["conveyancing-virtual-assistant","paralegal-virtual-assistant","legal-virtual-assistant"],
+    relatedServiceSlugs: ["conveyancing","paralegal-virtual-assistant","legal-virtual-assistant"],
     relatedIndustrySlugs: ["conveyancing-firms","law-firms"]
   },
 {
-    slug: "leap-virtual-assistant",
+    slug: "leap",
     locale: "en-AU",
     name: "LEAP Virtual Assistant",
     software: "LEAP",
@@ -1557,11 +1557,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian law firms","conveyancing practices","small legal teams"],
     outcomes: ["Matter records remain more current.","Routine file administration takes less practitioner time.","Deadlines and follow-up become easier to see."],
     hiringNotes: ["Keep legal advice and privileged judgement with qualified practitioners.","Use approved templates and document naming standards.","Restrict sensitive matter access to the work assigned."],
-    relatedServiceSlugs: ["conveyancing-virtual-assistant","legal-virtual-assistant","paralegal-virtual-assistant"],
+    relatedServiceSlugs: ["conveyancing","legal-virtual-assistant","paralegal-virtual-assistant"],
     relatedIndustrySlugs: ["conveyancing-firms","law-firms"]
   },
 {
-    slug: "vaultre-virtual-assistant",
+    slug: "vaultre",
     locale: "en-AU",
     name: "VaultRE Virtual Assistant",
     software: "VaultRE",
@@ -1578,11 +1578,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian real-estate agencies","buyers agencies","property sales teams"],
     outcomes: ["CRM data stays easier to trust.","Follow-up tasks remain visible.","Agents spend less time maintaining records."],
     hiringNotes: ["Define CRM stages and required fields.","Keep negotiation and licensed real-estate decisions with agents.","Use role-based access and review bulk data changes."],
-    relatedServiceSlugs: ["buyers-agent-virtual-assistant","real-estate","admin-inbox"],
+    relatedServiceSlugs: ["buyers-agent","real-estate","admin-inbox"],
     relatedIndustrySlugs: ["buyers-agents","real-estate-agents"]
   },
 {
-    slug: "agentbox-virtual-assistant",
+    slug: "agentbox",
     locale: "en-AU",
     name: "AgentBox Virtual Assistant",
     software: "AgentBox",
@@ -1599,11 +1599,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian real-estate agencies","buyers agents","property sales teams"],
     outcomes: ["AgentBox data stays more current.","Follow-up is easier to manage.","Agents spend less time on repeatable CRM work."],
     hiringNotes: ["Document required fields and pipeline stages.","Review bulk changes before they are applied.","Keep negotiation, pricing and licensed decisions with Australian agents."],
-    relatedServiceSlugs: ["buyers-agent-virtual-assistant","real-estate","admin-inbox"],
+    relatedServiceSlugs: ["buyers-agent","real-estate","admin-inbox"],
     relatedIndustrySlugs: ["buyers-agents","real-estate-agents"]
   },
 {
-    slug: "property-tree-virtual-assistant",
+    slug: "property-tree",
     locale: "en-AU",
     name: "Property Tree Virtual Assistant",
     software: "Property Tree",
@@ -1620,11 +1620,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian property management agencies","real-estate agencies","portfolio teams"],
     outcomes: ["Property records stay more current.","Maintenance follow-up becomes easier to track.","Managers receive cleaner exception queues."],
     hiringNotes: ["Define spending and maintenance approval limits.","Keep trust-account authority and tenancy decisions with authorised local staff.","Use one documented workflow for tenant and contractor communication."],
-    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting-virtual-assistant"],
+    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting"],
     relatedIndustrySlugs: ["property-management-companies","property-management-maintenance-coordination"]
   },
 {
-    slug: "ailo-virtual-assistant",
+    slug: "ailo",
     locale: "en-AU",
     name: "Ailo Virtual Assistant",
     software: "Ailo",
@@ -1641,11 +1641,11 @@ export const softwarePages: SoftwareSeoPage[] = [
     bestFor: ["Australian property managers","real-estate agencies","residential portfolio teams"],
     outcomes: ["Tenant follow-up remains more consistent.","Property administration queues stay visible.","Managers spend less time chasing routine updates."],
     hiringNotes: ["Define which tenant messages may be handled from approved templates.","Keep trust, tenancy and legal decisions with authorised local staff.","Escalate sensitive disputes, hardship and safety issues immediately."],
-    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting-virtual-assistant"],
+    relatedServiceSlugs: ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","trust-accounting"],
     relatedIndustrySlugs: ["property-management-companies","property-management-maintenance-coordination"]
   },
 {
-    slug: "myob-virtual-assistant",
+    slug: "myob",
     locale: "en-AU",
     name: "MYOB Virtual Assistant",
     software: "MYOB",

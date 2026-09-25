@@ -739,3 +739,220 @@
     margin-top: -4px;
   }
 }
+
+
+/* VA support mobile cleanup */
+.va-support-page {
+  width: min(100%, 980px);
+  margin: 0 auto;
+}
+
+.va-support-head {
+  margin-bottom: 14px;
+}
+
+.va-support-guidance {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  padding: 14px 15px;
+  border: 1px solid #d9e5ff;
+  border-radius: 15px;
+  background: #f8fbff;
+}
+
+.va-support-guidance-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #cfe0ff;
+  border-radius: 11px;
+  color: #2563eb;
+  background: #eef5ff;
+}
+
+.va-support-guidance p {
+  margin: 4px 0 0;
+  color: #475467;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.va-support-placements {
+  margin-top: 14px;
+}
+
+.va-support-placement-card {
+  padding: 18px;
+  border-radius: 16px;
+}
+
+.va-support-form {
+  gap: 14px;
+}
+
+.va-support-actions {
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.va-support-recent {
+  padding-top: 4px;
+  border-top: 1px solid #eaecf0;
+}
+
+.va-support-recent > h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: -.01em;
+}
+
+.va-support-update {
+  border: 1px solid #eaecf0;
+  border-radius: 13px;
+  background: #fcfcfd;
+}
+
+.va-support-empty {
+  margin-top: 14px;
+  text-align: left;
+}
+
+@media (max-width: 680px) {
+  .va-support-page .va-support-head {
+    margin-bottom: 10px;
+  }
+
+  .va-support-page .va-support-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-support-page .va-support-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-support-guidance {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 9px;
+    padding: 12px;
+    border-radius: 13px;
+  }
+
+  .va-support-guidance-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .va-support-guidance strong {
+    font-size: 13px;
+  }
+
+  .va-support-guidance p {
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .va-support-placement-card {
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-support-placement-card > .row-between {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .va-support-placement-card > .row-between h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .va-support-placement-card .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .va-support-placement-card .span-2 {
+    grid-column: auto;
+  }
+
+  .va-support-form .field input,
+  .va-support-form .field select {
+    min-height: 44px;
+  }
+
+  .va-support-form .field textarea {
+    min-height: 118px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .va-support-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .va-support-actions .btn {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  .va-support-actions .small {
+    line-height: 1.45;
+  }
+
+  .va-support-update {
+    padding: 12px;
+  }
+
+  .va-support-update > .row-between {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .va-support-update > .row.wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .va-support-empty {
+    padding: 16px;
+  }
+
+  .va-support-empty h3 {
+    font-size: 17px;
+  }
+
+  .va-support-empty p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 420px) {
+  .workspace-role-va:has(.va-support-page) .app-topbar {
+    height: 50px;
+  }
+
+  .workspace-role-va:has(.va-support-page) .app-topbar-page-title {
+    font-size: 13px;
+  }
+
+  .workspace-role-va:has(.va-support-page) .app-content {
+    padding-top: 12px;
+  }
+
+  .va-support-page .va-support-head h1 {
+    font-size: 25px;
+  }
+}

@@ -2143,3 +2143,516 @@
     grid-column: auto;
   }
 }
+
+
+/* VA mobile pass: dashboard, jobs, vetting */
+/* Vetting gets dedicated layout instead of relying on generic dashboard cards. */
+.va-vetting-page {
+  width: min(100%, 1120px);
+}
+
+.va-vetting-head {
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.va-vetting-head h1 {
+  max-width: 720px;
+}
+
+.va-vetting-review-banner {
+  margin-bottom: 14px;
+  border-radius: 13px;
+}
+
+.va-vetting-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.va-vetting-stats .stat-card {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 13px;
+}
+
+.va-vetting-stats .stat-card strong {
+  overflow-wrap: anywhere;
+  font-size: 20px;
+}
+
+.va-vetting-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 14px;
+  align-items: start;
+}
+
+.va-vetting-main {
+  gap: 12px;
+}
+
+.va-vetting-progress-card,
+.va-vetting-skills-card,
+.va-vetting-video-card,
+.va-vetting-scorecard,
+.va-vetting-privacy-card {
+  padding: 17px;
+  border-radius: 15px;
+}
+
+.va-vetting-progress-card .checklist {
+  display: grid;
+  gap: 7px;
+}
+
+.va-vetting-progress-card .check-item {
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: 9px;
+  min-height: 44px;
+  padding: 9px 10px;
+  border-radius: 10px;
+}
+
+.va-vetting-skills-card > .row-between,
+.va-vetting-scorecard > .row-between {
+  gap: 10px;
+}
+
+.va-vetting-test-form {
+  gap: 14px;
+}
+
+.va-vetting-test-form .test-question {
+  padding-top: 2px;
+}
+
+.va-vetting-test-form .choice-list {
+  gap: 7px;
+}
+
+.va-vetting-test-form .choice {
+  min-height: 42px;
+}
+
+.va-vetting-video-form {
+  margin-top: 12px;
+}
+
+.va-vetting-sidebar {
+  position: sticky;
+  top: 84px;
+}
+
+.va-vetting-privacy-card h3 {
+  margin-top: 0;
+}
+
+.va-vetting-privacy-card p {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+/* Dashboard: reduce mobile scroll without removing status context. */
+@media (max-width: 680px) {
+  .va-overview {
+    display: grid;
+    gap: 12px;
+  }
+
+  .va-dashboard-head .dash-header {
+    margin-bottom: 0;
+  }
+
+  .va-dashboard-head .dash-header h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-dashboard-head .dash-header p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-dashboard-find-jobs {
+    min-height: 42px;
+  }
+
+  .va-overview .dashboard-next-action {
+    gap: 10px;
+    margin: 0;
+    padding: 14px;
+    border-radius: 13px;
+  }
+
+  .va-overview .dashboard-next-action h2 {
+    font-size: 17px;
+    line-height: 1.28;
+  }
+
+  .va-overview .dashboard-next-action p {
+    margin-bottom: 0;
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .va-overview .dashboard-next-action .btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-overview .va-status-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 0;
+    border-radius: 13px;
+  }
+
+  .va-overview .status-summary-item,
+  .va-overview .status-summary-item:nth-child(2) {
+    min-height: 104px;
+    padding: 12px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .va-overview .status-summary-item:nth-child(even) {
+    border-right: 0;
+  }
+
+  .va-overview .status-summary-item:nth-last-child(-n+2) {
+    border-bottom: 0;
+  }
+
+  .va-overview .status-summary-item > strong {
+    font-size: 20px;
+  }
+
+  .va-overview .status-summary-item .status-summary-text {
+    font-size: 13px;
+  }
+
+  .va-overview .status-summary-item small {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .va-overview .status-summary-action .btn {
+    width: 100%;
+    min-height: 36px;
+    justify-content: center;
+  }
+
+  .va-dashboard-pipeline,
+  .va-dashboard-requests,
+  .va-overview .dashboard-section-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-overview .dashboard-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .va-overview .dashboard-section-head h2 {
+    font-size: 16px;
+  }
+
+  .va-overview .dashboard-section-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .va-overview .dashboard-section-head .btn {
+    min-height: 38px;
+  }
+
+  .va-overview .pipeline-summary {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(92px, 1fr));
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .va-overview .pipeline-step {
+    min-height: 58px;
+    padding: 9px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .va-overview .pipeline-step:last-child {
+    border-right: 0;
+  }
+
+  .va-overview .pipeline-step span {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .va-overview .pipeline-step strong {
+    font-size: 18px;
+  }
+
+  .va-overview .onboarding-card-compact {
+    margin-bottom: 0;
+    border-radius: 13px;
+  }
+
+  .va-overview .onboarding-compact-head {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .va-overview .onboarding-compact-row {
+    min-height: 44px;
+    padding: 8px 11px;
+  }
+
+  /* Jobs */
+  .va-jobs-mobile-head {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .va-jobs-mobile-head h1 {
+    font-size: 27px;
+  }
+
+  .va-jobs-mobile-head p {
+    font-size: 12.5px;
+  }
+
+  .va-job-mobile-card {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-job-status-row {
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .va-job-title-block h2 {
+    font-size: 17px;
+    line-height: 1.28;
+  }
+
+  .va-job-title-block > p {
+    font-size: 12px;
+  }
+
+  .va-job-summary {
+    margin-top: 9px;
+    font-size: 12px;
+    line-height: 1.5;
+    -webkit-line-clamp: 4;
+  }
+
+  .va-job-meta {
+    display: grid;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 11.5px;
+  }
+
+  .va-job-meta span + span::before {
+    display: none;
+  }
+
+  .va-job-categories {
+    margin-top: 9px;
+  }
+
+  .va-job-mobile-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(92px, .55fr);
+    gap: 7px;
+  }
+
+  .va-job-mobile-actions > *,
+  .va-job-mobile-actions form,
+  .va-job-mobile-actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .va-job-mobile-actions .btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-jobs-empty {
+    padding: 16px;
+  }
+
+  /* Vetting */
+  .va-vetting-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+
+  .va-vetting-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-vetting-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-vetting-review-banner {
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .va-vetting-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+
+  .va-vetting-stats .stat-card {
+    min-height: 76px;
+    padding: 11px;
+  }
+
+  .va-vetting-stats .stat-card strong {
+    font-size: 18px;
+  }
+
+  .va-vetting-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .va-vetting-main {
+    gap: 10px;
+  }
+
+  .va-vetting-progress-card,
+  .va-vetting-skills-card,
+  .va-vetting-video-card,
+  .va-vetting-scorecard,
+  .va-vetting-privacy-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-vetting-progress-card h3,
+  .va-vetting-skills-card h3,
+  .va-vetting-video-card h3,
+  .va-vetting-scorecard h3,
+  .va-vetting-privacy-card h3 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .va-vetting-progress-card .check-item {
+    grid-template-columns: 22px minmax(0, 1fr);
+    min-height: 42px;
+    padding: 8px 9px;
+  }
+
+  .va-vetting-progress-card .check-item > .small {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: -2px;
+  }
+
+  .va-vetting-skills-card > .row-between,
+  .va-vetting-scorecard > .row-between {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .va-vetting-skills-card .score-strip {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .va-vetting-test-form textarea,
+  .va-vetting-video-form input {
+    font-size: 16px;
+  }
+
+  .va-vetting-test-form textarea {
+    min-height: 128px;
+  }
+
+  .va-vetting-test-form .choice {
+    padding: 10px;
+  }
+
+  .va-vetting-test-form .btn,
+  .va-vetting-video-form .btn,
+  .va-vetting-skills-card .empty .btn,
+  .va-vetting-video-card .empty .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-vetting-video-form {
+    grid-template-columns: 1fr;
+  }
+
+  .va-vetting-video-form .span-2 {
+    grid-column: auto;
+  }
+
+  .va-vetting-scorecard .score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .va-vetting-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-dashboard-head .dash-header h1,
+  .va-jobs-mobile-head h1,
+  .va-vetting-head h1 {
+    font-size: 25px;
+  }
+
+  .va-dashboard-find-jobs,
+  .va-jobs-update-profile {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .va-overview .va-status-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .va-overview .status-summary-item,
+  .va-overview .status-summary-item:nth-child(2),
+  .va-overview .status-summary-item:nth-child(even),
+  .va-overview .status-summary-item:nth-last-child(-n+2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .va-overview .status-summary-item:last-child {
+    border-bottom: 0;
+  }
+
+  .va-job-mobile-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .va-vetting-stats,
+  .va-vetting-scorecard .score-grid {
+    grid-template-columns: 1fr;
+  }
+}

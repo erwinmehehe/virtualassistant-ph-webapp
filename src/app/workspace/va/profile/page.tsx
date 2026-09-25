@@ -74,12 +74,12 @@ export default async function VaProfilePage({
         <div className="success-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
       ) : null}
 
-      <div className="page-head va-profile-head">
+      <div className="page-head va-profile-head va-profile-mobile-head">
         <div>
           <h1>Your profile</h1>
           <p>Keep the details recruiters and clients use to understand your fit current.</p>
         </div>
-        <Link className="btn btn-sm" href="/workspace/va/profile/preview" target="_blank">
+        <Link className="btn btn-sm va-profile-preview" href="/workspace/va/profile/preview" target="_blank">
           <Eye size={16} /> Preview
         </Link>
       </div>

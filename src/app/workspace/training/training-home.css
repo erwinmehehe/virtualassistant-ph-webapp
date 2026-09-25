@@ -5089,3 +5089,21 @@
   --training-work-border: #f9dbaf;
   --training-work-hero: rgba(180, 35, 24, 0.08);
 }
+
+
+/* Real Estate + Healthcare work palettes */
+.training-real-estate-course,
+.training-real-estate-player {
+  --training-work-accent: #0e7090;
+  --training-work-soft: #ecfdff;
+  --training-work-border: #a5f0fc;
+  --training-work-hero: rgba(14, 112, 144, 0.09);
+}
+
+.training-healthcare-course,
+.training-healthcare-player {
+  --training-work-accent: #3538cd;
+  --training-work-soft: #eef4ff;
+  --training-work-border: #c7d7fe;
+  --training-work-hero: rgba(53, 56, 205, 0.09);
+}

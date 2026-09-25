@@ -149,7 +149,9 @@ async function filterRecipientsByNotificationPreference(
         target_email: bareEmailAddress(recipient),
       });
       if (error) return true;
-      if (!Array.isArray(data) || !data[0]) return field !== "product_emails";
+      // Legacy accounts predate notification preferences. No saved row means
+      // "unset", not an explicit opt-out. Only a saved false blocks delivery.
+      if (!Array.isArray(data) || !data[0]) return true;
       return data[0][field] !== false;
     } catch {
       // Preference lookup outages must not silently drop account communication.

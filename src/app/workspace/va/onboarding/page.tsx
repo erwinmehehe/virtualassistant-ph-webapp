@@ -15,7 +15,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
   const completion = getVaCompletion(va, profile.avatar_url);
 
   return <div className="va-quick-setup-page">
-    <div className="page-head va-quick-setup-head">
+    <div className="page-head va-quick-setup-head va-onboarding-head">
       <div>
         <div className="kicker">VA quick setup</div>
         <h1>Start with the details recruiters need first</h1>
@@ -26,7 +26,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
 
     <div className="va-quick-setup-layout">
-      <aside className="card va-quick-setup-progress">
+      <aside className="card va-quick-setup-progress va-onboarding-progress">
         <div className="row-between wrap">
           <div>
             <span className="small muted">Current profile strength</span>
@@ -60,14 +60,14 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
         </div>
       </aside>
 
-      <section className="card va-quick-setup-form-card">
+      <section className="card va-quick-setup-form-card va-onboarding-form-card">
         <div className="va-quick-setup-card-head">
           <span className="small">Quick setup</span>
           <h2>Tell recruiters how you work</h2>
           <p>Keep this concise. You can add your photo, summary, tools, resume, and work-readiness evidence after saving.</p>
         </div>
 
-        <form action={completeVaQuickSetupAction} className="va-quick-setup-form">
+        <form action={completeVaQuickSetupAction} className="va-quick-setup-form va-onboarding-form">
           <div className="field">
             <label htmlFor="quick-primary-category">Main VA specialty</label>
             <select id="quick-primary-category" name="primary_category" defaultValue={va?.primary_category || ""} required>
@@ -98,7 +98,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
             </div>
           </div>
 
-          <div className="va-quick-setup-actions">
+          <div className="va-quick-setup-actions va-onboarding-actions">
             <button className="btn btn-primary btn-lg" type="submit">Save quick setup <ArrowRight size={16}/></button>
             <Link className="btn btn-ghost" href="/workspace/va/profile">Open full profile</Link>
           </div>

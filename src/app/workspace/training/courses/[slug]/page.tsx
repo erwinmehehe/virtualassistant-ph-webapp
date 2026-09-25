@@ -56,6 +56,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isMyobCourse = course.slug === "myob-workflows-for-virtual-assistants";
   const isAustralianFundamentalsCourse = course.slug === "australian-va-fundamentals";
   const isAustralianTradesCourse = course.slug === "australian-trades-administration";
+  const isNdisCourse = course.slug === "ndis-administration-fundamentals";
+  const isPropertyManagementCourse = course.slug === "property-management-administration-australia";
+  const isMortgageBrokingCourse = course.slug === "mortgage-broking-administration-australia";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -96,7 +99,13 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                                         ? " training-work-course training-australia-fundamentals-course"
                                         : isAustralianTradesCourse
                                           ? " training-work-course training-australia-trades-course"
-                                          : "";
+                                          : isNdisCourse
+                                            ? " training-work-course training-ndis-course"
+                                            : isPropertyManagementCourse
+                                              ? " training-work-course training-property-management-course"
+                                              : isMortgageBrokingCourse
+                                                ? " training-work-course training-mortgage-broking-course"
+                                                : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -410,6 +419,51 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><CalendarDays size={17}/><span><strong>Dispatch + return-visit board</strong><small>Match capability, service area, travel, duration, access, parts, and realistic customer timing.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Quote + variation + supplier control</strong><small>Track versions, approvals, parts, purchase authority, blocked jobs, and changes without accidental negotiation.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Invoice + Xero/MYOB handoff</strong><small>Close only from evidence, keep complaints visible, check payment state, and route accounting exceptions correctly.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isNdisCourse ? (
+          <div className="training-work-outcomes" aria-label="NDIS Administration Fundamentals work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>An NDIS administration control pack that keeps evidence, authority, claims, incidents, and provider handoffs traceable</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Authority + registration evidence map</strong><small>Track participant/provider authority, current registration evidence, sources, owners, and claims without overstating status.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Roster + claim exception queues</strong><small>Reconcile service evidence, payment pathways, pricing inputs, missing records, and reviewer questions.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Complaint + incident escalation log</strong><small>Preserve reported wording, follow immediate escalation protocols, and keep safeguarding/reportability decisions with authorised owners.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Provider admin control board</strong><small>Surface overdue agreements, evidence gaps, claim holds, pricing questions, registration tasks, and next checkpoints.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isPropertyManagementCourse ? (
+          <div className="training-work-outcomes" aria-label="Property Management Administration Australia work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A jurisdiction-first property-management control pack for applications, rent, maintenance, access, and tenancy handoffs</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><ListChecks size={17}/><span><strong>Jurisdiction + authority matrix</strong><small>Anchor every property workflow to the correct state, approved source, VA action, and authorised local decision owner.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Application + rent evidence queues</strong><small>Keep privacy, fairness, ledger exceptions, receipts, and decision boundaries visible without selecting tenants or deciding legal outcomes.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Maintenance + access control board</strong><small>Track serious-risk escalation, contractors, spend approvals, entry purpose, notices, service evidence, and inspections.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Renewal + vacate + bond handoff</strong><small>Organise condition evidence, invoices, ledger issues, proposed outcomes, owners, and jurisdiction-aware next steps.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isMortgageBrokingCourse ? (
+          <div className="training-work-outcomes" aria-label="Mortgage Broking Administration Australia work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A mortgage-administration evidence pack from secure intake through lender conditions, settlement, and CRM handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Authority + secure intake controls</strong><small>Separate administrative preparation from broker-only credit judgment while keeping identity and financial documents in approved systems.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Fact-find + lender research evidence</strong><small>Preserve contradictions, stale evidence, dated lender facts, and source records without improving serviceability or recommending products.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Application + conditions tracker</strong><small>Track packaging, disclosures, valuation, lender conditions, expiries, document status, and broker decisions without overstating approval.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Settlement + CRM handoff</strong><small>Confirm outcomes from authoritative sources, close dependencies, protect data, and keep post-settlement admin separate from new credit advice.</small></span></div>
             </div>
           </div>
         ) : null}

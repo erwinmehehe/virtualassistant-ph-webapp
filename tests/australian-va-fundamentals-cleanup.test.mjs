@@ -8,8 +8,9 @@ test("fundamentals stays within the intended 3 to 4 hour range", async () => {
   const sql = await readFile(migrationPath, "utf8");
 
   assert.match(sql, /estimated_minutes = 210/);
-  assert.equal((sql.match(/estimated_minutes = 25/g) || []).length, 7);
-  assert.equal((sql.match(/estimated_minutes = 35/g) || []).length, 1);
+  assert.equal((sql.match(/estimated_minutes = 25/g) || []).length, 6);
+  assert.equal((sql.match(/estimated_minutes = 30/g) || []).length, 2);
+  assert.doesNotMatch(sql, /estimated_minutes = (3[1-9]|[4-9]\d)/);
 });
 
 test("fundamentals teaches decision rights and source-of-truth operating habits", async () => {

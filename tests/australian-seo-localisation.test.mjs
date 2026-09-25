@@ -234,6 +234,9 @@ test("Australian SEO templates render AU English and Australian market metadata"
   assert.match(language, /"organisations"/);
   assert.match(language, /"prioritise"/);
   assert.match(language, /"authorised"/);
+  assert.match(language, /"relatedIndustrySlugs"/);
+  assert.match(language, /"relatedServiceSlugs"/);
+  assert.match(language, /"primaryKeyword"/);
 
   assert.match(serviceRoute, /locale: page\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(serviceRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);

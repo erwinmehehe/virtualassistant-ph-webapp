@@ -45,6 +45,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isEcommerceCourse = course.slug === "ecommerce-virtual-assistant";
   const isSocialCourse = course.slug === "social-media-virtual-assistant";
   const isSalesCourse = course.slug === "sales-lead-generation-virtual-assistant";
+  const isRealEstateCourse = course.slug === "real-estate-virtual-assistant";
+  const isHealthcareCourse = course.slug === "medical-healthcare-virtual-assistant";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -63,7 +65,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                   ? " training-work-course training-social-course"
                   : isSalesCourse
                     ? " training-work-course training-sales-course"
-                    : "";
+                    : isRealEstateCourse
+                      ? " training-work-course training-real-estate-course"
+                      : isHealthcareCourse
+                        ? " training-work-course training-healthcare-course"
+                        : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -212,6 +218,36 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><ListChecks size={17}/><span><strong>CRM + sequence control</strong><small>Deduplicate records, preserve suppression, prepare outreach, and triage replies.</small></span></div>
               <div><CalendarDays size={17}/><span><strong>Qualification + booking handoff</strong><small>Capture approved criteria, meeting context, time zones, and unresolved questions.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Pipeline + funnel report</strong><small>Keep stages, owners, next actions, risks, and conversion signals honest.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isRealEstateCourse ? (
+          <div className="training-work-outcomes" aria-label="Real Estate Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A real-estate operations pack for enquiries, listings, transactions, and property support</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><Inbox size={17}/><span><strong>Lead + CRM action queue</strong><small>Capture enquiries, preserve source evidence, remove duplicates, and assign next actions.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Listing + property QA pack</strong><small>Validate property facts, assets, approvals, and source-of-truth records before publishing.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Viewing + transaction tracker</strong><small>Coordinate appointments, documents, deadlines, owners, and unresolved dependencies.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Maintenance + daily handoff</strong><small>Structure requests, route restricted decisions, and leave every exception owned.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isHealthcareCourse ? (
+          <div className="training-work-outcomes" aria-label="Medical and Healthcare Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A healthcare admin control pack that keeps patient work accurate, private, and correctly routed</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Patient intake + scheduling QA</strong><small>Verify identity, visit rules, prerequisites, reminders, and non-clinical notes.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Referral + records tracker</strong><small>Track document custody, missing items, destinations, owners, and follow-up dates.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Billing + claims exception queue</strong><small>Track approved charges, balances, remittances, denials, and escalation ownership.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Privacy-safe shift handoff</strong><small>Record status and incidents without making clinical, coding, or treatment decisions.</small></span></div>
             </div>
           </div>
         ) : null}

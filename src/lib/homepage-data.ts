@@ -18,7 +18,7 @@ export const getHomepageFeaturedVas = unstable_cache(
       .order("years_experience", { ascending: false })
       .order("weekly_hours", { ascending: false })
       .order("full_name", { ascending: true })
-      .limit(30);
+      .limit(6);
 
     if (error) {
       console.error("[homepage] featured VA lookup failed", { code: error.code });
@@ -26,6 +26,6 @@ export const getHomepageFeaturedVas = unstable_cache(
     }
     return data ?? [];
   },
-  ["homepage-featured-vas-v1"],
+  ["homepage-featured-vas-v2"],
   { revalidate: 300, tags: ["public-va-directory"] },
 );

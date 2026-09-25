@@ -1280,3 +1280,438 @@
     gap: 8px;
   }
 }
+
+
+/* VA mobile pass: applications, work readiness, saved jobs */
+/* Work readiness foundation */
+.va-work-readiness-page {
+  width: min(100%, 1120px);
+}
+
+.va-work-readiness-head {
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.va-readiness-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 999px;
+  color: #475467;
+  background: #fff;
+  font-size: 11.5px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.va-readiness-status.is-verified {
+  border-color: #abefc6;
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.va-readiness-status.is-pending {
+  border-color: #fedf89;
+  color: #b54708;
+  background: #fffaeb;
+}
+
+.va-readiness-status.is-incomplete {
+  background: #f9fafb;
+}
+
+.va-readiness-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.va-readiness-summary,
+.va-readiness-form-card {
+  border-radius: 16px;
+}
+
+.va-readiness-summary {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.va-readiness-summary-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  color: #444ce7;
+  background: #eef0ff;
+}
+
+.va-readiness-summary h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+
+.va-readiness-summary > p {
+  margin: -4px 0 0;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.va-readiness-summary-list {
+  display: grid;
+  gap: 7px;
+  padding-top: 3px;
+}
+
+.va-readiness-summary-list > div {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  color: #475467;
+  font-size: 12px;
+}
+
+.va-readiness-privacy-note {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  padding: 11px;
+  border-radius: 11px;
+  color: #475467;
+  background: #f8fafc;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.va-readiness-form-card {
+  padding: 20px;
+}
+
+.va-readiness-form-head {
+  margin-bottom: 16px;
+}
+
+.va-readiness-form-head h2 {
+  margin: 3px 0 4px;
+  font-size: 20px;
+  letter-spacing: -.02em;
+}
+
+.va-readiness-form-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.va-readiness-form {
+  display: grid;
+  gap: 16px;
+}
+
+.va-readiness-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 14px;
+}
+
+.va-readiness-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.va-readiness-check {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-height: 76px;
+  padding: 11px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #fcfcfd;
+  cursor: pointer;
+}
+
+.va-readiness-check input {
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+}
+
+.va-readiness-check span {
+  display: grid;
+  gap: 3px;
+}
+
+.va-readiness-check strong {
+  color: #344054;
+  font-size: 12px;
+}
+
+.va-readiness-check small {
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.va-readiness-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.va-readiness-actions > span {
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .va-readiness-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .va-readiness-summary-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  /* Applications */
+  .va-applications-page {
+    display: grid;
+    gap: 13px;
+  }
+
+  .va-applications-page .va-jobs-head {
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .va-applications-page .va-jobs-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-applications-page .va-jobs-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-application-section + .va-application-section {
+    margin-top: 3px;
+  }
+
+  .va-application-section-head {
+    margin-bottom: 8px;
+  }
+
+  .va-application-section-head h2 {
+    font-size: 16px;
+  }
+
+  .va-application-section-head p {
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .va-request-row,
+  .va-application-row {
+    gap: 10px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-application-status {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+  }
+
+  .va-request-actions,
+  .va-application-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .va-request-actions .btn,
+  .va-application-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  /* Work readiness */
+  .va-work-readiness-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 11px;
+  }
+
+  .va-work-readiness-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-work-readiness-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-readiness-layout {
+    gap: 10px;
+  }
+
+  .va-readiness-summary {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .va-readiness-summary-list {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .va-readiness-summary-list > div {
+    min-height: 28px;
+    font-size: 11.5px;
+  }
+
+  .va-readiness-form-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-readiness-form-head {
+    margin-bottom: 13px;
+  }
+
+  .va-readiness-form-head h2 {
+    font-size: 18px;
+  }
+
+  .va-readiness-fields {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .va-readiness-fields input,
+  .va-readiness-fields select,
+  .va-readiness-fields textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .va-readiness-checks {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .va-readiness-check {
+    min-height: 62px;
+    padding: 10px;
+  }
+
+  .va-readiness-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .va-readiness-actions .btn {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  /* Saved jobs */
+  .va-saved-page {
+    display: grid;
+    gap: 12px;
+  }
+
+  .va-saved-page .va-jobs-head {
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .va-saved-page .va-jobs-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-saved-page .va-jobs-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-saved-row {
+    gap: 12px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-saved-title-row h2 {
+    font-size: 15px;
+  }
+
+  .va-saved-row .va-job-meta {
+    display: grid;
+    gap: 5px;
+    margin-top: 9px;
+    font-size: 11.5px;
+  }
+
+  .va-saved-row .va-job-meta span + span::before {
+    display: none;
+  }
+
+  .va-saved-row .va-job-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .va-saved-row .va-job-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-applications-page .va-jobs-head h1,
+  .va-work-readiness-head h1,
+  .va-saved-page .va-jobs-head h1 {
+    font-size: 25px;
+  }
+
+  .va-applications-page .va-jobs-head > .btn,
+  .va-saved-page .va-jobs-head > .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .va-request-actions,
+  .va-application-actions,
+  .va-saved-row .va-job-actions {
+    grid-template-columns: 1fr;
+  }
+}

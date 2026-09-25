@@ -59,6 +59,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isNdisCourse = course.slug === "ndis-administration-fundamentals";
   const isPropertyManagementCourse = course.slug === "property-management-administration-australia";
   const isMortgageBrokingCourse = course.slug === "mortgage-broking-administration-australia";
+  const isAustralianAlliedHealthCourse = course.slug === "australian-allied-health-administration";
+  const isAustralianBookkeepingCourse = course.slug === "australian-bookkeeping-administration";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -105,7 +107,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                                               ? " training-work-course training-property-management-course"
                                               : isMortgageBrokingCourse
                                                 ? " training-work-course training-mortgage-broking-course"
-                                                : "";
+                                                : isAustralianAlliedHealthCourse
+                                                  ? " training-work-course training-australian-allied-health-course"
+                                                  : isAustralianBookkeepingCourse
+                                                    ? " training-work-course training-australian-bookkeeping-course"
+                                                    : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -464,6 +470,36 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><ListChecks size={17}/><span><strong>Fact-find + lender research evidence</strong><small>Preserve contradictions, stale evidence, dated lender facts, and source records without improving serviceability or recommending products.</small></span></div>
               <div><Inbox size={17}/><span><strong>Application + conditions tracker</strong><small>Track packaging, disclosures, valuation, lender conditions, expiries, document status, and broker decisions without overstating approval.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Settlement + CRM handoff</strong><small>Confirm outcomes from authoritative sources, close dependencies, protect data, and keep post-settlement admin separate from new credit advice.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isAustralianAlliedHealthCourse ? (
+          <div className="training-work-outcomes" aria-label="Australian Allied Health Administration work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>An allied-health administration control pack from intake through privacy-safe practitioner handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Patient + referral readiness tracker</strong><small>Resolve identity, forms, referral gaps, consent, and administrative completeness without clinical interpretation.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Scheduling + recall control board</strong><small>Use appointment matrices, practitioner rules, reminders, waitlists, and no-show workflows without clinical triage.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Privacy + incident escalation log</strong><small>Contain mistakes, minimise repeated health information, preserve evidence, and route notification decisions correctly.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Billing + practitioner handoff</strong><small>Separate clerical corrections from funding, eligibility, clinical, write-off, and policy decisions.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isAustralianBookkeepingCourse ? (
+          <div className="training-work-outcomes" aria-label="Australian Bookkeeping Administration work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>An Australian bookkeeping control pack from source evidence through reviewer-ready month end</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Authority + source-evidence map</strong><small>Separate VA preparation from GST, BAS, tax, payroll, accounting, and payment-authority decisions.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>AP + AR control queues</strong><small>Track approvals, duplicate risk, bank-detail changes, disputes, concessions, and payment evidence.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Bank + payroll exception worksheet</strong><small>Keep unreconciled items, STP/super issues, sensitive changes, and reviewer questions visible.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Month-end + BAS reviewer pack</strong><small>Package variances, GST-sensitive items, evidence gaps, owners, deadlines, and unresolved decisions.</small></span></div>
             </div>
           </div>
         ) : null}

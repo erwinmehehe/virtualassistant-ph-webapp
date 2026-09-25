@@ -5268,3 +5268,21 @@
   --training-work-border: #d9d6fe;
   --training-work-hero: rgba(127, 86, 217, 0.09);
 }
+
+
+/* Australia allied-health + bookkeeping palettes */
+.training-australian-allied-health-course,
+.training-australian-allied-health-player {
+  --training-work-accent: #0e7090;
+  --training-work-soft: #ecfdff;
+  --training-work-border: #a5f0fc;
+  --training-work-hero: rgba(14, 112, 144, 0.09);
+}
+
+.training-australian-bookkeeping-course,
+.training-australian-bookkeeping-player {
+  --training-work-accent: #067647;
+  --training-work-soft: #ecfdf3;
+  --training-work-border: #abefc6;
+  --training-work-hero: rgba(6, 118, 71, 0.09);
+}

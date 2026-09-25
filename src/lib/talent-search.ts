@@ -26,18 +26,18 @@ type EmbeddingResponse = {
 };
 
 async function gatewayApiKey() {
-  const configured = process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim();
-  if (configured) return configured;
-
-  // In Vercel Functions, OIDC is supplied on the request context rather than
-  // process.env. Reading it here keeps Gateway auth short-lived and avoids a
-  // static production secret.
+  // Prefer Vercel's fresh request-scoped OIDC identity in production. A
+  // configured API key can be stale or permission-scoped, so it is only the
+  // fallback for local/non-Vercel execution.
   try {
     const requestHeaders = await headers();
-    return requestHeaders.get("x-vercel-oidc-token")?.trim() || "";
+    const runtimeOidc = requestHeaders.get("x-vercel-oidc-token")?.trim();
+    if (runtimeOidc) return runtimeOidc;
   } catch {
-    return "";
+    // headers() is unavailable outside a request context, such as local jobs.
   }
+
+  return process.env.VERCEL_OIDC_TOKEN?.trim() || process.env.AI_GATEWAY_API_KEY?.trim() || "";
 }
 
 function vectorLiteral(values: number[]) {

@@ -48,6 +48,11 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(service, /page === 1/);
   assert.match(service, /x-vercel-oidc-token/);
   assert.match(service, /await headers\(\)/);
+  assert.ok(
+    service.indexOf('requestHeaders.get("x-vercel-oidc-token")') <
+      service.indexOf("process.env.AI_GATEWAY_API_KEY"),
+    "runtime OIDC must be preferred over a static Gateway key",
+  );
   assert.match(migration, /create extension if not exists vector/i);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);

@@ -1,0 +1,632 @@
+/* Client workspace mobile completion pass
+   Keeps client decisions readable and tappable without turning managed hiring
+   into a dense admin-style dashboard. */
+
+.client-mobile-dashboard,
+.client-jobs-page,
+.client-hiring-room {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.client-hiring-room {
+  display: grid;
+  gap: 14px;
+}
+
+.client-shortlist-grid {
+  align-items: start;
+}
+
+.client-shortlist-actions {
+  gap: 8px;
+}
+
+.client-shortlist-action-grid {
+  gap: 7px;
+}
+
+.client-shortlist-decision-form {
+  padding: 9px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #f9fafb;
+}
+
+.client-shortlist-decision-form select,
+.client-shortlist-decision-form input {
+  width: 100%;
+}
+
+@media (max-width: 680px) {
+  /* Dashboard */
+  .client-mobile-dashboard {
+    gap: 11px;
+  }
+
+  .client-mobile-dashboard-head .dash-header {
+    margin-bottom: 0;
+  }
+
+  .client-mobile-dashboard-head .dash-header h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-mobile-dashboard-head .dash-header p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-mobile-dashboard-head .dash-header-actions,
+  .client-mobile-dashboard-head .dash-header-actions .dash-btn {
+    width: 100%;
+  }
+
+  .client-mobile-dashboard-head .dash-btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-mobile-concierge {
+    gap: 10px !important;
+    padding: 13px !important;
+    border-radius: 13px !important;
+  }
+
+  .client-mobile-concierge h2 {
+    margin: 3px 0 4px;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-mobile-concierge p {
+    margin: 0;
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .client-mobile-concierge .btn {
+    min-height: 42px;
+  }
+
+  .client-discovery-call {
+    padding: 13px !important;
+    border-radius: 13px !important;
+  }
+
+  .client-discovery-call .dashboard-section-head {
+    margin-bottom: 9px;
+  }
+
+  .client-discovery-call .dashboard-section-head p {
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .client-discovery-call > .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .client-discovery-call > .row > *,
+  .client-discovery-call > .row .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .client-discovery-call > .row .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-mobile-workflow {
+    margin-bottom: 0;
+    border-radius: 13px;
+  }
+
+  .client-mobile-workflow .workflow-steps {
+    grid-auto-columns: minmax(116px, 1fr);
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .client-mobile-workflow .workflow-step {
+    gap: 6px;
+    min-height: 48px;
+    padding: 8px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .client-mobile-workflow .workflow-step.current {
+    border-color: #b2ddff;
+    background: #eff8ff;
+  }
+
+  .client-mobile-workflow .workflow-step span {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+    font-size: 10px;
+  }
+
+  .client-mobile-workflow .workflow-step strong {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
+  .client-mobile-workflow .workflow-current {
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .client-mobile-workflow .workflow-current h2 {
+    margin: 2px 0 4px;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-mobile-workflow .workflow-current p {
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .client-mobile-workflow .workflow-current .btn {
+    min-height: 44px;
+  }
+
+  .client-mobile-attention,
+  .client-mobile-pipeline,
+  .client-mobile-after-onboarding > .card {
+    padding: 13px !important;
+    border-radius: 13px !important;
+  }
+
+  .client-mobile-attention .dashboard-section-head,
+  .client-mobile-pipeline .dashboard-section-head,
+  .client-mobile-after-onboarding .dashboard-section-head {
+    gap: 7px;
+    margin-bottom: 9px;
+  }
+
+  .client-mobile-attention .dashboard-section-head h2,
+  .client-mobile-pipeline .dashboard-section-head h2,
+  .client-mobile-after-onboarding .dashboard-section-head h2 {
+    font-size: 16px;
+  }
+
+  .client-mobile-attention .dashboard-section-head p,
+  .client-mobile-pipeline .dashboard-section-head p,
+  .client-mobile-after-onboarding .dashboard-section-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-mobile-attention .attention-grid {
+    gap: 7px;
+  }
+
+  .client-mobile-attention .attention-card {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-mobile-attention .attention-count {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border-radius: 9px;
+    font-size: 12px;
+  }
+
+  .client-mobile-attention .attention-card strong {
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+
+  .client-mobile-attention .attention-card p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .client-mobile-pipeline .pipeline-summary {
+    grid-auto-columns: minmax(82px, 1fr);
+    gap: 6px;
+    padding: 0;
+  }
+
+  .client-mobile-pipeline .pipeline-step {
+    min-width: 82px;
+    padding: 9px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fcfcfd;
+  }
+
+  .client-mobile-pipeline .pipeline-step span {
+    font-size: 10px;
+  }
+
+  .client-mobile-pipeline .pipeline-step strong {
+    font-size: 18px;
+  }
+
+  .client-mobile-after-onboarding {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .client-mobile-after-onboarding .role-dashboard-row {
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .client-mobile-after-onboarding .role-dashboard-row > svg {
+    margin-top: 2px;
+  }
+
+  .client-mobile-after-onboarding .role-dashboard-pipeline {
+    gap: 5px 10px;
+    margin-top: 5px;
+    font-size: 10.5px;
+  }
+
+  .client-mobile-after-onboarding .candidate-access-steps {
+    gap: 5px;
+    margin-block: 8px 12px;
+  }
+
+  .client-mobile-after-onboarding .candidate-access-steps li {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  /* Hiring requests */
+  .client-jobs-page {
+    display: grid;
+    gap: 11px;
+  }
+
+  .client-jobs-head {
+    align-items: stretch !important;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .client-jobs-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-jobs-head p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-jobs-new {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-jobs-table {
+    overflow: visible !important;
+    border: 0;
+    background: transparent;
+  }
+
+  .client-jobs-table .success-banner {
+    margin-bottom: 10px !important;
+    padding: 11px 12px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-jobs-table table {
+    display: block;
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .client-jobs-table thead {
+    display: none;
+  }
+
+  .client-jobs-table tbody {
+    display: grid;
+    gap: 9px;
+  }
+
+  .client-jobs-table .client-job-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid #e4e7ec;
+    border-radius: 13px;
+    background: #fff;
+  }
+
+  .client-jobs-table .client-job-row td {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+    padding: 9px 11px;
+    border: 0;
+    border-bottom: 1px solid #f0f2f5;
+    color: #344054;
+    font-size: 11.5px;
+  }
+
+  .client-jobs-table .client-job-row td::before {
+    content: attr(data-label);
+    color: #667085;
+    font-size: 9.5px;
+    font-weight: 750;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Role"],
+  .client-jobs-table .client-job-row td[data-label="Action"] {
+    grid-column: 1 / -1;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Role"] {
+    display: block;
+    padding: 12px;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Role"]::before {
+    display: none;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Role"] strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Role"] .small {
+    font-size: 10.75px;
+  }
+
+  .client-jobs-table .client-job-row td[data-label="Action"] {
+    padding: 9px;
+    border-bottom: 0;
+  }
+
+  .client-job-progress {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  /* Hiring Room */
+  .client-hiring-room {
+    gap: 10px;
+  }
+
+  .client-hiring-room-head {
+    margin-bottom: 0;
+  }
+
+  .client-hiring-room-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-hiring-room-head p {
+    max-width: none;
+    font-size: 12.25px;
+    line-height: 1.5;
+  }
+
+  .client-hiring-next-action {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 9px;
+    margin-bottom: 0;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .client-hiring-next-action .candidate-next-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .client-hiring-next-action h2 {
+    margin: 2px 0 4px;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-hiring-next-action p {
+    font-size: 11.75px;
+    line-height: 1.45;
+  }
+
+  .client-hiring-next-action > .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-hiring-role-tabs {
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    margin-bottom: 0 !important;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .client-hiring-role-tabs > .small {
+    flex: 0 0 auto;
+    align-self: center;
+  }
+
+  .client-hiring-role-tabs .btn {
+    flex: 0 0 auto;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+
+  .client-shortlist-section {
+    padding: 13px !important;
+    border-radius: 13px !important;
+  }
+
+  .client-shortlist-section > .dashboard-section-head {
+    margin-bottom: 10px;
+  }
+
+  .client-shortlist-section > .dashboard-section-head h2 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .client-shortlist-section > .dashboard-section-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-shortlist-grid {
+    grid-template-columns: 1fr !important;
+    gap: 9px;
+  }
+
+  .client-shortlist-grid .browse-va-card {
+    gap: 8px;
+    padding: 13px;
+    border-radius: 12px;
+  }
+
+  .client-shortlist-grid .browse-va-card > .row-between {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .client-shortlist-grid .browse-va-card strong {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .client-shortlist-grid .browse-va-facts {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .client-shortlist-grid .pill-list {
+    gap: 5px;
+  }
+
+  .client-shortlist-grid .pill-list .badge {
+    font-size: 9.75px;
+  }
+
+  .client-shortlist-grid .shortlist-training-evidence {
+    gap: 6px;
+    padding: 9px;
+    border-radius: 10px;
+  }
+
+  .client-shortlist-grid .info-banner {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .client-shortlist-grid .info-banner strong {
+    font-size: 11.5px;
+  }
+
+  .client-shortlist-grid .info-banner p {
+    font-size: 10.75px;
+    line-height: 1.45;
+  }
+
+  .client-shortlist-action-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .client-shortlist-action-grid > *,
+  .client-shortlist-action-grid > form,
+  .client-shortlist-action-grid > details,
+  .client-shortlist-action-grid .btn,
+  .client-shortlist-action-grid summary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .client-shortlist-action-grid .btn,
+  .client-shortlist-action-grid summary {
+    min-height: 42px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .client-shortlist-action-grid details {
+    position: relative;
+  }
+
+  .client-shortlist-decision-form {
+    grid-column: 1 / -1;
+    gap: 7px;
+    margin-top: 7px !important;
+    padding: 9px;
+  }
+
+  .client-shortlist-decision-form select,
+  .client-shortlist-decision-form input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-hiring-room-empty .empty {
+    padding: 16px;
+  }
+
+  .client-hiring-room-empty .btn,
+  .client-shortlist-section .empty .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-mobile-dashboard-head .dash-header h1,
+  .client-jobs-head h1,
+  .client-hiring-room-head h1 {
+    font-size: 25px;
+  }
+
+  .client-discovery-call > .row,
+  .client-shortlist-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .client-jobs-table .client-job-row {
+    grid-template-columns: 1fr;
+  }
+
+  .client-jobs-table .client-job-row td,
+  .client-jobs-table .client-job-row td[data-label="Role"],
+  .client-jobs-table .client-job-row td[data-label="Action"] {
+    grid-column: 1;
+  }
+}

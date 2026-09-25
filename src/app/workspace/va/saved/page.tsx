@@ -16,12 +16,12 @@ export default async function VaSavedPage() {
 
   return (
     <div className="va-saved-page">
-      <div className="va-jobs-head">
+      <div className="va-jobs-head va-saved-head">
         <div>
           <h1>Saved jobs</h1>
           <p>Roles you bookmarked to review later.</p>
         </div>
-        <Link className="btn btn-sm" href="/workspace/va/jobs">Find jobs</Link>
+        <Link className="btn btn-sm va-saved-find" href="/workspace/va/jobs">Find jobs</Link>
       </div>
 
       <div className="va-saved-list">
@@ -29,7 +29,7 @@ export default async function VaSavedPage() {
           items.map((item: any) => {
             const job = item.jobs;
             return (
-              <article className="va-saved-row" key={item.job_id}>
+              <article className="va-saved-row va-saved-job-row" key={item.job_id}>
                 <div className="va-saved-main">
                   <div className="va-saved-title-row">
                     <h2><Link href={jobPublicHref(job || {})}>{job?.title}</Link></h2>
@@ -53,7 +53,7 @@ export default async function VaSavedPage() {
             );
           })
         ) : (
-          <div className="workspace-empty-card">
+          <div className="workspace-empty-card va-saved-empty">
             <h2>No saved jobs</h2>
             <p>Save roles you want to compare or come back to later.</p>
             <div className="workspace-empty-actions row">

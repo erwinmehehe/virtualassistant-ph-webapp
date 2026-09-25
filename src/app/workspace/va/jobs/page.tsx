@@ -35,12 +35,12 @@ export default async function VaJobsPage() {
 
   return (
     <div className="va-jobs-page">
-      <div className="va-jobs-head">
+      <div className="va-jobs-head va-jobs-mobile-head">
         <div>
           <h1>Find jobs</h1>
           <p>Open roles matched to your profile, experience, and availability.</p>
         </div>
-        <Link className="btn btn-sm" href="/workspace/va/profile">
+        <Link className="btn btn-sm va-jobs-update-profile" href="/workspace/va/profile">
           Update profile
         </Link>
       </div>
@@ -52,7 +52,7 @@ export default async function VaJobsPage() {
             const applied = appMap.has(job.id);
 
             return (
-              <article className="va-job-card" key={job.id}>
+              <article className="va-job-card va-job-mobile-card" key={job.id}>
                 <div className="va-job-main">
                   <div className="va-job-status-row">
                     <span className="badge badge-success">Open</span>
@@ -89,7 +89,7 @@ export default async function VaJobsPage() {
                   ) : null}
                 </div>
 
-                <div className="va-job-actions">
+                <div className="va-job-actions va-job-mobile-actions">
                   <Link className="btn btn-primary btn-sm" href={jobPublicHref(job)}>
                     {applied ? "View role" : "View and apply"}
                   </Link>
@@ -104,7 +104,7 @@ export default async function VaJobsPage() {
             );
           })
         ) : (
-          <div className="workspace-empty-card">
+          <div className="workspace-empty-card va-jobs-empty">
             <h2>No open jobs right now</h2>
             <p>New roles will appear here when they are published.</p>
           </div>

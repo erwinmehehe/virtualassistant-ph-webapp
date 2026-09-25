@@ -11,9 +11,10 @@ test("signed-in training keeps the public training identity visible", async () =
 
   assert.match(shell, /href="\/training" aria-label="Go to public Training home"/);
   assert.match(shell, /\.com\.ph · Training/);
-  assert.match(shell, /href="\/training"[\s\S]*Training home/);
-  assert.match(shell, /href="\/jobs"[\s\S]*VA jobs/);
-  assert.match(shell, /href="\/blog"[\s\S]*VA guides/);
+  assert.match(shell, /href="\/training"[\s\S]*Public training home/);
+  assert.match(shell, /Account & site/);
+  assert.doesNotMatch(shell, /href="\/jobs"/);
+  assert.doesNotMatch(shell, /href="\/blog"/);
 });
 
 test("learner navigation exposes learning, course browsing, certificates, and workspace return", async () => {
@@ -37,10 +38,14 @@ test("mobile training navigation stays compact and connected", async () => {
   assert.match(shell, />Courses<\/span>/);
   assert.match(shell, />Certificates<\/span>/);
   assert.match(shell, />Workspace<\/span>/);
+  assert.doesNotMatch(shell, />VA jobs<\/span>/);
 
   assert.match(css, /Training shell continuity with the public training experience/);
+  assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*training-shell-browse[\s\S]*display: none/);
+  assert.match(css, /@media \(max-width: 430px\)[\s\S]*training-shell-mobile-nav/);
   assert.match(css, /@media \(max-width: 390px\)[\s\S]*training-shell-public[\s\S]*display: none/);
+  assert.match(css, /#course-library-title,[\s\S]*scroll-margin-top: 92px/);
 });
 
 

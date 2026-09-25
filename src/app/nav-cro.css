@@ -144,19 +144,19 @@
 
 /* Training reuses the shared site nav instead of behaving like a separate microsite. */
 .training-connected-nav .site-nav {
-  gap: 18px;
+  gap: 14px;
 }
 .training-nav-brand-group {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 11px;
+  gap: 9px;
 }
 .training-nav-context {
   display: inline-flex;
   min-height: 28px;
   align-items: center;
-  padding: 0 9px;
+  padding: 0 0 0 10px;
   border-left: 1px solid #e4e7ec;
   color: #475467;
   font-size: 12px;
@@ -164,27 +164,61 @@
   text-decoration: none;
 }
 .training-connected-nav .nav-links {
-  margin-left: 8px;
+  gap: 2px;
+  margin-left: 2px;
 }
-.training-connected-nav .nav-links > a[aria-current="page"] {
+.training-connected-nav .training-section-link {
+  color: #667085;
+  transition: color .15s ease, background-color .15s ease;
+}
+.training-connected-nav .training-section-link.is-active,
+.training-connected-nav .training-section-link[aria-current="location"] {
   color: #3538cd;
   background: rgba(68, 76, 231, .07);
+}
+.training-connected-nav .nav-actions {
+  margin-left: auto;
 }
 .training-connected-nav .training-header-cta {
   min-height: 40px;
   white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(68, 76, 231, .14);
+}
+.training-connected-nav .va-nav-account-login {
+  color: #475467;
+  font-weight: 700;
 }
 @media (max-width: 1180px) {
+  .training-connected-nav .site-nav {
+    gap: 10px;
+  }
   .training-connected-nav .training-nav-context {
-    border-left: 0;
-    padding-left: 0;
+    padding-left: 9px;
   }
 }
 @media (max-width: 680px) {
+  .training-connected-nav .site-nav {
+    width: min(100% - 24px, 1320px);
+  }
   .training-nav-brand-group {
-    gap: 8px;
+    min-width: 0;
+    gap: 7px;
+  }
+  .training-nav-brand-group .brand {
+    min-width: 0;
+    font-size: clamp(15px, 4.4vw, 18px);
+    white-space: nowrap;
   }
   .training-nav-context {
-    font-size: 11px;
+    flex: 0 0 auto;
+    padding-left: 7px;
+    font-size: 10.5px;
+  }
+  .training-connected-nav .va-mobile-drawer > summary {
+    min-width: 42px;
+    padding-inline: 10px;
+  }
+  .training-connected-nav .va-mobile-drawer > summary span {
+    display: none;
   }
 }

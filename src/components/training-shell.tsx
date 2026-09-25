@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Award,
   BookOpenCheck,
-  BriefcaseBusiness,
   GraduationCap,
   LogOut,
   Sparkles,
@@ -80,19 +79,11 @@ export function TrainingShell({
             </Link>
           </div>
 
-          <div className="app-nav-group">
-            <div className="sidebar-label">VirtualAssistant.com.ph</div>
+          <div className="app-nav-group training-shell-account-group">
+            <div className="sidebar-label">Account & site</div>
             <Link className="training-shell-public-link" href="/training">
               <TrainingNavIcon tone="violet"><Sparkles size={16}/></TrainingNavIcon>
-              <span>Training home</span>
-            </Link>
-            <Link href="/jobs">
-              <TrainingNavIcon tone="amber"><BriefcaseBusiness size={16}/></TrainingNavIcon>
-              <span>VA jobs</span>
-            </Link>
-            <Link href="/blog">
-              <TrainingNavIcon tone="cyan"><BookOpenCheck size={16}/></TrainingNavIcon>
-              <span>VA guides</span>
+              <span>Public training home</span>
             </Link>
             {workspaceHref ? (
               <Link href={workspaceHref}>
@@ -122,9 +113,9 @@ export function TrainingShell({
               <span>Workspace</span>
             </Link>
           ) : (
-            <Link href="/jobs">
-              <TrainingNavIcon tone="amber"><BriefcaseBusiness size={17}/></TrainingNavIcon>
-              <span>VA jobs</span>
+            <Link href="/training">
+              <TrainingNavIcon tone="violet"><Sparkles size={17}/></TrainingNavIcon>
+              <span>Training home</span>
             </Link>
           )}
         </nav>

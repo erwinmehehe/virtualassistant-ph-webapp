@@ -3441,21 +3441,26 @@
 .training-shell .training-shell-brand .app-brand-copy small {
   color: #4f46e5;
   font-size: 10px;
-  letter-spacing: .08em;
+  letter-spacing: .025em;
   text-transform: none;
 }
 
 .training-shell .training-shell-nav {
-  gap: 12px;
+  gap: 10px;
 }
 
 .training-shell .training-shell-nav .app-nav-group + .app-nav-group {
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid #eef2f7;
+}
+
+.training-shell .training-shell-account-group {
+  margin-top: 2px;
 }
 
 .training-shell .training-shell-public-link {
   border-color: #e0e7ff;
+  color: #4338ca;
   background: #fafaff;
 }
 
@@ -3467,25 +3472,36 @@
 .training-shell .training-shell-topbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: auto;
 }
 
 .training-shell .training-shell-public {
-  border-color: #dfe3ff;
-  color: #4338ca;
-  background: #f7f7ff;
+  border-color: transparent;
+  color: #475467;
+  background: transparent;
 }
 
 .training-shell .training-shell-public:hover {
-  border-color: #c7d2fe;
+  border-color: #e4e7ec;
   color: #3538cd;
-  background: #fff;
+  background: #f8f9ff;
 }
 
 .training-shell .training-shell-mobile-nav {
-  max-width: 520px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: min(100%, 520px);
   margin: 0 auto;
+}
+
+.training-shell .training-shell-mobile-nav > a {
+  min-width: 0;
+}
+
+#course-library-title,
+.training-certificates-card {
+  scroll-margin-top: 92px;
 }
 
 @media (max-width: 760px) {
@@ -3495,14 +3511,27 @@
 
   .training-shell .training-shell-public {
     min-width: auto;
-    min-height: 38px;
-    padding-inline: 10px;
-    font-size: 11px;
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 10.5px;
     white-space: nowrap;
   }
 
+  #course-library-title,
+  .training-certificates-card {
+    scroll-margin-top: 72px;
+  }
+}
+
+@media (max-width: 430px) {
   .training-shell .training-shell-mobile-nav > a {
-    min-width: 0;
+    gap: 3px;
+    padding-inline: 3px;
+    font-size: 10px;
+  }
+
+  .training-shell .training-shell-mobile-nav .app-nav-icon {
+    transform: scale(.94);
   }
 }
 
@@ -3510,11 +3539,6 @@
   .training-shell .training-shell-public {
     display: none;
   }
-}
-
-
-.training-certificates-card {
-  scroll-margin-top: 92px;
 }
 
 .training-certificate-empty {

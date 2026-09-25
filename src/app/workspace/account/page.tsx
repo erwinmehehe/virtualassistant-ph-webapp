@@ -573,7 +573,7 @@ export default async function AccountSettingsPage({
                     <label className="account-preference-row">
                       <span className="account-preference-copy">
                         <strong>Product emails</strong>
-                        <small>Optional product updates and feature announcements. Off by default.</small>
+                        <small>Optional product updates and feature announcements. Turn this off any time to stop these emails.</small>
                       </span>
                       <span className="account-switch">
                         <input type="checkbox" name="product_emails" defaultChecked={notificationPreferences.product_emails} />

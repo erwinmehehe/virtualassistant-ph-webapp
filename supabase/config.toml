@@ -1,0 +1,4 @@
+project_id = "virtualassistant-ph-webapp"
+
+[functions.talent-embeddings]
+verify_jwt = false

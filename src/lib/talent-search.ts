@@ -1,10 +1,7 @@
 import "server-only";
 
-import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const AI_GATEWAY_URL = "https://ai-gateway.vercel.sh/v1/embeddings";
-const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small";
 const EMBEDDING_DIMENSIONS = 768;
 
 type TalentSearchParams = {
@@ -21,93 +18,41 @@ type TalentSearchParams = {
   pageSize?: number;
 };
 
-type EmbeddingResponse = {
-  data?: Array<{ index?: number; embedding?: number[] }>;
-};
-
-async function gatewayCredentials() {
-  // AI Gateway documents both API-key and OIDC authentication. Prefer the
-  // explicit Gateway key when present, then fall back to Vercel OIDC. Keep
-  // request-scoped OIDC last because not every request token is authorized for
-  // AI Gateway, and a 403 from one credential must not block a valid fallback.
-  const credentials = [
-    process.env.AI_GATEWAY_API_KEY?.trim(),
-    process.env.VERCEL_OIDC_TOKEN?.trim(),
-  ].filter((value): value is string => Boolean(value));
-
-  try {
-    const requestHeaders = await headers();
-    const runtimeOidc = requestHeaders.get("x-vercel-oidc-token")?.trim();
-    if (runtimeOidc) credentials.push(runtimeOidc);
-  } catch {
-    // headers() is unavailable outside a request context, such as cron jobs.
-  }
-
-  return [...new Set(credentials)];
-}
-
 function vectorLiteral(values: number[]) {
   return `[${values.join(",")}]`;
 }
 
-async function embedTexts(values: string[], existingCredentials?: string[]) {
-  const credentials = existingCredentials?.length
-    ? [...new Set(existingCredentials)]
-    : await gatewayCredentials();
-  if (!credentials.length || !values.length) return null;
+async function getQueryEmbedding(query: string) {
+  const text = query.trim();
+  if (!text) return null;
 
-  let lastAuthStatus: number | null = null;
-  for (const key of credentials) {
-    const response = await fetch(AI_GATEWAY_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL,
-        input: values,
-        dimensions: EMBEDDING_DIMENSIONS,
-      }),
-      signal: AbortSignal.timeout(8_000),
-      cache: "no-store",
+  const admin = createAdminClient();
+  const { data, error } = await admin.functions.invoke("talent-embeddings", {
+    body: {
+      mode: "query",
+      query: text.slice(0, 500),
+    },
+  });
+
+  if (error) {
+    console.error("[talent-search] Supabase Edge embedding request failed", {
+      message: error.message,
     });
-
-    if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
-        lastAuthStatus = response.status;
-        continue;
-      }
-      console.error("[talent-search] AI Gateway embedding request failed", {
-        status: response.status,
-      });
-      return null;
-    }
-
-    const payload = await response.json() as EmbeddingResponse;
-    const rows = [...(payload.data || [])].sort(
-      (a, b) => Number(a.index || 0) - Number(b.index || 0),
-    );
-    if (rows.length !== values.length) return null;
-
-    const embeddings = rows.map((row) => row.embedding || []);
-    if (
-      embeddings.some(
-        (embedding) =>
-          embedding.length !== EMBEDDING_DIMENSIONS ||
-          embedding.some((value) => !Number.isFinite(value)),
-      )
-    ) {
-      return null;
-    }
-    return embeddings;
+    return null;
   }
 
-  console.error("[talent-search] AI Gateway authentication failed", {
-    status: lastAuthStatus,
-    attemptedCredentials: credentials.length,
-  });
-  return null;
+  const embedding = Array.isArray(data?.embedding)
+    ? data.embedding.map(Number)
+    : [];
+  if (
+    embedding.length !== EMBEDDING_DIMENSIONS ||
+    embedding.some((value: number) => !Number.isFinite(value))
+  ) {
+    console.error("[talent-search] Supabase Edge returned an invalid embedding");
+    return null;
+  }
+
+  return vectorLiteral(embedding);
 }
 
 export async function searchPublicTalent(params: TalentSearchParams) {
@@ -117,25 +62,24 @@ export async function searchPublicTalent(params: TalentSearchParams) {
 
   let queryEmbedding: string | null = null;
   if (query) {
-    // The scheduled maintenance job remains the normal indexing path, but a
-    // real first-page search can self-heal a small stale batch. This prevents
-    // a newly enabled semantic index from sitting empty until the next daily
-    // cron, while keeping request work bounded as the directory grows.
+    // First-page searches can repair a small stale semantic batch so a newly
+    // consented/updated public profile does not wait for the maintenance job.
     if (page === 1) {
       try {
         await syncPublicTalentEmbeddings(12);
-      } catch {
-        // Search must keep working when indexing or the embedding provider is
-        // unavailable. The hybrid RPC falls back to lexical/structured ranking.
+      } catch (error) {
+        console.error("[talent-search] semantic index refresh failed", {
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
+    // Semantic retrieval is an enhancement. If Edge inference is unavailable,
+    // the database RPC continues with full-text and structured filtering.
     try {
-      const result = await embedTexts([query]);
-      if (result?.[0]) queryEmbedding = vectorLiteral(result[0]);
+      queryEmbedding = await getQueryEmbedding(query);
     } catch {
-      // Keyword/structured retrieval remains available when the embedding
-      // provider is unavailable or the AI budget is intentionally disabled.
+      queryEmbedding = null;
     }
   }
 
@@ -164,44 +108,28 @@ export async function searchPublicTalent(params: TalentSearchParams) {
   };
 }
 
+
 /**
  * Refreshes semantic embeddings for consented public VA profiles only.
- * Private resumes, contact details, test answers, recruiter notes, and
- * non-public candidates never enter the embedding provider request.
+ * Private resumes, contact details, assessment answers, recruiter notes, and
+ * non-public candidates never enter Edge inference.
  */
 export async function syncPublicTalentEmbeddings(limit = 25) {
-  const credentials = await gatewayCredentials();
-  if (!credentials.length) {
-    return { checked: 0, updated: 0, skipped: "embedding_provider_not_configured" as const };
-  }
-
   const admin = createAdminClient();
-  const { data: sources, error } = await admin.rpc("list_public_va_embedding_sources", {
-    p_limit: Math.max(1, Math.min(limit, 100)),
+  const { data, error } = await admin.functions.invoke("talent-embeddings", {
+    body: {
+      mode: "refresh",
+      limit: Math.max(1, Math.min(40, Math.floor(Number(limit || 25)))),
+    },
   });
-  if (error) throw error;
 
-  const rows = (sources || []) as Array<{ va_id: string; search_text: string; source_hash: string }>;
-  if (!rows.length) return { checked: 0, updated: 0 };
-
-  const embeddings = await embedTexts(rows.map((row) => row.search_text), credentials);
-  if (!embeddings) throw new Error("Talent embedding provider returned an invalid response.");
-
-  const model = process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL;
-  let updated = 0;
-  for (let index = 0; index < rows.length; index += 1) {
-    const row = rows[index];
-    const embedding = embeddings[index];
-    const { error: upsertError } = await admin.rpc("upsert_public_va_search_embedding", {
-      p_va_id: row.va_id,
-      p_search_text: row.search_text,
-      p_source_hash: row.source_hash,
-      p_model: model,
-      p_embedding: vectorLiteral(embedding),
-    });
-    if (upsertError) throw upsertError;
-    updated += 1;
+  if (error) {
+    throw new Error(`Talent embedding refresh failed: ${error.message}`);
   }
 
-  return { checked: rows.length, updated };
+  return {
+    checked: Number(data?.checked || 0),
+    updated: Number(data?.updated || 0),
+    failed: Number(data?.failed || 0),
+  };
 }

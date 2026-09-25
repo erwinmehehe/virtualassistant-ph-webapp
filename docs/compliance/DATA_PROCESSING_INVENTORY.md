@@ -8,7 +8,7 @@ Purpose: Engineering/DPO working register. The DPO should maintain the authorita
 | Account/authentication | VA, client, staff | name, email, auth/session/security events | account access and security | Supabase Auth, Vercel | No | account/security/legal schedule |
 | VA professional profile | VA | bio, skills, tools, experience, rate, availability, schedule | vetting, matching, hiring | Supabase, Vercel | Optional consent-gated subset | account + hiring need |
 | Public VA directory | opted-in approved VA | masked name, photo, professional fields | client discovery | Supabase, Vercel | Yes after separate consent | until consent withdrawn/ineligible |
-| Talent semantic search | opted-in approved VA | sanitized professional search text + derived embedding | relevance search / decision support | Supabase, configured embedding provider | Embedding: No | while profile remains eligible/relevant |
+| Talent semantic search | opted-in approved VA | sanitized professional search text + derived embedding | relevance search / decision support | Supabase Postgres + Supabase Edge AI (gte-small) | Embedding: No | while profile remains eligible/relevant |
 | Candidate matching | VA, client | role requirements + professional fit attributes + score/confidence | shortlist decision support | Supabase, Vercel | No | recruitment/audit schedule |
 | Resume storage/parsing | VA | private resume file/text during bounded parsing | profile completion/recruiter review | Supabase Storage, Vercel | No | current resume + approved schedule |
 | Vetting/assessments | VA | tests, video link, scorecards, notes | candidate quality control | Supabase, Vercel | No; selected credential signals may be public | recruitment/audit schedule |

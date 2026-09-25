@@ -5031,7 +5031,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "locale": "en-AU",
     "name": "Conveyancing Virtual Assistant",
     "group": "Legal",
-    "directoryCategory": "Legal",
+    "directoryCategory": "Administrative Support",
     "primaryKeyword": "conveyancing virtual assistant",
     "metaTitle": "Conveyancing Virtual Assistant Australia",
     "metaDescription": "Hire a Philippines-based Conveyancing Virtual Assistant for Australian matter admin, PEXA preparation, document follow-up, milestones and client updates.",

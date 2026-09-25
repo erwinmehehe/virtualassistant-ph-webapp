@@ -352,6 +352,66 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Why choose VirtualAssistant.com.ph                                         */
+/* -------------------------------------------------------------------------- */
+
+export function WhyChooseSection({ bookingUrl }: { bookingUrl: string }) {
+  const points = [
+    {
+      title: "Screened before client presentation",
+      copy: "Candidates are reviewed for experience, communication, practical skills, availability, and role fit before they reach your shortlist.",
+      icon: SearchCheck,
+    },
+    {
+      title: "Shortlists built around the role",
+      copy: "Recruiters narrow the field around responsibilities, tools, schedule, experience, and the way your team actually works.",
+      icon: BadgeCheck,
+    },
+    {
+      title: "You make the final hiring decision",
+      copy: "Interview the strongest matches, compare candidates, and choose who joins your team.",
+      icon: CheckCircle2,
+    },
+    {
+      title: "Support after placement",
+      copy: "Client Success remains available after your Virtual Assistant starts, so early issues can be addressed before they become bigger problems.",
+      icon: Headphones,
+    },
+  ] as const;
+
+  return (
+    <section className="hs-section hs-band-soft" aria-labelledby="hs-whychoose-title">
+      <div className="container hs-whychoose">
+        <div className="hs-whychoose-copy">
+          <Kicker>Why choose VirtualAssistant.com.ph</Kicker>
+          <h2 className="hs-h2" id="hs-whychoose-title">Recruiter-supported hiring, without giving up control.</h2>
+          <p className="hs-lede">
+            For businesses hiring a Virtual Assistant in the Philippines, our model combines human recruiting,
+            practical screening, and support after placement while you stay in control of the final hiring decision.
+          </p>
+          <div className="hs-whychoose-actions">
+            <Link className="hs-btn hs-btn-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
+            <Link className="hs-btn hs-btn-ghost" href={bookingUrl}>Discuss your VA needs</Link>
+          </div>
+        </div>
+
+        <div className="hs-whychoose-grid">
+          {points.map(({ title, copy, icon }, index) => (
+            <article className="hs-whychoose-card" key={title}>
+              <Chip icon={icon} tone={index} size={20} />
+              <div>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /* 4. Talent                                                                  */
 /* -------------------------------------------------------------------------- */
 

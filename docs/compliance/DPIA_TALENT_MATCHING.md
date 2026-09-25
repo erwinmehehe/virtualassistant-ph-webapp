@@ -150,7 +150,7 @@ Current processor categories include:
 - Google Calendar/Meet for scheduling;
 - PayMongo for payment collection/refunds/disputes;
 - configured analytics services;
-- configured AI/embedding provider for semantic retrieval.
+- Supabase Edge AI (gte-small) for semantic embedding inference; embeddings remain stored in the private Supabase schema.
 
 The DPO must maintain the authoritative processor/subprocessor register, contractual basis, processing locations and transfer safeguards. Source code is not the authoritative legal register.
 

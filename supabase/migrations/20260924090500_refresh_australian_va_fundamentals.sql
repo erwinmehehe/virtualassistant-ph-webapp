@@ -249,7 +249,7 @@ update public.training_lessons
 set
   title = 'ABN, GST, BAS, Invoices, Payroll, and Finance Terms for VAs',
   summary = 'Learn enough Australian finance vocabulary to recognise, route and organise finance-admin work without duplicating the Australian Bookkeeping, Xero or MYOB courses.',
-  estimated_minutes = 25,
+  estimated_minutes = 30,
   content = $$[
     {"type":"heading","text":"Outcome: understand the terms without pretending to be the reviewer"},
     {"type":"list","items":[
@@ -429,7 +429,7 @@ update public.training_lessons
 set
   title = 'Australian VA Fundamentals Mixed-Work Simulation',
   summary = 'Run a realistic Australian SME admin queue covering time zones, privacy, customer follow-up, finance terminology, evidence, decision rights and end-of-day handoff, then identify the correct specialist learning path for deeper work.',
-  estimated_minutes = 35,
+  estimated_minutes = 30,
   content = $$[
     {"type":"heading","text":"Simulation brief"},
     {"type":"paragraph","text":"You support a fictional Melbourne-based small-business group called Harbour Business Co. The queue includes customer, calendar, privacy, finance and handoff work. This is a foundation assessment: prove that you can move routine administration forward, recognise Australian context and route specialist work instead of trying to complete specialist workflows yourself."},

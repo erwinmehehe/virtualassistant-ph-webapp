@@ -214,6 +214,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
   return (
     <div className={styles.crmPage}>
+      <div className="recruiter-leads-page">
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
       {params.contact_already_sent ? <div className="success-banner">That reply is already being sent or was already sent. No duplicate email was created.</div> : null}
@@ -239,7 +240,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
       {params.proposal_error ? <div className="alert" role="alert">{params.proposal_error}</div> : null}
 
-      <div className="page-head">
+      <div className="page-head recruiter-leads-head">
         <div>
           <div className="kicker">Sales CRM</div>
           <h1>Client leads</h1>
@@ -251,7 +252,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         </div>
       </div>
 
-      <div className="crm-metrics">
+      <div className="crm-metrics recruiter-leads-metrics">
         <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><Clock3 size={18}/><span>Needs first contact</span><strong>{needsFirstContact}</strong><small>Reply before they keep shopping</small></Link>
         <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><CalendarClock size={18}/><span>Follow-ups due</span><strong>{followUpsDue}</strong><small>Overdue or due now</small></Link>
         <Link href="/workspace/recruiter/leads?view=discovery" className="card crm-metric-card"><UserRound size={18}/><span>Discovery booked</span><strong>{discoveryBooked}</strong><small>Calls ready to qualify</small></Link>
@@ -260,13 +261,13 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
 
-      <nav className="role-filter-tabs crm-tabs" aria-label="Lead pipeline views">
+      <nav className="role-filter-tabs crm-tabs recruiter-leads-tabs" aria-label="Lead pipeline views">
         {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
       </nav>
 
       {view === "recent" ? <p className="small muted crm-view-note">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
 
-      <form method="get" className="recruiter-filter-panel crm-filter-panel">
+      <form method="get" className="recruiter-filter-panel crm-filter-panel recruiter-leads-filters">
         <input type="hidden" name="view" value={view}/>
         <div className="directory-filter-search"><Search size={16}/><input name="q" defaultValue={params.q} aria-label="Search leads" placeholder="Search name, company, email, or hiring need"/></div>
         <label className="crm-filter-owner"><span>Owner</span><select name="owner" defaultValue={ownerFilter}>
@@ -282,7 +283,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         {view === "attention" ? <span className="small muted">Sorted by missed SLA, overdue follow-up, then newest lead.</span> : null}
       </div>
 
-      <div className="stack crm-lead-list">
+      <div className="stack crm-lead-list recruiter-leads-list">
         {visible.length ? visible.map((lead) => {
           const stage = lead.crm_stage || "new";
           const leadScore = scoreByLeadId.get(lead.id) || scoreLead(lead, now);
@@ -525,6 +526,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <span className="small muted">Page {Math.min(currentPage,totalPages)} of {totalPages}</span>
         {currentPage < totalPages ? <Link className="btn btn-sm" href={buildHref(currentPage + 1)}>Next</Link> : <span/>}
       </div> : null}
+      </div>
     </div>
   );
 }

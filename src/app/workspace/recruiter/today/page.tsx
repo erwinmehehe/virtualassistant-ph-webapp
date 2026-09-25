@@ -238,7 +238,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     }
   ];
 
-  return <div className="dash-page">
+  return <div className="dash-page recruiter-today-page">
     {params.contact_sent ? <div className="success-banner">Email sent and the next follow-up was scheduled.</div> : null}
     {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
     {params.cleanup_saved ? <div className="success-banner">Lead updated. The cleanup queue has been refreshed.</div> : null}

@@ -7,7 +7,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 test("normal login does not always render confirmation recovery",async()=>{
   const page=await read("src/app/auth/login/page.tsx");
   assert.match(page,/showConfirmationRecovery = params\.confirm === "1"/);
-  assert.match(page,/showConfirmationRecovery \? <div className="auth-confirmation-help"/);
+  assert.match(page,/showConfirmationRecovery \? \([\s\S]*auth-confirmation-help/);
   assert.doesNotMatch(page,/<details className="auth-recovery">/);
   assert.doesNotMatch(page,/Didn&apos;t receive your confirmation email\?/);
 });

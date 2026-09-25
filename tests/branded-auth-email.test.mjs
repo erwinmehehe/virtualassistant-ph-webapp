@@ -9,13 +9,13 @@ test("new account confirmation uses Supabase generateLink plus branded Resend", 
   const email = await read("src/lib/email.ts");
 
   assert.match(auth, /admin\.auth\.admin\.generateLink\(\{[\s\S]*type: "signup"/);
-  assert.match(auth, /sendAccountConfirmationEmail\(\{ to: parsed\.data\.email, actionUrl: confirmationUrl \}\)/);
+  assert.match(auth, /sendAccountConfirmationEmail\(\{[\s\S]*to: parsed\.data\.email,[\s\S]*actionUrl: confirmationUrl,[\s\S]*idempotencyKey: `account-confirmation-\$\{data\.user\.id\}`/);
   assert.match(auth, /tokenFromGeneratedActionLink\(data\.properties\?\.action_link\)/);
   assert.match(auth, /auth\/confirm\?\$\{params\.toString\(\)\}/);
   assert.doesNotMatch(auth, /supabase\.auth\.signUp\(/);
 
   assert.match(email, /export async function sendAccountConfirmationEmail/);
-  assert.match(email, /"account_confirmation", \{ archive: false, priority: "critical" \}/);
+  assert.match(email, /"account_confirmation", \{ archive: false, priority: "critical", idempotencyKey: args\.idempotencyKey \}/);
   assert.match(email, /Confirm your VirtualAssistant\.com\.ph account/);
 });
 
@@ -24,11 +24,11 @@ test("password recovery uses branded Resend and keeps a Supabase fallback", asyn
   const email = await read("src/lib/email.ts");
 
   assert.match(auth, /admin\.auth\.admin\.generateLink\(\{[\s\S]*type: "recovery"/);
-  assert.match(auth, /sendPasswordRecoveryEmail\(\{ to: email, actionUrl: recoveryUrl \}\)/);
+  assert.match(auth, /sendPasswordRecoveryEmail\(\{[\s\S]*to: email,[\s\S]*actionUrl: recoveryUrl,[\s\S]*idempotencyKey: `password-recovery-\$\{recoverySubject\}-\$\{recoveryWindow\}`/);
   assert.match(auth, /fallbackSupabase\.auth\.resetPasswordForEmail/);
 
   assert.match(email, /export async function sendPasswordRecoveryEmail/);
-  assert.match(email, /"password_recovery", \{ archive: false, priority: "critical" \}/);
+  assert.match(email, /"password_recovery", \{ archive: false, priority: "critical", idempotencyKey: args\.idempotencyKey \}/);
   assert.match(email, /Reset your VirtualAssistant\.com\.ph password/);
 });
 

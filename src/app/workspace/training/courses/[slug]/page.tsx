@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, FileCheck2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Clock3, FileCheck2, Inbox, ListChecks, Plane } from "lucide-react";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingCourse } from "@/lib/training";
 import { startTrainingCourseAction } from "@/app/actions/training";
@@ -36,9 +36,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
     ? `/training/certificates/${course.certificate.credential_code}`
     : null;
   const reviewLabel = reviewedLabel(course.last_reviewed_at);
+  const isExecutiveCourse = course.slug === "executive-virtual-assistant";
+  const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
-    <div className="dash-page role-overview training-home training-course-page">
+    <div className={`dash-page role-overview training-home training-course-page${isExecutiveCourse ? " training-executive-course" : ""}`}>
       <Link className="btn btn-sm training-course-back" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
       <section className="card dashboard-section-card training-course-hero">
@@ -51,6 +53,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
           {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
         </div>
+
+        {isExecutiveCourse ? (
+          <div className="training-executive-outcomes" aria-label="Executive VA course work outputs">
+            <div className="training-executive-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>Executive desk artifacts you can reuse on real client work</strong>
+            </div>
+            <div className="training-executive-outcome-grid">
+              <div><Inbox size={17}/><span><strong>Inbox + decision queue</strong><small>Triage, draft, route, and surface decisions.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Calendar + meeting briefs</strong><small>Protect time, preparation, and follow-through.</small></span></div>
+              <div><Plane size={17}/><span><strong>Travel + disruption plan</strong><small>Handle changes without inventing authority.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Daily handoff</strong><small>Leave owners, risks, deadlines, and next steps clear.</small></span></div>
+            </div>
+          </div>
+        ) : null}
 
         {course.trademark_disclaimer ? <div className="notice" role="note"><strong>About this course.</strong> {course.trademark_disclaimer}</div> : null}
 
@@ -124,7 +141,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
 
       {course.assessments.length ? (
         <section className="card dashboard-section-card training-module-card training-assessment-card">
-          <div className="dashboard-section-head training-module-head"><div><h2>Final check</h2><p>Complete every lesson, then pass the randomized automatic knowledge check to receive your certificate.</p></div></div>
+          <div className="dashboard-section-head training-module-head"><div><h2>Final check</h2><p>{hasPracticalFinal ? "Complete every lesson, then finish the practical work simulation to receive your certificate." : "Complete every lesson, then pass the randomized automatic knowledge check to receive your certificate."}</p></div></div>
           <div className="dash-actions training-module-lessons">
             {course.assessments.map((assessment) => {
               const latest = assessment.latestSubmission || null;
@@ -147,7 +164,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                   <span className="dash-action-count training-lesson-index">{passed ? <CheckCircle2 size={18}/> : <FileCheck2 size={17}/>}</span>
                   <span className="dash-action-copy">
                     <span className="dash-action-title"><strong>{assessment.title}</strong></span>
-                    <small>Randomized knowledge check · {status}</small>
+                    <small>{assessment.assessment_type === "practical" ? "Practical work simulation" : "Randomized knowledge check"} · {status}</small>
                   </span>
                   <ArrowRight size={16}/>
                 </Link>

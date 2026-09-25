@@ -213,7 +213,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const defaultManagedMarkup = Number(settings?.default_managed_markup_percent || 0);
 
   return (
-    <div className={`${styles.crmPage} recruiter-leads-page`}>
+    <div className={styles.crmPage}>
+      <div className="recruiter-leads-page">
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
       {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
       {params.contact_already_sent ? <div className="success-banner">That reply is already being sent or was already sent. No duplicate email was created.</div> : null}
@@ -525,6 +526,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <span className="small muted">Page {Math.min(currentPage,totalPages)} of {totalPages}</span>
         {currentPage < totalPages ? <Link className="btn btn-sm" href={buildHref(currentPage + 1)}>Next</Link> : <span/>}
       </div> : null}
+      </div>
     </div>
   );
 }

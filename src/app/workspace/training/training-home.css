@@ -5079,3 +5079,13 @@
   --training-work-border: #fcceee;
   --training-work-hero: rgba(193, 21, 116, 0.09);
 }
+
+
+/* Sales pipeline-work palette */
+.training-sales-course,
+.training-sales-player {
+  --training-work-accent: #b42318;
+  --training-work-soft: #fff4ed;
+  --training-work-border: #f9dbaf;
+  --training-work-hero: rgba(180, 35, 24, 0.08);
+}

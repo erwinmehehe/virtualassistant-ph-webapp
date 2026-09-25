@@ -23,6 +23,7 @@ import {
   Wrench
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import type { Role } from "@/lib/types";
 
 type NavItem = readonly [string, string, typeof LayoutDashboard];
@@ -153,6 +154,35 @@ function Badge({ count }: { count: number }) {
 
 export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record<string, number> }) {
   const pathname = usePathname();
+  const moreRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    moreRef.current?.removeAttribute("open");
+  }, [pathname]);
+
+  useEffect(() => {
+    const details = moreRef.current;
+    if (!details) return;
+
+    const closeMore = () => details.removeAttribute("open");
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!details.open) return;
+      if (event.target instanceof Node && !details.contains(event.target)) closeMore();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || !details.open) return;
+      closeMore();
+      details.querySelector<HTMLElement>("summary")?.focus();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const groups = nav[role];
   const desktopGroups = groups.map((group) => ({ ...group, items: group.items.filter(([, href]) => href !== "/workspace/account") })).filter((group) => group.items.length);
   const primarySet = new Set(mobilePrimary[role]);
@@ -174,7 +204,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
         key={href}
         className={active ? "active" : undefined}
         aria-current={active ? "page" : undefined}
-        onClick={mobile ? (event) => event.currentTarget.closest("details")?.removeAttribute("open") : undefined}
+        onClick={mobile ? () => moreRef.current?.removeAttribute("open") : undefined}
       >
         <span className={`app-nav-icon nav-tone-${navToneFor(label, href)}`} aria-hidden="true">
           <Icon size={mobile ? 17 : 16} />
@@ -198,7 +228,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
       <nav className="app-nav-mobile" aria-label="Mobile workspace navigation">
         {primaryItems.map((item) => renderItem(item))}
         {secondaryGroups.length ? (
-          <details className={`mobile-more ${moreActive ? "active" : ""}`}>
+          <details ref={moreRef} className={`mobile-more ${moreActive ? "active" : ""}`}>
             <summary aria-current={moreActive ? "page" : undefined}>
               <CircleEllipsis size={19} />
               <span>More</span>

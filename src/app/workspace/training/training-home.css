@@ -5043,3 +5043,13 @@
     font-size: 13px;
   }
 }
+
+
+/* SEO evidence-work palette */
+.training-seo-course,
+.training-seo-player {
+  --training-work-accent: #175cd3;
+  --training-work-soft: #eff8ff;
+  --training-work-border: #b2ddff;
+  --training-work-hero: rgba(23, 92, 211, 0.1);
+}

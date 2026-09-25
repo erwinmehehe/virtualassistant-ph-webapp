@@ -35,7 +35,8 @@ test("payment lifecycle uses locked state transitions and provider reconciliatio
   assert.match(webhook, /claim_payment_provider_event/);
   assert.match(webhook, /complete_payment_provider_event/);
   assert.match(webhook, /provider_event_id/);
-  assert.match(webhook, /mark_payment_provider_disputed/);
+  assert.match(webhook, /open_payment_provider_dispute/);
+  assert.match(webhook, /resolve_payment_provider_dispute/);
 });
 
 test("payment dashboards recognize reconciliation states", async () => {

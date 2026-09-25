@@ -27,6 +27,8 @@ export async function sendVaTrainingAnnouncementBatch(maxSends = 20) {
   let sent = 0;
   let skipped = 0;
   let quotaReached = false;
+  let failed = 0;
+  let consecutiveFailures = 0;
 
   for (const profile of profiles || []) {
     if (sent >= maxSends) break;
@@ -41,33 +43,45 @@ export async function sendVaTrainingAnnouncementBatch(maxSends = 20) {
       continue;
     }
 
-    const result = await sendTransactionalEventEmail({
-      to: email,
-      firstName: profile.full_name,
-      subject: "Free VA Training Is Now Available on VirtualAssistant.com.ph",
-      heading: "Free VA training is now available",
-      body: "You now have free access to the full VirtualAssistant.com.ph training library. Build practical skills with realistic workflows, complete assessments, and earn certificates at your own pace.",
-      href: `${appUrl}/workspace/training`,
-      hrefLabel: "Start free training",
-      senderName: "VirtualAssistant.com.ph",
-      teamLabel: "VA training",
-      footerText: "You are receiving this because you have an active Virtual Assistant account. You can change optional email preferences in Account settings.",
-      eventType: VA_TRAINING_EVENT_TYPE,
-      idempotencyKey,
-      priority: "low",
-    });
+    try {
+      const result = await sendTransactionalEventEmail({
+        to: email,
+        firstName: profile.full_name,
+        subject: "Free VA Training Is Now Available on VirtualAssistant.com.ph",
+        heading: "Free VA training is now available",
+        body: "You now have free access to the full VirtualAssistant.com.ph training library. Build practical skills with realistic workflows, complete assessments, and earn certificates at your own pace.",
+        href: `${appUrl}/workspace/training`,
+        hrefLabel: "Start free training",
+        senderName: "VirtualAssistant.com.ph",
+        teamLabel: "VA training",
+        footerText: "You are receiving this because you have an active Virtual Assistant account. You can change optional email preferences in Account settings.",
+        eventType: VA_TRAINING_EVENT_TYPE,
+        idempotencyKey,
+        priority: "low",
+      });
 
-    if (result.sent) {
-      sent += 1;
-      done.add(idempotencyKey);
-      continue;
+      if (result.sent) {
+        sent += 1;
+        consecutiveFailures = 0;
+        done.add(idempotencyKey);
+        continue;
+      }
+      if (result.reason === "daily_quota_reserved" || result.reason === "quota_lookup_failed") {
+        quotaReached = true;
+        break;
+      }
+      skipped += 1;
+      consecutiveFailures = 0;
+    } catch (error) {
+      failed += 1;
+      consecutiveFailures += 1;
+      console.error("[va-training-announcement] recipient send failed", {
+        userId: profile.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      if (consecutiveFailures >= 3) break;
     }
-    if (result.reason === "daily_quota_reserved" || result.reason === "quota_lookup_failed") {
-      quotaReached = true;
-      break;
-    }
-    skipped += 1;
   }
 
-  return { checked: profiles?.length || 0, sent, skipped, quotaReached };
+  return { checked: profiles?.length || 0, sent, skipped, failed, quotaReached };
 }

@@ -3968,7 +3968,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "supplier pricing research",
       "tender documentation",
       "attention to detail",
-      "spreadsheet modeling",
+      "spreadsheet modelling",
       "deadline management"
     ],
     "bestFor": [
@@ -4513,7 +4513,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaTitle": "BIM Production Virtual Assistant | Revit Documentation",
     "metaDescription": "Hire a vetted BIM & Revit Production Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
     "intro": "Hire a BIM & Revit Production Virtual Assistant in the Philippines to handle updating revit models from approved markups, creating and editing drawing sheets, and maintaining views, schedules and annotations. Set file standards, review gates, and model ownership before production work begins; professional design responsibility remains with qualified project staff.",
-    "focus": "bim modeling and revit documentation production",
+    "focus": "bim modelling and revit documentation production",
     "tasks": [
       "updating revit models from approved markups",
       "creating and editing drawing sheets",
@@ -4534,7 +4534,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Dynamo"
     ],
     "skills": [
-      "revit modeling",
+      "revit modelling",
       "bim documentation",
       "construction documentation",
       "model coordination",

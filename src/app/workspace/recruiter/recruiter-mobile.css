@@ -1,0 +1,518 @@
+/* Recruiter mobile pass: My Day, Leads, Roles
+   Prioritizes fast scanning, thumb-safe actions, and readable operational forms. */
+
+.recruiter-today-page,
+.recruiter-leads-page,
+.recruiter-roles-page {
+  width: min(100%, 1180px);
+  margin-inline: auto;
+}
+
+@media (max-width: 680px) {
+  /* My Day */
+  .recruiter-today-page {
+    gap: 11px;
+  }
+
+  .recruiter-today-page .dash-header {
+    margin-bottom: 0;
+  }
+
+  .recruiter-today-page .dash-header h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .recruiter-today-page .dash-header p {
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .recruiter-today-page .dash-header-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+  }
+
+  .recruiter-today-page .dash-header-actions .dash-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    justify-content: center;
+    padding-inline: 8px;
+    font-size: 11.5px;
+  }
+
+  .recruiter-today-page .dashboard-section-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .recruiter-today-page .dashboard-section-head {
+    gap: 7px;
+    margin-bottom: 9px;
+  }
+
+  .recruiter-today-page .dashboard-section-head h2 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .recruiter-today-page .dashboard-section-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .recruiter-today-page .dashboard-section-card .btn {
+    min-height: 40px;
+  }
+
+  .recruiter-today-page .dashboard-section-card input,
+  .recruiter-today-page .dashboard-section-card select,
+  .recruiter-today-page .dashboard-section-card textarea {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  /* Leads */
+  .recruiter-leads-page {
+    display: grid;
+    gap: 11px;
+  }
+
+  .recruiter-leads-head {
+    align-items: stretch !important;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .recruiter-leads-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .recruiter-leads-head p {
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .recruiter-leads-head > .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    width: 100%;
+  }
+
+  .recruiter-leads-head > .row .btn,
+  .recruiter-leads-head .crm-sla-target {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .recruiter-leads-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .recruiter-leads-metrics .crm-metric-card {
+    min-height: 112px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .recruiter-leads-metrics .crm-metric-card > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .recruiter-leads-metrics .crm-metric-card > span {
+    font-size: 10.5px;
+    line-height: 1.3;
+  }
+
+  .recruiter-leads-metrics .crm-metric-card > strong {
+    font-size: 22px;
+  }
+
+  .recruiter-leads-metrics .crm-metric-card > small {
+    font-size: 9.75px;
+    line-height: 1.35;
+  }
+
+  .recruiter-leads-tabs {
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    margin: 0 !important;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recruiter-leads-tabs a {
+    flex: 0 0 auto;
+    min-height: 36px;
+    scroll-snap-align: start;
+  }
+
+  .recruiter-leads-filters {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+    padding: 11px !important;
+    border-radius: 12px;
+  }
+
+  .recruiter-leads-filters .directory-filter-search,
+  .recruiter-leads-filters .crm-filter-owner,
+  .recruiter-leads-filters .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .recruiter-leads-filters input,
+  .recruiter-leads-filters select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .recruiter-leads-filters .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .recruiter-leads-page .crm-results-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .recruiter-leads-page .crm-results-title {
+    width: 100%;
+  }
+
+  .recruiter-leads-list {
+    gap: 9px !important;
+  }
+
+  .recruiter-leads-list .crm-lead-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .recruiter-leads-list .crm-lead-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .recruiter-leads-list .crm-lead-identity h2 {
+    margin-block: 7px 4px;
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .recruiter-leads-list .crm-lead-subtitle {
+    display: grid;
+    gap: 3px;
+    font-size: 11px;
+  }
+
+  .recruiter-leads-list .crm-lead-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+  }
+
+  .recruiter-leads-list .crm-lead-meta > span {
+    min-width: 0;
+    font-size: 10.5px;
+  }
+
+  .recruiter-leads-list .crm-lead-body {
+    grid-template-columns: 1fr !important;
+    gap: 9px;
+  }
+
+  .recruiter-leads-list .crm-client-context,
+  .recruiter-leads-list .crm-contact-summary,
+  .recruiter-leads-list .crm-discovery-summary,
+  .recruiter-leads-list .crm-proposal-summary,
+  .recruiter-leads-list .crm-latest-contact,
+  .recruiter-leads-list .crm-update-card,
+  .recruiter-leads-list .crm-tool-panel {
+    min-width: 0;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .recruiter-leads-list .crm-contact-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .recruiter-leads-list .crm-contact-bar > *,
+  .recruiter-leads-list .crm-contact-bar .btn,
+  .recruiter-leads-list details,
+  .recruiter-leads-list details > summary {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .recruiter-leads-list .crm-contact-bar .btn,
+  .recruiter-leads-list details > summary {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .recruiter-leads-list input,
+  .recruiter-leads-list select,
+  .recruiter-leads-list textarea {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .recruiter-leads-list textarea {
+    min-height: 112px;
+  }
+
+  /* Roles */
+  .recruiter-roles-page {
+    display: grid;
+    gap: 11px;
+  }
+
+  .recruiter-roles-head {
+    align-items: stretch !important;
+    gap: 9px;
+    margin-bottom: 0;
+  }
+
+  .recruiter-roles-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .recruiter-roles-head p {
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .recruiter-roles-head > .row,
+  .recruiter-roles-head .btn {
+    width: 100%;
+  }
+
+  .recruiter-roles-head .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .recruiter-role-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .recruiter-role-stats > .card {
+    min-height: 105px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .recruiter-role-stats > .card strong {
+    font-size: 23px !important;
+  }
+
+  .recruiter-role-stats > .card .small {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .recruiter-role-pipeline {
+    margin-top: 0 !important;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .recruiter-role-pipeline > .row-between {
+    align-items: flex-start;
+  }
+
+  .recruiter-role-pipeline > .row-between h2 {
+    font-size: 16px;
+  }
+
+  .recruiter-role-viewbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  .saved-view-list {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .saved-view-list .saved-view {
+    flex: 0 0 auto;
+    min-height: 38px;
+    scroll-snap-align: start;
+  }
+
+  .recruiter-role-pipeline .role-sort-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px;
+    align-items: end;
+  }
+
+  .recruiter-role-pipeline .role-sort-form label {
+    min-width: 0;
+  }
+
+  .recruiter-role-pipeline .role-sort-form select {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .recruiter-role-pipeline .role-sort-form .btn {
+    min-height: 44px;
+  }
+
+  .recruiter-role-pipeline > .stack {
+    gap: 8px !important;
+  }
+
+  .recruiter-role-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .recruiter-role-card > .row-between {
+    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .recruiter-role-card > .row-between > strong {
+    color: var(--brand);
+    font-size: 11.5px;
+  }
+
+  .recruiter-role-card h3 {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .recruiter-role-card > .row {
+    gap: 5px 9px;
+    margin-top: 9px !important;
+  }
+
+  .recruiter-role-card > .row .small {
+    font-size: 10.25px;
+  }
+
+  .recruiter-role-coverage {
+    margin-top: 0;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head h2 {
+    font-size: 18px;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head > .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head form,
+  .recruiter-role-coverage .role-talent-coverage-head .btn {
+    width: 100%;
+  }
+
+  .recruiter-role-coverage .role-talent-coverage-head .btn {
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .recruiter-role-coverage .role-coverage-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .recruiter-role-coverage .role-coverage-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recruiter-role-coverage .role-coverage-table {
+    min-width: 620px;
+  }
+
+  .recruiter-role-coverage .role-coverage-note {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+}
+
+@media (max-width: 420px) {
+  .recruiter-today-page .dash-header h1,
+  .recruiter-leads-head h1,
+  .recruiter-roles-head h1 {
+    font-size: 25px;
+  }
+
+  .recruiter-today-page .dash-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-leads-metrics {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .recruiter-leads-list .crm-lead-meta,
+  .recruiter-leads-list .crm-contact-bar,
+  .recruiter-role-coverage .role-talent-coverage-head > .row {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-role-pipeline .role-sort-form {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-role-pipeline .role-sort-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

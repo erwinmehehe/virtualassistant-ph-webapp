@@ -246,13 +246,13 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
     heroIntro: "Mortgage brokers lose client-facing time when every application needs document chasing, data entry and lender-condition follow-up. A processing desk can keep files moving from application through settlement while brokers retain advice, credit discussions and approval decisions."
   },
   "smsf-production": {
-    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organize source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
+    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organise source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
   },
   "strata-management-administration": {
     heroIntro: "Strata portfolios create recurring administrative deadlines around meetings, notices, records, levies and follow-up. A dedicated support role can prepare packs, update registers and run approved correspondence while the strata manager retains decisions, approvals and statutory responsibility."
   },
   "property-management-maintenance-coordination": {
-    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorization and property-level decisions."
+    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorisation and property-level decisions."
   },
   "allied-health-referral-billing": {
     heroIntro: "Allied-health clinics need referral, scheduling and billing administration to move reliably between appointments. A support desk can keep patient records, follow-up and billing workflows current while clinical interpretation and practitioner decisions remain with qualified staff."

@@ -338,7 +338,11 @@ export async function joinAction(formData: FormData) {
 
   let brandedConfirmationSent = false;
   try {
-    const result = await sendAccountConfirmationEmail({ to: parsed.data.email, actionUrl: confirmationUrl });
+    const result = await sendAccountConfirmationEmail({
+      to: parsed.data.email,
+      actionUrl: confirmationUrl,
+      idempotencyKey: `account-confirmation-${data.user.id}`,
+    });
     brandedConfirmationSent = result.sent;
   } catch {
     brandedConfirmationSent = false;
@@ -401,14 +405,20 @@ export async function requestPasswordResetAction(formData: FormData) {
       });
       if (!error) {
         const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
-        if (tokenHash) {
+        if (tokenHash && data.user?.id) {
           const recoveryUrl = appAuthConfirmUrl({
             origin: siteOrigin(),
             tokenHash,
             type: "recovery",
             next: "/auth/update-password",
           });
-          const result = await sendPasswordRecoveryEmail({ to: email, actionUrl: recoveryUrl });
+          const recoverySubject = data.user.id;
+          const recoveryWindow = Math.floor(Date.now() / (5 * 60 * 1000));
+          const result = await sendPasswordRecoveryEmail({
+            to: email,
+            actionUrl: recoveryUrl,
+            idempotencyKey: `password-recovery-${recoverySubject}-${recoveryWindow}`,
+          });
           brandedRecoverySent = result.sent;
         }
       }

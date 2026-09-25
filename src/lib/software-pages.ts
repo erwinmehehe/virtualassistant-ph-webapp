@@ -1506,7 +1506,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     directoryCategory: "Bookkeeping & Finance",
     primaryKeyword: "xplan virtual assistant",
     metaTitle: "Hire Xplan Virtual Assistant Australia",
-    metaDescription: "Hire Philippines-based Xplan support for Australian financial planning firms covering client records, review prep, workflows, documents and implementation admin.",
+    metaDescription: "Hire Philippines-based Xplan support for Australian financial planning firms covering client records, review prep, workflows, documents and implementation.",
     h1: "Keep Xplan Client Administration Ready for Adviser Review",
     intro: "An Xplan Virtual Assistant can maintain client records, prepare review administration, track implementation actions and keep workflow tasks current while personal advice and regulated approvals remain with authorised Australian advisers.",
     focus: "xplan financial planning administration",

@@ -665,3 +665,49 @@
 @media (prefers-reduced-motion: reduce) {
   .hs-industry:hover { transform: none; }
 }
+
+/* ==========================================================================
+   Why choose VirtualAssistant.com.ph
+   ========================================================================== */
+.hs-whychoose {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 3rem;
+  align-items: center;
+}
+.hs-whychoose-copy .hs-lede { max-width: 56ch; }
+.hs-whychoose-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.hs-whychoose-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+.hs-whychoose-card {
+  display: flex;
+  align-items: flex-start;
+  gap: .9rem;
+  padding: 1.15rem;
+  border: 1px solid var(--hs-line);
+  border-radius: var(--hs-radius);
+  background: #fff;
+  box-shadow: var(--hs-shadow);
+}
+.hs-whychoose-card .hs-chip { width: 2.65rem; height: 2.65rem; border-radius: 12px; }
+.hs-whychoose-card h3 {
+  margin: .05rem 0 .35rem;
+  color: var(--hs-ink);
+  font-size: .98rem;
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -.015em;
+}
+.hs-whychoose-card p {
+  margin: 0;
+  color: var(--hs-muted);
+  font-size: .84rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .hs-whychoose { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+}
+@media (max-width: 620px) {
+  .hs-whychoose-grid { grid-template-columns: minmax(0, 1fr); }
+  .hs-whychoose-actions .hs-btn { width: 100%; }
+}

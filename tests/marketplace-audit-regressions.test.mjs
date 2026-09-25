@@ -35,10 +35,11 @@ test("resume auto-fill bounds untrusted PDF and DOCX processing", async () => {
 });
 
 test("talent directory uses database-side hybrid search without a 200-profile cap", async () => {
-  const [page, service, migration] = await Promise.all([
+  const [page, service, migration, edge] = await Promise.all([
     read("src/app/find-talent/page.tsx"),
     read("src/lib/talent-search.ts"),
     read("supabase/migrations/20260924204500_public_talent_hybrid_search.sql"),
+    read("supabase/functions/talent-embeddings/index.ts"),
   ]);
   assert.match(page, /searchPublicTalent/);
   assert.doesNotMatch(page, /\.limit\(200\)/);
@@ -46,16 +47,15 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(service, /syncPublicTalentEmbeddings/);
   assert.match(service, /await syncPublicTalentEmbeddings\(12\)/);
   assert.match(service, /page === 1/);
-  assert.match(service, /x-vercel-oidc-token/);
-  assert.match(service, /await headers\(\)/);
-  assert.ok(
-    service.indexOf("process.env.AI_GATEWAY_API_KEY") <
-      service.indexOf('requestHeaders.get("x-vercel-oidc-token")'),
-    "an explicit AI Gateway key should be attempted before request-scoped OIDC",
-  );
-  assert.match(service, /response\.status === 401 \|\| response\.status === 403/);
-  assert.match(service, /for \(const key of credentials\)/);
-  assert.match(service, /attemptedCredentials: credentials\.length/);
+  assert.match(service, /functions\.invoke\("talent-embeddings"/);
+  assert.doesNotMatch(service, /ai-gateway\.vercel\.sh/);
+  assert.doesNotMatch(service, /x-vercel-oidc-token/);
+  assert.match(edge, /Supabase\.ai\.Session\(MODEL\)/);
+  assert.match(edge, /const MODEL = "gte-small"/);
+  assert.match(edge, /RAW_DIMENSIONS = 384/);
+  assert.match(edge, /STORED_DIMENSIONS = 768/);
+  assert.match(edge, /authorization !== `Bearer \$\{serviceRoleKey\}`/);
+  assert.match(edge, /upsert_public_va_search_embedding/);
   assert.match(migration, /create extension if not exists vector/i);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);

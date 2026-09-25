@@ -203,7 +203,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "medical-billing-virtual-assistant",
       "medical-scribe-virtual-assistant",
       "phone-receptionist",
-      "medical-receptionist-virtual-assistant"],
+      "medical-receptionist"],
     "tools": [
       "EHR and practice-management systems",
       "RingCentral",
@@ -320,7 +320,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "admin-inbox",
       "crm",
       "bookkeeping",
-      "financial-planning-virtual-assistant"],
+      "financial-planning"],
     "tools": [
       "Redtail",
       "Wealthbox",
@@ -477,7 +477,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "real-estate",
       "phone-receptionist",
       "short-term-rental-virtual-assistant",
-      "trust-accounting-virtual-assistant"],
+      "trust-accounting"],
     "tools": [
       "AppFolio",
       "Buildium",
@@ -951,7 +951,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "medical-billing-virtual-assistant",
       "admin-inbox",
       "customer-service",
-      "ndis-rostering-virtual-assistant"],
+      "ndis-rostering"],
     "tools": [
       "PACE",
       "Lumary",
@@ -1432,7 +1432,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "intro": "Australian conveyancing teams can delegate repeatable matter administration without delegating legal judgement. Build the role around file setup, document follow-up, PEXA preparation, milestone tracking and client updates, while licensed professionals retain advice, contract interpretation, signing authority and settlement responsibility.",
     "audience": "Australian conveyancing practices, settlement teams and property law firms",
     "workflows": ["open approved matters and prepare file structures","collect client and transaction documents","maintain PEXA preparation checklists","track searches, certificates and settlement milestones","prepare routine client and agent updates","record outstanding items and escalation points","support post-settlement administration"],
-    "serviceSlugs": ["conveyancing-virtual-assistant","legal-virtual-assistant","paralegal-virtual-assistant","admin-inbox"],
+    "serviceSlugs": ["conveyancing","legal-virtual-assistant","paralegal-virtual-assistant","admin-inbox"],
     "tools": ["PEXA","LEAP","Smokeball","InfoTrack","Microsoft 365","DocuSign"],
     "hiringNotes": ["Document which matter stages can be handled administratively and which require a conveyancer or solicitor.","Use named accounts and minimum access for client and transaction information.","Keep advice, contract interpretation, regulated conveyancing activity and final settlement decisions with authorised Australian professionals."]
   },
@@ -1448,7 +1448,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "intro": "A buyers agency can delegate the research and administrative work around each client brief while keeping property recommendations, negotiation and licensed real-estate decisions with the buyers agent. Structure the role around CRM discipline, research queues, inspections and transaction follow-through.",
     "audience": "Australian buyers agencies, property advisers and acquisition teams",
     "workflows": ["capture approved client briefs in the CRM","research and organise suitable property opportunities","coordinate inspections and calendar changes","follow up selling agents for approved information","maintain due-diligence checklists","prepare factual comparable-property data","update clients from approved notes","support contract and settlement administration"],
-    "serviceSlugs": ["buyers-agent-virtual-assistant","real-estate","research-data","admin-inbox"],
+    "serviceSlugs": ["buyers-agent","real-estate","research-data","admin-inbox"],
     "tools": ["VaultRE","AgentBox","CoreLogic","Domain","realestate.com.au","Google Workspace"],
     "hiringNotes": ["Define what research may be prepared versus what constitutes a property recommendation.","Use one CRM as the source of truth for client briefs and property status.","Keep negotiation, advice, offer strategy and regulated real-estate decisions with the buyers agent."]
   },
@@ -1464,7 +1464,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "intro": "Australian advice practices can delegate repeatable client administration and advice-production support while authorised advisers retain personal advice, recommendations and regulated approvals. Design the role around Xplan, review preparation, implementation follow-up and a clear escalation path.",
     "audience": "Australian financial planning practices, wealth advisers and paraplanning teams",
     "workflows": ["maintain approved client records in Xplan","prepare annual review administration","collect fact-find and supporting documents","prepare meeting and review packs","track implementation and provider follow-up","record outstanding client actions","maintain service calendars and review dates","escalate advice or compliance decisions to authorised staff"],
-    "serviceSlugs": ["financial-planning-virtual-assistant","financial-advisor-virtual-assistant","admin-inbox","calendar"],
+    "serviceSlugs": ["financial-planning","financial-advisor-virtual-assistant","admin-inbox","calendar"],
     "tools": ["Xplan","Microsoft 365","DocuSign","Adobe Acrobat","provider portals"],
     "hiringNotes": ["Separate administrative preparation from financial advice and recommendations.","Use role-based permissions and documented review checkpoints.","Keep advice documents, product recommendations, regulated approvals and final client advice with appropriately authorised Australian advisers."]
   },
@@ -1480,7 +1480,7 @@ export const INDUSTRIES: IndustryPage[] = [
     "intro": "Australian aged-care providers can delegate repeatable scheduling and client administration while keeping care decisions, safeguarding, incidents and compliance accountability with qualified local staff. Build the role around a documented roster and client-record workflow.",
     "audience": "Australian home-care, community-care and aged-care service providers",
     "workflows": ["maintain client and service records","update approved rosters and worker availability","coordinate routine schedule changes","follow up referrals and intake documents","record service changes and outstanding actions","send approved routine client communications","maintain administrative checklists","escalate care, incident or safeguarding issues immediately"],
-    "serviceSlugs": ["aged-care-virtual-assistant","ndis-rostering-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox"],
+    "serviceSlugs": ["aged-care","ndis-rostering","allied-health-referral-billing-virtual-assistant","admin-inbox"],
     "tools": ["ShiftCare","AlayaCare","Microsoft 365","Google Workspace","Teams"],
     "hiringNotes": ["Keep care planning, clinical judgement, incidents and safeguarding decisions with qualified local staff.","Use minimum necessary access for sensitive client information.","Define roster-change authority and urgent escalation rules before the Virtual Assistant handles live schedules."]
   }

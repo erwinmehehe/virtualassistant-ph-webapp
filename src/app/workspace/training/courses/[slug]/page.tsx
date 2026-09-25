@@ -47,6 +47,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isSalesCourse = course.slug === "sales-lead-generation-virtual-assistant";
   const isRealEstateCourse = course.slug === "real-estate-virtual-assistant";
   const isHealthcareCourse = course.slug === "medical-healthcare-virtual-assistant";
+  const isBookkeepingCourse = course.slug === "bookkeeping-administration";
+  const isPayrollCourse = course.slug === "payroll-administration";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -69,7 +71,11 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                       ? " training-work-course training-real-estate-course"
                       : isHealthcareCourse
                         ? " training-work-course training-healthcare-course"
-                        : "";
+                        : isBookkeepingCourse
+                          ? " training-work-course training-bookkeeping-course"
+                          : isPayrollCourse
+                            ? " training-work-course training-payroll-course"
+                            : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -248,6 +254,36 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><Inbox size={17}/><span><strong>Referral + records tracker</strong><small>Track document custody, missing items, destinations, owners, and follow-up dates.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Billing + claims exception queue</strong><small>Track approved charges, balances, remittances, denials, and escalation ownership.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Privacy-safe shift handoff</strong><small>Record status and incidents without making clinical, coding, or treatment decisions.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isBookkeepingCourse ? (
+          <div className="training-work-outcomes" aria-label="Bookkeeping Administration course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A finance-admin control pack from source documents through month-end handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Source documents + coding queries</strong><small>Preserve evidence, flag duplicates, and route unclear accounting treatment for review.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>AP + payment control queue</strong><small>Track approvals, bank-detail verification, credits, due dates, and release boundaries.</small></span></div>
+              <div><Inbox size={17}/><span><strong>AR + reconciliation exceptions</strong><small>Keep receipts, disputes, unmatched amounts, and bank differences visible and traceable.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Month-end + finance handoff</strong><small>Summarize unresolved items, evidence gaps, owners, and reviewer decisions without inventing advice.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isPayrollCourse ? (
+          <div className="training-work-outcomes" aria-label="Payroll Administration course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A payroll control pack from input cutoff through approved post-payroll handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><CalendarDays size={17}/><span><strong>Timesheet + cutoff exception queue</strong><small>Track late inputs, missing approvals, unusual hours, and the cycle they affect.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Employee change register</strong><small>Control starters, leavers, bank changes, pay changes, effective dates, and approval evidence.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Pre-payroll variance + approval pack</strong><small>Review pay inputs, outliers, unresolved items, and go/no-go controls before release.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Post-payroll + query handoff</strong><small>Reconcile approved outputs, employee queries, corrections, and reapproval requirements.</small></span></div>
             </div>
           </div>
         ) : null}

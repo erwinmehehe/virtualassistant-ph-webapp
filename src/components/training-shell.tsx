@@ -112,9 +112,9 @@ export function TrainingShell({
             <TrainingNavIcon tone="indigo"><BookOpenCheck size={17}/></TrainingNavIcon>
             <span>Courses</span>
           </Link>
-          <Link href="/training">
-            <TrainingNavIcon tone="violet"><Sparkles size={17}/></TrainingNavIcon>
-            <span>Training</span>
+          <Link href="/workspace/training#certificates">
+            <TrainingNavIcon tone="emerald"><Award size={17}/></TrainingNavIcon>
+            <span>Certificates</span>
           </Link>
           {workspaceHref ? (
             <Link href={workspaceHref}>

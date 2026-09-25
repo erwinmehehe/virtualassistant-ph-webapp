@@ -59,20 +59,34 @@ Deno.serve(async (request) => {
     return json({ error: "Method not allowed" }, 405);
   }
 
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const secretKeyMap = (() => {
+    try {
+      return JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}") as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
+  const secretKeys = Object.values(secretKeyMap).filter(Boolean);
+  const allowedKeys = new Set([legacyServiceRoleKey, ...secretKeys].filter(Boolean));
+  const apikey = request.headers.get("apikey") || "";
   const authorization = request.headers.get("authorization") || "";
+  const bearer = authorization.toLowerCase().startsWith("bearer ")
+    ? authorization.slice(7).trim()
+    : "";
 
-  // This function is an internal server-to-server primitive. Keeping the
-  // service-role check in addition to verify_jwt=true prevents browser callers
-  // from using it as a free embedding endpoint.
-  if (
-    !serviceRoleKey ||
-    !supabaseUrl ||
-    authorization !== `Bearer ${serviceRoleKey}`
-  ) {
+  // This is a server-to-server primitive. New Supabase sb_secret_* keys are
+  // not JWTs, so the platform JWT gate is disabled for this function and
+  // authorization is performed here against the project-provided secret keys.
+  // Legacy service_role JWT keys remain accepted during migration.
+  const callerKey = apikey || bearer;
+  if (!supabaseUrl || !callerKey || !allowedKeys.has(callerKey)) {
     return json({ error: "Unauthorized" }, 401);
   }
+
+  const adminKey = secretKeys[0] || legacyServiceRoleKey;
+  if (!adminKey) return json({ error: "Server key unavailable" }, 500);
 
   let body: RequestBody;
   try {
@@ -110,7 +124,7 @@ Deno.serve(async (request) => {
     return json({ error: "Unsupported mode" }, 400);
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+  const supabase = createClient(supabaseUrl, adminKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const limit = Math.max(1, Math.min(40, Math.floor(Number(body.limit || 20))));

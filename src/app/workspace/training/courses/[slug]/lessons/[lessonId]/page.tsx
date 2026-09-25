@@ -251,7 +251,7 @@ export default async function TrainingLessonPage({
             <h1>{lesson.title}</h1>
             {lesson.summary ? <p>{lesson.summary}</p> : null}
             <div className="row wrap">
-              <span className="badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
+              <span className="badge training-player-duration-badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
               {lesson.completed ? <span className="badge badge-success"><CheckCircle2 size={14}/> Completed</span> : <span className="badge">In progress</span>}
               {course.slug === "virtual-assistant-foundations" && requiresExercise ? <span className="badge training-foundations-practice-badge"><Target size={13}/> Foundation work artifact included</span> : null}
               {course.slug === "executive-virtual-assistant" && requiresExercise ? <span className="badge training-executive-practice-badge"><Target size={13}/> Work output included</span> : null}
@@ -368,7 +368,7 @@ export default async function TrainingLessonPage({
                         <span>{item.completed ? <CheckCircle2 size={14}/> : item.position}</span>
                         <span>
                           <strong>{item.title}</strong>
-                          <small>{item.estimated_minutes} min</small>
+                          <small className="training-player-lesson-duration"><Clock3 size={11}/> {item.estimated_minutes} min</small>
                         </span>
                       </Link>
                     ))}

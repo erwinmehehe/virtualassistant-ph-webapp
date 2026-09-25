@@ -36,10 +36,10 @@ function LessonContent({ value }: { value: unknown }) {
   return (
     <div className="prose training-lesson-prose">
       {blocks.map((block, index) => {
-        if (block.type === "heading") return <h2 key={index}>{block.text}</h2>;
-        if (block.type === "paragraph") return <p key={index}>{block.text}</p>;
-        if (block.type === "list") return <ul key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}</ul>;
-        if (block.type === "steps") return <ol key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}</ol>;
+        if (block.type === "heading") return <h2 className={index === 0 ? "training-lesson-section-heading is-first" : "training-lesson-section-heading"} key={index}>{block.text}</h2>;
+        if (block.type === "paragraph") return <p className="training-lesson-paragraph" key={index}>{block.text}</p>;
+        if (block.type === "list") return <ul className="training-lesson-list" key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}</ul>;
+        if (block.type === "steps") return <ol className="training-lesson-steps" key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}</ol>;
         if (block.type === "callout") {
           return (
             <div className="notice training-note-block" key={index}>
@@ -50,7 +50,7 @@ function LessonContent({ value }: { value: unknown }) {
         }
         if (block.type === "scenario") {
           return (
-            <section className="training-practice-block" key={index}>
+            <section className="training-practice-block training-scenario-block" key={index}>
               <div className="dash-kicker">Client scenario</div>
               {block.title ? <h3>{block.title}</h3> : null}
               <p>{block.text}</p>
@@ -166,7 +166,7 @@ export default async function TrainingLessonPage({
   );
 
   return (
-    <div className="dash-page role-overview training-home training-player-page">
+    <div className={`dash-page role-overview training-home training-player-page${course.slug === "virtual-assistant-foundations" ? " training-foundations-player" : ""}`}>
       <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
@@ -301,7 +301,7 @@ export default async function TrainingLessonPage({
             <section className="card training-player-next-step">
               <div className="dash-kicker">Next step</div>
               <strong>{nextAssessment.title}</strong>
-              <p className="small muted">Finish this lesson and you will go straight to the assessment.</p>
+              <p className="small muted">Finish this lesson and you will go straight to the final check.</p>
             </section>
           ) : null}
         </aside>

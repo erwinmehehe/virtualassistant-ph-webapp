@@ -5224,3 +5224,21 @@
   --training-work-border: #d9d6fe;
   --training-work-hero: rgba(105, 56, 239, 0.09);
 }
+
+
+/* Australia fundamentals + trades palettes */
+.training-australia-fundamentals-course,
+.training-australia-fundamentals-player {
+  --training-work-accent: #067647;
+  --training-work-soft: #ecfdf3;
+  --training-work-border: #abefc6;
+  --training-work-hero: rgba(6, 118, 71, 0.09);
+}
+
+.training-australia-trades-course,
+.training-australia-trades-player {
+  --training-work-accent: #b54708;
+  --training-work-soft: #fffaeb;
+  --training-work-border: #fedf89;
+  --training-work-hero: rgba(181, 71, 8, 0.09);
+}

@@ -118,13 +118,13 @@ const existingAuServices = [
 ];
 
 const newAuServices = [
-  "conveyancing-virtual-assistant",
-  "buyers-agent-virtual-assistant",
-  "financial-planning-virtual-assistant",
-  "ndis-rostering-virtual-assistant",
-  "aged-care-virtual-assistant",
-  "trust-accounting-virtual-assistant",
-  "medical-receptionist-virtual-assistant"
+  "conveyancing",
+  "buyers-agent",
+  "financial-planning",
+  "ndis-rostering",
+  "aged-care",
+  "trust-accounting",
+  "medical-receptionist"
 ];
 
 const existingAuIndustries = [
@@ -174,16 +174,16 @@ const existingAuSoftware = [
 ];
 
 const newAuSoftware = [
-  "shiftcare-virtual-assistant",
-  "best-practice-premier-virtual-assistant",
-  "xplan-virtual-assistant",
-  "pexa-virtual-assistant",
-  "leap-virtual-assistant",
-  "vaultre-virtual-assistant",
-  "agentbox-virtual-assistant",
-  "property-tree-virtual-assistant",
-  "ailo-virtual-assistant",
-  "myob-virtual-assistant"
+  "shiftcare",
+  "best-practice-premier",
+  "xplan",
+  "pexa",
+  "leap",
+  "vaultre",
+  "agentbox",
+  "property-tree",
+  "ailo",
+  "myob"
 ];
 
 const forbiddenAmericanSpellings = /\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled|modeling|modeled)\b/i;

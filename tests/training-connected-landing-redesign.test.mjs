@@ -7,7 +7,7 @@ const cssPath = "src/app/training-landing.css";
 const siteNavPath = "src/components/site-nav.tsx";
 const trainingHeaderPath = "src/components/training-site-header.tsx";
 
-test("training is a shared site-nav mode instead of a separate microsite header", async () => {
+test("training uses one connected site-nav instead of a separate microsite menu", async () => {
   const [header, nav] = await Promise.all([
     readFile(trainingHeaderPath, "utf8"),
     readFile(siteNavPath, "utf8"),
@@ -18,28 +18,27 @@ test("training is a shared site-nav mode instead of a separate microsite header"
   assert.match(nav, /mode\?: "default" \| "training"/);
   assert.match(nav, /training-connected-nav/);
   assert.match(nav, /training-nav-context/);
-  assert.match(nav, /href="\/for-virtual-assistants"/);
-  assert.match(nav, /href="\/jobs"/);
-  assert.match(nav, /href="\/blog"/);
+  assert.match(nav, /href="\/training#course-library"/);
+  assert.match(nav, /href="\/training#how-training-works"/);
+  assert.match(nav, /href="\/training#certificate"/);
+  assert.match(nav, /href="\/training#faq"/);
+  assert.doesNotMatch(nav, />VA jobs<\/Link>/);
+  assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
 });
 
-test("training landing has a sticky local navigation tied to real sections", async () => {
+test("training landing does not render a second disconnected navigation bar", async () => {
   const [page, css] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
   ]);
 
-  assert.match(page, /className="tr-page-nav"/);
-  assert.match(page, /href="#course-library"/);
-  assert.match(page, /href="#how-training-works"/);
-  assert.match(page, /href="#certificate"/);
-  assert.match(page, /href="#faq"/);
+  assert.doesNotMatch(page, /className="tr-page-nav"/);
+  assert.doesNotMatch(css, /\.tr-page-nav/);
+  assert.match(page, /id="course-library"/);
   assert.match(page, /id="how-training-works"/);
   assert.match(page, /id="certificate"/);
-
-  assert.match(css, /\.tr-page-nav \{[\s\S]*position: sticky/);
-  assert.match(css, /top: 74px/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.tr-page-nav[\s\S]*top: 66px/);
+  assert.match(page, /id="faq"/);
+  assert.match(css, /scroll-margin-top: 96px/);
 });
 
 test("hero uses a product-like learning path preview instead of the old dark process box", async () => {

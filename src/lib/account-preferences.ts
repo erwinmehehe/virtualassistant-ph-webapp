@@ -14,7 +14,7 @@ export const DEFAULT_ACCOUNT_NOTIFICATION_PREFERENCES: AccountNotificationPrefer
   hiring_updates: true,
   booking_reminders: true,
   candidate_activity: true,
-  product_emails: false,
+  product_emails: true,
   security_alerts: true,
 };
 

@@ -5286,3 +5286,18 @@
   --training-work-border: #abefc6;
   --training-work-hero: rgba(6, 118, 71, 0.09);
 }
+
+
+/* Foundations course-work palette */
+.training-foundations-course {
+  --training-work-accent: #444ce7;
+  --training-work-soft: #eef2ff;
+  --training-work-border: #c7d2fe;
+  --training-work-hero: rgba(68, 76, 231, 0.09);
+}
+
+.training-foundations-practice-badge {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+}

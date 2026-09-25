@@ -70,6 +70,19 @@ export async function searchPublicTalent(params: TalentSearchParams) {
 
   let queryEmbedding: string | null = null;
   if (query) {
+    // The scheduled maintenance job remains the normal indexing path, but a
+    // real first-page search can self-heal a small stale batch. This prevents
+    // a newly enabled semantic index from sitting empty until the next daily
+    // cron, while keeping request work bounded as the directory grows.
+    if (page === 1) {
+      try {
+        await syncPublicTalentEmbeddings(12);
+      } catch {
+        // Search must keep working when indexing or the embedding provider is
+        // unavailable. The hybrid RPC falls back to lexical/structured ranking.
+      }
+    }
+
     try {
       const result = await embedTexts([query]);
       if (result?.[0]) queryEmbedding = vectorLiteral(result[0]);

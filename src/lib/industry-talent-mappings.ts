@@ -41,7 +41,11 @@ const INDUSTRY_TALENT_FILTERS: Record<IndustryPage["slug"], IndustryTalentFilter
   "recruitment-candidate-sourcing": { category: "Lead Generation & Sales", query: "recruitment sourcing" },
   "insurance-broker-renewal-desk": { category: "Customer Service", query: "insurance renewals" },
   "cleaning-businesses": { category: "Administrative Support", query: "cleaning business" },
-  "trucking-companies": { category: "Administrative Support", query: "trucking logistics" }
+  "trucking-companies": { category: "Administrative Support", query: "trucking logistics" },
+  "conveyancing-firms": { category: "Administrative Support", query: "conveyancing" },
+  "buyers-agents": { category: "Real Estate", query: "buyers agent" },
+  "financial-planning-firms": { category: "Bookkeeping & Finance", query: "financial planning" },
+  "aged-care-providers": { category: "Dental & Healthcare", query: "aged care" }
 };
 
 export function industryTalentFilters(slug: IndustryPage["slug"]): IndustryTalentFilter {

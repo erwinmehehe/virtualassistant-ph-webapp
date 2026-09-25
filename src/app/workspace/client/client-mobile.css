@@ -630,3 +630,412 @@
     grid-column: 1;
   }
 }
+
+
+/* Client mobile pass: interviews, offers, placement support */
+.client-interviews-page,
+.client-offers-page,
+.client-support-page {
+  width: min(100%, 1040px);
+  margin-inline: auto;
+}
+
+.client-interviews-list,
+.client-offers-list,
+.client-support-placements {
+  gap: 10px;
+}
+
+.client-interview-card,
+.client-offer-card,
+.client-support-placement-card {
+  border-radius: 15px;
+}
+
+.client-offer-terms {
+  gap: 8px;
+}
+
+.client-offer-terms > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #fcfcfd;
+}
+
+.client-offer-terms span {
+  display: block;
+  margin-bottom: 4px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.client-offer-terms strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.client-support-guidance {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.client-support-guidance > svg {
+  margin-top: 1px;
+}
+
+.client-support-recent {
+  padding-top: 2px;
+}
+
+.client-support-update {
+  border-radius: 11px;
+}
+
+@media (max-width: 680px) {
+  .client-interviews-page,
+  .client-offers-page,
+  .client-support-page {
+    display: grid;
+    gap: 11px;
+  }
+
+  .client-interviews-head,
+  .client-offers-head,
+  .client-support-head {
+    align-items: stretch !important;
+    gap: 9px;
+    margin-bottom: 0;
+  }
+
+  .client-interviews-head h1,
+  .client-offers-head h1,
+  .client-support-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .client-interviews-head p,
+  .client-offers-head p,
+  .client-support-head p {
+    font-size: 12.25px;
+    line-height: 1.48;
+  }
+
+  .client-interviews-back,
+  .client-offers-back {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .client-interview-card,
+  .client-offer-card,
+  .client-support-placement-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  /* Interviews */
+  .client-interview-summary {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .client-interview-summary h2 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .client-interview-summary p {
+    margin-bottom: 0;
+    font-size: 11.5px;
+  }
+
+  .client-interview-join {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-interview-scheduler > form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .client-interview-scheduler .field {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .client-interview-scheduler input[type="datetime-local"] {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-interview-scheduler .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-interview-scheduled {
+    gap: 8px;
+    margin-top: 12px !important;
+  }
+
+  .client-interview-time {
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-interview-time .row {
+    align-items: flex-start;
+  }
+
+  .client-interview-time strong {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .client-interview-time p {
+    margin: 6px 0 0;
+    font-size: 10.75px;
+    line-height: 1.4;
+  }
+
+  .client-interview-reschedule > summary,
+  .client-interview-cancel .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .client-interview-feedback {
+    gap: 11px;
+    margin-top: 14px !important;
+    padding-top: 13px;
+    border-top: 1px solid #eaecf0;
+  }
+
+  .client-interview-feedback h3 {
+    font-size: 15px;
+  }
+
+  .client-interview-feedback select,
+  .client-interview-feedback textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-interview-feedback textarea {
+    min-height: 118px;
+  }
+
+  .client-interview-feedback > .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-interview-decision {
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  /* Offers */
+  .client-offer-summary {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .client-offer-summary h2 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .client-offer-summary p {
+    margin-bottom: 0;
+    font-size: 11.5px;
+  }
+
+  .client-offer-summary > svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+  }
+
+  .client-offer-terms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 11px !important;
+  }
+
+  .client-offer-terms > div {
+    padding: 10px;
+  }
+
+  .client-offer-terms .span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .client-offer-note,
+  .client-offer-waiting,
+  .client-offer-active {
+    margin-top: 10px !important;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .client-offer-note p {
+    margin-bottom: 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .client-offer-confirm {
+    display: grid;
+    gap: 9px;
+    margin-top: 12px !important;
+  }
+
+  .client-offer-confirm .choice {
+    min-height: 0;
+    padding: 11px;
+  }
+
+  .client-offer-confirm .choice strong {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .client-offer-confirm .choice small {
+    font-size: 10.75px;
+    line-height: 1.4;
+  }
+
+  .client-offer-confirm .btn {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 0 !important;
+    justify-content: center;
+  }
+
+  /* Placement support */
+  .client-support-guidance {
+    padding: 11px 12px;
+    border-radius: 11px;
+  }
+
+  .client-support-guidance strong {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .client-support-guidance p {
+    font-size: 11.25px;
+    line-height: 1.45;
+  }
+
+  .client-support-placements {
+    gap: 9px;
+    margin-top: 0 !important;
+  }
+
+  .client-support-placement-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .client-support-placement-head h2 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .client-support-form {
+    gap: 11px;
+  }
+
+  .client-support-form .form-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .client-support-form .span-2 {
+    grid-column: auto;
+  }
+
+  .client-support-form input,
+  .client-support-form select,
+  .client-support-form textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .client-support-form textarea {
+    min-height: 120px;
+  }
+
+  .client-support-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .client-support-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .client-support-recent {
+    padding-top: 4px;
+    border-top: 1px solid #eaecf0;
+  }
+
+  .client-support-recent h3 {
+    margin: 8px 0;
+    font-size: 15px;
+  }
+
+  .client-support-update {
+    padding: 10px;
+  }
+
+  .client-support-update > .row-between {
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .client-support-update > .row.small {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .client-support-empty {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-interviews-head h1,
+  .client-offers-head h1,
+  .client-support-head h1 {
+    font-size: 25px;
+  }
+
+  .client-offer-terms {
+    grid-template-columns: 1fr;
+  }
+
+  .client-offer-terms .span-2 {
+    grid-column: auto;
+  }
+}

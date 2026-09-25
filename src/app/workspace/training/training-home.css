@@ -5053,3 +5053,29 @@
   --training-work-border: #b2ddff;
   --training-work-hero: rgba(23, 92, 211, 0.1);
 }
+
+
+/* Marketing + E-commerce + Social work palettes */
+.training-marketing-course,
+.training-marketing-player {
+  --training-work-accent: #7f56d9;
+  --training-work-soft: #f9f5ff;
+  --training-work-border: #e9d7fe;
+  --training-work-hero: rgba(127, 86, 217, 0.1);
+}
+
+.training-ecommerce-course,
+.training-ecommerce-player {
+  --training-work-accent: #027a48;
+  --training-work-soft: #ecfdf3;
+  --training-work-border: #abefc6;
+  --training-work-hero: rgba(2, 122, 72, 0.1);
+}
+
+.training-social-course,
+.training-social-player {
+  --training-work-accent: #c11574;
+  --training-work-soft: #fdf2fa;
+  --training-work-border: #fcceee;
+  --training-work-hero: rgba(193, 21, 116, 0.09);
+}

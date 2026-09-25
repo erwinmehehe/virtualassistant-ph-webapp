@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createPaymongoCheckoutSession, refundPaymongoPayment, usdToPhp } from "@/lib/paymongo";
+import { createPaymongoCheckoutSession, isPaymongoOutcomeUncertain, refundPaymongoPayment, usdToPhp } from "@/lib/paymongo";
 
 function paymentStateError(error: { message?: string } | null, fallback: string) {
   const message = String(error?.message || "");
@@ -70,7 +70,8 @@ export async function createCheckoutSessionAction(formData: FormData) {
       description: claim.description,
       referenceNumber: claim.payment_id,
       successUrl: `${appUrl}/workspace/client/payments?paid=1`,
-      cancelUrl: `${appUrl}/workspace/client/payments?cancelled=1`
+      cancelUrl: `${appUrl}/workspace/client/payments?cancelled=1`,
+      idempotencyKey: `payment-checkout-${claim.payment_id}`,
     });
 
     const { error: attachError } = await admin.rpc("attach_payment_checkout", {
@@ -85,13 +86,27 @@ export async function createCheckoutSessionAction(formData: FormData) {
 
     redirect(session.url);
   } catch (error) {
-    if (error && typeof error === "object" && String((error as { digest?: unknown }).digest || "").startsWith("NEXT_REDIRECT")) throw error;
-    await admin.rpc("release_payment_checkout_claim", {
-      p_payment_id: paymentId,
-      p_claim_token: claimToken,
-      p_reason: error instanceof Error ? error.message.slice(0, 300) : "checkout_creation_failed",
-    });
-    throw error;
+    if (
+      error &&
+      typeof error === "object" &&
+      String((error as { digest?: unknown }).digest || "").startsWith("NEXT_REDIRECT")
+    ) {
+      throw error;
+    }
+
+    if (!isPaymongoOutcomeUncertain(error)) {
+      await admin.rpc("release_payment_checkout_claim", {
+        p_payment_id: paymentId,
+        p_claim_token: claimToken,
+        p_reason: error instanceof Error ? error.message.slice(0, 300) : "checkout_creation_failed",
+      });
+      throw error;
+    }
+
+    // A timeout, 409, rate limit, or provider 5xx can happen after PayMongo
+    // accepted the request. Keep the checkout claim instead of reopening the
+    // invoice and creating a second Checkout Session with a new operation.
+    throw new Error("Checkout could not be confirmed. Refresh the invoice before trying again.");
   }
 }
 
@@ -203,7 +218,8 @@ export async function resolveDisputeRefundAction(formData: FormData) {
     const refund = await refundPaymongoPayment(
       payment.provider_payment_id,
       chargedAmountPhp,
-      note || "Dispute resolved with refund"
+      note || "Dispute resolved with refund",
+      `payment-refund-${paymentId}`,
     );
     const providerRefundId = refund.data?.id;
     if (!providerRefundId) throw new Error("PayMongo did not return a refund ID.");
@@ -215,6 +231,12 @@ export async function resolveDisputeRefundAction(formData: FormData) {
     });
     if (recordError) throw recordError;
   } catch (refundError) {
+    if (isPaymongoOutcomeUncertain(refundError)) {
+      // Do not reopen an uncertain refund. A lost response can mean the
+      // provider accepted it, and retrying later could create a second refund.
+      throw new Error("Refund outcome is not confirmed. Reconcile this payment with PayMongo before any retry.");
+    }
+
     await admin.rpc("transition_payment_state", {
       p_payment_id: paymentId,
       p_expected_status: "refund_pending",

@@ -4,6 +4,7 @@ import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
+import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -510,7 +511,7 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
@@ -520,7 +521,8 @@ export async function GET(request: Request) {
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
+    runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
-  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, indexNow: indexNowResult });
+  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult });
 }

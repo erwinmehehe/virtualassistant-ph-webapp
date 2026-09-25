@@ -35,12 +35,23 @@ test("mobile training navigation stays compact and connected", async () => {
   assert.match(shell, /app-nav-mobile training-shell-mobile-nav/);
   assert.match(shell, />Learning<\/span>/);
   assert.match(shell, />Courses<\/span>/);
-  assert.match(shell, />Training<\/span>/);
+  assert.match(shell, />Certificates<\/span>/);
   assert.match(shell, />Workspace<\/span>/);
 
   assert.match(css, /Training shell continuity with the public training experience/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*training-shell-browse[\s\S]*display: none/);
   assert.match(css, /@media \(max-width: 390px\)[\s\S]*training-shell-public[\s\S]*display: none/);
+});
+
+
+test("training detail screens stay compact on phones", async () => {
+  const css = await readFile(cssPath, "utf8");
+
+  assert.match(css, /Training phone density pass: compact header and flatter course modules/);
+  assert.match(css, /training-shell:has\(\.training-course-page\) \.app-topbar[\s\S]*height: 52px/);
+  assert.match(css, /training-shell:has\(\.training-course-page\) \.app-topbar-page-title[\s\S]*display: none/);
+  assert.match(css, /training-module-card:not\(\.training-assessment-card\)[\s\S]*background: transparent/);
+  assert.match(css, /training-course-page > \.btn\.training-course-back[\s\S]*width: fit-content/);
 });
 
 

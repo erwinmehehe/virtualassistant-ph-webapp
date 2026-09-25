@@ -195,7 +195,15 @@ export default async function TrainingLessonPage({
                               ? " training-work-player training-payroll-player"
                               : course.slug === "airbnb-short-term-rental-virtual-assistant"
                                 ? " training-work-player training-rental-player"
-                                : "";
+                                : course.slug === "servicem8-for-virtual-assistants"
+                                  ? " training-work-player training-servicem8-player"
+                                  : course.slug === "cliniko-for-virtual-assistants"
+                                    ? " training-work-player training-cliniko-player"
+                                    : course.slug === "xero-workflows-for-virtual-assistants"
+                                      ? " training-work-player training-xero-player"
+                                      : course.slug === "myob-workflows-for-virtual-assistants"
+                                        ? " training-work-player training-myob-player"
+                                        : "";
 
   return (
     <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
@@ -244,6 +252,10 @@ export default async function TrainingLessonPage({
               {course.slug === "bookkeeping-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Finance control artifact included</span> : null}
               {course.slug === "payroll-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Payroll control artifact included</span> : null}
               {course.slug === "airbnb-short-term-rental-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Property ops artifact included</span> : null}
+              {course.slug === "servicem8-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Service workflow artifact included</span> : null}
+              {course.slug === "cliniko-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Practice admin artifact included</span> : null}
+              {course.slug === "xero-workflows-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Xero control artifact included</span> : null}
+              {course.slug === "myob-workflows-for-virtual-assistants" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> MYOB control artifact included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

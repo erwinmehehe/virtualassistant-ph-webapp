@@ -107,8 +107,8 @@ const requiredDepthSections = ['How the role works', 'First 30 days', 'Common hi
 for (const section of requiredDepthSections) if (!pageSource.includes(section)) failures.push(`shared service template: missing section ${section}`);
 
 const templateRequirements = [
-  ['generated meta title', /title:\s*\{\s*absolute:\s*serviceMetaTitle\(page\)\s*\}/],
-  ['generated meta description', /description:\s*serviceMetaDescription\(page\)/],
+  ['generated meta title', /localizeEnglish\(serviceMetaTitle\(localizedPage\), page\.locale\)/],
+  ['generated meta description', /localizeEnglish\(serviceMetaDescription\(localizedPage\), page\.locale\)/],
   ['canonical URL', /canonicalPath\(`\/service\/\$\{page\.slug\}`\)/],
   ['canonical metadata', /alternates:\s*\{\s*canonical\s*\}/],
   ['Open Graph URL', /openGraph:\s*\{[^}]*url:\s*canonical/],

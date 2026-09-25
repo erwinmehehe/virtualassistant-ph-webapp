@@ -18,7 +18,7 @@ function parseArray(path, marker) {
 test("industry detail pages separate the SERP title from the reviewed H1", () => {
   const page = source("src/app/industries/[slug]/page.tsx");
   const content = source("src/lib/industry-seo-content.ts");
-  assert.match(page, /const title = industrySeoTitle\(industry\)/);
+  assert.match(page, /const title = localizeEnglish\(industrySeoTitle\(industry\), industry\.locale\)/);
   assert.match(page, /const titleParts = \[page\.h1, "", ""\]/);
   assert.doesNotMatch(page, /seoTitle\.replace\(\/\^Virtual Assistant Services for/);
   assert.match(content, /export function industrySeoTitle\(industry: IndustryPage\) \{\s*return industry\.metaTitle;\s*\}/);

@@ -48,8 +48,8 @@ test("discovery prompt is compact and never competes with service forms or works
 test("service template preserves core SEO signals", () => {
   const page = source("src/app/service/[slug]/page.tsx");
   const hero = source("src/components/hiring-hero.tsx");
-  assert.match(page, /title: \{ absolute: serviceMetaTitle\(page\) \}/);
-  assert.match(page, /description: serviceMetaDescription\(page\)/);
+  assert.match(page, /const title = localizeEnglish\(serviceMetaTitle\(localizedPage\), page\.locale\)/);
+  assert.match(page, /const description = localizeEnglish\(serviceMetaDescription\(localizedPage\), page\.locale\)/);
   assert.match(page, /canonicalPath\(`\/service\/\$\{page\.slug\}`\)/);
   assert.match(page, /alternates: \{ canonical \}/);
   assert.match(page, /<HiringHero/);

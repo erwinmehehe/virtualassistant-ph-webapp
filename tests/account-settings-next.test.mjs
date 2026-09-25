@@ -79,7 +79,7 @@ test("optional email categories honor saved notification preferences", async () 
   assert.match(email, /discovery_reminder_/);
   assert.match(email, /candidate_activity/);
   assert.match(email, /notification_preference_disabled/);
-  assert.match(email, /field !== "product_emails"/);
+  assert.match(email, /if \(!Array\.isArray\(data\) \|\| !data\[0\]\) return true/);
   assert.match(email, /get_account_notification_preferences_by_email/);
   assert.match(migration, /revoke all on function public\.get_account_notification_preferences_by_email\(text\) from public, anon, authenticated/);
   assert.match(migration, /grant execute on function public\.get_account_notification_preferences_by_email\(text\) to service_role/);

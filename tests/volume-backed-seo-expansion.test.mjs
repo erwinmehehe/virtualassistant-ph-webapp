@@ -193,7 +193,7 @@ test("new services inherit indexable static routes, sitemap entries, canonicals,
   assert.match(route, /SERVICE_PAGES\.map\(\(page\) => \(\{ slug: page\.slug \}\)\)/);
   assert.match(route, /canonicalPath\(`\/service\/\$\{page\.slug\}`\)/);
   assert.match(route, /alternates: \{ canonical \}/);
-  assert.match(route, /description: serviceMetaDescription\(page\)/);
+  assert.match(route, /localizeEnglish\(serviceMetaDescription\(localizedPage\), page\.locale\)/);
   assert.doesNotMatch(route, /noindex|index:\s*false/);
   assert.match(sitemap, /SERVICE_PAGES\.map\(\(page\)/);
   assert.match(sitemap, /url: `\$\{base\}\/service\/\$\{page\.slug\}`/);

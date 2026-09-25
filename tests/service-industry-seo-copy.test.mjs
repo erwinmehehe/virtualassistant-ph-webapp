@@ -18,7 +18,7 @@ function parseArray(path, marker) {
 test("all service pages use reviewed full-role meta descriptions", () => {
   const serviceSource = source("src/lib/service-pages.ts");
   const pages = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
-  assert.equal(pages.length, 79);
+  assert.equal(pages.length, 86);
   assert.match(serviceSource, /return page\.metaDescription\.replace/);
   assert.doesNotMatch(serviceSource, /replace\([^\n]+Virtual Assistant[^\n]+" VA"/);
 
@@ -37,7 +37,7 @@ test("all service pages use reviewed full-role meta descriptions", () => {
 test("all industry pages keep a custom hero intro", () => {
   const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES: IndustryPage[] = ");
   const enhancements = source("src/lib/industry-seo-content.ts");
-  assert.equal(industries.length, 35);
+  assert.equal(industries.length, 39);
 
   for (const industry of industries) {
     const key = `  "${industry.slug}": {`;

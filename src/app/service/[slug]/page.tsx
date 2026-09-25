@@ -34,7 +34,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
-import { preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
+import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 
 export const revalidate = 3600;
@@ -48,12 +48,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const page = servicePageBySlug(slug);
   if (!page) return {};
   const canonical = canonicalPath(`/service/${page.slug}`);
+  const localizedPage = localizeContent(page, page.locale);
+  const title = localizeEnglish(serviceMetaTitle(localizedPage), page.locale);
+  const description = localizeEnglish(serviceMetaDescription(localizedPage), page.locale);
   return {
-    title: { absolute: serviceMetaTitle(page) },
-    description: serviceMetaDescription(page),
+    title: { absolute: title },
+    description,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title: serviceMetaTitle(page), description: serviceMetaDescription(page) },
-    twitter: { card: "summary_large_image", title: serviceMetaTitle(page), description: serviceMetaDescription(page) }
+    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined },
+    twitter: { card: "summary_large_image", title, description }
   };
 }
 
@@ -141,7 +144,8 @@ const GENERIC_COST_FACTORS = [
 ];
 
 function costFactorsFor(s: ServiceSeoPage) {
-  const specific = s.costFactors.filter((factor) => !GENERIC_COST_FACTORS.includes(factor));
+  const genericCostFactors = localizeContent(GENERIC_COST_FACTORS, s.locale);
+  const specific = s.costFactors.filter((factor) => !genericCostFactors.includes(factor));
   const derived = [
     `How much ${s.tasks[0]} you need each week, and whether it is steady or seasonal`,
     `Depth in ${s.tools.slice(0, 2).join(" and ")} rather than general familiarity`,
@@ -554,52 +558,53 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const page = servicePageBySlug(slug);
   if (!page) notFound();
-  const s = page!;
+  const s = localizeContent(page!, page!.locale);
+  const isAu = s.locale === "en-AU";
   const article = articleFor(s.name);
-  const groups = taskGroups(s.tasks, s.name);
-  const copy = experienceCopy(s);
-  const related = s.relatedSlugs.map(servicePageBySlug).filter(Boolean);
-  const relatedIndustries = INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4);
-  const guides = serviceBlogPosts(s.slug, 6);
-  const seoResources = serviceSeoResources(s.slug).slice(0, 5);
-  const priorityGuides = seoPriorityLinksForService(s.slug);
+  const groups = localizeContent(taskGroups(s.tasks, s.name), s.locale);
+  const copy = localizeContent(experienceCopy(s), s.locale);
+  const related = localizeContent(s.relatedSlugs.map(servicePageBySlug).filter(Boolean), s.locale);
+  const relatedIndustries = localizeContent(INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4), s.locale);
+  const guides = localizeContent(serviceBlogPosts(s.slug, 6), s.locale);
+  const seoResources = localizeContent(serviceSeoResources(s.slug).slice(0, 5), s.locale);
+  const priorityGuides = localizeContent(seoPriorityLinksForService(s.slug), s.locale);
   const talent = await getTalent(s);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/service/${s.slug}`;
-  const regulated = complianceNote(s.slug, s.group);
-  const editorial = serviceEditorial(s);
-  const priorityModule = priorityServiceModule(s.slug);
+  const regulated = localizeContent(complianceNote(s.slug, s.group), s.locale);
+  const editorial = localizeContent(serviceEditorial(s), s.locale);
+  const priorityModule = localizeContent(priorityServiceModule(s.slug), s.locale);
   const talentHref = `/find-talent?category=${encodeURIComponent(s.directoryCategory)}&q=${encodeURIComponent(roleName(s.name))}`;
-  const matchExample = `Handle ${s.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, exceptions, and next steps.`;
+  const matchExample = localizeEnglish(`Handle ${s.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, exceptions, and next steps.`, s.locale);
 
-  const interviewQuestions = [
+  const interviewQuestions = localizeContent([
     { q: `Walk me through how you would handle ${s.tasks[0]} from intake to completion.`, a: "A concrete process, the information they need first, quality checks, documentation, and when they would ask for clarification." },
     { q: `How do you keep ${s.tasks[1]} accurate and up to date?`, a: "A repeatable checking method, source-of-truth discipline, clear ownership, and a way to surface exceptions instead of hiding them." },
     { q: `Which ${roleName(s.name)} tools have you used most often?`, a: "Practical depth in tools relevant to your stack, with examples of what they completed and how they checked the result." },
     { q: "What would you escalate instead of deciding on your own?", a: "Good judgment about permissions, client or customer risk, financial impact, compliance, unusual exceptions, and decisions outside the agreed scope." },
     { q: `Show me an example of work closest to ${s.focus}.`, a: "Evidence that resembles your workflow, plus a clear explanation of the candidate's contribution, quality checks, and result." }
-  ];
+  ], s.locale);
 
-  const faqs = [
+  const faqs = localizeContent([
     { q: `What does ${article} ${s.name} do?`, a: `${s.name} work can include ${s.tasks.slice(0, 5).join(", ")}. The right scope depends on your process, tools, decision boundaries, and the candidate's experience.` },
-    { q: `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
+    { q: isAu ? `Can an Australian business hire ${article} ${s.name} from the Philippines?` : `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
     { q: `What tools should ${article} ${s.name} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
     { q: `How much does ${article} ${s.name} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
     { q: `How do I choose the best ${s.name}?`, a: `Start with the work the person must own. Then compare relevant experience, ${s.skills.slice(0, 4).join(", ")}, communication, availability, and examples that show they can execute your workflow.` },
     { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." }
-  ];
+  ], s.locale);
 
   const schema = [
     {
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${pageUrl}#service`,
-      name: `Hire ${article} ${s.name} in the Philippines`,
+      name: isAu ? `Hire ${article} ${s.name} for Australian businesses` : `Hire ${article} ${s.name} in the Philippines`,
       serviceType: s.name,
       url: pageUrl,
       description: serviceMetaDescription(s),
       provider: organizationRef(base),
-      areaServed: "Worldwide"
+      areaServed: isAu ? "Australia" : "Worldwide"
     },
     {
       "@context": "https://schema.org",
@@ -626,10 +631,10 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
       <HiringHero
         crumbs={[{ href: "/", label: "Home" }, { href: "/services", label: "Services" }, { label: s.name }]}
-        eyebrow={`Filipino ${roleName(s.name)} VAs`}
+        eyebrow={isAu ? `Philippines-based ${roleName(s.name)} support` : `Filipino ${roleName(s.name)} VAs`}
         titleLead={`Hire ${article}`}
         titleAccent={s.name}
-        titleTail="in the Philippines"
+        titleTail={isAu ? "for Australian businesses" : "in the Philippines"}
         lede={copy.hero}
         tasks={s.tasks.slice(0, 6).map(toTitle)}
         tools={s.tools}

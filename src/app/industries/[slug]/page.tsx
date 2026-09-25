@@ -21,7 +21,7 @@ import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
-import { titleCaseWithAcronyms } from "@/lib/content-language";
+import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
@@ -31,14 +31,14 @@ export async function generateMetadata({ params }: { params: Promise<{slug:strin
   const industry = industryBySlug(slug);
   if (!industry) return {};
   const canonical = `/industries/${industry.slug}`;
-  const title = industrySeoTitle(industry);
-  const description = industryMetaDescription(industry);
+  const title = localizeEnglish(industrySeoTitle(industry), industry.locale);
+  const description = localizeEnglish(industryMetaDescription(industry), industry.locale);
   return {
     title: { absolute: title },
     description,
     keywords: [industry.primaryKeyword, title.toLowerCase(), `virtual assistant services for ${industry.label.toLowerCase()}`],
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description },
+    openGraph: { type: "website", url: canonical, title, description, locale: industry.locale === "en-AU" ? "en_AU" : undefined },
     twitter: { card: "summary_large_image", title, description }
   };
 }
@@ -51,16 +51,18 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const industry = industryBySlug(slug);
   if (!industry) notFound();
   const page = industry!;
-  const services = page.serviceSlugs.map(servicePageBySlug).filter(Boolean);
-  const guides = Array.from(
+  const isAu = page.locale === "en-AU";
+  const loc = (value: string) => localizeEnglish(value, page.locale);
+  const services = localizeContent(page.serviceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
+  const guides = localizeContent(Array.from(
     new Map(
       page.serviceSlugs
         .flatMap((serviceSlug) => serviceBlogPosts(serviceSlug, 2))
         .map((post) => [post.slug, post] as const)
     ).values()
-  ).slice(0, 6);
-  const hub = page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined;
-  const spokes = INDUSTRIES.filter((i) => i.clusterSlug === page.slug);
+  ).slice(0, 6), page.locale);
+  const hub = localizeContent(page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined, page.locale);
+  const spokes = localizeContent(INDUSTRIES.filter((i) => i.clusterSlug === page.slug), page.locale);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/industries/${page.slug}`;
   const talentFilters = industryTalentFilters(page.slug);
@@ -69,31 +71,31 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   talentParams.set("q", talentFilters.query);
   const hireHref = `/hire?category=${encodeURIComponent(talentFilters.category)}`;
   const talentHref = `/find-talent?${talentParams.toString()}`;
-  const seoTitle = industrySeoTitle(page);
-  const seoDescription = industryMetaDescription(page);
+  const seoTitle = loc(industrySeoTitle(page));
+  const seoDescription = loc(industryMetaDescription(page));
   // SEO title and visible H1 have different jobs. Keep the SERP title concise,
   // while the H1 uses the reviewed, natural-language industry heading.
   const titleParts = [page.h1, "", ""];
-  const first30Days = industryFirst30Days(page);
-  const metrics = industryMetrics(page);
-  const matchExample = `We need help with ${page.workflows.slice(0, 3).join(", ")} for about 20 hours per week. Our team uses ${page.tools.slice(0, 2).join(" and ")}.`;
-  const interviewScenarios = [
+  const first30Days = localizeContent(industryFirst30Days(page), page.locale);
+  const metrics = localizeContent(industryMetrics(page), page.locale);
+  const matchExample = loc(`We need help with ${page.workflows.slice(0, 3).join(", ")} for about 20 hours per week. Our team uses ${page.tools.slice(0, 2).join(" and ")}.`);
+  const interviewScenarios = localizeContent([
     `Walk me through how you would handle ${page.workflows[0]} from intake to completion. What would you document and when would you escalate?`,
     `If ${page.workflows[1] || page.workflows[0]} and ${page.workflows[2] || page.workflows[0]} both became urgent, how would you prioritize the work and communicate the tradeoff?`,
     `Show how you would use ${page.tools[0]} for a typical ${page.workflows[3] || page.workflows[0]} task. What checks would you complete before marking it done?`
-  ];
+  ], page.locale);
 
-  const faqs = [
+  const faqs = localizeContent([
     { q: `What can a Virtual Assistant do for ${page.audience}?`, a: `Common support includes ${page.workflows.slice(0, 6).join(", ")}. The final scope should match your systems, customer or client expectations, risk level, and the candidate's actual experience.` },
     { q: `Can I hire a Virtual Assistant for ${page.audience}?`, a: `Yes. Define the workflow first, then compare candidates on relevant experience, tools, communication, availability, schedule overlap, and the evidence required for the role.` },
     { q: `Which Virtual Assistant roles fit ${page.audience}?`, a: `Relevant roles often include ${services.map((service) => service?.name).filter(Boolean).slice(0, 4).join(", ")}. One person may cover several compatible workflows, but avoid combining unrelated responsibilities into an unmanageable role.` },
     { q: `What tools should the Virtual Assistant know?`, a: `Your actual stack matters more than a generic software list. Common tools in this workflow include ${page.tools.slice(0, 6).join(", ")}. Ask candidates to explain how they used the tools, what they owned, and how they checked their work.` },
     { q: `How should I write the job description?`, a: `List the recurring responsibilities, weekly hours, timezone overlap, tools, quality standards, reporting cadence, and which decisions the Virtual Assistant can make independently. Add compliance or access boundaries when the workflow handles sensitive information.` },
     { q: `How much does an industry-specific Virtual Assistant cost?`, a: `Rates vary with experience, specialization, live coverage, technical depth, and decision ownership. Compare candidates against the responsibility level you need rather than choosing only by the lowest hourly rate.` }
-  ];
+  ], page.locale);
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoTitle, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoTitle, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
@@ -112,7 +114,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       titleLead={titleParts[0]}
       titleAccent={titleParts[1]}
       titleTail={titleParts[2]}
-      lede={industryHeroIntro(page)}
+      lede={loc(industryHeroIntro(page))}
       tasks={page.workflows.slice(0, 6).map(titleCase)}
       tools={page.tools}
       primary={{ href: talentHref, label: "Browse Virtual Assistants" }}
@@ -127,14 +129,14 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
           {page.workflows.map((item, index) => <article className="sp-card" key={`${String(item)}-${index}`}>
             <span className="sp-card-icon" aria-hidden="true"><CheckCircle2 size={18}/></span>
             <h3>{titleCase(item)}</h3>
-            <p>{industryWorkflowDescription(page, item)}</p>
+            <p>{loc(industryWorkflowDescription(page, item))}</p>
           </article>)}
         </div>
       </Band>
 
       {spokes.length ? <Band tone="soft">
-        <SectionHead kicker="Specializations" title={`More specialized support for ${page.audience}`} lede={`If your need is narrower than general support for ${page.audience}, one of these dedicated industry guides is likely a closer fit.`}/>
-        <LinkTiles items={spokes.map((spoke) => ({ href: `/industries/${spoke.slug}`, label: spoke.h1, sub: industryMetaDescription(spoke) }))}/>
+        <SectionHead kicker={loc("Specializations")} title={loc(`More specialized support for ${page.audience}`)} lede={loc(`If your need is narrower than general support for ${page.audience}, one of these dedicated industry guides is likely a closer fit.`)}/>
+        <LinkTiles items={spokes.map((spoke) => ({ href: `/industries/${spoke.slug}`, label: spoke.h1, sub: localizeEnglish(industryMetaDescription(spoke), spoke.locale) }))}/>
       </Band> : null}
 
       <Band tone={spokes.length ? "white" : "soft"}>
@@ -151,12 +153,12 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
-        <SectionHead kicker="Tools" title="Hire for workflow fluency, not a software checklist." lede={`A candidate does not need every tool used by ${page.audience}. Prioritize the systems that matter in the first 30 days and ask what the candidate actually changed, checked, or owned inside them.`}/>
+        <SectionHead kicker="Tools" title="Hire for workflow fluency, not a software checklist." lede={loc(`A candidate does not need every tool used by ${page.audience}. Prioritize the systems that matter in the first 30 days and ask what the candidate actually changed, checked, or owned inside them.`)}/>
         <div className="sp-cards-4">
           {page.tools.map((tool, index) => <article className="sp-card" key={`${String(tool)}-${index}`}>
             <span className="sp-card-icon" aria-hidden="true"><Wrench size={18}/></span>
             <h3>{tool}</h3>
-            <p>{industryToolDescription(page, tool)}</p>
+            <p>{loc(industryToolDescription(page, tool))}</p>
           </article>)}
         </div>
       </Band>
@@ -170,7 +172,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
           <aside className="sp-panel">
             <span className="sp-panel-label">Access and supervision</span>
             <h3>Give the minimum access needed for the workflow.</h3>
-            <p>Use role-based access where possible. Compliance, licensing, sensitive approvals and professional judgment remain the client organization’s responsibility.</p>
+            <p>{loc("Use role-based access where possible. Compliance, licensing, sensitive approvals and professional judgment remain the client organization’s responsibility.")}</p>
           </aside>
         </div>
       </Band>

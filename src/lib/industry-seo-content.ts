@@ -246,13 +246,13 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
     heroIntro: "Mortgage brokers lose client-facing time when every application needs document chasing, data entry and lender-condition follow-up. A processing desk can keep files moving from application through settlement while brokers retain advice, credit discussions and approval decisions."
   },
   "smsf-production": {
-    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organize source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
+    heroIntro: "SMSF teams need clean production files before accountants and auditors can review them efficiently. A production support role can organise source documents, reconcile activity and prepare workpapers while technical judgments, compliance review and sign-off remain with qualified professionals."
   },
   "strata-management-administration": {
     heroIntro: "Strata portfolios create recurring administrative deadlines around meetings, notices, records, levies and follow-up. A dedicated support role can prepare packs, update registers and run approved correspondence while the strata manager retains decisions, approvals and statutory responsibility."
   },
   "property-management-maintenance-coordination": {
-    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorization and property-level decisions."
+    heroIntro: "Property-management maintenance breaks down when tenant requests, contractor updates and work orders live in separate inboxes. A maintenance coordinator can keep each request moving from intake to completion while managers retain urgency, authorisation and property-level decisions."
   },
   "allied-health-referral-billing": {
     heroIntro: "Allied-health clinics need referral, scheduling and billing administration to move reliably between appointments. A support desk can keep patient records, follow-up and billing workflows current while clinical interpretation and practitioner decisions remain with qualified staff."
@@ -328,6 +328,119 @@ export const INDUSTRY_SEO_CONTENT: Record<string, IndustrySeoEnhancement> = {
       "Week 4: review missing-document backlog, update accuracy, customer response time and billing delays before expanding responsibility."
     ],
     metrics: ["Loads with current status", "Missing POD or BOL backlog", "Customer updates completed on time", "Completed loads waiting for billing review", "Records returned for correction", "Open load exceptions", "Documents matched to the correct load", "Administrative follow-ups overdue"]
+  },
+  "conveyancing-firms": {
+    seoLabel: "Australian Conveyancing Firms",
+    heroIntro: "Australian conveyancing teams can move faster when repeatable matter administration, PEXA preparation, document follow-up and settlement tracking are handled consistently. A Virtual Assistant can own those administrative queues while legal advice, signing authority and regulated conveyancing decisions remain with authorised Australian professionals.",
+    workflowDetails: {
+      "open approved matters and prepare file structures": "Create the approved matter, apply the firm’s naming and folder rules, add known contacts and prepare the administrative checklist without making legal or conflict decisions.",
+      "collect client and transaction documents": "Track requested identification, contracts, certificates and supporting documents, record what is missing and route exceptions to the conveyancer or solicitor.",
+      "maintain PEXA preparation checklists": "Prepare approved workspace information and checklist items for review while signing, subscriber authority and regulated settlement actions remain with authorised staff.",
+      "track searches, certificates and settlement milestones": "Maintain due dates, outstanding searches, certificates and settlement milestones in the source-of-truth system so the conveyancer can see what is blocked.",
+      "prepare routine client and agent updates": "Send approved status updates and document requests, record responses and escalate questions requiring legal interpretation or negotiation.",
+      "record outstanding items and escalation points": "Keep a visible exception list with the item, owner, deadline and decision required so settlement risks are not buried in inboxes.",
+      "support post-settlement administration": "Complete approved filing, document distribution and matter-close tasks after settlement instructions are confirmed."
+    },
+    toolDetails: {
+      "PEXA": "Workspace preparation, settlement milestone visibility and administrative checklist support under authorised review.",
+      "LEAP": "Matter records, key dates, documents, tasks and client follow-up.",
+      "Smokeball": "Matter administration, document workflows, tasks and file visibility.",
+      "InfoTrack": "Approved search and certificate ordering support plus result tracking.",
+      "Microsoft 365": "Client communication, calendars, spreadsheets and document administration.",
+      "DocuSign": "Approved signature requests and completion tracking."
+    },
+    first30Days: [
+      "Week 1: map matter stages, PEXA boundaries, naming rules, client communication and escalation points.",
+      "Week 2: own file setup, document follow-up and a small milestone queue under conveyancer review.",
+      "Week 3: add approved PEXA preparation and routine client updates after file accuracy is consistent.",
+      "Week 4: review outstanding-document backlog, milestone accuracy, turnaround time and escalation quality before expanding scope."
+    ],
+    metrics: ["Matter files opened correctly", "Outstanding documents overdue", "Settlement milestones current", "PEXA preparation items returned for correction", "Client updates completed on time", "Open exceptions without an owner", "Post-settlement tasks overdue"]
+  },
+  "buyers-agents": {
+    seoLabel: "Australian Buyers Agents",
+    heroIntro: "Buyers agents create leverage when property research, CRM administration, inspection scheduling and selling-agent follow-up stay current without consuming adviser time. A Virtual Assistant can run those queues while property recommendations, negotiation and licensed real-estate decisions stay with the buyers agent.",
+    workflowDetails: {
+      "capture approved client briefs in the CRM": "Record the approved brief, budget, location, property criteria and next actions in the CRM so the whole team works from the same client requirements.",
+      "research and organise suitable property opportunities": "Compile factual property information against the approved brief and separate research from any recommendation or acquisition decision.",
+      "coordinate inspections and calendar changes": "Book approved inspections, confirm attendance, record access details and update the shared calendar when times change.",
+      "follow up selling agents for approved information": "Request approved property information, record responses and escalate negotiation, pricing or representation questions to the buyers agent.",
+      "maintain due-diligence checklists": "Track reports, contracts, searches and other approved checklist items so missing inputs remain visible before a client decision.",
+      "prepare factual comparable-property data": "Compile source-backed comparable sales or listing information for adviser review without presenting it as valuation or purchasing advice.",
+      "update clients from approved notes": "Send routine status updates from approved information and record any client question that needs the buyers agent’s judgement.",
+      "support contract and settlement administration": "Track signatures, dates, documents and handoffs while legal interpretation, negotiation and licensed transaction decisions remain with local professionals."
+    },
+    toolDetails: {
+      "VaultRE": "Client, property, task and pipeline administration.",
+      "AgentBox": "Contact records, property records, follow-up tasks and campaign administration.",
+      "CoreLogic": "Approved factual property research and comparable-data preparation.",
+      "Domain": "Property research and listing monitoring against approved client briefs.",
+      "realestate.com.au": "Property research and listing monitoring.",
+      "Google Workspace": "Shared research, calendars, client updates and checklists."
+    },
+    first30Days: [
+      "Week 1: map the client brief, CRM stages, research rules and escalation boundaries.",
+      "Week 2: own CRM updates and one property-research queue under buyers-agent review.",
+      "Week 3: add inspection scheduling and selling-agent follow-up once data quality is consistent.",
+      "Week 4: review research accuracy, overdue follow-up, CRM completeness and adviser time saved."
+    ],
+    metrics: ["Client briefs current in CRM", "Property opportunities reviewed on time", "Inspection changes confirmed", "Selling-agent follow-ups overdue", "Due-diligence items missing", "CRM records needing correction", "Open research items without a next action"]
+  },
+  "financial-planning-firms": {
+    seoLabel: "Australian Financial Planning Firms",
+    heroIntro: "Financial planning practices lose adviser capacity when Xplan records, annual-review preparation, implementation follow-up and document collection fall behind. A Virtual Assistant can keep those administrative workflows moving while personal advice, recommendations and regulated approvals remain with authorised Australian advisers.",
+    workflowDetails: {
+      "maintain approved client records in Xplan": "Keep contact, household, service and approved factual client information current using the firm’s data standards and review rules.",
+      "prepare annual review administration": "Open the review workflow, confirm required documents and dates, prepare approved packs and keep outstanding actions visible before the adviser meeting.",
+      "collect fact-find and supporting documents": "Request approved documents and factual information, record what has arrived and escalate incomplete or sensitive items without interpreting advice needs.",
+      "prepare meeting and review packs": "Assemble approved records, forms and supporting material for adviser review using the firm’s template and version-control rules.",
+      "track implementation and provider follow-up": "Maintain approved implementation tasks, provider requests and outstanding client actions without making product recommendations or advice decisions.",
+      "record outstanding client actions": "Keep a dated list of missing signatures, documents and responses so client-service work does not rely on individual memory.",
+      "maintain service calendars and review dates": "Keep recurring review, renewal and client-service dates current in the shared system.",
+      "escalate advice or compliance decisions to authorised staff": "Route any item involving personal advice, recommendations, disclosure interpretation, compliance judgement or regulated approval to authorised Australian staff."
+    },
+    toolDetails: {
+      "Xplan": "Client records, review workflows, tasks, service dates and implementation administration.",
+      "Microsoft 365": "Email, calendars, spreadsheets and document preparation.",
+      "DocuSign": "Approved client document signing workflows and completion tracking.",
+      "Adobe Acrobat": "Document collation, checking and approved form preparation.",
+      "provider portals": "Approved factual status checks and implementation follow-up under adviser-defined permissions."
+    },
+    first30Days: [
+      "Week 1: map Xplan fields, review workflows, permissions, service calendars and advice boundaries.",
+      "Week 2: own client-record hygiene and a small annual-review preparation queue under daily review.",
+      "Week 3: add implementation tracking and provider follow-up after accuracy and escalation judgement are consistent.",
+      "Week 4: review record corrections, review-pack readiness, overdue client actions and adviser time recovered."
+    ],
+    metrics: ["Client records returned for correction", "Annual reviews ready on time", "Outstanding client documents", "Implementation tasks overdue", "Provider follow-ups overdue", "Service dates current", "Advice or compliance exceptions escalated correctly"]
+  },
+  "aged-care-providers": {
+    seoLabel: "Australian Aged Care Providers",
+    heroIntro: "Aged-care providers need reliable rostering and client administration without moving care judgement or safeguarding responsibility offshore. A Virtual Assistant can keep approved rosters, referrals, service records and routine follow-up current while qualified local staff retain care, incident and compliance decisions.",
+    workflowDetails: {
+      "maintain client and service records": "Keep approved client, service and contact information current using the provider’s privacy, naming and access rules.",
+      "update approved rosters and worker availability": "Maintain assigned shifts and worker availability from approved information, then escalate conflicts, shortages or changes outside defined authority.",
+      "coordinate routine schedule changes": "Confirm approved changes with workers or clients, update the shared system and flag urgent or unresolved coverage issues.",
+      "follow up referrals and intake documents": "Track approved referral and intake requirements, request missing information and keep the intake queue visible without making care eligibility decisions.",
+      "record service changes and outstanding actions": "Document approved service changes, dates, owners and next actions so local coordinators can see what still needs a decision.",
+      "send approved routine client communications": "Use approved templates and channels for non-clinical updates, appointments and document requests, with immediate escalation for sensitive issues.",
+      "maintain administrative checklists": "Keep recurring client, worker and service administration current using the provider’s documented checklist.",
+      "escalate care, incident or safeguarding issues immediately": "Route any care concern, incident, safeguarding matter, complaint or clinical question to the designated local staff member without attempting to resolve it administratively."
+    },
+    toolDetails: {
+      "ShiftCare": "Rostering, participant or client records, worker availability and service administration.",
+      "AlayaCare": "Client, worker, visit and care-administration workflows under approved permissions.",
+      "Microsoft 365": "Email, calendars, documents and service administration.",
+      "Google Workspace": "Shared trackers, documents and routine communication.",
+      "Teams": "Internal coordination and documented escalation."
+    },
+    first30Days: [
+      "Week 1: map roster rules, privacy boundaries, urgent escalation paths and approved client communication.",
+      "Week 2: own record hygiene and a limited roster-update queue under coordinator review.",
+      "Week 3: add referral follow-up and routine schedule coordination after accuracy is consistent.",
+      "Week 4: review roster corrections, unresolved coverage, referral backlog and escalation quality before expanding responsibility."
+    ],
+    metrics: ["Roster changes updated on time", "Shifts with unresolved coverage", "Client records requiring correction", "Referral items overdue", "Routine communications completed on time", "Exceptions escalated to local staff", "Open administrative items without a next action"]
   }
 };
 

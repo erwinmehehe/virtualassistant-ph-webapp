@@ -1,5 +1,6 @@
 export type IndustryPage = {
   slug: string;
+  locale?: "en-AU";
   label: string;
   h1: string;
   primaryKeyword: string;
@@ -201,8 +202,8 @@ export const INDUSTRIES: IndustryPage[] = [
       "medical-virtual-assistant",
       "medical-billing-virtual-assistant",
       "medical-scribe-virtual-assistant",
-      "phone-receptionist"
-    ],
+      "phone-receptionist",
+      "medical-receptionist"],
     "tools": [
       "EHR and practice-management systems",
       "RingCentral",
@@ -318,8 +319,8 @@ export const INDUSTRIES: IndustryPage[] = [
       "financial-advisor-virtual-assistant",
       "admin-inbox",
       "crm",
-      "bookkeeping"
-    ],
+      "bookkeeping",
+      "financial-planning"],
     "tools": [
       "Redtail",
       "Wealthbox",
@@ -475,8 +476,8 @@ export const INDUSTRIES: IndustryPage[] = [
       "property-management-virtual-assistant",
       "real-estate",
       "phone-receptionist",
-      "short-term-rental-virtual-assistant"
-    ],
+      "short-term-rental-virtual-assistant",
+      "trust-accounting"],
     "tools": [
       "AppFolio",
       "Buildium",
@@ -845,6 +846,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "construction-estimating-tender-desk",
+    "locale": "en-AU",
     "clusterSlug": "construction-companies",
     "label": "Construction Estimating & Tender Desk",
     "h1": "Your Outsourced Estimating & Tender Desk",
@@ -879,12 +881,13 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "hiringNotes": [
       "The final commercial and pricing decision stays with your estimator or business owner -- this role prepares the package, it doesn't submit the bid.",
-      "Define which trades, take-off software, and pricing sources the role should specialize in.",
+      "Define which trades, take-off software, and pricing sources the role should specialise in.",
       "Standardize your tender checklist before onboarding so quality is consistent from the first package."
     ]
   },
   {
     "slug": "accounting-firms-month-end",
+    "locale": "en-AU",
     "clusterSlug": "accountants-cpas",
     "label": "Accounting & Bookkeeping Firms",
     "h1": "Clear Your Firm's Month-End & Compliance Production Backlog",
@@ -925,12 +928,13 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "ndis-providers",
+    "locale": "en-AU",
     "label": "NDIS Providers",
     "h1": "Run Your Invoice-to-Claim Back Office",
     "primaryKeyword": "outsourced ndis billing claims processing",
     "metaTitle": "NDIS Billing & Claims Operations | Philippines",
     "metaDescription": "Hire Philippines-based NDIS administration support for claims, remittance reconciliation, onboarding, service agreements, rejected claims and reporting.",
-    "intro": "We run the invoice-to-claim back office for NDIS providers -- not \"an NDIS virtual assistant,\" a claims operations function sized to your participant volume. Use this guide to decide what to delegate, which platforms and schedule matter, and which approvals should stay with your organization.",
+    "intro": "We run the invoice-to-claim back office for NDIS providers -- not \"an NDIS virtual assistant,\" a claims operations function sized to your participant volume. Use this guide to decide what to delegate, which platforms and schedule matter, and which approvals should stay with your organisation.",
     "audience": "NDIS registered providers, plan managers, and support coordination businesses",
     "workflows": [
       "claims processing and submission support",
@@ -946,8 +950,8 @@ export const INDUSTRIES: IndustryPage[] = [
       "ndis-billing-virtual-assistant",
       "medical-billing-virtual-assistant",
       "admin-inbox",
-      "customer-service"
-    ],
+      "customer-service",
+      "ndis-rostering"],
     "tools": [
       "PACE",
       "Lumary",
@@ -957,13 +961,14 @@ export const INDUSTRIES: IndustryPage[] = [
       "Splose"
     ],
     "hiringNotes": [
-      "Your organization retains required approvals and professional responsibility -- this role handles processing, reconciliation, and exceptions under your supervision.",
+      "Your organisation retains required approvals and professional responsibility -- this role handles processing, reconciliation, and exceptions under your supervision.",
       "Define participant volume and claims-per-month before sizing the role.",
       "Document audit and privacy requirements before granting platform access."
     ]
   },
   {
     "slug": "mortgage-broker-loan-processing",
+    "locale": "en-AU",
     "clusterSlug": "real-estate-agents",
     "label": "Mortgage Loan Processing",
     "h1": "Keep More Mortgage Files Moving From Application to Settlement",
@@ -1004,6 +1009,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "smsf-production",
+    "locale": "en-AU",
     "clusterSlug": "accountants-cpas",
     "label": "SMSF Production",
     "h1": "Clear Your SMSF Production Backlog Before Review Season",
@@ -1044,6 +1050,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "strata-management-administration",
+    "locale": "en-AU",
     "clusterSlug": "property-management-companies",
     "label": "Strata Administration",
     "h1": "Keep Every Strata Portfolio Ready for the Next Meeting",
@@ -1084,6 +1091,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "property-management-maintenance-coordination",
+    "locale": "en-AU",
     "clusterSlug": "property-management-companies",
     "label": "Maintenance Coordination",
     "h1": "Move Tenant Maintenance Requests From Inbox to Completion",
@@ -1125,6 +1133,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "allied-health-referral-billing",
+    "locale": "en-AU",
     "label": "Allied Health Admin",
     "h1": "Keep Referrals, Billing and Recalls Moving Between Appointments",
     "primaryKeyword": "allied health administration outsourcing",
@@ -1165,6 +1174,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "trades-service-administration",
+    "locale": "en-AU",
     "clusterSlug": "home-local-services",
     "label": "Trades Administration",
     "h1": "Turn Every Service Call Into a Scheduled, Invoiced Job",
@@ -1206,12 +1216,13 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "bim-revit-production",
+    "locale": "en-AU",
     "clusterSlug": "construction-companies",
     "label": "BIM & Revit",
     "h1": "Expand Your BIM Production Capacity Without Moving Design Authority",
     "primaryKeyword": "bim revit outsourcing",
     "metaTitle": "BIM & Revit Production Support | Philippines",
-    "metaDescription": "Hire Philippines-based BIM and Revit production support for modeling, documentation, redlines, families, coordination outputs and drawing packages.",
+    "metaDescription": "Hire Philippines-based BIM and Revit production support for modelling, documentation, redlines, families, coordination outputs and drawing packages.",
     "intro": "Design teams often lose senior hours to model housekeeping, sheet production, markups, and repetitive documentation. An outsourced BIM production layer handles that defined production work while architects and engineers retain responsibility for design intent and technical approval.",
     "audience": "architecture practices, structural engineers, mep consultants and bim teams",
     "workflows": [
@@ -1247,6 +1258,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "recruitment-candidate-sourcing",
+    "locale": "en-AU",
     "label": "Candidate Sourcing",
     "h1": "Keep Recruiter Pipelines Full Before Consultants Start Calling",
     "primaryKeyword": "recruitment candidate sourcing outsourcing",
@@ -1287,6 +1299,7 @@ export const INDUSTRIES: IndustryPage[] = [
   },
   {
     "slug": "insurance-broker-renewal-desk",
+    "locale": "en-AU",
     "clusterSlug": "insurance-agencies",
     "label": "Insurance Renewals",
     "h1": "Put Every Renewal File in Front of the Broker Ready for Review",
@@ -1406,7 +1419,73 @@ export const INDUSTRIES: IndustryPage[] = [
       "Use documented status codes and one source of truth for pickup, transit, delivery and paperwork exceptions.",
       "Drivers, dispatchers, brokers and company leadership retain responsibility for safety, regulatory compliance, routing, rate commitments and real-time operational decisions."
     ]
+  },
+{
+    "slug": "conveyancing-firms",
+    "locale": "en-AU",
+    "clusterSlug": "law-firms",
+    "label": "Conveyancing Firms",
+    "h1": "Virtual Assistants for Australian Conveyancing Firms",
+    "primaryKeyword": "virtual assistant for conveyancing firm",
+    "metaTitle": "Conveyancing Virtual Assistants Australia",
+    "metaDescription": "Philippines-based Virtual Assistants for Australian conveyancers handling matter admin, PEXA preparation, client follow-up, milestones and settlement support.",
+    "intro": "Australian conveyancing teams can delegate repeatable matter administration without delegating legal judgement. Build the role around file setup, document follow-up, PEXA preparation, milestone tracking and client updates, while licensed professionals retain advice, contract interpretation, signing authority and settlement responsibility.",
+    "audience": "Australian conveyancing practices, settlement teams and property law firms",
+    "workflows": ["open approved matters and prepare file structures","collect client and transaction documents","maintain PEXA preparation checklists","track searches, certificates and settlement milestones","prepare routine client and agent updates","record outstanding items and escalation points","support post-settlement administration"],
+    "serviceSlugs": ["conveyancing","legal-virtual-assistant","paralegal-virtual-assistant","admin-inbox"],
+    "tools": ["PEXA","LEAP","Smokeball","InfoTrack","Microsoft 365","DocuSign"],
+    "hiringNotes": ["Document which matter stages can be handled administratively and which require a conveyancer or solicitor.","Use named accounts and minimum access for client and transaction information.","Keep advice, contract interpretation, regulated conveyancing activity and final settlement decisions with authorised Australian professionals."]
+  },
+{
+    "slug": "buyers-agents",
+    "locale": "en-AU",
+    "clusterSlug": "real-estate-agents",
+    "label": "Buyers Agents",
+    "h1": "Virtual Assistants for Australian Buyers Agents",
+    "primaryKeyword": "virtual assistant for buyers agent",
+    "metaTitle": "Buyers Agent Virtual Assistants Australia",
+    "metaDescription": "Hire Philippines-based support for Australian buyers agents covering CRM, property research, inspections, agent follow-up and transaction administration.",
+    "intro": "A buyers agency can delegate the research and administrative work around each client brief while keeping property recommendations, negotiation and licensed real-estate decisions with the buyers agent. Structure the role around CRM discipline, research queues, inspections and transaction follow-through.",
+    "audience": "Australian buyers agencies, property advisers and acquisition teams",
+    "workflows": ["capture approved client briefs in the CRM","research and organise suitable property opportunities","coordinate inspections and calendar changes","follow up selling agents for approved information","maintain due-diligence checklists","prepare factual comparable-property data","update clients from approved notes","support contract and settlement administration"],
+    "serviceSlugs": ["buyers-agent","real-estate","research-data","admin-inbox"],
+    "tools": ["VaultRE","AgentBox","CoreLogic","Domain","realestate.com.au","Google Workspace"],
+    "hiringNotes": ["Define what research may be prepared versus what constitutes a property recommendation.","Use one CRM as the source of truth for client briefs and property status.","Keep negotiation, advice, offer strategy and regulated real-estate decisions with the buyers agent."]
+  },
+{
+    "slug": "financial-planning-firms",
+    "locale": "en-AU",
+    "clusterSlug": "financial-advisers",
+    "label": "Financial Planning Firms",
+    "h1": "Virtual Assistants for Australian Financial Planning Firms",
+    "primaryKeyword": "virtual assistant for financial planning firm",
+    "metaTitle": "Financial Planning Virtual Assistants Australia",
+    "metaDescription": "Philippines-based support for Australian financial planning firms using Xplan for client admin, annual reviews, implementation tracking and document follow-up.",
+    "intro": "Australian advice practices can delegate repeatable client administration and advice-production support while authorised advisers retain personal advice, recommendations and regulated approvals. Design the role around Xplan, review preparation, implementation follow-up and a clear escalation path.",
+    "audience": "Australian financial planning practices, wealth advisers and paraplanning teams",
+    "workflows": ["maintain approved client records in Xplan","prepare annual review administration","collect fact-find and supporting documents","prepare meeting and review packs","track implementation and provider follow-up","record outstanding client actions","maintain service calendars and review dates","escalate advice or compliance decisions to authorised staff"],
+    "serviceSlugs": ["financial-planning","financial-advisor-virtual-assistant","admin-inbox","calendar"],
+    "tools": ["Xplan","Microsoft 365","DocuSign","Adobe Acrobat","provider portals"],
+    "hiringNotes": ["Separate administrative preparation from financial advice and recommendations.","Use role-based permissions and documented review checkpoints.","Keep advice documents, product recommendations, regulated approvals and final client advice with appropriately authorised Australian advisers."]
+  },
+{
+    "slug": "aged-care-providers",
+    "locale": "en-AU",
+    "clusterSlug": "healthcare-dental",
+    "label": "Aged Care Providers",
+    "h1": "Virtual Assistants for Australian Aged Care Providers",
+    "primaryKeyword": "virtual assistant for aged care provider",
+    "metaTitle": "Aged Care Virtual Assistant Services Australia",
+    "metaDescription": "Philippines-based Virtual Assistants for Australian aged-care providers covering rostering, referrals, records, service updates and client admin.",
+    "intro": "Australian aged-care providers can delegate repeatable scheduling and client administration while keeping care decisions, safeguarding, incidents and compliance accountability with qualified local staff. Build the role around a documented roster and client-record workflow.",
+    "audience": "Australian home-care, community-care and aged-care service providers",
+    "workflows": ["maintain client and service records","update approved rosters and worker availability","coordinate routine schedule changes","follow up referrals and intake documents","record service changes and outstanding actions","send approved routine client communications","maintain administrative checklists","escalate care, incident or safeguarding issues immediately"],
+    "serviceSlugs": ["aged-care","ndis-rostering","allied-health-referral-billing-virtual-assistant","admin-inbox"],
+    "tools": ["ShiftCare","AlayaCare","Microsoft 365","Google Workspace","Teams"],
+    "hiringNotes": ["Keep care planning, clinical judgement, incidents and safeguarding decisions with qualified local staff.","Use minimum necessary access for sensitive client information.","Define roster-change authority and urgent escalation rules before the Virtual Assistant handles live schedules."]
   }
+
+
 ];
 
 export function industryBySlug(slug: string) { return INDUSTRIES.find((industry) => industry.slug === slug); }

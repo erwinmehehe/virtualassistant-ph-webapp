@@ -25,57 +25,89 @@ type EmbeddingResponse = {
   data?: Array<{ index?: number; embedding?: number[] }>;
 };
 
-async function gatewayApiKey() {
-  // Prefer Vercel's fresh request-scoped OIDC identity in production. A
-  // configured API key can be stale or permission-scoped, so it is only the
-  // fallback for local/non-Vercel execution.
+async function gatewayCredentials() {
+  // AI Gateway documents both API-key and OIDC authentication. Prefer the
+  // explicit Gateway key when present, then fall back to Vercel OIDC. Keep
+  // request-scoped OIDC last because not every request token is authorized for
+  // AI Gateway, and a 403 from one credential must not block a valid fallback.
+  const credentials = [
+    process.env.AI_GATEWAY_API_KEY?.trim(),
+    process.env.VERCEL_OIDC_TOKEN?.trim(),
+  ].filter((value): value is string => Boolean(value));
+
   try {
     const requestHeaders = await headers();
     const runtimeOidc = requestHeaders.get("x-vercel-oidc-token")?.trim();
-    if (runtimeOidc) return runtimeOidc;
+    if (runtimeOidc) credentials.push(runtimeOidc);
   } catch {
-    // headers() is unavailable outside a request context, such as local jobs.
+    // headers() is unavailable outside a request context, such as cron jobs.
   }
 
-  return process.env.VERCEL_OIDC_TOKEN?.trim() || process.env.AI_GATEWAY_API_KEY?.trim() || "";
+  return [...new Set(credentials)];
 }
 
 function vectorLiteral(values: number[]) {
   return `[${values.join(",")}]`;
 }
 
-async function embedTexts(values: string[], existingKey?: string) {
-  const key = existingKey || await gatewayApiKey();
-  if (!key || !values.length) return null;
+async function embedTexts(values: string[], existingCredentials?: string[]) {
+  const credentials = existingCredentials?.length
+    ? [...new Set(existingCredentials)]
+    : await gatewayCredentials();
+  if (!credentials.length || !values.length) return null;
 
-  const response = await fetch(AI_GATEWAY_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL,
-      input: values,
-      dimensions: EMBEDDING_DIMENSIONS,
-    }),
-    signal: AbortSignal.timeout(8_000),
-    cache: "no-store",
+  let lastAuthStatus: number | null = null;
+  for (const key of credentials) {
+    const response = await fetch(AI_GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL,
+        input: values,
+        dimensions: EMBEDDING_DIMENSIONS,
+      }),
+      signal: AbortSignal.timeout(8_000),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        lastAuthStatus = response.status;
+        continue;
+      }
+      console.error("[talent-search] AI Gateway embedding request failed", {
+        status: response.status,
+      });
+      return null;
+    }
+
+    const payload = await response.json() as EmbeddingResponse;
+    const rows = [...(payload.data || [])].sort(
+      (a, b) => Number(a.index || 0) - Number(b.index || 0),
+    );
+    if (rows.length !== values.length) return null;
+
+    const embeddings = rows.map((row) => row.embedding || []);
+    if (
+      embeddings.some(
+        (embedding) =>
+          embedding.length !== EMBEDDING_DIMENSIONS ||
+          embedding.some((value) => !Number.isFinite(value)),
+      )
+    ) {
+      return null;
+    }
+    return embeddings;
+  }
+
+  console.error("[talent-search] AI Gateway authentication failed", {
+    status: lastAuthStatus,
+    attemptedCredentials: credentials.length,
   });
-
-  if (!response.ok) {
-    console.error("[talent-search] AI Gateway embedding request failed", { status: response.status });
-    return null;
-  }
-  const payload = await response.json() as EmbeddingResponse;
-  const rows = [...(payload.data || [])].sort((a, b) => Number(a.index || 0) - Number(b.index || 0));
-  if (rows.length !== values.length) return null;
-
-  const embeddings = rows.map((row) => row.embedding || []);
-  if (embeddings.some((embedding) => embedding.length !== EMBEDDING_DIMENSIONS || embedding.some((value) => !Number.isFinite(value)))) {
-    return null;
-  }
-  return embeddings;
+  return null;
 }
 
 export async function searchPublicTalent(params: TalentSearchParams) {
@@ -138,8 +170,10 @@ export async function searchPublicTalent(params: TalentSearchParams) {
  * non-public candidates never enter the embedding provider request.
  */
 export async function syncPublicTalentEmbeddings(limit = 25) {
-  const key = await gatewayApiKey();
-  if (!key) return { checked: 0, updated: 0, skipped: "embedding_provider_not_configured" as const };
+  const credentials = await gatewayCredentials();
+  if (!credentials.length) {
+    return { checked: 0, updated: 0, skipped: "embedding_provider_not_configured" as const };
+  }
 
   const admin = createAdminClient();
   const { data: sources, error } = await admin.rpc("list_public_va_embedding_sources", {
@@ -150,7 +184,7 @@ export async function syncPublicTalentEmbeddings(limit = 25) {
   const rows = (sources || []) as Array<{ va_id: string; search_text: string; source_hash: string }>;
   if (!rows.length) return { checked: 0, updated: 0 };
 
-  const embeddings = await embedTexts(rows.map((row) => row.search_text), key);
+  const embeddings = await embedTexts(rows.map((row) => row.search_text), credentials);
   if (!embeddings) throw new Error("Talent embedding provider returned an invalid response.");
 
   const model = process.env.AI_TALENT_EMBEDDING_MODEL?.trim() || DEFAULT_EMBEDDING_MODEL;

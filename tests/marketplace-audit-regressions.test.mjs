@@ -49,10 +49,13 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(service, /x-vercel-oidc-token/);
   assert.match(service, /await headers\(\)/);
   assert.ok(
-    service.indexOf('requestHeaders.get("x-vercel-oidc-token")') <
-      service.indexOf("process.env.AI_GATEWAY_API_KEY"),
-    "runtime OIDC must be preferred over a static Gateway key",
+    service.indexOf("process.env.AI_GATEWAY_API_KEY") <
+      service.indexOf('requestHeaders.get("x-vercel-oidc-token")'),
+    "an explicit AI Gateway key should be attempted before request-scoped OIDC",
   );
+  assert.match(service, /response\.status === 401 \|\| response\.status === 403/);
+  assert.match(service, /for \(const key of credentials\)/);
+  assert.match(service, /attemptedCredentials: credentials\.length/);
   assert.match(migration, /create extension if not exists vector/i);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);

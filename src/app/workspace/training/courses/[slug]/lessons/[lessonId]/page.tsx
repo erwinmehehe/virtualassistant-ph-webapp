@@ -152,6 +152,10 @@ export default async function TrainingLessonPage({
     : 0;
   const blocks = contentBlocks(lesson.content);
   const requiresExercise = blocks.some((block) => block.type === "exercise");
+  const hasWorkProductDrill = blocks.some((block) =>
+    (block.type === "heading" && block.text === "Work product drill") ||
+    (block.type === "scenario" && block.title === "Produce the artifact"),
+  );
   const checkpoint = buildLessonCheckpoint({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
@@ -243,6 +247,7 @@ export default async function TrainingLessonPage({
               {course.slug === "medical-healthcare-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Healthcare admin artifact included</span> : null}
               {course.slug === "bookkeeping-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Finance control artifact included</span> : null}
               {course.slug === "payroll-administration" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Payroll control artifact included</span> : null}
+              {course.slug === "airbnb-short-term-rental-virtual-assistant" && (requiresExercise || hasWorkProductDrill) ? <span className="badge training-work-practice-badge"><Target size={13}/> Property ops artifact included</span> : null}
               {course.slug === "airbnb-short-term-rental-virtual-assistant" && requiresExercise ? <span className="badge training-work-practice-badge"><Target size={13}/> Property ops artifact included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">

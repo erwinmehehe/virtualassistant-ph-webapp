@@ -1190,8 +1190,8 @@ export const softwarePages: SoftwareSeoPage[] = [
       "Add Revit production support for model updates, sheets, schedules, families, redlines and BIM documentation.",
     h1: "Add Revit Production Capacity Without Moving Design Authority",
     intro:
-      "A Revit Virtual Assistant can handle clearly documented modeling and drawing production from approved instructions and markups. Architects and engineers retain control of design intent, technical decisions and final approvals.",
-    focus: "revit modeling and documentation production",
+      "A Revit Virtual Assistant can handle clearly documented modelling and drawing production from approved instructions and markups. Architects and engineers retain control of design intent, technical decisions and final approvals.",
+    focus: "revit modelling and documentation production",
     workflows: [
       "receive the approved model and markup package",
       "review project standards",
@@ -1204,7 +1204,7 @@ export const softwarePages: SoftwareSeoPage[] = [
       "package updates for professional review"
     ],
     tasks: [
-      "revit modeling",
+      "revit modelling",
       "sheet production",
       "schedule updates",
       "family editing",

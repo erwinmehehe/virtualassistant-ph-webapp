@@ -5180,3 +5180,13 @@
     justify-content: center;
   }
 }
+
+
+/* Short-Term Rental property-ops palette */
+.training-rental-course,
+.training-rental-player {
+  --training-work-accent: #c4320a;
+  --training-work-soft: #fff6ed;
+  --training-work-border: #ffd6ae;
+  --training-work-hero: rgba(196, 50, 10, 0.08);
+}

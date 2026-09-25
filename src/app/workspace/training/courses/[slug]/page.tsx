@@ -49,6 +49,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isHealthcareCourse = course.slug === "medical-healthcare-virtual-assistant";
   const isBookkeepingCourse = course.slug === "bookkeeping-administration";
   const isPayrollCourse = course.slug === "payroll-administration";
+  const isShortTermRentalCourse = course.slug === "airbnb-short-term-rental-virtual-assistant";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -75,7 +76,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                           ? " training-work-course training-bookkeeping-course"
                           : isPayrollCourse
                             ? " training-work-course training-payroll-course"
-                            : "";
+                            : isShortTermRentalCourse
+                              ? " training-work-course training-rental-course"
+                              : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -284,6 +287,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><FileCheck2 size={17}/><span><strong>Employee change register</strong><small>Control starters, leavers, bank changes, pay changes, effective dates, and approval evidence.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Pre-payroll variance + approval pack</strong><small>Review pay inputs, outliers, unresolved items, and go/no-go controls before release.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Post-payroll + query handoff</strong><small>Reconcile approved outputs, employee queries, corrections, and reapproval requirements.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isShortTermRentalCourse ? (
+          <div className="training-work-outcomes" aria-label="Short-Term Rental Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A reservation-operations pack for guest stays, property readiness, vendors, and owner handoffs</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><CalendarDays size={17}/><span><strong>Reservation + calendar control</strong><small>Keep dates, guest details, owner blocks, and channel availability aligned.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Guest messaging + issue queue</strong><small>Handle arrivals, access, complaints, and commercial requests without overstepping authority.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Turnover + maintenance board</strong><small>Track cleaners, supplies, inspections, vendors, readiness risks, and emergency routing.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Owner + shift handoff</strong><small>Summarize open issues, decisions needed, property risks, and next checkpoints across properties.</small></span></div>
             </div>
           </div>
         ) : null}

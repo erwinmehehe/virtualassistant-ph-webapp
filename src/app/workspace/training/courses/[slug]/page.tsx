@@ -41,6 +41,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isOperationsCourse = course.slug === "operations-virtual-assistant";
   const isProjectCourse = course.slug === "project-management-for-virtual-assistants";
   const isSeoCourse = course.slug === "seo-virtual-assistant";
+  const isMarketingCourse = course.slug === "marketing-virtual-assistant";
+  const isEcommerceCourse = course.slug === "ecommerce-virtual-assistant";
+  const isSocialCourse = course.slug === "social-media-virtual-assistant";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -51,7 +54,13 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
           ? " training-work-course training-project-course"
           : isSeoCourse
             ? " training-work-course training-seo-course"
-            : "";
+            : isMarketingCourse
+              ? " training-work-course training-marketing-course"
+              : isEcommerceCourse
+                ? " training-work-course training-ecommerce-course"
+                : isSocialCourse
+                  ? " training-work-course training-social-course"
+                  : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -140,6 +149,51 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><ListChecks size={17}/><span><strong>Keyword + SERP opportunity map</strong><small>Prioritise demand using business value and observed search results.</small></span></div>
               <div><FileCheck2 size={17}/><span><strong>On-page + technical QA</strong><small>Specify metadata, internal links, canonicals, redirects, and checks.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>GSC + change validation</strong><small>Report evidence, implementation status, impact, and next checks.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isMarketingCourse ? (
+          <div className="training-work-outcomes" aria-label="Marketing Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A campaign operations pack from brief through launch and reporting</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Campaign brief + claim register</strong><small>Keep objectives, audiences, offers, sources, and approvals explicit.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Content + production board</strong><small>Track assets, owners, dependencies, reviews, and publish status.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Launch + asset QA</strong><small>Validate copy, links, forms, tracking, approvals, and final versions.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>CRM + campaign reporting</strong><small>Route responses, preserve campaign data, and report with clear definitions.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isEcommerceCourse ? (
+          <div className="training-work-outcomes" aria-label="E-commerce Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A store operations pack for catalog, orders, inventory, and promotion control</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Catalog + SKU control</strong><small>Keep product identity, variants, source data, and listings consistent.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Order + fulfilment exception queue</strong><small>Track payment, shipping, returns, support, and next ownership.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Inventory + promotion QA</strong><small>Investigate stock mismatches and stop unsafe campaign launches.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Store reporting + handoff</strong><small>Reconcile marketplace signals, risks, metrics, and unresolved work.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isSocialCourse ? (
+          <div className="training-work-outcomes" aria-label="Social Media Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A social operations pack for planning, publishing, moderation, and reporting</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><CalendarDays size={17}/><span><strong>Content + approval calendar</strong><small>Track formats, assets, captions, owners, rights, and approvals.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>Publishing + asset QA</strong><small>Check final creative, copy, links, platform setup, and scheduled versions.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Moderation + escalation log</strong><small>Handle comments and complaints without exposing private data or inventing policy.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Performance + handoff report</strong><small>Summarize results, context, unresolved risks, and next actions.</small></span></div>
             </div>
           </div>
         ) : null}

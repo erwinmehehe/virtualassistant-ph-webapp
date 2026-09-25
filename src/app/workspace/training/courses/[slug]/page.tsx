@@ -38,11 +38,17 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const reviewLabel = reviewedLabel(course.last_reviewed_at);
   const isExecutiveCourse = course.slug === "executive-virtual-assistant";
   const isCustomerSupportCourse = course.slug === "customer-support-virtual-assistant";
+  const isOperationsCourse = course.slug === "operations-virtual-assistant";
+  const isProjectCourse = course.slug === "project-management-for-virtual-assistants";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
       ? " training-support-course"
-      : "";
+      : isOperationsCourse
+        ? " training-work-course training-operations-course"
+        : isProjectCourse
+          ? " training-work-course training-project-course"
+          : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -86,6 +92,36 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><FileCheck2 size={17}/><span><strong>Reply + case record</strong><small>Write clear customer responses and internal notes.</small></span></div>
               <div><ListChecks size={17}/><span><strong>Policy + escalation control</strong><small>Handle refunds, security, and exceptions safely.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>QA + shift handoff</strong><small>Leave every unresolved case owned and traceable.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isOperationsCourse ? (
+          <div className="training-work-outcomes" aria-label="Operations VA course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>An operations control pack for recurring work, exceptions, and handoffs</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><ListChecks size={17}/><span><strong>Process + SOP controls</strong><small>Map triggers, owners, steps, controls, and exceptions.</small></span></div>
+              <div><Inbox size={17}/><span><strong>Exception + dependency board</strong><small>Surface blocked work, owners, deadlines, and decisions.</small></span></div>
+              <div><FileCheck2 size={17}/><span><strong>KPI + reconciliation pack</strong><small>Compare records, quantify variance, and preserve evidence.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Incident + shift handoff</strong><small>Keep BAU moving while failures are controlled and owned.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isProjectCourse ? (
+          <div className="training-work-outcomes" aria-label="Project Management VA course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A project control pack for scope, delivery, risk, and closeout</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>Charter + scope baseline</strong><small>Define deliverables, owners, success criteria, and boundaries.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>Milestone + dependency plan</strong><small>Sequence work around capacity, blockers, and real dates.</small></span></div>
+              <div><Inbox size={17}/><span><strong>RAID + change control</strong><small>Keep risks, issues, decisions, and scope changes visible.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Status + handover pack</strong><small>Report progress, acceptance, rework, and closeout cleanly.</small></span></div>
             </div>
           </div>
         ) : null}

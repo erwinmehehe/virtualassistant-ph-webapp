@@ -566,7 +566,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const related = localizeContent(s.relatedSlugs.map(servicePageBySlug).filter(Boolean), s.locale);
   const relatedIndustries = localizeContent(INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4), s.locale);
   const guides = localizeContent(serviceBlogPosts(s.slug, 6), s.locale);
-  const seoResources = serviceSeoResources(s.slug).slice(0, 5);
+  const seoResources = localizeContent(serviceSeoResources(s.slug).slice(0, 5), s.locale);
   const priorityGuides = localizeContent(seoPriorityLinksForService(s.slug), s.locale);
   const talent = await getTalent(s);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";

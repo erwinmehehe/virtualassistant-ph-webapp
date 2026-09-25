@@ -53,16 +53,16 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const page = industry!;
   const isAu = page.locale === "en-AU";
   const loc = (value: string) => localizeEnglish(value, page.locale);
-  const services = page.serviceSlugs.map(servicePageBySlug).filter(Boolean);
-  const guides = Array.from(
+  const services = localizeContent(page.serviceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
+  const guides = localizeContent(Array.from(
     new Map(
       page.serviceSlugs
         .flatMap((serviceSlug) => serviceBlogPosts(serviceSlug, 2))
         .map((post) => [post.slug, post] as const)
     ).values()
-  ).slice(0, 6);
-  const hub = page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined;
-  const spokes = INDUSTRIES.filter((i) => i.clusterSlug === page.slug);
+  ).slice(0, 6), page.locale);
+  const hub = localizeContent(page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined, page.locale);
+  const spokes = localizeContent(INDUSTRIES.filter((i) => i.clusterSlug === page.slug), page.locale);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/industries/${page.slug}`;
   const talentFilters = industryTalentFilters(page.slug);

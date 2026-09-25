@@ -149,7 +149,7 @@ const newAuSoftware = [
   "myob-virtual-assistant"
 ];
 
-const forbiddenAmericanSpellings = /\\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled)\\b/i;
+const forbiddenAmericanSpellings = /\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled)\b/i;
 
 test("all Australian-target service, industry and software records are explicitly en-AU", () => {
   const services = source("src/lib/service-pages.ts");
@@ -189,7 +189,7 @@ test("new Australian gap pages have distinct canonical owners and valid internal
   const software = source("src/lib/software-pages.ts");
   const serviceSlugs = new Set(services.map((page) => page.slug));
   const industrySlugs = new Set(industries.map((page) => page.slug));
-  const softwareSlugs = [...software.matchAll(/\\bslug:\\s*"([^"]+)"/g)].map((match) => match[1]);
+  const softwareSlugs = [...software.matchAll(/\bslug:\s*"([^"]+)"/g)].map((match) => match[1]);
 
   assert.equal(new Set(serviceSlugs).size, services.length, "service slugs must stay unique");
   assert.equal(new Set(industrySlugs).size, industries.length, "industry slugs must stay unique");
@@ -215,8 +215,8 @@ test("new Australian gap pages have distinct canonical owners and valid internal
 
   for (const slug of newAuSoftware) {
     const objectText = objectForSlug(software, slug);
-    const title = objectText.match(/metaTitle:\\s*"([^"]+)"/)?.[1] || "";
-    const description = objectText.match(/metaDescription:\\s*"([^"]+)"/)?.[1] || "";
+    const title = objectText.match(/metaTitle:\s*"([^"]+)"/)?.[1] || "";
+    const description = objectText.match(/metaDescription:\s*"([^"]+)"/)?.[1] || "";
     assert.ok(title.length > 0 && title.length <= 60, `${slug} title is missing or too long`);
     assert.ok(description.length >= 120 && description.length <= 160, `${slug} description should be 120-160 chars`);
     for (const related of arrayField(objectText, "relatedServiceSlugs")) assert.ok(serviceSlugs.has(related), `${slug} links to missing service ${related}`);

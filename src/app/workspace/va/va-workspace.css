@@ -956,3 +956,327 @@
     font-size: 25px;
   }
 }
+
+
+/* VA mobile next-three pass: profile, placement, interviews */
+@media (max-width: 680px) {
+  /* Profile: easier scanning and iOS-friendly form controls */
+  .va-profile-mobile-head {
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .va-profile-mobile-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-profile-mobile-head p {
+    max-width: 34rem;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-profile-preview {
+    min-height: 40px;
+    padding-inline: 12px;
+  }
+
+  .profile-editor-form .profile-section-flat,
+  .profile-section-flat {
+    padding: 14px;
+  }
+
+  .profile-section-head-simple {
+    gap: 10px;
+    margin-bottom: 13px;
+  }
+
+  .profile-section-head-simple h2 {
+    font-size: 16px;
+  }
+
+  .profile-section-head-simple p {
+    font-size: 11.75px;
+  }
+
+  .profile-editor-form .field input:not([type="checkbox"]):not([type="radio"]),
+  .profile-editor-form .field select,
+  .profile-editor-form .field textarea {
+    font-size: 16px;
+  }
+
+  .profile-editor-form .field textarea {
+    min-height: 118px;
+    line-height: 1.5;
+  }
+
+  .profile-photo-control {
+    align-items: start;
+  }
+
+  .profile-savebar {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .profile-savebar .small {
+    line-height: 1.4;
+  }
+
+  /* Placement workroom: reduce nested card density on phones */
+  .va-workroom-page {
+    display: grid;
+    gap: 13px;
+  }
+
+  .va-workroom-head {
+    margin-bottom: 0;
+  }
+
+  .va-workroom-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-workroom-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-workroom-card {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  .va-workroom-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .va-workroom-summary h2 {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .va-workroom-support {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-workroom-terms {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-workroom-terms .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .va-workroom-terms .grid-4 > div {
+    min-width: 0;
+  }
+
+  .va-workroom-terms .grid-4 strong {
+    overflow-wrap: anywhere;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .va-workroom-checkin {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-workroom-checkin > .row.wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .va-workroom-checkin > .row.wrap .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  .va-workroom-checkin textarea,
+  .va-workroom-log-time textarea,
+  .va-workroom-time textarea {
+    min-height: 104px;
+    font-size: 16px;
+  }
+
+  .va-workroom-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .va-workroom-stats > .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 0;
+    padding: 11px 12px;
+  }
+
+  .va-workroom-main-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .va-workroom-onboarding,
+  .va-workroom-log-time,
+  .va-workroom-tasks,
+  .va-workroom-time {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-workroom-onboarding .check-item {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .va-workroom-onboarding .check-item .btn {
+    grid-column: 2;
+    width: fit-content;
+    min-height: 38px;
+  }
+
+  .va-workroom-log-time .form-grid,
+  .va-workroom-time .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-workroom-log-time .span-2,
+  .va-workroom-time .span-2 {
+    grid-column: auto;
+  }
+
+  .va-workroom-log-time > form > .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .va-workroom-tasks .responsive-table table,
+  .va-workroom-tasks .responsive-table tbody,
+  .va-workroom-tasks .responsive-table tr,
+  .va-workroom-tasks .responsive-table td {
+    width: 100%;
+  }
+
+  .va-workroom-tasks .responsive-table td form.row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .va-workroom-tasks .responsive-table .compact-select,
+  .va-workroom-tasks .responsive-table td form.row .btn {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .va-workroom-time .review-answer {
+    padding: 12px;
+  }
+
+  /* Interviews: make the meeting action and schedule readable on narrow screens */
+  .va-interviews-page {
+    display: grid;
+    gap: 12px;
+  }
+
+  .va-interviews-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .va-interviews-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .va-interviews-head p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .va-interviews-applications {
+    min-height: 40px;
+  }
+
+  .va-interview-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .va-interview-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .va-interview-summary h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .va-interview-join {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-interview-schedule {
+    padding: 12px;
+  }
+
+  .va-interview-schedule > .row {
+    align-items: flex-start;
+  }
+
+  .va-interview-schedule > .row strong {
+    line-height: 1.4;
+  }
+
+  .va-interview-schedule form .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-profile-mobile-head,
+  .va-workroom-head,
+  .va-interviews-head {
+    padding-inline: 0;
+  }
+
+  .va-profile-mobile-head h1,
+  .va-workroom-head h1,
+  .va-interviews-head h1 {
+    font-size: 25px;
+  }
+
+  .va-profile-preview,
+  .va-interviews-applications {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .va-workroom-terms .grid-4 {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

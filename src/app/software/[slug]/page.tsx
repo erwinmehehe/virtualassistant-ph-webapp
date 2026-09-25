@@ -11,6 +11,7 @@ import { industryBySlug } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
 import { organizationRef } from "@/lib/organization";
 import { blogHref, softwareBlogPosts } from "@/lib/blog";
+import { localizeContent, localizeEnglish } from "@/lib/content-language";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -19,12 +20,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const page = getSoftwarePage(slug);
   if (!page) return {};
   const canonical = canonicalPath(`/software/${page.slug}`);
+  const title = localizeEnglish(page.metaTitle, page.locale);
+  const description = localizeEnglish(page.metaDescription, page.locale);
   return {
-    title: { absolute: page.metaTitle },
-    description: page.metaDescription,
+    title: { absolute: title },
+    description,
     keywords: [page.primaryKeyword, `hire ${page.software.toLowerCase()} virtual assistant`, `${page.software.toLowerCase()} outsourcing philippines`],
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title: page.metaTitle, description: page.metaDescription }
+    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined }
   };
 }
 
@@ -62,6 +65,8 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const page = getSoftwarePage(slug);
   if (!page) notFound();
+  const isAu = page.locale === "en-AU";
+  const loc = (value: string) => localizeEnglish(value, page.locale);
 
   const relatedServices = page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean);
   const relatedIndustries = page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean);
@@ -72,17 +77,17 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
   const matchService = relatedServices.find((service) => service?.directoryCategory === page.directoryCategory) || relatedServices[0];
   const matchExample = `Run our ${page.software} workflow: ${page.tasks.slice(0, 3).join(", ")}, and flag anything that needs a decision.`;
-  const longForm = softwareLongFormCopy(page);
+  const longForm = localizeContent(softwareLongFormCopy(page), page.locale);
 
-  const faqs = [
+  const faqs = localizeContent([
     { q: `Can a virtual assistant actually run ${page.software}?`, a: `Yes, once trained on your specific workflow. Common ${page.software} tasks include ${page.tasks.slice(0, 5).join(", ")}. Scope the role around what you actually need before hiring.` },
     { q: `What should stay with my local team instead of the Virtual Assistant?`, a: page.hiringNotes[page.hiringNotes.length - 1] || "Regulated advice, final approvals, and compliance decisions should stay with the appropriately licensed or authorised local professional." },
     { q: `Who is this best for?`, a: `${titleCase(page.bestFor.join(", "))} typically get the most value from a ${page.software} Virtual Assistant.` },
     { q: `How is this different from a generic virtual assistant?`, a: `A ${page.software} Virtual Assistant is trained on this specific platform from day one, so onboarding is faster and the role can start on real production work sooner instead of learning the system from scratch.` }
-  ];
+  ], page.locale);
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: page.h1, url: pageUrl, description: page.metaDescription, provider: organizationRef(base), areaServed: "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: page.h1, url: pageUrl, description: page.metaDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
@@ -141,7 +146,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
       <aside className="card stack">
         <div><h3>Define the operating rules.</h3></div>
         {page.hiringNotes.map((item, index) => <div className="review-answer" key={`${item}-${index}`}>{item}</div>)}
-        <div className="review-answer"><ShieldCheck size={16}/> Access, compliance, licensing, and supervision remain the client organization's responsibility.</div>
+        <div className="review-answer"><ShieldCheck size={16}/> {loc("Access, compliance, licensing, and supervision remain the client organization's responsibility.")}</div>
       </aside>
     </div></section>
 

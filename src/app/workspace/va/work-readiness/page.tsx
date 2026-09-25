@@ -36,7 +36,7 @@ export default async function VaWorkReadinessPage({
       : { label: "Setup incomplete", className: "is-incomplete", detail: "Complete every field and readiness check below." };
 
   return <div className="va-work-readiness-page">
-    <div className="page-head va-work-readiness-head">
+    <div className="page-head va-work-readiness-head va-readiness-mobile-head">
       <div>
         <div className="kicker">Work readiness</div>
         <h1>Show recruiters you can work reliably</h1>
@@ -52,7 +52,7 @@ export default async function VaWorkReadinessPage({
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
 
     <div className="va-readiness-layout">
-      <aside className="card va-readiness-summary">
+      <aside className="card va-readiness-summary" aria-label="Work readiness status">
         <div className="va-readiness-summary-icon"><Monitor size={20}/></div>
         <h2>{status.label}</h2>
         <p>{status.detail}</p>
@@ -70,11 +70,11 @@ export default async function VaWorkReadinessPage({
         </div>
       </aside>
 
-      <section className="card va-readiness-form-card">
+      <section className="card va-readiness-form-card" aria-labelledby="work-setup-title">
         <div className="va-readiness-form-head">
           <div>
             <span className="small">Equipment & continuity</span>
-            <h2>Your work setup</h2>
+            <h2 id="work-setup-title">Your work setup</h2>
             <p>Use real details. If recruiters verify this setup and you later change it, verification resets so the signal stays accurate.</p>
           </div>
         </div>

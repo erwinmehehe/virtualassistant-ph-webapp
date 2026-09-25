@@ -3,6 +3,7 @@ import { ArrowRight, CalendarCheck, ChevronDown, Menu } from "lucide-react";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
+import { TrainingSectionObserver } from "@/components/training-section-observer";
 
 const serviceGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
@@ -53,11 +54,12 @@ function TrainingNav({
         </div>
 
         <nav className="nav-links" aria-label="Training navigation">
-          <Link href="/training#course-library">Courses</Link>
-          <Link href="/training#how-training-works">How it works</Link>
-          <Link href="/training#certificate">Certificates</Link>
-          <Link href="/training#faq">FAQ</Link>
+          <Link className="training-section-link" data-section="course-library" href="/training#course-library">Courses</Link>
+          <Link className="training-section-link" data-section="how-training-works" href="/training#how-training-works">How it works</Link>
+          <Link className="training-section-link" data-section="certificate" href="/training#certificate">Certificates</Link>
+          <Link className="training-section-link" data-section="faq" href="/training#faq">FAQ</Link>
         </nav>
+        <TrainingSectionObserver />
 
         <div className="nav-actions">
           {isLogin ? (

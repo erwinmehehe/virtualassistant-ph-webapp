@@ -22,7 +22,7 @@ function vectorLiteral(values: number[]) {
   return `[${values.join(",")}]`;
 }
 
-async function queryEmbedding(query: string) {
+async function getQueryEmbedding(query: string) {
   const text = query.trim();
   if (!text) return null;
 
@@ -77,7 +77,7 @@ export async function searchPublicTalent(params: TalentSearchParams) {
     // Semantic retrieval is an enhancement. If Edge inference is unavailable,
     // the database RPC continues with full-text and structured filtering.
     try {
-      queryEmbedding = await queryEmbeddingForSearch(query);
+      queryEmbedding = await getQueryEmbedding(query);
     } catch {
       queryEmbedding = null;
     }
@@ -108,9 +108,6 @@ export async function searchPublicTalent(params: TalentSearchParams) {
   };
 }
 
-async function queryEmbeddingForSearch(query: string) {
-  return queryEmbedding(query);
-}
 
 /**
  * Refreshes semantic embeddings for consented public VA profiles only.

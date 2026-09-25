@@ -44,6 +44,7 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   const isMarketingCourse = course.slug === "marketing-virtual-assistant";
   const isEcommerceCourse = course.slug === "ecommerce-virtual-assistant";
   const isSocialCourse = course.slug === "social-media-virtual-assistant";
+  const isSalesCourse = course.slug === "sales-lead-generation-virtual-assistant";
   const courseVariant = isExecutiveCourse
     ? " training-executive-course"
     : isCustomerSupportCourse
@@ -60,7 +61,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                 ? " training-work-course training-ecommerce-course"
                 : isSocialCourse
                   ? " training-work-course training-social-course"
-                  : "";
+                  : isSalesCourse
+                    ? " training-work-course training-sales-course"
+                    : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
 
   return (
@@ -194,6 +197,21 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <div><FileCheck2 size={17}/><span><strong>Publishing + asset QA</strong><small>Check final creative, copy, links, platform setup, and scheduled versions.</small></span></div>
               <div><Inbox size={17}/><span><strong>Moderation + escalation log</strong><small>Handle comments and complaints without exposing private data or inventing policy.</small></span></div>
               <div><CheckCircle2 size={17}/><span><strong>Performance + handoff report</strong><small>Summarize results, context, unresolved risks, and next actions.</small></span></div>
+            </div>
+          </div>
+        ) : null}
+
+        {isSalesCourse ? (
+          <div className="training-work-outcomes" aria-label="Sales and Lead Generation Virtual Assistant course work outputs">
+            <div className="training-work-outcomes-head">
+              <span>What you will actually build</span>
+              <strong>A sales-support control pack from prospect research through pipeline handoff</strong>
+            </div>
+            <div className="training-work-outcome-grid">
+              <div><FileCheck2 size={17}/><span><strong>ICP + prospect research pack</strong><small>Define fit, verify business data, record sources, and separate facts from inference.</small></span></div>
+              <div><ListChecks size={17}/><span><strong>CRM + sequence control</strong><small>Deduplicate records, preserve suppression, prepare outreach, and triage replies.</small></span></div>
+              <div><CalendarDays size={17}/><span><strong>Qualification + booking handoff</strong><small>Capture approved criteria, meeting context, time zones, and unresolved questions.</small></span></div>
+              <div><CheckCircle2 size={17}/><span><strong>Pipeline + funnel report</strong><small>Keep stages, owners, next actions, risks, and conversion signals honest.</small></span></div>
             </div>
           </div>
         ) : null}

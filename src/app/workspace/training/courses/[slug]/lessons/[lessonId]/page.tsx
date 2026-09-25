@@ -169,7 +169,9 @@ export default async function TrainingLessonPage({
     ? " training-foundations-player"
     : course.slug === "executive-virtual-assistant"
       ? " training-executive-player"
-      : "";
+      : course.slug === "customer-support-virtual-assistant"
+        ? " training-support-player"
+        : "";
 
   return (
     <div className={`dash-page role-overview training-home training-player-page${playerVariant}`}>
@@ -205,6 +207,7 @@ export default async function TrainingLessonPage({
               <span className="badge"><Clock3 size={13}/> About {lesson.estimated_minutes} minutes</span>
               {lesson.completed ? <span className="badge badge-success"><CheckCircle2 size={14}/> Completed</span> : <span className="badge">In progress</span>}
               {course.slug === "executive-virtual-assistant" && requiresExercise ? <span className="badge training-executive-practice-badge"><Target size={13}/> Work output included</span> : null}
+              {course.slug === "customer-support-virtual-assistant" && requiresExercise ? <span className="badge training-support-practice-badge"><Target size={13}/> Queue work included</span> : null}
               {lesson.last_reviewed_at ? (
                 <span className="badge">
                   Reviewed {new Intl.DateTimeFormat("en-PH", { month: "short", year: "numeric" }).format(new Date(lesson.last_reviewed_at))}

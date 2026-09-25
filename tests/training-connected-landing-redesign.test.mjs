@@ -6,11 +6,15 @@ const pagePath = "src/app/training/page.tsx";
 const cssPath = "src/app/training-landing.css";
 const siteNavPath = "src/components/site-nav.tsx";
 const trainingHeaderPath = "src/components/training-site-header.tsx";
+const sectionObserverPath = "src/components/training-section-observer.tsx";
+const navCssPath = "src/app/nav-cro.css";
 
 test("training uses one connected site-nav instead of a separate microsite menu", async () => {
-  const [header, nav] = await Promise.all([
+  const [header, nav, observer, navCss] = await Promise.all([
     readFile(trainingHeaderPath, "utf8"),
     readFile(siteNavPath, "utf8"),
+    readFile(sectionObserverPath, "utf8"),
+    readFile(navCssPath, "utf8"),
   ]);
 
   assert.match(header, /<SiteNav/);
@@ -18,12 +22,20 @@ test("training uses one connected site-nav instead of a separate microsite menu"
   assert.match(nav, /mode\?: "default" \| "training"/);
   assert.match(nav, /training-connected-nav/);
   assert.match(nav, /training-nav-context/);
+  assert.match(nav, /TrainingSectionObserver/);
+  assert.match(nav, /data-section="course-library"/);
   assert.match(nav, /href="\/training#course-library"/);
   assert.match(nav, /href="\/training#how-training-works"/);
   assert.match(nav, /href="\/training#certificate"/);
   assert.match(nav, /href="\/training#faq"/);
   assert.doesNotMatch(nav, />VA jobs<\/Link>/);
   assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
+
+  assert.match(observer, /requestAnimationFrame/);
+  assert.match(observer, /aria-current/);
+  assert.match(observer, /getBoundingClientRect/);
+  assert.match(navCss, /training-section-link\.is-active/);
+  assert.match(navCss, /@media \(max-width: 680px\)[\s\S]*va-mobile-drawer > summary span[\s\S]*display: none/);
 });
 
 test("training landing does not render a second disconnected navigation bar", async () => {

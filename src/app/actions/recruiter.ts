@@ -217,7 +217,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
     if (!jobId) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=Choose%20a%20role%20before%20assigning`);
     const { data: job } = await admin.from("jobs").select("*").eq("id", jobId).in("status", ["pending", "published"]).maybeSingle();
     if (!job) throw new Error("Role is not available for matching.");
-    const eligibleIds = rows.filter((row) => ["approved", "bench"].includes(String(row.stage)) && isRowApprovable(row)).map((row) => row.user_id);
+    const eligibleIds = rows.filter((row) => ["approved", "bench"].includes(String(row.stage))).map((row) => row.user_id);
     const { data: vaRows } = eligibleIds.length ? await admin.from("va_profiles").select("*").in("user_id", eligibleIds) : { data: [] as any[] };
     const inserts = (vaRows || []).map((va: any) => {
       const assessment = matchAssessment(job, va);
@@ -1071,10 +1071,10 @@ export async function assignVaToRoleAction(formData: FormData) {
   const [{ data: job }, { data: va }, { data: vetting }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).in("status", ["pending", "published"]).maybeSingle(),
     admin.from("va_profiles").select("*").eq("user_id", vaId).maybeSingle(),
-    admin.from("recruiter_va_directory").select("user_id,stage,completion_score").eq("user_id", vaId).maybeSingle()
+    admin.from("recruiter_va_directory").select("user_id,stage").eq("user_id", vaId).maybeSingle()
   ]);
-  if (!job || !va || !vetting || !["approved", "bench"].includes(String(vetting.stage || "")) || !isRowApprovable(vetting)) {
-    throw new Error("This Virtual Assistant must be approved and still have at least 60% profile completion before role assignment.");
+  if (!job || !va || !vetting || !["approved", "bench"].includes(String(vetting.stage || ""))) {
+    throw new Error("This Virtual Assistant must be approved or on the recruiter bench before role assignment.");
   }
   const assessment = matchAssessment(job, va);
   const { error } = await admin.from("job_shortlist_candidates").upsert({ job_id: jobId, va_id: vaId, match_score: assessment.score, match_confidence: assessment.confidence, shortlist_status: "proposed", created_by: user.id, updated_at: new Date().toISOString() }, { onConflict: "job_id,va_id" });

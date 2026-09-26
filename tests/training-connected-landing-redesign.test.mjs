@@ -6,8 +6,6 @@ const pagePath = "src/app/training/page.tsx";
 const cssPath = "src/app/training-landing.css";
 const siteNavPath = "src/components/site-nav.tsx";
 const trainingHeaderPath = "src/components/training-site-header.tsx";
-const sectionObserverPath = "src/components/training-section-observer.tsx";
-const navCssPath = "src/app/nav-cro.css";
 
 test("public training uses the primary site navigation and exposes Training globally", async () => {
   const [page, nav, trainingHeader] = await Promise.all([

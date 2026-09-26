@@ -52,9 +52,16 @@ export async function GET(request: Request) {
         await supabase.from("profiles").update({ email_verified: true, last_active_at: new Date().toISOString() }).eq("id", user.id);
       }
 
+      if (user && !profile && !trainingDestination && !requestedRole) {
+        const params = new URLSearchParams();
+        if (requestedNext) params.set("next", requestedNext);
+        if (lead) params.set("lead", lead);
+        return NextResponse.redirect(new URL(`/auth/choose-role${params.toString() ? `?${params.toString()}` : ""}`, url.origin));
+      }
+
       if (!user || (!profile && !trainingDestination)) {
         await supabase.auth.signOut();
-        return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));
+        return NextResponse.redirect(new URL("/auth/login?error=Your%20Google%20account%20was%20authenticated%20but%20its%20workspace%20could%20not%20be%20loaded.%20Please%20try%20again.", url.origin));
       }
 
       try {

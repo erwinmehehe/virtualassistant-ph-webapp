@@ -9,7 +9,7 @@ import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
-import { socialLoginEnabled } from "@/lib/social-login";
+import { socialProviderEnabled } from "@/lib/social-login";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { sendAccountConfirmationEmail, sendPasswordRecoveryEmail } from "@/lib/email";
@@ -114,7 +114,7 @@ export async function oauthAction(formData: FormData) {
   const destination = role ? destinationFor(role, parsed.data.next, parsed.data.talent) : safePath(parsed.data.next, "/");
   const callbackParams = new URLSearchParams({ next: destination });
   if (role) callbackParams.set("role", role);
-  if (role === "client" && parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
+  if (parsed.data.lead) callbackParams.set("lead", parsed.data.lead);
   // These two auth callbacks were the only places in the app that fell back to
   // localhost when NEXT_PUBLIC_APP_URL was unset -- everything else falls back
   // to the canonical origin. In production that meant Google/Microsoft
@@ -123,7 +123,7 @@ export async function oauthAction(formData: FormData) {
   // of the app uses, and only refuse when it genuinely resolves to localhost.
   // The buttons are hidden when social login is off, but a stale page or a
   // hand-made POST could still reach this action.
-  if (!socialLoginEnabled()) redirect("/auth/login?error=Social%20login%20is%20not%20available%20right%20now.%20Please%20use%20your%20email%20and%20password.");
+  if (!socialProviderEnabled(parsed.data.provider)) redirect("/auth/login?error=That%20social%20login%20provider%20is%20not%20available%20right%20now.%20Please%20use%20your%20email%20and%20password.");
 
   const origin = siteOrigin();
   if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
@@ -382,6 +382,46 @@ export async function joinAction(formData: FormData) {
   }
   if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
   redirect(`/auth/login?${loginParams.toString()}`);
+}
+
+export async function chooseOAuthRoleAction(formData: FormData) {
+  const role = String(formData.get("role") || "") === "client" ? "client" : "va";
+  const next = String(formData.get("next") || "").trim() || undefined;
+  const leadRaw = String(formData.get("lead") || "").trim();
+  const lead = z.string().uuid().safeParse(leadRaw).success ? leadRaw : undefined;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login?error=Please%20sign%20in%20with%20Google%20again.");
+
+  const existingProfile = await getOrBootstrapProfile(user);
+  if (existingProfile) {
+    const fallback = `/workspace/${existingProfile.role}`;
+    const requested = safePath(next, fallback);
+    redirect(requested.startsWith("/workspace/") && !requested.startsWith(fallback) ? fallback : requested);
+  }
+
+  const { data, error } = await supabase.auth.updateUser({
+    data: { ...user.user_metadata, role }
+  });
+  if (error || !data.user) redirect("/auth/choose-role?error=We%20could%20not%20finish%20setting%20up%20your%20workspace.");
+
+  const profile = await getOrBootstrapProfile(data.user);
+  if (!profile) redirect("/auth/choose-role?error=We%20could%20not%20create%20your%20workspace.%20Please%20try%20again.");
+
+  let claimedJobId: string | null = null;
+  if (profile.role === "client" && lead && data.user.email) {
+    try {
+      claimedJobId = await claimClientHiringRequests({ userId: data.user.id, email: data.user.email, leadId: lead });
+    } catch {
+      // Role setup must still succeed if a stale hiring request cannot be claimed.
+    }
+  }
+  if (claimedJobId) redirect(`/workspace/client/jobs/${claimedJobId}?claimed=1`);
+
+  const fallback = `/workspace/${profile.role}`;
+  const requested = safePath(next, fallback);
+  redirect(requested.startsWith("/workspace/") && !requested.startsWith(fallback) ? fallback : requested);
 }
 
 export async function logoutAction() {

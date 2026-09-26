@@ -96,7 +96,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                     {next ? <input type="hidden" name="next" value={next}/> : null}
                     {lead ? <input type="hidden" name="lead" value={lead}/> : null}
                     <input type="hidden" name="provider" value="google"/>
-                    <button className="btn auth-social-btn" type="submit">Google</button>
+                    <button className="btn auth-social-btn" type="submit">Continue with Google</button>
                   </form>
                 ) : null}
                 {microsoftEnabled ? (

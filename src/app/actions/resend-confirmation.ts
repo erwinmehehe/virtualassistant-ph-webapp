@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
@@ -102,26 +101,16 @@ export async function resendSignupConfirmationAction(formData: FormData) {
     }
   }
 
-  if (!brandedSent && unconfirmedUser) {
-    const callbackParams = new URLSearchParams();
-    if (next) callbackParams.set("next", next);
-    if (lead) callbackParams.set("lead", lead);
-    const callbackUrl = `${siteOrigin()}/auth/callback${callbackParams.toString() ? `?${callbackParams.toString()}` : ""}`;
-    const supabase = await createClient();
-    try {
-      await supabase.auth.resend({
-        type: "signup",
-        email,
-        options: { emailRedirectTo: callbackUrl }
-      });
-    } catch {
-      // Keep the response non-enumerating. The user gets the same message whether
-      // the address is unknown, already confirmed, or the provider declined it.
-    }
+  if (unconfirmedUser && !brandedSent) {
+    console.error("[auth_resend_confirmation] branded_send_failed", {
+      userId: unconfirmedUser.id,
+    });
   }
 
+  // Keep the response non-enumerating: unknown, already-confirmed, successful,
+  // and temporarily unavailable addresses all get the same guidance.
   redirect(loginRedirect({
-    message: "If that account still needs confirmation, we sent a new email. Check your inbox and spam folder.",
+    message: "If that account still needs confirmation, check your inbox and spam folder. If nothing arrives, wait a minute and try Resend again.",
     next,
     lead
   }));

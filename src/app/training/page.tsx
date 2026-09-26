@@ -19,7 +19,7 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
-import { TrainingSiteHeader } from "@/components/training-site-header";
+import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import {
@@ -211,7 +211,7 @@ export default async function TrainingPage() {
 
   return (
     <>
-      <TrainingSiteHeader />
+      <SiteHeader/>
       <main id="main-content" className="tr">
         <script
           type="application/ld+json"

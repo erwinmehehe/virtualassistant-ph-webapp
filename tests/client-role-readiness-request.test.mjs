@@ -8,7 +8,8 @@ test("staff can request missing role details only for linked client roles", asyn
   const action = await read("src/app/actions/agency-role.ts");
   assert.match(action, /requestClientRoleDetailsAction/);
   assert.match(action, /requireAnyRole\(\["recruiter", "admin"\]\)/);
-  assert.match(action, /job\.recruiter_id !== user\.id/);
+  assert.doesNotMatch(action, /job\.recruiter_id !== user\.id/);
+  assert.doesNotMatch(action, /This role is assigned to another recruiter/);
   assert.match(action, /Link the client account before requesting missing details/);
   assert.match(action, /publicationMissingDetails\(job\)/);
   assert.match(action, /admin\.auth\.admin\.getUserById\(job\.client_id\)/);

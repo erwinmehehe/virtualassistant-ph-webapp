@@ -58,11 +58,10 @@ test("new passwords are checked against HIBP using k-anonymity without sending t
   assert.match(account, /known%20data%20breaches/);
 });
 
-test("expected recruiter guardrails stay user-facing instead of polluting error monitoring", async () => {
-  const [matching, detail, list] = await Promise.all([
+test("expected recruiter guardrails stay user-facing without ownership access blocking", async () => {
+  const [matching, detail] = await Promise.all([
     read("src/app/actions/matching.ts"),
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
-    read("src/app/workspace/recruiter/roles/page.tsx"),
   ]);
 
   const staleStart = matching.indexOf('if (message.includes("VA availability is stale"))');
@@ -71,9 +70,8 @@ test("expected recruiter guardrails stay user-facing instead of polluting error 
   assert.match(staleBlock, /console\.info/);
   assert.doesNotMatch(staleBlock, /console\.error/);
 
-  assert.match(detail, /redirect\(\`\/workspace\/recruiter\/roles\?error=/);
-  assert.match(detail, /This role is assigned to another recruiter/);
-  assert.match(list, /params\.error \? <div className="alert" role="alert">\{params\.error\}<\/div>/);
+  assert.doesNotMatch(detail, /This role is assigned to another recruiter/);
+  assert.doesNotMatch(detail, /job\.recruiter_id && job\.recruiter_id !==/);
 });
 
 test("VA application entry points require moderated public jobs and keep private snapshot fields out", async () => {

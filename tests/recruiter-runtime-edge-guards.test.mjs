@@ -23,5 +23,6 @@ test("recruiter commercial actions stay on the canonical role workspace",()=>{
   const actions=read("src/app/actions/agency-role.ts");
   assert.doesNotMatch(actions,/workspace\/recruiter\/matching/);
   assert.match(actions,/workspace\/recruiter\/roles/);
-  assert.match(actions,/This role is assigned to another recruiter/);
+  assert.doesNotMatch(actions,/This role is assigned to another recruiter/);
+  assert.doesNotMatch(actions,/job\.recruiter_id && job\.recruiter_id !==/);
 });

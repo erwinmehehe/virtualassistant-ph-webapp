@@ -13,8 +13,9 @@ test("recruiter role page is the canonical matching and client handoff workspace
   assert.match(page, /sendClientShortlistFollowupAction/);
   assert.match(page, /client_shortlist_viewed/);
   assert.match(page, /Client has not viewed the shortlist yet/);
-  assert.match(page, /job\.recruiter_id && job\.recruiter_id !== userId/);
-  assert.match(page, /This role is assigned to another recruiter/);
+  assert.doesNotMatch(page, /job\.recruiter_id && job\.recruiter_id !== userId/);
+  assert.doesNotMatch(page, /This role is assigned to another recruiter/);
+  assert.match(page, /staffMap\.get\(job\.recruiter_id\) \|\| "Unassigned"/);
 });
 
 test("legacy recruiter detail routes point at the canonical workflow", async () => {

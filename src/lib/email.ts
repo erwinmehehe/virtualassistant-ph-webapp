@@ -175,7 +175,7 @@ type EmailEventLogMeta = {
 export const DAILY_RECIPIENT_LIMIT = Math.max(1, Number.parseInt(process.env.RESEND_DAILY_RECIPIENT_LIMIT || "100", 10) || 100);
 export const RESERVED_CRITICAL_RECIPIENTS = Math.min(
   DAILY_RECIPIENT_LIMIT,
-  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "20", 10) || 20)
+  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "40", 10) || 20)
 );
 const NON_CRITICAL_DAILY_LIMIT = Math.max(0, DAILY_RECIPIENT_LIMIT - RESERVED_CRITICAL_RECIPIENTS);
 
@@ -725,7 +725,7 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
       ctaHref: claimUrl,
       ctaLabel: "Claim my hiring request"
     })
-  }, "lead_claim_nudge", { archive: false, priority: "low", idempotencyKey: `lead-claim-nudge-${args.leadId}` });
+  }, "lead_claim_nudge", { archive: false, priority: "critical", idempotencyKey: `lead-claim-nudge-${args.leadId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

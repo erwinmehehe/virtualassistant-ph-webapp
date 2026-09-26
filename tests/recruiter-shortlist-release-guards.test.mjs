@@ -32,12 +32,15 @@ test("recruiter can send a cooldown-safe in-app availability reminder",()=>{
   assert.match(role,/availability_reminded/);
 });
 
-test("role control center enforces recruiter ownership with a visible redirect message",()=>{
+test("recruiter assignment is ownership metadata, not a role access gate",()=>{
   const detail=source("src/app/workspace/recruiter/roles/[id]/page.tsx");
-  const list=source("src/app/workspace/recruiter/roles/page.tsx");
+  const matching=source("src/app/actions/matching.ts");
+  const agencyRole=source("src/app/actions/agency-role.ts");
 
-  assert.match(detail,/const \{ userId \} = await requireRoleFast\("recruiter"\)/);
-  assert.match(detail,/job\.recruiter_id && job\.recruiter_id !== userId/);
-  assert.match(detail,/This role is assigned to another recruiter/);
-  assert.match(list,/params\.error \? <div className="alert" role="alert">\{params\.error\}<\/div>/);
+  assert.match(detail,/requireRoleFast\("recruiter"\)/);
+  assert.match(detail,/staffMap\.get\(job\.recruiter_id\) \|\| "Unassigned"/);
+  for (const content of [detail, matching, agencyRole]) {
+    assert.doesNotMatch(content,/This role is assigned to another recruiter/);
+    assert.doesNotMatch(content,/job\.recruiter_id && job\.recruiter_id !==/);
+  }
 });

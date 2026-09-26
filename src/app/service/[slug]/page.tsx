@@ -560,6 +560,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   if (!page) notFound();
   const s = localizeContent(page!, page!.locale);
   const isAu = s.locale === "en-AU";
+  const isGlobal = s.market === "global";
   const article = articleFor(s.name);
   const groups = localizeContent(taskGroups(s.tasks, s.name), s.locale);
   const copy = localizeContent(experienceCopy(s), s.locale);
@@ -587,7 +588,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
   const faqs = localizeContent([
     { q: `What does ${article} ${s.name} do?`, a: `${s.name} work can include ${s.tasks.slice(0, 5).join(", ")}. The right scope depends on your process, tools, decision boundaries, and the candidate's experience.` },
-    { q: isAu ? `Can an Australian business hire ${article} ${s.name} from the Philippines?` : `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
+    { q: isAu ? `Can an Australian business hire ${article} ${s.name} from the Philippines?` : isGlobal ? `Can I hire ${article} ${s.name} from the Philippines?` : `Can I hire ${article} ${s.name} in the Philippines?`, a: `Yes. VirtualAssistant.com.ph helps businesses compare Philippines-based virtual assistants by relevant skills, tools, experience, availability, communication, and role fit.` },
     { q: `What tools should ${article} ${s.name} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
     { q: `How much does ${article} ${s.name} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
     { q: `How do I choose the best ${s.name}?`, a: `Start with the work the person must own. Then compare relevant experience, ${s.skills.slice(0, 4).join(", ")}, communication, availability, and examples that show they can execute your workflow.` },
@@ -599,7 +600,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${pageUrl}#service`,
-      name: isAu ? `Hire ${article} ${s.name} for Australian businesses` : `Hire ${article} ${s.name} in the Philippines`,
+      name: isAu ? `Hire ${article} ${s.name} for Australian businesses` : isGlobal ? `Hire ${article} ${s.name}` : `Hire ${article} ${s.name} in the Philippines`,
       serviceType: s.name,
       url: pageUrl,
       description: serviceMetaDescription(s),
@@ -631,10 +632,10 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
 
       <HiringHero
         crumbs={[{ href: "/", label: "Home" }, { href: "/services", label: "Services" }, { label: s.name }]}
-        eyebrow={isAu ? `Philippines-based ${roleName(s.name)} support` : `Filipino ${roleName(s.name)} VAs`}
+        eyebrow={isAu ? `Philippines-based ${roleName(s.name)} support` : isGlobal ? `Philippines-based ${roleName(s.name)} talent` : `Filipino ${roleName(s.name)} VAs`}
         titleLead={`Hire ${article}`}
         titleAccent={s.name}
-        titleTail={isAu ? "for Australian businesses" : "in the Philippines"}
+        titleTail={isAu ? "for Australian businesses" : isGlobal ? undefined : "in the Philippines"}
         lede={copy.hero}
         tasks={s.tasks.slice(0, 6).map(toTitle)}
         tools={s.tools}

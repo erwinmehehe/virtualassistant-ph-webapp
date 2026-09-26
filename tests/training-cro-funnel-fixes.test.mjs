@@ -16,30 +16,24 @@ const callbackRoute = "src/app/auth/callback/route.ts";
 const migrationPath = "supabase/migrations/20260924162000_training_analytics_auth_user_fk.sql";
 const cssPath = "src/app/training-landing.css";
 
-test("training public header stays learner-focused and removes the buyer CTA", async () => {
+test("training public header stays learner-focused while using the primary site nav", async () => {
   const [page, header, siteNav] = await Promise.all([
     readFile(trainingPage, "utf8"),
     readFile(headerPath, "utf8"),
     readFile(siteNavPath, "utf8"),
   ]);
 
-  assert.match(page, /TrainingSiteHeader/);
+  assert.match(page, /<SiteHeader context="training"\/>/);
+  assert.doesNotMatch(page, /TrainingSiteHeader/);
+  assert.match(siteNav, /<Link href="\/training">Training<\/Link>/);
+  assert.match(siteNav, /actionContext === "training"/);
+  assert.match(siteNav, /Training login/);
+  assert.match(siteNav, /Start free training/);
+  assert.match(siteNav, /contextualPrimaryHref = isTrainingContext \? trainingJoinHref\(\) : "\/hire"/);
+
+  // The specialised training header is retained for signup/login continuity only.
   assert.match(header, /SiteNav/);
   assert.match(header, /mode="training"/);
-  assert.match(siteNav, /Start free training/);
-  assert.match(siteNav, /Training login/);
-  assert.match(siteNav, /Training home/);
-  assert.match(siteNav, /Courses/);
-  assert.match(siteNav, /How it works/);
-  assert.match(siteNav, /Certificates/);
-  assert.match(siteNav, /FAQ/);
-  assert.match(siteNav, /For Virtual Assistants/);
-  assert.match(siteNav, /VA guides/);
-  assert.doesNotMatch(siteNav, />VA jobs<\/Link>/);
-  assert.doesNotMatch(siteNav, />Browse VA jobs<\/Link>/);
-  const trainingNav = siteNav.slice(siteNav.indexOf("function TrainingNav"), siteNav.indexOf("export function SiteNav"));
-  assert.doesNotMatch(trainingNav, /Hire a Virtual Assistant/);
-  assert.doesNotMatch(trainingNav, /href="\/hire"/);
 });
 
 test("course cards and Foundations preserve the selected course through signup", async () => {

@@ -344,41 +344,32 @@ export async function joinAction(formData: FormData) {
       idempotencyKey: `account-confirmation-${data.user.id}`,
     });
     brandedConfirmationSent = result.sent;
-  } catch {
-    brandedConfirmationSent = false;
-  }
-
-  let fallbackConfirmationSent = false;
-  if (!brandedConfirmationSent) {
-    try {
-      const fallbackSupabase = await createClient();
-      const { error: resendError } = await fallbackSupabase.auth.resend({
-        type: "signup",
-        email: parsed.data.email,
-        options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(destination)}` }
+    if (!result.sent) {
+      console.error("[auth_join] confirmation_send_failed", {
+        role: parsed.data.role,
+        reason: result.reason || "provider_error",
       });
-      fallbackConfirmationSent = !resendError;
-      if (resendError) {
-        console.error("[auth_join] fallback_confirmation_failed", {
-          role: parsed.data.role,
-          code: (resendError as { code?: string } | null)?.code || null,
-          status: (resendError as { status?: number } | null)?.status || null,
-        });
-      }
-    } catch {
-      fallbackConfirmationSent = false;
-      console.error("[auth_join] fallback_confirmation_failed", { role: parsed.data.role, code: "exception" });
     }
+  } catch (error) {
+    brandedConfirmationSent = false;
+    console.error("[auth_join] confirmation_send_failed", {
+      role: parsed.data.role,
+      reason: error instanceof Error ? error.message : "provider_error",
+    });
   }
 
-  const confirmationDeliveredToProvider = brandedConfirmationSent || fallbackConfirmationSent;
+  // Do not fall back to Supabase Auth's email sender here. We already generated
+  // the secure Supabase token above and send it through our transactional email
+  // provider. Calling auth.resend() adds Supabase's separate auth-email rate
+  // limit and, with the same SMTP provider behind it, is not an independent
+  // delivery path. The login page exposes the branded resend action instead.
   const loginParams = new URLSearchParams({
     message: "Check your email to confirm your account",
     next: destination,
     confirm: "1"
   });
-  if (!confirmationDeliveredToProvider) {
-    loginParams.set("message", "Your account was created, but the confirmation email could not be sent. Use Resend email below.");
+  if (!brandedConfirmationSent) {
+    loginParams.set("message", "Your account was created, but the confirmation email could not be sent. Use Resend confirmation below.");
   }
   if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
   redirect(`/auth/login?${loginParams.toString()}`);

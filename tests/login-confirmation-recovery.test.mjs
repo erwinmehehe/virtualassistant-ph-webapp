@@ -23,9 +23,10 @@ test("unconfirmed login explicitly enables confirmation recovery",async()=>{
 
 test("resend confirmation preserves intended destination instead of forcing VA onboarding",async()=>{
   const action=await read("src/app/actions/resend-confirmation.ts");
-  assert.match(action,/callbackParams\.set\("next", next\)/);
-  assert.match(action,/callbackParams\.set\("lead", lead\)/);
-  assert.match(action,/emailRedirectTo: callbackUrl/);
+  assert.match(action,/if \(args\.next\) params\.set\("next", args\.next\)/);
+  assert.match(action,/if \(args\.lead\) params\.set\("lead", args\.lead\)/);
+  assert.match(action,/brandedConfirmationUrl\(\{ tokenHash, next, lead \}\)/);
+  assert.doesNotMatch(action,/\.auth\.resend\(/);
   assert.doesNotMatch(action,/workspace\/va\/onboarding/);
   assert.match(action,/new URLSearchParams\(\{ confirm: "1" \}\)/);
 });

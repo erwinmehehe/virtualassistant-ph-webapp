@@ -60,10 +60,11 @@ test("unconfirmed accounts can request another confirmation without cluttering n
   assert.match(login, /resendSignupConfirmationAction/);
   assert.match(login, /type="submit">Resend<\/button>/);
   assert.doesNotMatch(login, /Didn&apos;t receive your confirmation email\?/);
-  assert.match(resend, /auth\.resend\(\{/);
-  assert.match(resend, /type: "signup"/);
+  assert.match(resend, /type: "magiclink"/);
+  assert.match(resend, /sendAccountConfirmationEmail/);
   assert.match(resend, /auth_resend_confirmation/);
-  assert.match(resend, /callbackParams\.set\("next", next\)/);
+  assert.match(resend, /brandedConfirmationUrl\(\{ tokenHash, next, lead \}\)/);
+  assert.doesNotMatch(resend, /\.auth\.resend\(/);
   assert.doesNotMatch(resend, /workspace\/va\/onboarding/);
   assert.match(resend, /non-enumerating/);
 });

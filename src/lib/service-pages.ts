@@ -403,7 +403,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "medical-scribe-virtual-assistant",
       "mental-health-virtual-assistant",
       "phone-receptionist",
-      "medical-receptionist"]
+      "medical-receptionist"
+    ]
   },
   {
     "slug": "property-management-virtual-assistant",
@@ -466,7 +467,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "airbnb-virtual-assistant",
       "short-term-rental-virtual-assistant",
       "phone-receptionist",
-      "trust-accounting"]
+      "trust-accounting"
+    ]
   },
   {
     "slug": "executive-virtual-assistant",
@@ -654,7 +656,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "digital-marketing-virtual-assistant",
       "content-writing",
       "graphic-design",
-      "video-editing"
+      "video-editing",
+      "meta-ads"
     ]
   },
   {
@@ -845,7 +848,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "paralegal-virtual-assistant",
       "admin-inbox",
       "transcription",
-      "conveyancing"]
+      "conveyancing"
+    ]
   },
   {
     "slug": "recruitment-hr",
@@ -1474,7 +1478,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "lead-generation",
       "sales-virtual-assistant",
       "appointment-setter-virtual-assistant",
-      "research-data"
+      "research-data",
+      "marketing-automation"
     ]
   },
   {
@@ -2104,7 +2109,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "phone-receptionist",
       "ecommerce",
       "fulfilment",
-      "admin-inbox"
+      "admin-inbox",
+      "customer-success"
     ]
   },
   {
@@ -2167,7 +2173,9 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "bookkeeping",
       "payroll-virtual-assistant",
       "quickbooks-virtual-assistant",
-      "financial-advisor-virtual-assistant"
+      "financial-advisor-virtual-assistant",
+      "accounts-payable",
+      "accounts-receivable"
     ]
   },
   {
@@ -2419,7 +2427,9 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "accounting-virtual-assistant",
       "quickbooks-virtual-assistant",
       "payroll-virtual-assistant",
-      "financial-advisor-virtual-assistant"
+      "financial-advisor-virtual-assistant",
+      "accounts-payable",
+      "accounts-receivable"
     ]
   },
   {
@@ -3300,7 +3310,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "crm",
       "bookkeeping",
       "appointment-setter-virtual-assistant",
-      "financial-planning"]
+      "financial-planning"
+    ]
   },
   {
     "slug": "payroll-virtual-assistant",
@@ -3614,7 +3625,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "digital-marketing-virtual-assistant",
       "seo",
       "content-marketing-virtual-assistant",
-      "crm"
+      "crm",
+      "meta-ads"
     ]
   },
   {
@@ -4119,7 +4131,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "admin-inbox",
       "customer-service",
       "bookkeeping",
-      "ndis-rostering"]
+      "ndis-rostering"
+    ]
   },
   {
     "slug": "mortgage-loan-processing-virtual-assistant",
@@ -5023,10 +5036,11 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "it-virtual-assistant",
       "web-developer-virtual-assistant",
       "crm",
-      "operations"
+      "operations",
+      "marketing-automation"
     ]
   },
-{
+  {
     "slug": "conveyancing",
     "locale": "en-AU",
     "name": "Conveyancing Virtual Assistant",
@@ -5037,15 +5051,59 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Conveyancing Virtual Assistant for Australian matter admin, PEXA preparation, document follow-up, milestones and client updates.",
     "intro": "Hire a Conveyancing Virtual Assistant to support Australian conveyancing administration across matter opening, document collection, client follow-up, PEXA preparation, settlement milestones and file close. Legal advice, contract interpretation, signing authority and regulated conveyancing decisions remain with the Australian conveyancer, solicitor or licensed professional.",
     "focus": "Australian conveyancing matter administration and settlement support",
-    "tasks": ["matter opening and file setup","client document follow-up","contract and disclosure document administration","PEXA workspace preparation support","settlement milestone tracking","search and certificate follow-up","client and agent status updates","post-settlement file administration"],
-    "tools": ["PEXA","LEAP","Smokeball","InfoTrack","Microsoft 365","Adobe Acrobat","DocuSign"],
-    "skills": ["conveyancing workflow familiarity","document control","deadline management","client communication","matter administration","privacy awareness"],
-    "bestFor": ["Australian conveyancing firms","property law practices","settlement teams","high-volume conveyancers"],
-    "outcomes": ["Matter files stay current and easier to review.","Outstanding documents and settlement milestones remain visible.","Conveyancers spend less time on repeatable file administration."],
-    "costFactors": ["Matter volume and settlement frequency","Required live overlap with Australian business hours","PEXA and practice-management experience","Document and client follow-up complexity","Level of independent file administration"],
-    "relatedSlugs": ["legal-virtual-assistant","paralegal-virtual-assistant","real-estate","admin-inbox"]
+    "tasks": [
+      "matter opening and file setup",
+      "client document follow-up",
+      "contract and disclosure document administration",
+      "PEXA workspace preparation support",
+      "settlement milestone tracking",
+      "search and certificate follow-up",
+      "client and agent status updates",
+      "post-settlement file administration"
+    ],
+    "tools": [
+      "PEXA",
+      "LEAP",
+      "Smokeball",
+      "InfoTrack",
+      "Microsoft 365",
+      "Adobe Acrobat",
+      "DocuSign"
+    ],
+    "skills": [
+      "conveyancing workflow familiarity",
+      "document control",
+      "deadline management",
+      "client communication",
+      "matter administration",
+      "privacy awareness"
+    ],
+    "bestFor": [
+      "Australian conveyancing firms",
+      "property law practices",
+      "settlement teams",
+      "high-volume conveyancers"
+    ],
+    "outcomes": [
+      "Matter files stay current and easier to review.",
+      "Outstanding documents and settlement milestones remain visible.",
+      "Conveyancers spend less time on repeatable file administration."
+    ],
+    "costFactors": [
+      "Matter volume and settlement frequency",
+      "Required live overlap with Australian business hours",
+      "PEXA and practice-management experience",
+      "Document and client follow-up complexity",
+      "Level of independent file administration"
+    ],
+    "relatedSlugs": [
+      "legal-virtual-assistant",
+      "paralegal-virtual-assistant",
+      "real-estate",
+      "admin-inbox"
+    ]
   },
-{
+  {
     "slug": "buyers-agent",
     "locale": "en-AU",
     "name": "Buyers Agent Virtual Assistant",
@@ -5056,15 +5114,59 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Virtual Assistant for Australian buyers agents handling CRM updates, property research, inspections, follow-up and deal admin.",
     "intro": "Hire a Buyers Agent Virtual Assistant to keep Australian property-search administration moving across CRM updates, property research, inspection scheduling, client follow-up, agent communication and due-diligence checklists. Negotiation, property recommendations and licensed real-estate decisions remain with the buyers agent.",
     "focus": "Australian buyers agency research, CRM and transaction administration",
-    "tasks": ["CRM and brief updates","property shortlist research","inspection scheduling","selling-agent follow-up","comparable property data collection","due-diligence checklist administration","client update preparation","contract and settlement administration support"],
-    "tools": ["VaultRE","AgentBox","CoreLogic","Domain","realestate.com.au","Google Workspace","DocuSign"],
-    "skills": ["property research","CRM discipline","schedule coordination","data accuracy","client communication","follow-up"],
-    "bestFor": ["Australian buyers agencies","property advisory firms","real-estate investors","multi-agent buyers agency teams"],
-    "outcomes": ["Property opportunities and next actions stay visible.","Inspection and agent follow-up takes less adviser time.","Client files remain cleaner from brief through settlement."],
-    "costFactors": ["Active client and property-search volume","Required Australian-hours overlap","CRM and property-research tool experience","Inspection and agent follow-up workload","Transaction administration depth"],
-    "relatedSlugs": ["real-estate","property-management-virtual-assistant","admin-inbox","research-data"]
+    "tasks": [
+      "CRM and brief updates",
+      "property shortlist research",
+      "inspection scheduling",
+      "selling-agent follow-up",
+      "comparable property data collection",
+      "due-diligence checklist administration",
+      "client update preparation",
+      "contract and settlement administration support"
+    ],
+    "tools": [
+      "VaultRE",
+      "AgentBox",
+      "CoreLogic",
+      "Domain",
+      "realestate.com.au",
+      "Google Workspace",
+      "DocuSign"
+    ],
+    "skills": [
+      "property research",
+      "CRM discipline",
+      "schedule coordination",
+      "data accuracy",
+      "client communication",
+      "follow-up"
+    ],
+    "bestFor": [
+      "Australian buyers agencies",
+      "property advisory firms",
+      "real-estate investors",
+      "multi-agent buyers agency teams"
+    ],
+    "outcomes": [
+      "Property opportunities and next actions stay visible.",
+      "Inspection and agent follow-up takes less adviser time.",
+      "Client files remain cleaner from brief through settlement."
+    ],
+    "costFactors": [
+      "Active client and property-search volume",
+      "Required Australian-hours overlap",
+      "CRM and property-research tool experience",
+      "Inspection and agent follow-up workload",
+      "Transaction administration depth"
+    ],
+    "relatedSlugs": [
+      "real-estate",
+      "property-management-virtual-assistant",
+      "admin-inbox",
+      "research-data"
+    ]
   },
-{
+  {
     "slug": "financial-planning",
     "locale": "en-AU",
     "name": "Financial Planning Virtual Assistant",
@@ -5075,15 +5177,58 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Financial Planning Virtual Assistant for Australian client administration, Xplan workflows, document follow-up and review preparation.",
     "intro": "Hire a Financial Planning Virtual Assistant to support Australian advice practices with client administration, Xplan updates, review preparation, document collection, implementation tracking and routine follow-up. Personal financial advice, product recommendations, advice documents requiring authorised review and regulated decisions remain with appropriately licensed Australian advisers.",
     "focus": "Australian financial planning client administration and advice-production support",
-    "tasks": ["Xplan client record maintenance","annual review preparation","document and data collection","fact-find administration","implementation tracking","provider follow-up","meeting preparation","client service administration"],
-    "tools": ["Xplan","Microsoft 365","DocuSign","Adobe Acrobat","financial planning portals","CRM systems"],
-    "skills": ["financial planning workflow familiarity","client record accuracy","document control","follow-up discipline","privacy awareness","professional communication"],
-    "bestFor": ["Australian financial planning practices","wealth advisers","paraplanning teams","multi-adviser firms"],
-    "outcomes": ["Client files are better prepared before adviser review.","Review and implementation follow-up stays visible.","Advisers spend less time maintaining routine administration."],
-    "costFactors": ["Client and review volume","Xplan experience","Required Australian-hours overlap","Advice-production and implementation complexity","Level of independent client administration"],
-    "relatedSlugs": ["financial-advisor-virtual-assistant","admin-inbox","calendar","research-data"]
+    "tasks": [
+      "Xplan client record maintenance",
+      "annual review preparation",
+      "document and data collection",
+      "fact-find administration",
+      "implementation tracking",
+      "provider follow-up",
+      "meeting preparation",
+      "client service administration"
+    ],
+    "tools": [
+      "Xplan",
+      "Microsoft 365",
+      "DocuSign",
+      "Adobe Acrobat",
+      "financial planning portals",
+      "CRM systems"
+    ],
+    "skills": [
+      "financial planning workflow familiarity",
+      "client record accuracy",
+      "document control",
+      "follow-up discipline",
+      "privacy awareness",
+      "professional communication"
+    ],
+    "bestFor": [
+      "Australian financial planning practices",
+      "wealth advisers",
+      "paraplanning teams",
+      "multi-adviser firms"
+    ],
+    "outcomes": [
+      "Client files are better prepared before adviser review.",
+      "Review and implementation follow-up stays visible.",
+      "Advisers spend less time maintaining routine administration."
+    ],
+    "costFactors": [
+      "Client and review volume",
+      "Xplan experience",
+      "Required Australian-hours overlap",
+      "Advice-production and implementation complexity",
+      "Level of independent client administration"
+    ],
+    "relatedSlugs": [
+      "financial-advisor-virtual-assistant",
+      "admin-inbox",
+      "calendar",
+      "research-data"
+    ]
   },
-{
+  {
     "slug": "ndis-rostering",
     "locale": "en-AU",
     "name": "NDIS Rostering Virtual Assistant",
@@ -5094,15 +5239,58 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based NDIS Rostering Virtual Assistant for ShiftCare rosters, participant scheduling, worker availability, notes and admin follow-up.",
     "intro": "Hire an NDIS Rostering Virtual Assistant to support Australian providers with participant schedules, support-worker availability, ShiftCare updates, shift changes, timesheet follow-up and routine service administration. Participant safety, care decisions, incident management and compliance accountability remain with the provider and qualified local staff.",
     "focus": "NDIS rostering, participant scheduling and service administration",
-    "tasks": ["participant roster maintenance","support-worker availability updates","shift change coordination","ShiftCare record updates","timesheet and note follow-up","service booking administration","participant and worker communication","roster exception escalation"],
-    "tools": ["ShiftCare","Microsoft 365","Google Workspace","Teams","Slack","NDIS provider systems"],
-    "skills": ["rostering","schedule coordination","participant communication","record accuracy","exception escalation","privacy awareness"],
-    "bestFor": ["NDIS providers","disability support businesses","community care teams","multi-worker support organisations"],
-    "outcomes": ["Roster changes are recorded and followed up faster.","Workers and participant schedules stay easier to reconcile.","Managers receive a clearer queue of exceptions requiring local decisions."],
-    "costFactors": ["Participant and worker volume","After-hours or live rostering coverage","ShiftCare experience","Frequency of roster changes","Communication and escalation requirements"],
-    "relatedSlugs": ["ndis-billing-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox","customer-service"]
+    "tasks": [
+      "participant roster maintenance",
+      "support-worker availability updates",
+      "shift change coordination",
+      "ShiftCare record updates",
+      "timesheet and note follow-up",
+      "service booking administration",
+      "participant and worker communication",
+      "roster exception escalation"
+    ],
+    "tools": [
+      "ShiftCare",
+      "Microsoft 365",
+      "Google Workspace",
+      "Teams",
+      "Slack",
+      "NDIS provider systems"
+    ],
+    "skills": [
+      "rostering",
+      "schedule coordination",
+      "participant communication",
+      "record accuracy",
+      "exception escalation",
+      "privacy awareness"
+    ],
+    "bestFor": [
+      "NDIS providers",
+      "disability support businesses",
+      "community care teams",
+      "multi-worker support organisations"
+    ],
+    "outcomes": [
+      "Roster changes are recorded and followed up faster.",
+      "Workers and participant schedules stay easier to reconcile.",
+      "Managers receive a clearer queue of exceptions requiring local decisions."
+    ],
+    "costFactors": [
+      "Participant and worker volume",
+      "After-hours or live rostering coverage",
+      "ShiftCare experience",
+      "Frequency of roster changes",
+      "Communication and escalation requirements"
+    ],
+    "relatedSlugs": [
+      "ndis-billing-virtual-assistant",
+      "allied-health-referral-billing-virtual-assistant",
+      "admin-inbox",
+      "customer-service"
+    ]
   },
-{
+  {
     "slug": "aged-care",
     "locale": "en-AU",
     "name": "Aged Care Virtual Assistant",
@@ -5113,15 +5301,58 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Aged Care Virtual Assistant for Australian rostering, client administration, referral follow-up, records and service coordination.",
     "intro": "Hire an Aged Care Virtual Assistant to support Australian community and home-care teams with rostering, referral administration, client records, service updates, document follow-up and routine communication. Care decisions, clinical judgement, incidents, safeguarding and regulatory accountability remain with qualified local staff.",
     "focus": "Australian aged-care rostering and client administration",
-    "tasks": ["client record administration","service roster updates","worker availability coordination","referral and intake follow-up","document collection","service change administration","routine client communication","exception and incident escalation support"],
-    "tools": ["ShiftCare","AlayaCare","Microsoft 365","Google Workspace","Teams","practice-management systems"],
-    "skills": ["care administration","rostering","client communication","record accuracy","privacy awareness","escalation judgement"],
-    "bestFor": ["home-care providers","community care organisations","aged-care service teams","multi-site care businesses"],
-    "outcomes": ["Routine service administration has a clear owner.","Roster and client-record updates remain more current.","Local care teams spend less time chasing documents and routine follow-up."],
-    "costFactors": ["Client and worker volume","Rostering complexity","Required Australian-hours overlap","Care-management system experience","After-hours and escalation expectations"],
-    "relatedSlugs": ["ndis-rostering","medical-virtual-assistant","allied-health-referral-billing-virtual-assistant","admin-inbox"]
+    "tasks": [
+      "client record administration",
+      "service roster updates",
+      "worker availability coordination",
+      "referral and intake follow-up",
+      "document collection",
+      "service change administration",
+      "routine client communication",
+      "exception and incident escalation support"
+    ],
+    "tools": [
+      "ShiftCare",
+      "AlayaCare",
+      "Microsoft 365",
+      "Google Workspace",
+      "Teams",
+      "practice-management systems"
+    ],
+    "skills": [
+      "care administration",
+      "rostering",
+      "client communication",
+      "record accuracy",
+      "privacy awareness",
+      "escalation judgement"
+    ],
+    "bestFor": [
+      "home-care providers",
+      "community care organisations",
+      "aged-care service teams",
+      "multi-site care businesses"
+    ],
+    "outcomes": [
+      "Routine service administration has a clear owner.",
+      "Roster and client-record updates remain more current.",
+      "Local care teams spend less time chasing documents and routine follow-up."
+    ],
+    "costFactors": [
+      "Client and worker volume",
+      "Rostering complexity",
+      "Required Australian-hours overlap",
+      "Care-management system experience",
+      "After-hours and escalation expectations"
+    ],
+    "relatedSlugs": [
+      "ndis-rostering",
+      "medical-virtual-assistant",
+      "allied-health-referral-billing-virtual-assistant",
+      "admin-inbox"
+    ]
   },
-{
+  {
     "slug": "trust-accounting",
     "locale": "en-AU",
     "name": "Trust Accounting Virtual Assistant",
@@ -5132,15 +5363,58 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Trust Accounting Virtual Assistant for Australian property management reconciliations, receipts, ledgers and review preparation.",
     "intro": "Hire a Trust Accounting Virtual Assistant to prepare Australian property-management trust administration such as receipt allocation, ledger maintenance, reconciliation support, owner and tenant record checks, and exception preparation. Trust-account authority, approvals, regulated handling of funds and final reconciliation sign-off remain with authorised local staff.",
     "focus": "Australian property-management trust administration and reconciliation support",
-    "tasks": ["receipt allocation support","trust ledger administration","reconciliation preparation","owner and tenant record checks","arrears data preparation","statement administration","exception reporting","document and audit-trail organisation"],
-    "tools": ["PropertyMe","Property Tree","Console Cloud","Xero","Excel","Microsoft 365"],
-    "skills": ["trust-account workflow familiarity","reconciliation support","record accuracy","exception reporting","document control","confidentiality"],
-    "bestFor": ["Australian property management agencies","real-estate agencies","trust-account teams","multi-office property businesses"],
-    "outcomes": ["Trust records are better prepared for local review.","Exceptions are surfaced earlier instead of sitting in private queues.","Property managers spend less time on routine reconciliation preparation."],
-    "costFactors": ["Portfolio and transaction volume","Trust-account system experience","Reconciliation frequency","Required Australian-hours overlap","Level of review and exception handling"],
-    "relatedSlugs": ["property-management-virtual-assistant","property-management-maintenance-virtual-assistant","bookkeeping","accounting-virtual-assistant"]
+    "tasks": [
+      "receipt allocation support",
+      "trust ledger administration",
+      "reconciliation preparation",
+      "owner and tenant record checks",
+      "arrears data preparation",
+      "statement administration",
+      "exception reporting",
+      "document and audit-trail organisation"
+    ],
+    "tools": [
+      "PropertyMe",
+      "Property Tree",
+      "Console Cloud",
+      "Xero",
+      "Excel",
+      "Microsoft 365"
+    ],
+    "skills": [
+      "trust-account workflow familiarity",
+      "reconciliation support",
+      "record accuracy",
+      "exception reporting",
+      "document control",
+      "confidentiality"
+    ],
+    "bestFor": [
+      "Australian property management agencies",
+      "real-estate agencies",
+      "trust-account teams",
+      "multi-office property businesses"
+    ],
+    "outcomes": [
+      "Trust records are better prepared for local review.",
+      "Exceptions are surfaced earlier instead of sitting in private queues.",
+      "Property managers spend less time on routine reconciliation preparation."
+    ],
+    "costFactors": [
+      "Portfolio and transaction volume",
+      "Trust-account system experience",
+      "Reconciliation frequency",
+      "Required Australian-hours overlap",
+      "Level of review and exception handling"
+    ],
+    "relatedSlugs": [
+      "property-management-virtual-assistant",
+      "property-management-maintenance-virtual-assistant",
+      "bookkeeping",
+      "accounting-virtual-assistant"
+    ]
   },
-{
+  {
     "slug": "medical-receptionist",
     "locale": "en-AU",
     "name": "Medical Receptionist Virtual Assistant",
@@ -5151,16 +5425,382 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "metaDescription": "Hire a Philippines-based Medical Receptionist Virtual Assistant for Australian clinics using Best Practice, Cliniko or similar practice systems.",
     "intro": "Hire a Medical Receptionist Virtual Assistant to support Australian clinics with appointment booking, patient calls, recalls, referrals, inbox administration, records follow-up and routine Best Practice or Cliniko updates. Clinical advice, triage decisions, prescribing and other regulated healthcare decisions remain with qualified local clinicians.",
     "focus": "Australian medical reception and non-clinical practice administration",
-    "tasks": ["appointment booking and changes","patient call and inbox handling","recall and reminder administration","referral follow-up","patient record updates","document and results routing support","billing administration support","front-desk exception escalation"],
-    "tools": ["Best Practice Premier","Cliniko","HotDoc","HealthEngine","Microsoft 365","RingCentral"],
-    "skills": ["medical reception","patient communication","practice-management systems","scheduling","privacy awareness","escalation judgement"],
-    "bestFor": ["Australian GP clinics","specialist practices","allied health clinics","multi-practitioner medical centres"],
-    "outcomes": ["Appointments and patient follow-up queues stay more current.","Reception teams spend less time on repetitive administration.","Clinical staff receive clearer escalations when judgement is required."],
-    "costFactors": ["Call and appointment volume","Required Australian-hours coverage","Practice-management system experience","Patient communication responsibilities","Billing and referral administration depth"],
-    "relatedSlugs": ["medical-virtual-assistant","phone-receptionist","allied-health-referral-billing-virtual-assistant","medical-billing-virtual-assistant"]
+    "tasks": [
+      "appointment booking and changes",
+      "patient call and inbox handling",
+      "recall and reminder administration",
+      "referral follow-up",
+      "patient record updates",
+      "document and results routing support",
+      "billing administration support",
+      "front-desk exception escalation"
+    ],
+    "tools": [
+      "Best Practice Premier",
+      "Cliniko",
+      "HotDoc",
+      "HealthEngine",
+      "Microsoft 365",
+      "RingCentral"
+    ],
+    "skills": [
+      "medical reception",
+      "patient communication",
+      "practice-management systems",
+      "scheduling",
+      "privacy awareness",
+      "escalation judgement"
+    ],
+    "bestFor": [
+      "Australian GP clinics",
+      "specialist practices",
+      "allied health clinics",
+      "multi-practitioner medical centres"
+    ],
+    "outcomes": [
+      "Appointments and patient follow-up queues stay more current.",
+      "Reception teams spend less time on repetitive administration.",
+      "Clinical staff receive clearer escalations when judgement is required."
+    ],
+    "costFactors": [
+      "Call and appointment volume",
+      "Required Australian-hours coverage",
+      "Practice-management system experience",
+      "Patient communication responsibilities",
+      "Billing and referral administration depth"
+    ],
+    "relatedSlugs": [
+      "medical-virtual-assistant",
+      "phone-receptionist",
+      "allied-health-referral-billing-virtual-assistant",
+      "medical-billing-virtual-assistant"
+    ]
+  },
+  {
+    "slug": "accounts-payable",
+    "market": "global",
+    "name": "Accounts Payable Virtual Assistant",
+    "group": "Finance & Accounting",
+    "directoryCategory": "Bookkeeping & Finance",
+    "primaryKeyword": "accounts payable virtual assistant",
+    "metaTitle": "Accounts Payable Virtual Assistant | Hire Finance Support",
+    "metaDescription": "Hire an Accounts Payable Virtual Assistant for invoice processing, bill tracking, vendor follow-up, payment preparation, reconciliations, and AP reporting.",
+    "intro": "Hire a Philippines-based Accounts Payable Virtual Assistant to keep invoice intake, bill entry, vendor follow-up, approval queues, reconciliation support, and payables reporting moving. Payment approval, banking authority, tax treatment, and final accounting decisions stay with your authorised finance team.",
+    "focus": "accounts payable administration, invoice control, and payment-preparation support",
+    "tasks": [
+      "invoice intake and coding support",
+      "bill entry and document matching",
+      "vendor statement reconciliation",
+      "approval queue follow-up",
+      "payment-run preparation",
+      "purchase-order matching",
+      "accounts payable ageing reports",
+      "vendor query administration"
+    ],
+    "tools": [
+      "QuickBooks Online",
+      "Xero",
+      "MYOB",
+      "Bill.com",
+      "Dext",
+      "Excel",
+      "Google Sheets",
+      "NetSuite"
+    ],
+    "skills": [
+      "invoice accuracy",
+      "vendor communication",
+      "reconciliation support",
+      "document control",
+      "deadline management",
+      "confidentiality"
+    ],
+    "bestFor": [
+      "small businesses",
+      "accounting teams",
+      "agencies",
+      "ecommerce businesses",
+      "professional services firms"
+    ],
+    "outcomes": [
+      "Keep invoices and bills moving through a documented approval workflow.",
+      "Reduce overdue vendor queries and unmatched supporting documents.",
+      "Give finance reviewers a cleaner payables queue before payment decisions are made."
+    ],
+    "costFactors": [
+      "Weekly invoice and vendor volume",
+      "Accounting system and approval workflow complexity",
+      "Reconciliation and reporting depth",
+      "Required business-hours overlap",
+      "Level of independent vendor follow-up"
+    ],
+    "relatedSlugs": [
+      "bookkeeping",
+      "accounting-virtual-assistant",
+      "month-end-production-virtual-assistant",
+      "quickbooks-virtual-assistant"
+    ]
+  },
+  {
+    "slug": "accounts-receivable",
+    "market": "global",
+    "name": "Accounts Receivable Virtual Assistant",
+    "group": "Finance & Accounting",
+    "directoryCategory": "Bookkeeping & Finance",
+    "primaryKeyword": "accounts receivable virtual assistant",
+    "metaTitle": "Accounts Receivable Virtual Assistant | AR & Collections",
+    "metaDescription": "Hire an Accounts Receivable Virtual Assistant for invoicing, payment follow-up, collections, cash application support, ageing reports, and AR administration.",
+    "intro": "Hire a Philippines-based Accounts Receivable Virtual Assistant to maintain invoice queues, follow approved collection workflows, track promised payments, support cash application, and keep ageing reports current. Credit decisions, write-offs, disputes, and final accounting treatment stay with your finance team.",
+    "focus": "receivables administration, payment follow-up, and collections workflow support",
+    "tasks": [
+      "invoice preparation and sending",
+      "accounts receivable ageing updates",
+      "approved payment follow-up",
+      "collections queue administration",
+      "cash application support",
+      "customer statement preparation",
+      "dispute and exception logging",
+      "receivables reporting"
+    ],
+    "tools": [
+      "QuickBooks Online",
+      "Xero",
+      "MYOB",
+      "Stripe",
+      "PayPal",
+      "HubSpot",
+      "Excel",
+      "Google Sheets"
+    ],
+    "skills": [
+      "professional payment follow-up",
+      "invoice administration",
+      "receivables tracking",
+      "data accuracy",
+      "customer communication",
+      "escalation judgement"
+    ],
+    "bestFor": [
+      "small businesses",
+      "agencies",
+      "B2B service firms",
+      "ecommerce businesses",
+      "finance teams"
+    ],
+    "outcomes": [
+      "Keep overdue invoices visible and assigned instead of buried in inboxes.",
+      "Run consistent follow-up without handing credit decisions to the assistant.",
+      "Give finance owners a current view of ageing, promises to pay, and exceptions."
+    ],
+    "costFactors": [
+      "Number of invoices and customer accounts",
+      "Collections cadence and communication volume",
+      "Accounting and CRM systems used",
+      "Required schedule overlap",
+      "Complexity of disputes and exception handling"
+    ],
+    "relatedSlugs": [
+      "bookkeeping",
+      "accounting-virtual-assistant",
+      "month-end-production-virtual-assistant",
+      "quickbooks-virtual-assistant"
+    ]
+  },
+  {
+    "slug": "customer-success",
+    "market": "global",
+    "name": "Customer Success Virtual Assistant",
+    "group": "Customer & Front Desk",
+    "directoryCategory": "Customer Service",
+    "primaryKeyword": "customer success virtual assistant",
+    "metaTitle": "Customer Success Virtual Assistant | Retention Support",
+    "metaDescription": "Hire a Customer Success Virtual Assistant for onboarding, account follow-up, renewal coordination, health tracking, CRM updates, and retention workflows.",
+    "intro": "Hire a Philippines-based Customer Success Virtual Assistant to run onboarding checklists, customer follow-up, renewal administration, CRM hygiene, health-score updates, and recurring account touchpoints. Commercial concessions, churn-risk decisions, contract changes, and executive escalations stay with your account owner.",
+    "focus": "customer onboarding, account administration, and retention workflow support",
+    "tasks": [
+      "customer onboarding coordination",
+      "account follow-up",
+      "renewal reminder administration",
+      "customer health tracking",
+      "CRM updates",
+      "usage and milestone follow-up",
+      "meeting preparation",
+      "churn-risk escalation"
+    ],
+    "tools": [
+      "HubSpot",
+      "Salesforce",
+      "Intercom",
+      "Gainsight",
+      "Zendesk",
+      "Slack",
+      "Google Workspace",
+      "Notion"
+    ],
+    "skills": [
+      "customer communication",
+      "onboarding coordination",
+      "CRM discipline",
+      "follow-up",
+      "retention awareness",
+      "escalation judgement"
+    ],
+    "bestFor": [
+      "SaaS companies",
+      "agencies",
+      "subscription businesses",
+      "B2B service firms",
+      "customer success teams"
+    ],
+    "outcomes": [
+      "Give every onboarding and recurring account task a clear owner.",
+      "Surface churn risks and missed milestones before they become surprises.",
+      "Keep CRM records, renewal dates, and customer follow-up current between manager touchpoints."
+    ],
+    "costFactors": [
+      "Number of managed accounts",
+      "Onboarding and renewal complexity",
+      "Required customer-facing hours",
+      "CRM and customer-success platform depth",
+      "Escalation and reporting expectations"
+    ],
+    "relatedSlugs": [
+      "customer-service",
+      "crm",
+      "general-virtual-assistant",
+      "email-management-virtual-assistant"
+    ]
+  },
+  {
+    "slug": "meta-ads",
+    "market": "global",
+    "name": "Facebook & Meta Ads Virtual Assistant",
+    "group": "Marketing & Growth",
+    "directoryCategory": "Marketing & Social Media",
+    "primaryKeyword": "facebook ads virtual assistant",
+    "metaTitle": "Facebook Ads Virtual Assistant | Meta Campaign Support",
+    "metaDescription": "Hire a Facebook Ads Virtual Assistant for Meta campaign builds, creative uploads, audience setup, budget pacing, QA, reporting, and optimisation support.",
+    "intro": "Hire a Philippines-based Facebook and Meta Ads Virtual Assistant to build approved campaigns, upload creative, maintain audiences, check tracking, monitor budget pacing, and prepare performance reports. Strategy, offer decisions, material budget changes, and final campaign approvals stay with your paid-media owner.",
+    "focus": "Meta Ads campaign administration, QA, and reporting support",
+    "tasks": [
+      "campaign build support",
+      "ad set and audience setup",
+      "creative and copy uploads",
+      "UTM and tracking QA",
+      "budget pacing checks",
+      "campaign naming and documentation",
+      "performance reporting",
+      "creative testing administration"
+    ],
+    "tools": [
+      "Meta Ads Manager",
+      "Meta Business Suite",
+      "GA4",
+      "Google Tag Manager",
+      "Looker Studio",
+      "Canva",
+      "Google Sheets",
+      "Slack"
+    ],
+    "skills": [
+      "Meta Ads workflow familiarity",
+      "campaign QA",
+      "paid-social reporting",
+      "tracking basics",
+      "data accuracy",
+      "creative coordination"
+    ],
+    "bestFor": [
+      "ecommerce brands",
+      "agencies",
+      "local-service businesses",
+      "SaaS companies",
+      "lead-generation teams"
+    ],
+    "outcomes": [
+      "Launch approved Meta campaigns with fewer setup and QA errors.",
+      "Keep creative, naming, audiences, and tracking documentation consistent.",
+      "Give the paid-media owner cleaner pacing and performance reporting without delegating strategy."
+    ],
+    "costFactors": [
+      "Campaign and account volume",
+      "Creative upload and testing cadence",
+      "Tracking and reporting requirements",
+      "Required live overlap",
+      "Level of platform experience"
+    ],
+    "relatedSlugs": [
+      "social-media",
+      "digital-marketing-virtual-assistant",
+      "google-ads-virtual-assistant",
+      "content-marketing-virtual-assistant"
+    ]
+  },
+  {
+    "slug": "marketing-automation",
+    "market": "global",
+    "name": "Marketing Automation Virtual Assistant",
+    "group": "Marketing & Growth",
+    "directoryCategory": "Marketing & Social Media",
+    "primaryKeyword": "marketing automation virtual assistant",
+    "metaTitle": "Marketing Automation Virtual Assistant | Workflow Support",
+    "metaDescription": "Hire a Marketing Automation Virtual Assistant for lifecycle workflows, CRM automation, lead routing, campaign QA, integrations, reporting, and documentation.",
+    "intro": "Hire a Philippines-based Marketing Automation Virtual Assistant to maintain approved lifecycle workflows, lead routing, CRM automation, campaign QA, integrations, reporting, and technical documentation. Strategy, data-governance decisions, production-risk changes, and final automation approvals stay with your system owner.",
+    "focus": "marketing workflow automation, CRM orchestration, and lifecycle operations",
+    "tasks": [
+      "lifecycle workflow maintenance",
+      "lead routing setup support",
+      "CRM automation updates",
+      "form and trigger QA",
+      "email automation administration",
+      "integration monitoring",
+      "automation error logging",
+      "workflow documentation"
+    ],
+    "tools": [
+      "HubSpot",
+      "ActiveCampaign",
+      "Klaviyo",
+      "Zapier",
+      "Make",
+      "GoHighLevel",
+      "Salesforce",
+      "Google Sheets"
+    ],
+    "skills": [
+      "workflow mapping",
+      "automation logic",
+      "CRM administration",
+      "campaign QA",
+      "integration troubleshooting",
+      "documentation"
+    ],
+    "bestFor": [
+      "SaaS companies",
+      "agencies",
+      "ecommerce brands",
+      "B2B marketing teams",
+      "online businesses"
+    ],
+    "outcomes": [
+      "Keep approved lifecycle and lead-routing workflows maintained instead of becoming one-off builds.",
+      "Catch broken triggers, routing issues, and automation errors before they sit unnoticed.",
+      "Give marketing and revenue teams current documentation for the workflows they depend on."
+    ],
+    "costFactors": [
+      "Number and complexity of workflows",
+      "CRM and automation platform depth",
+      "Integration count",
+      "Required troubleshooting overlap",
+      "Access level and production-risk sensitivity"
+    ],
+    "relatedSlugs": [
+      "technical-virtual-assistant",
+      "crm",
+      "email-marketing",
+      "operations"
+    ]
   }
-
-
 ];
 
 export function servicePageBySlug(slug: string) { return SERVICE_PAGES.find((page) => page.slug === slug); }

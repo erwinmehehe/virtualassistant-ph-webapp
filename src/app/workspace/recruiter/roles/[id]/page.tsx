@@ -158,6 +158,9 @@ export default async function RoleControlCenter({
       : clientViewedAt
         ? "Viewed, waiting on decisions"
         : "Sent, not viewed";
+  const clientClaimHref = lead?.id && !job.client_id
+    ? `/auth/join/client?lead=${encodeURIComponent(lead.id)}&next=${encodeURIComponent(`/workspace/client/jobs/${job.id}`)}`
+    : null;
 
   return (
     <>
@@ -169,13 +172,24 @@ export default async function RoleControlCenter({
       {query.client_already_linked ? (
         <div className="success-banner" role="status">The client account is already linked to this role.</div>
       ) : null}
+      {query.client_claim_email_unavailable && clientClaimHref ? (
+        <div className="alert" role="alert">
+          Client account email is temporarily unavailable. The account link still works, so you can send it to the client manually.{" "}
+          <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
+        </div>
+      ) : null}
+      {query.client_invite_email_unavailable && clientClaimHref ? (
+        <div className="alert" role="alert">
+          Shortlist saved internally, but the client invite email is temporarily unavailable. Send the client account link manually or retry later.{" "}
+          <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
+        </div>
+      ) : null}
       {query.shortlist_saved ? <div className="success-banner">Internal shortlist saved.</div> : null}
       {query.shortlist_released ? <div className="success-banner">Shortlist released to the client.</div> : null}
       {query.client_invited ? <div className="success-banner">Shortlist saved and the client account invitation was sent.</div> : null}
       {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
       {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
       {query.offer_sent ? <div className="success-banner">Placement offer sent to the VA. Waiting for VA acceptance before the client confirms the placement.</div> : null}
-      {query.availability_reminded ? <div className="success-banner" role="status">Availability reminder sent. Client release will unlock after the VA reconfirms their current availability.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
       {query.role_details_saved ? <div className="success-banner" role="status">Required role details saved.</div> : null}
       {query.role_details_error ? <div className="alert" role="alert">{query.role_details_error}</div> : null}
@@ -254,6 +268,9 @@ export default async function RoleControlCenter({
               <input type="hidden" name="job_id" value={job.id} />
               <button className="btn btn-primary" type="submit">Send client account link</button>
             </form>
+          ) : null}
+          {publication.key === "needs_client_account" && clientClaimHref ? (
+            <Link className="btn" href={clientClaimHref} target="_blank">Open client account link</Link>
           ) : null}
           {publication.key === "needs_terms" ? (
             <form action={prepareStandardPlacementTermsAction}>

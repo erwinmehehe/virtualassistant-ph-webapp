@@ -9,33 +9,23 @@ const trainingHeaderPath = "src/components/training-site-header.tsx";
 const sectionObserverPath = "src/components/training-section-observer.tsx";
 const navCssPath = "src/app/nav-cro.css";
 
-test("training uses one connected site-nav instead of a separate microsite menu", async () => {
-  const [header, nav, observer, navCss] = await Promise.all([
-    readFile(trainingHeaderPath, "utf8"),
+test("public training uses the primary site navigation and exposes Training globally", async () => {
+  const [page, nav, trainingHeader] = await Promise.all([
+    readFile(pagePath, "utf8"),
     readFile(siteNavPath, "utf8"),
-    readFile(sectionObserverPath, "utf8"),
-    readFile(navCssPath, "utf8"),
+    readFile(trainingHeaderPath, "utf8"),
   ]);
 
-  assert.match(header, /<SiteNav/);
-  assert.match(header, /mode="training"/);
-  assert.match(nav, /mode\?: "default" \| "training"/);
-  assert.match(nav, /training-connected-nav/);
-  assert.match(nav, /training-nav-context/);
-  assert.match(nav, /TrainingSectionObserver/);
-  assert.match(nav, /data-section="course-library"/);
-  assert.match(nav, /href="\/training#course-library"/);
-  assert.match(nav, /href="\/training#how-training-works"/);
-  assert.match(nav, /href="\/training#certificate"/);
-  assert.match(nav, /href="\/training#faq"/);
-  assert.doesNotMatch(nav, />VA jobs<\/Link>/);
-  assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
+  assert.match(page, /import \{ SiteHeader \} from "@\/components\/site-header"/);
+  assert.match(page, /<SiteHeader\/>/);
+  assert.doesNotMatch(page, /TrainingSiteHeader/);
 
-  assert.match(observer, /requestAnimationFrame/);
-  assert.match(observer, /aria-current/);
-  assert.match(observer, /getBoundingClientRect/);
-  assert.match(navCss, /training-section-link\.is-active/);
-  assert.match(navCss, /@media \(max-width: 680px\)[\s\S]*va-mobile-drawer > summary span[\s\S]*display: none/);
+  assert.match(nav, /<Link href="\/training">Training<\/Link>/);
+  assert.match(nav, /<Link href="\/training">Free VA Training<\/Link>/);
+
+  // Keep the specialised training header only for auth/join continuity.
+  assert.match(trainingHeader, /<SiteNav/);
+  assert.match(trainingHeader, /mode="training"/);
 });
 
 test("training landing does not render a second disconnected navigation bar", async () => {

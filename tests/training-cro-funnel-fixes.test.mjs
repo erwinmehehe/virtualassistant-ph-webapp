@@ -23,16 +23,15 @@ test("training public header stays learner-focused while using the primary site 
     readFile(siteNavPath, "utf8"),
   ]);
 
-  assert.match(page, /<SiteHeader context="training"\/>/);
-  assert.doesNotMatch(page, /TrainingSiteHeader/);
+  assert.match(page, /TrainingSiteHeader/);
+  assert.match(header, /current === "landing" && !courseSlug/);
+  assert.match(header, /<SiteNav actionContext="training" \/>/);
   assert.match(siteNav, /<Link href="\/training">Training<\/Link>/);
   assert.match(siteNav, /actionContext === "training"/);
   assert.match(siteNav, /Training login/);
   assert.match(siteNav, /Start free training/);
-  assert.match(siteNav, /contextualPrimaryHref = isTrainingContext \? trainingJoinHref\(\) : "\/hire"/);
 
-  // The specialised training header is retained for signup/login continuity only.
-  assert.match(header, /SiteNav/);
+  // Signup/login keep the compact training-specific header.
   assert.match(header, /mode="training"/);
 });
 

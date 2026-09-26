@@ -43,7 +43,7 @@ test("recruiter bulk actions hard-block selections above 500 and reuse the share
   assert.match(talentPage, /Approval cleanup/);
 });
 
-test("every direct approved-stage write in server actions has the centralized 60 percent guard", async () => {
+test("every direct approved-stage write in server actions has the centralized 80 percent guard", async () => {
   const files = await actionFiles();
   const violations = [];
   let writes = 0;
@@ -81,16 +81,18 @@ test("admin and finalist approval paths use the centralized eligibility policy",
   assert.match(vetting, /assertApprovalCompletion\(completion\)/);
 });
 
-test("below-threshold approved VAs cannot enter new matching or client shortlist flows", async () => {
-  const [recruiter, matching, clientShortlist] = await Promise.all([
+test("completion is enforced when approving, not re-applied as a hidden matching gate", async () => {
+  const [recruiter, matching, clientShortlist, visibility] = await Promise.all([
     read("src/app/actions/recruiter.ts"),
     read("src/app/actions/matching.ts"),
-    read("src/app/actions/client-shortlist.ts")
+    read("src/app/actions/client-shortlist.ts"),
+    read("src/lib/public-visibility.ts")
   ]);
 
-  assert.match(recruiter, /\["approved", "bench"\]\.includes\(String\(row\.stage\)\) && isRowApprovable\(row\)/);
-  assert.match(recruiter, /must be approved and still have at least 60% profile completion/);
-  assert.match(matching, /filter\(isRowApprovable\)/);
-  assert.match(matching, /Approved VAs must still have at least 60% profile completion/);
-  assert.match(clientShortlist, /!isRowApprovable\(vetting\)/);
+  assert.match(visibility, /APPROVAL_MIN_COMPLETION = 80/);
+  assert.match(recruiter, /rows\.filter\(isRowApprovable\)/);
+  assert.doesNotMatch(recruiter, /approved and still have at least 60% profile completion/);
+  assert.doesNotMatch(matching, /filter\(isRowApprovable\)/);
+  assert.doesNotMatch(clientShortlist, /isRowApprovable/);
+  assert.match(clientShortlist, /\["approved", "bench"\]\.includes/);
 });

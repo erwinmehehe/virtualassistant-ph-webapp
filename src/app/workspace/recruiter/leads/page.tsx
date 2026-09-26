@@ -228,18 +228,21 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const hotLeads = pipelineScores.filter((lead) => lead.temperature === "hot").length;
   const warmLeads = pipelineScores.filter((lead) => lead.temperature === "warm").length;
 
-  const viewTabs = [
+  const primaryViewTabs = [
     ["open", "Hiring inbox"],
-    ["recent", "Newest leads"],
-    ["attention", "Attention"],
+    ["attention", "Needs action"],
     ["discovery", "Discovery"],
+  ] as const;
+  const secondaryViewTabs = [
+    ["recent", "Newest leads"],
     ["qualified", "Qualified"],
     ["nurture", "Nurture"],
     ["won", "Won"],
     ["lost", "Lost"],
-    ["all", "All"]
+    ["all", "All"],
   ] as const;
-  const currentViewLabel = viewTabs.find(([value]) => value === view)?.[1] || "Hiring inbox";
+  const currentViewLabel = [...primaryViewTabs, ...secondaryViewTabs].find(([value]) => value === view)?.[1] || "Hiring inbox";
+  const secondaryViewActive = secondaryViewTabs.some(([value]) => value === view);
 
   const buildHref = (targetPage?: number) => {
     const next = new URLSearchParams();
@@ -309,9 +312,15 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
 
-      <nav className="role-filter-tabs crm-tabs recruiter-leads-tabs" aria-label="Lead pipeline views">
-        {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
+      <nav className="role-filter-tabs crm-tabs recruiter-leads-tabs" aria-label="Primary hiring inbox views">
+        {primaryViewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
       </nav>
+      <details className="crm-secondary-views" open={secondaryViewActive}>
+        <summary>{secondaryViewActive ? `More views · ${currentViewLabel}` : "More views"}</summary>
+        <div className="crm-secondary-views-menu">
+          {secondaryViewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
+        </div>
+      </details>
 
       {view === "recent" ? <p className="small muted crm-view-note">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
 

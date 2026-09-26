@@ -14,5 +14,8 @@
       "path": "/api/cron/maintenance",
       "schedule": "0 9 * * *"
     }
-  ]
+  ],
+  "env": {
+    "NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED": "true"
+  }
 }

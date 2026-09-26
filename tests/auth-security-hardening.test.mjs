@@ -62,3 +62,13 @@ test("VA signup gives browser-level strong-password validation and disables dupl
   assert.match(auth, /\[auth_join\] validation_failed/);
   assert.match(auth, /\[auth_join\] generate_link_failed/);
 });
+
+
+test("generic Google login captures a workspace role for first-time OAuth users", async () => {
+  const login = await read("src/app/auth/login/page.tsx");
+
+  assert.match(login, /name="role" value="client"/);
+  assert.match(login, /Continue with Google as Client/);
+  assert.match(login, /name="role" value="va"/);
+  assert.match(login, /Continue with Google as VA/);
+});

@@ -19,9 +19,10 @@ test("recruiter My Day stays compact and thumb-safe on mobile", async () => {
 });
 
 test("recruiter leads uses mobile metrics, tabs, filters, and lead cards", async () => {
-  const [page, css] = await Promise.all([
+  const [page, css, leadStyles] = await Promise.all([
     read("src/app/workspace/recruiter/leads/page.tsx"),
     read("src/app/workspace/recruiter/recruiter-mobile.css"),
+    read("src/app/workspace/recruiter/leads/leads.module.css"),
   ]);
 
   for (const className of [
@@ -39,6 +40,8 @@ test("recruiter leads uses mobile metrics, tabs, filters, and lead cards", async
   assert.match(css, /\.recruiter-leads-tabs[\s\S]*overflow-x: auto/);
   assert.match(css, /\.recruiter-leads-filters input,[\s\S]*font-size: 16px/);
   assert.match(css, /\.recruiter-leads-list \.crm-lead-body[\s\S]*grid-template-columns: 1fr/);
+  assert.match(leadStyles, /\.crmPage :global\(\.crm-role-bridge\)/);
+  assert.ok(page.indexOf("crm-role-bridge") < page.indexOf("crm-secondary-controls"), "role action should render before secondary CRM controls");
 });
 
 test("recruiter roles uses compact stats, scrollable saved views, and mobile role cards", async () => {

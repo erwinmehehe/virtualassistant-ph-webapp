@@ -24,17 +24,17 @@ function loadVisibility() {
 
 const { isRowApprovable, APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION } = loadVisibility();
 
-test("a recruiter can approve a part-built profile into the bench", () => {
-  assert.equal(APPROVAL_MIN_COMPLETION, 60);
-  assert.equal(isRowApprovable({ completion_score: 60, missing_items: ["photo", "bio"] }), true);
+test("a recruiter can approve a VA only at 80 percent completion or higher", () => {
+  assert.equal(APPROVAL_MIN_COMPLETION, 80);
   assert.equal(isRowApprovable({ completion_score: 80, missing_items: ["photo"] }), true);
-  assert.equal(isRowApprovable({ completion_score: 59 }), false);
+  assert.equal(isRowApprovable({ completion_score: 100, missing_items: [] }), true);
+  assert.equal(isRowApprovable({ completion_score: 79 }), false);
   assert.equal(isRowApprovable({ completion_score: null }), false);
 });
 
-test("the public bar stays where it was and stays higher", () => {
+test("approval and public completion floors are both 80 percent, while publishing stays separate", () => {
   assert.equal(PUBLIC_VA_MIN_COMPLETION, 80);
-  assert.ok(APPROVAL_MIN_COMPLETION < PUBLIC_VA_MIN_COMPLETION);
+  assert.equal(APPROVAL_MIN_COMPLETION, PUBLIC_VA_MIN_COMPLETION);
 
   // Approving must not publish: that is a separate column plus the view's gates.
   const recruiter = source("src/app/actions/recruiter.ts");

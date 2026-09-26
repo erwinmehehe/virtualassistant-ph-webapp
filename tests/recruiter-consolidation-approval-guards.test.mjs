@@ -44,14 +44,14 @@ test("filtered Talent bulk actions hard-stop above 500 results",async()=>{
   assert.doesNotMatch(page,/Select first 500 filtered VAs/);
 });
 
-test("all VA approval actions enforce the shared 60 percent completion floor",async()=>{
+test("all VA approval actions enforce the shared 80 percent completion floor",async()=>{
   const [admin,vetting,recruiter,visibility]=await Promise.all([
     read("src/app/actions/admin.ts"),
     read("src/app/actions/vetting.ts"),
     read("src/app/actions/recruiter.ts"),
     read("src/lib/public-visibility.ts")
   ]);
-  assert.match(visibility,/APPROVAL_MIN_COMPLETION = 60/);
+  assert.match(visibility,/APPROVAL_MIN_COMPLETION = 80/);
   assert.match(recruiter,/rows\.filter\(isRowApprovable\)/);
   assert.match(admin,/gte\("completion_score", APPROVAL_MIN_COMPLETION\)/);
   assert.match(vetting,/assertApprovalCompletion\(completion\)/);

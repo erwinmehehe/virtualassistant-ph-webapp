@@ -75,10 +75,10 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   if (missingIndustries.length) hardFailures.push(`Missing required industry experience: ${missingIndustries.join(", ")}`);
 
   if (job.minimum_years_experience != null && Number(va.years_experience ?? 0) < job.minimum_years_experience) {
-    hardFailures.push(`Needs at least ${job.minimum_years_experience} year${job.minimum_years_experience === 1 ? "" : "s"} of experience`);
+    evidenceGaps.push(`Experience is below the stated preference: role asks ${job.minimum_years_experience} year${job.minimum_years_experience === 1 ? "" : "s"}; profile shows ${Number(va.years_experience ?? 0)}`);
   }
   if (job.max_hourly_rate != null && va.hourly_rate != null && Number(va.hourly_rate) > Number(job.max_hourly_rate)) {
-    hardFailures.push(`Rate is above the client's USD ${Number(job.max_hourly_rate).toFixed(2)}/hr ceiling`);
+    evidenceGaps.push(`Rate is above the stated client budget: USD ${Number(va.hourly_rate).toFixed(2)}/hr vs USD ${Number(job.max_hourly_rate).toFixed(2)}/hr`);
   }
 
   if (job.communication_requirement?.trim()) evidenceGaps.push(`Verify communication requirement: ${job.communication_requirement.trim()}`);

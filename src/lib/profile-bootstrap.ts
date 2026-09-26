@@ -59,6 +59,13 @@ export async function getOrBootstrapProfile(user: User): Promise<Profile | null>
     if (existing) {
       const role = isRole(existing.role) ? existing.role : null;
       if (!role) return null;
+      if (user.email_confirmed_at) {
+        const { error: verificationError } = await admin
+          .from("profiles")
+          .update({ email_verified: true })
+          .eq("id", user.id);
+        if (verificationError) throw verificationError;
+      }
       await ensureRoleRows(admin, user, role);
       return existing as Profile;
     }
@@ -68,7 +75,12 @@ export async function getOrBootstrapProfile(user: User): Promise<Profile | null>
 
     const { data: created, error } = await admin
       .from("profiles")
-      .upsert({ id: user.id, role, full_name: bootstrapName(user) }, { onConflict: "id", ignoreDuplicates: true })
+      .upsert({
+        id: user.id,
+        role,
+        full_name: bootstrapName(user),
+        email_verified: Boolean(user.email_confirmed_at),
+      }, { onConflict: "id", ignoreDuplicates: true })
       .select("id, role, full_name, avatar_url")
       .single();
 
@@ -79,6 +91,13 @@ export async function getOrBootstrapProfile(user: User): Promise<Profile | null>
         .eq("id", user.id)
         .maybeSingle();
       if (!racedProfile || !isRole(racedProfile.role)) return null;
+      if (user.email_confirmed_at) {
+        const { error: verificationError } = await admin
+          .from("profiles")
+          .update({ email_verified: true })
+          .eq("id", user.id);
+        if (verificationError) throw verificationError;
+      }
       await ensureRoleRows(admin, user, racedProfile.role);
       return racedProfile as Profile;
     }

@@ -286,6 +286,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
       {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
       {params.proposal_error ? <div className="alert" role="alert">{params.proposal_error}</div> : null}
+      {params.role_error ? <div className="alert" role="alert">{params.role_error}</div> : null}
 
       <div className="page-head recruiter-leads-head">
         <div>

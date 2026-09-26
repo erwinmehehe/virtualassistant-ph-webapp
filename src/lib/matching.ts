@@ -80,18 +80,12 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   if (job.hours_per_week && Number(va.weekly_hours ?? 0) < job.hours_per_week) {
     hardFailures.push(`Needs ${job.hours_per_week} hrs/week; profile shows ${Number(va.weekly_hours ?? 0)}`);
   }
-  if (job.overlap_hours && Number(va.overlap_hours ?? 0) < job.overlap_hours) {
-    hardFailures.push(`Needs ${job.overlap_hours} hours of daily overlap; profile shows ${Number(va.overlap_hours ?? 0)}`);
-  }
   if (job.max_hourly_rate != null && va.hourly_rate != null && Number(va.hourly_rate) > Number(job.max_hourly_rate)) {
     hardFailures.push(`Rate is above the client's USD ${Number(job.max_hourly_rate).toFixed(2)}/hr ceiling`);
   }
 
   if (job.communication_requirement?.trim()) evidenceGaps.push(`Verify communication requirement: ${job.communication_requirement.trim()}`);
   if ((job.dealbreakers ?? []).length) evidenceGaps.push(`Recruiter must verify dealbreakers: ${(job.dealbreakers ?? []).join(", ")}`);
-  if (!va.availability_status) evidenceGaps.push("Availability status is not set");
-  else if (va.availability_status !== "available") evidenceGaps.push(`Availability is currently ${String(va.availability_status).replaceAll("_", " ")}`);
-
   let score = 0;
   let assessedWeight = 0;
   const totalWeight = 100;
@@ -115,11 +109,6 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   if (job.hours_per_week) {
     assessedWeight += 10;
     if (va.weekly_hours != null && va.weekly_hours >= job.hours_per_week) score += 10;
-  }
-
-  if (job.overlap_hours) {
-    assessedWeight += 10;
-    if (va.overlap_hours != null && va.overlap_hours >= job.overlap_hours) score += 10;
   }
 
   const normalizedScore = assessedWeight ? Math.round((score / assessedWeight) * totalWeight) : 0;

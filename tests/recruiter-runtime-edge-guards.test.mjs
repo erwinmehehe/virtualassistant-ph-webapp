@@ -4,19 +4,18 @@ import { readFileSync } from "node:fs";
 
 const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("stale VA availability is blocked before client shortlist release",()=>{
+test("availability confirmation does not block client shortlist release",()=>{
   const action=read("src/app/actions/matching.ts");
   const table=read("src/components/matching-candidate-table.tsx");
-  assert.match(action,/const AVAILABILITY_FRESH_DAYS = 14/);
-  assert.match(action,/availabilityCutoff = Date\.now\(\) - AVAILABILITY_FRESH_DAYS \* 24 \* 60 \* 60 \* 1000/);
-  assert.match(action,/must reconfirm availability before client release/);
-  assert.match(action,/includes\("VA availability is stale"\)/);
-  assert.match(table,/releaseReady\?: boolean/);
-  assert.match(table,/selectedReleaseBlocked = selectedRows\.filter\(\(row\) => row\.releaseReady === false\)/);
-  assert.match(table,/selectedReleaseBlocked\.length > 0/);
-  assert.match(table,/Availability confirmation required before client release/);
-  assert.match(table,/Confirmation needed/);
-  assert.match(table,/Send availability reminder/);
+  const matching=read("src/lib/matching.ts");
+  const migration=read("supabase/migrations/20260926123000_remove_matching_availability_overlap_gates.sql");
+
+  assert.doesNotMatch(action,/AVAILABILITY_FRESH_DAYS/);
+  assert.doesNotMatch(action,/must reconfirm availability before client release/);
+  assert.doesNotMatch(action,/VA availability is stale/);
+  assert.doesNotMatch(table,/selectedReleaseBlocked|Confirmation needed|Send availability reminder/);
+  assert.doesNotMatch(matching,/hours of daily overlap; profile shows/);
+  assert.match(migration,/drop trigger if exists shortlist_release_availability_guard/);
 });
 
 test("recruiter commercial actions stay on the canonical role workspace",()=>{

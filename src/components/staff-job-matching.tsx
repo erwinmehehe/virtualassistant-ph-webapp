@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { hideShortlistCandidateAction, remindVaAvailabilityAction, saveJobShortlistAction } from "@/app/actions/matching";
+import { hideShortlistCandidateAction, saveJobShortlistAction } from "@/app/actions/matching";
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
@@ -32,7 +32,6 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const interestMap=new Map((interestRows||[]).map((row:any)=>[row.va_id,row]));
   const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
   const validVas=(vas||[]).filter((va:any)=>Boolean(va?.user_id));
-  const availabilityCutoff=Date.now()-14*24*60*60*1000;
   const pool=validVas.map((va:any)=>{
     const assessment=matchAssessment(job,va);
     const account=profileMap.get(va.user_id) as any;
@@ -41,14 +40,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     const otherClientReviews=(releasedAcross||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&row.client_decision!=="pass"&&activeJobMap.has(row.job_id)).length;
     const activeProcesses=(processRows||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&activeJobMap.has(row.job_id));
     const potentialCommittedHours=activeProcesses.filter((row:any)=>["offered","hired"].includes(row.status)).reduce((sum:number,row:any)=>sum+Number((activeJobMap.get(row.job_id) as any)?.hours_per_week||0),0);
-    const confirmedAt=va.availability_confirmed_at?new Date(va.availability_confirmed_at).getTime():0;
-    const releaseReady=va.availability_status==="available"&&Boolean(confirmedAt)&&Number.isFinite(confirmedAt)&&confirmedAt>=availabilityCutoff;
-    const releaseBlocker=releaseReady?null:va.availability_status!=="available"
-      ?"VA is not currently marked available"
-      :!confirmedAt||!Number.isFinite(confirmedAt)
-        ?"Availability has not been confirmed"
-        :"Availability confirmation is older than 14 days";
-    return{va,account,shortlist,job,interest,...assessment,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours,releaseReady,releaseBlocker};
+    return{va,account,shortlist,job,interest,...assessment,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
   }).sort((a:any,b:any)=>b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
 
   const proposedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed").length;
@@ -85,6 +77,6 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
     {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> The role must be published with client-approved service terms before anything can be marked as sent to the client.</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
 
-    {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} remindVaAvailabilityAction={remindVaAvailabilityAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
+    {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;
 }

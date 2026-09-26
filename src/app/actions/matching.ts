@@ -8,6 +8,7 @@ import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candi
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { isRowApprovable } from "@/lib/public-visibility";
+import { publicationMissingDetails } from "@/lib/job-publication";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
@@ -130,6 +131,10 @@ export async function saveJobShortlistAction(formData: FormData) {
     admin.from("job_commercials").select("commercial_status").eq("job_id", jobId).maybeSingle()
   ]);
   if (!job) return fail("Job not found.");
+  if (mode === "release") {
+    const missingRoleDetails = publicationMissingDetails(job);
+    if (missingRoleDetails.length) return fail(`Complete the role brief before sending candidates to the client: ${missingRoleDetails.join(", ")}.`);
+  }
   const approvedIds = new Set((vetting || []).filter(isRowApprovable).map((row: any) => row.user_id));
   if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer eligible for client matching. Approved VAs must still have at least 60% profile completion.");
   if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet. Use Save + invite client to review instead.");

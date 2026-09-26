@@ -247,14 +247,6 @@ export async function joinAction(formData: FormData) {
     redirect(joinErrorPath(role, "That password appears in known data breaches. Choose a different password.", { talent, lead, next }));
   }
 
-  // A photo is optional at signup and is collected on the profile instead. If
-  // one is supplied anyway, it still has to be a sane image.
-  const avatar = formData.get("avatar");
-  if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
-    if (avatar.size > 3 * 1024 * 1024) redirect(joinErrorPath("va", "Profile photo must be 3 MB or smaller", { next }));
-    if (!["image/jpeg", "image/png", "image/webp"].includes(avatar.type)) redirect(joinErrorPath("va", "Upload a JPG, PNG, or WEBP profile photo", { next }));
-  }
-
   const destination = destinationFor(parsed.data.role, parsed.data.next, parsed.data.talent);
   const origin = siteOrigin();
   if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(origin)) {
@@ -303,31 +295,46 @@ export async function joinAction(formData: FormData) {
     lead: parsed.data.role === "client" ? parsed.data.lead : undefined,
   });
 
-  const workspaceProfile = await getOrBootstrapProfile(data.user);
-  if (!workspaceProfile || workspaceProfile.role !== parsed.data.role) {
-    await admin.auth.admin.deleteUser(data.user.id);
-    redirect(joinErrorPath(parsed.data.role, "We could not finish setting up your workspace. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
-  }
-
-  if (parsed.data.role === "va" && avatar instanceof File && avatar.size > 0) {
-    const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
-    const path = `${data.user.id}/registration-${Date.now()}.${extension}`;
-    const { error: uploadError } = await admin.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
-    if (uploadError) {
-      await admin.auth.admin.deleteUser(data.user.id);
-      redirect(joinErrorPath("va", "We could not save your profile photo. Please try again.", { next }));
-    }
-    const { data: publicUrl } = admin.storage.from("avatars").getPublicUrl(path);
-    const { error: avatarError } = await admin.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", data.user.id);
-    if (avatarError) {
-      await admin.storage.from("avatars").remove([path]);
-      await admin.auth.admin.deleteUser(data.user.id);
-      redirect(joinErrorPath("va", "We could not attach your profile photo. Please try again.", { next }));
-    }
-  }
-
+  let brandedConfirmationSent = false;
+  let confirmationFailureReason = "provider_error";
   try {
-    await recordProductEvent("account_created", {
+    const result = await sendAccountConfirmationEmail({
+      to: parsed.data.email,
+      actionUrl: confirmationUrl,
+      idempotencyKey: `account-confirmation-${data.user.id}`,
+    });
+    brandedConfirmationSent = result.sent;
+    confirmationFailureReason = result.sent ? "" : result.reason || "provider_error";
+  } catch (error) {
+    confirmationFailureReason = error instanceof Error ? error.message : "provider_error";
+  }
+
+  if (!brandedConfirmationSent) {
+    console.error("[auth_join] confirmation_send_failed", {
+      role: parsed.data.role,
+      reason: confirmationFailureReason,
+    });
+    try {
+      await admin.auth.admin.deleteUser(data.user.id);
+    } catch (cleanupError) {
+      console.error("[auth_join] failed_signup_cleanup_failed", {
+        role: parsed.data.role,
+        userId: data.user.id,
+        reason: cleanupError instanceof Error ? cleanupError.message : "cleanup_error",
+      });
+    }
+    redirect(joinErrorPath(
+      parsed.data.role,
+      "We could not deliver the confirmation email, so your account was not activated. Continue with Google or try email signup again later.",
+      { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }
+    ));
+  }
+
+  // Workspace rows are intentionally created only after the user proves control
+  // of the email in /auth/confirm. This avoids leaving an unconfirmed VA/client
+  // workspace behind when the email provider is unavailable.
+  try {
+    await recordProductEvent("account_signup_started", {
       userId: data.user.id,
       path: `/auth/join/${parsed.data.role}`,
       metadata: { role: parsed.data.role, requested_talent: Boolean(parsed.data.talent), claimed_lead: Boolean(parsed.data.lead) }
@@ -336,41 +343,15 @@ export async function joinAction(formData: FormData) {
     // Analytics failures must not block a valid signup.
   }
 
-  let brandedConfirmationSent = false;
-  try {
-    const result = await sendAccountConfirmationEmail({
-      to: parsed.data.email,
-      actionUrl: confirmationUrl,
-      idempotencyKey: `account-confirmation-${data.user.id}`,
-    });
-    brandedConfirmationSent = result.sent;
-    if (!result.sent) {
-      console.error("[auth_join] confirmation_send_failed", {
-        role: parsed.data.role,
-        reason: result.reason || "provider_error",
-      });
-    }
-  } catch (error) {
-    brandedConfirmationSent = false;
-    console.error("[auth_join] confirmation_send_failed", {
-      role: parsed.data.role,
-      reason: error instanceof Error ? error.message : "provider_error",
-    });
-  }
-
   // Do not fall back to Supabase Auth's email sender here. We already generated
   // the secure Supabase token above and send it through our transactional email
-  // provider. Calling auth.resend() adds Supabase's separate auth-email rate
-  // limit and, with the same SMTP provider behind it, is not an independent
-  // delivery path. The login page exposes the branded resend action instead.
+  // provider. Calling auth.resend() adds a separate auth-email rate limit and
+  // is not an independent delivery path.
   const loginParams = new URLSearchParams({
     message: "Check your email to confirm your account",
     next: destination,
     confirm: "1"
   });
-  if (!brandedConfirmationSent) {
-    loginParams.set("message", "Your account was created, but the confirmation email could not be sent. Use Resend confirmation below.");
-  }
   if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
   redirect(`/auth/login?${loginParams.toString()}`);
 }

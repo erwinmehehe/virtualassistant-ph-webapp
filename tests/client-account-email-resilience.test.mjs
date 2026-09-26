@@ -10,10 +10,12 @@ test("client account access emails are protected from optional email quota",asyn
     read("src/app/actions/matching.ts"),
   ]);
 
-  assert.match(email,/RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "40"/);
-  assert.match(email,/Number\.parseInt\(process\.env\.RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "40", 10\) \|\| 40/);
+  assert.match(email,/RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "70"/);
+  assert.match(email,/Number\.parseInt\(process\.env\.RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "70", 10\) \|\| 70/);
   const claim=email.match(/export async function sendClaimDraftEmail[\s\S]*?export async function sendRoleDetailsRequestEmail/)?.[0]||"";
   assert.match(claim,/priority: "critical"/);
+  assert.match(email,/priority !== "critical"/);
+  assert.match(email,/LOW_PRIORITY_DAILY_LIMIT/);
 
   const invite=matching.match(/if \(mode === "invite" && inviteLead\)[\s\S]*?const newlyReleasedGoodMatches/)?.[0]||"";
   assert.match(invite,/eventType: "client_shortlist_invite"/);

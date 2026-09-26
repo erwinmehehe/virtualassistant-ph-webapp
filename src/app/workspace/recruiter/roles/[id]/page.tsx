@@ -174,8 +174,16 @@ export default async function RoleControlCenter({
       ) : null}
       {query.client_claim_email_unavailable && clientClaimHref ? (
         <div className="alert" role="alert">
-          Client account email is temporarily unavailable. The account link still works, so you can send it to the client manually.{" "}
-          <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
+          <div>
+            Client account email was not delivered. The account link is still valid.
+          </div>
+          <div className="row wrap" style={{ marginTop: 8 }}>
+            <form action={sendClientAccountClaimAction}>
+              <input type="hidden" name="job_id" value={job.id} />
+              <button className="btn btn-sm" type="submit">Retry email now</button>
+            </form>
+            <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
+          </div>
         </div>
       ) : null}
       {query.client_invite_email_unavailable && clientClaimHref ? (

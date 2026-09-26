@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle2, Mail, ShieldCheck, ShieldX } from "lucide-
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
-import { DAILY_RECIPIENT_LIMIT } from "@/lib/email";
+import { DAILY_RECIPIENT_LIMIT, LOW_PRIORITY_DAILY_LIMIT, RESERVED_CRITICAL_RECIPIENTS } from "@/lib/email";
 import { sendVaTrainingAnnouncementBatchAction } from "@/app/actions/admin-training-email";
 
 type EmailRow = {
@@ -140,7 +140,7 @@ export default async function AdminEmailHealthPage() {
         <div>
           <div className="kicker">Email operations</div>
           <h1>Email health</h1>
-          <p>App-tracked recipient usage for the current UTC day. The final 20 daily recipients are reserved for critical transactional mail.</p>
+          <p>App-tracked recipient usage for the current UTC day. Optional mail is capped at {LOW_PRIORITY_DAILY_LIMIT} recipients and {RESERVED_CRITICAL_RECIPIENTS} recipients are protected from standard mail; critical transactional mail is always attempted.</p>
         </div>
       </div>
 
@@ -148,7 +148,7 @@ export default async function AdminEmailHealthPage() {
         <div className="row-between" style={{ gap: 16, alignItems: "center" }}>
           <div>
             <h2 style={{ marginBottom: 4 }}>Free VA training announcement</h2>
-            <p className="muted" style={{ margin: 0 }}>Send the approved training announcement in safe batches. Previously sent VAs are skipped automatically, explicit opt-outs and suppressed addresses are respected, and critical email capacity stays reserved.</p>
+            <p className="muted" style={{ margin: 0 }}>Send the approved training announcement in batches of 10. Previously sent VAs are skipped automatically, explicit opt-outs and suppressed addresses are respected, and critical email capacity stays reserved.</p>
           </div>
           <form action={sendVaTrainingAnnouncementBatchAction}>
             <button className="btn btn-primary" type="submit">Send next VA batch</button>

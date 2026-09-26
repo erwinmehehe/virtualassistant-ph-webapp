@@ -175,9 +175,13 @@ type EmailEventLogMeta = {
 export const DAILY_RECIPIENT_LIMIT = Math.max(1, Number.parseInt(process.env.RESEND_DAILY_RECIPIENT_LIMIT || "100", 10) || 100);
 export const RESERVED_CRITICAL_RECIPIENTS = Math.min(
   DAILY_RECIPIENT_LIMIT,
-  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "40", 10) || 40)
+  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "70", 10) || 70)
 );
 const NON_CRITICAL_DAILY_LIMIT = Math.max(0, DAILY_RECIPIENT_LIMIT - RESERVED_CRITICAL_RECIPIENTS);
+export const LOW_PRIORITY_DAILY_LIMIT = Math.min(
+  NON_CRITICAL_DAILY_LIMIT,
+  Math.max(0, Number.parseInt(process.env.RESEND_LOW_PRIORITY_DAILY_LIMIT || "20", 10) || 20)
+);
 
 function countRecipientAddresses(value: string | null | undefined) {
   return String(value || "").split(",").map((item) => item.trim()).filter(Boolean).length;
@@ -377,22 +381,26 @@ async function trackedSend(
 
   const allRecipients = [...safeTo, ...safeCc, ...safeBcc];
   const recipient_count = allRecipients.length;
-  const quotaLimit = priority === "critical" ? DAILY_RECIPIENT_LIMIT : NON_CRITICAL_DAILY_LIMIT;
-  try {
-    const usedToday = await getRecipientUsageToday(admin);
-    if (usedToday + recipient_count > quotaLimit) {
-      await logEmailEvent(
-        eventType,
-        allRecipients,
-        "skipped_quota",
-        null,
-        `Skipped ${priority} email at ${usedToday}/${DAILY_RECIPIENT_LIMIT} tracked recipient deliveries; ${RESERVED_CRITICAL_RECIPIENTS} are reserved for critical mail.`,
-        { ...eventMeta, recipientCount: recipient_count, skipReason: "daily_quota_reserved" }
-      );
-      return { sent: false as const, data: null, reason: "daily_quota_reserved" };
-    }
-  } catch {
-    if (priority !== "critical") {
+
+  // Our internal quota guard exists to protect transactional capacity from optional mail.
+  // Critical email must still be attempted and the provider should be the source of truth
+  // for whether the account can accept another transactional send.
+  if (priority !== "critical") {
+    const quotaLimit = priority === "low" ? LOW_PRIORITY_DAILY_LIMIT : NON_CRITICAL_DAILY_LIMIT;
+    try {
+      const usedToday = await getRecipientUsageToday(admin);
+      if (usedToday + recipient_count > quotaLimit) {
+        await logEmailEvent(
+          eventType,
+          allRecipients,
+          "skipped_quota",
+          null,
+          `Skipped ${priority} email at ${usedToday}/${DAILY_RECIPIENT_LIMIT} tracked recipient deliveries; transactional capacity is reserved for critical mail.`,
+          { ...eventMeta, recipientCount: recipient_count, skipReason: "daily_quota_reserved" }
+        );
+        return { sent: false as const, data: null, reason: "daily_quota_reserved" };
+      }
+    } catch {
       await logEmailEvent(eventType, allRecipients, "skipped_quota", null, "Quota usage lookup failed; non-critical email was not sent.", {
         ...eventMeta,
         recipientCount: recipient_count,

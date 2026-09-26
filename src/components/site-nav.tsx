@@ -126,14 +126,20 @@ export function SiteNav({
   mode = "default",
   trainingCourseSlug,
   trainingCurrent = "landing",
+  actionContext = "default",
 }: {
   mode?: "default" | "training";
   trainingCourseSlug?: string | null;
   trainingCurrent?: "landing" | "join" | "login";
+  actionContext?: "default" | "training";
 } = {}) {
   if (mode === "training") {
     return <TrainingNav courseSlug={trainingCourseSlug} current={trainingCurrent}/>;
   }
+
+  const isTrainingContext = actionContext === "training";
+  const trainingContextLoginHref = trainingLoginHref();
+  const trainingContextJoinHref = trainingJoinHref();
 
   return (
     <header className="site-header va-site-nav">
@@ -176,28 +182,61 @@ export function SiteNav({
 
           <Link href="/how-vetting-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/training">Training</Link>
           <Link href="/for-virtual-assistants">For VAs</Link>
         </nav>
 
         <div className="nav-actions">
-          <Link className="va-nav-account-login" href={ACCOUNT_LOGIN}>Log in</Link>
-          <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
+          {isTrainingContext ? (
+            <Link className="va-nav-account-login" href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+          ) : (
+            <Link className="va-nav-account-login" href={ACCOUNT_LOGIN}>Log in</Link>
+          )}
+
+          {isTrainingContext ? (
+            <Link
+              className="btn btn-primary desktop-hire-cta training-header-cta"
+              href={trainingContextJoinHref}
+              data-track="training_account_click"
+              data-cta-position="header"
+            >
+              Start free training <ArrowRight size={14} aria-hidden="true"/>
+            </Link>
+          ) : (
+            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
+          )}
 
           <details className="va-mobile-drawer">
             <summary className="btn" aria-label="Navigation menu"><Menu size={18} aria-hidden="true" /><span>Menu</span></summary>
             <nav className="va-mobile-panel" aria-label="Mobile navigation">
-              <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
+              {isTrainingContext ? (
+                <Link
+                  className="mobile-menu-primary"
+                  href={trainingContextJoinHref}
+                  data-track="training_account_click"
+                  data-cta-position="mobile_menu"
+                >
+                  Start free training
+                </Link>
+              ) : (
+                <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
+              )}
               <Link href="/find-talent">Find a VA</Link>
               <Link href="/services">Services</Link>
               <Link href="/industries">Industries</Link>
               <Link href="/how-vetting-works">How it works</Link>
               <Link href="/pricing">Pricing</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
+              <Link href="/training">Free VA Training</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse Virtual Assistant jobs</Link>
               <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
               <span className="va-mobile-panel-label">Account</span>
-              <Link href={ACCOUNT_LOGIN}>Log in</Link>
+              {isTrainingContext ? (
+                <Link href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+              ) : (
+                <Link href={ACCOUNT_LOGIN}>Log in</Link>
+              )}
             </nav>
           </details>
         </div>

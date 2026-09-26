@@ -78,7 +78,18 @@ export async function sendClientAccountClaimAction(formData: FormData) {
     appUrl,
   });
 
-  if (!result.sent) throw new Error("The client account email could not be sent.");
+  if (!result.sent) {
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: jobId,
+      action: "client_account_claim_email_unavailable",
+      description: "Client account link could not be emailed; the recruiter can use the manual claim link instead",
+      actorId: user.id,
+      metadata: { lead_id: lead.id, email_reason: result.reason || "email_unavailable" },
+    });
+    revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+    redirect(`/workspace/recruiter/roles/${jobId}?client_claim_email_unavailable=1`);
+  }
 
   await admin.from("lead_intake").update({ nudged_at: new Date().toISOString() }).eq("id", lead.id);
   await writeRecruiterActivity({

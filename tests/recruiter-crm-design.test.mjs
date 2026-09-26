@@ -20,12 +20,17 @@ test("recruiter CRM uses a scoped hierarchy-first visual system", async () => {
   assert.match(page, /createRoleFromLeadAndMatchAction/);
   assert.match(page, /crm-role-bridge/);
   assert.match(page, /crm-secondary-controls/);
+  assert.match(page, /primaryViewTabs/);
+  assert.match(page, /secondaryViewTabs/);
+  assert.match(page, /crm-secondary-views/);
+  assert.match(page, /More views/);
   assert.match(page, /Pipeline control/);
   assert.match(page, /Apply filters/);
   assert.match(styles, /\.crmPage :global\(\.crm-metrics\)/);
   assert.match(styles, /\.crmPage :global\(\.crm-lead-card\.needs-attention\)/);
   assert.match(styles, /\.crmPage :global\(\.crm-role-bridge\)/);
   assert.match(styles, /\.crmPage :global\(\.crm-secondary-controls\)/);
+  assert.match(styles, /\.crmPage :global\(\.crm-secondary-views\)/);
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.match(styles, /prefers-reduced-motion/);
 });

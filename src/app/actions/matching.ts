@@ -217,21 +217,31 @@ export async function saveJobShortlistAction(formData: FormData) {
     const claimUrl = `${appUrl}/auth/join/client?${params.toString()}`;
     const firstName = String(inviteLead.name || "there").trim().split(/\s+/)[0] || "there";
     const { sendTransactionalEventEmail } = await import("@/lib/email");
-    const delivery = await sendTransactionalEventEmail({
-      to: inviteLead.email,
-      firstName,
-      subject: `Your VA shortlist is ready to review: ${job.title}`,
-      heading: "Your recruiter has a shortlist ready",
-      body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
-      href: claimUrl,
-      hrefLabel: "Review my shortlist",
-      senderName: "VirtualAssistant.com.ph Hiring Team",
-      teamLabel: "Hiring team",
-      footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",
-      eventType: "client_shortlist_invite",
-      idempotencyKey: `client-shortlist-invite-${jobId}-${inviteLead.id}-${now.slice(0, 10)}`,
-      priority: "critical"
-    });
+    let delivery: Awaited<ReturnType<typeof sendTransactionalEventEmail>>;
+    try {
+      delivery = await sendTransactionalEventEmail({
+        to: inviteLead.email,
+        firstName,
+        subject: `Your VA shortlist is ready to review: ${job.title}`,
+        heading: "Your recruiter has a shortlist ready",
+        body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
+        href: claimUrl,
+        hrefLabel: "Review my shortlist",
+        senderName: "VirtualAssistant.com.ph Hiring Team",
+        teamLabel: "Hiring team",
+        footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",
+        eventType: "client_shortlist_invite",
+        idempotencyKey: `client-shortlist-invite-${jobId}-${inviteLead.id}-${now.slice(0, 10)}`,
+        priority: "critical"
+      });
+    } catch (error) {
+      console.error("[client-shortlist-invite] provider send failed", {
+        jobId,
+        leadId: inviteLead.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      delivery = { sent: false as const, reason: "provider_error" } as Awaited<ReturnType<typeof sendTransactionalEventEmail>>;
+    }
 
     if (delivery.sent) {
       await writeRecruiterActivity({

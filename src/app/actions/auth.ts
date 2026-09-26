@@ -334,7 +334,7 @@ export async function joinAction(formData: FormData) {
   // of the email in /auth/confirm. This avoids leaving an unconfirmed VA/client
   // workspace behind when the email provider is unavailable.
   try {
-    await recordProductEvent("account_signup_started", {
+    await recordProductEvent("account_created", {
       userId: data.user.id,
       path: `/auth/join/${parsed.data.role}`,
       metadata: { role: parsed.data.role, requested_talent: Boolean(parsed.data.talent), claimed_lead: Boolean(parsed.data.lead) }

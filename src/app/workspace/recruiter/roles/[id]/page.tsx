@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowRight, CalendarClock, CheckCircle2, Clock3, Eye, MessageSquare, UsersRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -67,12 +67,11 @@ export default async function RoleControlCenter({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  const { userId } = await requireRoleFast("recruiter");
+  await requireRoleFast("recruiter");
   const admin = createAdminClient();
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
   if (!job) notFound();
-  if (job.recruiter_id && job.recruiter_id !== userId) redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
   const [
     { data: lead },
     { data: commercial },

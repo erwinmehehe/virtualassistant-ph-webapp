@@ -229,8 +229,12 @@ export function SiteNav({
               <span className="va-mobile-panel-label">Virtual Assistants</span>
               <Link href="/training">Free VA Training</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              <Link href="/jobs">Browse Virtual Assistant jobs</Link>
-              <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
+              {!isTrainingContext ? (
+                <>
+                  <Link href="/jobs">Browse Virtual Assistant jobs</Link>
+                  <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
+                </>
+              ) : null}
               <span className="va-mobile-panel-label">Account</span>
               {isTrainingContext ? (
                 <Link href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>

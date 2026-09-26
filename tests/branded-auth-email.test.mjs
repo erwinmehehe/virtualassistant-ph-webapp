@@ -13,6 +13,8 @@ test("new account confirmation uses Supabase generateLink plus branded Resend", 
   assert.match(auth, /tokenFromGeneratedActionLink\(data\.properties\?\.action_link\)/);
   assert.match(auth, /auth\/confirm\?\$\{params\.toString\(\)\}/);
   assert.doesNotMatch(auth, /supabase\.auth\.signUp\(/);
+  assert.doesNotMatch(auth, /\.auth\.resend\(/);
+  assert.match(auth, /confirmation_send_failed/);
 
   assert.match(email, /export async function sendAccountConfirmationEmail/);
   assert.match(email, /"account_confirmation", \{ archive: false, priority: "critical", idempotencyKey: args\.idempotencyKey \}/);
@@ -62,7 +64,9 @@ test("confirmation resend uses branded magic link only for an existing unconfirm
   assert.match(action, /type: "magiclink"/);
   assert.match(action, /sendAccountConfirmationEmail\(\{ to: email, actionUrl \}\)/);
   assert.match(action, /type: "magiclink"/);
-  assert.match(action, /if \(!brandedSent && unconfirmedUser\)/);
+  assert.match(action, /unconfirmedUser && !brandedSent/);
+  assert.doesNotMatch(action, /createClient/);
+  assert.doesNotMatch(action, /\.auth\.resend\(/);
   assert.doesNotMatch(action, /shouldCreateUser/);
 });
 

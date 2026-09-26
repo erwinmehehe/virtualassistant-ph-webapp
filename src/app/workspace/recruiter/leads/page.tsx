@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
@@ -13,6 +13,8 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { scoreLead } from "@/lib/lead-scoring";
+import { publicationMissingDetails } from "@/lib/job-publication";
+import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";
 import styles from "./leads.module.css";
 
 const PAGE_SIZE = 25;
@@ -29,6 +31,7 @@ type RecruiterLeadRow = {
   service: string | null;
   hours: string | null;
   budget?: string | null;
+  timezone?: string | null;
   start_time: string | null;
   message: string | null;
   match_feedback?: string[] | null;
@@ -65,6 +68,41 @@ type RecruiterLeadsPayload = {
   page_size?: number;
 };
 type LeadOwner = { id: string; full_name: string | null; role: string | null };
+type LinkedRoleSummary = {
+  id: string;
+  title: string | null;
+  status: string | null;
+  hiring_stage: string | null;
+  recruiter_id: string | null;
+  summary: string | null;
+  responsibilities: unknown;
+  required_skills: unknown;
+  hours_per_week: number | null;
+  min_hourly_rate: number | null;
+  max_hourly_rate: number | null;
+  timezone: string | null;
+  start_timing: string | null;
+};
+
+const HIRING_STAGE_LABELS: Record<string, string> = {
+  intake: "Intake",
+  ready_to_recruit: "Ready to recruit",
+  sourcing: "Sourcing",
+  internal_review: "Internal review",
+  client_review: "Client review",
+  interviewing: "Interviewing",
+  selected: "Selected",
+  offer: "Offer",
+  pre_start: "Pre-start",
+  filled: "Filled",
+  closed: "Closed",
+};
+
+function hiringStageLabel(value?: string | null) {
+  if (!value) return "Intake";
+  return HIRING_STAGE_LABELS[value] || value.replaceAll("_", " ");
+}
+
 const ageLabel = (value: string) => elapsedLabel(value, { precision: "minutes" });
 
 function activityLabel(action: string) {
@@ -137,6 +175,15 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
   const payload = (pagePayload || {}) as RecruiterLeadsPayload;
   const visible = Array.isArray(payload.leads) ? payload.leads : [];
+  const linkedRoleIds = [...new Set(visible.map((lead) => lead.job_id).filter((id): id is string => Boolean(id)))];
+  const { data: linkedRoles, error: linkedRolesError } = linkedRoleIds.length
+    ? await admin
+        .from("jobs")
+        .select("id,title,status,hiring_stage,recruiter_id,summary,responsibilities,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,start_timing")
+        .in("id", linkedRoleIds)
+    : { data: [] as LinkedRoleSummary[], error: null };
+  if (linkedRolesError) throw linkedRolesError;
+  const linkedRoleById = new Map(((linkedRoles || []) as LinkedRoleSummary[]).map((role) => [role.id, role]));
   const rebookKeys = visible
     .filter((lead) => lead.discovery_outcome === "no_show" || lead.discovery_outcome === "rescheduled")
     .map((lead) => `discovery-no-show-rebook-${lead.id}`);
@@ -181,18 +228,21 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const hotLeads = pipelineScores.filter((lead) => lead.temperature === "hot").length;
   const warmLeads = pipelineScores.filter((lead) => lead.temperature === "warm").length;
 
-  const viewTabs = [
-    ["open", "Open pipeline"],
-    ["recent", "Newest leads"],
-    ["attention", "Attention"],
+  const primaryViewTabs = [
+    ["open", "Hiring inbox"],
+    ["attention", "Needs action"],
     ["discovery", "Discovery"],
+  ] as const;
+  const secondaryViewTabs = [
+    ["recent", "Newest leads"],
     ["qualified", "Qualified"],
     ["nurture", "Nurture"],
     ["won", "Won"],
     ["lost", "Lost"],
-    ["all", "All"]
+    ["all", "All"],
   ] as const;
-  const currentViewLabel = viewTabs.find(([value]) => value === view)?.[1] || "Open pipeline";
+  const currentViewLabel = [...primaryViewTabs, ...secondaryViewTabs].find(([value]) => value === view)?.[1] || "Hiring inbox";
+  const secondaryViewActive = secondaryViewTabs.some(([value]) => value === view);
 
   const buildHref = (targetPage?: number) => {
     const next = new URLSearchParams();
@@ -239,12 +289,13 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
       {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
       {params.proposal_error ? <div className="alert" role="alert">{params.proposal_error}</div> : null}
+      {params.role_error ? <div className="alert" role="alert">{params.role_error}</div> : null}
 
       <div className="page-head recruiter-leads-head">
         <div>
-          <div className="kicker">Sales CRM</div>
-          <h1>Client leads</h1>
-          <p>Reply fast, book the discovery call, send the proposal, and keep every opportunity moving toward a decision.</p>
+          <div className="kicker">Hiring Pipeline</div>
+          <h1>Hiring inbox</h1>
+          <p>Turn every genuine hiring enquiry into a linked recruiting role, reply to the client, and move straight into matching.</p>
         </div>
         <div className="row wrap">
           <Link className="btn btn-sm" href="/workspace/recruiter/leads/board"><LayoutDashboard size={15}/> Pipeline board</Link>
@@ -261,9 +312,15 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div className="card crm-metric-card"><DollarSign size={18}/><span>Open pipeline value</span><strong>{usd(openPipelineValue)}</strong><small>Estimated agency revenue</small></div>
       </div>
 
-      <nav className="role-filter-tabs crm-tabs recruiter-leads-tabs" aria-label="Lead pipeline views">
-        {viewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
+      <nav className="role-filter-tabs crm-tabs recruiter-leads-tabs" aria-label="Primary hiring inbox views">
+        {primaryViewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
       </nav>
+      <details className="crm-secondary-views" open={secondaryViewActive}>
+        <summary>{secondaryViewActive ? `More views · ${currentViewLabel}` : "More views"}</summary>
+        <div className="crm-secondary-views-menu">
+          {secondaryViewTabs.map(([value,label]) => <Link key={value} className={view === value ? "active" : ""} aria-current={view === value ? "page" : undefined} href={`/workspace/recruiter/leads?${new URLSearchParams({view:value,...(params.q?{q:params.q}:{}),...(ownerFilter?{owner:ownerFilter}:{})}).toString()}`}>{label}</Link>)}
+        </div>
+      </details>
 
       {view === "recent" ? <p className="small muted crm-view-note">Newest enquiries first, across all stages. Search and owner filters run in the database. Showing {pageSize} at a time.</p> : null}
 
@@ -311,6 +368,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               : null;
           const needsFirstReply = !lead.first_contact_at || slaMissed;
           const actionResultForLead = params.action_lead === lead.id;
+          const linkedRole = lead.job_id ? linkedRoleById.get(lead.job_id) || null : null;
+          const missingRoleDetails = linkedRole ? publicationMissingDetails(linkedRole) : [];
+          const roleReady = Boolean(linkedRole && missingRoleDetails.length === 0);
           const replyForm = <form action={sendClientFollowupAction} className="stack staff-followup-form">
             <input type="hidden" name="lead_id" value={lead.id}/>
             <input type="hidden" name="return_to" value={returnTo}/>
@@ -331,7 +391,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   {followOverdue ? <span className="badge badge-warning">Follow-up overdue</span> : null}
                   {discoveryScheduled ? <span className="badge">Discovery {dateTimeLabel(lead.discovery_scheduled_at)}</span> : null}
                   {proposal ? <span className={`badge ${proposal.status === "accepted" ? "badge-success" : ""}`}>Proposal {proposalStatusLabel(proposal.status)}</span> : null}
-                  {lead.job_id ? <span className="badge badge-success">Role linked</span> : null}
                 </div>
                 <h2>{lead.name || lead.email}</h2>
                 <div className="crm-lead-subtitle">
@@ -354,6 +413,41 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               <section className="crm-client-context">
                 <h3>What they need</h3>
                 <p>{lead.message || "No additional message provided."}</p>
+                <div className="crm-hiring-facts" aria-label="Hiring brief summary">
+                  <span><strong>Role</strong>{lead.service || "Virtual Assistant support"}</span>
+                  {lead.hours ? <span><strong>Hours</strong>{lead.hours}</span> : null}
+                  {lead.budget ? <span><strong>Budget</strong>{lead.budget}</span> : null}
+                  {lead.timezone ? <span><strong>Timezone</strong>{lead.timezone}</span> : null}
+                  {lead.start_time ? <span><strong>Start</strong>{lead.start_time}</span> : null}
+                </div>
+                <div className={`crm-role-bridge ${lead.job_id ? "is-linked" : "needs-role"}`}>
+                  <div className="crm-role-bridge-copy">
+                    <span className="crm-role-kicker"><BriefcaseBusiness size={15}/>{lead.job_id ? "Recruiting role" : "Role needed"}</span>
+                    <strong>{lead.job_id ? linkedRole?.title || lead.service || "Recruiting role" : "No role yet"}</strong>
+                    <small>
+                      {lead.job_id
+                        ? roleReady
+                          ? "Role brief is ready for recruiter review and internal matching."
+                          : linkedRole
+                            ? `${missingRoleDetails.length} role detail${missingRoleDetails.length === 1 ? "" : "s"} still need confirmation. You can review matches now while completing the brief.`
+                            : "The linked role is ready to open in the recruiting workspace."
+                        : "Create the recruiting role from this enquiry and open internal matching immediately."}
+                    </small>
+                    {lead.job_id ? <div className="crm-role-meta">
+                      <span className={roleReady ? "badge badge-success" : "badge badge-warning"}>{roleReady ? "Brief ready" : "Needs role details"}</span>
+                      {linkedRole ? <span className="badge">{hiringStageLabel(linkedRole.hiring_stage)}</span> : null}
+                    </div> : null}
+                  </div>
+                  {lead.job_id ? (
+                    <Link className={`btn btn-sm ${needsFirstReply ? "" : "btn-primary"}`} href={`/workspace/recruiter/roles/${lead.job_id}#matching`}>Open role &amp; match</Link>
+                  ) : (
+                    <form action={createRoleFromLeadAndMatchAction}>
+                      <input type="hidden" name="lead_id" value={lead.id}/>
+                      <input type="hidden" name="return_to" value={returnTo}/>
+                      <button className={`btn btn-sm ${needsFirstReply ? "" : "btn-primary"}`} type="submit">Create role &amp; start matching</button>
+                    </form>
+                  )}
+                </div>
                 {lead.match_feedback?.length ? (
                   <div className="crm-match-feedback">
                     <strong>Said the sample profiles missed on</strong>
@@ -417,10 +511,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 </div> : null}
 
                 {latest ? <div className="crm-latest-contact"><strong>{activityLabel(latest.action)}</strong><span>{dateShort(latest.created_at)}{contactCount > 1 ? ` · ${contactCount} contact updates` : ""}</span>{latest.description ? <small>{latest.description}</small> : null}</div> : null}
-                {lead.job_id ? <Link className="btn btn-sm" href={`/workspace/recruiter/matching/${lead.job_id}`}>View linked role</Link> : null}
               </section>
 
-              <form action={updateLeadCrmAction} className="crm-update-card">
+              <details className="crm-secondary-controls">
+                <summary><span><strong>CRM details & ownership</strong><small>Stage, owner, follow-up, value, and close reason</small></span></summary>
+                <form action={updateLeadCrmAction} className="crm-update-card">
                 <input type="hidden" name="lead_id" value={lead.id}/>
                 <input type="hidden" name="return_to" value={returnTo}/>
                 <div className="crm-form-head"><span className="crm-form-kicker">Pipeline control</span><strong>Next step</strong><span className="small muted">Stage, owner, follow-up date, and agency value should always be current. Client budget is estimated separately from the hiring brief.</span></div>
@@ -432,7 +527,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 </div>
                 <div className="field"><label>Lost reason <span className="muted">(required only for Lost)</span></label><input name="lost_reason" maxLength={1000} defaultValue={lead.lost_reason || ""} placeholder="Budget, timing, hired elsewhere, no response..."/></div>
                 <button className="btn btn-primary" type="submit">Save CRM update</button>
-              </form>
+                </form>
+              </details>
             </div>
 
             {isOpenLeadStage(stage) ? <div className="crm-close-tools">

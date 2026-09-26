@@ -16,9 +16,9 @@ test("recruiter lead cards do not expose direct email-app or call buttons", () =
   assert.doesNotMatch(page, /href={`tel:/);
 });
 
-test("linked role navigation is phrased as navigation, not role status", () => {
-  assert.match(page, />View linked role<\/Link>/);
-  assert.doesNotMatch(page, />Open linked role<\/Link>/);
+test("linked role navigation points recruiters into matching", () => {
+  assert.match(page, />Open role &amp; match<\/Link>/);
+  assert.doesNotMatch(page, />View linked role<\/Link>/);
 });
 
 test("closing a lead can close every non-closed linked role state", () => {

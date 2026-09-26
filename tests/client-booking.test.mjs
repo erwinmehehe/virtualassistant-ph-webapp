@@ -82,7 +82,7 @@ test("client booking stays two steps but requires a job-ready minimum brief", as
   assert.match(action, /admin\.rpc\([\s\S]*"merge_discovery_booking_lead"/);
   assert.match(action, /leadId = merged\.leadId/);
   assert.match(action, /jobId = merged\.jobId/);
-  assert.match(action, /jobId = await createPendingJobForLead/);
+  assert.match(action, /jobId = await ensurePendingRoleForLead/);
   assert.match(action, /title: parsed\.data\.service/);
   assert.match(action, /metadata: \{ lead_id: leadId, job_id: jobId/);
 });

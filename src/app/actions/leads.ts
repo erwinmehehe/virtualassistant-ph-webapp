@@ -10,13 +10,13 @@ import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
 import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
-import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
+import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -115,100 +115,6 @@ async function currentClientId() {
   } catch {
     return null;
   }
-}
-
-function rateRangeFromBudget(value?: string | null) {
-  const matches = String(value || "").match(/\d+(?:\.\d+)?/g)?.map(Number).filter(Number.isFinite) || [];
-  if (!matches.length) return { min: MIN_HOURLY_RATE, max: null as number | null };
-  const min = Math.max(MIN_HOURLY_RATE, matches[0]);
-  const max = matches.length > 1 ? Math.max(min, matches[1]) : null;
-  return { min, max };
-}
-
-
-function jobTitleForCategory(category: string) {
-  const labels: Record<string, string> = {
-    "Administrative Support": "Administrative Virtual Assistant",
-    "Bookkeeping & Finance": "Bookkeeping & Finance Virtual Assistant",
-    "Customer Service": "Customer Service Virtual Assistant",
-    "Dental & Healthcare": "Dental & Healthcare Virtual Assistant",
-    "Ecommerce": "Ecommerce Virtual Assistant",
-    "Executive Assistance": "Executive Virtual Assistant",
-    "Lead Generation & Sales": "Lead Generation & Sales Virtual Assistant",
-    "Marketing & Social Media": "Marketing & Social Media Virtual Assistant",
-    "Phone & Reception": "Virtual Receptionist",
-    "Real Estate": "Real Estate Virtual Assistant",
-    "SEO": "SEO Virtual Assistant",
-    "Video Editing & Creative": "Video Editing & Creative Virtual Assistant",
-    "Web & WordPress": "WordPress & Web Virtual Assistant"
-  };
-  return labels[category] || `${category} Virtual Assistant`;
-}
-
-async function createPendingJobForLead(args: {
-  admin: ReturnType<typeof createAdminClient>;
-  leadId: string;
-  title: string;
-  service?: string | null;
-  company?: string | null;
-  hours?: string | null;
-  timezone?: string | null;
-  startTime?: string | null;
-  message?: string | null;
-  budget?: string | null;
-  requestedVaId?: string | null;
-  clientId?: string | null;
-}) {
-  // Lead-to-job creation is idempotent. Retries, double submits and concurrent
-  // request processing must reuse the job already linked to this exact lead.
-  const { data: existingLead } = await args.admin
-    .from("lead_intake")
-    .select("job_id")
-    .eq("id", args.leadId)
-    .maybeSingle();
-  if (existingLead?.job_id) return existingLead.job_id as string;
-
-  const { data: existingJob } = await args.admin
-    .from("jobs")
-    .select("id")
-    .eq("lead_id", args.leadId)
-    .maybeSingle();
-  if (existingJob?.id) {
-    await args.admin.from("lead_intake").update({ job_id: existingJob.id, client_id: args.clientId || null }).eq("id", args.leadId).is("job_id", null);
-    return existingJob.id as string;
-  }
-
-  const categories = args.service && VA_CATEGORIES.includes(args.service as (typeof VA_CATEGORIES)[number])
-    ? [args.service]
-    : inferCategories(args.service, args.message);
-  const rates = rateRangeFromBudget(args.budget);
-  const fallbackSummary = `Virtual Assistant support requested for ${args.service || "business operations"}.`;
-  const description = cleanJobDescription(args.message);
-  const { data: job, error } = await args.admin.from("jobs").insert({
-    client_id: args.clientId || null,
-    lead_id: args.leadId,
-    requested_va_id: args.requestedVaId || null,
-    title: args.title,
-    company_name: args.company || null,
-    summary: cleanJobSummary(args.message, fallbackSummary),
-    description,
-    responsibilities: description ? [description] : [],
-    categories,
-    hours_per_week: inferHours(args.hours),
-    min_hourly_rate: rates.min,
-    max_hourly_rate: rates.max,
-    timezone: args.timezone || null,
-    overlap_hours: 4,
-    live_coverage_exception: /reception|dispatch|cold call|outbound|front desk/i.test(`${args.service || ""} ${args.message || ""}`),
-    onboarding_plan: "Client onboarding, success measures, and tool access to be confirmed before publication.",
-    direct_feedback: true,
-    engagement_length: "Long-term preferred",
-    start_timing: args.startTime || null,
-    status: "pending"
-  }).select("id").single();
-  if (error) throw error;
-  await args.admin.from("lead_intake").update({ job_id: job.id, client_id: args.clientId || null }).eq("id", args.leadId);
-  return job.id as string;
 }
 
 async function mergeBookingIntoRecentClientLead(args: {
@@ -358,7 +264,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     if (error || !lead?.id) return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
 
     const clientId = await currentClientId();
-    const jobId = await createPendingJobForLead({
+    const jobId = await ensurePendingRoleForLead({
       admin,
       leadId: lead.id,
       clientId,
@@ -511,7 +417,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     if (error || !lead?.id) return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
 
     const clientId = await currentClientId();
-    const jobId = await createPendingJobForLead({
+    const jobId = await ensurePendingRoleForLead({
       admin,
       leadId: lead.id,
       clientId,
@@ -697,7 +603,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const clientId = await currentClientId();
   let jobId: string;
   try {
-    jobId = await createPendingJobForLead({
+    jobId = await ensurePendingRoleForLead({
       admin,
       leadId: lead.id,
       clientId,
@@ -960,7 +866,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
         .eq("id", leadId);
       if (capabilityError) throw capabilityError;
     } else {
-      jobId = await createPendingJobForLead({
+      jobId = await ensurePendingRoleForLead({
         admin,
         leadId,
         clientId,

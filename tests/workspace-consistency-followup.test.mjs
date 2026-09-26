@@ -54,7 +54,7 @@ test("primary recruiter navigation stays consolidated",async()=>{
   for(const label of ["Matching","Bench","Stalled","Categories","Queue"]){
     assert.doesNotMatch(nav,new RegExp(`\\["${label}",`));
   }
-  for(const label of ["My Day","Leads","Roles","Talent","Work Readiness","Agency Funnel"]){
+  for(const label of ["My Day","Hiring inbox","Active roles","Talent","Work Readiness","Agency Funnel"]){
     assert.match(nav,new RegExp(`\\["${label}",`));
   }
 });

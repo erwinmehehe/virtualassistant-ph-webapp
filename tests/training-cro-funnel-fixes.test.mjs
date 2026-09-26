@@ -16,7 +16,7 @@ const callbackRoute = "src/app/auth/callback/route.ts";
 const migrationPath = "supabase/migrations/20260924162000_training_analytics_auth_user_fk.sql";
 const cssPath = "src/app/training-landing.css";
 
-test("training public header stays learner-focused and removes the buyer CTA", async () => {
+test("training public header stays learner-focused while using the primary site nav", async () => {
   const [page, header, siteNav] = await Promise.all([
     readFile(trainingPage, "utf8"),
     readFile(headerPath, "utf8"),
@@ -24,24 +24,17 @@ test("training public header stays learner-focused and removes the buyer CTA", a
   ]);
 
   assert.match(page, /TrainingSiteHeader/);
-  assert.match(header, /SiteNav/);
-  assert.match(header, /mode="training"/);
-  const trainingNav = siteNav.slice(siteNav.indexOf("function TrainingNav"), siteNav.indexOf("export function SiteNav"));
-  assert.match(trainingNav, /Start free training/);
-  assert.match(trainingNav, /Training login/);
-  assert.match(trainingNav, /Training home/);
-  assert.match(trainingNav, /Courses/);
-  assert.match(trainingNav, /How it works/);
-  assert.match(trainingNav, /Certificates/);
-  assert.match(trainingNav, /FAQ/);
-  assert.doesNotMatch(trainingNav, />For Virtual Assistants<\/Link>/);
-  assert.doesNotMatch(trainingNav, />VA guides<\/Link>/);
-  assert.doesNotMatch(trainingNav, />VA jobs<\/Link>/);
-  assert.doesNotMatch(trainingNav, />Browse VA jobs<\/Link>/);
+  assert.match(header, /current === "landing" && !courseSlug/);
+  assert.match(header, /<SiteNav actionContext="training" \/>/);
+  assert.match(siteNav, /<Link href="\/training">Training<\/Link>/);
+  assert.match(siteNav, /actionContext === "training"/);
+  assert.match(siteNav, /Training login/);
+  assert.match(siteNav, /Start free training/);
   assert.match(page, /export const dynamic = "force-dynamic"/);
   assert.match(page, /export const revalidate = 0/);
-  assert.doesNotMatch(trainingNav, /Hire a Virtual Assistant/);
-  assert.doesNotMatch(trainingNav, /href="\/hire"/);
+
+  // Signup/login keep the compact training-specific header.
+  assert.match(header, /mode="training"/);
 });
 
 test("course cards and Foundations preserve the selected course through signup", async () => {

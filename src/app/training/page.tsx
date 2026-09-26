@@ -211,7 +211,7 @@ export default async function TrainingPage() {
 
   return (
     <>
-      <SiteHeader/>
+      <SiteHeader context="training"/>
       <main id="main-content" className="tr">
         <script
           type="application/ld+json"

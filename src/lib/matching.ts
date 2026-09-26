@@ -77,9 +77,6 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   if (job.minimum_years_experience != null && Number(va.years_experience ?? 0) < job.minimum_years_experience) {
     hardFailures.push(`Needs at least ${job.minimum_years_experience} year${job.minimum_years_experience === 1 ? "" : "s"} of experience`);
   }
-  if (job.hours_per_week && Number(va.weekly_hours ?? 0) < job.hours_per_week) {
-    hardFailures.push(`Needs ${job.hours_per_week} hrs/week; profile shows ${Number(va.weekly_hours ?? 0)}`);
-  }
   if (job.max_hourly_rate != null && va.hourly_rate != null && Number(va.hourly_rate) > Number(job.max_hourly_rate)) {
     hardFailures.push(`Rate is above the client's USD ${Number(job.max_hourly_rate).toFixed(2)}/hr ceiling`);
   }
@@ -108,7 +105,10 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
 
   if (job.hours_per_week) {
     assessedWeight += 10;
-    if (va.weekly_hours != null && va.weekly_hours >= job.hours_per_week) score += 10;
+    if (va.weekly_hours != null) {
+      const hoursFit = Math.max(0, Math.min(1, Number(va.weekly_hours) / Number(job.hours_per_week)));
+      score += Math.round(hoursFit * 10);
+    }
   }
 
   const normalizedScore = assessedWeight ? Math.round((score / assessedWeight) * totalWeight) : 0;

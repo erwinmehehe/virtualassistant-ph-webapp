@@ -12,7 +12,6 @@ import { publicationMissingDetails } from "@/lib/job-publication";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
-const AVAILABILITY_FRESH_DAYS = 14;
 const AVAILABILITY_REMINDER_COOLDOWN_HOURS = 20;
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
@@ -165,17 +164,6 @@ export async function saveJobShortlistAction(formData: FormData) {
     admin.from("va_profiles").select("*").in("user_id", selected),
     admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
   ]);
-  if (mode === "release") {
-    const availabilityCutoff = Date.now() - AVAILABILITY_FRESH_DAYS * 24 * 60 * 60 * 1000;
-    const stale = (vas || []).filter((va: any) => {
-      const confirmedAt = va.availability_confirmed_at ? new Date(va.availability_confirmed_at).getTime() : 0;
-      return va.availability_status !== "available" || !confirmedAt || !Number.isFinite(confirmedAt) || confirmedAt < availabilityCutoff;
-    });
-    if (stale.length) {
-      return fail(`${stale.length} selected VA${stale.length === 1 ? " is" : "s are"} blocked. Selected VAs must reconfirm availability before client release. A fresh availability confirmation before client release is required. Send an availability reminder, then try again after they confirm.`);
-    }
-  }
-
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
   const existingOrderMap = new Map((existing || []).map((row: any) => [row.va_id, Number(row.shortlist_order || 0)]));
@@ -206,13 +194,9 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) {
     const message = String(error.message || "");
-    if (message.includes("VA availability is stale")) {
-      console.info("[shortlist] blocked by stale VA availability");
-      return fail("A selected VA's availability changed while you were reviewing the shortlist. Send an availability reminder and try again after they confirm.");
-    }
     if (message.includes("Agency Certified")) {
       console.info("[shortlist] blocked by release-readiness guardrail");
-      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership, fresh availability, and verified work setup first.");
+      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership and verified work setup first.");
     }
     if (message.includes("Client review is not ready yet")) {
       console.info("[shortlist] blocked by client-review guardrail");

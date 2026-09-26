@@ -140,7 +140,7 @@ export default async function AdminEmailHealthPage() {
         <div>
           <div className="kicker">Email operations</div>
           <h1>Email health</h1>
-          <p>App-tracked recipient usage for the current UTC day. Optional mail is capped at ${LOW_PRIORITY_DAILY_LIMIT} recipients and ${RESERVED_CRITICAL_RECIPIENTS} recipients are protected from standard mail; critical transactional mail is always attempted.</p>
+          <p>App-tracked recipient usage for the current UTC day. Optional mail is capped at {LOW_PRIORITY_DAILY_LIMIT} recipients and {RESERVED_CRITICAL_RECIPIENTS} recipients are protected from standard mail; critical transactional mail is always attempted.</p>
         </div>
       </div>
 

@@ -64,11 +64,22 @@ test("VA signup gives browser-level strong-password validation and disables dupl
 });
 
 
-test("generic Google login captures a workspace role for first-time OAuth users", async () => {
-  const login = await read("src/app/auth/login/page.tsx");
+test("Google OAuth supports login and role-aware first-time signup", async () => {
+  const [login, join, callback, auth, chooseRole] = await Promise.all([
+    read("src/app/auth/login/page.tsx"),
+    read("src/components/join-account-form.tsx"),
+    read("src/app/auth/callback/route.ts"),
+    read("src/app/actions/auth.ts"),
+    read("src/app/auth/choose-role/page.tsx"),
+  ]);
 
-  assert.match(login, /name="role" value="client"/);
-  assert.match(login, /Continue with Google as Client/);
-  assert.match(login, /name="role" value="va"/);
-  assert.match(login, /Continue with Google as VA/);
+  assert.match(login, /Continue with Google/);
+  assert.doesNotMatch(login, /Continue with Google as Client/);
+  assert.match(join, /name="role" value=\{role\}/);
+  assert.match(join, /Continue with Google/);
+  assert.match(callback, /\/auth\/choose-role/);
+  assert.match(auth, /chooseOAuthRoleAction/);
+  assert.match(auth, /socialProviderEnabled\(parsed\.data\.provider\)/);
+  assert.match(chooseRole, /I&apos;m hiring a VA/);
+  assert.match(chooseRole, /I&apos;m a Virtual Assistant/);
 });

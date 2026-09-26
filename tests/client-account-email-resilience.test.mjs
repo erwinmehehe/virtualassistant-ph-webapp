@@ -11,6 +11,7 @@ test("client account access emails are protected from optional email quota",asyn
   ]);
 
   assert.match(email,/RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "40"/);
+  assert.match(email,/Number\.parseInt\(process\.env\.RESEND_RESERVED_CRITICAL_RECIPIENTS \|\| "40", 10\) \|\| 40/);
   const claim=email.match(/export async function sendClaimDraftEmail[\s\S]*?export async function sendRoleDetailsRequestEmail/)?.[0]||"";
   assert.match(claim,/priority: "critical"/);
 

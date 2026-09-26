@@ -20,16 +20,19 @@ test("training uses one connected site-nav instead of a separate microsite menu"
   assert.match(header, /<SiteNav/);
   assert.match(header, /mode="training"/);
   assert.match(nav, /mode\?: "default" \| "training"/);
-  assert.match(nav, /training-connected-nav/);
-  assert.match(nav, /training-nav-context/);
-  assert.match(nav, /TrainingSectionObserver/);
-  assert.match(nav, /data-section="course-library"/);
-  assert.match(nav, /href="\/training#course-library"/);
-  assert.match(nav, /href="\/training#how-training-works"/);
-  assert.match(nav, /href="\/training#certificate"/);
-  assert.match(nav, /href="\/training#faq"/);
-  assert.doesNotMatch(nav, />VA jobs<\/Link>/);
-  assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
+  const trainingNav = nav.slice(nav.indexOf("function TrainingNav"), nav.indexOf("export function SiteNav"));
+  assert.match(trainingNav, /training-connected-nav/);
+  assert.match(trainingNav, /training-nav-context/);
+  assert.match(trainingNav, /TrainingSectionObserver/);
+  assert.match(trainingNav, /data-section="course-library"/);
+  assert.match(trainingNav, /href="\/training#course-library"/);
+  assert.match(trainingNav, /href="\/training#how-training-works"/);
+  assert.match(trainingNav, /href="\/training#certificate"/);
+  assert.match(trainingNav, /href="\/training#faq"/);
+  assert.doesNotMatch(trainingNav, />VA jobs<\/Link>/);
+  assert.doesNotMatch(trainingNav, />Browse VA jobs<\/Link>/);
+  assert.doesNotMatch(trainingNav, />For Virtual Assistants<\/Link>/);
+  assert.doesNotMatch(trainingNav, />VA guides<\/Link>/);
 
   assert.match(observer, /requestAnimationFrame/);
   assert.match(observer, /aria-current/);
@@ -44,6 +47,8 @@ test("training landing does not render a second disconnected navigation bar", as
     readFile(cssPath, "utf8"),
   ]);
 
+  assert.match(page, /export const dynamic = "force-dynamic"/);
+  assert.match(page, /export const revalidate = 0/);
   assert.doesNotMatch(page, /className="tr-page-nav"/);
   assert.doesNotMatch(css, /\.tr-page-nav/);
   assert.match(page, /id="course-library"/);

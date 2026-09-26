@@ -25,9 +25,9 @@ test("database shortlist release guard blocks incomplete published roles",async(
   assert.match(migration,/cardinality\(coalesce\(j\.required_skills/);
   assert.match(migration,/cardinality\(coalesce\(j\.responsibilities/);
   assert.match(migration,/char_length\(btrim\(coalesce\(j\.summary/);
-  assert.match(migration,/j\.hours_per_week is null/);
+  assert.match(migration,/j\\.hours_per_week is not null/);
   assert.match(migration,/btrim\(coalesce\(j\.timezone/);
-  assert.match(migration,/j\.min_hourly_rate is null/);
+  assert.match(migration,/j\\.min_hourly_rate is not null/);
   assert.match(migration,/btrim\(coalesce\(j\.start_timing/);
   assert.match(migration,/Role brief is incomplete for client shortlist release/);
   assert.match(migration,/revoke all on function public\.enforce_client_visible_shortlist\(\)/);

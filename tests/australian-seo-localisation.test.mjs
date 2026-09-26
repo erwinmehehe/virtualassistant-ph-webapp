@@ -283,7 +283,7 @@ test("Australian SEO templates render AU English and Australian market metadata"
 
   assert.match(serviceRoute, /locale: page\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(serviceRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
-  assert.match(serviceRoute, /titleTail=\{isAu \? "for Australian businesses" : "in the Philippines"\}/);
+  assert.match(serviceRoute, /titleTail=\{isAu \? "for Australian businesses" : isGlobal \? undefined : "in the Philippines"\}/);
 
   assert.match(industryRoute, /locale: industry\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(industryRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);

@@ -30,6 +30,8 @@ test("training uses one connected site-nav instead of a separate microsite menu"
   assert.match(nav, /href="\/training#faq"/);
   assert.doesNotMatch(nav, />VA jobs<\/Link>/);
   assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
+  assert.doesNotMatch(nav, />For Virtual Assistants<\/Link>/);
+  assert.doesNotMatch(nav, />VA guides<\/Link>/);
 
   assert.match(observer, /requestAnimationFrame/);
   assert.match(observer, /aria-current/);
@@ -44,6 +46,8 @@ test("training landing does not render a second disconnected navigation bar", as
     readFile(cssPath, "utf8"),
   ]);
 
+  assert.match(page, /export const dynamic = "force-dynamic"/);
+  assert.match(page, /export const revalidate = 0/);
   assert.doesNotMatch(page, /className="tr-page-nav"/);
   assert.doesNotMatch(css, /\.tr-page-nav/);
   assert.match(page, /id="course-library"/);

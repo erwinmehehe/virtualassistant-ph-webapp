@@ -1,6 +1,7 @@
 export type ServiceSeoPage = {
   slug: string;
   locale?: "en-AU";
+  market?: "global";
   name: string;
   group: string;
   directoryCategory: string;

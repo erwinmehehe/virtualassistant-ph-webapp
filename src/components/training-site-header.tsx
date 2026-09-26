@@ -7,6 +7,10 @@ export function TrainingSiteHeader({
   courseSlug?: string | null;
   current?: "landing" | "join" | "login";
 }) {
+  if (current === "landing" && !courseSlug) {
+    return <SiteNav actionContext="training" />;
+  }
+
   return (
     <SiteNav
       mode="training"

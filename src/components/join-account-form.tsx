@@ -56,8 +56,7 @@ export function JoinAccountForm({
         {socialEnabled ? (
           <>
             <div className="auth-social-stack auth-social-stack-primary" aria-label="Social sign up options">
-              {googleEnabled ? (
-                <form action={oauthAction}>
+              {googleEnabled ? <form action={oauthAction}>
                   <input type="hidden" name="provider" value="google"/>
                   <input type="hidden" name="role" value={role}/>
                   {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
@@ -68,10 +67,8 @@ export function JoinAccountForm({
                     <span>Continue with Google</span>
                     <span className="auth-provider-note">Fastest</span>
                   </button>
-                </form>
-              ) : null}
-              {microsoftEnabled ? (
-                <form action={oauthAction}>
+                </form> : null}
+              {microsoftEnabled ? <form action={oauthAction}>
                   <input type="hidden" name="provider" value="azure"/>
                   <input type="hidden" name="role" value={role}/>
                   {client && talent ? <input type="hidden" name="talent" value={talent}/> : null}
@@ -81,8 +78,7 @@ export function JoinAccountForm({
                     <span className="auth-provider-mark auth-provider-microsoft" aria-hidden="true"><i/><i/><i/><i/></span>
                     <span>Continue with Microsoft</span>
                   </button>
-                </form>
-              ) : null}
+                </form> : null}
             </div>
             <div className="auth-divider"><span>or create with email</span></div>
           </>

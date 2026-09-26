@@ -66,3 +66,29 @@ test("recruiter roles uses compact stats, scrollable saved views, and mobile rol
   assert.match(css, /\.recruiter-role-pipeline \.role-sort-form select[\s\S]*font-size: 16px/);
   assert.match(css, /\.recruiter-role-card > \.row-between[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
 });
+
+
+test("recruiter role matching renders as viewport-safe candidate cards on phones", async () => {
+  const [css, table] = await Promise.all([
+    read("src/app/workspace/recruiter/recruiter-mobile.css"),
+    read("src/components/matching-candidate-table.tsx"),
+  ]);
+
+  assert.match(table, /className="table-wrap responsive-table matching-table"/);
+  assert.match(table, /data-label="Availability"/);
+  assert.match(table, /data-label="Client recommendation"/);
+  assert.match(css, /\.workspace-role-recruiter \.responsive-table table,[\s\S]*min-width: 0 !important/);
+  assert.match(css, /\.workspace-role-recruiter \.matching-table tbody tr[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css, /td\[data-label="Client recommendation"\][\s\S]*grid-column: 1 \/ -1/);
+  assert.match(css, /\.workspace-role-recruiter \.matching-table textarea[\s\S]*min-height: 96px/);
+  assert.match(css, /padding-bottom: calc\(128px \+ env\(safe-area-inset-bottom\)\)/);
+});
+
+test("recruiter mobile shell prevents dashboard-wide horizontal page overflow", async () => {
+  const css = await read("src/app/workspace/recruiter/recruiter-mobile.css");
+
+  assert.match(css, /\.workspace-role-recruiter \.app-main,[\s\S]*overflow-x: clip/);
+  assert.match(css, /\.workspace-role-recruiter \.app-content > \*/);
+  assert.match(css, /\.workspace-role-recruiter \.table-wrap:not\(\.responsive-table\)[\s\S]*overflow-x: auto/);
+  assert.match(css, /\.workspace-role-recruiter \.role-workflow-nav[\s\S]*overflow-x: auto/);
+});

@@ -208,6 +208,8 @@ export async function saveJobShortlistAction(formData: FormData) {
 
   const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
 
+  let inviteEmailUnavailable = false;
+
   if (mode === "invite" && inviteLead) {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
     const nextPath = `/workspace/client/jobs/${jobId}`;
@@ -225,18 +227,33 @@ export async function saveJobShortlistAction(formData: FormData) {
       hrefLabel: "Review my shortlist",
       senderName: "VirtualAssistant.com.ph Hiring Team",
       teamLabel: "Hiring team",
-      footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support."
+      footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",
+      eventType: "client_shortlist_invite",
+      idempotencyKey: `client-shortlist-invite-${jobId}-${inviteLead.id}-${now.slice(0, 10)}`,
+      priority: "critical"
     });
-    if (!delivery.sent) return fail("The shortlist was saved internally, but the client invite email could not be sent. Check the email configuration and try again.");
 
-    await writeRecruiterActivity({
-      subjectType: "job",
-      subjectId: jobId,
-      action: "client_review_invited",
-      description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
-      actorId: user.id,
-      metadata: { va_ids: selected, lead_id: inviteLead.id }
-    });
+    if (delivery.sent) {
+      await writeRecruiterActivity({
+        subjectType: "job",
+        subjectId: jobId,
+        action: "client_review_invited",
+        description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
+        actorId: user.id,
+        metadata: { va_ids: selected, lead_id: inviteLead.id }
+      });
+    } else {
+      inviteEmailUnavailable = true;
+      await writeRecruiterActivity({
+        subjectType: "job",
+        subjectId: jobId,
+        action: "client_review_invite_email_unavailable",
+        description: "Shortlist saved internally, but the client invite email is temporarily unavailable; use the manual client account link instead",
+        actorId: user.id,
+        metadata: { va_ids: selected, lead_id: inviteLead.id, email_reason: delivery.reason || "email_unavailable" }
+      });
+    }
+
     await Promise.all(selected.map((vaId) => writeRecruiterActivity({
       subjectType: "va",
       subjectId: vaId,
@@ -292,6 +309,9 @@ export async function saveJobShortlistAction(formData: FormData) {
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  if (inviteEmailUnavailable) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_saved=1&client_invite_email_unavailable=1`);
+  }
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
 }

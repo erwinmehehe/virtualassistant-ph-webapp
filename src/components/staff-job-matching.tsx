@@ -6,16 +6,18 @@ import { hideShortlistCandidateAction, saveJobShortlistAction } from "@/app/acti
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
 
 type Props={job:any;viewerRole:"admin"|"recruiter";returnTo:string};
 
 export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const admin=createAdminClient();
-  const [{data:vettingRows},{data:shortlistRows},{data:interestRows},{data:commercial}]=await Promise.all([
+  const [{data:vettingRows},{data:shortlistRows},{data:interestRows},{data:commercial},{data:candidateAccess}]=await Promise.all([
     admin.from("va_vetting").select("va_id,stage").in("stage",["approved","bench"]),
     admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,shortlist_order,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at,created_by").eq("job_id",job.id).order("shortlist_order",{ascending:true,nullsFirst:false}),
     admin.from("applications").select("id,va_id,status,cover_note,match_score,applied_at").eq("job_id",job.id).not("status","in",'(withdrawn,rejected)'),
-    admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle()
+    admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle(),
+    admin.from("job_candidate_access").select("access_status").eq("job_id",job.id).maybeSingle()
   ]);
 
   const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
@@ -49,7 +51,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const interested=pool.filter((row:any)=>row.interest).sort((a:any,b:any)=>b.score-a.score);
   const recommended=pool.filter((row:any)=>row.score>=60&&row.eligible!==false).slice(0,3);
   const canInviteClient=!job.client_id&&Boolean(job.lead_id);
-  const canSendClient=Boolean(job.client_id&&job.status==="published"&&commercial?.commercial_status==="accepted");
+  const candidateAccessReady=candidateAccessUnlocked(candidateAccess?.access_status);
+  const canSendClient=Boolean(job.client_id&&job.status==="published"&&commercial?.commercial_status==="accepted"&&candidateAccessReady);
 
   const missing:string[]=[];
   if(!job.title||String(job.title).trim().length<3)missing.push("role title");
@@ -73,9 +76,9 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
     {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Match scores are recruiter-only screening aids. Hard requirements, verified evidence, capacity, and recruiter judgment should decide who reaches the client.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
 
-    <div className="matching-summary-grid"><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Internal only</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms active · client can review":"Client + approved terms required"}</small></div></div>
+    <div className="matching-summary-grid"><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Internal only</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms + candidate access active":!candidateAccessReady&&job.client_id?"Candidate access must be activated":"Client + approved terms required"}</small></div></div>
 
-    {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> The role must be published with client-approved service terms before anything can be marked as sent to the client.</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
+    {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> {!candidateAccessReady?"Candidate access is not active yet. Activate or comp candidate access before sending the shortlist.":"The role must be published with client-approved service terms before anything can be marked as sent to the client."}</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
 
     {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;

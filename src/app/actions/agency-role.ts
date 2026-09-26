@@ -70,13 +70,23 @@ export async function sendClientAccountClaimAction(formData: FormData) {
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const { sendClaimDraftEmail } = await import("@/lib/email");
-  const result = await sendClaimDraftEmail({
-    to: lead.email,
-    name: lead.name,
-    jobTitle: job.title || "Virtual Assistant role",
-    leadId: lead.id,
-    appUrl,
-  });
+  let result: Awaited<ReturnType<typeof sendClaimDraftEmail>>;
+  try {
+    result = await sendClaimDraftEmail({
+      to: lead.email,
+      name: lead.name,
+      jobTitle: job.title || "Virtual Assistant role",
+      leadId: lead.id,
+      appUrl,
+    });
+  } catch (error) {
+    console.error("[client-account-claim] provider send failed", {
+      jobId,
+      leadId: lead.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    result = { sent: false as const, reason: "provider_error" } as Awaited<ReturnType<typeof sendClaimDraftEmail>>;
+  }
 
   if (!result.sent) {
     await writeRecruiterActivity({

@@ -6,6 +6,6 @@ import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement"
 
 export async function sendVaTrainingAnnouncementBatchAction() {
   await requireRole("admin");
-  await sendVaTrainingAnnouncementBatch(20);
+  await sendVaTrainingAnnouncementBatch(10);
   revalidatePath("/workspace/admin/email-health");
 }

@@ -15,8 +15,8 @@ test("recruiter CRM uses a scoped hierarchy-first visual system", async () => {
   assert.match(page, /crm-attention-strip/);
   assert.match(page, /Hiring Pipeline/);
   assert.match(page, /Hiring inbox/);
-  assert.match(page, /Open role & match/);
-  assert.match(page, /Create role & start matching/);
+  assert.match(page, /Open role &amp; match/);
+  assert.match(page, /Create role &amp; start matching/);
   assert.match(page, /createRoleFromLeadAndMatchAction/);
   assert.match(page, /crm-role-bridge/);
   assert.match(page, /crm-secondary-controls/);

@@ -20,10 +20,11 @@ test("training uses one connected site-nav instead of a separate microsite menu"
   assert.match(header, /<SiteNav/);
   assert.match(header, /mode="training"/);
   assert.match(nav, /mode\?: "default" \| "training"/);
-  assert.match(nav, /training-connected-nav/);
-  assert.match(nav, /training-nav-context/);
-  assert.match(nav, /TrainingSectionObserver/);
-  assert.match(nav, /data-section="course-library"/);
+  const trainingNav = nav.slice(nav.indexOf("function TrainingNav"), nav.indexOf("export function SiteNav"));
+  assert.match(trainingNav, /training-connected-nav/);
+  assert.match(trainingNav, /training-nav-context/);
+  assert.match(trainingNav, /TrainingSectionObserver/);
+  assert.match(trainingNav, /data-section="course-library"/);
   assert.match(nav, /href="\/training#course-library"/);
   assert.match(nav, /href="\/training#how-training-works"/);
   assert.match(nav, /href="\/training#certificate"/);

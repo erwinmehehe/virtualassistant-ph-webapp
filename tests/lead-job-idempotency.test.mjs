@@ -13,9 +13,9 @@ test("lead job creation is idempotent, shared, and database-enforced",async()=>{
   assert.doesNotMatch(actions,/function createPendingJobForLead|async function createPendingJobForLead/);
   assert.match(helper,/\.from\("lead_intake"\)[\s\S]*\.select\("job_id"\)[\s\S]*\.eq\("id", args\.leadId\)/);
   assert.match(helper,/\.from\("jobs"\)[\s\S]*\.eq\("lead_id", args\.leadId\)/);
-  assert.match(helper,/if \(existingLead\?\.job_id\) return/);
+  assert.match(helper,/if \(existingLead\?\.job_id\)[\s\S]*return existingLead\.job_id/);
   assert.match(helper,/if \(existingJob\?\.id\)/);
-  assert.match(helper,/\.update\(\{ job_id: existingJob\.id/);
+  assert.match(helper,/updateLeadLink\(args, existingJob\.id/);
   assert.match(helper,/recruiter_id/);
   assert.match(helper,/error\.code === "23505"/);
   assert.match(migration,/unique index if not exists jobs_one_job_per_lead_idx/);

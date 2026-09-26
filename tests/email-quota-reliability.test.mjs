@@ -11,6 +11,9 @@ test("tracked sends use deterministic Resend idempotency keys and quota accounti
   assert.match(email, /config\.client\.emails\.send\(payload, \{ idempotencyKey:/);
   assert.match(email, /DAILY_RECIPIENT_LIMIT/);
   assert.match(email, /RESERVED_CRITICAL_RECIPIENTS/);
+  assert.match(email, /LOW_PRIORITY_DAILY_LIMIT/);
+  assert.match(email, /if \(priority !== "critical"\)/);
+  assert.match(email, /priority === "low" \? LOW_PRIORITY_DAILY_LIMIT : NON_CRITICAL_DAILY_LIMIT/);
   assert.match(email, /recipient_count/);
   assert.match(email, /idempotency_key/);
   assert.match(email, /skip_reason/);

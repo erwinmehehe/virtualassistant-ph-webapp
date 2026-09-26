@@ -9,7 +9,8 @@ test("role readiness repair is limited to recruiter/admin and preserves publicat
 
   assert.match(action, /saveRoleReadinessDetailsAction/);
   assert.match(action, /requireAnyRole\(\["recruiter", "admin"\]\)/);
-  assert.match(action, /job\.recruiter_id !== user\.id/);
+  assert.doesNotMatch(action, /job\.recruiter_id !== user\.id/);
+  assert.doesNotMatch(action, /This role is assigned to another recruiter/);
   assert.match(action, /publicationMissingDetails\(candidate\)/);
   assert.match(action, /update\(\{ \.\.\.patch, updated_at:/);
   const block = action.slice(action.indexOf("export async function saveRoleReadinessDetailsAction"));

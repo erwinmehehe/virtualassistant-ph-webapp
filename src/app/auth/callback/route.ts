@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { recordProductEvent } from "@/lib/product-events";
@@ -47,9 +48,19 @@ export async function GET(request: Request) {
       const profile = user ? await getOrBootstrapProfile(user) : null;
 
       if (user?.email_confirmed_at && profile) {
-        // Social/OAuth and confirmed email sign-ins should immediately feed the
-        // trust signal used by internal/public profile badges.
-        await supabase.from("profiles").update({ email_verified: true, last_active_at: new Date().toISOString() }).eq("id", user.id);
+        // Auth is the source of truth for verified email. Use the service-role
+        // client here because profile RLS must not make the trust signal stale.
+        const admin = createAdminClient();
+        const { error: trustSyncError } = await admin
+          .from("profiles")
+          .update({ email_verified: true, last_active_at: new Date().toISOString() })
+          .eq("id", user.id);
+        if (trustSyncError) {
+          console.error("[auth_callback] profile_trust_sync_failed", {
+            userId: user.id,
+            code: trustSyncError.code || null,
+          });
+        }
       }
 
       if (user && !profile && !trainingDestination && !requestedRole) {

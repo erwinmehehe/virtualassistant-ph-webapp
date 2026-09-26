@@ -297,6 +297,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   revalidatePath("/workspace/client/interviews");
   revalidatePath("/workspace/va/interviews");
   revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/recruiter/roles");
+  revalidatePath(`/workspace/recruiter/roles/${row.job_id}`);
   redirect("/workspace/client/interviews?scheduled=1");
 }
 
@@ -313,7 +315,7 @@ export async function cancelCandidateInterviewAction(formData: FormData) {
   await admin.from("candidate_interviews").update({ status: "cancelled", cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", interviewId);
   const notify = profile.role === "va" ? row.client_id : row.va_id;
   await admin.from("notifications").insert({ user_id: notify, title: "Candidate interview cancelled", body: "The scheduled candidate interview was cancelled. Recruiter follow-up may be needed to choose another time.", href: profile.role === "va" ? "/workspace/client/interviews" : "/workspace/va/interviews", type: "interview", priority: "high" });
-  revalidatePath("/workspace/client/interviews"); revalidatePath("/workspace/va/interviews"); revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/client/interviews"); revalidatePath("/workspace/va/interviews"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${row.job_id}`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}cancelled=1`);
 }
 
@@ -332,10 +334,10 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
   if (row.shortlist_candidate_id && decision === "pass") await admin.from("job_shortlist_candidates").update({ client_decision: "pass", client_decision_note: [reason, feedback].filter(Boolean).join(": ").slice(0, 500), client_decision_at: now }).eq("id", row.shortlist_candidate_id);
   if (decision === "proceed") {
     const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
-    if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "Client wants to proceed after interview", body: `${Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title || "Role"}: prepare the offer and confirm final terms.`, href: `/workspace/recruiter/matching/${row.job_id}`, type: "interview", priority: "high" })));
+    if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "Client wants to proceed after interview", body: `${Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title || "Role"}: prepare the offer and confirm final terms.`, href: `/workspace/recruiter/roles/${row.job_id}#interviews`, type: "interview", priority: "high" })));
   }
   await writeRecruiterActivity({ subjectType: "job", subjectId: row.job_id, action: `interview_${decision}`, description: `Client interview decision: ${decision}`, actorId: user.id, metadata: { va_id: row.va_id, feedback, reason } });
-  revalidatePath("/workspace/client/interviews"); revalidatePath("/workspace/recruiter/today"); revalidatePath(`/workspace/recruiter/matching/${row.job_id}`);
+  revalidatePath("/workspace/client/interviews"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${row.job_id}`);
   redirect("/workspace/client/interviews?feedback_saved=1");
 }
 
@@ -350,37 +352,114 @@ export async function createPlacementOfferAction(formData: FormData) {
   const timezone = String(formData.get("timezone") || "").trim().slice(0, 100) || null;
   const serviceType = String(formData.get("service_type") || "curated_placement") === "managed_service" ? "managed_service" : "curated_placement";
   const notes = text(formData.get("notes"), 2000);
-  if (!jobId || !vaId || !Number.isFinite(hourlyRate) || hourlyRate < 5 || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80 || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || schedule.length < 3) throw new Error("Complete the final rate, weekly hours, schedule, and start date.");
+  if (!jobId || !vaId || !Number.isFinite(hourlyRate) || hourlyRate < 5 || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80 || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || schedule.length < 3) {
+    throw new Error("Complete the final rate, weekly hours, schedule, and start date.");
+  }
+  const todayManila = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (startDate < todayManila) throw new Error("Start date cannot be in the past.");
+
   const admin = createAdminClient();
-  const [{ data: job }, { data: vetted }, { data: shortlist }, { data: application }] = await Promise.all([
+  const [
+    { data: job },
+    { data: vetted },
+    { data: proceedInterview },
+    { data: application },
+    { data: activeOffer },
+  ] = await Promise.all([
     admin.from("jobs").select("id,title,client_id,status").eq("id", jobId).single(),
     admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle(),
-    admin.from("job_shortlist_candidates").select("id,client_decision").eq("job_id", jobId).eq("va_id", vaId).eq("shortlist_status", "released").maybeSingle(),
-    admin.from("applications").select("id,status").eq("job_id", jobId).eq("va_id", vaId).maybeSingle()
+    admin.from("candidate_interviews")
+      .select("id,client_decision,status")
+      .eq("job_id", jobId)
+      .eq("va_id", vaId)
+      .eq("status", "completed")
+      .eq("client_decision", "proceed")
+      .order("client_feedback_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle(),
+    admin.from("applications").select("id,status").eq("job_id", jobId).eq("va_id", vaId).maybeSingle(),
+    admin.from("placement_offers")
+      .select("id,va_id,status")
+      .eq("job_id", jobId)
+      .in("status", ["pending_va", "pending_client", "accepted"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
+
   if (!job?.client_id || job.status === "closed") throw new Error("This role is not ready for an offer.");
   if (!vetted || !["approved", "bench"].includes(vetted.stage)) throw new Error("Only vetted VAs can receive placement offers.");
-  if (!application && (!shortlist || !["interested", "interview"].includes(String(shortlist.client_decision)))) throw new Error("Get client interest or an interview decision before preparing an offer.");
+  if (!proceedInterview) throw new Error("Complete a client interview with Proceed before preparing an offer.");
+  if (activeOffer && activeOffer.va_id !== vaId) throw new Error("Another candidate already has an active placement offer for this role.");
+  if (activeOffer && activeOffer.va_id === vaId && activeOffer.status !== "pending_va") throw new Error("This offer has already advanced beyond recruiter editing.");
 
-  const { data: existing } = await admin.from("placement_offers").select("id,status").eq("job_id", jobId).eq("va_id", vaId).in("status", ["pending_va", "pending_client", "accepted"]).maybeSingle();
-  let offerId = existing?.id;
-  const payload = { job_id: jobId, va_id: vaId, client_id: job.client_id, application_id: application?.id || null, created_by: user.id, status: "pending_va", hourly_rate: hourlyRate, weekly_hours: weeklyHours, timezone, schedule, start_date: startDate, service_type: serviceType, notes, va_accepted_at: null, client_confirmed_at: null, declined_at: null, updated_at: new Date().toISOString() };
-  if (existing) {
-    const { error } = await admin.from("placement_offers").update(payload).eq("id", existing.id);
+  let offerId = activeOffer?.va_id === vaId ? activeOffer.id : null;
+  const payload = {
+    job_id: jobId,
+    va_id: vaId,
+    client_id: job.client_id,
+    application_id: application?.id || null,
+    created_by: user.id,
+    status: "pending_va",
+    hourly_rate: hourlyRate,
+    weekly_hours: weeklyHours,
+    timezone,
+    schedule,
+    start_date: startDate,
+    service_type: serviceType,
+    notes,
+    va_accepted_at: null,
+    client_confirmed_at: null,
+    declined_at: null,
+    updated_at: new Date().toISOString()
+  };
+  if (offerId) {
+    const { error } = await admin.from("placement_offers").update(payload).eq("id", offerId);
     if (error) throw error;
   } else {
     const { data: created, error } = await admin.from("placement_offers").insert(payload).select("id").single();
     if (error) throw error;
     offerId = created.id;
   }
-  if (application?.id && application.status !== "offered") await admin.from("applications").update({ status: "offered", updated_at: new Date().toISOString() }).eq("id", application.id);
-  await admin.from("notifications").insert({ user_id: vaId, title: `Placement offer: ${job.title}`, body: `Review the final rate, hours, schedule, and start date before accepting.`, href: "/workspace/va/offers", type: "offer", priority: "high" });
+
+  if (application?.id && application.status !== "offered") {
+    await admin.from("applications").update({ status: "offered", updated_at: new Date().toISOString() }).eq("id", application.id);
+  }
+
+  await admin.from("notifications").insert({
+    user_id: vaId,
+    title: `Placement offer: ${job.title}`,
+    body: "Review the final rate, hours, schedule, and start date before accepting.",
+    href: "/workspace/va/offers",
+    type: "offer",
+    priority: "high"
+  });
   const { data: vaAuth } = await admin.auth.admin.getUserById(vaId);
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  try { await sendTransactionalEventEmail({ to: vaAuth.user?.email, subject: `Placement offer: ${job.title}`, heading: "You have a placement offer", body: `Final terms: USD ${hourlyRate}/hr, ${weeklyHours} hrs/week, start ${startDate}. Review and accept the offer in your workspace.`, href: `${appUrl}/workspace/va/offers`, hrefLabel: "Review offer" }); } catch {}
-  await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "placement_offer_sent", description: "Placement offer sent to VA for acceptance", actorId: user.id, metadata: { va_id: vaId, offer_id: offerId, hourly_rate: hourlyRate, weekly_hours: weeklyHours, start_date: startDate } });
-  revalidatePath(`/workspace/recruiter/matching/${jobId}`); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/va/offers");
-  redirect(`/workspace/recruiter/matching/${jobId}?offer_sent=1`);
+  try {
+    await sendTransactionalEventEmail({
+      to: vaAuth.user?.email,
+      subject: `Placement offer: ${job.title}`,
+      heading: "You have a placement offer",
+      body: `Final terms: USD ${hourlyRate}/hr, ${weeklyHours} hrs/week, start ${startDate}. Review and accept the offer in your workspace.`,
+      href: `${appUrl}/workspace/va/offers`,
+      hrefLabel: "Review offer"
+    });
+  } catch {}
+
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "placement_offer_sent",
+    description: "Placement offer sent to VA for acceptance after client interview approval",
+    actorId: user.id,
+    metadata: { va_id: vaId, offer_id: offerId, interview_id: proceedInterview.id, hourly_rate: hourlyRate, weekly_hours: weeklyHours, start_date: startDate }
+  });
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath("/workspace/recruiter/roles");
+  revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/va/offers");
+  redirect(`/workspace/recruiter/roles/${jobId}?offer_sent=1#interviews`);
 }
 
 export async function respondPlacementOfferAction(formData: FormData) {
@@ -396,7 +475,7 @@ export async function respondPlacementOfferAction(formData: FormData) {
   if (decision === "decline") {
     await admin.from("placement_offers").update({ status: "declined", declined_at: now, updated_at: now }).eq("id", offerId);
     const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
-    if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "VA declined placement offer", body: `${jobTitle || "Role"}: prepare another candidate or revise terms.`, href: `/workspace/recruiter/matching/${offer.job_id}`, type: "offer", priority: "high" })));
+    if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "VA declined placement offer", body: `${jobTitle || "Role"}: prepare another candidate or revise terms.`, href: `/workspace/recruiter/roles/${offer.job_id}#interviews`, type: "offer", priority: "high" })));
   } else {
     await admin.from("placement_offers").update({ status: "pending_client", va_accepted_at: now, updated_at: now }).eq("id", offerId);
     await admin.from("notifications").insert({ user_id: offer.client_id, title: `VA accepted the offer: ${jobTitle || "role"}`, body: "Confirm the final placement to activate the workroom and onboarding.", href: "/workspace/client/offers", type: "offer", priority: "high" });
@@ -404,7 +483,7 @@ export async function respondPlacementOfferAction(formData: FormData) {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
     try { await sendTransactionalEventEmail({ to: clientAuth.user?.email, subject: `VA accepted your offer: ${jobTitle || "role"}`, heading: "Your VA accepted the placement terms", body: "Confirm the placement in your client workspace to activate onboarding and the workroom.", href: `${appUrl}/workspace/client/offers`, hrefLabel: "Confirm placement" }); } catch {}
   }
-  revalidatePath("/workspace/va/offers"); revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/va/offers"); revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${offer.job_id}`);
   redirect(`/workspace/va/offers?${decision === "accept" ? "accepted" : "declined"}=1`);
 }
 
@@ -435,6 +514,6 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   ]);
   await admin.from("notifications").insert({ user_id: offer.va_id, title: `Placement confirmed: ${Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title || "role"}`, body: "The client confirmed your placement. Your onboarding workroom is now active.", href: "/workspace/va/workroom", type: "offer", priority: "high" });
   await writeRecruiterActivity({ subjectType: "job", subjectId: offer.job_id, action: "placement_confirmed", description: "VA accepted and client confirmed final placement terms", actorId: user.id, metadata: { va_id: offer.va_id, offer_id: offerId, application_id: applicationId } });
-  revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/client/workroom"); revalidatePath("/workspace/va/workroom"); revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/client/workroom"); revalidatePath("/workspace/va/workroom"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${offer.job_id}`);
   redirect("/workspace/client/offers?confirmed=1");
 }

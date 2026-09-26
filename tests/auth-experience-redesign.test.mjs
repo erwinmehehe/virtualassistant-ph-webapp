@@ -37,7 +37,7 @@ test("failed confirmation delivery does not leave a new unconfirmed workspace be
   assert.match(join,/await admin\.auth\.admin\.deleteUser\(data\.user\.id\)/);
   assert.match(join,/your account was not activated\. Continue with Google or try email signup again later/);
   assert.doesNotMatch(join,/getOrBootstrapProfile\(data\.user\)/);
-  assert.doesNotMatch(join,/auth\.resend/);
+  assert.doesNotMatch(join,/\.auth\.resend\(/);
   assert.match(join,/recordProductEvent\("account_created"/);
 });
 

@@ -12,7 +12,7 @@ export default async function AdminUsersPage() {
     admin.from("profiles").select("id,role,full_name,avatar_url,created_at,email_verified,identity_verified_at,last_active_at,client_profiles(company_name,verified_at)").order("created_at", { ascending: false }).limit(200),
     admin.auth.admin.listUsers({ page: 1, perPage: 200 })
   ]);
-  const emails = new Map((authUsers?.users || []).map((user) => [user.id, user.email || ""]));
+  const authById = new Map((authUsers?.users || []).map((user) => [user.id, { email: user.email || "", emailConfirmedAt: user.email_confirmed_at || null }]));
 
   return <>
     <div className="page-head">
@@ -28,11 +28,11 @@ export default async function AdminUsersPage() {
           <td data-label="User">
             <div className="workspace-person-cell">
               <PublicAvatar name={p.full_name || "Account"} src={p.avatar_url} size="sm"/>
-              <span><strong>{p.full_name || "Unnamed account"}</strong><div className="small muted">{emails.get(p.id) || "No email available"}</div></span>
+              <span><strong>{p.full_name || "Unnamed account"}</strong><div className="small muted">{authById.get(p.id)?.email || "No email available"}</div></span>
             </div>
           </td>
           <td data-label="Role"><span className="badge">{p.role}</span></td>
-          <td data-label="Trust"><div className="row wrap"><span className={`badge ${p.email_verified?"badge-success":""}`}>{p.email_verified?"Email verified":"Email pending"}</span>{p.role === "va" ? <form action={setIdentityVerificationAction}><input type="hidden" name="user_id" value={p.id}/><input type="hidden" name="verified" value={p.identity_verified_at?"0":"1"}/><button className={`btn btn-sm ${p.identity_verified_at?"":"btn-primary"}`} type="submit">{p.identity_verified_at?"Remove ID verified":"Mark ID verified"}</button></form> : null}{p.role === "client" ? <form action={setClientCompanyVerificationAction}><input type="hidden" name="client_id" value={p.id}/><input type="hidden" name="verified" value={p.client_profiles?.verified_at?"0":"1"}/><button className={`btn btn-sm ${p.client_profiles?.verified_at?"":"btn-primary"}`} type="submit">{p.client_profiles?.verified_at?"Remove verified company":"Verify company"}</button></form> : null}</div>{p.role === "client" && p.client_profiles?.company_name ? <div className="small muted">{p.client_profiles.company_name}</div> : null}</td>
+          <td data-label="Trust"><div className="row wrap">{(() => { const emailVerified = Boolean(authById.get(p.id)?.emailConfirmedAt || p.email_verified); return <span className={`badge ${emailVerified?"badge-success":""}`}>{emailVerified?"Email verified":"Email pending"}</span>; })()}{p.role === "va" ? <form action={setIdentityVerificationAction}><input type="hidden" name="user_id" value={p.id}/><input type="hidden" name="verified" value={p.identity_verified_at?"0":"1"}/><button className={`btn btn-sm ${p.identity_verified_at?"":"btn-primary"}`} type="submit">{p.identity_verified_at?"Remove ID verified":"Mark ID verified"}</button></form> : null}{p.role === "client" ? <form action={setClientCompanyVerificationAction}><input type="hidden" name="client_id" value={p.id}/><input type="hidden" name="verified" value={p.client_profiles?.verified_at?"0":"1"}/><button className={`btn btn-sm ${p.client_profiles?.verified_at?"":"btn-primary"}`} type="submit">{p.client_profiles?.verified_at?"Remove verified company":"Verify company"}</button></form> : null}</div>{p.role === "client" && p.client_profiles?.company_name ? <div className="small muted">{p.client_profiles.company_name}</div> : null}</td>
           <td data-label="Joined">{dateShort(p.created_at)}</td>
           <td data-label="Internal role">{p.role === "admin"
             ? <span className="small muted">Admin role cannot be changed here.</span>

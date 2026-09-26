@@ -330,9 +330,6 @@ export async function remindVaAvailabilityAction(formData: FormData) {
     admin.from("profiles").select("id,role,account_status").eq("id", vaId).maybeSingle(),
   ]);
   if (!job) return fail("Role not found.");
-  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
-    redirect(`/workspace/recruiter/roles?error=${encodeURIComponent("This role is assigned to another recruiter.")}`);
-  }
   if (!vaProfile || vaProfile.role !== "va" || vaProfile.account_status !== "active") {
     return fail("This VA account is not active, so an availability reminder cannot be sent.");
   }

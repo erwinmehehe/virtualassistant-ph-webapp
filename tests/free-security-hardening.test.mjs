@@ -64,11 +64,8 @@ test("expected recruiter guardrails stay user-facing without ownership access bl
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
   ]);
 
-  const staleStart = matching.indexOf('if (message.includes("VA availability is stale"))');
-  assert.notEqual(staleStart, -1);
-  const staleBlock = matching.slice(staleStart, staleStart + 500);
-  assert.match(staleBlock, /console\.info/);
-  assert.doesNotMatch(staleBlock, /console\.error/);
+  assert.doesNotMatch(matching, /VA availability is stale/);
+  assert.doesNotMatch(matching, /fresh availability confirmation before client release/);
 
   assert.doesNotMatch(detail, /This role is assigned to another recruiter/);
   assert.doesNotMatch(detail, /job\.recruiter_id && job\.recruiter_id !==/);

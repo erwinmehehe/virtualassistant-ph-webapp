@@ -1,11 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 
-const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
+async function migrationSource(){
+  const dir=new URL("../supabase/migrations/",import.meta.url);
+  const files=await readdir(dir);
+  const name=files.find((file)=>file.endsWith("_commercial_acceptance_recruiter_sla.sql"));
+  assert.ok(name,"missing commercial acceptance recruiter SLA migration");
+  return readFile(new URL(name,dir),"utf8");
+}
 
 test("accepted commercial terms create idempotent recruiter sourcing SLA tasks",async()=>{
-  const migration=await read("supabase/migrations/20260926131500_commercial_acceptance_recruiter_sla.sql");
+  const migration=await migrationSource();
 
   assert.match(migration,/create or replace function public\.create_commercial_acceptance_recruiter_sla/);
   assert.match(migration,/new\.commercial_status = 'accepted'/);
@@ -21,7 +27,7 @@ test("accepted commercial terms create idempotent recruiter sourcing SLA tasks",
 });
 
 test("commercial acceptance SLA migration backfills only open accepted roles",async()=>{
-  const migration=await read("supabase/migrations/20260926131500_commercial_acceptance_recruiter_sla.sql");
+  const migration=await migrationSource();
 
   assert.match(migration,/commercial_status = 'accepted'/);
   assert.match(migration,/j\.status <> 'closed'/);

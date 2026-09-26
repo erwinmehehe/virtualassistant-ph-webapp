@@ -92,21 +92,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <div className="auth-divider"><span>or continue with</span></div>
               <div className="auth-social-stack">
                 {googleEnabled ? (
-                  <>
-                    <form action={oauthAction}>
-                      {next ? <input type="hidden" name="next" value={next}/> : null}
-                      {lead ? <input type="hidden" name="lead" value={lead}/> : null}
-                      <input type="hidden" name="provider" value="google"/>
-                      <input type="hidden" name="role" value="client"/>
-                      <button className="btn auth-social-btn" type="submit">Continue with Google as Client</button>
-                    </form>
-                    <form action={oauthAction}>
-                      {next ? <input type="hidden" name="next" value={next}/> : null}
-                      <input type="hidden" name="provider" value="google"/>
-                      <input type="hidden" name="role" value="va"/>
-                      <button className="btn auth-social-btn" type="submit">Continue with Google as VA</button>
-                    </form>
-                  </>
+                  <form action={oauthAction}>
+                    {next ? <input type="hidden" name="next" value={next}/> : null}
+                    {lead ? <input type="hidden" name="lead" value={lead}/> : null}
+                    <input type="hidden" name="provider" value="google"/>
+                    <button className="btn auth-social-btn" type="submit">Continue with Google</button>
+                  </form>
                 ) : null}
                 {microsoftEnabled ? (
                   <form action={oauthAction}>

@@ -15,11 +15,14 @@ test("public training uses the primary site navigation and exposes Training glob
   ]);
 
   assert.match(page, /import \{ SiteHeader \} from "@\/components\/site-header"/);
-  assert.match(page, /<SiteHeader\/>/);
+  assert.match(page, /<SiteHeader context="training"\/>/);
   assert.doesNotMatch(page, /TrainingSiteHeader/);
 
   assert.match(nav, /<Link href="\/training">Training<\/Link>/);
   assert.match(nav, /<Link href="\/training">Free VA Training<\/Link>/);
+  assert.match(nav, /actionContext === "training"/);
+  assert.match(nav, /Training login/);
+  assert.match(nav, /Start free training/);
 
   // Keep the specialised training header only for auth/join continuity.
   assert.match(trainingHeader, /<SiteNav/);

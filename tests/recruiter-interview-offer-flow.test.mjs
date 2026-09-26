@@ -33,6 +33,7 @@ test("placement offer action requires a completed Proceed interview and stays in
   assert.match(offerAction,/\.eq\("client_decision", "proceed"\)/);
   assert.match(offerAction,/Complete a client interview with Proceed before preparing an offer/);
   assert.match(offerAction,/Another candidate already has an active placement offer/);
+  assert.match(offerAction,/This offer has already advanced beyond recruiter editing/);
   assert.match(offerAction,/redirect\(`\/workspace\/recruiter\/roles\/\$\{jobId\}\?offer_sent=1#interviews`\)/);
   assert.doesNotMatch(offerAction,/\/workspace\/recruiter\/matching\//);
 

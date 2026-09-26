@@ -20,5 +20,5 @@ test("recruiter can prepare a missing hiring role and open matching without dupl
   assert.match(action,/source: "hiring_inbox"/);
   assert.match(action,/redirect\(`\/workspace\/recruiter\/roles\/\$\{jobId\}#matching`\)/);
   assert.doesNotMatch(action,/\.from\("jobs"\)[\s\S]*\.insert\(/);
-  assert.match(helper,/\.is\("owner_id", null\)/);
+  assert.match(helper,/\.is\("owner_id", null\)/);\n  assert.match(action,/role_error=/);\n  assert.match(page,/params\.role_error/);
 });

@@ -1,3 +1,9 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
+
 test("availability confirmation does not block client shortlist release",()=>{
   const action=read("src/app/actions/matching.ts");
   const table=read("src/components/matching-candidate-table.tsx");

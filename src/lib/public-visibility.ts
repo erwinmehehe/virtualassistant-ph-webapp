@@ -47,8 +47,8 @@ export function isPubliclyEligible(
 }
 
 /**
- * The bar to approve a VA into the bench, deliberately lower than the public
- * one. An approved VA can be matched, shortlisted and put in front of a client
+ * The bar to approve a VA into the bench. Approval requires a substantially complete
+ * profile, while public visibility remains a separate consent and content decision. An approved VA can be matched, shortlisted and put in front of a client
  * by a recruiter; none of that exposes them, because public_va_directory
  * separately requires a photo, PUBLIC_VA_MIN_COMPLETION, two years, a rate,
  * availability and explicit public-profile consent.
@@ -56,7 +56,7 @@ export function isPubliclyEligible(
  * Approving also protects the account: the abandoned-account cleanup skips
  * anyone at stage approved or bench.
  */
-export const APPROVAL_MIN_COMPLETION = 60;
+export const APPROVAL_MIN_COMPLETION = 80;
 
 /**
  * Approval is a recruiter quality decision, not consent to public processing,

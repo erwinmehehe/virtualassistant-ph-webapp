@@ -8,8 +8,10 @@ import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
 import { prepareStandardPlacementTermsAction, requestClientRoleDetailsAction, saveRoleReadinessDetailsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
+import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { RoleReadinessForm } from "@/components/role-readiness-form";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -128,7 +130,10 @@ export default async function RoleControlCenter({
   const released = shortlist.filter((x) => x.shortlist_status === "released");
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
-  const currentOffer = offers.find((x) => !["declined", "cancelled"].includes(x.status));
+  const activeOffers = offers.filter((x) => !["declined", "cancelled"].includes(x.status));
+  const currentOffer = activeOffers[0];
+  const activeOfferByVa = new Map(activeOffers.map((offer) => [offer.va_id, offer]));
+  const proceedInterviews = activeInterviews.filter((interview) => interview.status === "completed" && interview.client_decision === "proceed");
   const sla = slaLabel(job.hiring_stage, job.hiring_stage_entered_at);
   const requirementCount =
     (job.must_have_skills?.length || 0) +
@@ -169,6 +174,7 @@ export default async function RoleControlCenter({
       {query.client_invited ? <div className="success-banner">Shortlist saved and the client account invitation was sent.</div> : null}
       {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
       {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
+      {query.offer_sent ? <div className="success-banner">Placement offer sent to the VA. Waiting for VA acceptance before the client confirms the placement.</div> : null}
       {query.availability_reminded ? <div className="success-banner" role="status">Availability reminder sent. Client release will unlock after the VA reconfirms their current availability.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
       {query.role_details_saved ? <div className="success-banner" role="status">Required role details saved.</div> : null}
@@ -453,27 +459,96 @@ export default async function RoleControlCenter({
 
       <div id="interviews" className="grid-2" style={{ marginTop: 18 }}>
         <section className="card">
-          <h2 style={{ marginTop: 0 }}>Interviews</h2>
+          <div className="row-between wrap">
+            <div>
+              <h2 style={{ marginTop: 0 }}>Interviews & decision</h2>
+              <p className="small muted" style={{ margin: "4px 0 0" }}>Client feedback should end in Proceed, Hold, or Pass. Proceed unlocks final offer preparation here.</p>
+            </div>
+            <span className="badge">{activeInterviews.length} active</span>
+          </div>
           {activeInterviews.length ? (
-            <div className="stack">
-              {activeInterviews.map((x) => (
-                <div key={x.id} className="row-between">
-                  <div>
-                    <strong>{vaMap.get(x.va_id) || "VA"}</strong>
-                    <div className="small muted">
-                      {x.scheduled_at
-                        ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(
-                            new Date(x.scheduled_at),
-                          )
-                        : "Scheduling pending"}
+            <div className="stack" style={{ marginTop: 14 }}>
+              {activeInterviews.map((x) => {
+                const offerForCandidate = activeOfferByVa.get(x.va_id);
+                const proceeded = x.status === "completed" && x.client_decision === "proceed";
+                return (
+                  <div key={x.id} className="review-answer">
+                    <div className="row-between wrap">
+                      <div>
+                        <strong>{vaMap.get(x.va_id) || "VA"}</strong>
+                        <div className="small muted">
+                          {x.scheduled_at
+                            ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(
+                                new Date(x.scheduled_at),
+                              )
+                            : "Scheduling pending"}
+                        </div>
+                      </div>
+                      <div className="row wrap">
+                        <span className="badge">{x.status}</span>
+                        {x.client_decision ? <span className={`badge ${x.client_decision === "proceed" ? "badge-success" : x.client_decision === "pass" ? "badge-warning" : ""}`}>{x.client_decision}</span> : null}
+                      </div>
                     </div>
+
+                    {x.client_feedback_reason || x.client_feedback ? (
+                      <div style={{ marginTop: 10 }}>
+                        <strong className="small">Client feedback</strong>
+                        {x.client_feedback_reason ? <p className="small" style={{ margin: "4px 0 0" }}>Reason: {x.client_feedback_reason}</p> : null}
+                        {x.client_feedback ? <p className="small muted" style={{ margin: "4px 0 0" }}>{x.client_feedback}</p> : null}
+                      </div>
+                    ) : null}
+
+                    {proceeded && !offerForCandidate ? (
+                      <form action={createPlacementOfferAction} className="stack role-offer-form" style={{ marginTop: 14 }}>
+                        <input type="hidden" name="job_id" value={job.id}/>
+                        <input type="hidden" name="va_id" value={x.va_id}/>
+                        <input type="hidden" name="service_type" value={job.service_model === "managed_service" ? "managed_service" : "curated_placement"}/>
+                        <div>
+                          <strong>Prepare placement offer</strong>
+                          <p className="small muted" style={{ margin: "4px 0 0" }}>The VA accepts first. The client then confirms the same final terms before onboarding opens.</p>
+                        </div>
+                        <div className="grid-2">
+                          <div className="field">
+                            <label>Final hourly rate, USD</label>
+                            <input name="hourly_rate" type="number" min={MIN_HOURLY_RATE} step="0.5" required defaultValue={Math.max(MIN_HOURLY_RATE, Number(job.min_hourly_rate || MIN_HOURLY_RATE))}/>
+                          </div>
+                          <div className="field">
+                            <label>Weekly hours</label>
+                            <input name="weekly_hours" type="number" min="1" max="80" required defaultValue={job.hours_per_week || 40}/>
+                          </div>
+                          <div className="field">
+                            <label>Start date</label>
+                            <input name="start_date" type="date" required defaultValue={job.target_start_date || ""}/>
+                          </div>
+                          <div className="field">
+                            <label>Timezone</label>
+                            <input name="timezone" maxLength={100} defaultValue={job.timezone || ""} placeholder="Australia/Sydney"/>
+                          </div>
+                        </div>
+                        <div className="field">
+                          <label>Agreed working schedule</label>
+                          <input name="schedule" required minLength={3} maxLength={500} placeholder="Mon–Fri, 9:00 AM–5:00 PM AEST with agreed breaks"/>
+                        </div>
+                        <div className="field">
+                          <label>Offer note <span className="muted">(optional)</span></label>
+                          <textarea name="notes" maxLength={2000} placeholder="Any final context the VA should review with the terms."/>
+                        </div>
+                        <button className="btn btn-primary" type="submit">Prepare placement offer</button>
+                      </form>
+                    ) : null}
+
+                    {proceeded && offerForCandidate ? (
+                      <div className="info-banner" style={{ marginTop: 12 }}>
+                        <strong>Offer {offerForCandidate.status.replaceAll("_", " ")}</strong>
+                        <span className="small">USD {Number(offerForCandidate.hourly_rate || 0).toFixed(2)}/hr · {offerForCandidate.weekly_hours || job.hours_per_week || 0} hrs/week</span>
+                      </div>
+                    ) : null}
                   </div>
-                  <span className="badge">{x.client_decision || x.status}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="empty">No interviews yet.</div>
+            <div className="empty">No interviews yet. Client interview requests from the released shortlist will appear here automatically.</div>
           )}
         </section>
         <section className="card">
@@ -484,9 +559,20 @@ export default async function RoleControlCenter({
               <p style={{ margin: "5px 0 0" }}>
                 Offer: {currentOffer.status.replaceAll("_", " ")} · USD {currentOffer.hourly_rate}/hr · {currentOffer.weekly_hours} hrs/week
               </p>
+              <p className="small muted" style={{ margin: "5px 0 0" }}>
+                {currentOffer.status === "pending_va"
+                  ? "Waiting for the VA to accept or decline the final terms."
+                  : currentOffer.status === "pending_client"
+                    ? "VA accepted. Waiting for the client to confirm the placement."
+                    : currentOffer.status === "accepted"
+                      ? "Final placement terms are confirmed."
+                      : "Review the current offer state."}
+              </p>
             </div>
+          ) : proceedInterviews.length ? (
+            <p className="small muted">The client chose Proceed. Prepare the placement offer from the interview card on the left.</p>
           ) : (
-            <p className="small muted">No active placement offer.</p>
+            <p className="small muted">No active placement offer. A completed interview with Proceed unlocks offer preparation.</p>
           )}
           {room ? (
             <div className="info-banner" style={{ marginTop: 12 }}>

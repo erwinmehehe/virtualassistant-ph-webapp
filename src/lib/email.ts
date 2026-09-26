@@ -175,7 +175,7 @@ type EmailEventLogMeta = {
 export const DAILY_RECIPIENT_LIMIT = Math.max(1, Number.parseInt(process.env.RESEND_DAILY_RECIPIENT_LIMIT || "100", 10) || 100);
 export const RESERVED_CRITICAL_RECIPIENTS = Math.min(
   DAILY_RECIPIENT_LIMIT,
-  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "40", 10) || 20)
+  Math.max(0, Number.parseInt(process.env.RESEND_RESERVED_CRITICAL_RECIPIENTS || "40", 10) || 40)
 );
 const NON_CRITICAL_DAILY_LIMIT = Math.max(0, DAILY_RECIPIENT_LIMIT - RESERVED_CRITICAL_RECIPIENTS);
 

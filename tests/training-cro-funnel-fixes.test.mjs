@@ -30,6 +30,7 @@ test("training public header stays learner-focused while using the primary site 
   assert.match(siteNav, /actionContext === "training"/);
   assert.match(siteNav, /Training login/);
   assert.match(siteNav, /Start free training/);
+  assert.match(siteNav, /!isTrainingContext \? \([\s\S]*href="\/jobs"[\s\S]*href="\/auth\/join\/va"/);
   assert.match(page, /export const dynamic = "force-dynamic"/);
   assert.match(page, /export const revalidate = 0/);
 

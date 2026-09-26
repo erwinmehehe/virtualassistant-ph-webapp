@@ -178,6 +178,7 @@ export function SiteNav({
 
           <Link href="/how-vetting-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/training">Training</Link>
           <Link href="/for-virtual-assistants">For VAs</Link>
         </nav>
 
@@ -195,6 +196,7 @@ export function SiteNav({
               <Link href="/how-vetting-works">How it works</Link>
               <Link href="/pricing">Pricing</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
+              <Link href="/training">Free VA Training</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
               <Link href="/jobs">Browse Virtual Assistant jobs</Link>
               <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>

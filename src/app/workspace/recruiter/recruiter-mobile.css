@@ -516,3 +516,206 @@
     justify-content: center;
   }
 }
+
+
+/* Recruiter-wide mobile hardening.
+   The shared dashboard layer gives responsive tables a desktop minimum width.
+   Recruiter screens use card-style responsive tables on phones, so override
+   that minimum width here and keep every control inside the viewport. */
+@media (max-width: 680px) {
+  .workspace-role-recruiter,
+  .workspace-role-recruiter .app-main,
+  .workspace-role-recruiter .app-content,
+  .workspace-role-recruiter .app-content > *,
+  .workspace-role-recruiter form,
+  .workspace-role-recruiter section,
+  .workspace-role-recruiter .card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .app-main,
+  .workspace-role-recruiter .app-content {
+    overflow-x: clip;
+  }
+
+  .workspace-role-recruiter .app-content {
+    padding-bottom: calc(128px + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-role-recruiter .responsive-table {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible !important;
+  }
+
+  .workspace-role-recruiter .responsive-table table,
+  .workspace-role-recruiter .matching-table table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .responsive-table tbody,
+  .workspace-role-recruiter .responsive-table tr,
+  .workspace-role-recruiter .responsive-table td {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .responsive-table td > *,
+  .workspace-role-recruiter .responsive-table td > * > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .responsive-table input:not([type="checkbox"]):not([type="radio"]),
+  .workspace-role-recruiter .responsive-table select,
+  .workspace-role-recruiter .responsive-table textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .workspace-role-recruiter .responsive-table a,
+  .workspace-role-recruiter .responsive-table button,
+  .workspace-role-recruiter .responsive-table p,
+  .workspace-role-recruiter .responsive-table span,
+  .workspace-role-recruiter .responsive-table strong,
+  .workspace-role-recruiter .responsive-table small {
+    overflow-wrap: anywhere;
+  }
+
+  /* Matching becomes a true candidate card instead of a 980px table squeezed
+     into the phone viewport. */
+  .workspace-role-recruiter .matching-table tbody tr {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 13px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(16, 24, 40, .04);
+  }
+
+  .workspace-role-recruiter .matching-table td {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    padding: 10px 0;
+    grid-template-columns: 1fr !important;
+    gap: 5px;
+    overflow: visible;
+  }
+
+  .workspace-role-recruiter .matching-table td::before {
+    margin: 0;
+  }
+
+  .workspace-role-recruiter .matching-table td[data-label="VA"],
+  .workspace-role-recruiter .matching-table td[data-label="Match"],
+  .workspace-role-recruiter .matching-table td[data-label="Availability"],
+  .workspace-role-recruiter .matching-table td[data-label="Client recommendation"],
+  .workspace-role-recruiter .matching-table td[data-label="Client review"] {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-role-recruiter .matching-table td[data-label="Select"],
+  .workspace-role-recruiter .matching-table td[data-label="Rank"],
+  .workspace-role-recruiter .matching-table td[data-label="Hours"],
+  .workspace-role-recruiter .matching-table td[data-label="Rate"] {
+    grid-column: auto;
+  }
+
+  .workspace-role-recruiter .matching-table .match-percent {
+    flex-wrap: wrap;
+  }
+
+  .workspace-role-recruiter .matching-table .match-meter {
+    width: min(112px, 100%);
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .matching-table .badge,
+  .workspace-role-recruiter .matching-table .text-button {
+    white-space: normal;
+  }
+
+  .workspace-role-recruiter .matching-table textarea {
+    min-height: 96px;
+  }
+
+  .workspace-role-recruiter .staff-matching-card,
+  .workspace-role-recruiter .staff-match-form,
+  .workspace-role-recruiter .unified-role-matching {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-role-recruiter .staff-matching-head,
+  .workspace-role-recruiter .staff-match-form {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .workspace-role-recruiter .staff-matching-head > .row,
+  .workspace-role-recruiter .staff-match-form > .row-between,
+  .workspace-role-recruiter .shortlist-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-role-recruiter .staff-match-form > .row-between > .row,
+  .workspace-role-recruiter .shortlist-controls > .row,
+  .workspace-role-recruiter .staff-match-form > .row-between .btn {
+    width: 100%;
+  }
+
+  .workspace-role-recruiter .staff-match-form > .row-between > .row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-role-recruiter .role-workspace-section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .workspace-role-recruiter .role-workspace-section-head > svg {
+    display: none;
+  }
+
+  .workspace-role-recruiter .role-workflow-nav {
+    display: flex;
+    grid-template-columns: none;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workspace-role-recruiter .role-workflow-nav a {
+    flex: 0 0 auto;
+    min-height: 38px;
+    scroll-snap-align: start;
+  }
+
+  /* Other recruiter data grids may still be genuine tables. Keep them
+     horizontally scrollable rather than allowing them to widen the page. */
+  .workspace-role-recruiter .table-wrap:not(.responsive-table),
+  .workspace-role-recruiter .role-coverage-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}

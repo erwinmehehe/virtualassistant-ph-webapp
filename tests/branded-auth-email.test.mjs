@@ -70,3 +70,18 @@ test("confirmation resend uses branded magic link only for an existing unconfirm
   assert.doesNotMatch(action, /shouldCreateUser/);
 });
 
+
+test("confirmed Supabase Auth users always propagate email verification to profiles", async () => {
+  const [bootstrap, confirm, callback] = await Promise.all([
+    read("src/lib/profile-bootstrap.ts"),
+    read("src/app/auth/confirm/route.ts"),
+    read("src/app/auth/callback/route.ts"),
+  ]);
+
+  assert.match(bootstrap, /email_verified: Boolean\(user\.email_confirmed_at\)/);
+  assert.match(bootstrap, /if \(user\.email_confirmed_at\)[\s\S]*update\(\{ email_verified: true \}\)/);
+  assert.match(confirm, /createAdminClient\(\)/);
+  assert.match(confirm, /\[auth_confirm\] profile_trust_sync_failed/);
+  assert.match(callback, /createAdminClient\(\)/);
+  assert.match(callback, /\[auth_callback\] profile_trust_sync_failed/);
+});

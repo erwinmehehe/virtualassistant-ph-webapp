@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { claimClientHiringRequests } from "@/lib/lead-claims";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { recordProductEvent } from "@/lib/product-events";
@@ -46,10 +47,17 @@ export async function GET(request: Request) {
   }
 
   if (profile) {
-    await supabase
+    const admin = createAdminClient();
+    const { error: trustSyncError } = await admin
       .from("profiles")
       .update({ email_verified: true, last_active_at: new Date().toISOString() })
       .eq("id", user.id);
+    if (trustSyncError) {
+      console.error("[auth_confirm] profile_trust_sync_failed", {
+        userId: user.id,
+        code: trustSyncError.code || null,
+      });
+    }
   }
 
   if (user.email && lead && profile?.role === "client") {

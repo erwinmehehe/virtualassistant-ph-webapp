@@ -44,3 +44,34 @@ test("Client Success uses the shared mobile-first dashboard system without inlin
   assert.doesNotMatch(page,/style=\{\{/);
   assert.match(layout,/className="client-success-tabs"/);
 });
+
+
+test("all authenticated workspaces share viewport-safe mobile overflow rules", async()=>{
+  const [styles, appShell, recruiterLayout, clientLayout, vaLayout, adminLayout]=await Promise.all([
+    read("src/app/workspace/dashboard-mobile-first.css"),
+    read("src/components/app-shell.tsx"),
+    read("src/app/workspace/recruiter/layout.tsx"),
+    read("src/app/workspace/client/layout.tsx"),
+    read("src/app/workspace/va/layout.tsx"),
+    read("src/app/workspace/admin/layout.tsx")
+  ]);
+
+  assert.match(appShell,/workspace-role-\$\{role\}/);
+  assert.match(recruiterLayout,/role="recruiter"/);
+  assert.match(clientLayout,/role="client"/);
+  assert.match(vaLayout,/role="va"/);
+  assert.match(adminLayout,/role="admin"/);
+  assert.match(styles,/Shared authenticated-workspace viewport hardening/);
+  assert.match(styles,/\.dashboard-shell \.app-main,[\s\S]*overflow-x:\s*clip/);
+  assert.match(styles,/\.dashboard-shell \.responsive-table table,[\s\S]*min-width:\s*0 !important/);
+  assert.match(styles,/\.dashboard-shell \.table-wrap:not\(\.responsive-table\),[\s\S]*overflow-x:\s*auto/);
+  assert.match(styles,/calc\(128px \+ env\(safe-area-inset-bottom\)\)/);
+});
+
+test("admin account deletion review uses labeled responsive cards on phones", async()=>{
+  const page=await read("src/app/workspace/admin/account-deletion-requests/page.tsx");
+  assert.match(page,/className="table-wrap responsive-table"/);
+  for(const label of ["Account","Status","Requested","Review"]) {
+    assert.match(page,new RegExp(`data-label="${label}"`));
+  }
+});

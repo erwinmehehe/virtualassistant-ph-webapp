@@ -17,7 +17,7 @@
 }
 
 .dashboard-shell .app-content {
-  padding: 18px var(--dash-mobile-gutter) calc(106px + env(safe-area-inset-bottom));
+  padding: 18px var(--dash-mobile-gutter) calc(128px + env(safe-area-inset-bottom));
 }
 
 .dashboard-shell .app-topbar {
@@ -649,6 +649,83 @@
 
 
 @media (max-width: 680px) {
+  /* Shared authenticated-workspace viewport hardening.
+     Applies to Recruiter, Client, VA, Admin, Client Success, and Account Center. */
+  .dashboard-shell,
+  .dashboard-shell .app-main,
+  .dashboard-shell .app-content,
+  .dashboard-shell .app-content > *,
+  .dashboard-shell .app-content form,
+  .dashboard-shell .app-content section,
+  .dashboard-shell .app-content .card,
+  .dashboard-shell .app-content .dash-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .app-main,
+  .dashboard-shell .app-content {
+    overflow-x: clip;
+  }
+
+  .dashboard-shell .app-content {
+    scroll-padding-bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+
+  /* Responsive tables already become labeled cards in globals.css.
+     Remove the desktop table floor here so those cards can actually fit phones. */
+  .dashboard-shell .responsive-table {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .dashboard-shell .responsive-table table,
+  .dashboard-shell .responsive-table tbody,
+  .dashboard-shell .responsive-table tr,
+  .dashboard-shell .responsive-table td {
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .responsive-table table {
+    width: 100% !important;
+  }
+
+  .dashboard-shell .responsive-table td > *,
+  .dashboard-shell .responsive-table td > * > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .responsive-table input:not([type="checkbox"]):not([type="radio"]),
+  .dashboard-shell .responsive-table select,
+  .dashboard-shell .responsive-table textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dashboard-shell .responsive-table a,
+  .dashboard-shell .responsive-table button,
+  .dashboard-shell .responsive-table p,
+  .dashboard-shell .responsive-table span,
+  .dashboard-shell .responsive-table strong,
+  .dashboard-shell .responsive-table small {
+    overflow-wrap: anywhere;
+  }
+
+  /* True wide data tables remain usable by scrolling inside their own surface,
+     never by making the whole account workspace wider than the viewport. */
+  .dashboard-shell .table-wrap:not(.responsive-table),
+  .dashboard-shell .cost-compare-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .dashboard-shell .app-sidebar {
     bottom: max(10px, env(safe-area-inset-bottom));
   }

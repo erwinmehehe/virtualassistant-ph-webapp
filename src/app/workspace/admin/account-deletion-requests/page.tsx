@@ -78,15 +78,15 @@ export default async function AdminAccountDeletionRequestsPage({
                   const profile = profileMap.get(request.user_id);
                   return (
                     <tr key={request.user_id}>
-                      <td>
+                      <td data-label="Account">
                         <div className="row"><PublicAvatar name={profile?.full_name || "Account"} src={profile?.avatar_url} size="sm"/><div><strong>{profile?.full_name || emailMap.get(request.user_id) || "Account"}</strong><div className="muted small">{emailMap.get(request.user_id) || "Email unavailable"} · {profile?.role || "unknown role"}</div></div></div>
                       </td>
                       <td data-label="Status"><span className="status-badge">{request.status}</span></td>
-                      <td>
+                      <td data-label="Requested">
                         <strong>{dateLabel(request.requested_at)}</strong>
                         <div className="muted small">{request.reviewed_at ? `Last reviewed ${dateLabel(request.reviewed_at)}` : "Awaiting review"}</div>
                       </td>
-                      <td>
+                      <td data-label="Review">
                         <form action={reviewAccountDeletionRequestAction} className="stack">
                           <input type="hidden" name="target_user_id" value={request.user_id} />
                           <select name="status" defaultValue={request.status === "pending" ? "reviewing" : request.status}>

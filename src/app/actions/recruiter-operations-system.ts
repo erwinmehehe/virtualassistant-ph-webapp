@@ -391,6 +391,7 @@ export async function createPlacementOfferAction(formData: FormData) {
   if (!vetted || !["approved", "bench"].includes(vetted.stage)) throw new Error("Only vetted VAs can receive placement offers.");
   if (!proceedInterview) throw new Error("Complete a client interview with Proceed before preparing an offer.");
   if (activeOffer && activeOffer.va_id !== vaId) throw new Error("Another candidate already has an active placement offer for this role.");
+  if (activeOffer && activeOffer.va_id === vaId && activeOffer.status !== "pending_va") throw new Error("This offer has already advanced beyond recruiter editing.");
 
   let offerId = activeOffer?.va_id === vaId ? activeOffer.id : null;
   const payload = {

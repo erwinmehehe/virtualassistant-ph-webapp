@@ -108,8 +108,6 @@ function TrainingNav({
               <Link href="/training#how-training-works">How it works</Link>
               <Link href="/training#certificate">Certificates</Link>
               <Link href="/training#faq">FAQ</Link>
-              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              <Link href="/blog">VA guides</Link>
               {!isJoin && !isLogin ? (
                 <>
                   <span className="va-mobile-panel-label">Account</span>

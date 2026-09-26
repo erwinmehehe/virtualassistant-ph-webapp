@@ -1664,67 +1664,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     hiringNotes: ["Separate data preparation from approval.","Restrict payment and banking permissions.","Keep tax, final accounting and financial advice with qualified professionals."],
     relatedServiceSlugs: ["bookkeeping","accounting-virtual-assistant","month-end-production-virtual-assistant"],
     relatedIndustrySlugs: ["accountants-cpas","accounting-firms-month-end","small-business"]
-  },
-  {
-      slug: "zapier",
-      name: "Zapier Virtual Assistant",
-      software: "Zapier",
-      category: "Automation & Integrations",
-      directoryCategory: "Web & WordPress",
-      primaryKeyword: "zapier virtual assistant",
-      metaTitle: "Zapier Virtual Assistant | Automation Workflow Support",
-      metaDescription: "Hire a Zapier Virtual Assistant to maintain automations, troubleshoot failed tasks, document workflows, connect business apps, test changes, and monitor errors.",
-      h1: "Keep Zapier Automations Maintained, Tested, and Documented",
-      intro: "A Philippines-based Zapier Virtual Assistant can maintain approved automations, investigate routine failures, connect supported apps, test changes, and document workflows while system architecture, security-sensitive access, and production-risk decisions stay with your technical owner.",
-      focus: "zapier automation maintenance, troubleshooting, and documentation",
-      workflows: ["review the automation queue","check failed or delayed tasks","trace approved trigger and action steps","update mapped fields and filters","test changes in a controlled workflow","document dependencies and ownership","monitor recurring errors","escalate architecture or access issues"],
-      tasks: ["Zap maintenance","failed-task troubleshooting","app connection support","field mapping updates","workflow testing","automation monitoring","error logging","technical documentation"],
-      bestFor: ["agencies","SaaS companies","online businesses","operations teams","marketing teams"],
-      outcomes: ["Existing Zapier workflows stay maintained instead of becoming fragile one-off automations.","Routine failures and field-mapping issues are documented and surfaced sooner.","System owners receive clearer workflow documentation before approving higher-risk changes."],
-      hiringNotes: ["Document which Zaps the assistant may edit and which require approval.","Use least-privilege access for connected apps and production data.","Keep architecture, credential, security and irreversible production changes with the designated system owner."],
-      relatedServiceSlugs: ["technical-virtual-assistant","marketing-automation","crm","operations"],
-      relatedIndustrySlugs: ["small-business","professional-services-growth"]
-    },
-  {
-      slug: "make",
-      name: "Make.com Virtual Assistant",
-      software: "Make",
-      category: "Automation & Integrations",
-      directoryCategory: "Web & WordPress",
-      primaryKeyword: "make.com virtual assistant",
-      metaTitle: "Make.com Virtual Assistant | Automation Workflow Support",
-      metaDescription: "Hire a Make.com Virtual Assistant to maintain scenarios, troubleshoot modules, document workflows, connect apps, test changes, and monitor automation errors.",
-      h1: "Keep Make.com Scenarios Reliable and Easier to Support",
-      intro: "A Philippines-based Make.com Virtual Assistant can maintain approved scenarios, troubleshoot routine module errors, update mappings, test changes, monitor runs, and document dependencies while architecture, security-sensitive access, and production-risk decisions stay with your technical owner.",
-      focus: "make.com scenario maintenance, troubleshooting, and workflow documentation",
-      workflows: ["review scenario run history","identify failed modules or incomplete bundles","trace approved scenario logic","update mappings and filters","test changes with controlled data","document routers and dependencies","monitor recurring errors","escalate architecture or access issues"],
-      tasks: ["scenario maintenance","module troubleshooting","field mapping updates","router and filter support","workflow testing","run monitoring","error logging","technical documentation"],
-      bestFor: ["agencies","SaaS companies","online businesses","operations teams","marketing teams"],
-      outcomes: ["Recurring Make scenarios stay visible, tested and documented.","Routine mapping and module failures are resolved or escalated with better evidence.","System owners spend less time reconstructing how existing scenarios are supposed to work."],
-      hiringNotes: ["Define which scenarios the assistant may edit and which require approval.","Use least-privilege access for apps, connections and production data.","Keep architecture, credential, security and irreversible production changes with the designated system owner."],
-      relatedServiceSlugs: ["technical-virtual-assistant","marketing-automation","crm","operations"],
-      relatedIndustrySlugs: ["small-business","professional-services-growth"]
-    },
-  {
-      slug: "squarespace",
-      name: "Squarespace Virtual Assistant",
-      software: "Squarespace",
-      category: "Website & CMS",
-      directoryCategory: "Web & WordPress",
-      primaryKeyword: "squarespace virtual assistant",
-      metaTitle: "Squarespace Virtual Assistant | Website & CMS Support",
-      metaDescription: "Hire a Squarespace Virtual Assistant for page updates, CMS publishing, product and form changes, basic SEO, content QA, image updates, and site maintenance.",
-      h1: "Keep Squarespace Content and Site Updates Moving",
-      intro: "A Philippines-based Squarespace Virtual Assistant can publish approved content, update pages and products, maintain forms, apply basic on-page SEO, check responsive layouts, and run routine site QA while design direction, custom-code risk, billing, domain, and security decisions stay with your site owner.",
-      focus: "squarespace publishing, website administration, and routine site QA",
-      workflows: ["receive an approved page or content brief","update page sections and content blocks","publish blog or product changes","maintain forms and basic integrations","check links, images and mobile layouts","apply approved on-page SEO fields","run post-publish QA","record changes and unresolved issues"],
-      tasks: ["page content updates","CMS publishing","product updates","form changes","image replacement","basic SEO fields","responsive QA","site-maintenance checklists"],
-      bestFor: ["small businesses","consultants","professional services firms","creators","local-service businesses"],
-      outcomes: ["Routine Squarespace changes stop waiting for a developer.","Published pages receive a consistent content and QA checklist.","Site owners keep control of design, billing, domains and higher-risk technical changes."],
-      hiringNotes: ["Use a staging or duplicate-page workflow for material layout changes where practical.","Limit domain, billing and administrator permissions to the access actually required.","Keep custom-code, security and irreversible site changes with the designated site owner or developer."],
-      relatedServiceSlugs: ["web-developer-virtual-assistant","technical-virtual-assistant","content-writing","seo"],
-      relatedIndustrySlugs: ["small-business","professional-services-growth"]
-    }
+  }
 
 
 ];

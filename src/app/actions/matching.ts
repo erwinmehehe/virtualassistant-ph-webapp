@@ -11,7 +11,6 @@ import { publicationMissingDetails } from "@/lib/job-publication";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
-const AVAILABILITY_REMINDER_COOLDOWN_HOURS = 20;
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -323,62 +322,6 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);
-}
-
-export async function remindVaAvailabilityAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
-  const jobId = String(formData.get("job_id") || "");
-  const vaId = String(formData.get("availability_va_id") || "");
-  const returnTo = safeReturnTo(
-    formData.get("return_to"),
-    profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`,
-  );
-  const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}`);
-
-  if (!jobId || !vaId) return fail("Choose a VA before sending an availability reminder.");
-
-  const admin = createAdminClient();
-  const [{ data: job }, { data: vaProfile }] = await Promise.all([
-    admin.from("jobs").select("id,title,recruiter_id").eq("id", jobId).maybeSingle(),
-    admin.from("profiles").select("id,role,account_status").eq("id", vaId).maybeSingle(),
-  ]);
-  if (!job) return fail("Role not found.");
-  if (!vaProfile || vaProfile.role !== "va" || vaProfile.account_status !== "active") {
-    return fail("This VA account is not active, so an availability reminder cannot be sent.");
-  }
-
-  const cutoff = new Date(Date.now() - AVAILABILITY_REMINDER_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
-  const { data: recent } = await admin
-    .from("notifications")
-    .select("id")
-    .eq("user_id", vaId)
-    .eq("title", "Confirm your current availability")
-    .gte("created_at", cutoff)
-    .limit(1)
-    .maybeSingle();
-
-  if (!recent) {
-    const { error } = await admin.from("notifications").insert({
-      user_id: vaId,
-      title: "Confirm your current availability",
-      body: `A recruiter is reviewing you for ${job.title || "a client role"}. Confirm your current hours, schedule, availability status, and rate before your profile can be released to the client.`,
-      href: "/workspace/va/profile#availability",
-    });
-    if (error) return fail("The availability reminder could not be sent. Please try again.");
-    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
-    await writeRecruiterActivity({
-      subjectType: "va",
-      subjectId: vaId,
-      action: "availability_reminder_sent",
-      description: `Recruiter requested a fresh availability confirmation for ${job.title || "a client role"}`,
-      actorId: user.id,
-      metadata: { job_id: jobId },
-    });
-  }
-
-  revalidatePath(returnTo);
-  revalidatePath("/workspace/va/profile");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}availability_reminded=1`);
 }
 
 export async function hideShortlistCandidateAction(formData: FormData) {

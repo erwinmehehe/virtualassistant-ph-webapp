@@ -25,14 +25,14 @@ test("training uses one connected site-nav instead of a separate microsite menu"
   assert.match(trainingNav, /training-nav-context/);
   assert.match(trainingNav, /TrainingSectionObserver/);
   assert.match(trainingNav, /data-section="course-library"/);
-  assert.match(nav, /href="\/training#course-library"/);
-  assert.match(nav, /href="\/training#how-training-works"/);
-  assert.match(nav, /href="\/training#certificate"/);
-  assert.match(nav, /href="\/training#faq"/);
-  assert.doesNotMatch(nav, />VA jobs<\/Link>/);
-  assert.doesNotMatch(nav, />Browse VA jobs<\/Link>/);
-  assert.doesNotMatch(nav, />For Virtual Assistants<\/Link>/);
-  assert.doesNotMatch(nav, />VA guides<\/Link>/);
+  assert.match(trainingNav, /href="\/training#course-library"/);
+  assert.match(trainingNav, /href="\/training#how-training-works"/);
+  assert.match(trainingNav, /href="\/training#certificate"/);
+  assert.match(trainingNav, /href="\/training#faq"/);
+  assert.doesNotMatch(trainingNav, />VA jobs<\/Link>/);
+  assert.doesNotMatch(trainingNav, />Browse VA jobs<\/Link>/);
+  assert.doesNotMatch(trainingNav, />For Virtual Assistants<\/Link>/);
+  assert.doesNotMatch(trainingNav, />VA guides<\/Link>/);
 
   assert.match(observer, /requestAnimationFrame/);
   assert.match(observer, /aria-current/);

@@ -30,6 +30,9 @@ import { trainingJoinHref } from "@/lib/training-intent";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }

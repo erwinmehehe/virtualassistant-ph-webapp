@@ -48,7 +48,6 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     const noCandidates=jobOldEnough&&job.suggested_count===0&&job.active_shortlist_count===0&&job.active_interview_count===0&&job.active_offer_count===0;
     const clientOverdue=Boolean(job.oldest_unanswered_released_at&&new Date(job.oldest_unanswered_released_at).getTime()<=cutoff);
     const intervention=noCandidates||clientOverdue||job.interview_overdue||job.offer_overdue;
-    const publication=publicationBlocker(job,{commercial_status:job.commercial_status});
     const accessReady=["paid","comped"].includes(String(job.candidate_access_status||""));
     const readyToSend=job.proposed_count>0&&Boolean(job.client_id)&&job.status==="published"&&job.commercial_status==="accepted"&&accessReady;
     const waitingClient=job.unanswered_released_count>0;

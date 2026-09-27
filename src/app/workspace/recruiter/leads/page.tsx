@@ -511,7 +511,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     </div>
                   </div> : null}
                 </div> : null}
-                </div> : null}
 
                 {proposal ? <div className="crm-proposal-summary">
                   <div><FileCheck2 size={16}/><span><strong>{proposal.role_title}</strong><small>{proposalStatusLabel(proposal.status)}{proposal.sent_at ? ` · sent ${dateShort(proposal.sent_at)}` : ""}{proposal.viewed_at ? ` · viewed ${dateShort(proposal.viewed_at)}` : proposal.status === "sent" ? " · not viewed yet" : ""}</small>{proposal.decline_reason ? <small><strong>Client feedback:</strong> {proposal.decline_reason}</small> : null}</span></div>

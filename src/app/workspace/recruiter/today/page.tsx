@@ -9,7 +9,6 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
-import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
 import { getRoleReadinessDashboard } from "@/lib/role-readiness-dashboard";
 import { roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
@@ -248,11 +247,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.role_close_warning ? <div className="alert" role="alert">The lead closed, but its linked role could not be closed automatically. Review the role before continuing.</div> : null}
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
-    {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
-    {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
-    {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
-    {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace{params.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
-    {params.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
+
+    {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace. No client email was sent.</div> : null}
     {params.role_details_complete ? <div className="info-banner">This role is already complete. No request was sent.</div> : null}
     <DashHeader
       kicker="Agency daily workflow"
@@ -305,31 +301,23 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
     </section>
 
-    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.queueCard}`}>
+    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.followCard}`}>
       <div className="dashboard-section-head">
-        <div><h2>Call rebooking</h2><p>Clients who missed a discovery call stay here until they choose another time.</p></div>
-        <span className={`badge ${noShowNeedsEmail?"badge-warning":""}`}>{noShows.length} waiting</span>
+        <div><h2>Call rebooking</h2><p>No-show calls stay visible here, but no automatic client email is sent. Open the lead when the client returns.</p></div>
+        <span className="badge">{noShows.length} waiting</span>
       </div>
       <div className={styles.followList}>
-        {noShows.slice(0,8).map((lead)=>{
-          const sent=rebookSentIds.has(lead.id);
-          return <div className={styles.followRow} key={`rebook-${lead.id}`}>
-            <span className={styles.followIcon}><RefreshCw size={15}/></span>
-            <span className={styles.followCopy}>
-              <strong>{lead.name||lead.email||"Client discovery call"}</strong>
-              <small>{lead.email||"No email on file"}</small>
-              <small>{sent?"Rebooking link sent. Waiting for the client to choose a new time.":"No-show recorded. Send the client a secure link to choose another time."}</small>
-            </span>
-            <div className={styles.followActions}>
-              {!sent?<form action={sendDiscoveryNoShowRebookAction}>
-                <input type="hidden" name="lead_id" value={lead.id}/>
-                <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
-                <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
-              </form>:<span className="badge badge-success">Link sent</span>}
-              <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
-            </div>
-          </div>;
-        })}
+        {noShows.slice(0,8).map((lead)=><div className={styles.followRow} key={`rebook-${lead.id}`}>
+          <span className={styles.followIcon}><RefreshCw size={15}/></span>
+          <span className={styles.followCopy}>
+            <strong>{lead.name||lead.email||"Client discovery call"}</strong>
+            <small>{lead.email||"No email on file"}</small>
+            <small>No-show recorded. Client email is held until a VA shortlist is sent.</small>
+          </span>
+          <div className={styles.followActions}>
+            <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
+          </div>
+        </div>)}
       </div>
       {noShows.length>8?<Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
     </section>:null}

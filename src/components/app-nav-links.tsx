@@ -73,16 +73,13 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Hiring inbox", "/workspace/recruiter/leads", BriefcaseBusiness],
         ["Active roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Client review", "/workspace/recruiter/client-review", MessageSquare],
-        ["Placements", "/workspace/client-success", Wrench],
+        ["Placements", "/workspace/recruiter/placements", Wrench],
         ["Talent", "/workspace/recruiter/talent", Search],
       ],
     },
     {
       label: "Recruiting tools",
       items: [
-        ["Agenda", "/workspace/recruiter/agenda", CalendarDays],
-        ["Tasks", "/workspace/recruiter/tasks", ListTodo],
-        ["Notifications", "/workspace/recruiter/notifications", Bell],
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
         ["Coverage", "/workspace/recruiter/coverage", Target],
       ],
@@ -126,7 +123,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/team", "/workspace/client/support"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 

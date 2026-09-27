@@ -4,16 +4,16 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("recruiter navigation follows the hiring workflow instead of a generic CRM", async () => {
+test("recruiter navigation keeps the CRM inside the connected hiring workflow", async () => {
   const [nav, board] = await Promise.all([
     read("src/components/app-nav-links.tsx"),
     read("src/app/workspace/recruiter/leads/board/page.tsx"),
   ]);
 
-  for (const label of ["Hiring inbox", "Active roles", "Client review", "Placements", "Talent"]) {
+  for (const label of ["CRM", "Active roles", "Client review", "Placements", "Talent"]) {
     assert.match(nav, new RegExp(`\\["${label}"`));
   }
-  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/leads", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/client-review"\]/);
+  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/client-review"\]/);
   assert.doesNotMatch(board, /kicker="Sales CRM"/);
   assert.match(board, /kicker="Hiring Pipeline"/);
   assert.match(board, /title="Employer pipeline"/);

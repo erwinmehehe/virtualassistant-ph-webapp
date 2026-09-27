@@ -122,7 +122,7 @@ export function RecruiterLeadKanban({ initialLeads }: { initialLeads: PipelineLe
                 >
                   {STAGES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
-                <Link className="btn btn-sm" href={`/workspace/recruiter/leads?view=all&q=${encodeURIComponent(lead.id)}`}><ExternalLink size={13}/> Open</Link>
+                <Link className="btn btn-sm" href={`/workspace/recruiter/crm/${lead.id}`}><ExternalLink size={13}/> Open</Link>
               </div>
             </article>) : <div className="pipeline-empty">No leads in this stage.</div>}
           </div>

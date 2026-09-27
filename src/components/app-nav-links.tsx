@@ -76,7 +76,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       label: "Workspace",
       items: [
         ["My Day", "/workspace/recruiter/today", ListTodo],
-        ["Hiring inbox", "/workspace/recruiter/leads", BriefcaseBusiness],
+        ["CRM", "/workspace/recruiter/crm", UsersRound],
         ["Active roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Client review", "/workspace/recruiter/client-review", MessageSquare],
         ["Placements", "/workspace/recruiter/placements", Wrench],
@@ -130,7 +130,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/interviews"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/leads", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 

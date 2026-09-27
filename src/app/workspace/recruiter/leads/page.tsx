@@ -364,11 +364,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const followTime = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
           const followOverdue = Boolean(followTime && followTime < now && isOpenLeadStage(stage));
           const response = responseLabel(lead.created_at, lead.first_contact_at);
-          const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
-          const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
-          const replyMessage = lead.first_contact_at
-            ? `Hi ${firstName},\n\nFollowing up on your VirtualAssistant.com.ph request. I wanted to keep things moving and confirm the best next step for your VA search.`
-            : `Hi ${firstName},\n\nThanks for reaching out to VirtualAssistant.com.ph. I reviewed your request${lead.service ? ` for ${lead.service}` : ""} and would like to confirm a few details so we can recommend the right vetted VA. Are you available for a short discovery call?`;
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
           const noShowRebookSentAt = rebookSentAt.get(lead.id) || null;
           const noShowRebooked = lead.discovery_outcome === "rescheduled" && Boolean(noShowRebookSentAt);

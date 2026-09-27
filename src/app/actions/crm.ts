@@ -178,8 +178,9 @@ export async function setCrmCustomValueAction(formData: FormData) {
 
   let value: unknown = raw || null;
   if (field.field_type === "number") {
-    value = raw ? Number(raw) : null;
-    if (raw && !Number.isFinite(value)) redirect(withParam(returnTo, "field_error", "Enter a valid number."));
+    const parsed = raw ? Number(raw) : null;
+    if (raw && (parsed === null || !Number.isFinite(parsed))) redirect(withParam(returnTo, "field_error", "Enter a valid number."));
+    value = parsed;
   } else if (field.field_type === "boolean") {
     value = raw === "true";
   } else if (field.field_type === "date") {
@@ -332,7 +333,7 @@ export async function importCrmCsvAction(formData: FormData) {
       crm_stage: stage,
       status: legacyLeadStatus(stage),
       owner_id: user.id,
-      estimated_value_usd: Number.isFinite(estimated) && Number(estimated) >= 0 ? estimated : null,
+      estimated_value_usd: estimated !== null && Number.isFinite(estimated) && estimated >= 0 ? estimated : null,
       stage_updated_at: new Date().toISOString(),
     });
     seen.add(email);

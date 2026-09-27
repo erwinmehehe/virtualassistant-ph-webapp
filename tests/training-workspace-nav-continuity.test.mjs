@@ -5,6 +5,7 @@ import test from "node:test";
 const shellPath = "src/components/training-shell.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 const dashboardPath = "src/app/workspace/training/page.tsx";
+const layoutPath = "src/app/workspace/training/layout.tsx";
 
 test("signed-in training keeps the public training identity visible", async () => {
   const shell = await readFile(shellPath, "utf8");
@@ -17,17 +18,20 @@ test("signed-in training keeps the public training identity visible", async () =
   assert.doesNotMatch(shell, /href="\/blog"/);
 });
 
-test("learner navigation exposes learning, course browsing, certificates, and workspace return", async () => {
+test("training navigation exposes learning, course browsing, certificates, account settings, and workspace return", async () => {
   const shell = await readFile(shellPath, "utf8");
 
   assert.match(shell, /href="\/workspace\/training" aria-current="page"/);
   assert.match(shell, /\/workspace\/training\?browse=1#course-library-title/);
   assert.match(shell, /\/workspace\/training#certificates/);
+  assert.match(shell, /href="\/workspace\/account"/);
   assert.match(shell, /roleWorkspaceLabel/);
   assert.match(shell, /VA workspace/);
+  assert.match(shell, /Admin workspace/);
+  assert.match(shell, /Training preview/);
 });
 
-test("mobile training navigation stays compact and connected", async () => {
+test("mobile training navigation stays compact and always exposes account escape hatches", async () => {
   const [shell, css] = await Promise.all([
     readFile(shellPath, "utf8"),
     readFile(cssPath, "utf8"),
@@ -37,14 +41,17 @@ test("mobile training navigation stays compact and connected", async () => {
   assert.match(shell, />Learning<\/span>/);
   assert.match(shell, />Courses<\/span>/);
   assert.match(shell, />Certificates<\/span>/);
-  assert.match(shell, />Workspace<\/span>/);
+  assert.match(shell, />More<\/span>/);
+  assert.match(shell, /training-mobile-more-panel/);
+  assert.match(shell, /training-mobile-logout/);
+  assert.match(shell, />Sign out<\/span>/);
+  assert.match(shell, /Account settings/);
   assert.doesNotMatch(shell, />VA jobs<\/span>/);
 
-  assert.match(css, /Training shell continuity with the public training experience/);
-  assert.match(css, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*training-shell-browse[\s\S]*display: none/);
-  assert.match(css, /@media \(max-width: 430px\)[\s\S]*training-shell-mobile-nav/);
-  assert.match(css, /@media \(max-width: 390px\)[\s\S]*training-shell-public[\s\S]*display: none/);
+  assert.match(css, /\.training-shell \.training-shell-mobile-nav \{[\s\S]*display: none/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*training-shell-mobile-nav[\s\S]*display: grid/);
+  assert.match(css, /training-mobile-more-panel/);
+  assert.match(css, /training-mobile-logout/);
   assert.match(css, /#course-library-title,[\s\S]*scroll-margin-top: 92px/);
 });
 
@@ -66,4 +73,27 @@ test("certificate navigation always lands on a real learner-dashboard section", 
   assert.match(dashboard, /<section id="certificates"/);
   assert.match(dashboard, /No certificates yet\./);
   assert.match(dashboard, /Your verified certificate will appear here automatically/);
+});
+
+
+test("learner training uses a training-aware access guard at the layout boundary", async () => {
+  const layout = await readFile(layoutPath, "utf8");
+  assert.match(layout, /requireTrainingAccessFast\(\)/);
+  assert.doesNotMatch(layout, /requireAuthenticatedUserFast/);
+});
+
+test("mobile course detail screens keep account and sign-out controls after hiding the bottom nav", async () => {
+  const [shell, css] = await Promise.all([
+    readFile(shellPath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+  assert.match(shell, /training-detail-account-menu/);
+  assert.match(shell, /training-detail-account-panel/);
+  assert.match(shell, /Sign out/);
+  assert.match(css, /training-shell:has\(\.training-course-page\) \.training-detail-account-menu[\s\S]*display: block/);
+});
+
+test("wide course library uses a denser three-column layout", async () => {
+  const css = await readFile(cssPath, "utf8");
+  assert.match(css, /@media \(min-width: 1240px\)[\s\S]*training-course-grid[\s\S]*repeat\(3, minmax\(0, 1fr\)\)/);
 });

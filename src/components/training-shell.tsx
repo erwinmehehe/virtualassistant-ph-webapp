@@ -3,8 +3,10 @@ import {
   ArrowLeft,
   Award,
   BookOpenCheck,
+  CircleEllipsis,
   GraduationCap,
   LogOut,
+  Settings,
   Sparkles,
 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
@@ -32,7 +34,7 @@ function TrainingNavIcon({
   tone,
   children,
 }: {
-  tone: "violet" | "indigo" | "emerald" | "amber" | "cyan" | "slate";
+  tone: "violet" | "indigo" | "emerald" | "amber" | "cyan" | "slate" | "rose";
   children: React.ReactNode;
 }) {
   return <span className={`app-nav-icon nav-tone-${tone}`} aria-hidden="true">{children}</span>;
@@ -48,9 +50,13 @@ export function TrainingShell({
   const role = isRole(profile?.role) ? profile.role : null;
   const workspaceHref = role ? roleHome[role] : null;
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
+  const isAdminPreview = role === "admin";
+  const pageTitle = isAdminPreview ? "Training preview" : "Learner dashboard";
+  const accountLabel = isAdminPreview ? "Admin account" : role === "va" ? "VA learner" : "Training account";
+  const contextLabel = isAdminPreview ? "Admin · Training preview" : role === "va" ? "VA · Training" : "Training account";
 
   return (
-    <div className="app-shell dashboard-shell training-shell">
+    <div className={`app-shell dashboard-shell training-shell training-role-${role || "unknown"}`}>
       <aside className="app-sidebar">
         <div className="app-sidebar-brand">
           <Link className="app-brand training-shell-brand" href="/training" aria-label="Go to public Training home">
@@ -67,7 +73,7 @@ export function TrainingShell({
             <div className="sidebar-label">Training</div>
             <Link href="/workspace/training" aria-current="page">
               <TrainingNavIcon tone="violet"><GraduationCap size={16}/></TrainingNavIcon>
-              <span>My learning</span>
+              <span>{isAdminPreview ? "Learner view" : "My learning"}</span>
             </Link>
             <Link href="/workspace/training?browse=1#course-library-title">
               <TrainingNavIcon tone="indigo"><BookOpenCheck size={16}/></TrainingNavIcon>
@@ -81,16 +87,20 @@ export function TrainingShell({
 
           <div className="app-nav-group training-shell-account-group">
             <div className="sidebar-label">Account & site</div>
-            <Link className="training-shell-public-link" href="/training">
-              <TrainingNavIcon tone="violet"><Sparkles size={16}/></TrainingNavIcon>
-              <span>Public training home</span>
-            </Link>
             {workspaceHref ? (
               <Link href={workspaceHref}>
                 <TrainingNavIcon tone="slate"><ArrowLeft size={16}/></TrainingNavIcon>
                 <span>{workspaceLabel}</span>
               </Link>
             ) : null}
+            <Link href="/workspace/account">
+              <TrainingNavIcon tone="slate"><Settings size={16}/></TrainingNavIcon>
+              <span>Account settings</span>
+            </Link>
+            <Link className="training-shell-public-link" href="/training">
+              <TrainingNavIcon tone="violet"><Sparkles size={16}/></TrainingNavIcon>
+              <span>Public training home</span>
+            </Link>
           </div>
         </nav>
 
@@ -107,24 +117,42 @@ export function TrainingShell({
             <TrainingNavIcon tone="emerald"><Award size={17}/></TrainingNavIcon>
             <span>Certificates</span>
           </Link>
-          {workspaceHref ? (
-            <Link href={workspaceHref}>
-              <TrainingNavIcon tone="slate"><ArrowLeft size={17}/></TrainingNavIcon>
-              <span>Workspace</span>
-            </Link>
-          ) : (
-            <Link href="/training">
-              <TrainingNavIcon tone="violet"><Sparkles size={17}/></TrainingNavIcon>
-              <span>Training home</span>
-            </Link>
-          )}
+          <details className="training-mobile-more">
+            <summary>
+              <TrainingNavIcon tone="slate"><CircleEllipsis size={17}/></TrainingNavIcon>
+              <span>More</span>
+            </summary>
+            <div className="training-mobile-more-panel">
+              <strong>Account & site</strong>
+              {workspaceHref ? (
+                <Link href={workspaceHref}>
+                  <TrainingNavIcon tone="slate"><ArrowLeft size={17}/></TrainingNavIcon>
+                  <span>{workspaceLabel}</span>
+                </Link>
+              ) : null}
+              <Link href="/workspace/account">
+                <TrainingNavIcon tone="slate"><Settings size={17}/></TrainingNavIcon>
+                <span>Account settings</span>
+              </Link>
+              <Link href="/training">
+                <TrainingNavIcon tone="violet"><Sparkles size={17}/></TrainingNavIcon>
+                <span>Training home</span>
+              </Link>
+              <form action={logoutAction}>
+                <button className="training-mobile-logout" type="submit">
+                  <TrainingNavIcon tone="rose"><LogOut size={17}/></TrainingNavIcon>
+                  <span>Sign out</span>
+                </button>
+              </form>
+            </div>
+          </details>
         </nav>
 
         <div className="sidebar-footer">
-          <div className="app-account-card" aria-label="Training learner">
+          <Link className="app-account-card" href="/workspace/account" aria-label="Open account settings">
             <span className="app-account-avatar"><BookOpenCheck size={18}/></span>
-            <div className="user-copy"><strong>{profile?.full_name || "Learner"}</strong><span>Learner account</span></div>
-          </div>
+            <div className="user-copy"><strong>{profile?.full_name || "Account"}</strong><span>{accountLabel}</span></div>
+          </Link>
           <form action={logoutAction}>
             <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
           </form>
@@ -135,17 +163,19 @@ export function TrainingShell({
         <div className="app-topbar">
           <div className="app-topbar-inner">
             <div className="app-topbar-title">
-              <Link className="app-topbar-workspace-home" href="/training">Training</Link>
-              <strong className="app-topbar-page-title">Learner dashboard</strong>
-            </div>
-            <div className="training-shell-topbar-actions">
-              <Link className="btn training-shell-browse" href="/workspace/training?browse=1#course-library-title">
-                Browse courses
+              <Link className="app-topbar-workspace-home" href={workspaceHref || "/training"}>
+                {contextLabel}
               </Link>
-              <Link className="btn app-topbar-public training-shell-public" href="/training">
-                Training home
-              </Link>
+              <strong className="app-topbar-page-title">{pageTitle}</strong>
             </div>
+            <details className="training-detail-account-menu">
+              <summary aria-label="Open training account menu"><CircleEllipsis size={19}/></summary>
+              <div className="training-detail-account-panel">
+                {workspaceHref ? <Link href={workspaceHref}>{workspaceLabel}</Link> : null}
+                <Link href="/workspace/account">Account settings</Link>
+                <form action={logoutAction}><button type="submit">Sign out</button></form>
+              </div>
+            </details>
           </div>
         </div>
         <div className="app-content">{children}</div>

@@ -20,7 +20,7 @@ test("training is independent from VA candidate profiles", async () => {
 test("private training routes are noindex", async () => {
   const layout = await readFile("src/app/workspace/training/layout.tsx", "utf8");
   assert.match(layout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
-  assert.match(layout, /requireAuthenticatedUserFast/);
+  assert.match(layout, /requireTrainingAccessFast/);
 });
 
 test("lesson design supports detailed lessons up to thirty minutes", async () => {
@@ -74,14 +74,19 @@ test("training-only signup never creates candidate or hiring records", async () 
   assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
 });
 
-test("shared auth explicitly permits the training workspace without role coercion", async () => {
+test("shared auth preserves training-only accounts while the workspace guard rejects client and recruiter roles", async () => {
   const authAction = await readFile("src/app/actions/auth.ts", "utf8");
   const callback = await readFile("src/app/auth/callback/route.ts", "utf8");
   const confirm = await readFile("src/app/auth/confirm/route.ts", "utf8");
+  const auth = await readFile("src/lib/auth.ts", "utf8");
   for (const source of [authAction, callback, confirm]) {
     assert.match(source, /isTrainingPath/);
     assert.match(source, /\/workspace\/training/);
   }
+  assert.match(auth, /export async function requireTrainingAccessFast/);
+  assert.match(auth, /role === "va" \|\| role === "admin"/);
+  assert.match(auth, /role === "client" \|\| role === "recruiter"/);
+  assert.match(auth, /accountType === "training"/);
 });
 
 test("lesson completion is scoped to its course and certificate issuance is server-verified", async () => {

@@ -67,6 +67,8 @@ test("VA and admin workspaces expose the training system", async () => {
 test("training-only signup never creates candidate or hiring records", async () => {
   const action = await readFile("src/app/actions/training-auth.ts", "utf8");
   assert.match(action, /account_type:\s*"training"/);
+  assert.match(action, /updateUserById\(data\.user\.id/);
+  assert.match(action, /app_metadata/);
   assert.match(action, /const next = trainingCourseDestination\(courseSlug\)/);
   assert.doesNotMatch(action, /va_profiles|va_vetting|client_profiles|applications|directory_visible/i);
 
@@ -83,10 +85,18 @@ test("shared auth preserves training-only accounts while the workspace guard rej
     assert.match(source, /isTrainingPath/);
     assert.match(source, /\/workspace\/training/);
   }
+  assert.match(authAction, /user\?\.app_metadata\?\.account_type === "training"/);
+  assert.doesNotMatch(authAction, /user\?\.user_metadata\?\.account_type === "training"/);
+  assert.match(callback, /updateUserById\(user\.id/);
+  assert.match(callback, /app_metadata/);
+  assert.doesNotMatch(callback, /updateUser\(\{ data: \{ account_type: "training" \} \}\)/);
   assert.match(auth, /export async function requireTrainingAccessFast/);
   assert.match(auth, /role === "va" \|\| role === "admin"/);
   assert.match(auth, /role === "client" \|\| role === "recruiter"/);
+  assert.match(auth, /getUserById\(session\.userId\)/);
+  assert.match(auth, /app_metadata\?\.account_type/);
   assert.match(auth, /accountType === "training"/);
+  assert.doesNotMatch(auth, /claims\?\.user_metadata/);
 });
 
 test("lesson completion is scoped to its course and certificate issuance is server-verified", async () => {

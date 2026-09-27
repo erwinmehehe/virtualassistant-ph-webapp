@@ -186,7 +186,7 @@ export async function loginAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
-  const trainingAccount = user?.user_metadata?.account_type === "training";
+  const trainingAccount = user?.app_metadata?.account_type === "training";
   const requestedTraining = isTrainingPath(parsed.data.next) || trainingAccount;
   if (!user || (!profile && !requestedTraining)) {
     await supabase.auth.signOut();

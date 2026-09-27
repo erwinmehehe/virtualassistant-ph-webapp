@@ -41,8 +41,18 @@ export async function GET(request: Request) {
         user = data.user ?? user;
       }
       const trainingDestination = isTrainingPath(requestedNext);
-      if (user && trainingDestination && !user.user_metadata?.role && user.user_metadata?.account_type !== "training") {
-        const { data } = await supabase.auth.updateUser({ data: { account_type: "training" } });
+      if (user && trainingDestination && !user.user_metadata?.role && user.app_metadata?.account_type !== "training") {
+        const admin = createAdminClient();
+        const { data, error: trainingMetadataError } = await admin.auth.admin.updateUserById(user.id, {
+          app_metadata: {
+            ...(user.app_metadata || {}),
+            account_type: "training",
+          },
+        });
+        if (trainingMetadataError) {
+          await supabase.auth.signOut();
+          return NextResponse.redirect(new URL("/auth/login?error=We%20could%20not%20finish%20setting%20up%20your%20training%20account.%20Please%20try%20again.", url.origin));
+        }
         user = data.user ?? user;
       }
       const profile = user ? await getOrBootstrapProfile(user) : null;

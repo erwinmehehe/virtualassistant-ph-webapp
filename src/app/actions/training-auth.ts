@@ -186,6 +186,24 @@ export async function joinTrainingAction(
     );
   }
 
+  const { error: appMetadataError } = await admin.auth.admin.updateUserById(data.user.id, {
+    app_metadata: {
+      ...(data.user.app_metadata || {}),
+      account_type: "training",
+    },
+  });
+
+  if (appMetadataError) {
+    try {
+      await admin.auth.admin.deleteUser(data.user.id);
+    } catch {}
+    return joinError(
+      previousState,
+      "We could not finish creating your training account. Please try again.",
+      "account_metadata",
+    );
+  }
+
   const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
   if (!tokenHash) {
     await admin.auth.admin.deleteUser(data.user.id);

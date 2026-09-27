@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { withServerTiming } from "@/lib/server-timing";
 import type { Role } from "./types";
@@ -124,18 +125,14 @@ export async function requireTrainingAccessFast() {
   }
 
   // Training-only accounts deliberately have no profiles row so they never
-  // enter the VA candidate or hiring systems. Verify that explicit account
-  // intent from the signed JWT before allowing the learner workspace.
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
-  const claims = data?.claims as Record<string, unknown> | undefined;
-  const userMetadata = claims?.user_metadata;
-  const accountType =
-    userMetadata && typeof userMetadata === "object" && "account_type" in userMetadata
-      ? (userMetadata as Record<string, unknown>).account_type
-      : null;
+  // enter the VA candidate or hiring systems. Account type is authorization
+  // data, so verify the server-controlled app_metadata value rather than
+  // trusting user-editable user_metadata claims.
+  const admin = createAdminClient();
+  const { data: trainingUser, error: trainingUserError } = await admin.auth.admin.getUserById(session.userId);
+  const accountType = trainingUser.user?.app_metadata?.account_type;
 
-  if (!error && accountType === "training") {
+  if (!trainingUserError && accountType === "training") {
     return session as typeof session & { userId: string };
   }
 

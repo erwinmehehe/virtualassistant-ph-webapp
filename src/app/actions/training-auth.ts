@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { isKnownCompromisedPassword } from "@/lib/pwned-password";
@@ -197,15 +196,6 @@ export async function joinTrainingAction(
     );
   }
 
-  await recordProductEvent("training_account_created", {
-    userId: data.user.id,
-    path: "/auth/join/training",
-    metadata: {
-      account_type: "training",
-      course_slug: courseSlug,
-    },
-  });
-
   const confirmationParams = new URLSearchParams({
     token_hash: tokenHash,
     type: "signup",
@@ -218,49 +208,58 @@ export async function joinTrainingAction(
     const result = await sendAccountConfirmationEmail({
       to: parsed.data.email,
       actionUrl: confirmationUrl,
+      idempotencyKey: `training-account-confirmation-${data.user.id}`,
     });
     brandedConfirmationSent = result.sent;
   } catch {
     brandedConfirmationSent = false;
   }
 
-  let fallbackConfirmationSent = false;
   if (!brandedConfirmationSent) {
     try {
-      const supabase = await createClient();
-      const { error: resendError } = await supabase.auth.resend({
-        type: "signup",
-        email: parsed.data.email,
-        options: {
-          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-        },
+      await admin.auth.admin.deleteUser(data.user.id);
+    } catch (cleanupError) {
+      console.error("[training_join] failed_signup_cleanup_failed", {
+        userId: data.user.id,
+        reason: cleanupError instanceof Error ? cleanupError.message : "cleanup_error",
       });
-      fallbackConfirmationSent = !resendError;
-    } catch {
-      fallbackConfirmationSent = false;
     }
+    return joinError(
+      previousState,
+      "We could not deliver the confirmation email, so your training account was not activated. Please try again later.",
+      "confirmation_delivery",
+    );
   }
 
-  const emailSent = brandedConfirmationSent || fallbackConfirmationSent;
-  await recordProductEvent("training_confirmation_sent", {
-    userId: data.user.id,
-    path: "/auth/join/training",
-    metadata: {
-      course_slug: courseSlug,
-      delivery: brandedConfirmationSent ? "branded" : fallbackConfirmationSent ? "supabase" : "failed",
-    },
-  });
+  try {
+    await recordProductEvent("training_account_created", {
+      userId: data.user.id,
+      path: "/auth/join/training",
+      metadata: {
+        account_type: "training",
+        course_slug: courseSlug,
+      },
+    });
+    await recordProductEvent("training_confirmation_sent", {
+      userId: data.user.id,
+      path: "/auth/join/training",
+      metadata: {
+        course_slug: courseSlug,
+        delivery: "branded",
+      },
+    });
+  } catch {
+    // Analytics failures must not block a valid training signup.
+  }
 
   return {
     status: "success",
-    message: emailSent
-      ? "Check your email to confirm your free training account."
-      : "Your training account was created, but the confirmation email could not be sent. Use the resend option below.",
+    message: "Check your email to confirm your free training account.",
     fieldErrors: {},
     attempt: previousState.attempt + 1,
     email: parsed.data.email,
     next,
     courseTitle,
-    emailSent,
+    emailSent: true,
   };
 }

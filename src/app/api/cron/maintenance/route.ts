@@ -497,6 +497,109 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   return { leadReminders, proposalReminders };
 }
 
+async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAdminClient>) {
+  const { data: recruiters, error: recruiterError } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("role", "recruiter")
+    .eq("account_status", "active");
+  if (recruiterError) throw recruiterError;
+  const recruiterIds = (recruiters || []).map((row: any) => String(row.id));
+  if (!recruiterIds.length) return { checked: 0, archived: 0, rewritten: 0 };
+
+  const { data: notificationRows, error: notificationError } = await admin
+    .from("notifications")
+    .select("id,user_id,title,body,href,created_at")
+    .in("user_id", recruiterIds)
+    .is("done_at", null)
+    .order("created_at", { ascending: false })
+    .limit(2000);
+  if (notificationError) throw notificationError;
+
+  const rows = notificationRows || [];
+  const rolePattern = /^\/workspace\/recruiter\/(?:matching|roles)\/([0-9a-f-]{36})(.*)$/i;
+  const adminJobPattern = /^\/workspace\/admin\/jobs\/([0-9a-f-]{36})(.*)$/i;
+  const roleIds = [...new Set(rows.map((row: any) => {
+    const href = String(row.href || "");
+    return href.match(rolePattern)?.[1] || href.match(adminJobPattern)?.[1] || null;
+  }).filter(Boolean))] as string[];
+  const { data: jobs, error: jobError } = roleIds.length
+    ? await admin.from("jobs").select("id,status").in("id", roleIds)
+    : { data: [] as any[], error: null };
+  if (jobError) throw jobError;
+  const jobStatus = new Map((jobs || []).map((job: any) => [String(job.id), String(job.status || "")]));
+
+  const archive = new Set<string>();
+  const rewrites = new Map<string, string[]>();
+  const seenActiveRoleAlert = new Set<string>();
+  const slaTitles = new Set(["New client request", "Lead response due in 10 minutes", "30-minute response target missed"]);
+  const staleSlaCutoff = Date.now() - 24 * 60 * 60 * 1000;
+
+  for (const row of rows as any[]) {
+    const href = String(row.href || "");
+    const createdAt = new Date(row.created_at).getTime();
+
+    if (slaTitles.has(String(row.title || "")) && Number.isFinite(createdAt) && createdAt < staleSlaCutoff) {
+      archive.add(String(row.id));
+      continue;
+    }
+
+    if (href.startsWith("/workspace/va/")) {
+      archive.add(String(row.id));
+      continue;
+    }
+
+    const legacyMatch = href.match(rolePattern);
+    const adminMatch = href.match(adminJobPattern);
+    const jobId = legacyMatch?.[1] || adminMatch?.[1] || null;
+    if (!jobId) continue;
+
+    const status = jobStatus.get(jobId);
+    if (!status || status === "closed") {
+      archive.add(String(row.id));
+      continue;
+    }
+
+    const suffix = legacyMatch?.[2] || adminMatch?.[2] || "";
+    const canonicalHref = `/workspace/recruiter/roles/${jobId}${suffix}`;
+    if (href !== canonicalHref) {
+      const ids = rewrites.get(canonicalHref) || [];
+      ids.push(String(row.id));
+      rewrites.set(canonicalHref, ids);
+    }
+
+    const duplicateKey = [
+      String(row.user_id || ""),
+      String(row.title || ""),
+      String(row.body || ""),
+      canonicalHref,
+    ].join("|");
+    if (seenActiveRoleAlert.has(duplicateKey)) archive.add(String(row.id));
+    else seenActiveRoleAlert.add(duplicateKey);
+  }
+
+  const now = new Date().toISOString();
+  const archiveIds = [...archive];
+  if (archiveIds.length) {
+    const { error } = await admin
+      .from("notifications")
+      .update({ done_at: now, read_at: now, snoozed_until: null })
+      .in("id", archiveIds);
+    if (error) throw error;
+  }
+
+  let rewritten = 0;
+  for (const [href, ids] of rewrites) {
+    const liveIds = ids.filter((id) => !archive.has(id));
+    if (!liveIds.length) continue;
+    const { error } = await admin.from("notifications").update({ href }).in("id", liveIds);
+    if (error) throw error;
+    rewritten += liveIds.length;
+  }
+
+  return { checked: rows.length, archived: archiveIds.length, rewritten };
+}
+
 async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await task();
@@ -519,12 +622,13 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
     runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("recruiter notification hygiene", () => runRecruiterNotificationHygiene(admin)),
     runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
@@ -533,5 +637,5 @@ export async function GET(request: Request) {
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
-  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, trainingLaunchAnnouncement: trainingLaunchResult });
+  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, trainingLaunchAnnouncement: trainingLaunchResult });
 }

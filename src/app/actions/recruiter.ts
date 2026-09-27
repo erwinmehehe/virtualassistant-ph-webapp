@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail } from "@/lib/email";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";

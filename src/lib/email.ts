@@ -492,6 +492,24 @@ async function trackedSend(
   }
 }
 
+async function suppressClientHiringEmail(eventType: string, recipient?: string | null) {
+  const normalized = recipient ? normalizeEmailAddress(recipient) : null;
+  await logEmailEvent(
+    eventType,
+    normalized ? [normalized] : [],
+    "suppressed",
+    null,
+    "Client hiring email disabled by shortlist-only communication policy.",
+    {
+      recipientCount: normalized ? 1 : 0,
+      priority: "standard",
+      skipReason: "client_shortlist_only_policy",
+      automation: eventType,
+    },
+  );
+  return { sent: false as const, reason: "client_shortlist_only_policy" };
+}
+
 export async function sendTrackedRawEmail(args: {
   to: string;
   replyTo?: string;
@@ -586,46 +604,11 @@ export async function sendLeadAcknowledgementEmail(args: {
   to: string;
   name?: string | null;
   service?: string | null;
-  /** Lets the account link claim this request once the client signs up. */
   leadId?: string | null;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-
-  const firstName = args.name?.trim().split(/\s+/)[0] || "there";
-  const service = args.service?.trim() || "Virtual Assistant role";
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const hiringCallUrl = `${appUrl}/book-client-call`;
-  const joinUrl = `${appUrl}/auth/join/client${args.leadId ? `?lead=${encodeURIComponent(args.leadId)}` : ""}`;
-  const bodyHtml = [
-    `Thanks for reaching out about hiring a <strong>${escapeHtml(service)}</strong>. We have your request and our recruiting team is reviewing it now.`,
-    "Create your client account to follow this request, review the candidates we shortlist, and message your recruiter in one place.",
-    `Prefer to talk it through first? <a href="${hiringCallUrl}">Book a 20-minute call</a> and we can cover the role, schedule, budget, and must-have experience together.`
-  ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
-
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: `Got your ${service} request`,
-    text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nCreate your client account to follow this request and review your shortlist: ${joinUrl}\n\nPrefer to talk it through first? Book a 20-minute call: ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: joinUrl,
-      ctaLabel: "Create my account"
-    })
-  }, "lead_acknowledgement", { archive: false, priority: "critical", idempotencyKey: args.leadId ? `lead-acknowledgement-${args.leadId}` : undefined });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("lead_acknowledgement", args.to);
 }
 
-/**
- * Sent when a hiring-form submission reads like a Virtual Assistant applying for
- * work. Neutral and helpful: points them to the VA sign-up without implying they
- * made a mistake. Not archived (it is not client correspondence).
- */
 export async function sendVaApplicantRedirectEmail(args: { to: string; name?: string | null }) {
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
@@ -713,30 +696,8 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
  * return on their own; most don't.
  */
 export async function sendClaimDraftEmail(args: { to: string; name?: string | null; jobTitle: string; leadId: string; appUrl: string }) {
-  const config = resendConfig();
-  if (!config) return { sent: false as const, reason: "email_not_configured" };
-  const firstName = args.name?.trim().split(" ")[0] || "there";
-  const origin = args.appUrl.replace(/\/$/, "");
-  const claimUrl = `${origin}/auth/join/client?lead=${encodeURIComponent(args.leadId)}`;
-  const hiringCallUrl = `${origin}/book-client-call`;
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">You asked about hiring for <strong>${escapeHtml(args.jobTitle)}</strong>. We have kept that hiring request private while our recruiting team reviews it.</p><p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Create or log in to your client account using the same email address to claim the role, review commercial terms, and continue toward publication and candidate review.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Prefer to talk first? <a href="${escapeHtml(hiringCallUrl)}" style="color:#4f46e5;">Choose a discovery-call time</a>.</p>`;
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [args.to],
-    replyTo: configuredReplyTo(),
-    subject: `Claim your Virtual Assistant hiring request — ${args.jobTitle}`,
-    text: `Hi ${firstName},\n\nYou asked about hiring for ${args.jobTitle}. Create or log in to your client account with this same email address to claim the role and continue the hiring workflow:\n\n${claimUrl}\n\nPrefer to talk first? ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: claimUrl,
-      ctaLabel: "Claim my hiring request"
-    })
-  }, "lead_claim_nudge", { archive: false, priority: "critical", idempotencyKey: `lead-claim-nudge-${args.leadId}` });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("lead_claim_nudge", args.to);
 }
-
 
 export async function sendRoleDetailsRequestEmail(args: {
   to?: string | null;
@@ -746,46 +707,7 @@ export async function sendRoleDetailsRequestEmail(args: {
   missing: string[];
   appUrl: string;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-
-  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const origin = args.appUrl.replace(/\/$/, "");
-  const roleUrl = `${origin}/workspace/client/jobs/${encodeURIComponent(args.jobId)}?complete=1#role-readiness`;
-  const missingLabel = args.missing.join(", ");
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We are ready to keep <strong>${escapeHtml(args.jobTitle)}</strong> moving, but the hiring brief is still missing: <strong>${escapeHtml(missingLabel)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Open your workspace and complete only those fields. Once saved, your recruiter will see the updated brief automatically.</p>`;
-  const dateKey = new Date().toISOString().slice(0, 10);
-
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: `A few details are still needed for ${args.jobTitle}`,
-    text: `Hi ${firstName},\n\nWe are ready to keep ${args.jobTitle} moving, but the hiring brief is still missing: ${missingLabel}.\n\nComplete the missing details here:\n${roleUrl}\n\nOnce saved, your recruiter will see the update automatically.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: roleUrl,
-      ctaLabel: "Complete hiring brief"
-    })
-  }, "role_details_request", {
-    archive: false,
-    priority: "critical",
-    idempotencyKey: `role-details-request-${args.jobId}-${dateKey}`
-  });
-
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
-}
-
-function renderAuthActionEmail(args: {
-  heading: string;
-  body: string;
-  ctaHref: string;
-  ctaLabel: string;
-}) {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">Account security</div></td></tr><tr><td style="padding:30px;"><h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;color:#101828;">${escapeHtml(args.heading)}</h1><p style="margin:0 0 22px;color:#475467;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p><table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">${escapeHtml(args.ctaLabel)}</a></td></tr></table><p style="margin:24px 0 0;color:#667085;font-size:13px;line-height:1.6;">This is a one-time security link. If you did not request this, you can ignore this email.</p></td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">VirtualAssistant.com.ph</p></td></tr></table></body></html>`;
+  return suppressClientHiringEmail("role_details_request", args.to);
 }
 
 export async function sendAccountConfirmationEmail(args: { to: string; actionUrl: string; idempotencyKey?: string }) {
@@ -1028,33 +950,7 @@ export async function sendStaffClientFollowupEmail(args: {
   archiveCopy?: boolean;
   idempotencyKey?: string;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const sender = args.senderName?.trim() || "VirtualAssistant.com.ph Hiring Team";
-  const normalized = normalizeClientFollowup(args.subject, args.message, { preserveSignoff: true });
-  const bodyHtml = renderMessageParagraphs(normalized.message);
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    bcc: args.archiveCopy ? staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()) : undefined,
-    replyTo: configuredReplyTo(),
-    subject: normalized.subject,
-    text: `Hi ${normalized.firstName},\n\n${normalized.message}`,
-    html: renderHiringEmail({
-      firstName: normalized.firstName,
-      bodyHtml,
-      senderName: sender,
-      appendSignature: false
-    })
-  }, "client_followup", {
-    archive: false,
-    priority: "critical",
-    idempotencyKey: args.idempotencyKey,
-  });
-  return delivery.sent
-    ? { sent: true as const, duplicatePrevented: delivery.duplicatePrevented === true }
-    : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("client_followup", args.to);
 }
 
 export async function sendTransactionalEventEmail(args: { to?: string | null; firstName?: string | null; subject: string; heading: string; body: string; href?: string; hrefLabel?: string; archive?: boolean; idempotencyKey?: string; priority?: EmailPriority; senderName?: string; teamLabel?: string; footerText?: string; eventType?: string }) {
@@ -1150,33 +1046,7 @@ export async function sendDiscoveryBookingEmail(args: {
   recruiterName?: string | null;
   idempotencyKey?: string;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const senderName = args.recruiterName || "VirtualAssistant.com.ph Hiring Team";
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your discovery call is booked for <strong>${escapeHtml(args.scheduledLabel)}</strong> for about <strong>${args.durationMinutes} minutes</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We’ll confirm the role, priorities, working hours, budget, and the fastest path to a strong shortlist.</p>`;
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: `Discovery call booked — ${args.scheduledLabel}`,
-    text: `Hi ${firstName},\n\nYour discovery call is booked for ${args.scheduledLabel} for about ${args.durationMinutes} minutes.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nBest,\n${senderName}`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName,
-      ctaHref: args.meetingUrl || undefined,
-      ctaLabel: args.meetingUrl ? "Join Google Meet" : undefined
-    })
-  }, "discovery_booking", {
-    archive: false,
-    priority: "critical",
-    idempotencyKey: args.idempotencyKey,
-  });
-  return delivery.sent
-    ? { sent: true as const, duplicatePrevented: delivery.duplicatePrevented === true }
-    : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("discovery_booking", args.to);
 }
 
 export async function sendPublicDiscoveryBookingEmail(args: {
@@ -1199,100 +1069,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   calendarEventId?: string | null;
   manageUrl: string;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-
-  const startsAt = new Date(args.scheduledAt);
-  const endsAt = new Date(startsAt.getTime() + 30 * 60 * 1000);
-  const calendarStamp = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  const calendarParams = new URLSearchParams({
-    action: "TEMPLATE",
-    text: `VirtualAssistant.com.ph discovery call with ${args.company}`,
-    dates: `${calendarStamp(startsAt)}/${calendarStamp(endsAt)}`,
-    details: `Client discovery call for ${args.service}.${args.meetingUrl ? ` Join: ${args.meetingUrl}` : ""}`,
-  });
-  const calendarUrl = `https://calendar.google.com/calendar/render?${calendarParams.toString()}`;
-  const firstName = args.clientName.trim().split(/\s+/)[0] || "there";
-  const googleCalendarCreated = Boolean(args.calendarEventId);
-  const invite = googleCalendarCreated ? null : createCalendarInvite({
-    uid: args.leadId,
-    startsAt: args.scheduledAt,
-    durationMinutes: 30,
-    company: args.company,
-    service: args.service,
-    meetingUrl: args.meetingUrl
-  });
-  const replyTo = configuredReplyTo();
-
-  const meetingBlock = args.meetingUrl
-    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
-        <tr><td style="padding:18px 20px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;">
-          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4f46e5;margin-bottom:8px;">Google Meet</div>
-          <div style="font-size:15px;line-height:1.6;color:#344054;margin-bottom:14px;">Your meeting link is ready.</div>
-          <a href="${escapeHtml(args.meetingUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;">Join Google Meet</a>
-        </td></tr>
-      </table>`
-    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
-        <tr><td style="padding:16px 18px;background:#fffaeb;border:1px solid #fedf89;border-radius:14px;">
-          <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b54708;margin-bottom:7px;">Google Meet link pending</div>
-          <div style="font-size:15px;line-height:1.65;color:#7a2e0e;">Your call is confirmed. We will email your Google Meet link separately before the meeting. You do not need to book again.</div>
-        </td></tr>
-      </table>`;
-
-  const bodyHtml = `
-    <p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your 30-minute discovery call with the VirtualAssistant.com.ph hiring team is confirmed.</p>
-
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;border:1px solid #eaecf0;border-radius:14px;overflow:hidden;">
-      <tr><td style="padding:18px 20px;background:#f9fafb;border-bottom:1px solid #eaecf0;">
-        <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:7px;">Your call time</div>
-        <div style="font-size:18px;font-weight:800;line-height:1.45;color:#101828;">${escapeHtml(args.clientLabel)}</div>
-        <div style="font-size:14px;line-height:1.6;color:#667085;margin-top:5px;">30 minutes · ${escapeHtml(args.clientTimeZone)}</div>
-      </td></tr>
-      <tr><td style="padding:16px 20px;">
-        <div style="font-size:13px;color:#667085;margin-bottom:4px;">Our Philippines team</div>
-        <div style="font-size:15px;font-weight:700;color:#344054;">${escapeHtml(args.manilaLabel)}</div>
-      </td></tr>
-    </table>
-
-    ${meetingBlock}
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;"><tr>
-      ${googleCalendarCreated
-        ? `<td style="padding-right:10px;"><span style="display:inline-block;padding:11px 16px;border-radius:10px;background:#ecfdf3;color:#027a48;font-size:14px;font-weight:700;">Calendar invitation sent</span></td>`
-        : `<td style="padding-right:10px;"><a href="${escapeHtml(calendarUrl)}" style="display:inline-block;padding:11px 16px;border-radius:10px;background:#101828;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">Add to Google Calendar</a></td>`}
-      <td>
-        <a href="${escapeHtml(args.manageUrl)}" style="display:inline-block;padding:10px 15px;border-radius:10px;border:1px solid #d0d5dd;color:#344054;text-decoration:none;font-size:14px;font-weight:700;">Reschedule or cancel</a>
-      </td>
-    </tr></table>
-
-    <div style="margin:0 0 24px;padding:18px 20px;background:#f9fafb;border-radius:14px;">
-      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#667085;margin-bottom:12px;">What we have on your brief</div>
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;line-height:1.6;">
-        <tr><td style="padding:4px 12px 4px 0;color:#667085;width:120px;">Company</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.company)}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Role</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.service)}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Hours</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.hours)}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;color:#667085;">VA budget</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.budget)}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;color:#667085;">Preferred start</td><td style="padding:4px 0;color:#101828;font-weight:600;">${escapeHtml(args.startTime)}</td></tr>
-      </table>
-    </div>
-
-    <p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">We already have your hiring brief, so there is nothing else you need to submit before the call. If anything changes, use the reschedule link above or reply to this email.</p>
-  `;
-
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: replyTo ? [replyTo] : undefined,
-    attachments: invite ? [{ filename: "virtualassistant-discovery-call.ics", content: Buffer.from(invite).toString("base64") }] : undefined,
-    subject: `Discovery call confirmed — ${args.clientLabel}`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Hiring Team"
-    }),
-  }, "public_discovery_booking", { archive: false, priority: "critical", idempotencyKey: `booking-confirmation-${args.leadId}` });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("public_discovery_booking", args.to);
 }
 
 export async function sendInternalDiscoveryBookingNotificationEmail(args: {
@@ -1406,76 +1183,11 @@ export async function sendDiscoveryNoShowRebookEmail(args: {
   recruiterName?: string | null;
   rebookUrl: string;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-
-  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const recruiterName = args.recruiterName?.trim() || "Hiring Team";
-  const bodyHtml = [
-    '<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">We weren’t able to connect for your scheduled call today.</p>',
-    '<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">If you’d still like to discuss hiring a virtual assistant, you can choose another time here:</p>',
-    '<p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">If you’re no longer looking, just reply and let us know so we can close the request.</p>',
-    `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Thanks,<br><strong>${escapeHtml(recruiterName)}</strong><br>VirtualAssistant.com.ph</p>`,
-  ].join("");
-
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: "Would you like to rebook your call?",
-    text: `Hi ${firstName},
-
-We weren’t able to connect for your scheduled call today.
-
-If you’d still like to discuss hiring a virtual assistant, you can choose another time here:
-
-Rebook your call: ${args.rebookUrl}
-
-If you’re no longer looking, just reply and let us know so we can close the request.
-
-Thanks,
-${recruiterName}
-VirtualAssistant.com.ph`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: recruiterName,
-      ctaHref: args.rebookUrl,
-      ctaLabel: "Rebook your call",
-      appendSignature: false,
-    }),
-  }, "discovery_no_show_rebook", {
-    archive: false,
-    priority: "critical",
-    idempotencyKey: `discovery-no-show-rebook-${args.leadId}`,
-  });
-
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("discovery_no_show_rebook", args.to);
 }
 
 export async function sendDiscoveryReminderEmail(args: { leadId: string; to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const timing = args.window === "24h" ? "tomorrow" : "in about one hour";
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Your client discovery call is ${timing}, at <strong>${escapeHtml(args.scheduledLabel)}</strong>.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;"><a href="${escapeHtml(args.manageUrl)}" style="color:#4f46e5;">Reschedule or cancel</a> if your availability changed.</p>`;
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: `Reminder: your discovery call is ${timing}`,
-    text: `Hi ${firstName},\n\nYour VirtualAssistant.com.ph discovery call is ${timing}, at ${args.scheduledLabel}.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nReschedule or cancel: ${args.manageUrl}`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: args.meetingUrl || args.manageUrl,
-      ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking"
-    }),
-  }, `discovery_reminder_${args.window}`, { archive: false, priority: "critical", idempotencyKey: `booking-reminder-${args.window}-${args.leadId}` });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail(`discovery_reminder_${args.window}`, args.to);
 }
 
 export async function sendLeadProposalEmail(args: {
@@ -1486,27 +1198,6 @@ export async function sendLeadProposalEmail(args: {
   expiresLabel?: string | null;
   recruiterName?: string | null;
 }) {
-  const config = resendConfig();
-  const recipient = normalizeEmailAddress(args.to);
-  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
-  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
-  const senderName = args.recruiterName || "VirtualAssistant.com.ph Hiring Team";
-  const expiryText = args.expiresLabel ? ` This proposal is valid until ${args.expiresLabel}.` : "";
-  const expiry = args.expiresLabel ? `<p style="margin:18px 0 0;color:#667085;font-size:14px;line-height:1.6;">This proposal is valid until ${escapeHtml(args.expiresLabel)}.</p>` : "";
-  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">Based on our conversation, your proposal for <strong>${escapeHtml(args.roleTitle)}</strong> is ready.</p><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">Review the role, expected Virtual Assistant compensation, service fee, and next steps on one page.</p>${expiry}`;
-  const delivery = await trackedSend(config, {
-    from: config.from,
-    to: [recipient],
-    replyTo: configuredReplyTo(),
-    subject: `Your Virtual Assistant proposal — ${args.roleTitle}`,
-    text: `Hi ${firstName},\n\nYour Virtual Assistant proposal for ${args.roleTitle} is ready. Review it here: ${args.proposalUrl}.${expiryText}\n\nBest,\n${senderName}`,
-    html: renderHiringEmail({
-      firstName,
-      bodyHtml,
-      senderName,
-      ctaHref: args.proposalUrl,
-      ctaLabel: "Review proposal"
-    })
-  }, "client_proposal", { archive: false, priority: "critical", idempotencyKey: `client-proposal-${args.proposalUrl.split("/").filter(Boolean).pop() || args.roleTitle}` });
-  return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+  return suppressClientHiringEmail("client_proposal", args.to);
 }
+

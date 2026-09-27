@@ -173,6 +173,8 @@ export default async function RoleControlCenter({
           <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
         </div>
       ) : null}
+      {query.quick_shortlist_prepared ? <div className="success-banner" role="status">Prepared {Number(query.quick_shortlist_prepared) || 0} top match{Number(query.quick_shortlist_prepared) === 1 ? "" : "es"} for internal recruiter review. Nothing was sent to the client.</div> : null}
+      {query.quick_shortlist_existing ? <div className="info-banner" role="status">This role already has at least three recruiter-selected candidates. Review them below before sending anything to the client.</div> : null}
       {query.shortlist_saved ? <div className="success-banner">Internal shortlist saved.</div> : null}
       {query.shortlist_released ? <div className="success-banner">Shortlist released to the client and the VA shortlist email was triggered.</div> : null}
       {query.client_shortlist_email_unavailable ? <div className="alert" role="alert">The VA shortlist is live in the client workspace, but the shortlist email could not be delivered. Do not send a generic follow-up email; verify the client address and retry shortlist delivery only if needed.</div> : null}

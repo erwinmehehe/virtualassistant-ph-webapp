@@ -10,6 +10,7 @@ import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
+import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRoleReadinessDashboard } from "@/lib/role-readiness-dashboard";
 import { roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
 import styles from "./today.module.css";
@@ -47,6 +48,17 @@ type ActiveRoleRow = {
   hiring_stage: string | null;
   hiring_stage_entered_at: string | null;
   updated_at: string | null;
+  created_at: string;
+};
+
+type NewHiringRoleRow = {
+  id: string;
+  title: string | null;
+  company_name: string | null;
+  lead_id: string | null;
+  recruiter_id: string | null;
+  status: string | null;
+  hiring_stage: string | null;
   created_at: string;
 };
 
@@ -132,6 +144,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   if (summaryError) throw summaryError;
 
   const summary = (summaryData || {}) as Record<string,any>;
+  const newHiringRoles = (Array.isArray(summary.new_hiring_roles) ? summary.new_hiring_roles : []) as NewHiringRoleRow[];
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
   const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
@@ -169,6 +182,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
 
   const nextActionCandidates = [
+    {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
     {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
@@ -225,6 +239,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       hint:"Roles, interviews, offers",
       icon:<BriefcaseBusiness size={17}/>,
       items:[
+        {label:"New enquiries",count:newHiringRoles.length,href:"/workspace/recruiter/today#new-hiring-enquiries"},
         {label:"Missing role details",count:incompleteRoleCount,href:"/workspace/recruiter/today#role-readiness"},
         {label:"Need candidates",count:roleNoCandidates,href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent"},
         {label:"Interview action",count:interviewsDue,href:"/workspace/recruiter/roles?view=interviewing&sort=urgent"},
@@ -268,6 +283,32 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
     </section>
+
+    {newHiringRoles.length ? <section id="new-hiring-enquiries" className="card dashboard-section-card" style={{marginTop:18}}>
+      <div className="dashboard-section-head">
+        <div><h2>New hiring enquiries</h2><p>These enquiries already have a linked role but no recruiter-built shortlist yet. Claim the role and prepare the strongest internal matches without emailing the client.</p></div>
+        <span className="badge badge-warning">{newHiringRoles.length} waiting</span>
+      </div>
+      <div className="stack" style={{marginTop:12}}>
+        {newHiringRoles.map((job)=><div className="card" key={job.id} style={{padding:14}}>
+          <div className="row-between wrap">
+            <div>
+              <div className="row wrap"><span className="badge">{job.recruiter_id===userId?"My role":"Unassigned"}</span><span className="small muted">{ageLabel((Date.now()-new Date(job.created_at).getTime())/3600000)} old</span></div>
+              <h3 style={{margin:"7px 0 3px"}}>{job.title||"Virtual Assistant role"}</h3>
+              <p className="small muted" style={{margin:0}}>{job.company_name||"New client"} · {String(job.hiring_stage||"intake").replaceAll("_"," ")}</p>
+            </div>
+            <div className="row wrap">
+              <Link className="btn" href={`/workspace/recruiter/roles/${job.id}#overview`}>Open brief</Link>
+              <form action={prepareTopMatchesForReviewAction}>
+                <input type="hidden" name="job_id" value={job.id}/>
+                <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${job.id}`}/>
+                <button className="btn btn-primary" type="submit">Prepare top matches</button>
+              </form>
+            </div>
+          </div>
+        </div>)}
+      </div>
+    </section> : null}
 
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>

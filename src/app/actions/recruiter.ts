@@ -1,13 +1,12 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileCompletionReminderEmail, sendStaffClientFollowupEmail, sendTransactionalEventEmail } from "@/lib/email";
-import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { sendProfileCompletionReminderEmail } from "@/lib/email";
+import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
 import { isPubliclyEligible, isRowApprovable, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
@@ -23,22 +22,6 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
 
 function isRequestId(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
-function emailIdempotencyDigest(parts: Array<string | null | undefined>) {
-  return createHash("sha256")
-    .update(parts.map((part) => String(part || "").trim()).join("\u001f"))
-    .digest("hex")
-    .slice(0, 24);
-}
-
-function dailyEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
-  const day = new Date().toISOString().slice(0, 10);
-  return `${prefix}-${day}-${emailIdempotencyDigest(parts)}`;
-}
-
-function stableEmailIdempotencyKey(prefix: string, parts: Array<string | null | undefined>) {
-  return `${prefix}-${emailIdempotencyDigest(parts)}`;
 }
 
 async function claimRecruiterAction(
@@ -294,127 +277,11 @@ export async function bulkRecruiterVaAction(formData: FormData) {
 }
 
 export async function sendClientFollowupAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const { profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const jobId = String(formData.get("job_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
-  const subject = String(formData.get("subject") || "").trim();
-  const message = String(formData.get("message") || "").trim();
-  const archiveCopy = formData.get("archive_copy") === "1";
-  if ((!leadId && !jobId) || subject.length < 3 || subject.length > 180 || message.length < 10 || message.length > 5000) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Add a subject and a short client message.")}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
-  }
-
-  const admin = createAdminClient();
-  let recipient: string | null = null;
-  let clientName: string | null = null;
-  let activityType: "lead" | "job" = leadId ? "lead" : "job";
-  let activityId = leadId || jobId;
-  let linkedJobId = jobId;
-  let leadSnapshot: any = null;
-
-  if (leadId) {
-    const { data: lead } = await admin.from("lead_intake")
-      .select("id,email,name,job_id,crm_stage,owner_id,first_contact_at,next_follow_up_at")
-      .eq("id", leadId)
-      .maybeSingle();
-    leadSnapshot = lead;
-    recipient = lead?.email || null;
-    clientName = lead?.name || null;
-    linkedJobId = linkedJobId || String(lead?.job_id || "");
-  }
-
-  if (!recipient && jobId) {
-    const { data: job } = await admin.from("jobs").select("id,title,client_id").eq("id", jobId).maybeSingle();
-    if (job?.client_id) {
-      const [{ data: authUser }, { data: account }] = await Promise.all([
-        admin.auth.admin.getUserById(job.client_id),
-        admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle()
-      ]);
-      recipient = authUser.user?.email || null;
-      clientName = account?.full_name || null;
-    } else {
-      const { data: lead } = await admin.from("lead_intake")
-        .select("id,email,name,crm_stage,owner_id,first_contact_at,next_follow_up_at")
-        .eq("job_id", jobId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      recipient = lead?.email || null;
-      clientName = lead?.name || null;
-      if (lead?.id) {
-        activityType = "lead";
-        activityId = lead.id;
-        leadSnapshot = lead;
-      }
-    }
-  }
-
-  if (!recipient) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("No client email is attached to this lead or role.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
-  }
-
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const href = linkedJobId ? `${appUrl}/workspace/client/jobs/${linkedJobId}` : undefined;
-  const followupIdempotencyKey = dailyEmailIdempotencyKey("client-followup", [
-    activityId,
-    recipient,
-    subject,
-    message,
-    user.id,
-  ]);
-  const result = await sendStaffClientFollowupEmail({
-    to: recipient,
-    subject,
-    message,
-    senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
-    href,
-    archiveCopy,
-    idempotencyKey: followupIdempotencyKey,
-  });
-  if (!result.sent) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check Email Health and the recipient address, then try again.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
-  }
-  if (result.duplicatePrevented) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_already_sent=1${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
-  }
-
-  const now = new Date();
-  if (activityType === "lead" && activityId) {
-    if (!leadSnapshot) {
-      const { data } = await admin.from("lead_intake")
-        .select("id,crm_stage,owner_id,first_contact_at,next_follow_up_at")
-        .eq("id", activityId)
-        .maybeSingle();
-      leadSnapshot = data;
-    }
-    if (leadSnapshot) {
-      const existingFollowUp = leadSnapshot.next_follow_up_at ? new Date(leadSnapshot.next_follow_up_at).getTime() : 0;
-      const patch: Record<string, unknown> = {
-        last_contact_at: now.toISOString(),
-        owner_id: leadSnapshot.owner_id || user.id,
-        next_follow_up_at: existingFollowUp > now.getTime() ? leadSnapshot.next_follow_up_at : new Date(now.getTime() + 2 * 86400000).toISOString()
-      };
-      if (!leadSnapshot.first_contact_at) patch.first_contact_at = now.toISOString();
-      if ((leadSnapshot.crm_stage || "new") === "new") {
-        patch.crm_stage = "contacted";
-        patch.stage_updated_at = now.toISOString();
-      }
-      await admin.from("lead_intake").update(patch).eq("id", activityId);
-    }
-  }
-
-  await writeRecruiterActivity({
-    subjectType: activityType,
-    subjectId: activityId,
-    action: "client_followup_sent",
-    description: `Follow-up email sent${clientName ? ` to ${clientName}` : ""}: ${subject}`,
-    actorId: user.id,
-    metadata: { job_id: linkedJobId || null, recipient }
-  });
-  revalidatePath("/workspace/recruiter");
-  revalidatePath(returnTo);
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1&action_lead=${encodeURIComponent(activityId)}`);
+  const joiner = returnTo.includes("?") ? "&" : "?";
+  redirect(`${returnTo}${joiner}contact_error=${encodeURIComponent("Client email is intentionally held until recruiter-approved VA candidates are ready to send.")}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
 }
 
 export async function addRecruiterNoteAction(formData: FormData) {
@@ -648,7 +515,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
         topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
         startsAt: scheduled.toISOString(),
         durationMinutes: duration,
-        attendeeEmails: [lead.email],
+        attendeeEmails: [],
       });
       generatedMeetingUrl = meet.joinUrl;
       generatedEventId = meet.eventId;
@@ -690,25 +557,6 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     timeZone: "Asia/Manila"
   }).format(scheduled);
 
-  let emailResult: Awaited<ReturnType<typeof sendDiscoveryBookingEmail>>;
-  try {
-    emailResult = await sendDiscoveryBookingEmail({
-      to: lead.email,
-      clientName: lead.name,
-      scheduledLabel,
-      durationMinutes: duration,
-      meetingUrl: generatedMeetingUrl,
-      recruiterName: profile.full_name,
-      idempotencyKey: stableEmailIdempotencyKey("discovery-booking", [leadId, scheduledIso]),
-    });
-  } catch (emailError) {
-    console.error("[discovery-booking] Confirmation email failed after booking was saved", {
-      leadId,
-      error: emailError instanceof Error ? emailError.message : String(emailError),
-    });
-    emailResult = { sent: false as const, reason: "provider_error" };
-  }
-
   await completeRecruiterAction(admin, requestId, user.id);
 
   await writeRecruiterActivity({
@@ -717,14 +565,14 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     action: "discovery_booked",
     description: `Discovery booked for ${scheduledLabel}`,
     actorId: user.id,
-    metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: generatedMeetingUrl, email_sent: emailResult.sent }
+    metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: generatedMeetingUrl, email_sent: false, client_email_policy: "shortlist_only" }
   });
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
-  redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
+  redirect(`${returnTo}${joiner}discovery_saved=1`);
 }
 
 export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
@@ -748,7 +596,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
       topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name || "client"}`,
       startsAt: lead.discovery_scheduled_at,
       durationMinutes: lead.discovery_duration_minutes || 30,
-      attendeeEmails: [lead.email],
+      attendeeEmails: [],
     });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");
@@ -771,26 +619,11 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
     return fail(error.message || "Could not save the Google Meet.");
   }
 
-  try {
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: "Your discovery call Google Meet link",
-      heading: "Your Google Meet link is ready",
-      body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
-      href: meet.joinUrl,
-      hrefLabel: "Join Google Meet",
-      priority: "critical",
-      idempotencyKey: `booking-meet-link-${leadId}-${meet.eventId}`,
-    });
-  } catch {
-    // CRM remains the source of truth even if the notification is temporarily unavailable.
-  }
-
   await writeRecruiterActivity({
     subjectType: "lead",
     subjectId: leadId,
     action: "discovery_google_meet_link_created",
-    description: "Google Meet link created and sent to client",
+    description: "Google Meet link created for the discovery booking",
     actorId: user.id,
     metadata: { meeting_url: meet.joinUrl, calendar_event_id: meet.eventId }
   });
@@ -925,84 +758,11 @@ export async function completeDiscoveryAction(formData: FormData) {
 }
 
 export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const { profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
-  const fail = (message: string) => redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent(message)}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
-  if (!leadId) return fail("Lead not found.");
-
-  const admin = createAdminClient();
-  const idempotencyKey = `discovery-no-show-rebook-${leadId}`;
-  const { data: existingSend } = await admin
-    .from("outbound_email_events")
-    .select("id,created_at,status")
-    .eq("idempotency_key", idempotencyKey)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (existingSend?.id && ["sending", "sent", "delivered"].includes(String(existingSend.status || ""))) {
-    redirect(`${returnTo}${joiner}rebook_email_already_sent=1&action_lead=${encodeURIComponent(leadId)}`);
-  }
-  if (existingSend?.id && ["bounced", "complained", "suppressed"].includes(String(existingSend.status || ""))) {
-    return fail("A rebooking email was already attempted but delivery failed. Check Email Health before contacting this client again.");
-  }
-
-  const { data: lead, error: leadError } = await admin
-    .from("lead_intake")
-    .select("id,name,email,job_id,owner_id,first_contact_at,discovery_outcome,discovery_manage_token,discovery_manage_token_hash")
-    .eq("id", leadId)
-    .maybeSingle();
-  if (leadError || !lead) return fail("Lead not found.");
-  if (lead.discovery_outcome !== "no_show") return fail("Rebooking email is only available for a client marked No show.");
-  if (!lead.email) return fail("This lead has no client email address.");
-
-  let manageToken = String(lead.discovery_manage_token || "").trim();
-  if (!manageToken) {
-    const manage = createBookingManageToken();
-    manageToken = manage.token;
-    const { error: tokenError } = await admin.from("lead_intake").update({
-      discovery_manage_token: manage.token,
-      discovery_manage_token_hash: manage.hash,
-    }).eq("id", leadId);
-    if (tokenError) return fail("Could not create the client rebooking link.");
-  }
-
-  const recruiterName = profile.full_name?.trim() || "Hiring Team";
-  const emailResult = await sendDiscoveryNoShowRebookEmail({
-    leadId,
-    to: lead.email,
-    clientName: lead.name,
-    recruiterName,
-    rebookUrl: bookingManageUrl(manageToken),
-  });
-  if (!emailResult.sent) return fail("The rebooking email could not be sent. Check Email Health before trying again.");
-
-  const now = new Date();
-  const nowIso = now.toISOString();
-  const { error: updateError } = await admin.from("lead_intake").update({
-    first_contact_at: lead.first_contact_at || nowIso,
-    last_contact_at: nowIso,
-    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
-  }).eq("id", leadId);
-  if (updateError) {
-    await writeRecruiterActivity({
-      subjectType: "lead", subjectId: leadId, action: "discovery_no_show_rebook_sent",
-      description: "Rebooking email sent; CRM follow-up timestamp update failed", actorId: user.id,
-      metadata: { job_id: lead.job_id || null, email_sent: true, crm_update_error: updateError.message }
-    });
-  } else {
-    await writeRecruiterActivity({
-      subjectType: "lead", subjectId: leadId, action: "discovery_no_show_rebook_sent",
-      description: "No-show rebooking email sent to client", actorId: user.id,
-      metadata: { job_id: lead.job_id || null, email_sent: true }
-    });
-  }
-
-  revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${joiner}rebook_email_sent=1&action_lead=${encodeURIComponent(leadId)}`);
+  redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent("Client rebooking email is disabled. Client email is held until a VA shortlist is ready.")}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {

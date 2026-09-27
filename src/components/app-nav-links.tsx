@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   ListTodo,
   LifeBuoy,
+  MessageSquare,
   Search,
   Settings,
   ShieldCheck,

@@ -6,7 +6,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("recruiter Talent keeps approval separate from public publishing", async()=>{
   const page=await read("src/app/workspace/recruiter/talent/page.tsx");
-  assert.match(page,/value="approve">Approve eligible \(60%\+\)/);
+  assert.match(page,/value="approve">Approve eligible \(\{APPROVAL_MIN_COMPLETION\}%\+\)/);
   assert.match(page,/value="approve_publish">Approve \+ publish if public-ready/);
   assert.match(page,/APPROVAL_MIN_COMPLETION/);
   assert.match(page,/Approval-ready/);

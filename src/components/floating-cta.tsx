@@ -13,7 +13,7 @@ const VA_FACING_PATHS = [
   "/auth/join/va",
 ];
 
-const INTERNAL_PATHS = ["/workspace", "/auth"];
+const INTERNAL_PATHS = ["/workspace", "/auth", "/book-client-call"];
 const INLINE_MATCH_PATHS = ["/service/", "/industries/"];
 const HIGH_INTENT_PATHS = ["/", "/hire", "/pricing", "/services", "/contact"];
 
@@ -57,7 +57,7 @@ export function FloatingCta() {
     const onMouseOut = (event: MouseEvent) => {
       let started = false;
       try { started = sessionStorage.getItem("va_discovery_form_started") === "1"; } catch { /* private mode */ }
-      if (event.relatedTarget || !started) return;
+      if (event.relatedTarget || !started || !isHighIntentPath(pathname)) return;
       setVisible(true);
     };
 

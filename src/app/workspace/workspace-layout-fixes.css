@@ -201,3 +201,20 @@
     grid-template-columns: auto minmax(0, 1fr);
   }
 }
+
+
+/* Keep one-off workspace save/error feedback compact on desktop. These are
+   route-level flash messages, not full-width status panels. */
+.dashboard-shell .app-content > .success-banner,
+.dashboard-shell .app-content > .alert {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 640px) {
+  .dashboard-shell .app-content > .success-banner,
+  .dashboard-shell .app-content > .alert {
+    width: 100%;
+  }
+}

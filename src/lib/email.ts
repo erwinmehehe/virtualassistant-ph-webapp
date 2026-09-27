@@ -100,7 +100,11 @@ function archiveExtraFor(payload: any) {
 function configuredSender() {
   const value = process.env.EMAIL_FROM?.trim() || "";
   if (!value || !value.includes("@") || value.toLowerCase().includes("example.com")) return null;
-  return value;
+  const address = bareEmailAddress(value);
+  if (!isValidEmailAddress(address)) return null;
+  // Keep the public brand consistent even when an older environment variable
+  // still contains the legacy "VirtualAssistant.ph" display name.
+  return `VirtualAssistant.com.ph <${address}>`;
 }
 
 function resendConfig() {

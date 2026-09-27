@@ -171,6 +171,13 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
   const reminderCount = Number(previous?.reminder_count || 0) + 1;
   const { error } = await admin.from("workflow_reminders").upsert({ subject_type: args.subjectType, subject_id: args.subjectId, recipient_id: args.recipientId, action: args.action, reminder_count: reminderCount, last_sent_at: now, updated_at: now }, { onConflict: "subject_type,subject_id,recipient_id,action" });
   if (error) return false;
+  await admin
+    .from("notifications")
+    .update({ done_at: now, read_at: now, snoozed_until: null })
+    .eq("user_id", args.recipientId)
+    .eq("title", args.title)
+    .eq("href", args.href)
+    .is("done_at", null);
   await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href });
   if (!args.email) return true;
 

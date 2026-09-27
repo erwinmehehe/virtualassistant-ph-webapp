@@ -436,3 +436,183 @@
   .pva-hire *, .pva-hire *::before, .pva-hire *::after { scroll-behavior: auto !important; transition: none !important; }
   .pvh-btn:hover { transform: none; }
 }
+
+
+/* /hire visual cleanup: quieter hero, tighter proof, clearer form */
+.pva-hire .pvh-hero {
+  padding: clamp(3.8rem, 6vw, 5.5rem) 0 clamp(3.6rem, 5.5vw, 5rem);
+  background:
+    radial-gradient(circle at 8% 10%, rgba(99,102,241,.11), transparent 30%),
+    radial-gradient(circle at 92% 78%, rgba(16,185,129,.08), transparent 26%),
+    linear-gradient(180deg, #fafbff 0%, #ffffff 84%);
+}
+
+.pva-hire .pvh-hero-grid {
+  grid-template-columns: minmax(0, 1.05fr) minmax(430px, .95fr);
+  gap: clamp(2.2rem, 4.2vw, 4.2rem);
+}
+
+.pva-hire .pvh-hero-copy {
+  padding-top: .15rem;
+}
+
+.pva-hire .pvh-hero h1 {
+  max-width: 760px;
+  margin: 1.25rem 0 1rem;
+  font-size: clamp(2.85rem, 4.65vw, 4.25rem);
+  line-height: 1.025;
+}
+
+.pva-hire .pvh-lede {
+  max-width: 660px;
+  color: #526177;
+  line-height: 1.68;
+}
+
+.pva-hire .pvh-proof-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .68rem;
+  margin-top: 1.45rem;
+  border: 0;
+}
+
+.pva-hire .pvh-proof-list > div {
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: .58rem;
+  align-content: start;
+  min-width: 0;
+  padding: .92rem;
+  border: 1px solid #e3e8f0;
+  border-radius: .95rem;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 8px 24px rgba(15,23,42,.035);
+}
+
+.pva-hire .pvh-proof-list > div + div {
+  border-top: 1px solid #e3e8f0;
+}
+
+.pva-hire .pvh-proof-list > div > svg {
+  margin-top: .08rem;
+}
+
+.pva-hire .pvh-proof-list strong {
+  font-size: .79rem;
+  line-height: 1.35;
+}
+
+.pva-hire .pvh-proof-list small {
+  font-size: .69rem;
+  line-height: 1.45;
+}
+
+.pva-hire .pvh-callout {
+  margin-top: .9rem;
+  border-color: #e1e5f3;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 8px 24px rgba(15,23,42,.035);
+}
+
+.pva-hire .pvh-private-note {
+  margin-top: .72rem;
+}
+
+.pva-hire .pvh-form-shell {
+  top: 5.6rem;
+}
+
+.pva-hire .pvh-form-glow {
+  inset: 12% -5% -5%;
+  opacity: .3;
+  filter: blur(52px);
+}
+
+.pva-hire .pvh-form-card {
+  padding: 1rem;
+  border: 1px solid #e1e6ef;
+  border-radius: 1.4rem;
+  background: #fff;
+  box-shadow:
+    0 24px 64px -28px rgba(68,76,231,.3),
+    0 12px 34px rgba(15,23,42,.07);
+  backdrop-filter: none;
+}
+
+.pva-hire .pvh-trust-grid > div {
+  padding: 1.2rem 1.05rem;
+}
+
+.pva-hire .pvh-section {
+  padding: clamp(3.8rem, 5.5vw, 5.1rem) 0;
+}
+
+.pva-hire .pvh-section-head {
+  margin-bottom: 1.8rem;
+}
+
+.pva-hire .pvh-screen-card,
+.pva-hire .pvh-process-grid article,
+.pva-hire .pvh-choice {
+  box-shadow: 0 8px 26px rgba(15,23,42,.035);
+}
+
+.pva-hire .pvh-final {
+  padding: clamp(3.7rem, 5vw, 4.8rem) 0;
+}
+
+.pva-hire .pvh-final h2 {
+  max-width: 760px;
+  font-size: clamp(2.15rem, 3.2vw, 3.15rem);
+}
+
+@media (max-width: 1080px) {
+  .pva-hire .pvh-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, .9fr);
+    gap: 2.25rem;
+  }
+
+  .pva-hire .pvh-proof-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .pva-hire .pvh-hero {
+    padding-top: 3.4rem;
+  }
+
+  .pva-hire .pvh-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pva-hire .pvh-hero-copy {
+    max-width: 760px;
+  }
+
+  .pva-hire .pvh-form-shell {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 620px) {
+  .pva-hire .pvh-hero {
+    padding: 2.7rem 0 3.25rem;
+  }
+
+  .pva-hire .pvh-hero h1 {
+    font-size: clamp(2.3rem, 11vw, 2.75rem);
+  }
+
+  .pva-hire .pvh-proof-list > div {
+    padding: .82rem;
+  }
+
+  .pva-hire .pvh-form-card {
+    padding: .8rem;
+    border-radius: 1.15rem;
+  }
+
+  .pva-hire .pvh-section {
+    padding: 3.4rem 0;
+  }
+}

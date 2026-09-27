@@ -4,25 +4,19 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("VA work readiness is a real focused page instead of a redirect", async()=>{
-  const [page, profile, action, css]=await Promise.all([
+test("legacy Work Readiness routes are retired without weakening role boundaries", async()=>{
+  const [vaPage,recruiterPage,nav]=await Promise.all([
     read("src/app/workspace/va/work-readiness/page.tsx"),
-    read("src/app/workspace/va/profile/page.tsx"),
-    read("src/app/actions/work-readiness.ts"),
-    read("src/app/dashboard-premium.css"),
+    read("src/app/workspace/recruiter/work-readiness/page.tsx"),
+    read("src/components/app-nav-links.tsx"),
   ]);
-  assert.doesNotMatch(page,/redirect\(/);
-  assert.match(page,/Work readiness/);
-  assert.match(page,/va-work-readiness-page/);
-  assert.match(page,/va-readiness-check/);
-  assert.match(page,/Call-ready headset/);
-  assert.match(page,/Webcam ready/);
-  assert.match(page,/Quiet workspace/);
-  assert.doesNotMatch(profile,/id="work-readiness"/);
-  assert.doesNotMatch(profile,/saveVaWorkSetupAction/);
-  assert.match(action,/redirect\("\/workspace\/va\/work-readiness\?saved=1"\)/);
-  assert.match(css,/\.va-readiness-check strong/);
-  assert.match(css,/\.va-readiness-check small/);
+
+  assert.match(vaPage,/requireRoleFast\("va"\)/);
+  assert.match(vaPage,/redirect\("\/workspace\/va\/profile"\)/);
+  assert.match(recruiterPage,/requireRoleFast\("recruiter"\)/);
+  assert.match(recruiterPage,/redirect\("\/workspace\/recruiter\/talent"\)/);
+  assert.doesNotMatch(nav,/\["Work Readiness", "\/workspace\/va\/work-readiness"/);
+  assert.doesNotMatch(nav,/\["Work Readiness", "\/workspace\/recruiter\/work-readiness"/);
 });
 
 test("recruiter mobile navigation exposes Account settings like the other roles", async()=>{

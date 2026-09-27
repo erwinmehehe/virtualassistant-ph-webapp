@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-import { legacyLeadStatus } from "@/lib/lead-crm";
 
 const ACTIONS = new Set(["follow_up_later"]);
 
@@ -34,7 +33,6 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
   if (["won", "lost"].includes(String(lead.crm_stage || "new"))) return fail("This lead is already closed.");
 
   const now = new Date();
-  const nowIso = now.toISOString();
   const ownerId = lead.owner_id || user.id;
 
   {

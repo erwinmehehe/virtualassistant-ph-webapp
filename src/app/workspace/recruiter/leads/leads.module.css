@@ -59,7 +59,7 @@
 }
 
 .crmPage :global(.crm-metrics) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 18px;
 }
@@ -127,12 +127,12 @@
   color: #f79009;
 }
 
-.crmPage :global(.crm-metric-card:nth-child(5)) {
+.crmPage :global(.crm-metric-card:nth-child(4)) {
   border-color: #abefc6;
   background: linear-gradient(180deg, #fff 0%, #f6fef9 100%);
 }
 
-.crmPage :global(.crm-metric-card:nth-child(5) svg) {
+.crmPage :global(.crm-metric-card:nth-child(4) svg) {
   color: #12b76a;
 }
 
@@ -1244,6 +1244,7 @@
 }
 
 .crmPage :global(.crm-hiring-progress > span) {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 3px;
@@ -1255,10 +1256,11 @@
 
 .crmPage :global(.crm-hiring-progress > span::after) {
   content: "";
-  position: relative;
-  top: -23px;
-  left: calc(50% + 18px);
-  width: calc(100% - 36px);
+  position: absolute;
+  z-index: 0;
+  top: 11px;
+  left: calc(50% + 12px);
+  width: calc(100% - 20px);
   height: 2px;
   background: #eaecf0;
   pointer-events: none;

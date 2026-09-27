@@ -43,7 +43,7 @@ test("client completion flow only writes fields that are currently missing", asy
   assert.doesNotMatch(block, /status:\s*"published"/);
 });
 
-test("client and staff workspaces expose the missing-details workflow", async () => {
+test("client and admin workspaces retain the missing-details workflow without a recruiter repair form", async () => {
   const [client, recruiter, admin, form] = await Promise.all([
     read("src/app/workspace/client/jobs/[id]/page.tsx"),
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
@@ -52,7 +52,7 @@ test("client and staff workspaces expose the missing-details workflow", async ()
   ]);
   assert.match(client, /saveClientRoleReadinessDetailsAction/);
   assert.match(client, /audience="client"/);
-  assert.match(recruiter, /requestClientRoleDetailsAction/);
+  assert.doesNotMatch(recruiter, /requestClientRoleDetailsAction|RoleReadinessForm|#role-readiness/);
   assert.match(admin, /requestClientRoleDetailsAction/);
   assert.match(form, /Request missing details from client/);
   assert.match(form, /Complete your hiring brief/);
@@ -70,5 +70,5 @@ test("missing-details requests stay in-app and never show an email failure warni
   assert.doesNotMatch(today, /role_details_email_warning/);
   assert.doesNotMatch(role, /role_details_email_warning/);
   assert.match(today, /No client email was sent/);
-  assert.match(role, /No email was sent/);
+  assert.doesNotMatch(role, /role_details_requested|No email was sent/);
 });

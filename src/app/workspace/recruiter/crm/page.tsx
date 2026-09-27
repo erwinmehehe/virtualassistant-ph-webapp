@@ -231,7 +231,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
           <p>Attio-style relationship clarity with VAPH hiring operations, tasks, automation, and role delivery connected underneath.</p>
         </div>
         <div className={styles.headerActions}>
-          <Link prefetch={false} className={styles.secondaryButton} href="/workspace/recruiter/crm/export"><Download size={15}/> Export</Link>
+          <Link prefetch={false} download className={styles.secondaryButton} href="/workspace/recruiter/crm/export"><Download size={15}/> Export</Link>
           <Link className={styles.secondaryButton} href="/workspace/recruiter/tasks"><ListTodo size={15}/> Tasks</Link>
           <Link className={styles.primaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Active roles</Link>
         </div>

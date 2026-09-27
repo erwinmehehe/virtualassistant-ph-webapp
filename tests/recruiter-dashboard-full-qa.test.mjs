@@ -97,6 +97,8 @@ test("maintenance creates canonical recruiter links and keeps client reminders i
   assert.ok(route.includes('runMaintenanceTask("recruiter notification hygiene"'));
   assert.ok(route.includes(".eq(\"title\", args.title)"));
   assert.ok(route.includes(".eq(\"href\", args.href)"));
+  assert.ok(route.includes("roleIds.slice(index, index + 200)"));
+  assert.ok(route.includes("archiveIds.slice(index, index + 200)"));
 });
 
 test("roles page falls back safely from stale view and sort query strings", async () => {

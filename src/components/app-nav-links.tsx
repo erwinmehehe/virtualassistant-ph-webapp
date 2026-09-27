@@ -73,13 +73,16 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Hiring inbox", "/workspace/recruiter/leads", BriefcaseBusiness],
         ["Active roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Client review", "/workspace/recruiter/client-review", MessageSquare],
-        ["Placements", "/workspace/recruiter/placements", Wrench],
+        ["Placements", "/workspace/client-success", Wrench],
         ["Talent", "/workspace/recruiter/talent", Search],
       ],
     },
     {
       label: "Recruiting tools",
       items: [
+        ["Agenda", "/workspace/recruiter/agenda", CalendarDays],
+        ["Tasks", "/workspace/recruiter/tasks", ListTodo],
+        ["Notifications", "/workspace/recruiter/notifications", Bell],
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
         ["Coverage", "/workspace/recruiter/coverage", Target],
       ],

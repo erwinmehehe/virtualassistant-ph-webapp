@@ -10,6 +10,7 @@ import { runRecruiterCopilot, type CopilotTask } from "@/lib/ai-recruiter";
 import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { sendTransactionalEventEmail } from "@/lib/email";
 import { VETTING_SCORECARD_PASS } from "@/lib/constants";
+import { recordProductEvent } from "@/lib/product-events";
 
 const SCREEN_RESULTS = new Set(["client_ready", "needs_development", "role_specific", "do_not_present"]);
 const INTERVIEW_DECISIONS = new Set(["proceed", "hold", "pass"]);
@@ -226,20 +227,24 @@ export async function generateRecruiterCopilotAction(args: { jobId: string; task
 }
 
 export async function scheduleCandidateInterviewAction(formData: FormData) {
-  const { user } = await requireRole("client");
+  const { user, profile } = await requireAnyRole(["client", "recruiter", "admin"]);
   const interviewId = String(formData.get("interview_id") || "");
   const scheduledIso = String(formData.get("scheduled_at_iso") || "");
-  const timezone = String(formData.get("timezone") || "").trim().slice(0, 100) || "Client local time";
+  const timezone = String(formData.get("timezone") || "").trim().slice(0, 100) || "Local time";
   const duration = Math.min(60, Math.max(15, Number(formData.get("duration_minutes") || 30)));
+  const fallback = profile.role === "client" ? "/workspace/client/interviews" : profile.role === "recruiter" ? "/workspace/recruiter/today" : "/workspace/admin/today";
+  const returnTo = safePath(formData.get("return_to"), fallback);
   const scheduledAt = new Date(scheduledIso);
   if (!interviewId || !Number.isFinite(scheduledAt.getTime())) throw new Error("Choose a valid interview time.");
   if (scheduledAt.getTime() < Date.now() + 24 * 60 * 60 * 1000) throw new Error("Please schedule candidate interviews at least 24 hours in advance.");
 
   const admin = createAdminClient();
-  const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
+  const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).maybeSingle();
   if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
+  if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview request not found.");
 
-  const jobTitle = Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title;
+  const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
+  const jobTitle = jobRecord?.title;
   const { data: vaAuth } = await admin.auth.admin.getUserById(row.va_id);
   const attendeeEmails = [vaAuth.user?.email].filter((value): value is string => Boolean(value));
   const previousEventId = String(row.calendar_event_id || "").trim() || null;
@@ -258,7 +263,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
       });
 
   const now = new Date().toISOString();
-  const { error } = await admin.from("candidate_interviews").update({
+  const updateQuery = admin.from("candidate_interviews").update({
     status: "scheduled",
     scheduled_at: scheduledAt.toISOString(),
     timezone,
@@ -271,7 +276,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
     reminder_24h_sent_at: null,
     reminder_1h_sent_at: null,
     updated_at: now
-  }).eq("id", interviewId).eq("client_id", user.id);
+  }).eq("id", interviewId);
+  const { error } = profile.role === "client" ? await updateQuery.eq("client_id", user.id) : await updateQuery;
   if (error) {
     if (!previousEventId) {
       try { await cancelGoogleMeetDiscoveryMeeting(meet.eventId); } catch { /* best-effort cleanup */ }
@@ -279,12 +285,31 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
     throw error;
   }
   if (row.application_id) await admin.from("applications").update({ status: "interview", updated_at: now }).eq("id", row.application_id);
+  await admin.from("jobs").update({ hiring_stage: "interviewing", hiring_stage_entered_at: now }).eq("id", row.job_id).in("hiring_stage", ["client_review", "internal_review"]);
 
   const when = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "UTC" }).format(scheduledAt);
   await admin.from("notifications").insert([
     { user_id: row.va_id, title: `Interview scheduled: ${jobTitle || "client role"}`, body: `${when} UTC. Open Interviews for the Google Meet link and details.`, href: "/workspace/va/interviews", type: "interview", priority: "high" },
-    { user_id: user.id, title: "Candidate interview scheduled", body: `${jobTitle || "Role"}: ${when} UTC.`, href: "/workspace/client/interviews", type: "interview", priority: "normal" }
+    { user_id: row.client_id, title: "Candidate interview scheduled", body: `${jobTitle || "Role"}: ${when} UTC.`, href: "/workspace/client/interviews", type: "interview", priority: "normal" }
   ]);
+
+  try {
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: row.job_id,
+      action: row.scheduled_at ? "candidate_interview_rescheduled" : "candidate_interview_scheduled",
+      description: `${jobTitle || "Candidate interview"} scheduled for ${when} UTC`,
+      actorId: user.id,
+      metadata: { interview_id: interviewId, va_id: row.va_id, scheduled_at: scheduledAt.toISOString(), scheduled_by_role: profile.role },
+    });
+  } catch {}
+
+  await recordProductEvent("interview_scheduled", {
+    userId: user.id,
+    path: returnTo,
+    metadata: { job_id: row.job_id, interview_id: interviewId, va_id: row.va_id, scheduled_by_role: profile.role },
+  });
+
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. The Google Meet link is available in your workspace and on the calendar invitation.`;
   try {
@@ -299,12 +324,14 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   } catch (emailError) {
     console.error("[interview] VA confirmation email failed", emailError);
   }
+
   revalidatePath("/workspace/client/interviews");
   revalidatePath("/workspace/va/interviews");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/roles");
   revalidatePath(`/workspace/recruiter/roles/${row.job_id}`);
-  redirect("/workspace/client/interviews?scheduled=1");
+  const separator = returnTo.includes("?") ? "&" : "?";
+  redirect(`${returnTo}${separator}interview_scheduled=1${profile.role === "client" ? "" : "#interviews"}`);
 }
 
 export async function cancelCandidateInterviewAction(formData: FormData) {

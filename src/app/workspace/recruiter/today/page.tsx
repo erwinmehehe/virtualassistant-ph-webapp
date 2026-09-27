@@ -109,7 +109,7 @@ function exactActionHref(item:any) {
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
-  if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
+  if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_requested","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
   if(item.kind==="candidate_capacity_conflict"&&item.id) return `/workspace/recruiter/candidates/${item.id}`;
   return item.href||null;
 }
@@ -118,6 +118,7 @@ function actionLabel(item:any) {
   if(item.kind==="discovery") return "View booking";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
+  if(item.kind==="interview_requested") return "Schedule interview";
   if(["interview_today","interview_feedback_missing"].includes(String(item.kind))) return "Open interview";
   if(["offer_waiting_va","offer_waiting_client"].includes(String(item.kind))) return "Open offer";
   if(item.kind==="placement_checkin") return "Complete check-in";
@@ -157,6 +158,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     if (!current || item.action_type === "client_response_overdue") clientWaitByJob.set(item.subject_id,item);
   }
   const clientWaits = [...clientWaitByJob.values()].sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
+  const interviewRequests = dailyActions
+    .filter((item)=>item.action_type==="interview_requested" && item.subject_id)
+    .sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
   const approvalReady = (Array.isArray(summary.approval_ready_preview) ? summary.approval_ready_preview : []) as ApprovalReadyVa[];
   const staleRolePreview = (Array.isArray(summary.stale_roles_preview) ? summary.stale_roles_preview : []) as ActiveRoleRow[];
   const staleRolesCount = Number(summary.stale_roles_count || 0);
@@ -186,6 +190,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
     {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
+    {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
     {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
@@ -306,6 +311,22 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               </form>
             </div>
           </div>
+        </div>)}
+      </div>
+    </section> : null}
+
+    {interviewRequests.length ? <section id="interview-requests" className="card dashboard-section-card" style={{marginTop:18}}>
+      <div className="dashboard-section-head">
+        <div><h2>Interview requests</h2><p>Clients have asked to meet these candidates. Schedule directly from the role; no separate client email is required.</p></div>
+        <span className="badge badge-warning">{interviewRequests.length} waiting</span>
+      </div>
+      <div className="stack" style={{marginTop:12}}>
+        {interviewRequests.slice(0,6).map((item)=><div className="row-between wrap review-answer" key={item.subject_id || item.title}>
+          <div>
+            <strong>{item.title || "Client requested an interview"}</strong>
+            <div className="small muted">{item.description || "Interview time has not been scheduled yet."}</div>
+          </div>
+          {item.subject_id?<Link className="btn btn-primary btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}#interviews`}>Schedule interview</Link>:null}
         </div>)}
       </div>
     </section> : null}

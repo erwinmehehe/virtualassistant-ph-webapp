@@ -7,6 +7,7 @@ import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { matchAssessment } from "@/lib/matching";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { recordProductEvent } from "@/lib/product-events";
 
 const CLIENT_DECISIONS = new Set(["interested", "interview", "hold", "pass"]);
 const HOLD_REASONS = new Set(["need_more_information", "comparing_candidates", "rate_concern", "schedule_timezone_concern", "team_approval", "other"]);
@@ -130,14 +131,14 @@ export async function clientShortlistDecisionAction(formData: FormData) {
 
   const admin = createAdminClient();
   const [{ data: job }, { data: access }, { data: shortlist }] = await Promise.all([
-    admin.from("jobs").select("id,title,client_id,status").eq("id", jobId).eq("client_id", user.id).single(),
+    admin.from("jobs").select("id,title,client_id,recruiter_id,status,hiring_stage").eq("id", jobId).eq("client_id", user.id).single(),
     admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle(),
-    admin.from("job_shortlist_candidates").select("id,client_decision").eq("job_id", jobId).eq("va_id", vaId).eq("shortlist_status", "released").maybeSingle()
+    admin.from("job_shortlist_candidates").select("id,client_decision,client_decision_note").eq("job_id", jobId).eq("va_id", vaId).eq("shortlist_status", "released").maybeSingle()
   ]);
   if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
   if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access must be active before recording a shortlist decision.");
   if (!shortlist) throw new Error("This VA is not in the released shortlist.");
-  if (shortlist.client_decision === decision && decision === "interested") redirectWithFlag(returnTo, "decision_saved");
+  if (shortlist.client_decision === decision && (shortlist.client_decision_note || null) === decisionNote) redirectWithFlag(returnTo, "decision_saved");
 
   const now = new Date().toISOString();
   const { error } = await admin.from("job_shortlist_candidates").update({ client_decision: decision, client_decision_note: decisionNote, client_decision_at: now }).eq("id", shortlist.id);
@@ -194,6 +195,28 @@ export async function clientShortlistDecisionAction(formData: FormData) {
         priority: "high"
       });
     }
+    await admin.from("jobs").update({ hiring_stage: "interviewing", hiring_stage_entered_at: now }).eq("id", jobId).in("hiring_stage", ["client_review", "internal_review"]);
+  } else if (shortlist.client_decision === "interview") {
+    await admin
+      .from("candidate_interviews")
+      .update({ status: "cancelled", cancelled_at: now, updated_at: now })
+      .eq("job_id", jobId)
+      .eq("va_id", vaId)
+      .eq("status", "requested")
+      .is("scheduled_at", null);
+  }
+
+  await recordProductEvent("client_shortlist_decision", {
+    userId: user.id,
+    path: returnTo,
+    metadata: { job_id: jobId, va_id: vaId, decision, interview_id: interviewId },
+  });
+  if (decision === "interview") {
+    await recordProductEvent("interview_requested", {
+      userId: user.id,
+      path: returnTo,
+      metadata: { job_id: jobId, va_id: vaId, interview_id: interviewId, created: interviewCreated },
+    });
   }
 
   const label = decision === "interested"
@@ -207,16 +230,28 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, interview_created: interviewCreated, interview_id: interviewId } });
     await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote, interview_id: interviewId } });
   } catch {}
-  const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
-  if (recruiters?.length) {
-    const notificationTitle = decision === "interview"
-      ? "Client requested an interview"
-      : decision === "interested"
-        ? "Client marked a VA interested"
-        : decision === "hold"
-          ? "Client placed a VA on hold"
-          : "Client passed on a VA";
-    await admin.from("notifications").insert(recruiters.map((row: any) => ({ user_id: row.id, title: notificationTitle, body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`, href: `/workspace/recruiter/roles/${jobId}` })));
+  const notificationTitle = decision === "interview"
+    ? "Client requested an interview"
+    : decision === "interested"
+      ? "Client marked a VA interested"
+      : decision === "hold"
+        ? "Client placed a VA on hold"
+        : "Client passed on a VA";
+  const recipientIds = new Set<string>();
+  if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
+  if (!recipientIds.size) {
+    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
+    for (const row of recruiters || []) recipientIds.add(String(row.id));
+  }
+  if (recipientIds.size) {
+    await admin.from("notifications").insert([...recipientIds].map((id) => ({
+      user_id: id,
+      title: notificationTitle,
+      body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`,
+      href: `/workspace/recruiter/roles/${jobId}`,
+      type: "interview",
+      priority: decision === "interview" ? "high" : "normal"
+    })));
   }
 
   revalidatePath(`/workspace/client/jobs/${jobId}`);

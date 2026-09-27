@@ -4,8 +4,6 @@ import {
   BriefcaseBusiness,
   CalendarClock,
   CheckCircle2,
-  CircleDollarSign,
-  Clock3,
   LayoutDashboard,
   ListTodo,
   Search,
@@ -15,7 +13,7 @@ import {
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
+import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
 import styles from "./crm.module.css";

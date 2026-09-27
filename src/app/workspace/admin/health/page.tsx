@@ -7,6 +7,7 @@ import { dateShort } from "@/lib/format";
 type ErrorEventRow = { id: string; message: string | null; path: string | null; role: string | null; created_at: string };
 type FailedEmailRow = { id: string; event_type: string | null; recipient: string | null; error_message: string | null; created_at: string };
 import { getRuntimeSetupStatus } from "@/lib/env-status";
+import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 
 export default async function AdminHealthPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   await requireRoleFast("admin");
@@ -40,7 +41,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     admin.from("payments").select("id", { count: "exact", head: true }).in("status", ["failed", "disputed"]),
     admin.from("outbound_email_events").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
     admin.from("outbound_email_events").select("id,event_type,recipient,error_message,created_at").eq("status", "failed").order("created_at", { ascending: false }).limit(10),
-    admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true }).eq("directory_visible", true).lt("completion_score", 100),
+    admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true }).eq("directory_visible", true).lt("completion_score", PUBLIC_VA_MIN_COMPLETION),
     admin.from("jobs").select("id,title,status,published_at,client_id").eq("status", "published").limit(1000),
     admin.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending").not("published_at", "is", null),
     admin.from("job_commercials").select("job_id,commercial_status").limit(5000),
@@ -87,7 +88,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     ["Missing vetting", missingVetting, "Should stay at zero", missingVetting === 0],
     ["Roles without candidates", rolesWithoutCandidates, "Active roles needing matching", rolesWithoutCandidates === 0],
     ["Orphaned applications", orphanedApplications, "Application job/VA references should stay valid", orphanedApplications === 0],
-    ["Incomplete profiles marked public", incompletePublicRes.count || 0, "Should be hidden", (incompletePublicRes.count || 0) === 0],
+    [`Public profiles below ${PUBLIC_VA_MIN_COMPLETION}%`, incompletePublicRes.count || 0, "Should be hidden", (incompletePublicRes.count || 0) === 0],
     ["Unresolved app errors", errorsRes.count || 0, "Captured by internal error monitor", (errorsRes.count || 0) === 0],
     ["Failed emails (30d)", failedEmailsRes.count || 0, "Review Resend/domain configuration", (failedEmailsRes.count || 0) === 0],
     ["Failed / disputed payments", failedPaymentsRes.count || 0, "Requires finance review", (failedPaymentsRes.count || 0) === 0]
@@ -112,7 +113,7 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     <div className="health-grid">{health.map(([label, value, copy, ok]) => <div className={`health-card ${ok ? "ok" : "warn"}`} key={label}>{ok ? <CheckCircle2 size={19}/> : <AlertTriangle size={19}/>}<div><span>{label}</span><strong>{value}</strong><small>{copy}</small></div></div>)}</div>
 
     <div className="grid-2">
-      <section className="card"><div className="row"><Wrench size={20}/><h2 style={{ margin: 0 }}>Safe housekeeping</h2></div><p className="muted">Admin-only repair actions for known structural issues.</p><div className="stack"><form action={repairVaRecordsAction}><button className="btn btn-primary" type="submit">Repair missing VA records & slugs</button></form><form action={hideIncompletePublicProfilesAction}><button className="btn" type="submit">Hide incomplete public profiles</button></form><form action={archiveStaleRolesAction} className="row wrap"><input type="hidden" name="days" value="90"/><button className="btn" type="submit">Archive 90+ day stale roles</button></form></div></section>
+      <section className="card"><div className="row"><Wrench size={20}/><h2 style={{ margin: 0 }}>Safe housekeeping</h2></div><p className="muted">Admin-only repair actions for known structural issues.</p><div className="stack"><form action={repairVaRecordsAction}><button className="btn btn-primary" type="submit">Repair missing VA records & slugs</button></form><form action={hideIncompletePublicProfilesAction}><button className="btn" type="submit">Hide public profiles below {PUBLIC_VA_MIN_COMPLETION}%</button></form><form action={archiveStaleRolesAction} className="row wrap"><input type="hidden" name="days" value="90"/><button className="btn" type="submit">Archive 90+ day stale roles</button></form></div></section>
       <section className="card"><div className="row"><Database size={20}/><h2 style={{ margin: 0 }}>Recent failures</h2></div>{errorRowsRes.data?.length ? <><h3 className="ops-subhead">Application errors</h3><div className="compact-list">{(errorRowsRes.data as ErrorEventRow[]).map((row) => <div className="compact-static" key={row.id}><span><strong>{row.message}</strong><small>{row.path || "Unknown path"} · {row.role || "visitor"}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{failedEmailRowsRes.data?.length ? <><h3 className="ops-subhead">Email delivery</h3><div className="compact-list">{(failedEmailRowsRes.data as FailedEmailRow[]).map((row) => <div className="compact-static" key={row.id}><span><strong>{String(row.event_type).replaceAll("_", " ")}</strong><small>{row.error_message || "Provider rejected the message"}{row.recipient ? ` · ${row.recipient}` : ""}</small></span><small>{dateShort(row.created_at)}</small></div>)}</div></> : null}{!errorRowsRes.data?.length && !failedEmailRowsRes.data?.length ? <div className="empty">No unresolved application or recent email errors.</div> : null}</section>
     </div>
   </>;

@@ -4,16 +4,21 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("shared Account settings stays in client, VA, and admin nav but not recruiter nav", async () => {
+test("shared Account settings is reachable from every workspace role on mobile", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
   for (const role of ["client", "va", "recruiter", "admin"]) {
     const roleStart = nav.indexOf(`${role}: [`);
     assert.notEqual(roleStart, -1);
   }
-  const matches = nav.match(/\["Account settings", "\/workspace\/account", Settings\]/g) || [];
-  assert.equal(matches.length, 3);
-  const recruiterBlock = nav.slice(nav.indexOf("recruiter: ["), nav.indexOf("admin: ["));
-  assert.doesNotMatch(recruiterBlock, /Account settings/);
+  for (const role of ["client", "va", "recruiter", "admin"]) {
+    const start = nav.indexOf(`${role}: [`);
+    const nextRoles = ["client", "va", "recruiter", "admin"]
+      .map((candidate) => nav.indexOf(`${candidate}: [`, start + 1))
+      .filter((index) => index > start);
+    const end = nextRoles.length ? Math.min(...nextRoles) : nav.indexOf("const mobilePrimary");
+    const block = nav.slice(start, end);
+    assert.match(block, /Account settings/, `${role} should expose Account settings`);
+  }
 });
 
 test("ordinary logout is local while explicit controls cover others and global", async () => {

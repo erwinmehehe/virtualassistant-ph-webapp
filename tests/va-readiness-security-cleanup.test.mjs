@@ -25,10 +25,10 @@ test("VA work readiness is a real focused page instead of a redirect", async()=>
   assert.match(css,/\.va-readiness-check small/);
 });
 
-test("recruiter sidebar omits Account settings while other role nav stays intact", async()=>{
+test("recruiter mobile navigation exposes Account settings like the other roles", async()=>{
   const nav=await read("src/components/app-nav-links.tsx");
   const recruiterBlock=nav.slice(nav.indexOf("recruiter: ["),nav.indexOf("admin: ["));
-  assert.doesNotMatch(recruiterBlock,/Account settings/);
+  assert.match(recruiterBlock,/Account settings/);
   assert.match(nav,/client:[\s\S]*Account settings/);
   assert.match(nav,/va:[\s\S]*Account settings/);
   assert.match(nav,/admin:[\s\S]*Account settings/);

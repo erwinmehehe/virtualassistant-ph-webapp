@@ -85,3 +85,26 @@ test("all four workspace roles share the colored navigation icon renderer",async
   assert.match(nav,/app-nav-icon nav-tone-/);
   assert.match(nav,/navToneFor\(label, href\)/);
 });
+
+
+test("mobile workspace navigation always exposes account settings and sign out", async () => {
+  const [nav, css] = await Promise.all([
+    read("src/components/app-nav-links.tsx"),
+    read("src/app/dashboard-premium.css"),
+  ]);
+
+  assert.match(nav, /recruiter:[\s\S]*Account settings/);
+  assert.match(nav, /logoutAction/);
+  assert.match(nav, /mobile-logout-button/);
+  assert.match(nav, /<span>Sign out<\/span>/);
+  assert.match(css, /mobile-account-actions/);
+  assert.match(css, /mobile-logout-button/);
+  assert.match(css, /app-topbar-workspace-home[\s\S]*display:\s*block/);
+});
+
+test("mobile Account Settings uses a non-scrolling settings grid", async () => {
+  const css = await read("src/app/workspace/account-center.css");
+  assert.match(css, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.account-settings-nav[\s\S]*overflow:\s*visible/);
+  assert.match(css, /\.account-settings-header[\s\S]*border-radius:\s*18px/);
+});

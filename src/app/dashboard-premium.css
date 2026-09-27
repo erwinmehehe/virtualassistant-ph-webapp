@@ -1980,3 +1980,55 @@
     justify-content: center;
   }
 }
+
+
+/* Mobile More menu must always provide account escape hatches. */
+@media (max-width: 680px) {
+  .dashboard-shell .mobile-more-panel .mobile-account-actions {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #334155;
+  }
+
+  .dashboard-shell .mobile-more-panel .mobile-logout-form {
+    width: 100%;
+    margin: 0;
+  }
+
+  .dashboard-shell .mobile-more-panel .mobile-logout-button {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 7px 9px;
+    border: 0;
+    border-radius: 11px;
+    color: #fecdd3;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 720;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .dashboard-shell .mobile-more-panel .mobile-logout-button:hover,
+  .dashboard-shell .mobile-more-panel .mobile-logout-button:focus-visible {
+    color: #fff;
+    background: #1f2937;
+  }
+
+  .dashboard-shell .mobile-more-panel .mobile-logout-button > span:last-child {
+    display: block !important;
+    min-width: 0;
+    color: inherit;
+    white-space: normal;
+  }
+
+  .dashboard-shell .app-topbar-workspace-home {
+    display: block;
+  }
+}

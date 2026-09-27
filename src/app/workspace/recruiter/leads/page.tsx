@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
-import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryGoogleMeetLinkAction, recordLeadContactAction, scheduleDiscoveryAction, sendDiscoveryNoShowRebookAction, updateLeadCrmAction } from "@/app/actions/recruiter";
+import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryGoogleMeetLinkAction, recordLeadContactAction, scheduleDiscoveryAction, updateLeadCrmAction } from "@/app/actions/recruiter";
 import { createAndSendProposalAction } from "@/app/actions/proposals";
 import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { proposalStatusLabel } from "@/lib/proposals";
@@ -197,23 +197,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     : { data: [] as LinkedRoleSummary[], error: null };
   if (linkedRolesError) throw linkedRolesError;
   const linkedRoleById = new Map(((linkedRoles || []) as LinkedRoleSummary[]).map((role) => [role.id, role]));
-  const rebookKeys = visible
-    .filter((lead) => lead.discovery_outcome === "no_show" || lead.discovery_outcome === "rescheduled")
-    .map((lead) => `discovery-no-show-rebook-${lead.id}`);
-  const { data: rebookEmailEvents } = rebookKeys.length
-    ? await admin.from("outbound_email_events")
-        .select("idempotency_key,created_at,status")
-        .eq("event_type", "discovery_no_show_rebook")
-        .in("status", ["sent", "delivered"])
-        .in("idempotency_key", rebookKeys)
-        .order("created_at", { ascending: false })
-    : { data: [] };
-  const rebookSentAt = new Map<string, string>();
-  for (const row of rebookEmailEvents || []) {
-    const key = String(row.idempotency_key || "");
-    const leadId = key.replace(/^discovery-no-show-rebook-/, "");
-    if (leadId && !rebookSentAt.has(leadId)) rebookSentAt.set(leadId, String(row.created_at));
-  }
   const metrics = payload.metrics || {};
   const total = Number(payload.total || 0);
   const currentPage = Math.max(1, Number(payload.page || page));
@@ -280,17 +263,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.meet_link_created ? <div className="success-banner">Google Meet created. No client email was sent.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
-      {params.rebook_email_sent ? <div className="success-banner">No-show recorded. No client email was sent.</div> : null}
-      {params.rebook_email_already_sent ? <div className="success-banner">The rebooking email was already sent. No duplicate email was sent.</div> : null}
-      {params.rebook_prompt ? <div className="crm-rebook-prompt">
-        <div><strong>Client marked No show.</strong><span>Send the approved rebooking email with their existing booking link?</span></div>
-        <form action={sendDiscoveryNoShowRebookAction}>
-          <input type="hidden" name="lead_id" value={params.rebook_prompt}/>
-          <input type="hidden" name="return_to" value={returnTo}/>
-          <button className="btn btn-primary btn-sm" type="submit"><Mail size={14}/> Send rebooking email</button>
-        </form>
-      </div> : null}
-      {params.proposal_sent ? <div className="success-banner">Proposal sent. The CRM will follow up automatically in two days if it is still open.</div> : null}
+      {params.proposal_saved ? <div className="success-banner">Proposal draft saved internally. No client email was sent.</div> : null}
       {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
       {params.crm_error ? <div className="alert" role="alert">{params.crm_error}</div> : null}
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
@@ -302,7 +275,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div>
           <div className="kicker">Hiring Pipeline</div>
           <h1>Hiring inbox</h1>
-          <p>Turn every genuine hiring enquiry into a linked recruiting role, reply to the client, and move straight into matching.</p>
+          <p>Turn every genuine hiring enquiry into a linked recruiting role and move straight into matching.</p>
         </div>
         <div className="row wrap">
           <Link className="btn btn-sm" href="/workspace/recruiter/leads/board"><LayoutDashboard size={15}/> Employer board</Link>
@@ -365,16 +338,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const followOverdue = Boolean(followTime && followTime < now && isOpenLeadStage(stage));
           const response = responseLabel(lead.created_at, lead.first_contact_at);
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
-          const noShowRebookSentAt = rebookSentAt.get(lead.id) || null;
-          const noShowRebooked = lead.discovery_outcome === "rescheduled" && Boolean(noShowRebookSentAt);
           const suggestedHours = inferHours(lead.hours) || 40;
           const attentionMessage = slaMissed
             ? "Triage overdue. Review this enquiry and move it into recruiting."
             : followOverdue
               ? "Follow-up overdue. Move this lead forward or close it."
               : null;
-          const needsFirstReply = !lead.first_contact_at || slaMissed;
-          const actionResultForLead = params.action_lead === lead.id;
           const linkedRole = lead.job_id ? linkedRoleById.get(lead.job_id) || null : null;
           const missingRoleDetails = linkedRole ? publicationMissingDetails(linkedRole) : [];
           const roleReady = Boolean(linkedRole && missingRoleDetails.length === 0);
@@ -535,31 +504,13 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     {view === "discovery" && isOpenLeadStage(stage) ? <CloseLeadForm leadId={lead.id} returnTo={returnTo} hasLinkedRole={Boolean(lead.job_id)}/> : null}
                     {lead.discovery_outcome ? <span className="small muted">Outcome: {String(lead.discovery_outcome).replaceAll("_", " ")}</span> : lead.discovery_notes ? <span className="small muted">{lead.discovery_notes}</span> : null}
                   </div>
-                  {lead.discovery_outcome === "no_show" ? <section className="crm-no-show-rebook" aria-label="No-show recovery">
+                  {lead.discovery_outcome === "no_show" ? <div className="crm-no-show-rebook">
                     <div className="crm-no-show-rebook-head">
-                      <div>
-                        <strong>{noShowRebookSentAt ? "Rebooking email sent" : "Client missed the call"}</strong>
-                        <span>{noShowRebookSentAt ? `Sent ${dateShort(noShowRebookSentAt)}. Waiting for the client to choose another time.` : "Review the email below, then send one rebooking link."}</span>
-                      </div>
-                      {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction} className="crm-rebook-send-form">
-                        <input type="hidden" name="lead_id" value={lead.id}/>
-                        <input type="hidden" name="return_to" value={returnTo}/>
-                        <button className="btn btn-sm btn-primary" type="submit"><Mail size={13}/> Send rebooking email</button>
-                      </form>}
+                      <div><strong>Client missed the call</strong><span>No automatic rebooking email is sent. Keep the note in the recruiter workspace and continue when the client returns.</span></div>
+                      <span className="badge">No email</span>
                     </div>
-                    <div className="crm-rebook-email-preview">
-                      <div className="crm-rebook-email-meta"><span>Email preview</span><strong>Subject: Would you like to rebook your call?</strong></div>
-                      <p>Hi {firstName},</p>
-                      <p>We weren’t able to connect for your scheduled call today.</p>
-                      <p>If you’d still like to discuss hiring a virtual assistant, you can choose another time here:</p>
-                      <span className="crm-rebook-email-cta">Rebook your call</span>
-                      <p>If you’re no longer looking, just reply and let us know so we can close the request.</p>
-                    </div>
-                  </section> : null}
-                  {noShowRebooked ? <div className="crm-no-show-rebook is-rebooked">
-                    <div><strong>Rebooked</strong><span>The client chose a new discovery time from the no-show email.</span></div>
-                    <span className="badge badge-success">Rebooked</span>
                   </div> : null}
+                </div> : null}
                 </div> : null}
 
                 {proposal ? <div className="crm-proposal-summary">

@@ -10,7 +10,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { proposalAgencyValue, proposalClientMonthlyTotal } from "@/lib/proposals";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-import { sendLeadProposalEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendTransactionalEventEmail } from "@/lib/email";
 import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
@@ -99,22 +99,6 @@ export async function createAndSendProposalAction(formData: FormData) {
   }).select("id,public_token").single();
   if (error || !proposal) return fail(error?.message || "Could not create the proposal.");
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const proposalUrl = `${appUrl}/proposal/${proposal.public_token}`;
-  const expiresLabel = new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }).format(expiresAt);
-  const emailResult = await sendLeadProposalEmail({
-    to: lead.email,
-    clientName: lead.name,
-    roleTitle,
-    proposalUrl,
-    expiresLabel,
-    recruiterName: profile.full_name
-  });
-
-  if (!emailResult.sent) {
-    return fail("The proposal was saved as a draft, but the email could not be sent. The previous live proposal, if any, was left unchanged.");
-  }
-
   await admin.from("lead_proposals")
     .update({ status: "expired", updated_at: now.toISOString() })
     .eq("lead_id", leadId)
@@ -139,7 +123,7 @@ export async function createAndSendProposalAction(formData: FormData) {
     subjectType: "lead",
     subjectId: leadId,
     action: "proposal_sent",
-    description: `Proposal sent for ${roleTitle}`,
+    description: `Proposal prepared for ${roleTitle}; client email held until VA shortlist delivery`,
     actorId: user.id,
     metadata: {
       proposal_id: proposal.id,
@@ -153,7 +137,7 @@ export async function createAndSendProposalAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_sent=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_ready=1`);
 }
 
 export async function respondToLeadProposalAction(formData: FormData) {

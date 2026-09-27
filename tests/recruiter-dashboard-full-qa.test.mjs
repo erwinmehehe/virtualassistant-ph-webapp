@@ -122,3 +122,21 @@ test("talent operations no longer links recruiters through the legacy vetting ro
   assert.ok(panel.includes('href="/workspace/recruiter/talent?stage=recruiter_review"'));
   assert.ok(!panel.includes('href="/workspace/recruiter/queue"'));
 });
+
+
+test("Hiring inbox and Tasks surface supporting query failures instead of false empty data", async () => {
+  const [leads,tasks]=await Promise.all([
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("src/app/workspace/recruiter/tasks/page.tsx"),
+  ]);
+  for (const snippet of [
+    "error: ownersError",
+    "error: settingsError",
+    "error: scoringError",
+    "if (ownersError) throw ownersError",
+    "if (settingsError) throw settingsError",
+    "if (scoringError) throw scoringError",
+  ]) assert.ok(leads.includes(snippet));
+  assert.ok(tasks.includes("error:peopleError"));
+  assert.ok(tasks.includes("if(peopleError)throw peopleError"));
+});

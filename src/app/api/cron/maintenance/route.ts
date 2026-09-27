@@ -523,11 +523,13 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
     const href = String(row.href || "");
     return href.match(rolePattern)?.[1] || href.match(adminJobPattern)?.[1] || null;
   }).filter(Boolean))] as string[];
-  const { data: jobs, error: jobError } = roleIds.length
-    ? await admin.from("jobs").select("id,status").in("id", roleIds)
-    : { data: [] as any[], error: null };
-  if (jobError) throw jobError;
-  const jobStatus = new Map((jobs || []).map((job: any) => [String(job.id), String(job.status || "")]));
+  const jobs: any[] = [];
+  for (let index = 0; index < roleIds.length; index += 200) {
+    const { data, error } = await admin.from("jobs").select("id,status").in("id", roleIds.slice(index, index + 200));
+    if (error) throw error;
+    jobs.push(...(data || []));
+  }
+  const jobStatus = new Map(jobs.map((job: any) => [String(job.id), String(job.status || "")]));
 
   const archive = new Set<string>();
   const rewrites = new Map<string, string[]>();
@@ -585,11 +587,11 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
 
   const now = new Date().toISOString();
   const archiveIds = [...archive];
-  if (archiveIds.length) {
+  for (let index = 0; index < archiveIds.length; index += 200) {
     const { error } = await admin
       .from("notifications")
       .update({ done_at: now, read_at: now, snoozed_until: null })
-      .in("id", archiveIds);
+      .in("id", archiveIds.slice(index, index + 200));
     if (error) throw error;
   }
 

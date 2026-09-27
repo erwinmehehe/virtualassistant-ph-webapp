@@ -260,7 +260,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
       <div className={styles.workspace}>
         <aside className={styles.views}>
-          <div className={styles.viewsTitle}>System views</div>
+          <div className={styles.viewsTitle}>Saved views</div>
           {SYSTEM_VIEWS.map(([value, label]) => (
             <Link key={value} className={!selectedUserView && savedView === value ? styles.viewActive : undefined} href={buildHref({ view: value, saved: undefined })}>
               <span>{label}</span><small>{allLeads.filter((lead) => viewMatch(value, lead, userId, now)).length}</small>

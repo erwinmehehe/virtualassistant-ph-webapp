@@ -14,6 +14,21 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }
 
+function recruiterActionPath(value: FormDataEntryValue | string | null, fallback: string) {
+  const path = safePath(value as FormDataEntryValue | null, fallback);
+  const legacyMatch = path.match(/^\/workspace\/recruiter\/matching\/([^/?#]+)(.*)$/);
+  if (legacyMatch) return `/workspace/recruiter/roles/${legacyMatch[1]}${legacyMatch[2] || ""}`;
+  const adminJob = path.match(/^\/workspace\/admin\/jobs\/([^/?#]+)(.*)$/);
+  if (adminJob) return `/workspace/recruiter/roles/${adminJob[1]}${adminJob[2] || ""}`;
+  if (
+    path === "/workspace/client-success" ||
+    path.startsWith("/workspace/client-success/") ||
+    path === "/workspace/account" ||
+    path.startsWith("/workspace/recruiter/")
+  ) return path;
+  return fallback;
+}
+
 function parseManilaDateTime(value: FormDataEntryValue | null) {
   const raw = String(value || "").trim();
   if (!raw) return null;
@@ -56,7 +71,7 @@ export async function openRecruiterNotificationAction(formData: FormData) {
   const now = new Date().toISOString();
   await admin.from("notifications").update({ read_at: now }).eq("id", id).eq("user_id", userId);
   refreshRecruiterOps();
-  redirect(safePath(notification.href, "/workspace/recruiter/notifications"));
+  redirect(recruiterActionPath(notification.href, "/workspace/recruiter/notifications"));
 }
 
 export async function markAllRecruiterNotificationsReadAction() {
@@ -99,7 +114,7 @@ export async function createRecruiterTaskAction(formData: FormData) {
   const assigneeId = String(formData.get("assignee_id") || userId).trim() || userId;
   const subjectType = String(formData.get("subject_type") || "").trim();
   const subjectId = String(formData.get("subject_id") || "").trim();
-  const href = safePath(formData.get("href"), "");
+  const href = recruiterActionPath(formData.get("href"), "");
   const priority = String(formData.get("priority") || "normal");
   const repeatRule = String(formData.get("repeat_rule") || "none");
   const due = parseManilaDateTime(formData.get("due_at"));

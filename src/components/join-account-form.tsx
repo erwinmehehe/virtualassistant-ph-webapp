@@ -65,7 +65,6 @@ export function JoinAccountForm({
                   <button className="btn auth-social-btn auth-provider-btn" type="submit">
                     <span className="auth-provider-mark auth-provider-google" aria-hidden="true">G</span>
                     <span>Continue with Google</span>
-                    <span className="auth-provider-note">Fastest</span>
                   </button>
                 </form> : null}
               {microsoftEnabled ? <form action={oauthAction}>

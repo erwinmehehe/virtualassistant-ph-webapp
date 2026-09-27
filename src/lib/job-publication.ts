@@ -2,7 +2,7 @@ export type PublicationBlocker =
   | "published"
   | "needs_client_account"
   | "needs_role_review"
-  | "needs_role_details"
+  | "brief_incomplete"
   | "needs_terms"
   | "waiting_client_approval"
   | "ready_to_publish";
@@ -60,7 +60,7 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   const missing = publicationMissingDetails(job);
   if (missing.length) {
     return {
-      key: "needs_role_details",
+      key: "brief_incomplete",
       label: "Brief incomplete",
       detail: job.status === "published"
         ? `This published role is missing required public content: ${missing.join(", ")}.`

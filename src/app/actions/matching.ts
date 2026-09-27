@@ -128,10 +128,6 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
   ]);
 
   if (!job) return fail("Role not found.");
-  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
-    return fail("This role is assigned to another recruiter.");
-  }
-
   if (profile.role === "recruiter" && !job.recruiter_id) {
     const { error: claimError } = await admin
       .from("jobs")

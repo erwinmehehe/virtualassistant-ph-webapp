@@ -39,8 +39,8 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   const talent=data.talent;
   const open=jobs.filter((j)=>!["filled","closed"].includes(j.hiring_stage));
   const history=jobs.filter((j)=>["filled","closed"].includes(j.hiring_stage));
-  const requestedView=String(params.view||"active");
-  const sort=String(params.sort||"urgent");
+  const requestedView=ROLE_VIEWS.some(([value])=>value===String(params.view||"active"))?String(params.view||"active"):"active";
+  const sort=["urgent","oldest","newest","start","stage"].includes(String(params.sort||"urgent"))?String(params.sort||"urgent"):"urgent";
   const roleFlags=(job:RoleListRow)=>{
     const stageStarted=job.hiring_stage_entered_at?new Date(job.hiring_stage_entered_at).getTime():new Date(job.created_at).getTime();
     const cutoff=Date.now()-72*3600000;

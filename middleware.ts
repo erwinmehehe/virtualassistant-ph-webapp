@@ -3,9 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
+function normalizeRequestHost(value: string | null) {
+  return value?.split(",")[0]?.trim().replace(/:\d+$/, "").toLowerCase() ?? null;
+}
+
 export async function middleware(request: NextRequest) {
-  const host = request.headers.get("host")?.toLowerCase();
-  const hasLegacyHost = host === "www.virtualassistant.com.ph";
+  const forwardedHost = normalizeRequestHost(request.headers.get("x-forwarded-host"));
+  const host = normalizeRequestHost(request.headers.get("host"));
+  const nextUrlHost = request.nextUrl.hostname.toLowerCase();
+  const hasLegacyHost = [forwardedHost, host, nextUrlHost].includes("www.virtualassistant.com.ph");
   const hasServiceTrailingSlash =
     request.nextUrl.pathname.startsWith("/service/") &&
     request.nextUrl.pathname.length > "/service/".length &&

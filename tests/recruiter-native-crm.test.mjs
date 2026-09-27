@@ -29,5 +29,5 @@ test("CRM record page combines properties relationships activity notes and tasks
 test("recruiter navigation exposes CRM as a primary workspace destination",async()=>{
   const nav=await read("src/components/app-nav-links.tsx");
   assert.match(nav,/["CRM", "/workspace/recruiter/crm", UsersRound]/);
-  assert.match(nav,/recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"]/);
+  assert.ok(nav.includes('recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],'));
 });

@@ -63,6 +63,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Opportunities", "/workspace/va/jobs", Search],
         ["Interviews", "/workspace/va/interviews", CalendarDays],
         ["My Placement", "/workspace/va/workroom", Wrench],
+        ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
         ["Support", "/workspace/va/support", LifeBuoy],
@@ -86,6 +87,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Recruiting tools",
       items: [
+        ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
         ["Coverage", "/workspace/recruiter/coverage", Target],
       ],
     },

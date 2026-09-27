@@ -104,3 +104,12 @@ test("roles page falls back safely from stale view and sort query strings", asyn
   assert.ok(page.includes('ROLE_VIEWS.some(([value])=>value===String(params.view||"active"))'));
   assert.ok(page.includes('["urgent","oldest","newest","start","stage"].includes'));
 });
+
+
+test("Talent links directly to canonical recruiter queues instead of legacy redirect routes", async () => {
+  const page=await read("src/app/workspace/recruiter/talent/page.tsx");
+  assert.ok(page.includes('href="/workspace/recruiter/talent?stage=recruiter_review"'));
+  assert.ok(page.includes('href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"'));
+  assert.ok(!page.includes('href="/workspace/recruiter/queue"'));
+  assert.ok(!page.includes('href="/workspace/recruiter/matching"'));
+});

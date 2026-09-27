@@ -248,7 +248,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       user_id: id,
       title: notificationTitle,
       body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`,
-      href: `/workspace/recruiter/roles/${jobId}#interviews`,
+      href: `/workspace/recruiter/roles/${jobId}`,
       type: "interview",
       priority: decision === "interview" ? "high" : "normal"
     })));

@@ -340,7 +340,7 @@ export default async function RecruiterTalentDirectory({
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>
-          <option value="approve">Approve eligible (60%+)</option>
+          <option value="approve">Approve eligible ({APPROVAL_MIN_COMPLETION}%+)</option>
           <option value="bench">Move approved to Bench</option>
           <option value="approve_publish">Approve + publish if public-ready</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>

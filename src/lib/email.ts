@@ -510,6 +510,21 @@ async function suppressClientHiringEmail(eventType: string, recipient?: string |
   return { sent: false as const, reason: "client_shortlist_only_policy" };
 }
 
+async function isClientHiringLeadRecipient(recipient: string) {
+  try {
+    const email = bareEmailAddress(recipient);
+    const { data, error } = await createAdminClient()
+      .from("lead_intake")
+      .select("id")
+      .eq("lead_type", "client_hiring")
+      .ilike("email", email)
+      .limit(1);
+    return !error && Boolean(data?.length);
+  } catch {
+    return false;
+  }
+}
+
 export async function sendTrackedRawEmail(args: {
   to: string;
   replyTo?: string;
@@ -957,6 +972,12 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  const eventType = args.eventType || "transactional_event";
+  const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
+  const shortlistEmail = eventType === "client_shortlist_invite" || eventType === "client_shortlist_ready";
+  if (!shortlistEmail && !isPasswordChangeNotice && await isClientHiringLeadRecipient(recipient)) {
+    return suppressClientHiringEmail(eventType, recipient);
+  }
   const dashboardOnly = [args.subject, args.heading, args.body].some((value) => /shortlist presented|matched VA profiles? (?:were )?presented|^job published:|^job closed:|daily recruiter reminder digest/i.test(value.trim()));
   if (dashboardOnly) {
     await logEmailEvent("transactional_event", [recipient], "suppressed", null, "Routine workspace state change kept in-app to preserve email quota.", {
@@ -968,7 +989,6 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
     });
     return { sent: false as const, reason: "dashboard_only" };
   }
-  const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
   const bodyHtml = `<p style="margin:0;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p>`;
   const delivery = await trackedSend(config, {
     from: config.from,
@@ -985,7 +1005,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
       ctaHref: args.href,
       ctaLabel: args.hrefLabel || "Open VirtualAssistant.com.ph"
     })
-  }, args.eventType || "transactional_event", { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
+  }, eventType, { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

@@ -108,6 +108,40 @@ export async function requireAuthenticatedUserFast(nextPath = "/workspace/traini
   return session as typeof session & { userId: string };
 }
 
+export async function requireTrainingAccessFast() {
+  const session = await getFastRoleProfile();
+  if ("banned" in session && session.banned) {
+    redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");
+  }
+  if (!session.userId) redirect("/auth/login?next=%2Fworkspace%2Ftraining");
+
+  const role = session.profile?.role as Role | undefined;
+  if (role === "va" || role === "admin") {
+    return session as typeof session & { userId: string };
+  }
+  if (role === "client" || role === "recruiter") {
+    redirect(roleHome(role));
+  }
+
+  // Training-only accounts deliberately have no profiles row so they never
+  // enter the VA candidate or hiring systems. Verify that explicit account
+  // intent from the signed JWT before allowing the learner workspace.
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims as Record<string, unknown> | undefined;
+  const userMetadata = claims?.user_metadata;
+  const accountType =
+    userMetadata && typeof userMetadata === "object" && "account_type" in userMetadata
+      ? (userMetadata as Record<string, unknown>).account_type
+      : null;
+
+  if (!error && accountType === "training") {
+    return session as typeof session & { userId: string };
+  }
+
+  redirect("/auth/login?error=Your%20account%20does%20not%20have%20access%20to%20the%20learner%20workspace");
+}
+
 export async function requireRoleFast(role: Role) {
   const session = await getFastRoleProfile();
   if ("banned" in session && session.banned) redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");

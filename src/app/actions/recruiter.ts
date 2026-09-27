@@ -13,6 +13,7 @@ import { writeAdminAudit } from "@/lib/admin-audit";
 import { isPubliclyEligible, isRowApprovable, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
+import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -569,6 +570,10 @@ export async function updateLeadCrmAction(formData: FormData) {
     }
   });
 
+  if (stage !== String(lead.crm_stage || "new")) {
+    await runCrmStageWorkflows({ leadId, stage, actorId: user.id });
+  }
+
   const qualifiedStages = new Set(["qualified", "shortlist_sent", "won"]);
   if (qualifiedStages.has(stage) && !qualifiedStages.has(String(lead.crm_stage || ""))) {
     let path = "/hire";
@@ -593,6 +598,8 @@ export async function updateLeadCrmAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_saved=1`);

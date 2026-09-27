@@ -8,7 +8,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
+import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadNotificationEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
@@ -81,9 +81,39 @@ async function routeVaApplicant(args: { name?: string | null; email: string; pho
  * caller can respond as if the submission succeeded, rather than creating
  * a second duplicate lead and job.
  */
-async function findRecentDuplicateLead(admin: ReturnType<typeof createAdminClient>, email: string, service: string | null) {
+async function findRecentDuplicateLead(
+  admin: ReturnType<typeof createAdminClient>,
+  email: string,
+  service: string | null,
+  sessionId?: string | null,
+) {
+  // A visitor often explores several service/category pages before submitting.
+  // Treat same-session submissions as one hiring thread so the recruiter inbox
+  // does not fragment one employer into multiple near-identical leads/jobs.
+  if (sessionId) {
+    const sessionSince = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: sessionLead } = await admin
+      .from("lead_intake")
+      .select("id,job_id,client_id")
+      .ilike("email", email)
+      .eq("lead_type", "client_hiring")
+      .eq("session_id", sessionId)
+      .gte("created_at", sessionSince)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (sessionLead) return sessionLead;
+  }
+
   const since = new Date(Date.now() - DUPLICATE_SUBMISSION_WINDOW_MINUTES * 60 * 1000).toISOString();
-  let query = admin.from("lead_intake").select("id,job_id,client_id").ilike("email", email).gte("created_at", since).order("created_at", { ascending: false }).limit(1);
+  let query = admin
+    .from("lead_intake")
+    .select("id,job_id,client_id")
+    .ilike("email", email)
+    .eq("lead_type", "client_hiring")
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(1);
   if (service) query = query.eq("service", service);
   const { data } = await query.maybeSingle();
   return data;
@@ -236,7 +266,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     const sourcePage = sourcePath.startsWith("/service/") ? "service_match_request" : "blog_match_request";
     const pageUrl = `${base.replace(/\/$/, "")}${sourcePath}`;
 
-    const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, service.name);
+    const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, service.name, parsed.data.session_id);
     if (duplicate) {
       return {
         status: "success",
@@ -299,16 +329,6 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       });
     } catch {
       // Lead and pending job creation must not fail because email delivery is unavailable.
-    }
-    try {
-      await sendLeadAcknowledgementEmail({
-        to: parsed.data.email,
-        name: parsed.data.name,
-        service: service.name,
-        leadId: lead.id
-      });
-    } catch {
-      // Lead storage is the source of truth; acknowledgement email is best effort.
     }
 
     return {
@@ -389,7 +409,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     const pageUrl = `${base.replace(/\/$/, "")}${sourcePath}`;
     const serviceLabel = `${industry.label} virtual assistant support`;
 
-    const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, serviceLabel);
+    const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, serviceLabel, parsed.data.session_id);
     if (duplicate) {
       return {
         status: "success",
@@ -452,16 +472,6 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       });
     } catch {
       // Lead and pending job creation remain successful if email delivery is unavailable.
-    }
-    try {
-      await sendLeadAcknowledgementEmail({
-        to: parsed.data.email,
-        name: parsed.data.name,
-        service: `${industry.label} Virtual Assistant support`,
-        leadId: lead.id
-      });
-    } catch {
-      // Lead storage is the source of truth; acknowledgement email is best effort.
     }
 
     return {
@@ -559,7 +569,7 @@ export async function submitRoleBriefAction(formData: FormData) {
         : "content_role_brief";
   const pageUrl = `${base}${sourcePath}`;
 
-  const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category);
+  const duplicate = await findRecentDuplicateLead(admin, parsed.data.email, category, parsed.data.session_id);
   if (duplicate) redirect(`${returnTo}?sent=1&lead=${encodeURIComponent(duplicate.id)}&cat=${encodeURIComponent(category)}#feedback=${encodeURIComponent(matchFeedbackToken(duplicate.id))}`);
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
@@ -648,16 +658,6 @@ export async function submitRoleBriefAction(formData: FormData) {
   } catch {
     // Lead and job creation remain successful even if notification delivery fails.
   }
-  try {
-    await sendLeadAcknowledgementEmail({
-      to: parsed.data.email,
-      name: parsed.data.name?.trim() || null,
-      service: jobTitleForCategory(category),
-      leadId: lead.id
-    });
-  } catch {
-    // Lead storage is the source of truth; acknowledgement email is best effort.
-  }
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);
   const talent = parsed.data.talent ? `&talent=${encodeURIComponent(parsed.data.talent)}` : "";
@@ -723,15 +723,6 @@ export async function submitContactAction(formData: FormData) {
   } catch {
     // Contact storage is the source of truth; email notification is best effort.
   }
-  try {
-    await sendLeadAcknowledgementEmail({
-      to: parsed.data.email,
-      name: parsed.data.name.trim(),
-      service: parsed.data.topic.trim()
-    });
-  } catch {
-    // The saved request remains successful if acknowledgement delivery fails.
-  }
   redirect("/contact?sent=1");
 }
 
@@ -782,7 +773,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       topic: `VirtualAssistant.com.ph discovery call with ${parsed.data.company}`,
       startsAt: parsed.data.scheduled_at,
       durationMinutes: DISCOVERY_DURATION_MINUTES,
-      attendeeEmails: [parsed.data.email],
+      attendeeEmails: [],
     });
   } catch (error) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";
@@ -895,31 +886,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
 
   const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
   const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
-  try {
-    await sendPublicDiscoveryBookingEmail({
-      leadId,
-      to: parsed.data.email,
-      clientName: parsed.data.name,
-      company: parsed.data.company,
-      companyUrl: parsed.data.company_url || null,
-      phone: parsed.data.phone || null,
-      service: parsed.data.service,
-      hours: parsed.data.hours,
-      budget: parsed.data.budget,
-      startTime: parsed.data.start_time,
-      message: parsed.data.message,
-      scheduledAt: parsed.data.scheduled_at,
-      clientLabel,
-      manilaLabel,
-      clientTimeZone: parsed.data.timezone,
-      meetingUrl: meeting?.joinUrl || null,
-      calendarEventId: meeting?.eventId || null,
-      manageUrl: bookingManageUrl(manage.token),
-    });
-  } catch {
-    // The database booking remains the source of truth if delivery is unavailable.
-  }
 
+  // Client email is intentionally held until recruiter-approved VA candidates are ready.
+  // Booking still alerts the internal hiring team so staff can prepare.
   try {
     await sendInternalDiscoveryBookingNotificationEmail({
       leadId,

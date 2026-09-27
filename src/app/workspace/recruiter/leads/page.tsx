@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
@@ -11,6 +11,7 @@ import { proposalStatusLabel } from "@/lib/proposals";
 import { inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { scoreLead } from "@/lib/lead-scoring";
 import { publicationMissingDetails } from "@/lib/job-publication";
 import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";

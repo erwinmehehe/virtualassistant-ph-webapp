@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   BriefcaseBusiness,
+  Building2,
+  CalendarDays,
   Check,
   Clock3,
   ListTodo,
@@ -15,6 +17,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
 import { dateInputValue as dateInput } from "@/lib/format";
 import { updateLeadCrmAction, addRecruiterNoteAction, recordLeadContactAction } from "@/app/actions/recruiter";
+import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";
 
@@ -34,6 +37,8 @@ type Lead = {
   page_url: string | null;
   client_id: string | null;
   job_id: string | null;
+  crm_company_id: string | null;
+  crm_contact_id: string | null;
   crm_stage: string | null;
   owner_id: string | null;
   next_follow_up_at: string | null;
@@ -64,6 +69,11 @@ type Owner = { id: string; full_name: string | null; role: string | null };
 type Activity = { id: string; action: string; description: string | null; created_at: string };
 type Note = { id: string; note: string; created_at: string };
 type Task = { id: string; title: string; description: string | null; priority: string; status: string; due_at: string | null };
+type CustomField = { id:string; label:string; field_type:string; options:unknown };
+type CustomValue = { field_id:string; value:unknown };
+type Company = { id:string; name:string; website:string|null; industry:string|null; location:string|null };
+type Contact = { id:string; full_name:string|null; email:string|null; phone:string|null; title:string|null };
+type EmailEvent = { id:string; event_type:string; status:string; automation:string|null; created_at:string };
 
 function fmt(value?: string | null, withTime = false) {
   if (!value) return "—";
@@ -101,7 +111,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
 
   const { data: leadData, error: leadError } = await admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_completed_at,discovery_outcome,created_at,lead_type")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_company_id,crm_contact_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_completed_at,discovery_outcome,created_at,lead_type")
     .eq("id", leadId)
     .eq("lead_type", "client_hiring")
     .maybeSingle();
@@ -109,26 +119,35 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
     admin.from("profiles").select("id,full_name,role,account_status").in("role", ["recruiter", "admin"]).eq("account_status", "active").order("full_name"),
-    admin.from("recruiter_activity").select("id,action,description,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(60),
+    admin.from("recruiter_activity").select("id,action,description,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(80),
     admin.from("recruiter_notes").select("id,note,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(20),
     admin.from("recruiter_tasks").select("id,title,description,priority,status,due_at").eq("subject_type", "lead").eq("subject_id", leadId).eq("assignee_id", userId).order("created_at", { ascending: false }).limit(20),
+    lead.crm_company_id ? admin.from("crm_companies").select("id,name,website,industry,location").eq("id",lead.crm_company_id).maybeSingle() : Promise.resolve({data:null,error:null}),
+    lead.crm_contact_id ? admin.from("crm_contacts").select("id,full_name,email,phone,title").eq("id",lead.crm_contact_id).maybeSingle() : Promise.resolve({data:null,error:null}),
+    admin.from("crm_custom_fields").select("id,label,field_type,options").eq("object_type","lead").order("created_at",{ascending:true}),
+    admin.from("crm_custom_values").select("field_id,value").eq("object_type","lead").eq("object_id",leadId),
+    admin.from("outbound_email_events").select("id,event_type,status,automation,created_at").eq("recipient",lead.email).order("created_at",{ascending:false}).limit(30),
   ]);
-  if (jobResult.error) throw jobResult.error;
-  if (ownersResult.error) throw ownersResult.error;
-  if (activityResult.error) throw activityResult.error;
-  if (notesResult.error) throw notesResult.error;
-  if (tasksResult.error) throw tasksResult.error;
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult]) {
+    if (result.error) throw result.error;
+  }
 
   const job = jobResult.data as Job | null;
+  const company = companyResult.data as Company | null;
+  const contact = contactResult.data as Contact | null;
   const owners = (ownersResult.data || []) as Owner[];
   const activities = (activityResult.data || []) as Activity[];
   const notes = (notesResult.data || []) as Note[];
   const tasks = (tasksResult.data || []) as Task[];
+  const customFields = (customFieldsResult.data || []) as CustomField[];
+  const customValueMap = new Map(((customValuesResult.data || []) as CustomValue[]).map(item=>[item.field_id,item.value]));
+  const emailEvents = (emailResult.data || []) as EmailEvent[];
+  const communication = activities.filter(item=>/email|contact|meeting|discovery|follow_up/.test(item.action));
   const returnTo = `/workspace/recruiter/crm/${lead.id}`;
   const initial = (lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase();
 
@@ -139,6 +158,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.note_saved ? <div className="success-banner">Private note added.</div> : null}
       {query.task_saved ? <div className="success-banner">Task created.</div> : null}
       {query.task_error ? <div className="alert" role="alert">{query.task_error}</div> : null}
+      {query.field_saved ? <div className="success-banner">Custom field created.</div> : null}
+      {query.field_value_saved ? <div className="success-banner">Custom field updated.</div> : null}
+      {query.field_error ? <div className="alert" role="alert">{query.field_error}</div> : null}
 
       <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to CRM</Link>
 
@@ -174,20 +196,33 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             </div>
           </section>
 
-          {job ? (
+          {(job || company || contact) ? (
             <section className={styles.panel}>
-              <div className={styles.panelHead}><h2>Relationship</h2><span className={styles.muted}>Linked VAPH object</span></div>
+              <div className={styles.panelHead}><h2>Relationships</h2><span className={styles.muted}>Connected CRM objects</span></div>
               <div className={styles.panelBody}>
-                <Link className={styles.linkedRole} href={`/workspace/recruiter/roles/${job.id}`}>
-                  <span>
-                    <strong>{job.title || "Virtual Assistant role"}</strong>
-                    <small>{job.company_name || lead.company || "Client"} · {String(job.hiring_stage || "intake").replaceAll("_", " ")} · {job.status || "pending"}</small>
-                  </span>
-                  <BriefcaseBusiness size={17}/>
-                </Link>
+                <div className="stack">
+                  {company ? <Link className={styles.linkedRole} href={`/workspace/recruiter/crm/companies/${company.id}`}>
+                    <span><strong>{company.name}</strong><small>{[company.industry,company.location].filter(Boolean).join(" · ") || "Company record"}</small></span><Building2 size={17}/>
+                  </Link> : null}
+                  {contact ? <div className={styles.linkedRole}><span><strong>{contact.full_name || contact.email || "Contact"}</strong><small>{[contact.title,contact.email,contact.phone].filter(Boolean).join(" · ") || "Contact record"}</small></span><UserRound size={17}/></div> : null}
+                  {job ? <Link className={styles.linkedRole} href={`/workspace/recruiter/roles/${job.id}`}>
+                    <span><strong>{job.title || "Virtual Assistant role"}</strong><small>{job.company_name || lead.company || "Client"} · {String(job.hiring_stage || "intake").replaceAll("_", " ")} · {job.status || "pending"}</small></span><BriefcaseBusiness size={17}/>
+                  </Link> : null}
+                </div>
               </div>
             </section>
           ) : null}
+
+          <section className={styles.panel}>
+            <div className={styles.panelHead}><h2>Communication history</h2><CalendarDays size={15}/></div>
+            <div className={styles.panelBody}>
+              {communication.length || emailEvents.length || lead.discovery_scheduled_at ? <div className={styles.timeline}>
+                {lead.discovery_scheduled_at ? <div className={styles.timelineItem}><span className={styles.timelineDot}/><div><strong>{lead.discovery_completed_at?"Discovery completed":"Discovery scheduled"}</strong><p>{lead.discovery_outcome || "Calendar event linked to this hiring relationship."}</p><time>{fmt(lead.discovery_completed_at || lead.discovery_scheduled_at,true)}</time></div></div> : null}
+                {emailEvents.slice(0,20).map(item=><div className={styles.timelineItem} key={`email-${item.id}`}><span className={styles.timelineDot}/><div><strong>{item.event_type.replaceAll("_"," ")}</strong><p>Email {item.status}{item.automation?` · ${item.automation}`:""}</p><time>{fmt(item.created_at,true)}</time></div></div>)}
+                {communication.slice(0,20).map(item=><div className={styles.timelineItem} key={`communication-${item.id}`}><span className={styles.timelineDot}/><div><strong>{activityTitle(item.action)}</strong>{item.description?<p>{item.description}</p>:null}<time>{fmt(item.created_at,true)}</time></div></div>)}
+              </div> : <div className={styles.empty}>No email, call, meeting, or calendar activity has been logged yet.</div>}
+            </div>
+          </section>
 
           <section className={styles.panel}>
             <div className={styles.panelHead}><h2>Activity</h2><span className={styles.muted}>{activities.length} events</span></div>
@@ -236,6 +271,41 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <label>Lost reason<input name="lost_reason" defaultValue={lead.lost_reason || ""} placeholder="Required only when stage is Lost"/></label>
                 <button type="submit">Save properties</button>
               </form>
+
+              <div className={styles.viewsDivider} style={{margin:"14px 0"}}/>
+              <div className={styles.viewsTitle} style={{padding:0,marginBottom:8}}>Custom fields</div>
+              <div className="stack">
+                {customFields.map(field=>{
+                  const current=customValueMap.get(field.id);
+                  const raw=current==null?"":typeof current==="string"||typeof current==="number"?String(current):current===true?"true":current===false?"false":"";
+                  const options=Array.isArray(field.options)?field.options.map(String):[];
+                  return <form action={setCrmCustomValueAction} className={styles.form} key={field.id}>
+                    <input type="hidden" name="field_id" value={field.id}/>
+                    <input type="hidden" name="object_id" value={lead.id}/>
+                    <input type="hidden" name="object_type" value="lead"/>
+                    <input type="hidden" name="return_to" value={returnTo}/>
+                    <label>{field.label}
+                      {field.field_type==="select"?<select name="value" defaultValue={raw}><option value="">—</option>{options.map(option=><option key={option} value={option}>{option}</option>)}</select>
+                      :field.field_type==="boolean"?<select name="value" defaultValue={raw}><option value="">—</option><option value="true">Yes</option><option value="false">No</option></select>
+                      :<input name="value" type={field.field_type==="number"?"number":field.field_type==="date"?"date":"text"} defaultValue={raw}/>}
+                    </label>
+                    <button type="submit">Save {field.label}</button>
+                  </form>;
+                })}
+                {!customFields.length?<div className={styles.muted}>No custom fields yet.</div>:null}
+              </div>
+
+              <details className={styles.saveView} style={{marginTop:12}}>
+                <summary>+ Add custom field</summary>
+                <form action={createCrmCustomFieldAction} className={styles.form}>
+                  <input type="hidden" name="object_type" value="lead"/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <label>Label<input name="label" required minLength={2} placeholder="Lead source quality"/></label>
+                  <label>Type<select name="field_type" defaultValue="text"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="boolean">Yes / No</option><option value="select">Select</option></select></label>
+                  <label>Select options<input name="options" placeholder="Hot, Warm, Cold"/></label>
+                  <button type="submit">Create field</button>
+                </form>
+              </details>
             </div>
           </section>
 

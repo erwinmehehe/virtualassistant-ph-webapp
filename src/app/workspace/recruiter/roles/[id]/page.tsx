@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
-import { prepareStandardPlacementTermsAction, requestClientRoleDetailsAction, saveRoleReadinessDetailsAction, sendClientAccountClaimAction } from "@/app/actions/agency-role";
+import { prepareStandardPlacementTermsAction, requestClientRoleDetailsAction, saveRoleReadinessDetailsAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
@@ -164,27 +164,8 @@ export default async function RoleControlCenter({
 
   return (
     <>
-      {query.client_claim_sent ? (
-        <div className="success-banner" role="status">
-          Client account link sent. The role will attach automatically when the client signs up or logs in with the same email.
-        </div>
-      ) : null}
       {query.client_already_linked ? (
         <div className="success-banner" role="status">The client account is already linked to this role.</div>
-      ) : null}
-      {query.client_claim_email_unavailable && clientClaimHref ? (
-        <div className="alert" role="alert">
-          <div>
-            Client account email was not delivered. The account link is still valid.
-          </div>
-          <div className="row wrap" style={{ marginTop: 8 }}>
-            <form action={sendClientAccountClaimAction}>
-              <input type="hidden" name="job_id" value={job.id} />
-              <button className="btn btn-sm" type="submit">Retry email now</button>
-            </form>
-            <Link className="text-link" href={clientClaimHref} target="_blank">Open client account link</Link>
-          </div>
-        </div>
       ) : null}
       {query.client_invite_email_unavailable && clientClaimHref ? (
         <div className="alert" role="alert">
@@ -193,10 +174,11 @@ export default async function RoleControlCenter({
         </div>
       ) : null}
       {query.shortlist_saved ? <div className="success-banner">Internal shortlist saved.</div> : null}
-      {query.shortlist_released ? <div className="success-banner">Shortlist released to the client.</div> : null}
-      {query.client_invited ? <div className="success-banner">Shortlist saved and the client account invitation was sent.</div> : null}
+      {query.shortlist_released ? <div className="success-banner">Shortlist released to the client and the VA shortlist email was triggered.</div> : null}
+      {query.client_shortlist_email_unavailable ? <div className="alert" role="alert">The VA shortlist is live in the client workspace, but the shortlist email could not be delivered. Do not send a generic follow-up email; verify the client address and retry shortlist delivery only if needed.</div> : null}
+      {query.client_invited ? <div className="success-banner">Shortlist saved. The client received the VA shortlist invitation because candidates are ready to review.</div> : null}
       {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
-      {query.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
+      {query.followup_sent ? <div className="success-banner">Shortlist reminder added to the client workspace. No email was sent.</div> : null}
       {query.offer_sent ? <div className="success-banner">Placement offer sent to the VA. Waiting for VA acceptance before the client confirms the placement.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
       {query.role_details_saved ? <div className="success-banner" role="status">Required role details saved.</div> : null}
@@ -271,12 +253,6 @@ export default async function RoleControlCenter({
           <Clock3 size={20} />
         </div>
         <div className="row wrap" style={{ marginTop: 14 }}>
-          {publication.key === "needs_client_account" && lead?.email ? (
-            <form action={sendClientAccountClaimAction}>
-              <input type="hidden" name="job_id" value={job.id} />
-              <button className="btn btn-primary" type="submit">Send client account link</button>
-            </form>
-          ) : null}
           {publication.key === "needs_client_account" && clientClaimHref ? (
             <Link className="btn" href={clientClaimHref} target="_blank">Open client account link</Link>
           ) : null}
@@ -374,8 +350,7 @@ export default async function RoleControlCenter({
         </section>
       </div>
 
-      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request added to the client workspace{query.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
-      {query.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
+      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request added to the client workspace. No email was sent.</div> : null}
       <RoleReadinessForm
         job={job}
         returnTo={`/workspace/recruiter/roles/${job.id}`}

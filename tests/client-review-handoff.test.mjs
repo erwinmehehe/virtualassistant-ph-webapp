@@ -16,7 +16,8 @@ test("recruiters can explicitly send reviewed VAs through the existing release f
   assert.match(recruiterTalentAction, /send_client_review/);
   assert.match(recruiterTalentAction, /saveJobShortlistAction/);
   assert.match(recruiterTalentAction, /forwarded\.set\("mode", "release"\)/);
-  assert.match(recruiterTalentAction, /ids\.length > 50/);
+  assert.match(recruiterTalentAction, /const CLIENT_SHORTLIST_LIMIT = 5/);
+  assert.match(recruiterTalentAction, /ids\.length > CLIENT_SHORTLIST_LIMIT/);
   assert.match(matchingTable, /name="mode" value="release"/);
   assert.match(matchingTable, /Send \{selectedCount \|\| 0\} to client/);
   assert.match(matchingTable, /name="mode" value="save"/);

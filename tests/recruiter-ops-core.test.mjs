@@ -54,17 +54,17 @@ test("recruiter tasks are server-only and indexed for due work", async () => {
   assert.match(creatorIndex, /recruiter_tasks_created_by_idx/);
 });
 
-test("communication templates send and schedule the next follow-up in one action", async () => {
-  const [templates, composer, actions] = await Promise.all([
+test("legacy communication templates cannot send pre-shortlist client email", async () => {
+  const [templates, actions] = await Promise.all([
     read("src/lib/recruiter-communications.ts"),
-    read("src/components/recruiter-template-composer.tsx"),
     read("src/app/actions/recruiter-ops.ts")
   ]);
   for (const id of ["first_response", "discovery_confirmation", "no_show", "proposal_followup", "shortlist_ready", "reactivation"]) assert.match(templates, new RegExp(`id: "${id}"`));
-  assert.match(composer, /Send \+ schedule follow-up/);
   assert.match(actions, /sendRecruiterTemplateEmailAction/);
-  assert.match(actions, /next_follow_up_at/);
-  assert.match(actions, /sendStaffClientFollowupEmail/);
+  assert.match(actions, /Client email is held until recruiter-approved VAs are ready to send/);
+  assert.doesNotMatch(actions, /sendStaffClientFollowupEmail/);
+  const sendBlock=actions.match(/export async function sendRecruiterTemplateEmailAction[\s\S]*?^}/m)?.[0]||"";
+  assert.doesNotMatch(sendBlock, /next_follow_up_at|last_contact_at/);
 });
 
 test("recruiter notifications support priority, snooze and done states", async () => {

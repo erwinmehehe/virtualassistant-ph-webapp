@@ -292,7 +292,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           <button className="btn btn-primary btn-sm" type="submit"><Mail size={14}/> Send rebooking email</button>
         </form>
       </div> : null}
-      {params.proposal_sent ? <div className="success-banner">Proposal sent. The CRM will follow up automatically in two days if it is still open.</div> : null}
+      {params.proposal_ready ? <div className="success-banner">Proposal prepared. No client email was sent. Keep it internal until you are ready to send the VA shortlist.</div> : null}
       {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
       {params.crm_error ? <div className="alert" role="alert">{params.crm_error}</div> : null}
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
@@ -588,7 +588,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 </div> : null}
 
                 {proposal ? <div className="crm-proposal-summary">
-                  <div><FileCheck2 size={16}/><span><strong>{proposal.role_title}</strong><small>{proposalStatusLabel(proposal.status)}{proposal.sent_at ? ` · sent ${dateShort(proposal.sent_at)}` : ""}{proposal.viewed_at ? ` · viewed ${dateShort(proposal.viewed_at)}` : proposal.status === "sent" ? " · not viewed yet" : ""}</small>{proposal.decline_reason ? <small><strong>Client feedback:</strong> {proposal.decline_reason}</small> : null}</span></div>
+                  <div><FileCheck2 size={16}/><span><strong>{proposal.role_title}</strong><small>{proposalStatusLabel(proposal.status)}{proposal.sent_at ? ` · prepared ${dateShort(proposal.sent_at)}` : ""}{proposal.viewed_at ? ` · viewed ${dateShort(proposal.viewed_at)}` : proposal.status === "sent" ? " · not opened yet" : ""}</small>{proposal.decline_reason ? <small><strong>Client feedback:</strong> {proposal.decline_reason}</small> : null}</span></div>
                   <Link className="btn btn-sm" href={`/proposal/${proposal.public_token}`} target="_blank">Open proposal <ExternalLink size={13}/></Link>
                 </div> : null}
 
@@ -644,7 +644,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               </details> : null}
 
               {["qualified","shortlist_sent"].includes(stage) ? <details className="crm-tool-panel" open={stage === "qualified" && !proposal}>
-                <summary><FileCheck2 size={16}/><span><strong>{proposal ? "Send updated proposal" : "Create proposal"}</strong><small>Turn the discovery notes into one clear commercial decision.</small></span></summary>
+                <summary><FileCheck2 size={16}/><span><strong>{proposal ? "Prepare updated proposal" : "Create proposal"}</strong><small>Prepare commercial terms without emailing the client yet.</small></span></summary>
                 <form action={createAndSendProposalAction} className="crm-tool-form">
                   <input type="hidden" name="lead_id" value={lead.id}/>
                   <input type="hidden" name="return_to" value={returnTo}/>
@@ -664,7 +664,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     <div className="field"><label>Proposal valid</label><select name="expires_days" defaultValue="7"><option value="7">7 days</option><option value="14">14 days</option><option value="30">30 days</option></select></div>
                   </div>
                   <div className="field"><label>Start timing</label><input name="start_timing" maxLength={200} defaultValue={lead.start_time || ""} placeholder="ASAP, within 2 weeks, next month..."/></div>
-                  <button className="btn btn-primary" type="submit">{proposal ? "Create and send updated proposal" : "Create and send proposal"}</button>
+                  <button className="btn btn-primary" type="submit">{proposal ? "Prepare updated proposal" : "Prepare proposal"}</button>
                 </form>
               </details> : null}
             </div> : null}

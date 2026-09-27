@@ -243,6 +243,70 @@ export async function updateCrmContactAction(formData: FormData) {
   redirect(withParam(returnTo, "contact_saved"));
 }
 
+
+function normalizeCompanyName(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+export async function createCrmCompanyAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/companies");
+  const name = String(formData.get("name") || "").trim().slice(0, 180);
+  if (name.length < 2) redirect(withParam(returnTo, "company_error", "Add a company name."));
+
+  const normalizedName = normalizeCompanyName(name);
+  const admin = createAdminClient();
+  const { data, error } = await admin.from("crm_companies").insert({
+    name,
+    normalized_name: normalizedName,
+    website: String(formData.get("website") || "").trim().slice(0, 500) || null,
+    industry: String(formData.get("industry") || "").trim().slice(0, 120) || null,
+    location: String(formData.get("location") || "").trim().slice(0, 160) || null,
+    owner_id: user.id,
+    created_by: user.id,
+  }).select("id").single();
+
+  if (error?.code === "23505") {
+    const { data: existing } = await admin.from("crm_companies").select("id").eq("normalized_name", normalizedName).maybeSingle();
+    if (existing?.id) redirect(`/workspace/recruiter/crm/companies/${existing.id}?company_exists=1`);
+  }
+  if (error) redirect(withParam(returnTo, "company_error", error.message));
+  revalidatePath("/workspace/recruiter/crm/companies");
+  redirect(`/workspace/recruiter/crm/companies/${data.id}?company_created=1`);
+}
+
+export async function createCrmContactAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/contacts");
+  const fullName = String(formData.get("full_name") || "").trim().slice(0, 160) || null;
+  const email = String(formData.get("email") || "").trim().toLowerCase().slice(0, 320) || null;
+  const phone = String(formData.get("phone") || "").trim().slice(0, 80) || null;
+  const title = String(formData.get("title") || "").trim().slice(0, 120) || null;
+  const companyId = String(formData.get("company_id") || "").trim() || null;
+  if (!fullName && !email) redirect(withParam(returnTo, "contact_error", "Add a contact name or email."));
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) redirect(withParam(returnTo, "contact_error", "Enter a valid email address."));
+
+  const admin = createAdminClient();
+  if (companyId) {
+    const { data: company } = await admin.from("crm_companies").select("id").eq("id", companyId).maybeSingle();
+    if (!company) redirect(withParam(returnTo, "contact_error", "Choose a valid company."));
+  }
+
+  const { data, error } = await admin.from("crm_contacts").insert({
+    company_id: companyId,
+    full_name: fullName,
+    email,
+    phone,
+    title,
+    owner_id: user.id,
+    created_by: user.id,
+  }).select("id").single();
+  if (error) redirect(withParam(returnTo, "contact_error", error.message));
+  revalidatePath("/workspace/recruiter/crm/contacts");
+  if (companyId) revalidatePath(`/workspace/recruiter/crm/companies/${companyId}`);
+  redirect(`/workspace/recruiter/crm/contacts/${data.id}?contact_created=1`);
+}
+
 export async function createCrmWorkflowAction(formData: FormData) {
   const { user } = await requireAnyRole(["recruiter", "admin"]);
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/automations");

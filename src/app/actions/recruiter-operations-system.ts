@@ -240,11 +240,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
 
   const jobTitle = Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title;
-  const [{ data: vaAuth }, { data: clientAuth }] = await Promise.all([
-    admin.auth.admin.getUserById(row.va_id),
-    admin.auth.admin.getUserById(user.id)
-  ]);
-  const attendeeEmails = [vaAuth.user?.email, clientAuth.user?.email].filter((value): value is string => Boolean(value));
+  const { data: vaAuth } = await admin.auth.admin.getUserById(row.va_id);
+  const attendeeEmails = [vaAuth.user?.email].filter((value): value is string => Boolean(value));
   const previousEventId = String(row.calendar_event_id || "").trim() || null;
   const meet = previousEventId
     ? await updateGoogleMeetDiscoveryMeeting({
@@ -290,10 +287,18 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   ]);
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. The Google Meet link is available in your workspace and on the calendar invitation.`;
-  try { await Promise.all([
-    sendTransactionalEventEmail({ to: vaAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/va/interviews`, hrefLabel: "Open interview" }),
-    sendTransactionalEventEmail({ to: clientAuth.user?.email, subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`, heading: "Candidate interview scheduled", body, href: `${appUrl}/workspace/client/interviews`, hrefLabel: "Open interview" })
-  ]); } catch (emailError) { console.error("[interview] confirmation email failed", emailError); }
+  try {
+    await sendTransactionalEventEmail({
+      to: vaAuth.user?.email,
+      subject: `Interview scheduled: ${jobTitle || "Virtual Assistant role"}`,
+      heading: "Candidate interview scheduled",
+      body,
+      href: `${appUrl}/workspace/va/interviews`,
+      hrefLabel: "Open interview"
+    });
+  } catch (emailError) {
+    console.error("[interview] VA confirmation email failed", emailError);
+  }
   revalidatePath("/workspace/client/interviews");
   revalidatePath("/workspace/va/interviews");
   revalidatePath("/workspace/recruiter/today");
@@ -479,9 +484,6 @@ export async function respondPlacementOfferAction(formData: FormData) {
   } else {
     await admin.from("placement_offers").update({ status: "pending_client", va_accepted_at: now, updated_at: now }).eq("id", offerId);
     await admin.from("notifications").insert({ user_id: offer.client_id, title: `VA accepted the offer: ${jobTitle || "role"}`, body: "Confirm the final placement to activate the workroom and onboarding.", href: "/workspace/client/offers", type: "offer", priority: "high" });
-    const { data: clientAuth } = await admin.auth.admin.getUserById(offer.client_id);
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-    try { await sendTransactionalEventEmail({ to: clientAuth.user?.email, subject: `VA accepted your offer: ${jobTitle || "role"}`, heading: "Your VA accepted the placement terms", body: "Confirm the placement in your client workspace to activate onboarding and the workroom.", href: `${appUrl}/workspace/client/offers`, hrefLabel: "Confirm placement" }); } catch {}
   }
   revalidatePath("/workspace/va/offers"); revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${offer.job_id}`);
   redirect(`/workspace/va/offers?${decision === "accept" ? "accepted" : "declined"}=1`);

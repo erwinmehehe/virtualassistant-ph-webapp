@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { hideShortlistCandidateAction, saveJobShortlistAction } from "@/app/actions/matching";
+import { hideShortlistCandidateAction, prepareTopMatchesForReviewAction, saveJobShortlistAction } from "@/app/actions/matching";
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
@@ -68,6 +68,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
   return <section className="card staff-matching-card unified-role-matching">
     <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Matching & shortlist builder</h2></div><p className="muted">Review recruiter-only match suggestions and VA interest, build the shortlist, preview the client experience, then release only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"&&awaitingClientCount?<a className="btn btn-sm" href="#client-handoff">Client feedback · {awaitingClientCount} waiting</a>:null}</div></div>
+
+    {viewerRole==="recruiter"&&releasedCount===0&&proposedCount<3&&recommended.length?<div className="info-banner quick-shortlist-banner"><div><strong>Fast path: prepare the strongest matches for review</strong><p className="small muted" style={{margin:"5px 0 0"}}>This only builds an internal recruiter shortlist. Nothing is emailed or shown to the client until you review the candidates and explicitly send them.</p></div><form action={prepareTopMatchesForReviewAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-primary" type="submit">Prepare top {Math.min(3,recommended.length)} matches</button></form></div>:null}
 
     <div className="matching-workflow-steps"><span className={roleReady?"done":"current"}>1. Qualify role</span><span className={roleReady?"current":""}>2. Recruiter review</span><span>3. Client shortlist</span><span>4. Interview & offer</span></div>
 

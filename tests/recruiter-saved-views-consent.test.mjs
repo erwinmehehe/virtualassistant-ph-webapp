@@ -42,10 +42,7 @@ test("talent directory exposes saved queues sorting counts and real public block
 
 test("recruiter roles expose saved action queues with counts and sorting", async()=>{
   const page=await read("src/app/workspace/recruiter/roles/page.tsx");
-  assert.match(page,/Needs role details/);
-  assert.match(page,/needs_details/);
-  assert.match(page,/publication\.key==="needs_role_details"/);
-  assert.match(page,/Complete role →/);
+  assert.doesNotMatch(page,/Needs role details|needs_details|Complete role →/);
   assert.match(page,/Needs candidates/);
   assert.match(page,/Waiting on client/);
   assert.match(page,/Stale 72h\+/);

@@ -38,7 +38,7 @@ test("recruiter role control center exposes publication blocker actions", async 
   assert.match(role, /Prepare standard terms/);
   assert.match(role, /Follow up with client/);
   assert.match(helper, /Needs client account/);
-  assert.match(helper, /Needs role details/);
+  assert.match(helper, /Brief incomplete/);
   assert.match(helper, /Needs terms/);
   assert.match(helper, /Waiting client approval/);
   assert.match(helper, /Published/);
@@ -111,9 +111,9 @@ test("all publication write paths use the same required-role validator", async (
 
   assert.match(jobs, /publicationMissingDetails\(\{/);
   assert.match(jobs, /Complete the public job before publishing/);
-  assert.match(jobs, /Complete the role before publishing/);
+  assert.match(jobs, /This brief is missing required public content/);
   assert.match(admin, /publicationMissingDetails\(job\)/);
-  assert.match(admin, /Complete the role before sending terms/);
+  assert.match(admin, /This brief is missing required public content/);
 });
 
 test("client commercial acceptance fetches every publication-required job field before publishing", async () => {

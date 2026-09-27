@@ -29,7 +29,7 @@ test("client account claim stays manual before shortlist instead of sending clie
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
   ]);
 
-  const claim=action.match(/export async function sendClientAccountClaimAction[\s\S]*?function readinessLines/)?.[0]||"";
+  const claim=action.match(/export async function sendClientAccountClaimAction[\s\S]*$/)?.[0]||"";
   assert.match(claim,/client_claim_email_disabled=1/);
   assert.doesNotMatch(claim,/sendClaimDraftEmail|emails\.send/);
 

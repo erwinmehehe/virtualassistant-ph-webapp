@@ -36,3 +36,9 @@ test("workspace fixes do not override shell or score-card responsive behavior", 
   assert.match(compactBlock, /\.recruiter-candidate-page \.score-grid/);
   assert.match(compactBlock, /\.profile-sidebar/);
 });
+
+
+test("route-level workspace feedback stays compact on desktop and usable on mobile", () => {
+  assert.match(css, /\.app-content > \.success-banner,[\s\S]*\.app-content > \.alert[\s\S]*width:\s*fit-content/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.app-content > \.success-banner,[\s\S]*\.app-content > \.alert[\s\S]*width:\s*100%/);
+});

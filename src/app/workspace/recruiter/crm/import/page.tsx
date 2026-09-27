@@ -21,7 +21,7 @@ export default async function CrmImportPage({searchParams}:{searchParams:Promise
         <p>Bring existing employer relationships into VAPH or export a clean operational copy of the current CRM.</p>
       </div>
       <div className={styles.headerActions}>
-        <a className={styles.primaryButton} href="/workspace/recruiter/crm/export"><Download size={15}/> Export CSV</Link>
+        <Link prefetch={false} download className={styles.primaryButton} href="/workspace/recruiter/crm/export"><Download size={15}/> Export CSV</Link>
         <Link className={styles.secondaryButton} href="/workspace/recruiter/crm">Back to CRM</Link>
       </div>
     </header>

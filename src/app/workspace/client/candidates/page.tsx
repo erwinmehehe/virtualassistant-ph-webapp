@@ -50,6 +50,25 @@ export default async function ClientCandidatesPage({
   }
 
   const activeJobs = jobRows.filter((job) => job.status !== "closed");
+  if (!activeJobs.length) {
+    return <div className="client-hiring-room client-hiring-room-empty">
+      <div className="page-head client-hiring-room-head">
+        <div>
+          <h1>Hiring Room</h1>
+          <p>Your previous hiring roles are closed. Start a new request whenever you are ready to hire again.</p>
+        </div>
+      </div>
+      <div className="card empty">
+        <strong>No active hiring roles</strong>
+        <p>{jobRows.length} closed role{jobRows.length === 1 ? "" : "s"} remain in your account history, but there is no shortlist waiting for review.</p>
+        <div className="row wrap">
+          <Link className="btn btn-primary" href="/workspace/client/jobs/new">Start a new hiring request</Link>
+          <Link className="btn" href="/workspace/client/jobs">View role history</Link>
+        </div>
+      </div>
+    </div>;
+  }
+
   const selectedJob = summary.selected_job;
   const selectedReleased = summary.released || [];
   const selectedPublished = selectedJob?.status === "published";

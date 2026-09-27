@@ -30,7 +30,7 @@ export function proposalAgencyValue(args: {
 export function proposalStatusLabel(status?: string | null) {
   const labels: Record<string,string> = {
     draft: "Draft",
-    sent: "Sent",
+    sent: "Ready",
     changes_requested: "Changes requested",
     accepted: "Accepted",
     declined: "Declined",

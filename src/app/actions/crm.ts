@@ -1,0 +1,348 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireAnyRole } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isLeadCrmStage, legacyLeadStatus } from "@/lib/lead-crm";
+
+const CRM_OBJECTS = new Set(["lead", "company", "contact"]);
+const FIELD_TYPES = new Set(["text", "number", "date", "boolean", "select"]);
+const WORKFLOW_ACTIONS = new Set(["create_task", "set_follow_up"]);
+const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
+const DASHBOARD_WIDGETS = new Set(["active", "needs_action", "discovery", "qualified", "pipeline_value"]);
+
+function safePath(value: FormDataEntryValue | null, fallback: string) {
+  const path = String(value || "");
+  return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+}
+
+function withParam(path: string, key: string, value = "1") {
+  return `${path}${path.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value)}`;
+}
+
+function slugKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 48);
+}
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let value = "";
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+    if (char === '"' && quoted && next === '"') {
+      value += '"';
+      i += 1;
+      continue;
+    }
+    if (char === '"') {
+      quoted = !quoted;
+      continue;
+    }
+    if (char === "," && !quoted) {
+      row.push(value);
+      value = "";
+      continue;
+    }
+    if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(value);
+      if (row.some((cell) => cell.trim())) rows.push(row);
+      row = [];
+      value = "";
+      continue;
+    }
+    value += char;
+  }
+  row.push(value);
+  if (row.some((cell) => cell.trim())) rows.push(row);
+  return rows;
+}
+
+function csvObjects(text: string) {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return [];
+  const headers = rows[0].map((cell) => cell.trim().toLowerCase().replace(/\s+/g, "_"));
+  return rows.slice(1).map((cells) => Object.fromEntries(headers.map((header, index) => [header, String(cells[index] || "").trim()])));
+}
+
+export async function saveCrmViewAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const name = String(formData.get("name") || "").trim().slice(0, 80);
+  const objectType = String(formData.get("object_type") || "lead");
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm");
+  if (name.length < 2 || !CRM_OBJECTS.has(objectType)) redirect(withParam(returnTo, "view_error", "Add a valid view name."));
+
+  const filters = {
+    view: String(formData.get("view") || "active"),
+    owner: String(formData.get("owner") || ""),
+    q: String(formData.get("q") || "").slice(0, 120),
+    mode: String(formData.get("mode") || "table") === "board" ? "board" : "table",
+  };
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("crm_saved_views")
+    .upsert(
+      { user_id: user.id, object_type: objectType, name, filters, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,object_type,name" },
+    )
+    .select("id")
+    .single();
+  if (error) redirect(withParam(returnTo, "view_error", error.message));
+  revalidatePath("/workspace/recruiter/crm");
+  redirect(`/workspace/recruiter/crm?saved=${data.id}&view_saved=1`);
+}
+
+export async function deleteCrmViewAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const viewId = String(formData.get("view_id") || "");
+  const admin = createAdminClient();
+  if (viewId) await admin.from("crm_saved_views").delete().eq("id", viewId).eq("user_id", user.id);
+  revalidatePath("/workspace/recruiter/crm");
+  redirect("/workspace/recruiter/crm?view_deleted=1");
+}
+
+export async function saveCrmDashboardPreferencesAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const widgets = formData
+    .getAll("widgets")
+    .map(String)
+    .filter((value) => DASHBOARD_WIDGETS.has(value));
+  const admin = createAdminClient();
+  const { error } = await admin.from("crm_dashboard_preferences").upsert({
+    user_id: user.id,
+    widgets: widgets.length ? widgets : ["active", "needs_action", "pipeline_value"],
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+  revalidatePath("/workspace/recruiter/crm");
+  redirect("/workspace/recruiter/crm?dashboard_saved=1");
+}
+
+export async function createCrmCustomFieldAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm");
+  const objectType = String(formData.get("object_type") || "lead");
+  const label = String(formData.get("label") || "").trim().slice(0, 80);
+  const fieldType = String(formData.get("field_type") || "text");
+  const fieldKey = slugKey(String(formData.get("field_key") || label));
+  const options = String(formData.get("options") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 30);
+
+  if (!CRM_OBJECTS.has(objectType) || !FIELD_TYPES.has(fieldType) || label.length < 2 || fieldKey.length < 2) {
+    redirect(withParam(returnTo, "field_error", "Add a valid field name and type."));
+  }
+  if (fieldType === "select" && !options.length) redirect(withParam(returnTo, "field_error", "Add at least one select option."));
+
+  const { error } = await createAdminClient().from("crm_custom_fields").insert({
+    object_type: objectType,
+    field_key: fieldKey,
+    label,
+    field_type: fieldType,
+    options,
+    created_by: user.id,
+  });
+  if (error) redirect(withParam(returnTo, "field_error", error.message));
+  revalidatePath(returnTo.split("?")[0]);
+  redirect(withParam(returnTo, "field_saved"));
+}
+
+export async function setCrmCustomValueAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm");
+  const fieldId = String(formData.get("field_id") || "");
+  const objectId = String(formData.get("object_id") || "");
+  const objectType = String(formData.get("object_type") || "");
+  const raw = String(formData.get("value") || "").trim();
+  if (!fieldId || !objectId || !CRM_OBJECTS.has(objectType)) redirect(withParam(returnTo, "field_error", "Custom field could not be saved."));
+
+  const admin = createAdminClient();
+  const { data: field, error: fieldError } = await admin
+    .from("crm_custom_fields")
+    .select("id,object_type,field_type,options")
+    .eq("id", fieldId)
+    .maybeSingle();
+  if (fieldError || !field || field.object_type !== objectType) redirect(withParam(returnTo, "field_error", "Custom field not found."));
+
+  let value: unknown = raw || null;
+  if (field.field_type === "number") {
+    value = raw ? Number(raw) : null;
+    if (raw && !Number.isFinite(value)) redirect(withParam(returnTo, "field_error", "Enter a valid number."));
+  } else if (field.field_type === "boolean") {
+    value = raw === "true";
+  } else if (field.field_type === "date") {
+    if (raw && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) redirect(withParam(returnTo, "field_error", "Enter a valid date."));
+  } else if (field.field_type === "select") {
+    const options = Array.isArray(field.options) ? field.options.map(String) : [];
+    if (raw && !options.includes(raw)) redirect(withParam(returnTo, "field_error", "Choose a valid option."));
+  }
+
+  const { error } = await admin.from("crm_custom_values").upsert(
+    {
+      field_id: fieldId,
+      object_type: objectType,
+      object_id: objectId,
+      value,
+      updated_by: user.id,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "field_id,object_id" },
+  );
+  if (error) redirect(withParam(returnTo, "field_error", error.message));
+  revalidatePath(returnTo.split("?")[0]);
+  redirect(withParam(returnTo, "field_value_saved"));
+}
+
+export async function updateCrmCompanyAction(formData: FormData) {
+  await requireAnyRole(["recruiter", "admin"]);
+  const companyId = String(formData.get("company_id") || "");
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/companies");
+  const patch = {
+    website: String(formData.get("website") || "").trim().slice(0, 500) || null,
+    industry: String(formData.get("industry") || "").trim().slice(0, 120) || null,
+    location: String(formData.get("location") || "").trim().slice(0, 160) || null,
+    updated_at: new Date().toISOString(),
+  };
+  if (!companyId) redirect(withParam(returnTo, "company_error", "Company not found."));
+  const { error } = await createAdminClient().from("crm_companies").update(patch).eq("id", companyId);
+  if (error) redirect(withParam(returnTo, "company_error", error.message));
+  revalidatePath(returnTo.split("?")[0]);
+  redirect(withParam(returnTo, "company_saved"));
+}
+
+export async function updateCrmContactAction(formData: FormData) {
+  await requireAnyRole(["recruiter", "admin"]);
+  const contactId = String(formData.get("contact_id") || "");
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/contacts");
+  if (!contactId) redirect(withParam(returnTo, "contact_error", "Contact not found."));
+
+  const admin = createAdminClient();
+  const { data: contact } = await admin.from("crm_contacts").select("id,lead_id").eq("id", contactId).maybeSingle();
+  if (!contact) redirect(withParam(returnTo, "contact_error", "Contact not found."));
+
+  const fullName = String(formData.get("full_name") || "").trim().slice(0, 160) || null;
+  const phone = String(formData.get("phone") || "").trim().slice(0, 80) || null;
+  const title = String(formData.get("title") || "").trim().slice(0, 120) || null;
+  const { error } = await admin.from("crm_contacts").update({ full_name: fullName, phone, title, updated_at: new Date().toISOString() }).eq("id", contactId);
+  if (error) redirect(withParam(returnTo, "contact_error", error.message));
+  if (contact.lead_id) await admin.from("lead_intake").update({ name: fullName, phone }).eq("id", contact.lead_id);
+  revalidatePath(returnTo.split("?")[0]);
+  redirect(withParam(returnTo, "contact_saved"));
+}
+
+export async function createCrmWorkflowAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm/automations");
+  const name = String(formData.get("name") || "").trim().slice(0, 100);
+  const triggerStage = String(formData.get("trigger_stage") || "");
+  const actionType = String(formData.get("action_type") || "");
+  if (name.length < 3 || !isLeadCrmStage(triggerStage) || !WORKFLOW_ACTIONS.has(actionType)) {
+    redirect(withParam(returnTo, "workflow_error", "Choose a valid trigger and action."));
+  }
+
+  const days = Math.max(0, Math.min(30, Number(formData.get("days") || 2)));
+  const priorityRaw = String(formData.get("priority") || "normal");
+  const actionConfig =
+    actionType === "create_task"
+      ? {
+          title: String(formData.get("task_title") || "Follow up with {{company}}").trim().slice(0, 180),
+          due_days: days,
+          priority: PRIORITIES.has(priorityRaw) ? priorityRaw : "normal",
+        }
+      : { days };
+
+  const { error } = await createAdminClient().from("crm_workflows").insert({
+    name,
+    trigger_stage: triggerStage,
+    action_type: actionType,
+    action_config: actionConfig,
+    is_enabled: true,
+    created_by: user.id,
+  });
+  if (error) redirect(withParam(returnTo, "workflow_error", error.message));
+  revalidatePath("/workspace/recruiter/crm/automations");
+  redirect(withParam(returnTo, "workflow_saved"));
+}
+
+export async function toggleCrmWorkflowAction(formData: FormData) {
+  await requireAnyRole(["recruiter", "admin"]);
+  const id = String(formData.get("workflow_id") || "");
+  const enabled = String(formData.get("enabled") || "") === "true";
+  if (id) await createAdminClient().from("crm_workflows").update({ is_enabled: enabled, updated_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/workspace/recruiter/crm/automations");
+}
+
+export async function deleteCrmWorkflowAction(formData: FormData) {
+  await requireAnyRole(["recruiter", "admin"]);
+  const id = String(formData.get("workflow_id") || "");
+  if (id) await createAdminClient().from("crm_workflows").delete().eq("id", id);
+  revalidatePath("/workspace/recruiter/crm/automations");
+}
+
+export async function importCrmCsvAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const file = formData.get("file");
+  if (!(file instanceof File) || !file.size) redirect("/workspace/recruiter/crm/import?import_error=Choose+a+CSV+file.");
+  if (file.size > 2_000_000) redirect("/workspace/recruiter/crm/import?import_error=CSV+must+be+under+2MB.");
+
+  const rows = csvObjects(await file.text()).slice(0, 500);
+  if (!rows.length) redirect("/workspace/recruiter/crm/import?import_error=No+data+rows+were+found.");
+  const emails = [...new Set(rows.map((row) => String(row.email || "").trim().toLowerCase()).filter(Boolean))];
+  const admin = createAdminClient();
+  const { data: existing } = emails.length
+    ? await admin.from("lead_intake").select("email").eq("lead_type", "client_hiring").in("email", emails)
+    : { data: [] };
+  const seen = new Set((existing || []).map((item) => String(item.email || "").toLowerCase()));
+
+  const inserts: Record<string, unknown>[] = [];
+  let skipped = 0;
+  for (const row of rows) {
+    const email = String(row.email || "").trim().toLowerCase();
+    if (!email || seen.has(email)) {
+      skipped += 1;
+      continue;
+    }
+    const stageRaw = String(row.crm_stage || "new").trim();
+    const stage = isLeadCrmStage(stageRaw) ? stageRaw : "new";
+    const estimated = row.estimated_value_usd ? Number(row.estimated_value_usd) : null;
+    inserts.push({
+      name: String(row.name || "").slice(0, 160) || null,
+      email,
+      phone: String(row.phone || "").slice(0, 80) || null,
+      company: String(row.company || "").slice(0, 180) || null,
+      service: String(row.service || "").slice(0, 180) || null,
+      hours: String(row.hours || "").slice(0, 80) || null,
+      budget: String(row.budget || "").slice(0, 120) || null,
+      timezone: String(row.timezone || "").slice(0, 120) || null,
+      message: String(row.message || "").slice(0, 4000) || null,
+      source_page: "crm_import",
+      lead_type: "client_hiring",
+      crm_stage: stage,
+      status: legacyLeadStatus(stage),
+      owner_id: user.id,
+      estimated_value_usd: Number.isFinite(estimated) && Number(estimated) >= 0 ? estimated : null,
+      stage_updated_at: new Date().toISOString(),
+    });
+    seen.add(email);
+  }
+
+  if (inserts.length) {
+    const { error } = await admin.from("lead_intake").insert(inserts);
+    if (error) redirect(`/workspace/recruiter/crm/import?import_error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/workspace/recruiter/crm");
+  redirect(`/workspace/recruiter/crm/import?imported=${inserts.length}&skipped=${skipped}`);
+}

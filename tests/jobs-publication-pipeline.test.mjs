@@ -25,7 +25,7 @@ test("client job submit reuses the existing role when the database duplicate gua
 
 test("guest hiring forms use a wider duplicate submission window", async () => {
   const leads = await read("src/app/actions/leads.ts");
-  assert.match(leads, /DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30/);
+  assert.match(leads, /DUPLICATE_SUBMISSION_WINDOW_MINUTES = 24 \\* 60/);
   assert.match(leads, /findRecentDuplicateLead/);
 });
 
@@ -44,15 +44,14 @@ test("recruiter role control center exposes publication blocker actions", async 
   assert.match(helper, /Published/);
 });
 
-test("client claim email points to the secure lead-bound account flow", async () => {
+test("client claim email path is retained but policy-gated until shortlist", async () => {
   const email = await read("src/lib/email.ts");
   const actions = await read("src/app/actions/agency-role.ts");
 
-  assert.match(email, /auth\/join\/client\?lead=/);
-  assert.match(email, /Claim my hiring request/);
+  assert.match(email, /sendClaimDraftEmail/);
+  assert.match(email, /client_email_deferred_until_shortlist/);
   assert.match(actions, /sendClientAccountClaimAction/);
   assert.match(actions, /sendClaimDraftEmail/);
-  assert.match(actions, /client_account_claim_sent/);
 });
 
 

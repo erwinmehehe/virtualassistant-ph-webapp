@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
-import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
+import { isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 
 function managePath(token: string, result: string) {
   return `/book-client-call/manage?token=${encodeURIComponent(token)}&${result}`;

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
@@ -282,8 +282,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.meet_link_created ? <div className="success-banner">Google Meet created and sent to the client.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
-      {params.rebook_email_sent ? <div className="success-banner">Rebooking email sent. The client can choose another time from the link in that email.</div> : null}
-      {params.rebook_email_already_sent ? <div className="success-banner">The rebooking email was already sent. No duplicate email was sent.</div> : null}
       {params.rebook_prompt ? <div className="crm-rebook-prompt">
         <div><strong>Client marked No show.</strong><span>No automatic rebooking email will be sent. Keep the lead in the pipeline or close it if they are no longer hiring.</span></div>
       </div> : null}
@@ -291,7 +289,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
       {params.crm_error ? <div className="alert" role="alert">{params.crm_error}</div> : null}
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
-      {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
       {params.proposal_error ? <div className="alert" role="alert">{params.proposal_error}</div> : null}
       {params.role_error ? <div className="alert" role="alert">{params.role_error}</div> : null}
 
@@ -361,11 +358,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const followTime = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
           const followOverdue = Boolean(followTime && followTime < now && isOpenLeadStage(stage));
           const response = responseLabel(lead.created_at, lead.first_contact_at);
-          const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
           const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
-          const replyMessage = lead.first_contact_at
-            ? `Hi ${firstName},\n\nFollowing up on your VirtualAssistant.com.ph request. I wanted to keep things moving and confirm the best next step for your VA search.`
-            : `Hi ${firstName},\n\nThanks for reaching out to VirtualAssistant.com.ph. I reviewed your request${lead.service ? ` for ${lead.service}` : ""} and would like to confirm a few details so we can recommend the right vetted VA. Are you available for a short discovery call?`;
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
           const noShowRebookSentAt = rebookSentAt.get(lead.id) || null;
           const noShowRebooked = lead.discovery_outcome === "rescheduled" && Boolean(noShowRebookSentAt);
@@ -375,7 +368,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
             : followOverdue
               ? "Follow-up overdue. Move this lead forward or close it."
               : null;
-          const actionResultForLead = params.action_lead === lead.id;
           const linkedRole = lead.job_id ? linkedRoleById.get(lead.job_id) || null : null;
           const missingRoleDetails = linkedRole ? publicationMissingDetails(linkedRole) : [];
           const roleReady = Boolean(linkedRole && missingRoleDetails.length === 0);
@@ -539,22 +531,10 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   {lead.discovery_outcome === "no_show" ? <section className="crm-no-show-rebook" aria-label="No-show recovery">
                     <div className="crm-no-show-rebook-head">
                       <div>
-                        <strong>{noShowRebookSentAt ? "Rebooking email sent" : "Client missed the call"}</strong>
-                        <span>{noShowRebookSentAt ? `Sent ${dateShort(noShowRebookSentAt)}. Waiting for the client to choose another time.` : "Review the email below, then send one rebooking link."}</span>
+                        <strong>Client missed the call</strong>
+                        <span>No automatic rebooking email is sent. Keep the hiring request active, call them if appropriate, or close the lead.</span>
                       </div>
-                      {noShowRebookSentAt ? <span className="badge badge-success">Sent</span> : <form action={sendDiscoveryNoShowRebookAction} className="crm-rebook-send-form">
-                        <input type="hidden" name="lead_id" value={lead.id}/>
-                        <input type="hidden" name="return_to" value={returnTo}/>
-                        <button className="btn btn-sm btn-primary" type="submit"><Mail size={13}/> Send rebooking email</button>
-                      </form>}
-                    </div>
-                    <div className="crm-rebook-email-preview">
-                      <div className="crm-rebook-email-meta"><span>Email preview</span><strong>Subject: Would you like to rebook your call?</strong></div>
-                      <p>Hi {firstName},</p>
-                      <p>We weren’t able to connect for your scheduled call today.</p>
-                      <p>If you’d still like to discuss hiring a virtual assistant, you can choose another time here:</p>
-                      <span className="crm-rebook-email-cta">Rebook your call</span>
-                      <p>If you’re no longer looking, just reply and let us know so we can close the request.</p>
+                      <span className="badge">Email paused</span>
                     </div>
                   </section> : null}
                   {noShowRebooked ? <div className="crm-no-show-rebook is-rebooked">

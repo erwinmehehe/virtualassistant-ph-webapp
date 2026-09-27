@@ -7,7 +7,7 @@ test("publication validator executes and returns missing required fields", async
     status: "pending",
     client_id: "client-1",
     title: "Executive Assistant",
-    summary: "A sufficiently detailed role summary for publication.",
+    summary: null,
     responsibilities: ["Calendar management"],
     required_skills: ["Calendar management", "Inbox management"],
     hours_per_week: 20,
@@ -16,7 +16,7 @@ test("publication validator executes and returns missing required fields", async
     start_timing: null,
   });
 
-  assert.deepEqual(missing, ["start timing"]);
+  assert.deepEqual(missing, ["summary"]);
 });
 
 test("legacy published roles with missing required fields are visibly flagged", async () => {
@@ -25,7 +25,7 @@ test("legacy published roles with missing required fields are visibly flagged", 
     status: "published",
     client_id: "client-1",
     title: "Ecommerce VA",
-    summary: "A sufficiently detailed ecommerce support role summary.",
+    summary: null,
     responsibilities: ["Manage orders"],
     required_skills: ["Shopify", "Customer support"],
     hours_per_week: 40,
@@ -36,7 +36,7 @@ test("legacy published roles with missing required fields are visibly flagged", 
 
   assert.equal(result.key, "needs_role_details");
   assert.match(result.detail, /published role is incomplete/i);
-  assert.match(result.detail, /start timing/i);
+  assert.match(result.detail, /summary/i);
 });
 
 test("complete published roles remain healthy", async () => {

@@ -6,11 +6,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStageLabel } from "@/lib/lead-crm";
 import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
-import { prepareStandardPlacementTermsAction, requestClientRoleDetailsAction, saveRoleReadinessDetailsAction } from "@/app/actions/agency-role";
+import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
-import { RoleReadinessForm } from "@/components/role-readiness-form";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
@@ -29,7 +28,7 @@ const STAGES: Record<string, string> = {
   closed: "Closed",
 };
 const NEXT: Record<string, string> = {
-  intake: "Finish client activation and role requirements",
+  intake: "Review the client request and start matching",
   ready_to_recruit: "Start sourcing and review the vetted bench",
   sourcing: "Find qualified candidates and build the internal shortlist",
   internal_review: "Recruiter QA: verify evidence and choose the client shortlist",
@@ -187,8 +186,6 @@ export default async function RoleControlCenter({
       {query.followup_sent ? <div className="success-banner">Shortlist reminder added to the client workspace. No email was sent.</div> : null}
       {query.offer_sent ? <div className="success-banner">Placement offer sent to the VA. Waiting for VA acceptance before the client confirms the placement.</div> : null}
       {query.shortlist_error ? <div className="alert" role="alert">{query.shortlist_error}</div> : null}
-      {query.role_details_saved ? <div className="success-banner" role="status">Required role details saved.</div> : null}
-      {query.role_details_error ? <div className="alert" role="alert">{query.role_details_error}</div> : null}
       <div className="page-head">
         <div>
           <div className="kicker">Role Control Center</div>
@@ -267,9 +264,6 @@ export default async function RoleControlCenter({
               <input type="hidden" name="job_id" value={job.id} />
               <button className="btn btn-primary" type="submit">Prepare standard terms</button>
             </form>
-          ) : null}
-          {publication.key === "needs_role_details" ? (
-            <a className="btn btn-primary" href="#role-readiness">Complete role details</a>
           ) : null}
           {publication.key === "waiting_client_approval" ? (
             <Link className="btn" href={lead?.email ? `/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/leads"}>
@@ -355,14 +349,6 @@ export default async function RoleControlCenter({
           ) : null}
         </section>
       </div>
-
-      {query.role_details_requested ? <div className="success-banner" role="status">Missing role details request added to the client workspace. No email was sent.</div> : null}
-      <RoleReadinessForm
-        job={job}
-        returnTo={`/workspace/recruiter/roles/${job.id}`}
-        action={saveRoleReadinessDetailsAction}
-        requestAction={job.client_id ? requestClientRoleDetailsAction : undefined}
-      />
 
       <section id="matching" className="role-workspace-section">
         <div className="role-workspace-section-head">

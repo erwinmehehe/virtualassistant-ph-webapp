@@ -29,11 +29,10 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   if (!job.title || String(job.title).trim().length < 3) missing.push("title");
   if (!job.summary || String(job.summary).trim().length < 20) missing.push("summary");
   if (!Array.isArray(job.responsibilities) || job.responsibilities.length === 0) missing.push("responsibilities");
-  if (!Array.isArray(job.required_skills) || job.required_skills.length < 2) missing.push("skills");
-  if (!job.hours_per_week) missing.push("hours");
-  if (!job.timezone) missing.push("timezone");
+  // Public hiring forms do not consistently ask for explicit skills,
+  // timezone, or preferred start. Those can be refined during recruiter
+  // discovery/matching and must not create a fake role-readiness blocker.
   if (job.min_hourly_rate == null) missing.push("budget");
-  if (!job.start_timing) missing.push("start timing");
   return missing;
 }
 

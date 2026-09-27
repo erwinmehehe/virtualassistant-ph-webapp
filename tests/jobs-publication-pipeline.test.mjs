@@ -100,10 +100,14 @@ test("all publication write paths use the same required-role validator", async (
   ]);
 
   assert.match(helper, /export function publicationMissingDetails/);
-  assert.match(helper, /missing\.push\("start timing"\)/);
-  assert.match(helper, /missing\.push\("hours"\)/);
-  assert.match(helper, /missing\.push\("timezone"\)/);
+  assert.match(helper, /missing\.push\("title"\)/);
+  assert.match(helper, /missing\.push\("summary"\)/);
+  assert.match(helper, /missing\.push\("responsibilities"\)/);
   assert.match(helper, /missing\.push\("budget"\)/);
+  assert.doesNotMatch(helper, /missing\.push\("start timing"\)/);
+  assert.doesNotMatch(helper, /missing\.push\("hours"\)/);
+  assert.doesNotMatch(helper, /missing\.push\("timezone"\)/);
+  assert.doesNotMatch(helper, /missing\.push\("skills"\)/);
 
   assert.match(jobs, /publicationMissingDetails\(\{/);
   assert.match(jobs, /Complete the public job before publishing/);

@@ -1,4 +1,4 @@
-import { requireAnyRoleFast } from "@/lib/auth";
+import { requireTrainingAccessFast } from "@/lib/auth";
 import { TrainingShell } from "@/components/training-shell";
 import "./training-home.css";
 
@@ -8,6 +8,6 @@ export const metadata = {
 };
 
 export default async function TrainingLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireAnyRoleFast(["va", "admin"]);
+  const { profile } = await requireTrainingAccessFast();
   return <TrainingShell profile={profile}>{children}</TrainingShell>;
 }

@@ -8,7 +8,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
-import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
+import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
@@ -29,7 +29,6 @@ export type ServiceMatchState = {
   vaApplicant?: boolean;
 };
 
-const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30;
 const MATCH_FEEDBACK_TTL_SECONDS = 30 * 24 * 60 * 60;
 
 function matchFeedbackToken(leadId: string) {
@@ -82,11 +81,31 @@ async function routeVaApplicant(args: { name?: string | null; email: string; pho
  * a second duplicate lead and job.
  */
 async function findRecentDuplicateLead(admin: ReturnType<typeof createAdminClient>, email: string, service: string | null) {
-  const since = new Date(Date.now() - DUPLICATE_SUBMISSION_WINDOW_MINUTES * 60 * 1000).toISOString();
-  let query = admin.from("lead_intake").select("id,job_id,client_id").ilike("email", email).gte("created_at", since).order("created_at", { ascending: false }).limit(1);
-  if (service) query = query.eq("service", service);
-  const { data } = await query.maybeSingle();
-  return data;
+  const exactSince = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  let exactQuery = admin.from("lead_intake")
+    .select("id,job_id,client_id")
+    .eq("lead_type", "client_hiring")
+    .ilike("email", email)
+    .gte("created_at", exactSince)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (service) exactQuery = exactQuery.eq("service", service);
+  const { data: exact } = await exactQuery.maybeSingle();
+  if (exact) return exact;
+
+  // Same person often submits more than one service/category while exploring.
+  // Keep those near-simultaneous enquiries in one hiring thread instead of
+  // creating duplicate CRM cards and multiple pending roles.
+  const broadSince = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+  const { data: recent } = await admin.from("lead_intake")
+    .select("id,job_id,client_id")
+    .eq("lead_type", "client_hiring")
+    .ilike("email", email)
+    .gte("created_at", broadSince)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return recent;
 }
 
 const serviceMatchSchema = z.object({
@@ -299,16 +318,6 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       });
     } catch {
       // Lead and pending job creation must not fail because email delivery is unavailable.
-    }
-    try {
-      await sendLeadAcknowledgementEmail({
-        to: parsed.data.email,
-        name: parsed.data.name,
-        service: service.name,
-        leadId: lead.id
-      });
-    } catch {
-      // Lead storage is the source of truth; acknowledgement email is best effort.
     }
 
     return {

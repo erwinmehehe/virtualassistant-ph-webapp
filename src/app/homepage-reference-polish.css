@@ -237,6 +237,16 @@
 }
 
 @media (max-width: 820px) {
+  .hs-root .hs-approach {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem 1.1rem;
+  }
+
+  .hs-root .hs-approach .hs-link {
+    justify-self: start;
+    white-space: normal;
+  }
+
   .hs-root .hs-reasons-panel {
     grid-template-columns: minmax(0, 1fr);
     padding: 1.2rem;

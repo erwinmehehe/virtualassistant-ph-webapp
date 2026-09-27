@@ -30,6 +30,13 @@ export const metadata: Metadata = {
   authors: [{ name: "VirtualAssistant.com.ph" }],
   creator: "VirtualAssistant.com.ph",
   publisher: "VirtualAssistant.com.ph",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png", sizes: "96x96" }
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }]
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

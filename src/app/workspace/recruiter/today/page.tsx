@@ -339,8 +339,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <small className="muted">Last activity {manilaTime(item.last_touch_at)} · {attempts} recorded contact attempt{attempts===1?"":"s"}</small>
                 {item.next_follow_up_at ? <small className="muted">Current follow-up: {manilaTime(item.next_follow_up_at)}</small> : null}
                 <div className="row wrap" style={{marginTop:8}}>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="send_followup"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send follow-up</button></form>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Follow up in 3 days</button></form>
+                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Review again in 3 days</button></form>
                   <Link prefetch={false} className="btn btn-sm" href={cleanupLeadHref(item)}>Open lead</Link>
                 </div>
                 <div className="row wrap" style={{marginTop:6}}>

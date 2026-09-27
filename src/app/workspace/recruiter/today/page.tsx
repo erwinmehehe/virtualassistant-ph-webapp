@@ -154,10 +154,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const approvalCleanupCount = Number(summary.approval_cleanup_count || 0);
   const workSetupReadyCount = Number(summary.work_setup_ready_count || 0);
   const recentZeroCount = Number(summary.recent_zero_count || 0);
-  const noShowNeedsEmail = Number(summary.no_show_needs_email || 0);
   const noShowWaitingRebook = Number(summary.no_show_waiting_rebook || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
-  const rebookSentIds = new Set(noShows.filter((lead)=>lead.sent).map((lead)=>lead.id));
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
   const replacementNeeded = Number(summary.replacement_needed || 0);
   const clientResponseOverdue = Number(summary.client_response_overdue || 0);
@@ -166,14 +164,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const incompleteRoleCount = incompleteRoles.length;
 
   const talentActions = approvalReadyCount + approvalCleanupCount + workSetupReadyCount + recentZeroCount;
-  const clientActions = clientWaits.length + noShowNeedsEmail + noShowWaitingRebook;
+  const clientActions = clientWaits.length + noShows.length;
   const roleActions = incompleteRoleCount + roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
   const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
 
   const nextActionCandidates = [
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
     {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
-    {count:noShowNeedsEmail,title:"Send no-show rebooking links",copy:"These clients missed discovery and have not received a secure link to choose another time.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open rebooking",icon:<RefreshCw size={20}/>},
+    {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
     {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
@@ -213,10 +211,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {
       label:"Clients",
       count:clientActions,
-      hint:"Rebooking and decisions",
+      hint:"No-shows and decisions",
       icon:<RefreshCw size={17}/>,
       items:[
-        {label:"No-show email",count:noShowNeedsEmail,href:"/workspace/recruiter/today#call-rebooking"},
+        {label:"Discovery no-shows",count:noShows.length,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Waiting to rebook",count:noShowWaitingRebook,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Client decisions",count:clientWaits.length,href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest"}
       ]
@@ -274,7 +272,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShows.length}</strong><small>Shortlists and no-shows</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 

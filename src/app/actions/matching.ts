@@ -207,6 +207,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
 
   let inviteEmailUnavailable = false;
+  let clientShortlistEmailUnavailable = false;
 
   if (mode === "invite" && inviteLead) {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
@@ -312,6 +313,48 @@ export async function saveJobShortlistAction(formData: FormData) {
         : `${selected.length} matched VA${selected.length === 1 ? " is" : "s are"} ready. Candidate identities stay protected until candidate access is activated.`,
       href: `/workspace/client/jobs/${jobId}`
     });
+
+    // This is the intentional first operational client email: actual recruiter-
+    // approved VA candidates are ready for review. Earlier enquiry, booking,
+    // proposal, claim, reminder, and follow-up stages stay email-silent.
+    const [{ data: authUser }, { data: clientProfile }] = await Promise.all([
+      admin.auth.admin.getUserById(job.client_id),
+      admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
+    ]);
+    const clientEmail = authUser.user?.email?.trim() || "";
+    if (clientEmail) {
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+      const firstName = String(clientProfile?.full_name || "there").trim().split(/\s+/)[0] || "there";
+      const { sendTransactionalEventEmail } = await import("@/lib/email");
+      const delivery = await sendTransactionalEventEmail({
+        to: clientEmail,
+        firstName,
+        subject: `Your VA shortlist is ready: ${job.title}`,
+        heading: "Your recruiter-selected VAs are ready",
+        body: `We reviewed candidates for ${job.title} and selected ${selected.length} Virtual Assistant${selected.length === 1 ? "" : "s"} for you to review. Open your private hiring room to compare the shortlist and choose who should move forward.`,
+        href: `${appUrl}/workspace/client/jobs/${jobId}`,
+        hrefLabel: "Review my VA shortlist",
+        senderName: "VirtualAssistant.com.ph Hiring Team",
+        teamLabel: "Hiring team",
+        footerText: "You are receiving this because recruiter-approved Virtual Assistants are ready for your hiring request.",
+        eventType: "client_shortlist_ready",
+        idempotencyKey: `client-shortlist-ready-${jobId}-${now.slice(0, 10)}`,
+        priority: "critical",
+      });
+      clientShortlistEmailUnavailable = !delivery.sent;
+      await writeRecruiterActivity({
+        subjectType: "job",
+        subjectId: jobId,
+        action: delivery.sent ? "client_shortlist_email_sent" : "client_shortlist_email_unavailable",
+        description: delivery.sent
+          ? "Sent the client the recruiter-approved VA shortlist"
+          : "VA shortlist released, but the client shortlist email is unavailable",
+        actorId: user.id,
+        metadata: { va_ids: selected, email_reason: delivery.sent ? null : delivery.reason || "email_unavailable" },
+      });
+    } else {
+      clientShortlistEmailUnavailable = true;
+    }
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
@@ -319,6 +362,9 @@ export async function saveJobShortlistAction(formData: FormData) {
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   if (inviteEmailUnavailable) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_saved=1&client_invite_email_unavailable=1`);
+  }
+  if (clientShortlistEmailUnavailable) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_released=1&client_shortlist_email_unavailable=1`);
   }
   const resultParam = mode === "release" ? "shortlist_released" : mode === "invite" ? "client_invited" : "shortlist_saved";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${resultParam}=1`);

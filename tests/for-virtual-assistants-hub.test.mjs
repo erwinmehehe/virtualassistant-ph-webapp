@@ -34,7 +34,8 @@ test("training sidebar has one clear active learning destination", async () => {
   const shell = await source("src/components/training-shell.tsx");
   assert.match(shell, /href="\/workspace\/training" aria-current="page"/);
   assert.match(shell, /<div className="sidebar-label">Training<\/div>/);
-  assert.match(shell, /Learner account/);
+  assert.match(shell, /VA learner/);
+  assert.match(shell, /Training account/);
 });
 
 test("VA hub metadata stays within search-result length targets", async () => {

@@ -25,6 +25,31 @@ test("client hiring email is deferred until a VA shortlist is actually sent", as
   }
 });
 
+test("pre-shortlist workflows do not call client email helpers", async () => {
+  const [agency,applications,cleanup,recruiterOps,ops,reminders,rolePage,today] = await Promise.all([
+    read("src/app/actions/agency-role.ts"),
+    read("src/app/actions/applications.ts"),
+    read("src/app/actions/recruiter-cleanup.ts"),
+    read("src/app/actions/recruiter-ops.ts"),
+    read("src/app/actions/recruiter-operations-system.ts"),
+    read("src/app/api/cron/discovery-reminders/route.ts"),
+    read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
+  ]);
+
+  assert.doesNotMatch(agency,/sendClaimDraftEmail|sendRoleDetailsRequestEmail/);
+  assert.doesNotMatch(applications,/sendApplicationEmail/);
+  assert.doesNotMatch(cleanup,/sendStaffClientFollowupEmail|send_followup/);
+  assert.doesNotMatch(recruiterOps,/sendStaffClientFollowupEmail/);
+  assert.doesNotMatch(ops,/to: clientAuth\.user\?\.email/);
+  assert.doesNotMatch(ops,/attendeeEmails = \[vaAuth\.user\?\.email, clientAuth\.user\?\.email\]/);
+  assert.doesNotMatch(reminders,/sendDiscoveryReminderEmail/);
+  assert.match(reminders,/client_email_shortlist_only/);
+  assert.doesNotMatch(rolePage,/sendClientAccountClaimAction|role_details_email_warning/);
+  assert.doesNotMatch(today,/cleanup_action" value="send_followup"/);
+  assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction|Send rebooking link/);
+});
+
 test("releasing recruiter-approved VAs sends the one client hiring email", async () => {
   const matching=await read("src/app/actions/matching.ts");
   assert.match(matching,/eventType: "client_shortlist_delivery"/);

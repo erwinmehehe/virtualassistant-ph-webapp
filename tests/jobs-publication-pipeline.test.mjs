@@ -34,7 +34,7 @@ test("recruiter role control center exposes publication blocker actions", async 
   const helper = await read("src/lib/job-publication.ts");
 
   assert.match(role, /Publication status/);
-  assert.match(role, /Send client account link/);
+  assert.match(role, /Open client account link/);
   assert.match(role, /Prepare standard terms/);
   assert.match(role, /Follow up with client/);
   assert.match(helper, /Needs client account/);
@@ -44,14 +44,20 @@ test("recruiter role control center exposes publication blocker actions", async 
   assert.match(helper, /Published/);
 });
 
-test("client claim email path is retained but policy-gated until shortlist", async () => {
-  const email = await read("src/lib/email.ts");
-  const actions = await read("src/app/actions/agency-role.ts");
+test("client claim remains available as a manual account link without pre-shortlist email", async () => {
+  const [email, actions, role] = await Promise.all([
+    read("src/lib/email.ts"),
+    read("src/app/actions/agency-role.ts"),
+    read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
+  ]);
 
   assert.match(email, /sendClaimDraftEmail/);
   assert.match(email, /client_email_deferred_until_shortlist/);
   assert.match(actions, /sendClientAccountClaimAction/);
-  assert.match(actions, /sendClaimDraftEmail/);
+  assert.match(actions, /client_claim_email_disabled=1/);
+  assert.doesNotMatch(actions, /sendClaimDraftEmail/);
+  assert.match(role, /Open client account link/);
+  assert.doesNotMatch(role, /Send client account link/);
 });
 
 

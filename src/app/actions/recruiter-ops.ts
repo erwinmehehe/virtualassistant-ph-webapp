@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
 const REPEAT_RULES = new Set(["none", "daily", "weekly"]);

@@ -38,7 +38,8 @@ test("workspace fixes do not override shell or score-card responsive behavior", 
 });
 
 
-test("route-level workspace feedback stays compact on desktop and usable on mobile", () => {
-  assert.match(css, /\.app-content > \.success-banner,[\s\S]*\.app-content > \.alert[\s\S]*width:\s*fit-content/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.app-content > \.success-banner,[\s\S]*\.app-content > \.alert[\s\S]*width:\s*100%/);
+test("workspace feedback stays compact on desktop and usable on mobile", () => {
+  assert.match(css, /\.dashboard-shell \.success-banner,[\s\S]*\.dashboard-shell \.alert[\s\S]*width:\s*fit-content/);
+  assert.match(css, /max-width:\s*min\(100%, 760px\)/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.dashboard-shell \.success-banner,[\s\S]*\.dashboard-shell \.alert[\s\S]*width:\s*100%/);
 });

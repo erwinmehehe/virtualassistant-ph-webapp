@@ -48,3 +48,19 @@ test("rendered JSX text does not leak source artifacts", async () => {
     `Found source artifacts in rendered JSX text:\n${findings.join("\n")}`,
   );
 });
+
+
+test("inventory workspace feedback surfaces for visual review", async () => {
+  const files = await walk("src/app/workspace");
+  const findings = [];
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    source.split("\n").forEach((line, index) => {
+      if (/className=.*(?:success-banner|\balert\b)/.test(line)) {
+        findings.push(`${file}:${index + 1}: ${line.trim()}`);
+      }
+    });
+  }
+  console.log(`WORKSPACE_FEEDBACK_SURFACES ${findings.length}\n${findings.join("\n")}`);
+  assert.ok(true);
+});

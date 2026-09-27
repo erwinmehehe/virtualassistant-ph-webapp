@@ -113,22 +113,29 @@ export async function refreshMatchSuggestionsForJob(
 
   const [{ data: vas }, { data: existing }, { data: recruiters }] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", ids),
-    admin.from("job_shortlist_candidates").select("va_id,shortlist_status").eq("job_id", job.id),
+    admin.from("job_shortlist_candidates").select("va_id,shortlist_status,created_by").eq("job_id", job.id),
     admin.from("profiles").select("id").eq("role", "recruiter")
   ]);
-  const existingMap = new Map((existing || []).map((row: { va_id: string; shortlist_status: string }) => [row.va_id, row.shortlist_status]));
+  const existingMap = new Map((existing || []).map((row: { va_id: string; shortlist_status: string; created_by: string | null }) => [row.va_id, row]));
 
   const qualified = (vas || [])
     .filter((va: { availability_status?: string | null }) => va.availability_status === "available")
     .map((va) => ({ va, ...matchAssessment(job, va) }))
     .filter((entry) => entry.eligible && entry.score >= SUGGESTION_SCORE_THRESHOLD)
-    .filter((entry) => !["hidden", "released"].includes(existingMap.get(entry.va.user_id) || ""))
+    .filter((entry) => !["hidden", "released"].includes(existingMap.get(entry.va.user_id)?.shortlist_status || ""))
     .sort((a, b) => b.score - a.score || b.confidence - a.confidence)
     .slice(0, SUGGESTION_MAX_CANDIDATES);
 
   if (!qualified.length) return { proposedCount: 0, notifiedVaCount: 0 };
-  const newlyProposed = qualified.filter((entry) => !existingMap.has(entry.va.user_id));
-  const rows = qualified.map((entry) => ({
+
+  // Automatic refreshes may update automatic suggestions, but must never
+  // overwrite a recruiter-curated proposal and erase its created_by marker.
+  const suggestionCandidates = qualified.filter((entry) => {
+    const existingRow = existingMap.get(entry.va.user_id);
+    return !existingRow || (existingRow.shortlist_status === "proposed" && !existingRow.created_by);
+  });
+  const newlyProposed = suggestionCandidates.filter((entry) => !existingMap.has(entry.va.user_id));
+  const rows = suggestionCandidates.map((entry) => ({
     job_id: job.id,
     va_id: entry.va.user_id,
     match_score: entry.score,
@@ -137,8 +144,10 @@ export async function refreshMatchSuggestionsForJob(
     created_by: null,
     released_at: null
   }));
-  const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
-  if (error) throw error;
+  if (rows.length) {
+    const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
+    if (error) throw error;
+  }
 
   if (newlyProposed.length) {
     await admin.from("recruiter_activity").insert({

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
@@ -136,23 +136,18 @@ async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
   const graceCutoff = daysAgo(NUDGE_GRACE_DAYS);
-  const repeatCutoff = daysAgo(NUDGE_REPEAT_DAYS);
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const { data: jobs } = await admin.from("jobs").select("id,title,lead_id,client_id").is("client_id", null).not("lead_id", "is", null).lte("created_at", graceCutoff);
-  const leadIds = [...new Set((jobs || []).map((j: any) => j.lead_id).filter(Boolean))];
-  const { data: leads } = leadIds.length ? await admin.from("lead_intake").select("id,name,email,nudged_at").in("id", leadIds) : { data: [] as any[] };
-  const leadMap = new Map((leads || []).map((l: any) => [l.id, l]));
-  let sent = 0;
-  for (const job of jobs || []) {
-    const lead: any = leadMap.get(job.lead_id);
-    if (!lead?.email || (lead.nudged_at && lead.nudged_at > repeatCutoff)) continue;
-    const result = await sendClaimDraftEmail({ to: lead.email, name: lead.name, jobTitle: job.title, leadId: lead.id, appUrl });
-    if (result.sent) {
-      await admin.from("lead_intake").update({ nudged_at: new Date().toISOString() }).eq("id", lead.id);
-      sent += 1;
-    }
-  }
-  return { checked: jobs?.length || 0, sent };
+  const { data: jobs } = await admin
+    .from("jobs")
+    .select("id")
+    .is("client_id", null)
+    .not("lead_id", "is", null)
+    .lte("created_at", graceCutoff);
+  return {
+    checked: jobs?.length || 0,
+    sent: 0,
+    suppressed: jobs?.length || 0,
+    reason: "client_email_shortlist_only",
+  };
 }
 
 async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>) {
@@ -228,9 +223,9 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     if (!releasedAt) continue;
     const ageMs = Date.now() - new Date(releasedAt).getTime();
     if (ageMs >= 24 * 60 * 60 * 1000 && ageMs < 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: true, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: false, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
     } else if (ageMs >= 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: true, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: false, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
     }
   }
 
@@ -242,7 +237,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
       subjectId: interview.job_id,
       recipientId: interview.client_id,
       action: `schedule_interview_${interview.id}`,
-      email: true,
+      email: false,
       title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
       body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
       href: "/workspace/client/interviews",
@@ -271,7 +266,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         subjectId: offer.job_id,
         recipientId: offer.client_id,
         action: `placement_offer_client_${offer.id}`,
-        email: true,
+        email: false,
       title: `Confirm the placement${job?.title ? `: ${job.title}` : ""}`,
         body: "The VA accepted the placement offer. Open Offers to confirm the final placement and start onboarding.",
         href: "/workspace/client/offers",

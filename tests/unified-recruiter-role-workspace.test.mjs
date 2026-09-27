@@ -24,7 +24,7 @@ test("legacy recruiter detail routes point at the canonical workflow", async () 
     read("src/app/workspace/recruiter/client-review/page.tsx")
   ]);
   assert.ok(matchingDetail.includes("/workspace/recruiter/roles/"));
-  assert.ok(clientReview.includes("/workspace/recruiter/roles?view=waiting_client&sort=urgent"));
+  assert.ok(clientReview.includes("/workspace/recruiter/roles?view=client_review&sort=urgent"));
 });
 
 test("legacy role board redirects into canonical Roles views", async () => {

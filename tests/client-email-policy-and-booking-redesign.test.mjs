@@ -78,5 +78,6 @@ test("booking page uses the sleek two-step booking experience", async () => {
   assert.match(form,/Confirm booking/);
   assert.match(css,/\.booking-call-preview/);
   assert.match(css,/\.booking-flow-progress/);
-  assert.match(css,/\.booking-calendar-shell/);\n  assert.match(css,/\.booking-selected-slot/);
+  assert.match(css,/\.booking-calendar-shell/);
+  assert.match(css,/\.booking-selected-slot/);
 });

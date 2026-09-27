@@ -25,7 +25,7 @@ test("client job submit reuses the existing role when the database duplicate gua
 
 test("guest hiring forms use a wider duplicate submission window", async () => {
   const leads = await read("src/app/actions/leads.ts");
-  assert.match(leads, /DUPLICATE_SUBMISSION_WINDOW_MINUTES = 24 \\* 60/);
+  assert.match(leads, /DUPLICATE_SUBMISSION_WINDOW_MINUTES = 24 \* 60/);
   assert.match(leads, /findRecentDuplicateLead/);
 });
 

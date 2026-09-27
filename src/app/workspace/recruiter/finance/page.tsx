@@ -10,17 +10,26 @@ type MarginProfileRow = Omit<PlacementFinanceProfileRow, "reconciled_at" | "upda
 export default async function RecruiterFinancePage(){
   const {userId}=await requireRoleFast("recruiter");
   const admin=createAdminClient();
-  const [{data:jobs},{data:settings}]=await Promise.all([
+  const [{data:jobs,error:jobsError},{data:settings,error:settingsError}]=await Promise.all([
     admin.from("jobs").select("id,title").eq("recruiter_id",userId).order("created_at",{ascending:false}),
     admin.from("admin_settings").select("finance_min_margin_percent,finance_target_margin_percent").eq("id",1).single()
   ]);
+  if(jobsError) throw jobsError;
+  if(settingsError) throw settingsError;
   const jobRows=(jobs||[]) as {id:string;title:string|null}[];
   const jobIds=jobRows.map((job)=>job.id);
   const jobMap=new Map(jobRows.map((job)=>[job.id,job]));
-  const {data:roomData}=jobIds.length?await admin.from("workrooms").select("id,job_id,placement_stage,status,client:profiles!workrooms_client_id_fkey(full_name),va:profiles!workrooms_va_id_fkey(full_name)").in("job_id",jobIds).neq("placement_stage","ended").order("created_at",{ascending:false}):{data:[]};
-  const rooms=(roomData||[]) as unknown as MarginWorkroomRow[];
+  const roomResult=jobIds.length
+    ? await admin.from("workrooms").select("id,job_id,placement_stage,status,client:profiles!workrooms_client_id_fkey(full_name),va:profiles!workrooms_va_id_fkey(full_name)").in("job_id",jobIds).neq("placement_stage","ended").order("created_at",{ascending:false})
+    : {data:[],error:null};
+  if(roomResult.error) throw roomResult.error;
+  const rooms=(roomResult.data||[]) as unknown as MarginWorkroomRow[];
   const roomIds=rooms.map((room)=>room.id);
-  const {data:profiles}=roomIds.length?await admin.from("placement_finance_profiles").select("workroom_id,expected_monthly_client_revenue,expected_monthly_va_compensation,payment_cost_percent,monthly_ops_cost,other_monthly_cost,exception_status,exception_reason,exception_review_note").in("workroom_id",roomIds):{data:[]};
+  const profileResult=roomIds.length
+    ? await admin.from("placement_finance_profiles").select("workroom_id,expected_monthly_client_revenue,expected_monthly_va_compensation,payment_cost_percent,monthly_ops_cost,other_monthly_cost,exception_status,exception_reason,exception_review_note").in("workroom_id",roomIds)
+    : {data:[],error:null};
+  if(profileResult.error) throw profileResult.error;
+  const profiles=profileResult.data;
   const profileMap=new Map(((profiles||[]) as MarginProfileRow[]).map((profile)=>[profile.workroom_id,profile]));
   const minMargin=Number(settings?.finance_min_margin_percent??15);
   const targetMargin=Number(settings?.finance_target_margin_percent??25);

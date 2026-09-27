@@ -203,18 +203,19 @@
 }
 
 
-/* Keep one-off workspace save/error feedback compact on desktop. These are
-   route-level flash messages, not full-width status panels. */
-.dashboard-shell .app-content > .success-banner,
-.dashboard-shell .app-content > .alert {
+/* Keep workspace feedback compact instead of stretching short save/error
+   messages across the entire dashboard. Longer messages still wrap cleanly. */
+.dashboard-shell .success-banner,
+.dashboard-shell .alert {
   width: fit-content;
-  max-width: 100%;
+  max-width: min(100%, 760px);
   margin-bottom: 14px;
 }
 
 @media (max-width: 640px) {
-  .dashboard-shell .app-content > .success-banner,
-  .dashboard-shell .app-content > .alert {
+  .dashboard-shell .success-banner,
+  .dashboard-shell .alert {
     width: 100%;
+    max-width: 100%;
   }
 }

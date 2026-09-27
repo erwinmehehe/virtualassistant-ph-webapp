@@ -534,11 +534,16 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
   const seenActiveRoleAlert = new Set<string>();
   const slaTitles = new Set(["New client request", "Lead response due in 10 minutes", "30-minute response target missed"]);
   const staleSlaCutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const notificationRetentionCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
   for (const row of rows as any[]) {
     const href = String(row.href || "");
     const createdAt = new Date(row.created_at).getTime();
 
+    if (Number.isFinite(createdAt) && createdAt < notificationRetentionCutoff) {
+      archive.add(String(row.id));
+      continue;
+    }
     if (slaTitles.has(String(row.title || "")) && Number.isFinite(createdAt) && createdAt < staleSlaCutoff) {
       archive.add(String(row.id));
       continue;

@@ -657,18 +657,6 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not cancel the discovery booking.");
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
-  try {
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: "Discovery call cancelled",
-      heading: "Your discovery call is cancelled",
-      body: "Your time has been released. Contact our hiring team whenever you are ready to book again.",
-      href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/book-client-call`,
-      hrefLabel: "Book another time",
-      priority: "critical",
-      idempotencyKey: `booking-cancelled-by-recruiter-${leadId}`
-    });
-  } catch { /* the booking state is the source of truth if delivery is unavailable */ }
   await writeRecruiterActivity({
     subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
     description: "Discovery booking cancelled by recruiter", actorId: user.id,

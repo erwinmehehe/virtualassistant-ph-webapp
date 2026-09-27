@@ -26,7 +26,10 @@ test("training signup creates a training-only auth user and sends confirmation",
   assert.match(action, /admin\.auth\.admin\.generateLink/);
   assert.match(action, /trainingCourseDestination\(courseSlug\)/);
   assert.match(action, /sendAccountConfirmationEmail/);
-  assert.match(action, /auth\.resend/);
+  assert.doesNotMatch(action, /\.auth\.resend\(/);
+  assert.match(action, /admin\.auth\.admin\.deleteUser\(data\.user\.id\)/);
+  assert.match(action, /training account was not activated/);
+  assert.match(action, /training-account-confirmation-\$\{data\.user\.id\}/);
   assert.match(action, /training_account_created/);
   assert.match(action, /training_confirmation_sent/);
 });

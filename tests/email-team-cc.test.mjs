@@ -25,14 +25,16 @@ test("human-written client follow-ups keep archive copying opt-in", () => {
   assert.match(email, /"client_followup", \{[\s\S]*archive: false,[\s\S]*idempotencyKey: args\.idempotencyKey/);
 });
 
-test("human-written client follow-ups expose an explicit archive opt-in", () => {
+test("pre-shortlist client follow-up UI is removed while legacy action remains gated", () => {
   const action = source("src/app/actions/recruiter.ts");
   const page = source("src/app/workspace/recruiter/leads/page.tsx");
+  const email = source("src/lib/email.ts");
 
   assert.match(action, /formData\.get\("archive_copy"\) === "1"/);
   assert.match(action, /archiveCopy/);
-  assert.match(page, /name="archive_copy"/);
-  assert.match(page, /hidden archive copy/);
+  assert.doesNotMatch(page, /name="archive_copy"/);
+  assert.doesNotMatch(page, /hidden archive copy/);
+  assert.match(email, /sendStaffClientFollowupEmail[\s\S]*client_email_deferred_until_shortlist/);
 });
 
 test("password reset and account confirmation remain recipient-only", () => {

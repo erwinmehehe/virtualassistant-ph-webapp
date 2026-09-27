@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2, Search, UsersRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createCrmCompanyAction } from "@/app/actions/crm";
 import styles from "../crm.module.css";
 
 type Company = {
@@ -54,8 +55,19 @@ export default async function CrmCompaniesPage({ searchParams }: { searchParams:
         <p>Employer organizations connected to enquiries, contacts, roles, and hiring activity.</p>
       </div>
       <div className={styles.headerActions}>
+        <details className={styles.saveView}>
+          <summary className={styles.primaryButton}>+ New company</summary>
+          <form action={createCrmCompanyAction} className={styles.form}>
+            <input type="hidden" name="return_to" value="/workspace/recruiter/crm/companies"/>
+            <label>Name<input name="name" required minLength={2} placeholder="Company name"/></label>
+            <label>Website<input name="website" placeholder="https://example.com"/></label>
+            <label>Industry<input name="industry" placeholder="Healthcare, trades, SaaS…"/></label>
+            <label>Location<input name="location" placeholder="Sydney, NSW"/></label>
+            <button type="submit">Create company</button>
+          </form>
+        </details>
         <Link className={styles.secondaryButton} href="/workspace/recruiter/crm/contacts"><UsersRound size={15}/> Contacts</Link>
-        <Link className={styles.primaryButton} href="/workspace/recruiter/crm">Back to CRM</Link>
+        <Link className={styles.secondaryButton} href="/workspace/recruiter/crm">Back to CRM</Link>
       </div>
     </header>
 

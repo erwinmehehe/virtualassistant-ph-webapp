@@ -1,4 +1,4 @@
-import { requireAuthenticatedUserFast } from "@/lib/auth";
+import { requireAnyRoleFast } from "@/lib/auth";
 import { TrainingShell } from "@/components/training-shell";
 import "./training-home.css";
 
@@ -8,6 +8,6 @@ export const metadata = {
 };
 
 export default async function TrainingLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireAuthenticatedUserFast("/workspace/training");
+  const { profile } = await requireAnyRoleFast(["va", "admin"]);
   return <TrainingShell profile={profile}>{children}</TrainingShell>;
 }

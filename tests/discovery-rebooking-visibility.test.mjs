@@ -34,19 +34,17 @@ test("clients can reach discovery call management from their dashboard",()=>{
   assert.match(booking,/discovery_manage_token_hash: manage\.hash/);
 });
 
-test("Recruiter Today exposes an actionable call rebooking queue",()=>{
+test("Recruiter Today keeps no-shows visible without a rebooking email action",()=>{
   const today=read("src/app/workspace/recruiter/today/page.tsx");
   assert.match(today,/id="call-rebooking"/);
   assert.match(today,/>Call rebooking</);
-  assert.match(today,/Send rebooking link/);
-  assert.match(today,/sendDiscoveryNoShowRebookAction/);
-  assert.match(today,/Link sent/);
-  assert.match(today,/Waiting for the client to choose a new time/);
+  assert.match(today,/No automatic client email is sent/);
+  assert.doesNotMatch(today,/Send rebooking link/);
+  assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction/);
 });
 
-test("cancellation email points directly back to rebooking",()=>{
+test("client booking cancellation and reschedule stay email-silent",()=>{
   const booking=read("src/app/actions/booking.ts");
-  assert.match(booking,/heading: "Your discovery call is cancelled"/);
-  assert.match(booking,/hrefLabel: "Rebook your call"/);
-  assert.match(booking,/choose another available time/);
+  assert.doesNotMatch(booking,/sendTransactionalEventEmail/);
+  assert.match(booking,/notifyAttendees: false/);
 });

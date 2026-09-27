@@ -324,7 +324,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShows.length}</strong><small>Shortlists and no-shows</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{newHiringRoles.length+incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{newHiringRoles.length+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
     <section id="workstreams" className={styles.workstreamSection} aria-labelledby="workstreams-title">

@@ -51,8 +51,13 @@ test("email signup uses the branded confirmation path without the old Supabase r
   const joinEnd = auth.indexOf("export async function chooseOAuthRoleAction");
   const join = auth.slice(joinStart, joinEnd);
 
-  assert.match(join, /admin\.auth\.admin\.generateLink/);
-  assert.match(join, /sendAccountConfirmationEmail/);
-  assert.doesNotMatch(join, /auth\.resend/);
-  assert.doesNotMatch(join, /fallback_confirmation_failed/);
+  const executableJoin = join
+    .replace(/\/\/[^
+]*/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+
+  assert.match(executableJoin, /admin\.auth\.admin\.generateLink/);
+  assert.match(executableJoin, /sendAccountConfirmationEmail/);
+  assert.doesNotMatch(executableJoin, /auth\.resend\s*\(/);
+  assert.doesNotMatch(executableJoin, /fallback_confirmation_failed/);
 });

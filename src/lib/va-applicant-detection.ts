@@ -16,6 +16,10 @@ const APPLICANT_PATTERNS: RegExp[] = [
   /\blooking\s+for\s+(?:a\s+|an\s+)?(?:job|online\s+job|online\s+work|work\s+from\s+home(?:\s+job)?|part[\s-]?time\s+job|full[\s-]?time\s+job|remote\s+job)\b/i,
   /\b(?:your|the)\s+job\s+(?:opening|vacancy)\b/i,
   /\binterested\s+in\s+(?:the|this|your)\s+(?:position|job|vacancy|opening)\b/i,
+  /\bas\s+(?:an?\s+)?(?:experienced\s+|aspiring\s+|freelance\s+|professional\s+)?(?:virtual\s+assistant|va)\b[\s\S]{0,120}\bi\s+(?:can|would|will)\s+(?:handle|manage|own|assist|support|help)\b/i,
+  /\bmy\s+(?:skills|experience|background|portfolio)\b[\s\S]{0,120}\b(?:virtual\s+assistant|va|client|clients|business|businesses)\b/i,
+  /\bi\s+(?:can|would|will)\s+(?:help|assist|support|manage|handle)\s+(?:you|your|clients?|businesses?)\b/i,
+  /\bi\s+(?:have|bring|offer)\s+(?:over\s+)?\d+(?:\.\d+)?\+?\s+years?\s+of\s+(?:virtual\s+assistant|remote|admin|administrative|customer\s+support|bookkeeping|seo|social\s+media)\s+experience\b/i,
 ];
 
 export function looksLikeVaApplication(...texts: Array<string | null | undefined>) {

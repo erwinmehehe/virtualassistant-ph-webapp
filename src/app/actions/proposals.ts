@@ -351,22 +351,6 @@ export async function acceptLeadProposalAction(formData: FormData) {
     }
   }
 
-  try {
-    const safeActionLink = handoff.linked && acceptedJobId === jobId ? handoff.actionLink : null;
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: `Proposal accepted: ${proposal.role_title}`,
-      heading: handoff.linked ? "Your client workspace is ready" : "Your hiring request is confirmed",
-      body: handoff.linked
-        ? "Your proposal is accepted, the role is active, and our recruiting team can begin preparing your shortlist. Use the secure link below to open your client workspace."
-        : "Your proposal is accepted. Our recruiting team has the request and will follow up if your account still needs to be connected manually.",
-      href: safeActionLink || (clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${acceptedJobId}` : undefined),
-      hrefLabel: handoff.linked ? "Open client workspace" : undefined
-    });
-  } catch {
-    // Email is post-commit. A delivery failure must not create partial hiring state.
-  }
-
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");

@@ -35,7 +35,7 @@ test("Hiring inbox shows one connected lead-to-hire workflow and one primary nex
   assert.match(page, /#client-handoff/);
   assert.match(page, /#interviews/);
   assert.match(page, /#matching/);
-  assert.match(page, /id=\{\`reply-\$\{lead\.id\}\`\}/);
+  assert.match(page, /Client email is intentionally held until recruiter-reviewed VAs are ready/);
   assert.match(css, /\.crmPage :global\(\.crm-hiring-flow-nav\)/);
   assert.match(css, /\.crmPage :global\(\.crm-hiring-next\)/);
   assert.match(css, /\.crmPage :global\(\.crm-hiring-progress\)/);

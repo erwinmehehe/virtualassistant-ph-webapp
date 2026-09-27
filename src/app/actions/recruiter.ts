@@ -10,7 +10,7 @@ import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileC
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
-import { isPubliclyEligible, isRowApprovable } from "@/lib/public-visibility";
+import { isPubliclyEligible, isRowApprovable, PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 
@@ -1141,7 +1141,7 @@ export async function repairVaRecordsAction() {
 export async function hideIncompletePublicProfilesAction() {
   const { user } = await requireAnyRole(["admin"]);
   const admin = createAdminClient();
-  const { data: rows } = await admin.from("recruiter_va_directory").select("user_id").eq("directory_visible", true).lt("completion_score", 100).limit(500);
+  const { data: rows } = await admin.from("recruiter_va_directory").select("user_id").eq("directory_visible", true).lt("completion_score", PUBLIC_VA_MIN_COMPLETION).limit(500);
   const ids = (rows || []).map((r: any) => r.user_id);
   if (ids.length) await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);
   await writeAdminAudit({ actorId: user.id, action: "hide_incomplete_public_profiles", targetType: "va", metadata: { count: ids.length } });

@@ -34,17 +34,23 @@ test("CRM main workspace supports saved views dashboard preferences companies co
 });
 
 test("CRM relationship pages expose companies contacts imports and workflow controls",async()=>{
-  const [companies,company,contacts,automations,imports,exportRoute]=await Promise.all([
+  const [companies,company,contacts,contact,automations,imports,exportRoute]=await Promise.all([
     read("src/app/workspace/recruiter/crm/companies/page.tsx"),
     read("src/app/workspace/recruiter/crm/companies/[companyId]/page.tsx"),
     read("src/app/workspace/recruiter/crm/contacts/page.tsx"),
+    read("src/app/workspace/recruiter/crm/contacts/[contactId]/page.tsx"),
     read("src/app/workspace/recruiter/crm/automations/page.tsx"),
     read("src/app/workspace/recruiter/crm/import/page.tsx"),
     read("src/app/workspace/recruiter/crm/export/route.ts"),
   ]);
   assert.match(companies,/crm_companies/);
   assert.match(company,/updateCrmCompanyAction/);
-  assert.match(contacts,/updateCrmContactAction/);
+  assert.match(companies,/createCrmCompanyAction/);
+  assert.match(company,/createCrmCustomFieldAction/);
+  assert.match(contacts,/createCrmContactAction/);
+  assert.match(contacts,/workspace\/recruiter\/crm\/contacts\/\$\{contact\.id\}/);
+  assert.match(contact,/setCrmCustomValueAction/);
+  assert.match(contact,/Communication history/);
   assert.match(automations,/createCrmWorkflowAction/);
   assert.match(imports,/importCrmCsvAction/);
   assert.match(exportRoute,/content-disposition/);

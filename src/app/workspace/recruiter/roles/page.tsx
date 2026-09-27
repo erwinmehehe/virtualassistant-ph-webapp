@@ -13,7 +13,7 @@ type RoleListRow = RecruiterRoleSummaryJob;
 const ROLE_VIEWS = [
   ["active", "All active"],
   ["needs_details", "Needs role details"],
-  ["needs_candidates", "Needs shortlist"],
+  ["needs_candidates", "Needs candidates"],
   ["ready_to_send", "Ready to send"],
   ["client_review", "Client review"],
   ["waiting_client", "Waiting on client"],
@@ -105,10 +105,11 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     <div className="page-head recruiter-roles-head"><div><div className="kicker">Recruitment operations</div><h1>Roles</h1><p>Manage every hiring pipeline, then check whether your active roles have enough matching talent supply.</p></div><div className="row wrap"><Link className="btn" href="#talent-coverage"><Tags size={15}/> Talent coverage</Link></div></div>
     {(viewCounts.get("needs_details")||0)>0 ? <div className="alert" role="status" style={{marginBottom:18}}><strong>{viewCounts.get("needs_details")} role{viewCounts.get("needs_details")===1?"":"s"} need hiring details.</strong> <Link className="text-link" href="/workspace/recruiter/roles?view=needs_details&sort=urgent">Review incomplete roles →</Link></div> : null}
     <div className="grid-4 recruiter-role-stats">
-      <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"><span className="small muted">Needs shortlist</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("needs_candidates")||0}</strong><span className="small muted">Suggestions exist, but no recruiter shortlist yet</span></Link>
+      <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"><span className="small muted">Needs candidates</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("needs_candidates")||0}</strong><span className="small muted">Review suggestions and build the recruiter shortlist</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=ready_to_send&sort=urgent"><span className="small muted">Ready to send</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("ready_to_send")||0}</strong><span className="small muted">Shortlisted candidates can go to the client now</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=waiting_client&sort=urgent"><span className="small muted">Waiting on client</span><strong style={{display:"block",fontSize:28}}>{clientWaiting}</strong><span className="small muted">Released candidates need a decision</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=intervention&sort=urgent"><span className="small muted">Needs intervention</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("intervention")||0}</strong><span className="small muted">Overdue candidate, client, interview, or offer work</span></Link>
+      <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=ready_offer&sort=urgent"><span className="small muted">Ready for offer</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("ready_offer")||0}</strong><span className="small muted">Selected roles without an active offer</span></Link>
     </div>
     <p className="small muted" style={{margin:"10px 0 0"}}>{open.length} active roles · {recruiting} recruiting · {interviewing} interviewing</p>
     <section className="card recruiter-role-pipeline" style={{marginTop:18}}><div className="row-between wrap"><div><h2 style={{margin:0}}>Hiring pipeline</h2><p className="small muted" style={{margin:"5px 0 0"}}>Use saved queues to jump straight to the roles that need recruiter action.</p></div><BriefcaseBusiness size={20}/></div>

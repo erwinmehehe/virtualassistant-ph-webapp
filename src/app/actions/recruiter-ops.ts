@@ -4,13 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendStaffClientFollowupEmail } from "@/lib/email";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
 const REPEAT_RULES = new Set(["none", "daily", "weekly"]);
 const SNOOZE_MINUTES = new Set([60, 1440, 4320]);
-const FOLLOW_UP_DAYS = new Set([1, 2, 3, 7, 14]);
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -180,58 +178,7 @@ export async function snoozeRecruiterTaskAction(formData: FormData) {
 }
 
 export async function sendRecruiterTemplateEmailAction(formData: FormData) {
-  const { userId, profile } = await requireRoleFast("recruiter");
-  const leadId = String(formData.get("lead_id") || "").trim();
-  const subject = String(formData.get("subject") || "").trim().slice(0, 180);
-  const message = String(formData.get("message") || "").trim().slice(0, 5000);
-  const templateId = String(formData.get("template_id") || "custom").slice(0, 80);
-  const followUpDays = Number(formData.get("follow_up_days") || 2);
+  await requireRoleFast("recruiter");
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/today");
-
-  const fail = (text: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent(text)}`);
-  if (!leadId || subject.length < 3 || message.length < 10 || !FOLLOW_UP_DAYS.has(followUpDays)) return fail("Add a valid subject, message, and follow-up schedule.");
-
-  const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake")
-    .select("id,email,name,job_id,crm_stage,owner_id,first_contact_at")
-    .eq("id", leadId)
-    .maybeSingle();
-  if (!lead?.email) return fail("No client email is attached to this lead.");
-
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const href = lead.job_id ? `${appUrl}/workspace/client/jobs/${lead.job_id}` : undefined;
-  const result = await sendStaffClientFollowupEmail({
-    to: lead.email,
-    subject,
-    message,
-    senderName: profile.full_name || "VirtualAssistant.com.ph hiring team",
-    href
-  });
-  if (!result.sent) return fail("Client email could not be sent. Check the email configuration and recipient address.");
-
-  const now = new Date();
-  const patch: Record<string, unknown> = {
-    last_contact_at: now.toISOString(),
-    owner_id: lead.owner_id || userId,
-    next_follow_up_at: new Date(now.getTime() + followUpDays * 86_400_000).toISOString()
-  };
-  if (!lead.first_contact_at) patch.first_contact_at = now.toISOString();
-  if ((lead.crm_stage || "new") === "new") {
-    patch.crm_stage = "contacted";
-    patch.stage_updated_at = now.toISOString();
-  }
-  await admin.from("lead_intake").update(patch).eq("id", leadId);
-
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: leadId,
-    action: "client_followup_sent",
-    description: `Template email sent to ${lead.name || lead.email}: ${subject}`,
-    actorId: userId,
-    metadata: { template_id: templateId, follow_up_days: followUpDays, recipient: lead.email, job_id: lead.job_id || null }
-  });
-
-  refreshRecruiterOps();
-  revalidatePath("/workspace/recruiter/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email is held until recruiter-approved VAs are ready to send.")}`);
 }

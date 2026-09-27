@@ -73,6 +73,7 @@ type CustomField = { id:string; label:string; field_type:string; options:unknown
 type CustomValue = { field_id:string; value:unknown };
 type Company = { id:string; name:string; website:string|null; industry:string|null; location:string|null };
 type Contact = { id:string; full_name:string|null; email:string|null; phone:string|null; title:string|null };
+type EmailEvent = { id:string; event_type:string; status:string; automation:string|null; created_at:string };
 
 function fmt(value?: string | null, withTime = false) {
   if (!value) return "—";
@@ -118,7 +119,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -130,8 +131,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     lead.crm_contact_id ? admin.from("crm_contacts").select("id,full_name,email,phone,title").eq("id",lead.crm_contact_id).maybeSingle() : Promise.resolve({data:null,error:null}),
     admin.from("crm_custom_fields").select("id,label,field_type,options").eq("object_type","lead").order("created_at",{ascending:true}),
     admin.from("crm_custom_values").select("field_id,value").eq("object_type","lead").eq("object_id",leadId),
+    admin.from("outbound_email_events").select("id,event_type,status,automation,created_at").eq("recipient",lead.email).order("created_at",{ascending:false}).limit(30),
   ]);
-  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult]) {
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult]) {
     if (result.error) throw result.error;
   }
 
@@ -144,6 +146,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const tasks = (tasksResult.data || []) as Task[];
   const customFields = (customFieldsResult.data || []) as CustomField[];
   const customValueMap = new Map(((customValuesResult.data || []) as CustomValue[]).map(item=>[item.field_id,item.value]));
+  const emailEvents = (emailResult.data || []) as EmailEvent[];
   const communication = activities.filter(item=>/email|contact|meeting|discovery|follow_up/.test(item.action));
   const returnTo = `/workspace/recruiter/crm/${lead.id}`;
   const initial = (lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase();
@@ -213,8 +216,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <section className={styles.panel}>
             <div className={styles.panelHead}><h2>Communication history</h2><CalendarDays size={15}/></div>
             <div className={styles.panelBody}>
-              {communication.length || lead.discovery_scheduled_at ? <div className={styles.timeline}>
+              {communication.length || emailEvents.length || lead.discovery_scheduled_at ? <div className={styles.timeline}>
                 {lead.discovery_scheduled_at ? <div className={styles.timelineItem}><span className={styles.timelineDot}/><div><strong>{lead.discovery_completed_at?"Discovery completed":"Discovery scheduled"}</strong><p>{lead.discovery_outcome || "Calendar event linked to this hiring relationship."}</p><time>{fmt(lead.discovery_completed_at || lead.discovery_scheduled_at,true)}</time></div></div> : null}
+                {emailEvents.slice(0,20).map(item=><div className={styles.timelineItem} key={`email-${item.id}`}><span className={styles.timelineDot}/><div><strong>{item.event_type.replaceAll("_"," ")}</strong><p>Email {item.status}{item.automation?` · ${item.automation}`:""}</p><time>{fmt(item.created_at,true)}</time></div></div>)}
                 {communication.slice(0,20).map(item=><div className={styles.timelineItem} key={`communication-${item.id}`}><span className={styles.timelineDot}/><div><strong>{activityTitle(item.action)}</strong>{item.description?<p>{item.description}</p>:null}<time>{fmt(item.created_at,true)}</time></div></div>)}
               </div> : <div className={styles.empty}>No email, call, meeting, or calendar activity has been logged yet.</div>}
             </div>

@@ -130,6 +130,14 @@ export default async function PublicJobsPage({
 
         <section className="jobs-market-hero">
           <div className="jobs-market-glow" aria-hidden="true" />
+          <div className="container">
+            {params.closed === "1" ? (
+              <div className="success-banner jobs-closed-notice" role="status">
+                <strong>That role has closed.</strong>
+                <span>Browse the current recruiter-reviewed Virtual Assistant opportunities below.</span>
+              </div>
+            ) : null}
+          </div>
           <div className="container jobs-market-hero-grid">
             <div className="jobs-market-copy">
               <span className="jobs-market-eyebrow">

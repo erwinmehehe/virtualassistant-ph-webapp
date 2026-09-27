@@ -11,6 +11,7 @@ import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlis
 import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { RoleReadinessForm } from "@/components/role-readiness-form";
+import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
@@ -166,6 +167,9 @@ export default async function RoleControlCenter({
     <>
       {query.client_already_linked ? (
         <div className="success-banner" role="status">The client account is already linked to this role.</div>
+      ) : null}
+      {query.interview_scheduled ? (
+        <div className="success-banner" role="status">Interview scheduled. The client and VA can see it in their workspaces; only the VA receives the operational email/calendar invitation.</div>
       ) : null}
       {query.client_invite_email_unavailable && clientClaimHref ? (
         <div className="alert" role="alert">
@@ -497,6 +501,36 @@ export default async function RoleControlCenter({
                         <strong className="small">Client feedback</strong>
                         {x.client_feedback_reason ? <p className="small" style={{ margin: "4px 0 0" }}>Reason: {x.client_feedback_reason}</p> : null}
                         {x.client_feedback ? <p className="small muted" style={{ margin: "4px 0 0" }}>{x.client_feedback}</p> : null}
+                      </div>
+                    ) : null}
+
+                    {x.status === "requested" ? (
+                      <div className="info-banner" style={{ marginTop: 12 }}>
+                        <div style={{ width: "100%" }}>
+                          <strong>Client requested this interview</strong>
+                          <p className="small muted" style={{ margin: "4px 0 10px" }}>Choose a time here so the request cannot get lost in a separate scheduling queue. The client also retains self-service scheduling in their Interview workspace.</p>
+                          <CandidateInterviewScheduler interviewId={x.id} returnTo={`/workspace/recruiter/roles/${job.id}`} compact />
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {x.status === "scheduled" ? (
+                      <div className="info-banner" style={{ marginTop: 12 }}>
+                        <div style={{ width: "100%" }}>
+                          <div className="row-between wrap">
+                            <div>
+                              <strong>Interview scheduled</strong>
+                              <p className="small muted" style={{ margin: "4px 0 0" }}>{x.scheduled_at ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(x.scheduled_at)) : "Time unavailable"} · {x.duration_minutes || 30} minutes</p>
+                            </div>
+                            {x.meeting_url ? <a className="btn btn-sm" href={x.meeting_url} target="_blank" rel="noreferrer">Open Google Meet</a> : null}
+                          </div>
+                          <details style={{ marginTop: 10 }}>
+                            <summary className="text-button">Reschedule from this role</summary>
+                            <div style={{ marginTop: 10 }}>
+                              <CandidateInterviewScheduler interviewId={x.id} currentIso={x.scheduled_at} returnTo={`/workspace/recruiter/roles/${job.id}`} compact />
+                            </div>
+                          </details>
+                        </div>
                       </div>
                     ) : null}
 

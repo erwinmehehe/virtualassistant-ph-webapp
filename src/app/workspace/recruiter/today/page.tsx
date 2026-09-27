@@ -135,10 +135,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const { data: summaryData, error: summaryError } = await withServerTiming(
-    "recruiter.today_summary",
-    () => admin.rpc("recruiter_today_summary", { p_user_id:userId }),
-  );
+  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId }));
   if (summaryError) throw summaryError;
 
   const summary = (summaryData || {}) as Record<string,any>;

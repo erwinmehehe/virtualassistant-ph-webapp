@@ -238,7 +238,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   if (!job) throw new Error("Job not found.");
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) throw new Error(`Raise the VA budget to at least USD ${MIN_HOURLY_RATE}/hour before publishing.`);
   const missing = publicationMissingDetails(job);
-  if (missing.length) throw new Error(`Complete the role before publishing: ${missing.join(", ")}.`);
+  if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
   const { data: commercial } = await supabase.from("job_commercials").select("commercial_status").eq("job_id",jobId).single();
   if (!commercial || commercial.commercial_status !== "quoted") throw new Error("The service fee is not ready for acceptance.");
   const admin = createAdminClient();

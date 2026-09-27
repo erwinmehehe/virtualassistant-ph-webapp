@@ -647,7 +647,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     <div className="field"><label>Proposal valid</label><select name="expires_days" defaultValue="7"><option value="7">7 days</option><option value="14">14 days</option><option value="30">30 days</option></select></div>
                   </div>
                   <div className="field"><label>Start timing</label><input name="start_timing" maxLength={200} defaultValue={lead.start_time || ""} placeholder="ASAP, within 2 weeks, next month..."/></div>
-                  <button className="btn btn-primary" type="submit">{proposal ? "Create and send updated proposal" : "Create and send proposal"}</button>
+                  <button className="btn btn-primary" type="submit">{proposal ? "Save updated proposal draft" : "Create proposal draft"}</button>
                 </form>
               </details> : null}
             </div> : null}

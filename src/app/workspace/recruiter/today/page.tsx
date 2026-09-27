@@ -143,37 +143,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   ]);
   if (summaryError) throw summaryError;
 
-  const recentHiringCutoff = new Date(Date.now() - 7 * 86400000).toISOString();
-  const { data: intakeRoleData, error: intakeRoleError } = await admin
-    .from("jobs")
-    .select("id,title,company_name,lead_id,recruiter_id,status,hiring_stage,created_at")
-    .in("status", ["pending", "published"])
-    .in("hiring_stage", ["intake", "ready_to_recruit", "sourcing", "internal_review"])
-    .gte("created_at", recentHiringCutoff)
-    .order("created_at", { ascending: false })
-    .limit(40);
-  if (intakeRoleError) throw intakeRoleError;
-
-  const intakeRoles = ((intakeRoleData || []) as NewHiringRoleRow[])
-    .filter((job) => !job.recruiter_id || job.recruiter_id === userId);
-  const intakeRoleIds = intakeRoles.map((job) => job.id);
-  const { data: intakeShortlistData, error: intakeShortlistError } = intakeRoleIds.length
-    ? await admin
-        .from("job_shortlist_candidates")
-        .select("job_id,shortlist_status,created_by")
-        .in("job_id", intakeRoleIds)
-        .in("shortlist_status", ["proposed", "released"])
-    : { data: [] as Array<{ job_id: string; shortlist_status: string; created_by: string | null }>, error: null };
-  if (intakeShortlistError) throw intakeShortlistError;
-
-  const recruiterTouchedRoles = new Set(
-    (intakeShortlistData || [])
-      .filter((row: any) => row.shortlist_status === "released" || Boolean(row.created_by))
-      .map((row: any) => String(row.job_id)),
-  );
-  const newHiringRoles = intakeRoles.filter((job) => !recruiterTouchedRoles.has(job.id)).slice(0, 8);
-
   const summary = (summaryData || {}) as Record<string,any>;
+  const newHiringRoles = (Array.isArray(summary.new_hiring_roles) ? summary.new_hiring_roles : []) as NewHiringRoleRow[];
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
   const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));

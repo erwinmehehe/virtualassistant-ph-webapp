@@ -34,7 +34,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const trainingJoin = trainingJoinHref(trainingCourseSlug);
   const googleEnabled = googleLoginEnabled();
   const microsoftEnabled = microsoftLoginEnabled();
-  const socialEnabled = (googleEnabled || microsoftEnabled) && !trainingLogin;
+  const socialEnabled = trainingLogin ? googleEnabled : (googleEnabled || microsoftEnabled);
   const showConfirmationRecovery = params.confirm === "1";
   const joinQuery = new URLSearchParams();
   if (next) joinQuery.set("next", next);
@@ -43,16 +43,23 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const vaJoinHref = `/auth/join/va${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
   const loginCard = (
-    <div className={`auth-card auth-card-wide ${trainingLogin ? "" : "auth-surface-card"}`}>
+    <div className={`auth-card auth-card-wide ${trainingLogin ? "training-auth-card" : "auth-surface-card"}`}>
       <div className="auth-form-heading auth-login-heading">
         <div>
           <div className="kicker">{trainingLogin ? "Training account" : "Secure sign in"}</div>
           <h1>{trainingLogin ? "Welcome back to training" : "Welcome back"}</h1>
           <p className="muted auth-intro">
             {trainingLogin
-              ? "Log in to continue your free training and saved progress."
+              ? "Continue your free training, saved progress, and certificates with the same account."
               : "Continue with Google, or use the email and password already linked to your account."}
           </p>
+          {trainingLogin ? (
+            <div className="training-auth-benefit-row" aria-label="Training account benefits">
+              <span>Free courses</span>
+              <span>Saved progress</span>
+              <span>Certificates</span>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -73,7 +80,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                 </button>
               </form>
             ) : null}
-            {microsoftEnabled ? (
+            {!trainingLogin && microsoftEnabled ? (
               <form action={oauthAction}>
                 {next ? <input type="hidden" name="next" value={next}/> : null}
                 {lead ? <input type="hidden" name="lead" value={lead}/> : null}
@@ -137,7 +144,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="auth-login-options">
         {trainingLogin ? (
           <Link
-            className="btn btn-primary"
+            className="btn auth-secondary-choice training-auth-create"
             href={trainingJoin}
             data-track="training_account_click"
             data-course-slug={trainingCourseSlug || undefined}

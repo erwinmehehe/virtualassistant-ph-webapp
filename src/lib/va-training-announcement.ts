@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEventEmail } from "@/lib/email";
 
 export const VA_TRAINING_EVENT_TYPE = "product_training_launch";
+export const VA_TRAINING_LAUNCH_AUDIENCE_CUTOFF = "2026-09-25T14:02:13.851Z";
 
 export async function sendVaTrainingAnnouncementBatch(maxSends = 20) {
   const admin = createAdminClient();
@@ -12,6 +13,7 @@ export async function sendVaTrainingAnnouncementBatch(maxSends = 20) {
     .select("id,full_name")
     .eq("role", "va")
     .eq("account_status", "active")
+    .lte("created_at", VA_TRAINING_LAUNCH_AUDIENCE_CUTOFF)
     .order("created_at", { ascending: true })
     .limit(500);
   if (error) throw error;

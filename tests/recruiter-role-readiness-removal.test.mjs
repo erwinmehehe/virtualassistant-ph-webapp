@@ -23,7 +23,8 @@ test("lead-created roles are not blocked by fields the public lead forms do not 
   assert.doesNotMatch(fn,/missing\.push\("skills"\)/);
   assert.doesNotMatch(fn,/missing\.push\("timezone"\)/);
   assert.doesNotMatch(fn,/missing\.push\("start timing"\)/);
-  assert.doesNotMatch(fn,/missing\\.push\\("hours"\\)/);\n  for (const required of ["title","summary","responsibilities","budget"]) {
+  assert.doesNotMatch(fn,/missing\.push\("hours"\)/);
+  for (const required of ["title","summary","responsibilities","budget"]) {
     assert.match(fn,new RegExp(`missing\\.push\\("${required}"\\)`));
   }
 });

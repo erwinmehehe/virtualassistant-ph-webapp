@@ -50,6 +50,7 @@ export function TrainingShell({
   const role = isRole(profile?.role) ? profile.role : null;
   const workspaceHref = role ? roleHome[role] : null;
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
+  const accountHref = role ? "/workspace/account" : "/workspace/training/account";
   const isAdminPreview = role === "admin";
   const pageTitle = isAdminPreview ? "Training preview" : "Learner dashboard";
   const accountLabel = isAdminPreview ? "Admin account" : role === "va" ? "VA learner" : "Training account";
@@ -93,7 +94,7 @@ export function TrainingShell({
                 <span>{workspaceLabel}</span>
               </Link>
             ) : null}
-            <Link href="/workspace/account">
+            <Link href={accountHref}>
               <TrainingNavIcon tone="slate"><Settings size={16}/></TrainingNavIcon>
               <span>Account settings</span>
             </Link>
@@ -130,7 +131,7 @@ export function TrainingShell({
                   <span>{workspaceLabel}</span>
                 </Link>
               ) : null}
-              <Link href="/workspace/account">
+              <Link href={accountHref}>
                 <TrainingNavIcon tone="slate"><Settings size={17}/></TrainingNavIcon>
                 <span>Account settings</span>
               </Link>
@@ -149,7 +150,7 @@ export function TrainingShell({
         </nav>
 
         <div className="sidebar-footer">
-          <Link className="app-account-card" href="/workspace/account" aria-label="Open account settings">
+          <Link className="app-account-card" href={accountHref} aria-label="Open account settings">
             <span className="app-account-avatar"><BookOpenCheck size={18}/></span>
             <div className="user-copy"><strong>{profile?.full_name || "Account"}</strong><span>{accountLabel}</span></div>
           </Link>
@@ -172,7 +173,7 @@ export function TrainingShell({
               <summary aria-label="Open training account menu"><CircleEllipsis size={19}/></summary>
               <div className="training-detail-account-panel">
                 {workspaceHref ? <Link href={workspaceHref}>{workspaceLabel}</Link> : null}
-                <Link href="/workspace/account">Account settings</Link>
+                <Link href={accountHref}>Account settings</Link>
                 <form action={logoutAction}><button type="submit">Sign out</button></form>
               </div>
             </details>

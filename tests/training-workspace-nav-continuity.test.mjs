@@ -24,7 +24,8 @@ test("training navigation exposes learning, course browsing, certificates, accou
   assert.match(shell, /href="\/workspace\/training" aria-current="page"/);
   assert.match(shell, /\/workspace\/training\?browse=1#course-library-title/);
   assert.match(shell, /\/workspace\/training#certificates/);
-  assert.match(shell, /href="\/workspace\/account"/);
+  assert.match(shell, /const accountHref = role \? "\/workspace\/account" : "\/workspace\/training\/account"/);
+  assert.match(shell, /href=\{accountHref\}/);
   assert.match(shell, /roleWorkspaceLabel/);
   assert.match(shell, /VA workspace/);
   assert.match(shell, /Admin workspace/);

@@ -274,14 +274,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     <div className={styles.crmPage}>
       <div className="recruiter-leads-page">
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
-      {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
-      {params.contact_already_sent ? <div className="success-banner">That reply is already being sent or was already sent. No duplicate email was created.</div> : null}
-      {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
+      {params.discovery_saved ? <div className="success-banner">Discovery call saved. Client email remains held until a VA shortlist is ready.</div> : null}
       {params.discovery_already_saved ? <div className="success-banner">That discovery booking is already saved or being processed. No duplicate booking was created.</div> : null}
-      {params.meet_link_created ? <div className="success-banner">Google Meet created and sent to the client.</div> : null}
+      {params.meet_link_created ? <div className="success-banner">Google Meet created. No client email was sent.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
-      {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
-      {params.rebook_email_sent ? <div className="success-banner">Rebooking email sent. The client can choose another time from the link in that email.</div> : null}
+      {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
+      {params.rebook_email_sent ? <div className="success-banner">No-show recorded. No client email was sent.</div> : null}
       {params.rebook_email_already_sent ? <div className="success-banner">The rebooking email was already sent. No duplicate email was sent.</div> : null}
       {params.rebook_prompt ? <div className="crm-rebook-prompt">
         <div><strong>Client marked No show.</strong><span>Send the approved rebooking email with their existing booking link?</span></div>
@@ -467,8 +465,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                   <input type="hidden" name="return_to" value={returnTo}/>
                   <button className="btn btn-primary" type="submit">Create role &amp; start matching</button>
                 </form>
-              ) : hiringActionKind === "reply" ? (
-                <a className="btn btn-primary" href={`#reply-${lead.id}`}>Reply to client</a>
               ) : hiringActionHref ? (
                 <Link className="btn btn-primary" href={hiringActionHref}>{hiringActionLabel}</Link>
               ) : null}
@@ -608,7 +604,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     <div className="field"><label>Duration</label><select name="discovery_duration_minutes" defaultValue={String(lead.discovery_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>
                     <div className="field"><label>Meeting link</label><input name="discovery_meeting_url" type="url" defaultValue={lead.discovery_meeting_url || ""} placeholder="https://meet.google.com/..."/></div>
                   </div>
-                  <PendingSubmitButton label="Book and email client" pendingLabel="Booking…" />
+                  <PendingSubmitButton label="Save discovery booking" pendingLabel="Saving…" />
                 </form>
               </details> : null}
 

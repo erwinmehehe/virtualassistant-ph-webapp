@@ -108,3 +108,17 @@ test("mobile Account Settings uses a non-scrolling settings grid", async () => {
   assert.match(css, /\.account-settings-nav[\s\S]*overflow:\s*visible/);
   assert.match(css, /\.account-settings-header[\s\S]*border-radius:\s*18px/);
 });
+
+
+test("client mobile navigation exposes the decision-making hiring stages", async () => {
+  const nav = await read("src/components/app-nav-links.tsx");
+
+  assert.match(nav, /\["Hiring Room", "\/workspace\/client\/candidates"/);
+  assert.match(nav, /\["Interviews", "\/workspace\/client\/interviews"/);
+  assert.match(nav, /\["Offers", "\/workspace\/client\/offers"/);
+  assert.match(nav, /\["Workroom", "\/workspace\/client\/workroom"/);
+  assert.match(
+    nav,
+    /client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/candidates", "\/workspace\/client\/interviews"\]/,
+  );
+});

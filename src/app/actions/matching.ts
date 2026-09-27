@@ -302,7 +302,11 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
 
   if (mode === "release" && job.client_id) {
-    const { data: access } = await admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle();
+    const [{ data: access }, { data: clientAuth }, { data: clientProfile }] = await Promise.all([
+      admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle(),
+      admin.auth.admin.getUserById(job.client_id),
+      admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
+    ]);
     const unlocked = candidateAccessUnlocked(access?.access_status);
     await admin.from("notifications").insert({
       user_id: job.client_id,
@@ -312,6 +316,34 @@ export async function saveJobShortlistAction(formData: FormData) {
         : `${selected.length} matched VA${selected.length === 1 ? " is" : "s are"} ready. Candidate identities stay protected until candidate access is activated.`,
       href: `/workspace/client/jobs/${jobId}`
     });
+
+    const recipient = clientAuth.user?.email?.trim();
+    if (recipient) {
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+      const { sendTransactionalEventEmail } = await import("@/lib/email");
+      try {
+        await sendTransactionalEventEmail({
+          to: recipient,
+          firstName: clientProfile?.full_name || null,
+          subject: `Your VA shortlist is ready: ${job.title}`,
+          heading: "Your recruiter selected VAs for you",
+          body: `${selected.length} recruiter-reviewed Virtual Assistant${selected.length === 1 ? " is" : "s are"} ready for your review.`,
+          href: `${appUrl}/workspace/client/jobs/${jobId}`,
+          hrefLabel: "Review my VA shortlist",
+          senderName: "VirtualAssistant.com.ph Hiring Team",
+          teamLabel: "VA shortlist",
+          footerText: "This is the hiring email we send when recruiter-reviewed Virtual Assistants are ready for you.",
+          eventType: "client_shortlist_delivery",
+          idempotencyKey: `client-shortlist-delivery-${jobId}-${now.slice(0, 10)}`,
+          priority: "critical",
+        });
+      } catch (emailError) {
+        console.error("[client-shortlist-delivery] email failed", {
+          jobId,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        });
+      }
+    }
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);

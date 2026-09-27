@@ -12,14 +12,22 @@ test("public hiring enquiries still create or reuse a linked role", async () => 
   assert.match(leads,/job_id: jobId/);
 });
 
-test("Recruiter My Day surfaces fresh untouched hiring roles before cleanup work", async () => {
-  const today=await read("src/app/workspace/recruiter/today/page.tsx");
+test("Recruiter My Day surfaces fresh untouched hiring roles from the compact summary RPC", async () => {
+  const [today,migration]=await Promise.all([
+    read("src/app/workspace/recruiter/today/page.tsx"),
+    read("supabase/migrations/20260927123500_recruiter_new_hiring_fast_path.sql"),
+  ]);
   assert.match(today,/id="new-hiring-enquiries"/);
   assert.match(today,/New hiring enquiries/);
   assert.match(today,/newHiringRoles\.length,title:"Build the first shortlist"/);
-  assert.match(today,/!job\.recruiter_id \|\| job\.recruiter_id === userId/);
+  assert.match(today,/summary\.new_hiring_roles/);
+  assert.doesNotMatch(today,/\.from\("/);
   assert.match(today,/Prepare top matches/);
   assert.match(today,/prepareTopMatchesForReviewAction/);
+  assert.match(migration,/new_hiring_roles as/);
+  assert.match(migration,/j\.recruiter_id=p_user_id or j\.recruiter_id is null/);
+  assert.match(migration,/s\.shortlist_status='released'/);
+  assert.match(migration,/s\.shortlist_status='proposed' and s\.created_by is not null/);
 });
 
 test("quick shortlist preparation claims an unassigned role and stays internal only", async () => {

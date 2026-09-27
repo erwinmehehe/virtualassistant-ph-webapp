@@ -85,6 +85,11 @@ test("shared auth preserves training-only accounts while the workspace guard rej
     assert.match(source, /isTrainingPath/);
     assert.match(source, /\/workspace\/training/);
   }
+  assert.match(authAction, /user\?\.app_metadata\?\.account_type === "training"/);
+  assert.doesNotMatch(authAction, /user\?\.user_metadata\?\.account_type === "training"/);
+  assert.match(callback, /updateUserById\(user\.id/);
+  assert.match(callback, /app_metadata/);
+  assert.doesNotMatch(callback, /updateUser\(\{ data: \{ account_type: "training" \} \}\)/);
   assert.match(auth, /export async function requireTrainingAccessFast/);
   assert.match(auth, /role === "va" \|\| role === "admin"/);
   assert.match(auth, /role === "client" \|\| role === "recruiter"/);

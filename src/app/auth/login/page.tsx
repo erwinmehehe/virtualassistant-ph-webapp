@@ -51,7 +51,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="muted auth-intro">
             {trainingLogin
               ? "Log in to continue your free training and saved progress."
-              : "Use Google for the fastest sign-in, or continue with the email and password already linked to your account."}
+              : "Continue with Google, or use the email and password already linked to your account."}
           </p>
         </div>
       </div>
@@ -70,7 +70,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                 <button className="btn auth-social-btn auth-provider-btn" type="submit">
                   <span className="auth-provider-mark auth-provider-google" aria-hidden="true">G</span>
                   <span>Continue with Google</span>
-                  <span className="auth-provider-note">Fastest</span>
                 </button>
               </form>
             ) : null}

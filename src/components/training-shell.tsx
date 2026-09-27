@@ -52,7 +52,8 @@ export function TrainingShell({
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
   const isAdminPreview = role === "admin";
   const pageTitle = isAdminPreview ? "Training preview" : "Learner dashboard";
-  const accountLabel = isAdminPreview ? "Admin account" : "VA learner";
+  const accountLabel = isAdminPreview ? "Admin account" : role === "va" ? "VA learner" : "Training account";
+  const contextLabel = isAdminPreview ? "Admin · Training preview" : role === "va" ? "VA · Training" : "Training account";
 
   return (
     <div className={`app-shell dashboard-shell training-shell training-role-${role || "unknown"}`}>
@@ -69,7 +70,7 @@ export function TrainingShell({
 
         <nav className="app-nav app-nav-desktop training-shell-nav" aria-label="Training navigation">
           <div className="app-nav-group">
-            <div className="sidebar-label">{isAdminPreview ? "Training preview" : "Training"}</div>
+            <div className="sidebar-label">Training</div>
             <Link href="/workspace/training" aria-current="page">
               <TrainingNavIcon tone="violet"><GraduationCap size={16}/></TrainingNavIcon>
               <span>{isAdminPreview ? "Learner view" : "My learning"}</span>
@@ -163,7 +164,7 @@ export function TrainingShell({
           <div className="app-topbar-inner">
             <div className="app-topbar-title">
               <Link className="app-topbar-workspace-home" href={workspaceHref || "/training"}>
-                {isAdminPreview ? "Admin · Training preview" : "VA · Training"}
+                {contextLabel}
               </Link>
               <strong className="app-topbar-page-title">{pageTitle}</strong>
             </div>

@@ -783,6 +783,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       startsAt: parsed.data.scheduled_at,
       durationMinutes: DISCOVERY_DURATION_MINUTES,
       attendeeEmails: [parsed.data.email],
+      notifyAttendees: false,
     });
   } catch (error) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";

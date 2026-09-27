@@ -13,7 +13,7 @@ test("recruiter navigation keeps the CRM inside the connected hiring workflow", 
   for (const label of ["CRM", "Active roles", "Client review", "Placements", "Talent"]) {
     assert.match(nav, new RegExp(`\\["${label}"`));
   }
-  assert.match(nav, /recruiter: \\["\\/workspace\\/recruiter\\/today", "\\/workspace\\/recruiter\\/crm", "\\/workspace\\/recruiter\\/roles", "\\/workspace\\/recruiter\\/client-review"\\]/);
+  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/client-review"\]/);
   assert.doesNotMatch(board, /kicker="Sales CRM"/);
   assert.match(board, /kicker="Hiring Pipeline"/);
   assert.match(board, /title="Employer pipeline"/);

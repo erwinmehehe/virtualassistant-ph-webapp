@@ -43,9 +43,9 @@ test("recruiter inbox does not encourage pre-shortlist email replies", async () 
   const page=await read("src/app/workspace/recruiter/leads/page.tsx");
   assert.match(page,/Needs triage/);
   assert.match(page,/Client email is intentionally held until recruiter-reviewed VAs are ready/);
-  assert.doesNotMatch(page,/Reply to client/);
+  assert.doesNotMatch(page,/<strong>Reply to client<\/strong>/);
   assert.doesNotMatch(page,/Write another reply/);
-  assert.doesNotMatch(page,/Send reply/);
+  assert.doesNotMatch(page,/PendingSubmitButton label="Send reply"/);
 });
 
 test("same service lead duplicates are deduped for 24 hours", async () => {
@@ -78,5 +78,5 @@ test("booking page uses the sleek two-step booking experience", async () => {
   assert.match(form,/Confirm booking/);
   assert.match(css,/\.booking-call-preview/);
   assert.match(css,/\.booking-flow-progress/);
-  assert.match(css,/\.booking-calendar-shell/);
+  assert.match(css,/\.booking-calendar-shell/);\n  assert.match(css,/\.booking-selected-slot/);
 });

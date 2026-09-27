@@ -16,8 +16,10 @@ test("recruiter lead cards do not expose direct email-app or call buttons", () =
   assert.doesNotMatch(page, /href={`tel:/);
 });
 
-test("linked role navigation points recruiters into matching", () => {
-  assert.match(page, />Open role &amp; match<\/Link>/);
+test("linked role navigation keeps matching as the canonical recruiting action", () => {
+  assert.match(page, /hiringActionKind[\s\S]*"matching"/);
+  assert.match(page, /#matching/);
+  assert.match(page, />Open role<\/Link>/);
   assert.doesNotMatch(page, />View linked role<\/Link>/);
 });
 

@@ -62,7 +62,8 @@ test("recruiter navigation names the connected hiring workflow clearly",async()=
   assert.match(nav,/\["Hiring inbox", "\/workspace\/recruiter\/leads", BriefcaseBusiness\]/);
   assert.match(nav,/\["Active roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
   assert.match(nav,/\["Talent", "\/workspace\/recruiter\/talent", Search\]/);
-  assert.match(nav,/\["Client Success", "\/workspace\/client-success", Wrench\]/);
+  assert.match(nav,/\["Client review", "\/workspace\/recruiter\/client-review", MessageSquare\]/);
+  assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
   assert.doesNotMatch(nav,/\["Leads", "\/workspace\/recruiter\/leads"/);
   assert.doesNotMatch(nav,/\["Roles", "\/workspace\/recruiter\/roles"/);
 });

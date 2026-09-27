@@ -59,7 +59,7 @@
 }
 
 .crmPage :global(.crm-metrics) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 18px;
 }
@@ -127,12 +127,12 @@
   color: #f79009;
 }
 
-.crmPage :global(.crm-metric-card:nth-child(5)) {
+.crmPage :global(.crm-metric-card:nth-child(4)) {
   border-color: #abefc6;
   background: linear-gradient(180deg, #fff 0%, #f6fef9 100%);
 }
 
-.crmPage :global(.crm-metric-card:nth-child(5) svg) {
+.crmPage :global(.crm-metric-card:nth-child(4) svg) {
   color: #12b76a;
 }
 
@@ -1129,5 +1129,235 @@
   .crmPage :global(.crm-rebook-prompt .btn),
   .crmPage :global(.crm-no-show-rebook .btn) {
     width: 100%;
+  }
+}
+
+
+.crmPage :global(.crm-hiring-flow-nav) {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.crmPage :global(.crm-hiring-flow-nav a) {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-areas:
+    "step title"
+    "step help";
+  gap: 1px 9px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--crm-line);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--crm-ink);
+  text-decoration: none;
+}
+
+.crmPage :global(.crm-hiring-flow-nav a:hover),
+.crmPage :global(.crm-hiring-flow-nav a.is-current) {
+  border-color: #c7d7fe;
+  background: #f8f9ff;
+}
+
+.crmPage :global(.crm-hiring-flow-nav a > span) {
+  grid-area: step;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #eef0ff;
+  color: var(--crm-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.crmPage :global(.crm-hiring-flow-nav strong) {
+  grid-area: title;
+  min-width: 0;
+  font-size: 12.5px;
+}
+
+.crmPage :global(.crm-hiring-flow-nav small) {
+  grid-area: help;
+  color: var(--crm-muted);
+  font-size: 10.5px;
+}
+
+.crmPage :global(.crm-hiring-next) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #dfe3f8;
+  background: linear-gradient(90deg, #f8f9ff 0%, #fff 72%);
+}
+
+.crmPage :global(.crm-hiring-next > div) {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.crmPage :global(.crm-hiring-next > div > span) {
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.crmPage :global(.crm-hiring-next > div > strong) {
+  color: var(--crm-ink);
+  font-size: 14px;
+}
+
+.crmPage :global(.crm-hiring-next > div > small) {
+  color: var(--crm-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.crmPage :global(.crm-hiring-next > .btn),
+.crmPage :global(.crm-hiring-next > form) {
+  flex: none;
+}
+
+.crmPage :global(.crm-hiring-next form .btn) {
+  white-space: nowrap;
+}
+
+.crmPage :global(.crm-hiring-progress) {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 8px;
+  max-width: 720px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.crmPage :global(.crm-hiring-progress > span) {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  flex: 1 0 66px;
+  min-width: 66px;
+  color: #98a2b3;
+  text-align: center;
+}
+
+.crmPage :global(.crm-hiring-progress > span::after) {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 11px;
+  left: calc(50% + 12px);
+  width: calc(100% - 20px);
+  height: 2px;
+  background: #eaecf0;
+  pointer-events: none;
+}
+
+.crmPage :global(.crm-hiring-progress > span:last-child::after) {
+  display: none;
+}
+
+.crmPage :global(.crm-hiring-progress i) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #d0d5dd;
+  border-radius: 999px;
+  background: #fff;
+  color: #98a2b3;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.crmPage :global(.crm-hiring-progress em) {
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.crmPage :global(.crm-hiring-progress > span.is-done),
+.crmPage :global(.crm-hiring-progress > span.is-current) {
+  color: #344054;
+}
+
+.crmPage :global(.crm-hiring-progress > span.is-done i) {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.crmPage :global(.crm-hiring-progress > span.is-current i) {
+  border-color: #a4bcfd;
+  background: #eef4ff;
+  color: #3538cd;
+}
+
+.crmPage :global(.crm-hiring-progress > span.is-done::after) {
+  background: #abefc6;
+}
+
+@media (max-width: 760px) {
+  .crmPage :global(.crm-hiring-flow-nav) {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .crmPage :global(.crm-hiring-flow-nav a) {
+    flex: 0 0 176px;
+    scroll-snap-align: start;
+  }
+
+  .crmPage :global(.crm-hiring-next) {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 11px 12px;
+  }
+
+  .crmPage :global(.crm-hiring-next > .btn),
+  .crmPage :global(.crm-hiring-next > form),
+  .crmPage :global(.crm-hiring-next form .btn) {
+    width: 100%;
+  }
+
+  .crmPage :global(.crm-hiring-next > .btn),
+  .crmPage :global(.crm-hiring-next form .btn) {
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  .crmPage :global(.crm-role-bridge) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .crmPage :global(.crm-role-bridge > .btn) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .crmPage :global(.crm-hiring-progress) {
+    max-width: 100%;
   }
 }

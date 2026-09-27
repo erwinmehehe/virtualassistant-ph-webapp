@@ -39,9 +39,10 @@ test("recruiter pipeline board supports desktop drag and touch-friendly stage mo
   assert.match(styles,/scroll-snap-type: x proximity/);
 });
 
-test("CRM list surfaces lead temperature and links to the board", async()=>{
+test("Hiring inbox keeps lead scoring visible while linking to the employer board", async()=>{
   const crm=await read("src/app/workspace/recruiter/leads/page.tsx");
-  assert.match(crm,/Hot leads/);
+  assert.match(crm,/Qualified/);
+  assert.match(crm,/crm-hiring-flow-nav/);
   assert.match(crm,/lead-temperature/);
   assert.match(crm,/\/workspace\/recruiter\/leads\/board/);
   assert.match(crm,/scoreLead\(lead, now\)/);

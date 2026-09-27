@@ -75,9 +75,9 @@ export default async function RecruiterLeadBoardPage({ searchParams }: { searchP
 
   return <div className="dash-page pipeline-board-page">
     <DashHeader
-      kicker="Sales CRM"
-      title="Pipeline board"
-      subtitle="Move opportunities through the active sales pipeline. Cards are score-sorted so the strongest and most urgent opportunities stay near the top."
+      kicker="Hiring Pipeline"
+      title="Employer pipeline"
+      subtitle="Track employer communication before and alongside the linked recruiting role. Recruiting work continues in Active roles, not in a separate CRM."
       actions={<Link className="btn" href="/workspace/recruiter/leads"><LayoutDashboard size={16}/> List view</Link>}
     />
 
@@ -89,7 +89,7 @@ export default async function RecruiterLeadBoardPage({ searchParams }: { searchP
     </div>
 
     <div className="pipeline-board-toolbar">
-      <div className="role-filter-tabs" aria-label="Pipeline ownership scope">
+      <div className="role-filter-tabs" aria-label="Employer pipeline ownership scope">
         <Link className={scope === "mine" ? "active" : ""} href="/workspace/recruiter/leads/board?scope=mine">My leads</Link>
         <Link className={scope === "team" ? "active" : ""} href="/workspace/recruiter/leads/board?scope=team">Team</Link>
       </div>

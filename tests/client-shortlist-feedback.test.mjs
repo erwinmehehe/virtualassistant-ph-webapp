@@ -44,5 +44,5 @@ test("canonical recruiter role workspace exposes client follow-up and replacemen
   assert.match(recruiterRole, /Client handoff/);
   assert.match(recruiterRole, /Send client follow-up/);
   assert.match(recruiterRole, /Needs replacement matches/);
-  assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
+  assert.match(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
 });

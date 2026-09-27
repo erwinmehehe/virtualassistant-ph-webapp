@@ -70,5 +70,5 @@ test("missing-details requests stay in-app and never show an email failure warni
   assert.doesNotMatch(today, /role_details_email_warning/);
   assert.doesNotMatch(role, /role_details_email_warning/);
   assert.match(today, /No client email was sent/);
-  assert.doesNotMatch(role, /role_details_requested|No email was sent/);
+  assert.doesNotMatch(role, /role_details_requested|Missing role details request/);
 });

@@ -13,7 +13,6 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { scoreLead } from "@/lib/lead-scoring";
-import { publicationMissingDetails } from "@/lib/job-publication";
 import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";
 import styles from "./leads.module.css";
 
@@ -353,51 +352,41 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               ? "Follow-up overdue. Move this lead forward or close it."
               : null;
           const linkedRole = lead.job_id ? linkedRoleById.get(lead.job_id) || null : null;
-          const missingRoleDetails = linkedRole ? publicationMissingDetails(linkedRole) : [];
-          const roleReady = Boolean(linkedRole && missingRoleDetails.length === 0);
           const hiringProgress = hiringProgressIndex(linkedRole?.hiring_stage, Boolean(lead.job_id));
           const hiringActionKind = !lead.job_id
             ? "create_role"
-            : !roleReady
-              ? "complete_role"
-              : linkedRole?.hiring_stage === "client_review"
-                ? "client_review"
-                : linkedRole?.hiring_stage === "interviewing"
-                  ? "interview"
-                  : ["selected", "offer", "pre_start"].includes(String(linkedRole?.hiring_stage || ""))
-                    ? "offer"
-                    : "matching";
+            : linkedRole?.hiring_stage === "client_review"
+              ? "client_review"
+              : linkedRole?.hiring_stage === "interviewing"
+                ? "interview"
+                : ["selected", "offer", "pre_start"].includes(String(linkedRole?.hiring_stage || ""))
+                  ? "offer"
+                  : "matching";
           const hiringActionLabel = hiringActionKind === "create_role"
             ? "Create role & start matching"
-              : hiringActionKind === "complete_role"
-                ? "Complete role brief"
-                : hiringActionKind === "client_review"
-                  ? "Review client decision"
-                  : hiringActionKind === "interview"
-                    ? "Manage interviews"
-                    : hiringActionKind === "offer"
-                      ? "Finish offer"
-                      : "Review matches";
+            : hiringActionKind === "client_review"
+              ? "Review client decision"
+              : hiringActionKind === "interview"
+                ? "Manage interviews"
+                : hiringActionKind === "offer"
+                  ? "Finish offer"
+                  : "Review matches";
           const hiringActionCopy = hiringActionKind === "create_role"
             ? "Turn this enquiry into the recruiting workspace and open the candidate pool."
-              : hiringActionKind === "complete_role"
-                ? "Confirm the missing role details while matching continues internally."
-                : hiringActionKind === "client_review"
-                  ? "The shortlist is with the client. Keep the decision moving."
-                  : hiringActionKind === "interview"
-                    ? "Move scheduling, interview completion, or feedback forward."
-                    : hiringActionKind === "offer"
-                      ? "Finish the final terms and placement handoff."
-                      : "Review the internal candidate pool and build the shortlist.";
+            : hiringActionKind === "client_review"
+              ? "The shortlist is with the client. Keep the decision moving."
+              : hiringActionKind === "interview"
+                ? "Move scheduling, interview completion, or feedback forward."
+                : hiringActionKind === "offer"
+                  ? "Finish the final terms and placement handoff."
+                  : "Review the internal candidate pool and build the shortlist.";
           const hiringActionHref = !lead.job_id
             ? null
-            : hiringActionKind === "complete_role"
-              ? `/workspace/recruiter/roles/${lead.job_id}#role-readiness`
-              : hiringActionKind === "client_review"
-                ? `/workspace/recruiter/roles/${lead.job_id}#client-handoff`
-                : ["interview", "offer"].includes(hiringActionKind)
-                  ? `/workspace/recruiter/roles/${lead.job_id}#interviews`
-                  : `/workspace/recruiter/roles/${lead.job_id}#matching`;
+            : hiringActionKind === "client_review"
+              ? `/workspace/recruiter/roles/${lead.job_id}#client-handoff`
+              : ["interview", "offer"].includes(hiringActionKind)
+                ? `/workspace/recruiter/roles/${lead.job_id}#interviews`
+                : `/workspace/recruiter/roles/${lead.job_id}#matching`;
           return <article className={`card crm-lead-card ${slaMissed || followOverdue ? "needs-attention" : ""}`} key={lead.id}>
             <div className="crm-lead-head">
               <div className="crm-lead-identity">

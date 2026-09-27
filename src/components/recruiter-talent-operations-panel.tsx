@@ -115,7 +115,7 @@ export async function RecruiterTalentOperationsPanel() {
         <p>See who can be presented to a client now, which specialties are short, and whether recruiters should develop the existing pool or source additional talent.</p>
       </div>
       <div className="row wrap">
-        <Link prefetch={false} className="btn" href="/workspace/recruiter/queue">Vetting queue</Link>
+        <Link prefetch={false} className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Vetting queue</Link>
       </div>
     </div>
 

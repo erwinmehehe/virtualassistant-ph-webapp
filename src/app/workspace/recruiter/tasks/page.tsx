@@ -6,7 +6,7 @@ import { completeRecruiterTaskAction, createRecruiterTaskAction, snoozeRecruiter
 
 function manilaLabel(value?:string|null){return value?new Intl.DateTimeFormat("en-PH",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Manila"}).format(new Date(value)):"No due time";}
 function exactTaskHref(task:any){
-  if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/matching/${task.subject_id}`;
+  if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/roles/${task.subject_id}`;
   if(task.subject_type==="va"&&task.subject_id)return `/workspace/recruiter/candidates/${task.subject_id}`;
   return task.href||null;
 }
@@ -16,7 +16,7 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
   const {userId}=await requireRoleFast("recruiter");
   const admin=createAdminClient();
   const view=["mine","team","done"].includes(String(params.view))?String(params.view):"mine";
-  const [{data:people},{data:taskRows,error}]=await Promise.all([
+  const [{data:people,error:peopleError},{data:taskRows,error}]=await Promise.all([
     admin.from("profiles").select("id,full_name,role").in("role",["recruiter","admin"]).eq("account_status","active").order("full_name"),
     (()=>{
       let query:any=admin.from("recruiter_tasks").select("*").order("due_at",{ascending:true,nullsFirst:false}).order("created_at",{ascending:false}).limit(100);
@@ -26,7 +26,7 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
       return query;
     })()
   ]);
-  if(error)throw error;
+  if(peopleError)throw peopleError;if(error)throw error;
   const peopleMap=new Map((people||[]).map((person:any)=>[person.id,person.full_name||person.role]));
   const rows=taskRows||[];
   const now=Date.now();

@@ -204,8 +204,8 @@ export default async function RecruiterTalentDirectory({
         <p>Recruiter-only view of every VA, regardless of public visibility. Filter the backlog, identify what is missing, and act in bulk.</p>
       </div>
       <div className="row wrap">
-        <Link className="btn" href="/workspace/recruiter/queue">Vetting queue</Link>
-        <Link className="btn btn-primary" href="/workspace/recruiter/matching">Match roles</Link>
+        <Link className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Vetting queue</Link>
+        <Link className="btn btn-primary" href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent">Match roles</Link>
       </div>
     </div>
 

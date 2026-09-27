@@ -33,17 +33,29 @@ export default async function RecruiterCoveragePage() {
   await requireAnyRole(["recruiter", "admin"]);
   const admin = createAdminClient();
 
-  const [{ data: leadRows }, { data: jobRows }, { data: vaRows }] = await Promise.all([
-    admin.from("lead_intake").select("id,service,crm_stage").eq("lead_type", "client_hiring").in("crm_stage", OPEN_LEAD_STAGES).limit(2000),
-    admin.from("jobs").select("id,title,categories,status").in("status", OPEN_JOB_STATUSES).limit(2000),
+  const [
+    { data: leadRows, error: leadError },
+    { data: jobRows, error: jobError },
+    { data: vaRows, error: vaError },
+  ] = await Promise.all([
+    admin.from("lead_intake").select("id,service,crm_stage,job_id").eq("lead_type", "client_hiring").in("crm_stage", OPEN_LEAD_STAGES).limit(2000),
+    admin.from("jobs").select("id,title,categories,status,lead_id").in("status", OPEN_JOB_STATUSES).limit(2000),
     admin.from("recruiter_va_directory")
       .select("user_id,primary_category,stage,completion_score,directory_visible,availability_status,account_status")
       .eq("account_status", "active")
       .limit(3000)
   ]);
+  if (leadError) throw leadError;
+  if (jobError) throw jobError;
+  if (vaError) throw vaError;
 
-  const leads = leadRows || [];
   const jobs = jobRows || [];
+  const openJobIds = new Set(jobs.map((job) => String(job.id)));
+  const linkedLeadIds = new Set(jobs.map((job) => String(job.lead_id || "")).filter(Boolean));
+  const leads = (leadRows || []).filter((lead) => {
+    const linkedJobId = String(lead.job_id || "");
+    return !(linkedJobId && openJobIds.has(linkedJobId)) && !linkedLeadIds.has(String(lead.id));
+  });
   const vas = (vaRows || []) as RecruiterVaDirectoryRow[];
 
   const demand = new Map<string, number>();
@@ -92,14 +104,14 @@ export default async function RecruiterCoveragePage() {
         <h1>Coverage: demand vs bench</h1>
         <p>Open client demand for each specialty against the VAs who could actually be presented today. Recruit against the shortfall column rather than in general.</p>
       </div>
-      <Link className="btn" href="/workspace/recruiter/categories">VA categories <ArrowRight size={15}/></Link>
+      <Link className="btn" href="/workspace/recruiter/roles#talent-coverage">VA categories <ArrowRight size={15}/></Link>
     </div>
 
     <div className="grid-3" style={{ marginBottom: 20 }}>
       <section className="card">
         <span className="small muted">Open client demand</span>
         <h2 style={{ margin: "4px 0 0" }}>{leads.length + jobs.length}</h2>
-        <p className="small muted" style={{ margin: "6px 0 0" }}>{leads.length} live leads · {jobs.length} open roles</p>
+        <p className="small muted" style={{ margin: "6px 0 0" }}>{leads.length} unlinked live lead{leads.length===1?"":"s"} · {jobs.length} open role{jobs.length===1?"":"s"} · linked enquiries counted once</p>
       </section>
       <section className="card">
         <span className="small muted">Presentable VAs</span>

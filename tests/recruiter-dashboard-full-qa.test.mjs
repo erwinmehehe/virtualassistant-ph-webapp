@@ -90,6 +90,13 @@ test("maintenance creates canonical recruiter links and keeps client reminders i
   const clientOfferStart=route.indexOf("action: `placement_offer_client_");
   assert.ok(clientOfferStart>=0);
   assert.match(route.slice(clientOfferStart,clientOfferStart+900),/email: false/);
+
+  assert.ok(route.includes("async function runRecruiterNotificationHygiene"));
+  assert.ok(route.includes("notificationRetentionCutoff"));
+  assert.ok(route.includes("staleSlaCutoff"));
+  assert.ok(route.includes('runMaintenanceTask("recruiter notification hygiene"'));
+  assert.ok(route.includes(".eq(\"title\", args.title)"));
+  assert.ok(route.includes(".eq(\"href\", args.href)"));
 });
 
 test("roles page falls back safely from stale view and sort query strings", async () => {

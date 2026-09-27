@@ -96,7 +96,7 @@ function activityTitle(action: string) {
 export default async function RecruiterCrmRecordPage({ params, searchParams }: { params: Promise<{ leadId: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { leadId } = await params;
   const query = await searchParams;
-  await requireRoleFast("recruiter");
+  const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
 
   const { data: leadData, error: leadError } = await admin
@@ -116,7 +116,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     admin.from("profiles").select("id,full_name,role,account_status").in("role", ["recruiter", "admin"]).eq("account_status", "active").order("full_name"),
     admin.from("recruiter_activity").select("id,action,description,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(60),
     admin.from("recruiter_notes").select("id,note,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(20),
-    admin.from("recruiter_tasks").select("id,title,description,priority,status,due_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(20),
+    admin.from("recruiter_tasks").select("id,title,description,priority,status,due_at").eq("subject_type", "lead").eq("subject_id", leadId).eq("assignee_id", userId).order("created_at", { ascending: false }).limit(20),
   ]);
   if (jobResult.error) throw jobResult.error;
   if (ownersResult.error) throw ownersResult.error;

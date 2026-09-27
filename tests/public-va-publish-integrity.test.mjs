@@ -28,3 +28,15 @@ test("bulk publish warning includes consent instead of stale blocker wording",as
   assert.match(page,/public-profile requirements or current publication consent are incomplete/);
   assert.doesNotMatch(page,/availability, experience, rate, photo, or profile-completion requirements/);
 });
+
+test("Admin Health and cleanup use the same public completion threshold",async()=>{
+  const [health,action]=await Promise.all([
+    read("src/app/workspace/admin/health/page.tsx"),
+    read("src/app/actions/recruiter.ts"),
+  ]);
+  assert.match(health,/lt\("completion_score", PUBLIC_VA_MIN_COMPLETION\)/);
+  assert.match(health,/Hide public profiles below \{PUBLIC_VA_MIN_COMPLETION\}%/);
+  assert.match(action,/lt\("completion_score", PUBLIC_VA_MIN_COMPLETION\)/);
+  assert.doesNotMatch(health,/lt\("completion_score", 100\)/);
+  assert.doesNotMatch(action,/lt\("completion_score", 100\)/);
+});

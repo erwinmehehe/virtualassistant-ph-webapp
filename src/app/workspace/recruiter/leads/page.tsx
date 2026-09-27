@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, Flame, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
@@ -235,12 +235,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
   const followUpsDue = Number(metrics.followups_due || 0);
   const discoveryBooked = Number(metrics.discovery_booked || 0);
   const qualifiedLeads = Number(metrics.qualified || 0);
-  const wonThisMonth = Number(metrics.won_this_month || 0);
-  const openPipelineValue = Number(metrics.open_pipeline_value || 0);
   const scoreByLeadId = new Map((scoringLeads || []).map((lead) => [lead.id, scoreLead(lead, now)]));
-  const pipelineScores = [...scoreByLeadId.values()];
-  const hotLeads = pipelineScores.filter((lead) => lead.temperature === "hot").length;
-  const warmLeads = pipelineScores.filter((lead) => lead.temperature === "warm").length;
 
   const primaryViewTabs = [
     ["open", "Hiring inbox"],

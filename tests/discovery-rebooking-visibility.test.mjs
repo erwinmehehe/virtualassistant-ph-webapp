@@ -38,7 +38,8 @@ test("Recruiter Today keeps no-shows visible without a rebooking email action",(
   const today=read("src/app/workspace/recruiter/today/page.tsx");
   assert.match(today,/id="call-rebooking"/);
   assert.match(today,/>Call rebooking</);
-  assert.match(today,/No automatic client email is sent/);
+  assert.match(today,/no automatic client email is sent/i);
+  assert.match(today,/Client email is held until a VA shortlist is sent/);
   assert.doesNotMatch(today,/Send rebooking link/);
   assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction/);
 });

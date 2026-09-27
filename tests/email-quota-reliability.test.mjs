@@ -40,20 +40,14 @@ test("daily maintenance no longer runs discovery reminders", async () => {
   assert.doesNotMatch(maintenance, /discoveryReminders:/);
 });
 
-test("dedicated discovery runner claims each reminder before sending", async () => {
+test("dedicated discovery runner performs no client reminder sends", async () => {
   const route = await read("src/app/api/cron/discovery-reminders/route.ts");
 
-  assert.match(route, /claimDiscoveryReminder/);
-  assert.match(route, /releaseDiscoveryReminderClaim/);
-  const claimIndex = route.indexOf("claimDiscoveryReminder");
-  const sendIndex = route.indexOf("await sendDiscoveryReminderEmail");
-  assert.ok(claimIndex >= 0 && sendIndex > claimIndex, "claim helper must be defined before send use");
-  assert.match(route, /leadId: lead\.id/);
-  assert.match(route, /RETRIABLE_EMAIL_REASONS/);
-  assert.match(route, /"suppression_lookup_failed"/);
-  assert.match(route, /"quota_lookup_failed"/);
-  assert.match(route, /"daily_quota_reserved"/);
-  assert.match(route, /RETRIABLE_EMAIL_REASONS\.has\(result\.reason\)/);
+  assert.match(route, /client_email_shortlist_only/);
+  assert.match(route, /reminder24h: 0/);
+  assert.match(route, /reminder1h: 0/);
+  assert.match(route, /suppressed: count \|\| 0/);
+  assert.doesNotMatch(route, /sendDiscoveryReminderEmail|claimDiscoveryReminder|releaseDiscoveryReminderClaim/);
 });
 
 test("recruiter and admin workflow reminders stay in-app without a daily email digest", async () => {

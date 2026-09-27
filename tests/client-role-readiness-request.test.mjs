@@ -12,22 +12,21 @@ test("staff can request missing role details only for linked client roles", asyn
   assert.doesNotMatch(action, /This role is assigned to another recruiter/);
   assert.match(action, /Link the client account before requesting missing details/);
   assert.match(action, /publicationMissingDetails\(job\)/);
-  assert.match(action, /admin\.auth\.admin\.getUserById\(job\.client_id\)/);
-  assert.doesNotMatch(action, /\.select\("email,full_name"\)/);
-  assert.match(action, /sendRoleDetailsRequestEmail/);
-  assert.match(action, /email_sent: emailSent/);
-  assert.match(action, /role_details_email_warning/);
+  assert.match(action, /await admin\.from\("notifications"\)\.insert/);
+  assert.doesNotMatch(action, /sendRoleDetailsRequestEmail/);
+  assert.doesNotMatch(action, /role_details_email_warning/);
+  assert.match(action, /email_sent: false/);
+  assert.match(action, /email_reason: "client_email_shortlist_only"/);
   assert.match(action, /role_details_requested/);
 });
 
-test("role details request email is branded, reply-routed, preference-aware and daily-idempotent", async () => {
+test("role details email helper remains hard-disabled before shortlist", async () => {
   const email = await read("src/lib/email.ts");
-  assert.match(email, /sendRoleDetailsRequestEmail/);
-  assert.match(email, /"role_details_request"/);
-  assert.match(email, /role-details-request-\$\{args\.jobId\}-\$\{dateKey\}/);
-  assert.match(email, /replyTo: configuredReplyTo\(\)/);
-  assert.match(email, /Complete hiring brief/);
-  assert.match(email, /\["client_followup", "lead_claim_nudge", "role_details_request"\]/);
+  assert.match(email, /const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false/);
+  const start = email.indexOf("export async function sendRoleDetailsRequestEmail");
+  assert.ok(start >= 0);
+  const section = email.slice(start, start + 1200);
+  assert.match(section, /client_email_deferred_until_shortlist/);
 });
 
 test("client completion flow only writes fields that are currently missing", async () => {
@@ -59,16 +58,17 @@ test("client and staff workspaces expose the missing-details workflow", async ()
   assert.match(form, /Complete your hiring brief/);
 });
 
-
-test("missing profile email no longer blocks the client-details request", async () => {
+test("missing-details requests stay in-app and never show an email failure warning", async () => {
   const [action, today, role] = await Promise.all([
     read("src/app/actions/agency-role.ts"),
     read("src/app/workspace/recruiter/today/page.tsx"),
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
   ]);
-  assert.match(action, /const clientEmail = String\(authUser\?\.email \|\| ""\)\.trim\(\)/);
   assert.match(action, /await admin\.from\("notifications"\)\.insert/);
-  assert.match(action, /emailWarning = true/);
-  assert.match(today, /role_details_email_warning/);
-  assert.match(role, /role_details_email_warning/);
+  assert.doesNotMatch(action, /admin\.auth\.admin\.getUserById/);
+  assert.doesNotMatch(action, /sendRoleDetailsRequestEmail/);
+  assert.doesNotMatch(today, /role_details_email_warning/);
+  assert.doesNotMatch(role, /role_details_email_warning/);
+  assert.match(today, /No client email was sent/);
+  assert.match(role, /No email was sent/);
 });

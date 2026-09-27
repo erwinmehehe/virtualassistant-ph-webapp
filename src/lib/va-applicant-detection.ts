@@ -16,6 +16,10 @@ const APPLICANT_PATTERNS: RegExp[] = [
   /\blooking\s+for\s+(?:a\s+|an\s+)?(?:job|online\s+job|online\s+work|work\s+from\s+home(?:\s+job)?|part[\s-]?time\s+job|full[\s-]?time\s+job|remote\s+job)\b/i,
   /\b(?:your|the)\s+job\s+(?:opening|vacancy)\b/i,
   /\binterested\s+in\s+(?:the|this|your)\s+(?:position|job|vacancy|opening)\b/i,
+  /\bi\s+have\s+(?:\d+|several|many)\s+(?:years?\s+of\s+)?experience\s+as\s+(?:a\s+|an\s+)?(?:virtual\s+assistant|va)\b/i,
+  /\bmy\s+(?:skills|experience|background)\s+(?:include|includes|are|is)\b/i,
+  /\blooking\s+for\s+(?:new\s+)?(?:clients?|opportunities|freelance\s+work)\b/i,
+  /\bi\s+(?:can|would)\s+(?:help|assist|support)\s+(?:you|your|clients?)\b/i,
 ];
 
 export function looksLikeVaApplication(...texts: Array<string | null | undefined>) {

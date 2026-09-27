@@ -9,7 +9,6 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
-import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
 import { getRoleReadinessDashboard } from "@/lib/role-readiness-dashboard";
 import { roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
@@ -155,10 +154,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const approvalCleanupCount = Number(summary.approval_cleanup_count || 0);
   const workSetupReadyCount = Number(summary.work_setup_ready_count || 0);
   const recentZeroCount = Number(summary.recent_zero_count || 0);
-  const noShowNeedsEmail = Number(summary.no_show_needs_email || 0);
   const noShowWaitingRebook = Number(summary.no_show_waiting_rebook || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
-  const rebookSentIds = new Set(noShows.filter((lead)=>lead.sent).map((lead)=>lead.id));
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
   const replacementNeeded = Number(summary.replacement_needed || 0);
   const clientResponseOverdue = Number(summary.client_response_overdue || 0);
@@ -167,14 +164,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const incompleteRoleCount = incompleteRoles.length;
 
   const talentActions = approvalReadyCount + approvalCleanupCount + workSetupReadyCount + recentZeroCount;
-  const clientActions = clientWaits.length + noShowNeedsEmail + noShowWaitingRebook;
+  const clientActions = clientWaits.length + noShows.length;
   const roleActions = incompleteRoleCount + roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
   const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
 
   const nextActionCandidates = [
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
     {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
-    {count:noShowNeedsEmail,title:"Send no-show rebooking links",copy:"These clients missed discovery and have not received a secure link to choose another time.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open rebooking",icon:<RefreshCw size={20}/>},
+    {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
     {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
@@ -214,10 +211,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {
       label:"Clients",
       count:clientActions,
-      hint:"Rebooking and decisions",
+      hint:"No-shows and decisions",
       icon:<RefreshCw size={17}/>,
       items:[
-        {label:"No-show email",count:noShowNeedsEmail,href:"/workspace/recruiter/today#call-rebooking"},
+        {label:"Discovery no-shows",count:noShows.length,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Waiting to rebook",count:noShowWaitingRebook,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Client decisions",count:clientWaits.length,href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest"}
       ]
@@ -248,11 +245,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.role_close_warning ? <div className="alert" role="alert">The lead closed, but its linked role could not be closed automatically. Review the role before continuing.</div> : null}
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
-    {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
-    {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
-    {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
-    {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace{params.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
-    {params.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
+
+    {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace. No client email was sent.</div> : null}
     {params.role_details_complete ? <div className="info-banner">This role is already complete. No request was sent.</div> : null}
     <DashHeader
       kicker="Agency daily workflow"
@@ -278,7 +272,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShows.length}</strong><small>Shortlists and no-shows</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
@@ -305,31 +299,23 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
     </section>
 
-    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.queueCard}`}>
+    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.followCard}`}>
       <div className="dashboard-section-head">
-        <div><h2>Call rebooking</h2><p>Clients who missed a discovery call stay here until they choose another time.</p></div>
-        <span className={`badge ${noShowNeedsEmail?"badge-warning":""}`}>{noShows.length} waiting</span>
+        <div><h2>Call rebooking</h2><p>No-show calls stay visible here, but no automatic client email is sent. Open the lead when the client returns.</p></div>
+        <span className="badge">{noShows.length} waiting</span>
       </div>
       <div className={styles.followList}>
-        {noShows.slice(0,8).map((lead)=>{
-          const sent=rebookSentIds.has(lead.id);
-          return <div className={styles.followRow} key={`rebook-${lead.id}`}>
-            <span className={styles.followIcon}><RefreshCw size={15}/></span>
-            <span className={styles.followCopy}>
-              <strong>{lead.name||lead.email||"Client discovery call"}</strong>
-              <small>{lead.email||"No email on file"}</small>
-              <small>{sent?"Rebooking link sent. Waiting for the client to choose a new time.":"No-show recorded. Send the client a secure link to choose another time."}</small>
-            </span>
-            <div className={styles.followActions}>
-              {!sent?<form action={sendDiscoveryNoShowRebookAction}>
-                <input type="hidden" name="lead_id" value={lead.id}/>
-                <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
-                <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
-              </form>:<span className="badge badge-success">Link sent</span>}
-              <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
-            </div>
-          </div>;
-        })}
+        {noShows.slice(0,8).map((lead)=><div className={styles.followRow} key={`rebook-${lead.id}`}>
+          <span className={styles.followIcon}><RefreshCw size={15}/></span>
+          <span className={styles.followCopy}>
+            <strong>{lead.name||lead.email||"Client discovery call"}</strong>
+            <small>{lead.email||"No email on file"}</small>
+            <small>No-show recorded. Client email is held until a VA shortlist is sent.</small>
+          </span>
+          <div className={styles.followActions}>
+            <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
+          </div>
+        </div>)}
       </div>
       {noShows.length>8?<Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
     </section>:null}
@@ -353,8 +339,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <small className="muted">Last activity {manilaTime(item.last_touch_at)} · {attempts} recorded contact attempt{attempts===1?"":"s"}</small>
                 {item.next_follow_up_at ? <small className="muted">Current follow-up: {manilaTime(item.next_follow_up_at)}</small> : null}
                 <div className="row wrap" style={{marginTop:8}}>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="send_followup"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send follow-up</button></form>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Follow up in 3 days</button></form>
+                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Review again in 3 days</button></form>
                   <Link prefetch={false} className="btn btn-sm" href={cleanupLeadHref(item)}>Open lead</Link>
                 </div>
                 <div className="row wrap" style={{marginTop:6}}>

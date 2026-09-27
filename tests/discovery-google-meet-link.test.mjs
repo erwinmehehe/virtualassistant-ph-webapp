@@ -35,17 +35,17 @@ test("recruiter booking auto-creates Google Meet when no manual meeting URL is s
   assert.match(action,/meetingUrl: generatedMeetingUrl/);
 });
 
-test("existing linkless bookings expose a Google Meet retry action that emails the client",async()=>{
+test("existing linkless bookings expose a silent Google Meet retry action",async()=>{
   const [action,page]=await Promise.all([
     read("src/app/actions/recruiter.ts"),
     read("src/app/workspace/recruiter/leads/page.tsx"),
   ]);
   assert.match(action,/export async function createDiscoveryGoogleMeetLinkAction/);
-  assert.match(action,/subject: "Your discovery call Google Meet link"/);
-  assert.match(action,/hrefLabel: "Join Google Meet"/);
+  assert.match(action,/notifyAttendees: false/);
+  assert.doesNotMatch(action,/subject: "Your discovery call Google Meet link"/);
   assert.match(page,/Create Google Meet/);
   assert.match(page,/createDiscoveryGoogleMeetLinkAction/);
-  assert.match(page,/Google Meet created and sent to the client/);
+  assert.match(page,/Google Meet created\. No client email was sent\./);
 });
 
 test("client discovery confirmation uses branded booking UI and a team reply-to", async () => {
@@ -84,7 +84,7 @@ test("successful Google Calendar booking is created before persistence and avoid
 
   assert.match(action, /attendeeEmails: \[parsed\.data\.email\]/);
   assert.match(action, /calendarEventId: meeting\?\.eventId \|\| null/);
-  assert.match(ops, /sendUpdates=all/);
+  assert.match(ops, /sendUpdates=\$\{args\.notifyAttendees === false \? "none" : "all"\}/);
   assert.match(ops, /attendees: args\.attendeeEmails\.filter\(Boolean\)/);
   assert.match(email, /const googleCalendarCreated = Boolean\(args\.calendarEventId\)/);
   assert.match(email, /attachments: invite \? \[/);

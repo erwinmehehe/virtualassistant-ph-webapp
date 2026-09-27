@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("discovery reminders have a frequent Supabase scheduler independent of the daily Vercel cron", async () => {
+test("legacy discovery scheduler is authenticated but the endpoint remains email-silent", async () => {
   const [route, migration, repairMigration, vercel] = await Promise.all([
     read("src/app/api/cron/discovery-reminders/route.ts"),
     read("supabase/migrations/20260916023000_discovery_reminder_scheduler.sql"),
@@ -21,8 +21,10 @@ test("discovery reminders have a frequent Supabase scheduler independent of the 
   assert.match(repairMigration, /select decrypted_secret/);
   assert.doesNotMatch(repairMigration, /select secret\s+into scheduler_token/);
   assert.match(route, /x-discovery-cron-token/);
-  assert.match(route, /minutesUntil >= 30 && minutesUntil <= 90/);
-  assert.match(route, /minutesUntil >= 23 \* 60 && minutesUntil <= 25 \* 60/);
+  assert.match(route, /x-discovery-cron-token/);
+  assert.match(route, /client_email_shortlist_only/);
+  assert.match(route, /suppressed: count \|\| 0/);
+  assert.doesNotMatch(route, /sendDiscoveryReminderEmail/);
 });
 
 test("rescheduling updates the existing Google Calendar event when one exists", async () => {

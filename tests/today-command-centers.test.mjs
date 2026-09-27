@@ -12,7 +12,7 @@ test("Recruiter My Day exposes the full operating queue",async()=>{
   assert.match(page,/Approval cleanup/);
   assert.match(page,/Work setup ready/);
   assert.match(page,/0% profiles/);
-  assert.match(page,/No-show email/);
+  assert.match(page,/Discovery no-shows/);
   assert.match(page,/Waiting to rebook/);
   assert.match(page,/Need candidates/);
   assert.match(page,/Chase overdue client decisions/);
@@ -20,7 +20,7 @@ test("Recruiter My Day exposes the full operating queue",async()=>{
   assert.match(page,/Offers waiting/);
   assert.match(page,/Need replacements/);
   assert.match(page,/Stale roles/);
-  assert.match(page,/no_show_needs_email/);
+  assert.match(page,/no_show_preview/);
   assert.match(page,/role_no_candidates/);
   assert.match(page,/replacement_needed/);
 });

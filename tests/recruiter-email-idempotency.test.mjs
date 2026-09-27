@@ -51,16 +51,15 @@ test("recruiter booking confirmation is idempotent for the lead and scheduled ti
   assert.match(email, /"discovery_booking",[\s\S]*idempotencyKey: args\.idempotencyKey/);
 });
 
-test("recruiter reply and booking forms disable while a submit is pending", async () => {
+test("recruiter booking form disables while submit is pending without promising client email", async () => {
   const [page, button] = await Promise.all([
     read("src/app/workspace/recruiter/leads/page.tsx"),
     read("src/components/pending-submit-button.tsx"),
   ]);
 
-  assert.match(page, /PendingSubmitButton label="Send reply" pendingLabel="Sending…"/);
-  assert.match(page, /PendingSubmitButton label="Book and email client" pendingLabel="Booking…"/);
+  assert.doesNotMatch(page, /PendingSubmitButton label="Send reply"/);
+  assert.match(page, /PendingSubmitButton label="Save discovery booking" pendingLabel="Saving…"/);
   assert.match(page, /name="request_id" value=\{crypto\.randomUUID\(\)\}/);
-  assert.match(page, /contact_already_sent/);
   assert.match(page, /discovery_already_saved/);
 
   assert.match(button, /useFormStatus/);

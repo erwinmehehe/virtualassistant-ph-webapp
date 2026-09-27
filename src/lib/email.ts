@@ -100,7 +100,11 @@ function archiveExtraFor(payload: any) {
 function configuredSender() {
   const value = process.env.EMAIL_FROM?.trim() || "";
   if (!value || !value.includes("@") || value.toLowerCase().includes("example.com")) return null;
-  return value;
+  const address = bareEmailAddress(value);
+  if (!isValidEmailAddress(address)) return null;
+  // Keep the public brand consistent even when an older environment variable
+  // still contains the legacy "VirtualAssistant.ph" display name.
+  return `VirtualAssistant.com.ph <${address}>`;
 }
 
 function resendConfig() {
@@ -116,6 +120,8 @@ function configuredReplyTo() {
     process.env.LEAD_NOTIFICATION_EMAIL
   ])[0] || undefined;
 }
+
+const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false;
 
 type EmailPriority = "critical" | "standard" | "low";
 type EmailEventStatus = "sending" | "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
@@ -589,6 +595,7 @@ export async function sendLeadAcknowledgementEmail(args: {
   /** Lets the account link claim this request once the client signs up. */
   leadId?: string | null;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -713,6 +720,7 @@ export async function sendVettingNudgeEmail(args: { to: string; fullName?: strin
  * return on their own; most don't.
  */
 export async function sendClaimDraftEmail(args: { to: string; name?: string | null; jobTitle: string; leadId: string; appUrl: string }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
   const firstName = args.name?.trim().split(" ")[0] || "there";
@@ -746,6 +754,7 @@ export async function sendRoleDetailsRequestEmail(args: {
   missing: string[];
   appUrl: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1028,6 +1037,7 @@ export async function sendStaffClientFollowupEmail(args: {
   archiveCopy?: boolean;
   idempotencyKey?: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1150,6 +1160,7 @@ export async function sendDiscoveryBookingEmail(args: {
   recruiterName?: string | null;
   idempotencyKey?: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1199,6 +1210,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
   calendarEventId?: string | null;
   manageUrl: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1406,6 +1418,7 @@ export async function sendDiscoveryNoShowRebookEmail(args: {
   recruiterName?: string | null;
   rebookUrl: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1455,6 +1468,7 @@ VirtualAssistant.com.ph`,
 }
 
 export async function sendDiscoveryReminderEmail(args: { leadId: string; to: string; clientName?: string | null; scheduledLabel: string; meetingUrl?: string | null; manageUrl: string; window: "24h" | "1h" }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
@@ -1486,6 +1500,7 @@ export async function sendLeadProposalEmail(args: {
   expiresLabel?: string | null;
   recruiterName?: string | null;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };

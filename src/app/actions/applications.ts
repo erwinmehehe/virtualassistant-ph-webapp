@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchScore } from "@/lib/matching";
-import { sendApplicationEmail, sendApplicationStatusEmail } from "@/lib/email";
+import { sendApplicationStatusEmail } from "@/lib/email";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import type { ApplicationStatus } from "@/lib/types";
@@ -67,13 +67,6 @@ export async function applyToJobAction(formData: FormData) {
   await admin.from("application_status_history").insert({ application_id: application.id, from_status: null, to_status: "new", changed_by: user.id, note: "Application submitted" });
   await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId } });
   await admin.from("notifications").insert({ user_id: job.client_id, title: `New application for ${job.title}`, body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.", href: `/workspace/client/jobs/${job.id}` });
-  const { data: clientAuth } = await admin.auth.admin.getUserById(job.client_id);
-  try {
-    await sendApplicationEmail({ to: clientAuth.user?.email, applicantName: "A vetted VA", jobTitle: job.title, applicationId: application.id });
-  } catch (error) {
-    console.error("[email] Application notification delivery failed", error);
-    // The application is already saved and should not fail because email delivery is unavailable.
-  }
   revalidatePath("/workspace/va/applications");
   revalidatePath(`/jobs/${jobId}`);
   redirect("/workspace/va/applications?applied=1");

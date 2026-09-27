@@ -23,20 +23,20 @@ test("client account access emails are protected from optional email quota",asyn
   assert.match(invite,/idempotencyKey:/);
 });
 
-test("client account claim failure falls back to a usable manual link instead of throwing",async()=>{
+test("client account claim stays manual before shortlist instead of sending client email",async()=>{
   const [action,page]=await Promise.all([
     read("src/app/actions/agency-role.ts"),
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
   ]);
 
   const claim=action.match(/export async function sendClientAccountClaimAction[\s\S]*?function readinessLines/)?.[0]||"";
-  assert.match(claim,/client_claim_email_unavailable=1/);
-  assert.doesNotMatch(claim,/if \(!result\.sent\) throw new Error/);
+  assert.match(claim,/client_claim_email_disabled=1/);
+  assert.doesNotMatch(claim,/sendClaimDraftEmail|emails\.send/);
 
-  assert.match(page,/client_claim_email_unavailable/);
   assert.match(page,/client_invite_email_unavailable/);
   assert.match(page,/\/auth\/join\/client\?lead=/);
   assert.match(page,/Open client account link/);
+  assert.doesNotMatch(page,/Send client account link/);
 });
 
 test("shortlist invite failure keeps the saved shortlist and exposes the manual claim fallback",async()=>{

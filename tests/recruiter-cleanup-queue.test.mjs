@@ -31,16 +31,16 @@ test("cleanup queue surfaces the required operational reasons", () => {
   assert.match(migration, /grant execute on function public\.recruiter_lead_cleanup_queue\(uuid, integer\) to service_role/);
 });
 
-test("cleanup actions preserve history and support one-click resolution", () => {
-  for (const actionName of ["send_followup", "follow_up_later"]) {
-    assert.match(action, new RegExp(actionName));
-  }
+test("cleanup actions preserve history without pre-shortlist client email", () => {
+  assert.match(action, /follow_up_later/);
+  assert.doesNotMatch(action, /send_followup|sendStaffClientFollowupEmail/);
+  assert.doesNotMatch(page, /cleanup_action" value="send_followup"/);
+  assert.match(page, /Review again in 3 days/);
   for (const closeReason of ["No response", "Spam", "Not a fit"]) {
     assert.match(page, new RegExp(`value=\\"${closeReason}\\"`));
     assert.match(closeAction, new RegExp(`\\"${closeReason}\\"`));
   }
   assert.match(page, /action=\{closeLeadAction\}/);
-  assert.match(action, /next_follow_up_at: new Date\(now\.getTime\(\) \+ 2 \* 86400000\)\.toISOString\(\)/);
   assert.match(action, /now\.getTime\(\) \+ 3 \* 86400000/);
   assert.match(closeAction, /lost_reason: rawReason/);
   assert.match(action, /writeRecruiterActivity/);

@@ -10,7 +10,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { proposalAgencyValue, proposalClientMonthlyTotal } from "@/lib/proposals";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-import { sendLeadProposalEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendTransactionalEventEmail } from "@/lib/email";
 import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
@@ -34,7 +34,7 @@ async function uniqueJobSlug(admin: ReturnType<typeof createAdminClient>, title:
 }
 
 export async function createAndSendProposalAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/leads?view=qualified");
   const roleTitle = String(formData.get("role_title") || "").trim().slice(0, 160);
@@ -99,47 +99,19 @@ export async function createAndSendProposalAction(formData: FormData) {
   }).select("id,public_token").single();
   if (error || !proposal) return fail(error?.message || "Could not create the proposal.");
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const proposalUrl = `${appUrl}/proposal/${proposal.public_token}`;
-  const expiresLabel = new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }).format(expiresAt);
-  const emailResult = await sendLeadProposalEmail({
-    to: lead.email,
-    clientName: lead.name,
-    roleTitle,
-    proposalUrl,
-    expiresLabel,
-    recruiterName: profile.full_name
-  });
-
-  if (!emailResult.sent) {
-    return fail("The proposal was saved as a draft, but the email could not be sent. The previous live proposal, if any, was left unchanged.");
-  }
-
-  await admin.from("lead_proposals")
-    .update({ status: "expired", updated_at: now.toISOString() })
-    .eq("lead_id", leadId)
-    .eq("status", "sent");
-
-  await admin.from("lead_proposals").update({
-    status: "sent",
-    sent_at: now.toISOString(),
-    updated_at: now.toISOString()
-  }).eq("id", proposal.id);
-
+  // Client-facing proposal email is intentionally deferred. Proposal data is
+  // kept as an internal recruiter draft until actual VAs are ready to send.
   await admin.from("lead_intake").update({
-    crm_stage: "shortlist_sent",
-    status: "converted",
     owner_id: lead.owner_id || user.id,
     estimated_value_usd: agencyValue || null,
-    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
     stage_updated_at: now.toISOString()
   }).eq("id", leadId);
 
   await writeRecruiterActivity({
     subjectType: "lead",
     subjectId: leadId,
-    action: "proposal_sent",
-    description: `Proposal sent for ${roleTitle}`,
+    action: "proposal_draft_created",
+    description: `Proposal draft prepared for ${roleTitle}`,
     actorId: user.id,
     metadata: {
       proposal_id: proposal.id,
@@ -153,7 +125,7 @@ export async function createAndSendProposalAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_sent=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_saved=1`);
 }
 
 export async function respondToLeadProposalAction(formData: FormData) {
@@ -377,22 +349,6 @@ export async function acceptLeadProposalAction(formData: FormData) {
     } catch {
       // Matching is post-commit automation and must never roll back acceptance.
     }
-  }
-
-  try {
-    const safeActionLink = handoff.linked && acceptedJobId === jobId ? handoff.actionLink : null;
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: `Proposal accepted: ${proposal.role_title}`,
-      heading: handoff.linked ? "Your client workspace is ready" : "Your hiring request is confirmed",
-      body: handoff.linked
-        ? "Your proposal is accepted, the role is active, and our recruiting team can begin preparing your shortlist. Use the secure link below to open your client workspace."
-        : "Your proposal is accepted. Our recruiting team has the request and will follow up if your account still needs to be connected manually.",
-      href: safeActionLink || (clientId ? `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/client/jobs/${acceptedJobId}` : undefined),
-      hrefLabel: handoff.linked ? "Open client workspace" : undefined
-    });
-  } catch {
-    // Email is post-commit. A delivery failure must not create partial hiring state.
   }
 
   revalidatePath("/workspace/recruiter");

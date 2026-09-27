@@ -228,9 +228,9 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     if (!releasedAt) continue;
     const ageMs = Date.now() - new Date(releasedAt).getTime();
     if (ageMs >= 24 * 60 * 60 * 1000 && ageMs < 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: true, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: false, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
     } else if (ageMs >= 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: true, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
+      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: false, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
     }
   }
 

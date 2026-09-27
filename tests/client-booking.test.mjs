@@ -119,7 +119,7 @@ test("client booking prevents slot conflicts, records CRM state, and privately n
   assert.doesNotMatch(email, /Booking questionnaire/);
 });
 
-test("discovery bookings support Google Meet, reminders, self-service changes, and recruiter outcomes", async () => {
+test("discovery bookings support Google Meet, email-silent reminder sweeps, self-service changes, and recruiter outcomes", async () => {
   const [operations, bookingAction, reminders, recruiter, migration] = await Promise.all([
     read("src/lib/booking-operations.ts"),
     read("src/app/actions/booking.ts"),
@@ -134,8 +134,10 @@ test("discovery bookings support Google Meet, reminders, self-service changes, a
   assert.match(bookingAction, /hashBookingManageToken/);
   assert.match(bookingAction, /rescheduleDiscoveryBookingAction/);
   assert.match(bookingAction, /cancelDiscoveryBookingAction/);
-  assert.match(reminders, /discovery_reminder_24h_sent_at/);
-  assert.match(reminders, /discovery_reminder_1h_sent_at/);
+  assert.match(reminders, /client_email_shortlist_only/);
+  assert.match(reminders, /reminder24h: 0/);
+  assert.match(reminders, /reminder1h: 0/);
+  assert.doesNotMatch(reminders, /sendDiscoveryReminderEmail/);
   for (const outcome of ["attended", "no_show", "cancelled", "rescheduled", "qualified"]) {
     assert.match(recruiter, new RegExp(outcome));
     assert.match(migration, new RegExp(outcome));

@@ -29,7 +29,7 @@ export type ServiceMatchState = {
   vaApplicant?: boolean;
 };
 
-const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 30;
+const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 24 * 60;
 const MATCH_FEEDBACK_TTL_SECONDS = 30 * 24 * 60 * 60;
 
 function matchFeedbackToken(leadId: string) {
@@ -74,7 +74,7 @@ async function routeVaApplicant(args: { name?: string | null; email: string; pho
 
 /**
  * Finds a lead already submitted by this same email, for the same
- * service/category, in the last 30 minutes -- catches double-clicks and
+ * service/category, in the last 24 hours -- catches duplicate submissions and
  * accidental resubmits (a double-click before the button's disabled state
  * kicks in, or a page-refresh resubmit) without adding any friction to a
  * genuine first submission. Returns the existing lead + its job so the
@@ -83,7 +83,7 @@ async function routeVaApplicant(args: { name?: string | null; email: string; pho
  */
 async function findRecentDuplicateLead(admin: ReturnType<typeof createAdminClient>, email: string, service: string | null) {
   const since = new Date(Date.now() - DUPLICATE_SUBMISSION_WINDOW_MINUTES * 60 * 1000).toISOString();
-  let query = admin.from("lead_intake").select("id,job_id,client_id").ilike("email", email).gte("created_at", since).order("created_at", { ascending: false }).limit(1);
+  let query = admin.from("lead_intake").select("id,job_id,client_id").eq("lead_type", "client_hiring").ilike("email", email).gte("created_at", since).order("created_at", { ascending: false }).limit(1);
   if (service) query = query.eq("service", service);
   const { data } = await query.maybeSingle();
   return data;
@@ -783,6 +783,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       startsAt: parsed.data.scheduled_at,
       durationMinutes: DISCOVERY_DURATION_MINUTES,
       attendeeEmails: [parsed.data.email],
+      notifyAttendees: false,
     });
   } catch (error) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";

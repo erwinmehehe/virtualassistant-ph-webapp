@@ -123,12 +123,13 @@ export async function createGoogleMeetDiscoveryMeeting(args: {
   startsAt: string;
   durationMinutes: number;
   attendeeEmails: string[];
+  notifyAttendees?: boolean;
 }) {
   const accessToken = await googleCalendarAccessToken();
   const start = new Date(args.startsAt);
   const end = new Date(start.getTime() + args.durationMinutes * 60_000);
   const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleCalendarId())}/events?conferenceDataVersion=1&sendUpdates=${args.notifyAttendees === false ? "none" : "all"}`,
     {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
@@ -170,12 +171,13 @@ export async function updateGoogleMeetDiscoveryMeeting(args: {
   startsAt: string;
   durationMinutes: number;
   attendeeEmails: string[];
+  notifyAttendees?: boolean;
 }) {
   const accessToken = await googleCalendarAccessToken();
   const start = new Date(args.startsAt);
   const end = new Date(start.getTime() + args.durationMinutes * 60_000);
   const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleCalendarId())}/events/${encodeURIComponent(args.eventId)}?conferenceDataVersion=1&sendUpdates=all`,
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleCalendarId())}/events/${encodeURIComponent(args.eventId)}?conferenceDataVersion=1&sendUpdates=${args.notifyAttendees === false ? "none" : "all"}`,
     {
       method: "PATCH",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },

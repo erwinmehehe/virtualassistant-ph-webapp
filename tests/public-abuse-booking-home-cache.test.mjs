@@ -42,7 +42,8 @@ test("booking management stores hashes and expiry but never new raw capability v
   assert.match(actions, /discovery_manage_token_expires_at/);
   assert.match(actions, /\.gt\("discovery_manage_token_expires_at"/);
   assert.match(page, /\.gt\("discovery_manage_token_expires_at"/);
-  assert.match(reminders, /recreateBookingManageToken/);
+  assert.match(reminders, /client_email_shortlist_only/);
+  assert.doesNotMatch(reminders, /recreateBookingManageToken|createBookingManageToken/);
   assert.doesNotMatch(reminders, /select\([^\n]*discovery_manage_token,/);
   assert.doesNotMatch(actions, /discovery_manage_token:\s*manage\.token/);
   assert.doesNotMatch(leads, /discovery_manage_token:\s*manage\.token/);

@@ -4,17 +4,17 @@ import { readFileSync } from "node:fs";
 
 const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("canonical recruiter My Day exposes the call rebooking queue",()=>{
+test("canonical recruiter My Day exposes the no-show queue without sending client email",()=>{
   const page=read("src/app/workspace/recruiter/today/page.tsx");
   assert.match(page,/Call rebooking/);
-  assert.match(page,/Clients who missed a discovery call stay here until they choose another time/);
-  assert.match(page,/sendDiscoveryNoShowRebookAction/);
-  assert.match(page,/Send rebooking link/);
-  assert.match(page,/Link sent/);
-  assert.match(page,/no_show_preview/);
-  assert.match(page,/rebook_email_sent/);
-  assert.match(page,/rebook_email_already_sent/);
-  assert.match(page,/rebook_email_error/);
+  assert.match(page,/No-show calls stay visible here/);
+  assert.match(page,/Client email is held until a VA shortlist is sent/);
+  assert.match(page,/Open lead/);
+  assert.doesNotMatch(page,/sendDiscoveryNoShowRebookAction/);
+  assert.doesNotMatch(page,/Send rebooking link/);
+  assert.doesNotMatch(page,/rebook_email_sent/);
+  assert.doesNotMatch(page,/rebook_email_already_sent/);
+  assert.doesNotMatch(page,/rebook_email_error/);
 });
 
 test("rebooking preview is scoped inside the single recruiter summary fast path",()=>{

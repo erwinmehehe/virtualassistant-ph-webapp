@@ -31,7 +31,7 @@ test("Hiring inbox shows one connected lead-to-hire workflow and one primary nex
   assert.match(page, /crm-hiring-next/);
   assert.match(page, /Next hiring action/);
   assert.match(page, /hiringActionKind === "create_role"/);
-  assert.match(page, /#role-readiness/);
+  assert.doesNotMatch(page, /complete_role|#role-readiness/);
   assert.match(page, /#client-handoff/);
   assert.match(page, /#interviews/);
   assert.match(page, /#matching/);

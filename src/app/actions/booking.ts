@@ -3,9 +3,8 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
-import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
-import { sendTransactionalEventEmail } from "@/lib/email";
 
 function managePath(token: string, result: string) {
   return `/book-client-call/manage?token=${encodeURIComponent(token)}&${result}`;
@@ -21,7 +20,6 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* the CRM cancellation remains valid if Google Calendar is temporarily unavailable */ }
-  await sendTransactionalEventEmail({ to: lead.email, subject: "Discovery call cancelled", heading: "Your discovery call is cancelled", body: "Your time has been released. When you are ready, use the link below to choose another available time.", href: bookingManageUrl(token), hrefLabel: "Rebook your call", priority: "critical", idempotencyKey: `booking-cancelled-${lead.id}` });
   redirect(managePath(token, "cancelled=1"));
 }
 
@@ -44,13 +42,13 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
           eventId: previousEventId,
           startsAt: scheduledAt,
           durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmails: [lead.email],
+          attendeeEmails: [],
         })
       : await createGoogleMeetDiscoveryMeeting({
           topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
           startsAt: scheduledAt,
           durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmails: [lead.email],
+          attendeeEmails: [],
         });
   } catch {
     // Keep a still-valid existing meeting if Google Calendar is temporarily unavailable.
@@ -80,7 +78,6 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
   }
 
   const label = formatDiscoverySlot(scheduledAt, lead.timezone || "Asia/Manila");
-  await sendTransactionalEventEmail({ to: lead.email, subject: `Discovery call rescheduled: ${label}`, heading: "Your discovery call was rescheduled", body: `Your new time is ${label}.`, href: bookingManageUrl(token), hrefLabel: "Manage booking", priority: "critical", idempotencyKey: `booking-rescheduled-${lead.id}-${scheduledAt}` });
   redirect(managePath(token, "rescheduled=1"));
 }
 

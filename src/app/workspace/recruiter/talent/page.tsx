@@ -219,7 +219,7 @@ export default async function RecruiterTalentDirectory({
     ) : null}
     {partialPublish ? (
       <div className="alert">
-        {affected - (published || 0)} approved VA{affected - (published || 0) === 1 ? " is" : "s are"} still blocked from the public directory by availability, experience, rate, photo, or profile-completion requirements.
+        {affected - (published || 0)} approved VA{affected - (published || 0) === 1 ? " is" : "s are"} still private because public-profile requirements or current publication consent are incomplete.
       </div>
     ) : null}
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}

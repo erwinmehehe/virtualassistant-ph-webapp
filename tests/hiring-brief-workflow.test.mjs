@@ -45,4 +45,6 @@ test("publication validation only blocks on core public brief content", async ()
     assert.doesNotMatch(fn,new RegExp(`missing\\.push\\("${optional}"\\)`));
   }
   assert.match(helper,/label: "Brief incomplete"/);
+  assert.match(helper,/\| "brief_incomplete"/);
+  assert.doesNotMatch(helper,/needs_role_details/);
 });

@@ -34,7 +34,7 @@ test("legacy published roles with missing required fields are visibly flagged", 
     start_timing: null,
   }, { commercial_status: "accepted" });
 
-  assert.equal(result.key, "needs_role_details");
+  assert.equal(result.key, "brief_incomplete");
   assert.match(result.detail, /missing required public content/i);
   assert.match(result.detail, /summary/i);
 });

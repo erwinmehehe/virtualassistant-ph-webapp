@@ -11,6 +11,36 @@
   },
   "redirects": [
     {
+      "source": "/virtual-assistant-jobs",
+      "destination": "https://virtualassistant.com.ph/jobs",
+      "permanent": true
+    },
+    {
+      "source": "/careers",
+      "destination": "https://virtualassistant.com.ph/jobs",
+      "permanent": true
+    },
+    {
+      "source": "/favicon.gif",
+      "destination": "https://virtualassistant.com.ph/favicon.png",
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon-precomposed.png",
+      "destination": "https://virtualassistant.com.ph/apple-touch-icon.png",
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon-120x120.png",
+      "destination": "https://virtualassistant.com.ph/apple-touch-icon.png",
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon-120x120-precomposed.png",
+      "destination": "https://virtualassistant.com.ph/apple-touch-icon.png",
+      "permanent": true
+    },
+    {
       "source": "/",
       "has": [
         {

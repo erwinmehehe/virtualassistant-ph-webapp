@@ -55,3 +55,14 @@ test("login route owns neutral account metadata instead of inheriting hiring cop
   assert.match(login, /robots: \{ index: false, follow: false \}/);
   assert.doesNotMatch(login, /Hire vetted virtual assistants from the Philippines/);
 });
+
+
+test("any authenticated account can enter the free learner workspace", async () => {
+  const auth = await read("src/lib/auth.ts");
+
+  assert.match(
+    auth,
+    /export async function requireTrainingAccessFast\(\) \{[\s\S]*return requireAuthenticatedUserFast\("\/workspace\/training"\);[\s\S]*\}/,
+  );
+  assert.doesNotMatch(auth, /does%20not%20have%20access%20to%20the%20learner%20workspace/);
+});

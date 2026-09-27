@@ -749,6 +749,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
       startsAt: lead.discovery_scheduled_at,
       durationMinutes: lead.discovery_duration_minutes || 30,
       attendeeEmails: [lead.email],
+      notifyAttendees: false,
     });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not create the Google Meet.");
@@ -771,26 +772,11 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
     return fail(error.message || "Could not save the Google Meet.");
   }
 
-  try {
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: "Your discovery call Google Meet link",
-      heading: "Your Google Meet link is ready",
-      body: "Your VirtualAssistant.com.ph discovery call is confirmed. Use the button below to join at the scheduled time.",
-      href: meet.joinUrl,
-      hrefLabel: "Join Google Meet",
-      priority: "critical",
-      idempotencyKey: `booking-meet-link-${leadId}-${meet.eventId}`,
-    });
-  } catch {
-    // CRM remains the source of truth even if the notification is temporarily unavailable.
-  }
-
   await writeRecruiterActivity({
     subjectType: "lead",
     subjectId: leadId,
     action: "discovery_google_meet_link_created",
-    description: "Google Meet link created and sent to client",
+    description: "Google Meet link created for the discovery booking",
     actorId: user.id,
     metadata: { meeting_url: meet.joinUrl, calendar_event_id: meet.eventId }
   });
@@ -824,18 +810,6 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not cancel the discovery booking.");
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
-  try {
-    await sendTransactionalEventEmail({
-      to: lead.email,
-      subject: "Discovery call cancelled",
-      heading: "Your discovery call is cancelled",
-      body: "Your time has been released. Contact our hiring team whenever you are ready to book again.",
-      href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/book-client-call`,
-      hrefLabel: "Book another time",
-      priority: "critical",
-      idempotencyKey: `booking-cancelled-by-recruiter-${leadId}`
-    });
-  } catch { /* the booking state is the source of truth if delivery is unavailable */ }
   await writeRecruiterActivity({
     subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
     description: "Discovery booking cancelled by recruiter", actorId: user.id,

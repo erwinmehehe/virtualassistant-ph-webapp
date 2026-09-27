@@ -9,6 +9,19 @@
       "**": false
     }
   },
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "^www\\.virtualassistant\\.com\\.ph$"
+        }
+      ],
+      "destination": "https://virtualassistant.com.ph/:path*",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/maintenance",

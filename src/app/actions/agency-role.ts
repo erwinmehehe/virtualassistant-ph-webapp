@@ -44,75 +44,10 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
 }
 
 export async function sendClientAccountClaimAction(formData: FormData) {
-  const { user } = await requireRole("recruiter");
+  await requireRole("recruiter");
   const jobId = String(formData.get("job_id") || "").trim();
   if (!jobId) throw new Error("Role is required.");
-
-  const admin = createAdminClient();
-  const { data: job } = await admin
-    .from("jobs")
-    .select("id,title,client_id,lead_id,recruiter_id")
-    .eq("id", jobId)
-    .maybeSingle();
-
-  if (!job) throw new Error("Role not found.");
-  if (job.client_id) redirect(`/workspace/recruiter/roles/${jobId}?client_already_linked=1`);
-  if (!job.lead_id) throw new Error("This role does not have a lead to claim.");
-
-  const { data: lead } = await admin
-    .from("lead_intake")
-    .select("id,name,email,client_id")
-    .eq("id", job.lead_id)
-    .maybeSingle();
-
-  if (!lead?.email) throw new Error("The lead does not have an email address.");
-  if (lead.client_id) redirect(`/workspace/recruiter/roles/${jobId}?client_already_linked=1`);
-
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const { sendClaimDraftEmail } = await import("@/lib/email");
-  let result: Awaited<ReturnType<typeof sendClaimDraftEmail>>;
-  try {
-    result = await sendClaimDraftEmail({
-      to: lead.email,
-      name: lead.name,
-      jobTitle: job.title || "Virtual Assistant role",
-      leadId: lead.id,
-      appUrl,
-    });
-  } catch (error) {
-    console.error("[client-account-claim] provider send failed", {
-      jobId,
-      leadId: lead.id,
-      error: error instanceof Error ? error.message : String(error),
-    });
-    result = { sent: false as const, reason: "provider_error" } as Awaited<ReturnType<typeof sendClaimDraftEmail>>;
-  }
-
-  if (!result.sent) {
-    await writeRecruiterActivity({
-      subjectType: "job",
-      subjectId: jobId,
-      action: "client_account_claim_email_unavailable",
-      description: "Client account link could not be emailed; the recruiter can use the manual claim link instead",
-      actorId: user.id,
-      metadata: { lead_id: lead.id, email_reason: result.reason || "email_unavailable" },
-    });
-    revalidatePath(`/workspace/recruiter/roles/${jobId}`);
-    redirect(`/workspace/recruiter/roles/${jobId}?client_claim_email_unavailable=1`);
-  }
-
-  await admin.from("lead_intake").update({ nudged_at: new Date().toISOString() }).eq("id", lead.id);
-  await writeRecruiterActivity({
-    subjectType: "job",
-    subjectId: jobId,
-    action: "client_account_claim_sent",
-    description: "Sent the client a secure account-claim link for this hiring request",
-    actorId: user.id,
-    metadata: { lead_id: lead.id },
-  });
-
-  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
-  redirect(`/workspace/recruiter/roles/${jobId}?client_claim_sent=1`);
+  redirect(`/workspace/recruiter/roles/${jobId}?client_claim_email_disabled=1`);
 }
 
 
@@ -161,45 +96,6 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
   const missing = publicationMissingDetails(job);
   if (!missing.length) redirect(`${returnTo}?role_details_complete=1#role-readiness`);
 
-  const [{ data: clientProfile }, { data: authUserData, error: authUserError }] = await Promise.all([
-    admin
-      .from("profiles")
-      .select("full_name")
-      .eq("id", job.client_id)
-      .maybeSingle(),
-    admin.auth.admin.getUserById(job.client_id),
-  ]);
-
-  const authUser = authUserData?.user || null;
-  const clientEmail = String(authUser?.email || "").trim();
-  const clientName =
-    clientProfile?.full_name ||
-    (typeof authUser?.user_metadata?.full_name === "string" ? authUser.user_metadata.full_name : null) ||
-    (typeof authUser?.user_metadata?.name === "string" ? authUser.user_metadata.name : null);
-
-  let emailSent = false;
-  let emailWarning = false;
-  let emailReason: string | null = null;
-
-  if (!authUserError && clientEmail) {
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-    const { sendRoleDetailsRequestEmail } = await import("@/lib/email");
-    const result = await sendRoleDetailsRequestEmail({
-      to: clientEmail,
-      clientName,
-      jobTitle: job.title || "Virtual Assistant role",
-      jobId,
-      missing,
-      appUrl,
-    });
-    emailSent = result.sent;
-    emailReason = result.sent ? null : String(result.reason || "email_unavailable");
-    emailWarning = !result.sent;
-  } else {
-    emailWarning = true;
-    emailReason = authUserError ? "client_auth_lookup_failed" : "client_email_missing";
-  }
-
   const { error: notificationError } = await admin.from("notifications").insert({
     user_id: job.client_id,
     title: "Complete your hiring brief",
@@ -217,8 +113,8 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
     metadata: {
       missing_fields: missing,
       role: profile.role,
-      email_sent: emailSent,
-      email_reason: emailReason,
+      email_sent: false,
+      email_reason: "client_email_shortlist_only",
     },
   });
 
@@ -235,7 +131,6 @@ export async function requestClientRoleDetailsAction(formData: FormData) {
   revalidatePath(returnTo);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   const outcome = new URLSearchParams({ role_details_requested: "1" });
-  if (emailWarning) outcome.set("role_details_email_warning", "1");
   redirect(`${returnTo}?${outcome.toString()}#role-readiness`);
 }
 

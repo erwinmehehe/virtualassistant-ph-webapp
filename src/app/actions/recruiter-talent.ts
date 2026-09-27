@@ -7,6 +7,8 @@ import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+const CLIENT_SHORTLIST_LIMIT = 5;
+
 function filterValue(formData: FormData, name: string) {
   return String(formData.get(name) || "");
 }
@@ -39,7 +41,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     if (action === "send_client_review") {
       const selected = [...new Set(formData.getAll("va_id").map(String).filter(Boolean))];
       if (!selected.length) return clientReviewError(formData, "Select at least one reviewed VA to send to the client.");
-      if (selected.length > 50) return clientReviewError(formData, "Send at most 50 VAs to client review at a time.");
+      if (selected.length > CLIENT_SHORTLIST_LIMIT) return clientReviewError(formData, `Send at most ${CLIENT_SHORTLIST_LIMIT} VAs to client review at a time.`);
       return saveJobShortlistAction(clientReviewForm(formData, selected));
     }
     return bulkRecruiterVaAction(formData);
@@ -78,7 +80,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   if (action === "send_client_review") {
     const ids: string[] = [...new Set<string>((data || []).map((row: any) => String(row.user_id)).filter((id: string) => Boolean(id)))];
     if (!ids.length) return clientReviewError(formData, "No reviewed VAs matched that selection.");
-    if (ids.length > 50) return clientReviewError(formData, "Your filtered selection has more than 50 VAs. Narrow the filters before sending to client review.");
+    if (ids.length > CLIENT_SHORTLIST_LIMIT) return clientReviewError(formData, `Your filtered selection has more than ${CLIENT_SHORTLIST_LIMIT} VAs. Narrow the filters before sending to client review.`);
     return saveJobShortlistAction(clientReviewForm(formData, ids));
   }
 

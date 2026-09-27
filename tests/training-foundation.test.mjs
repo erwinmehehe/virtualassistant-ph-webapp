@@ -109,13 +109,17 @@ test("auth trigger preserves training-only accounts outside the VA candidate sys
   assert.match(sql, /return new;/i);
 
   const form = await readFile("src/components/training-join-form.tsx", "utf8");
-  assert.doesNotMatch(form, /oauthAction|Continue with Google|Continue with Microsoft/);
+  assert.match(form, /oauthAction/);
+  assert.match(form, /Continue with Google/);
+  assert.doesNotMatch(form, /Continue with Microsoft/);
 });
 
 
-test("training-directed login does not expose first-time social signup", async () => {
+test("training-directed login offers Google without exposing Microsoft", async () => {
   const login = await readFile("src/app/auth/login/page.tsx", "utf8");
-  assert.match(login, /socialEnabled\s*=\s*\(googleEnabled \|\| microsoftEnabled\) && !trainingLogin/);
+  assert.match(login, /socialEnabled\s*=\s*trainingLogin \? googleEnabled : \(googleEnabled \|\| microsoftEnabled\)/);
+  assert.match(login, /Continue with Google/);
+  assert.match(login, /!trainingLogin && microsoftEnabled/);
 });
 
 

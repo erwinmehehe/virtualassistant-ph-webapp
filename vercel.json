@@ -11,6 +11,17 @@
   },
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "^www\\.virtualassistant\\.com\\.ph$"
+        }
+      ],
+      "destination": "https://virtualassistant.com.ph/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {

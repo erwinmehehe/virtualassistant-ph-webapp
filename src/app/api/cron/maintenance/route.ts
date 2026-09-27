@@ -220,7 +220,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     if (!released.length && !appJobIds.has(job.id) && new Date(job.created_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
       const recipients = job.recruiter_id ? [job.recruiter_id] : (recruiters || []).map((r: any) => r.id);
       for (const recipientId of recipients) {
-        if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no recruiter-approved shortlist yet. Review the automatic suggestions and decide who should move forward.", href: `/workspace/recruiter/matching/${job.id}`, repeatDays: 1 })) recruiterNudges++;
+        if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no recruiter-approved shortlist yet. Review the automatic suggestions and decide who should move forward.", href: `/workspace/recruiter/roles/${job.id}`, repeatDays: 1 })) recruiterNudges++;
       }
     }
     if (!job.client_id || !released.length || released.some((row: any) => row.client_decision)) continue;
@@ -242,7 +242,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
       subjectId: interview.job_id,
       recipientId: interview.client_id,
       action: `schedule_interview_${interview.id}`,
-      email: true,
+      email: false,
       title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
       body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
       href: "/workspace/client/interviews",
@@ -271,7 +271,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         subjectId: offer.job_id,
         recipientId: offer.client_id,
         action: `placement_offer_client_${offer.id}`,
-        email: true,
+        email: false,
       title: `Confirm the placement${job?.title ? `: ${job.title}` : ""}`,
         body: "The VA accepted the placement offer. Open Offers to confirm the final placement and start onboarding.",
         href: "/workspace/client/offers",

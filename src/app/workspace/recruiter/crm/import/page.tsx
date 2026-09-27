@@ -56,7 +56,7 @@ export default async function CrmImportPage({searchParams}:{searchParams:Promise
         <div className={styles.panelHead}><h2>Export</h2><Download size={15}/></div>
         <div className={styles.panelBody}>
           <p className={styles.brief}>Export includes the core relationship fields used by the hiring CRM: contact details, company, service, stage, owner, follow-up date, value, linked role, and created date.</p>
-          <Link prefetch={false} className={styles.primaryButton} href="/workspace/recruiter/crm/export" style={{marginTop:12}}><Download size={14}/> Download current CRM CSV</Link>
+          <Link prefetch={false} download className={styles.primaryButton} href="/workspace/recruiter/crm/export" style={{marginTop:12}}><Download size={14}/> Download current CRM CSV</Link>
         </div>
       </aside>
     </div>

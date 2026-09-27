@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarClock, X } from "lucide-react";
 
 const DISMISS_KEY = "va_discovery_cta_dismissed";
-const DISCOVERY_CALL_URL = "/book-client-call";
+const DISCOVERY_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
 
 const VA_FACING_PATHS = [
   "/for-virtual-assistants",
@@ -89,11 +88,11 @@ export function FloatingCta() {
   };
 
   return (
-    <div className="floating-cta floating-cta-compact" role="complementary" aria-label="Discuss your VA needs">
-      <Link className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click">
-        <CalendarClock size={16} aria-hidden="true" />
-        <span>Discuss your VA needs</span>
-      </Link>
+    <div className="floating-cta floating-cta-compact" role="complementary" aria-label="Book a discovery call">
+      <a className="btn btn-primary" href={DISCOVERY_CALL_URL} data-track="discovery_call_click">
+        <CalendarClock size={18} aria-hidden="true" />
+        <span>Book a discovery call</span>
+      </a>
       <button className="floating-cta-close" type="button" onClick={close} aria-label="Dismiss contact prompt">
         <X size={15} aria-hidden="true" />
       </button>

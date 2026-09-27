@@ -43,7 +43,7 @@ function matchReasons(row: Row) {
   if(matchingTools.length) reasons.push(`${matchingTools.slice(0,2).join(", ")} experience`);
   if(row.va.availability_status==="available") reasons.push("Available now");
   if(job.hours_per_week&&row.va.weekly_hours>=job.hours_per_week) reasons.push(`${row.va.weekly_hours} hrs/week available`);
-  if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Required overlap covered");
+  if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Schedule overlap available");
   return reasons.slice(0,4);
 }
 

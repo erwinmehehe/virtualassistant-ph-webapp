@@ -70,8 +70,11 @@ export default async function ClientCandidatesPage({
   const activeOffers = Number(summary.active_offers || 0);
   const activeInterviews = Number(summary.active_interviews || 0);
   const held = selectedReleased.filter((row) => row.client_decision === "hold").length;
+  const undecided = selectedReleased.filter((row) => !row.client_decision).length;
   const remaining = selectedReleased.filter((row) => !row.client_decision || row.client_decision === "hold").length;
   const interested = selectedReleased.filter((row) => row.client_decision === "interested").length;
+  const interviewRequested = selectedReleased.filter((row) => row.client_decision === "interview").length;
+  const passed = selectedReleased.filter((row) => row.client_decision === "pass").length;
   const allPassed = selectedReleased.length > 0 && selectedReleased.every((row) => row.client_decision === "pass");
 
   const next = activeOffers
@@ -127,6 +130,7 @@ export default async function ClientCandidatesPage({
               };
 
   return <div className="client-hiring-room">
+    {query.decision_saved?<div className="success-banner" role="status">Shortlist decision saved. Your recruiter can see it immediately.</div>:null}
     <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
@@ -167,6 +171,13 @@ export default async function ClientCandidatesPage({
           <p>We have already screened these VAs. Your decisions and notes go directly back to the recruiting team.</p>
         </div>
       </div>
+
+      {selectedReleased.length ? <div className="role-handoff-stats" style={{marginBottom:16}}>
+        <div><span>Waiting</span><strong>{undecided}</strong></div>
+        <div><span>Interested</span><strong>{interested}</strong></div>
+        <div><span>Interview</span><strong>{interviewRequested}</strong></div>
+        <div><span>Hold / pass</span><strong>{held + passed}</strong></div>
+      </div> : null}
 
       {selectedReleased.length ? (
         selectedPublished && selectedAccessUnlocked ? (

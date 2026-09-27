@@ -10,7 +10,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { proposalAgencyValue, proposalClientMonthlyTotal } from "@/lib/proposals";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-import { sendLeadProposalEmail, sendTransactionalEventEmail } from "@/lib/email";
+import { sendTransactionalEventEmail } from "@/lib/email";
 import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
@@ -101,59 +101,34 @@ export async function createAndSendProposalAction(formData: FormData) {
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const proposalUrl = `${appUrl}/proposal/${proposal.public_token}`;
-  const expiresLabel = new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }).format(expiresAt);
-  const emailResult = await sendLeadProposalEmail({
-    to: lead.email,
-    clientName: lead.name,
-    roleTitle,
-    proposalUrl,
-    expiresLabel,
-    recruiterName: profile.full_name
-  });
-
-  if (!emailResult.sent) {
-    return fail("The proposal was saved as a draft, but the email could not be sent. The previous live proposal, if any, was left unchanged.");
-  }
-
-  await admin.from("lead_proposals")
-    .update({ status: "expired", updated_at: now.toISOString() })
-    .eq("lead_id", leadId)
-    .eq("status", "sent");
-
-  await admin.from("lead_proposals").update({
-    status: "sent",
-    sent_at: now.toISOString(),
-    updated_at: now.toISOString()
-  }).eq("id", proposal.id);
 
   await admin.from("lead_intake").update({
-    crm_stage: "shortlist_sent",
-    status: "converted",
     owner_id: lead.owner_id || user.id,
     estimated_value_usd: agencyValue || null,
-    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
     stage_updated_at: now.toISOString()
   }).eq("id", leadId);
 
   await writeRecruiterActivity({
     subjectType: "lead",
     subjectId: leadId,
-    action: "proposal_sent",
-    description: `Proposal sent for ${roleTitle}`,
+    action: "proposal_draft_saved",
+    description: `Proposal draft saved for ${roleTitle}; no client email sent`,
     actorId: user.id,
     metadata: {
       proposal_id: proposal.id,
+      proposal_url: proposalUrl,
       service_model: serviceModel,
       estimated_monthly_total: monthlyTotal,
       estimated_agency_value: agencyValue,
-      expires_at: expiresAt.toISOString()
+      expires_at: expiresAt.toISOString(),
+      client_email_policy: "shortlist_only"
     }
   });
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/admin/leads");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_sent=1`);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_saved=1`);
 }
 
 export async function respondToLeadProposalAction(formData: FormData) {

@@ -163,7 +163,12 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     .limit(5000);
   if (ownerFilter) scoringQuery = scoringQuery.eq("owner_id", ownerFilter);
 
-  const [{ data: pagePayload, error: pageError }, { data: owners }, { data: settings }, { data: scoringLeads }] = await Promise.all([
+  const [
+    { data: pagePayload, error: pageError },
+    { data: owners, error: ownersError },
+    { data: settings, error: settingsError },
+    { data: scoringLeads, error: scoringError },
+  ] = await Promise.all([
     admin.rpc("recruiter_leads_page", {
       p_view: view,
       p_query: q || null,
@@ -185,6 +190,9 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     scoringQuery
   ]);
   if (pageError) throw pageError;
+  if (ownersError) throw ownersError;
+  if (settingsError) throw settingsError;
+  if (scoringError) throw scoringError;
 
   const payload = (pagePayload || {}) as RecruiterLeadsPayload;
   const visible = Array.isArray(payload.leads) ? payload.leads : [];

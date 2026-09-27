@@ -57,3 +57,14 @@ test("client shortlist decisions disable while saving", async () => {
   assert.match(page, /PendingSubmitButton className="btn btn-sm" label="Place on hold" pendingLabel="Saving…"/);
   assert.match(page, /PendingSubmitButton className="btn btn-sm" label="Confirm pass" pendingLabel="Saving…"/);
 });
+
+
+test("Hiring Room does not pretend recruiting is active when every role is closed", async () => {
+  const page = await read("src/app/workspace/client/candidates/page.tsx");
+
+  assert.match(page, /const activeJobs = jobRows\.filter\(\(job\) => job\.status !== "closed"\)/);
+  assert.match(page, /if \(!activeJobs\.length\)/);
+  assert.match(page, /No active hiring roles/);
+  assert.match(page, /Start a new hiring request/);
+  assert.match(page, /View role history/);
+});

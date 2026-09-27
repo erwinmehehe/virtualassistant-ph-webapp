@@ -17,7 +17,8 @@ test("login and registration share the premium auth shell",async()=>{
   assert.match(join,/AuthExperienceShell variant=\{role\}/);
   assert.match(join,/auth-role-switch/);
   assert.match(login,/auth-provider-btn/);
-  assert.match(join,/auth-provider-note/);
+  assert.doesNotMatch(login,/Fastest|fastest sign-in/);
+  assert.doesNotMatch(join,/auth-provider-note|Fastest/);
   assert.match(shell,/One account\. The right workspace\./);
   assert.match(shell,/Build one profile recruiters can actually use\./);
   assert.match(css,/\.auth-experience \{/);

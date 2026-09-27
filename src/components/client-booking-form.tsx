@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, UserRoundSearch } from "lucide-react";
+import { BriefcaseBusiness, CalendarCheck2, CalendarDays, CheckCircle2, Clock3, UserRoundSearch } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 import { TurnstileWidget } from "@/components/turnstile-widget";
@@ -87,13 +87,40 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   }, [localDays, selectedDay]);
 
   const activeDay = localDays.find((day) => day.dateKey === selectedDay) || localDays[0];
+  const selectedSlotLabel = useMemo(() => {
+    if (!selectedSlot) return "";
+    const instant = new Date(selectedSlot);
+    const date = new Intl.DateTimeFormat(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      timeZone: displayTimeZone,
+    }).format(instant);
+    const time = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: displayTimeZone,
+    }).format(instant);
+    return `${date} · ${time}`;
+  }, [selectedSlot, displayTimeZone]);
 
   return (
     <div className="booking-flow-card">
+      <div className="booking-flow-progress" aria-label="Booking progress">
+        <div className="is-active">
+          <span>1</span>
+          <div><strong>Who you are</strong><small>Hiring or applying</small></div>
+        </div>
+        <div className={audience === "client" ? "is-active" : ""}>
+          <span>2</span>
+          <div><strong>Time & brief</strong><small>Choose a slot and share the role</small></div>
+        </div>
+      </div>
+
       <div className="booking-step-head">
         <span>Step 1 of 2</span>
-        <h2>First, which best describes you?</h2>
-        <p>This calendar is reserved for businesses looking to hire a Virtual Assistant.</p>
+        <h2>Who are you booking for?</h2>
+        <p>This calendar is for businesses hiring remote talent. We will route VA applicants to the right place.</p>
       </div>
 
       <div className="booking-audience-grid" role="radiogroup" aria-label="Choose whether you are hiring or applying">
@@ -105,7 +132,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           onClick={() => setAudience("client")}
         >
           <BriefcaseBusiness size={24} />
-          <span><strong>I am hiring</strong><small>I represent a business and need a Virtual Assistant.</small></span>
+          <span><strong>I am hiring</strong><small>I need a Virtual Assistant for my business.</small></span>
           {audience === "client" ? <CheckCircle2 size={20} /> : null}
         </button>
         <button
@@ -116,7 +143,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           onClick={() => setAudience("va")}
         >
           <UserRoundSearch size={24} />
-          <span><strong>I am a Virtual Assistant</strong><small>I want to apply, interview, or ask about VA work.</small></span>
+          <span><strong>I am a Virtual Assistant</strong><small>I want to apply or manage my VA profile.</small></span>
           {audience === "va" ? <CheckCircle2 size={20} /> : null}
         </button>
       </div>
@@ -157,7 +184,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
             {localDays.length ? (
               <>
-                <div className="booking-date-tabs" role="tablist" aria-label="Available conversation dates">
+                <div className="booking-calendar-shell">
+                  <div className="booking-date-tabs" role="tablist" aria-label="Available conversation dates">
                   {localDays.map((day) => (
                     <button
                       key={day.dateKey}
@@ -170,8 +198,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                       <CalendarDays size={15} /> {day.label}
                     </button>
                   ))}
-                </div>
-                <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
+                  </div>
+                  <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
                   {activeDay?.slots.map((slot) => (
                     <button
                       key={slot.iso}
@@ -184,8 +212,22 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                       {slot.timeLabel}
                     </button>
                   ))}
+                  </div>
+                  {selectedSlot ? (
+                    <div className="booking-selected-slot" role="status">
+                      <span><CheckCircle2 size={18} /></span>
+                      <div><small>Selected time</small><strong>{selectedSlotLabel}</strong></div>
+                    </div>
+                  ) : (
+                    <p className="booking-slot-hint">Choose a time to continue.</p>
+                  )}
                 </div>
-                <p className="booking-time-note">Scheduling is available around the clock in 30-minute slots. Times are shown in your local timezone, and your confirmation also includes Asia/Manila for our recruiting team.</p>
+                <p className="booking-time-note">Times are shown in your local timezone. The booking is saved with the exact date and time you selected.</p>
+
+                <div className="booking-details-head">
+                  <span>Your details</span>
+                  <strong>Tell us who we are meeting</strong>
+                </div>
 
                 <div className="booking-question-grid">
                   <div className="field"><label htmlFor="booking-name">Your name *</label><input id="booking-name" name="name" required minLength={2} autoComplete="name" /></div>
@@ -195,8 +237,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
                 <div className="booking-section-title booking-brief-title">
                   <span>Hiring brief</span>
-                  <h3>Give us enough to prepare the role before the call</h3>
-                  <p>These answers create a private pending job draft for recruiter review. Nothing is published automatically.</p>
+                  <h3>Help us prepare before the call</h3>
+                  <p>Keep it practical. We use this to understand the role before we meet. Nothing is published automatically.</p>
                 </div>
 
                 <div className="booking-question-grid">
@@ -208,9 +250,10 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                 </div>
 
                 <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
-                  Confirm this time
+                  <CalendarCheck2 size={18} />
+                  Confirm booking
                 </button>
-                <p className="small muted booking-consent">We use this brief to prepare a private job draft and the discovery call. Your recruiter can refine schedule overlap, tools, must-have experience, and final scope with you before anything is published.</p>
+                <p className="small muted booking-consent">We use this brief only to prepare the hiring conversation and private recruiter workspace. You can refine the role before anything is published.</p>
               </>
             ) : (
               <div className="booking-no-slots">No online times are currently available. Please use the hiring request form and our team will contact you.</div>

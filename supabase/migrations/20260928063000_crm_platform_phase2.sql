@@ -141,6 +141,10 @@ declare
   v_contact_id uuid;
   v_normalized text;
 begin
+  if new.lead_type <> 'client_hiring' then
+    return new;
+  end if;
+
   v_normalized := public.crm_normalize_company_name(new.company);
 
   if v_normalized is not null then

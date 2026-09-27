@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 // too would stack two back-to-back "ready to hire" sections.
 // /training speaks to Virtual Assistants, so the hire-a-VA band would be
 // aimed at the wrong reader; that page carries its own, smaller client CTA.
-const PAGES_WITH_OWN_CTA = [/^\/training\/?$/, /^\/service\/[^/]+\/?$/, /^\/industries(\/[^/]+)?\/?$/, /^\/pricing\/?$/, /^\/how-vetting-works\/?$/, /^\/software\/?$/];
+const PAGES_WITH_OWN_CTA = [/^\/hire\/?$/, /^\/training\/?$/, /^\/service\/[^/]+\/?$/, /^\/industries(\/[^/]+)?\/?$/, /^\/pricing\/?$/, /^\/how-vetting-works\/?$/, /^\/software\/?$/];
 
 export function FooterCta() {
   const pathname = usePathname();

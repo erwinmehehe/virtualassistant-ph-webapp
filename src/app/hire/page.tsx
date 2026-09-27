@@ -14,7 +14,6 @@ import {
   MessageSquareText,
   SearchCheck,
   ShieldCheck,
-  Sparkles,
   UsersRound,
   Video,
 } from "lucide-react";
@@ -102,25 +101,6 @@ export default async function HirePage({
               <p className="pvh-lede">
                 Share the work, hours, timezone, and budget. Our recruiting team reviews the role, screens for fit, and helps you meet vetted Filipino Virtual Assistants worth interviewing.
               </p>
-
-              <div className="pvh-choice-grid" aria-label="Hiring options">
-                <div className="pvh-choice pvh-choice-featured">
-                  <div className="pvh-choice-top">
-                    <span><Sparkles size={13} /> Recommended</span>
-                    <small>Managed</small>
-                  </div>
-                  <strong>Managed Virtual Assistant</strong>
-                  <p>Recruiting, matching, onboarding support, and ongoing placement support after your hire starts.</p>
-                </div>
-                <div className="pvh-choice">
-                  <div className="pvh-choice-top">
-                    <span><UsersRound size={13} /> Flexible</span>
-                    <small>Direct hire</small>
-                  </div>
-                  <strong>Recruit &amp; Direct Hire</strong>
-                  <p>We recruit and screen the role, then your team takes over day-to-day management after hiring.</p>
-                </div>
-              </div>
 
               <div className="pvh-proof-list">
                 <div><BadgeCheck size={18} /><span><strong>Screened before you interview</strong><small>Skills, communication, availability, and role fit are reviewed first.</small></span></div>

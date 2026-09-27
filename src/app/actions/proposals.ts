@@ -34,7 +34,7 @@ async function uniqueJobSlug(admin: ReturnType<typeof createAdminClient>, title:
 }
 
 export async function createAndSendProposalAction(formData: FormData) {
-  const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/leads?view=qualified");
   const roleTitle = String(formData.get("role_title") || "").trim().slice(0, 160);

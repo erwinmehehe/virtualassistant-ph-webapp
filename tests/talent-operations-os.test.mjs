@@ -45,5 +45,5 @@ test("Talent OS answers sourcing, coverage, client-ready and development questio
 
 test("record-heavy Talent OS links remain click-to-load", () => {
   assert.match(page, /<Link prefetch=\{false\} href=\{`\/workspace\/recruiter\/candidates\/\$\{candidate\.vaId\}`\}/);
-  assert.match(page, /<Link prefetch=\{false\} className="btn" href="\/workspace\/recruiter\/queue">/);
+  assert.match(page, /<Link prefetch=\{false\} className="btn" href="\/workspace\/recruiter\/talent\?stage=recruiter_review">/);
 });

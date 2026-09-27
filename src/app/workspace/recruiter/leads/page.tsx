@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Mail, Search, UserRound } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchFeedbackLabel } from "@/lib/match-feedback";
 import { dateInputValue as dateInput, dateShort, dateTimeInputValue as dateTimeInput, elapsedLabel, manilaDateTimeLabel as dateTimeLabel } from "@/lib/format";
-import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryGoogleMeetLinkAction, recordLeadContactAction, scheduleDiscoveryAction, sendClientFollowupAction, sendDiscoveryNoShowRebookAction, updateLeadCrmAction } from "@/app/actions/recruiter";
+import { cancelRecruiterDiscoveryAction, completeDiscoveryAction, createDiscoveryGoogleMeetLinkAction, recordLeadContactAction, scheduleDiscoveryAction, updateLeadCrmAction } from "@/app/actions/recruiter";
 import { createAndSendProposalAction } from "@/app/actions/proposals";
 import { LEAD_CRM_STAGES, isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { proposalStatusLabel } from "@/lib/proposals";
@@ -275,28 +275,17 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     <div className={styles.crmPage}>
       <div className="recruiter-leads-page">
       {params.crm_saved ? <div className="success-banner">Lead CRM updated.</div> : null}
-      {params.contact_sent ? <div className="success-banner">Reply sent to the client, logged in the CRM, and the follow-up clock was updated.</div> : null}
-      {params.contact_already_sent ? <div className="success-banner">That reply is already being sent or was already sent. No duplicate email was created.</div> : null}
-      {params.discovery_saved ? <div className="success-banner">Discovery call booked.{params.discovery_email === "failed" ? " The confirmation email could not be sent, so contact the client manually." : " Confirmation email sent."}</div> : null}
+      {params.discovery_saved ? <div className="success-banner">Discovery call saved internally. No client email was sent.</div> : null}
       {params.discovery_already_saved ? <div className="success-banner">That discovery booking is already saved or being processed. No duplicate booking was created.</div> : null}
-      {params.meet_link_created ? <div className="success-banner">Google Meet created and sent to the client.</div> : null}
+      {params.meet_link_created ? <div className="success-banner">Google Meet created for the booking. No client email was sent.</div> : null}
       {params.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
-      {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled and the client has been notified.</div> : null}
+      {params.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled internally. No client email was sent.</div> : null}
       {params.rebook_email_sent ? <div className="success-banner">Rebooking email sent. The client can choose another time from the link in that email.</div> : null}
       {params.rebook_email_already_sent ? <div className="success-banner">The rebooking email was already sent. No duplicate email was sent.</div> : null}
-      {params.rebook_prompt ? <div className="crm-rebook-prompt">
-        <div><strong>Client marked No show.</strong><span>Send the approved rebooking email with their existing booking link?</span></div>
-        <form action={sendDiscoveryNoShowRebookAction}>
-          <input type="hidden" name="lead_id" value={params.rebook_prompt}/>
-          <input type="hidden" name="return_to" value={returnTo}/>
-          <button className="btn btn-primary btn-sm" type="submit"><Mail size={14}/> Send rebooking email</button>
-        </form>
-      </div> : null}
       {params.proposal_ready ? <div className="success-banner">Proposal prepared. No client email was sent. Keep it internal until you are ready to send the VA shortlist.</div> : null}
       {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
       {params.crm_error ? <div className="alert" role="alert">{params.crm_error}</div> : null}
       {params.discovery_error ? <div className="alert" role="alert">{params.discovery_error}</div> : null}
-      {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
       {params.proposal_error ? <div className="alert" role="alert">{params.proposal_error}</div> : null}
       {params.role_error ? <div className="alert" role="alert">{params.role_error}</div> : null}
 
@@ -304,11 +293,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
         <div>
           <div className="kicker">Hiring Pipeline</div>
           <h1>Hiring inbox</h1>
-          <p>Turn every genuine hiring enquiry into a linked recruiting role, reply to the client, and move straight into matching.</p>
+          <p>Turn every genuine hiring enquiry into a linked recruiting role and move straight into matching. Client email stays off until recruiter-approved VAs are ready.</p>
         </div>
         <div className="row wrap">
           <Link className="btn btn-sm" href="/workspace/recruiter/leads/board"><LayoutDashboard size={15}/> Employer board</Link>
-          <div className="crm-sla-target"><Clock3 size={15}/><span>First-response target</span><strong>30 min</strong></div>
+          <div className="crm-sla-target"><Clock3 size={15}/><span>Review target</span><strong>30 min</strong></div>
         </div>
       </div>
 
@@ -320,7 +309,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
       </nav>
 
       <div className="crm-metrics recruiter-leads-metrics">
-        <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><Clock3 size={18}/><span>Needs first contact</span><strong>{needsFirstContact}</strong><small>Reply before the enquiry stalls</small></Link>
+        <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><Clock3 size={18}/><span>New enquiries</span><strong>{needsFirstContact}</strong><small>Start recruiting before the enquiry stalls</small></Link>
         <Link href="/workspace/recruiter/leads?view=attention" className="card crm-metric-card"><CalendarClock size={18}/><span>Follow-ups due</span><strong>{followUpsDue}</strong><small>Employer action due now</small></Link>
         <Link href="/workspace/recruiter/leads?view=discovery" className="card crm-metric-card"><UserRound size={18}/><span>Discovery booked</span><strong>{discoveryBooked}</strong><small>Calls ready to qualify</small></Link>
         <Link href="/workspace/recruiter/leads?view=qualified" className="card crm-metric-card"><CheckCircle2 size={18}/><span>Qualified</span><strong>{qualifiedLeads}</strong><small>Ready to move into recruiting</small></Link>
@@ -362,34 +351,24 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const proposal = latestProposalByLead.get(lead.id);
           const contactCount = countByLead.get(lead.id) || 0;
           const receivedAge = now - new Date(lead.created_at).getTime();
-          const slaMissed = stage === "new" && !lead.first_contact_at && receivedAge > 30 * 60000;
+          const slaMissed = stage === "new" && receivedAge > 30 * 60000;
           const followTime = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
           const followOverdue = Boolean(followTime && followTime < now && isOpenLeadStage(stage));
           const response = responseLabel(lead.created_at, lead.first_contact_at);
-          const emailSubject = `Your VirtualAssistant.com.ph enquiry${lead.service ? ` - ${lead.service}` : ""}`;
-          const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
-          const replyMessage = lead.first_contact_at
-            ? `Hi ${firstName},\n\nFollowing up on your VirtualAssistant.com.ph request. I wanted to keep things moving and confirm the best next step for your VA search.`
-            : `Hi ${firstName},\n\nThanks for reaching out to VirtualAssistant.com.ph. I reviewed your request${lead.service ? ` for ${lead.service}` : ""} and would like to confirm a few details so we can recommend the right vetted VA. Are you available for a short discovery call?`;
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
-          const noShowRebookSentAt = rebookSentAt.get(lead.id) || null;
-          const noShowRebooked = lead.discovery_outcome === "rescheduled" && Boolean(noShowRebookSentAt);
           const suggestedHours = inferHours(lead.hours) || 40;
           const attentionMessage = slaMissed
-            ? "First response overdue. Reply to this client now."
+            ? "Enquiry review overdue. Create or open the recruiting role now."
             : followOverdue
               ? "Follow-up overdue. Move this lead forward or close it."
               : null;
-          const needsFirstReply = !lead.first_contact_at || slaMissed;
           const actionResultForLead = params.action_lead === lead.id;
           const linkedRole = lead.job_id ? linkedRoleById.get(lead.job_id) || null : null;
           const missingRoleDetails = linkedRole ? publicationMissingDetails(linkedRole) : [];
           const roleReady = Boolean(linkedRole && missingRoleDetails.length === 0);
           const hiringProgress = hiringProgressIndex(linkedRole?.hiring_stage, Boolean(lead.job_id));
-          const hiringActionKind = needsFirstReply
-            ? "reply"
-            : !lead.job_id
-              ? "create_role"
+          const hiringActionKind = !lead.job_id
+            ? "create_role"
               : !roleReady
                 ? "complete_role"
                 : linkedRole?.hiring_stage === "client_review"
@@ -399,10 +378,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     : ["selected", "offer", "pre_start"].includes(String(linkedRole?.hiring_stage || ""))
                       ? "offer"
                       : "matching";
-          const hiringActionLabel = hiringActionKind === "reply"
-            ? "Reply to client"
-            : hiringActionKind === "create_role"
-              ? "Create role & start matching"
+          const hiringActionLabel = hiringActionKind === "create_role"
+            ? "Create role & start matching"
               : hiringActionKind === "complete_role"
                 ? "Complete role brief"
                 : hiringActionKind === "client_review"
@@ -412,10 +389,8 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     : hiringActionKind === "offer"
                       ? "Finish offer"
                       : "Review matches";
-          const hiringActionCopy = hiringActionKind === "reply"
-            ? "Respond before deeper recruiting work so the employer knows the request is moving."
-            : hiringActionKind === "create_role"
-              ? "Turn this enquiry into the recruiting workspace and open the candidate pool."
+          const hiringActionCopy = hiringActionKind === "create_role"
+            ? "Turn this enquiry into the recruiting workspace and open the candidate pool. The client stays email-silent until the VA shortlist is ready."
               : hiringActionKind === "complete_role"
                 ? "Confirm the missing role details while matching continues internally."
                 : hiringActionKind === "client_review"
@@ -434,15 +409,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 : ["interview", "offer"].includes(hiringActionKind)
                   ? `/workspace/recruiter/roles/${lead.job_id}#interviews`
                   : `/workspace/recruiter/roles/${lead.job_id}#matching`;
-          const replyForm = <form action={sendClientFollowupAction} className="stack staff-followup-form">
-            <input type="hidden" name="lead_id" value={lead.id}/>
-            <input type="hidden" name="return_to" value={returnTo}/>
-            <div className="small muted">To: <strong>{lead.email}</strong></div>
-            <div className="field"><label>Subject</label><input name="subject" required minLength={3} maxLength={180} defaultValue={emailSubject}/></div>
-            <div className="field"><label>Reply</label><textarea name="message" required minLength={10} maxLength={5000} defaultValue={replyMessage}/></div>
-            <label className="small"><input type="checkbox" name="archive_copy" value="1"/> Send a hidden archive copy to the configured internal archive recipients</label>
-            <div className="row wrap"><PendingSubmitButton label="Send reply" pendingLabel="Sending…" /><span className="small muted">Sending here logs the contact, records the first response, assigns the owner if needed, and schedules the next follow-up.</span></div>
-          </form>;
 
           return <article className={`card crm-lead-card ${slaMissed || followOverdue ? "needs-attention" : ""}`} key={lead.id}>
             <div className="crm-lead-head">
@@ -539,7 +505,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                 {lead.attachment_path ? <a className="btn btn-sm" href={`/api/recruiter/lead-attachment/${lead.id}`} target="_blank" rel="noreferrer"><FileCheck2 size={13}/> Open client document{lead.attachment_name ? `: ${lead.attachment_name}` : ""}</a> : null}
                 <div className="small muted">Source: {lead.source_page || "Website enquiry"} · Received {dateShort(lead.created_at)}</div>
                 <div className="crm-contact-summary">
-                  <div><strong>First response</strong><span>{response || (slaMissed ? "Over target" : "Waiting")}</span></div>
+                  <div><strong>Recruiter contact</strong><span>{response || "Not needed yet"}</span></div>
                   <div><strong>Last contact</strong><span>{lead.last_contact_at ? dateShort(lead.last_contact_at) : "None yet"}</span></div>
                   <div><strong>Next follow-up</strong><span className={followOverdue ? "crm-overdue" : ""}>{lead.next_follow_up_at ? dateShort(lead.next_follow_up_at) : "Not scheduled"}</span></div>
                 </div>
@@ -615,7 +581,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
 
             {isOpenLeadStage(stage) ? <div className="crm-close-tools">
               {lead.discovery_outcome !== "no_show" ? <details className="crm-tool-panel" open={stage === "contacted" && !lead.discovery_scheduled_at}>
-                <summary><CalendarClock size={16}/><span><strong>{lead.discovery_scheduled_at ? "Reschedule discovery" : "Book discovery"}</strong><small>Send the client a confirmed date, time, and meeting link.</small></span></summary>
+                <summary><CalendarClock size={16}/><span><strong>{lead.discovery_scheduled_at ? "Reschedule discovery" : "Book discovery"}</strong><small>Save the date, time, and meeting link internally. No client email is sent.</small></span></summary>
                 <form action={scheduleDiscoveryAction} className="crm-tool-form">
                   <input type="hidden" name="lead_id" value={lead.id}/>
                   <input type="hidden" name="request_id" value={crypto.randomUUID()}/>
@@ -625,7 +591,7 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     <div className="field"><label>Duration</label><select name="discovery_duration_minutes" defaultValue={String(lead.discovery_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>
                     <div className="field"><label>Meeting link</label><input name="discovery_meeting_url" type="url" defaultValue={lead.discovery_meeting_url || ""} placeholder="https://meet.google.com/..."/></div>
                   </div>
-                  <PendingSubmitButton label="Book and email client" pendingLabel="Booking…" />
+                  <PendingSubmitButton label="Save discovery booking" pendingLabel="Saving…" />
                 </form>
               </details> : null}
 
@@ -669,17 +635,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
               </details> : null}
             </div> : null}
 
-            <div className="crm-contact-bar" id={`reply-${lead.id}`}>
-              {actionResultForLead && params.contact_sent ? <div className="crm-inline-action-state is-success">Reply sent to {lead.email}. CRM contact and follow-up timestamps were updated.</div> : null}
-              {actionResultForLead && params.contact_already_sent ? <div className="crm-inline-action-state is-success">This reply is already being sent or was already sent. No duplicate email was created.</div> : null}
-              {actionResultForLead && params.contact_error ? <div className="crm-inline-action-state is-error" role="alert">{params.contact_error}</div> : null}
-              {needsFirstReply ? <div className="staff-followup-details crm-inline-reply">
-                <div className="crm-inline-reply-head"><Mail size={15}/><span><strong>Reply to client</strong><small>The reply form is ready below. Use Send reply when the message is ready.</small></span></div>
-                {replyForm}
-              </div> : <details className="staff-followup-details">
-                <summary className="btn btn-sm btn-primary"><Mail size={14}/> Write another reply</summary>
-                {replyForm}
-              </details>}
+            <div className="crm-contact-bar">
+              <div className="crm-email-policy-note">
+                <strong>Client email is held until VA shortlist delivery.</strong>
+                <span>Use this area only to log calls, external conversations, or private recruiter notes.</span>
+              </div>
 
               <div className="row wrap">
                 <form action={recordLeadContactAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="contact_type" value="email"/><button className="btn btn-sm" type="submit">Log external email</button></form>

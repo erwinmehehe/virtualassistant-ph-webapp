@@ -11,7 +11,7 @@ test("recruiter badge destinations use current role and talent pages while focus
     read("src/app/workspace/recruiter/today/page.tsx"),
   ]);
 
-  assert.match(nav,/\["Hiring inbox", "\/workspace\/recruiter\/leads", BriefcaseBusiness\]/);
+  assert.match(nav,/\\["CRM", "\/workspace\/recruiter\/crm", UsersRound\\]/);
   assert.match(nav,/\["Active roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
   assert.match(nav,/\["Client review", "\/workspace\/recruiter\/client-review", MessageSquare\]/);
   assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);

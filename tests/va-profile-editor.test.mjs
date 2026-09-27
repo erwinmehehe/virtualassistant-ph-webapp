@@ -22,6 +22,8 @@ test("VA profile removes duplicate utility and resume upload rows", async () => 
   assert.doesNotMatch(page, /<input type="file" name="resume"/);
   assert.match(page, /profile-side-actions/);
   assert.match(page, /Professional links/);
+  assert.doesNotMatch(page, /\\n\s+\{params\./, "profile status JSX must not render a literal \\n");
+  assert.match(page, /profile-feedback-banner/);
 });
 
 test("resume picker attaches the chosen file to the main profile form", async () => {

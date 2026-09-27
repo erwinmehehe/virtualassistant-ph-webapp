@@ -56,22 +56,23 @@ export default async function VaProfilePage({
 
   return (
     <>
-      {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
-      {params.saved ? <div className="success-banner" role="status">Profile saved.</div> : null}\n      {params.resume_removed ? <div className="success-banner" role="status">Saved resume removed.</div> : null}
+      {params.error ? <div className="alert profile-feedback-banner" role="alert">{params.error}</div> : null}
+      {params.saved ? <div className="success-banner profile-feedback-banner" role="status">Profile saved.</div> : null}
+      {params.resume_removed ? <div className="success-banner profile-feedback-banner" role="status">Saved resume removed.</div> : null}
       {params.availability_confirmed ? (
-        <div className="success-banner" role="status">Availability confirmed.</div>
+        <div className="success-banner profile-feedback-banner" role="status">Availability confirmed.</div>
       ) : null}
       {params.consent === "granted" ? (
-        <div className="success-banner" role="status">Public profile preference saved.</div>
+        <div className="success-banner profile-feedback-banner" role="status">Public profile preference saved.</div>
       ) : null}
       {params.consent === "withdrawn" ? (
-        <div className="success-banner" role="status">Your profile is private.</div>
+        <div className="success-banner profile-feedback-banner" role="status">Your profile is private.</div>
       ) : null}
       {params.certificate_visibility === "shown" ? (
-        <div className="success-banner" role="status">Certificate can now appear on your public talent card when your public profile is active.</div>
+        <div className="success-banner profile-feedback-banner" role="status">Certificate can now appear on your public talent card when your public profile is active.</div>
       ) : null}
       {params.certificate_visibility === "hidden" ? (
-        <div className="success-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
+        <div className="success-banner profile-feedback-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
       ) : null}
 
       <div className="page-head va-profile-head va-profile-mobile-head">

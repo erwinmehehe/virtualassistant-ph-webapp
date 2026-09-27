@@ -1,12 +1,16 @@
 import Link from "next/link";
 import {
   Activity,
+  Bot,
   BriefcaseBusiness,
+  Building2,
   CalendarClock,
   CheckCircle2,
+  Download,
   LayoutDashboard,
   ListTodo,
   Search,
+  SlidersHorizontal,
   Table2,
   UserRound,
   UsersRound,
@@ -15,6 +19,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
+import { deleteCrmViewAction, saveCrmDashboardPreferencesAction, saveCrmViewAction } from "@/app/actions/crm";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
 import styles from "./crm.module.css";
 
@@ -45,10 +50,13 @@ type LeadRow = {
 
 type Owner = { id: string; full_name: string | null; role: string | null };
 type Job = { id: string; title: string | null; status: string | null; hiring_stage: string | null };
+type UserSavedView = { id:string; name:string; filters:Record<string,unknown>|null };
+type DashboardPrefs = { widgets:unknown };
 
 const BOARD_STAGES: PipelineStage[] = ["new", "contacted", "discovery_booked", "qualified", "terms_sent", "nurture", "won"];
+const DEFAULT_WIDGETS=["active","needs_action","discovery","qualified","pipeline_value"];
 
-const SAVED_VIEWS = [
+const SYSTEM_VIEWS = [
   ["active", "All active"],
   ["mine", "My leads"],
   ["attention", "Needs action"],
@@ -99,15 +107,36 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number) {
   return isOpenLeadStage(stage);
 }
 
+function filterValue(paramsValue:string|undefined, stored:unknown, fallback:string) {
+  return paramsValue !== undefined ? paramsValue : typeof stored === "string" ? stored : fallback;
+}
+
 export default async function RecruiterCrmPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
 
-  const mode = params.mode === "board" ? "board" : "table";
-  const savedView = SAVED_VIEWS.some(([value]) => value === params.view) ? String(params.view) : "active";
-  const q = String(params.q || "").trim();
-  const owner = String(params.owner || "").trim();
+  const [{data:savedViewRows,error:savedError},{data:prefs,error:prefsError},{data:ownerData,error:ownerError}] = await Promise.all([
+    admin.from("crm_saved_views").select("id,name,filters").eq("user_id",userId).eq("object_type","lead").order("updated_at",{ascending:false}).limit(20),
+    admin.from("crm_dashboard_preferences").select("widgets").eq("user_id",userId).maybeSingle(),
+    admin.from("profiles").select("id,full_name,role,account_status").in("role", ["recruiter", "admin"]).eq("account_status", "active").order("full_name"),
+  ]);
+  if(savedError) throw savedError;
+  if(prefsError) throw prefsError;
+  if(ownerError) throw ownerError;
+
+  const userViews=(savedViewRows||[]) as UserSavedView[];
+  const selectedUserView=userViews.find(item=>item.id===params.saved);
+  const stored=selectedUserView?.filters||{};
+  const rawView=filterValue(params.view,stored.view,"active");
+  const savedView = SYSTEM_VIEWS.some(([value]) => value === rawView) ? rawView : "active";
+  const mode = filterValue(params.mode,stored.mode,"table") === "board" ? "board" : "table";
+  const q = filterValue(params.q,stored.q,"").trim();
+  const owner = filterValue(params.owner,stored.owner,"").trim();
+
+  const prefWidgets=Array.isArray((prefs as DashboardPrefs|null)?.widgets) ? ((prefs as DashboardPrefs).widgets as unknown[]).map(String) : DEFAULT_WIDGETS;
+  const widgets=prefWidgets.filter(item=>DEFAULT_WIDGETS.includes(item));
+  const dashboardWidgets=widgets.length?widgets:DEFAULT_WIDGETS;
 
   let leadQuery = admin
     .from("lead_intake")
@@ -122,17 +151,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
     if (safe) leadQuery = leadQuery.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%,service.ilike.%${safe}%`);
   }
 
-  const [{ data: leadData, error: leadError }, { data: ownerData, error: ownerError }] = await Promise.all([
-    leadQuery,
-    admin
-      .from("profiles")
-      .select("id,full_name,role,account_status")
-      .in("role", ["recruiter", "admin"])
-      .eq("account_status", "active")
-      .order("full_name"),
-  ]);
+  const { data: leadData, error: leadError } = await leadQuery;
   if (leadError) throw leadError;
-  if (ownerError) throw ownerError;
 
   const allLeads = (leadData || []) as LeadRow[];
   const owners = (ownerData || []) as Owner[];
@@ -161,6 +181,13 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const discovery = allLeads.filter((lead) => lead.crm_stage === "discovery_booked");
   const qualified = allLeads.filter((lead) => ["qualified", "terms_sent", "shortlist_sent"].includes(String(lead.crm_stage || "")));
   const pipelineValue = active.reduce((sum, lead) => sum + Number(lead.estimated_value_usd || 0), 0);
+  const widgetData:Record<string,{label:string;value:string|number}> = {
+    active:{label:"Active",value:active.length},
+    needs_action:{label:"Needs action",value:needsAction.length},
+    discovery:{label:"Discovery",value:discovery.length},
+    qualified:{label:"Qualified",value:qualified.length},
+    pipeline_value:{label:"Pipeline value",value:money(pipelineValue)},
+  };
 
   const pipelineLeads: PipelineLead[] = visible
     .filter((lead) => BOARD_STAGES.includes(String(lead.crm_stage || "new") as PipelineStage))
@@ -185,22 +212,26 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
   const buildHref = (next: Record<string, string | undefined>) => {
     const query = new URLSearchParams();
-    const final = { view: savedView, mode, q: q || undefined, owner: owner || undefined, ...next };
-    Object.entries(final).forEach(([key, value]) => {
-      if (value) query.set(key, value);
-    });
+    const final = { view: savedView, mode, q: q || undefined, owner: owner || undefined, saved: selectedUserView?.id, ...next };
+    Object.entries(final).forEach(([key, value]) => { if (value) query.set(key, value); });
     return `/workspace/recruiter/crm?${query.toString()}`;
   };
 
   return (
     <div className={styles.page}>
+      {params.view_saved?<div className="success-banner">Saved view created.</div>:null}
+      {params.view_deleted?<div className="success-banner">Saved view deleted.</div>:null}
+      {params.dashboard_saved?<div className="success-banner">CRM dashboard updated.</div>:null}
+      {params.view_error?<div className="alert" role="alert">{params.view_error}</div>:null}
+
       <header className={styles.header}>
         <div>
           <div className={styles.kicker}>Relationship workspace</div>
           <h1>Hiring CRM</h1>
-          <p>A clean record-first workspace for employer relationships, follow-ups, linked roles, and hiring progress.</p>
+          <p>Attio-style relationship clarity with VAPH hiring operations, tasks, automation, and role delivery connected underneath.</p>
         </div>
         <div className={styles.headerActions}>
+          <a className={styles.secondaryButton} href="/workspace/recruiter/crm/export"><Download size={15}/> Export</a>
           <Link className={styles.secondaryButton} href="/workspace/recruiter/tasks"><ListTodo size={15}/> Tasks</Link>
           <Link className={styles.primaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Active roles</Link>
         </div>
@@ -208,35 +239,56 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
       <nav className={styles.objectBar} aria-label="CRM objects">
         <Link className={styles.objectActive} href="/workspace/recruiter/crm"><UsersRound size={15}/> Leads</Link>
+        <Link href="/workspace/recruiter/crm/companies"><Building2 size={15}/> Companies</Link>
+        <Link href="/workspace/recruiter/crm/contacts"><UserRound size={15}/> Contacts</Link>
         <Link href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Roles</Link>
-        <Link href="/workspace/recruiter/talent"><UserRound size={15}/> Talent</Link>
+        <Link href="/workspace/recruiter/crm/automations"><Bot size={15}/> Automations</Link>
         <Link href="/workspace/recruiter/tasks"><ListTodo size={15}/> Tasks</Link>
         <Link href="/workspace/recruiter/agenda"><CalendarClock size={15}/> Calendar</Link>
       </nav>
 
       <section className={styles.summary} aria-label="CRM summary">
-        <div><span>Active</span><strong>{active.length}</strong></div>
-        <div><span>Needs action</span><strong>{needsAction.length}</strong></div>
-        <div><span>Discovery</span><strong>{discovery.length}</strong></div>
-        <div><span>Qualified</span><strong>{qualified.length}</strong></div>
-        <div><span>Pipeline value</span><strong>{money(pipelineValue)}</strong></div>
+        {dashboardWidgets.map(key=><div key={key}><span>{widgetData[key]?.label||key}</span><strong>{widgetData[key]?.value??"—"}</strong></div>)}
       </section>
+      <details className={styles.dashboardConfig}>
+        <summary><SlidersHorizontal size={14}/> Customize dashboard</summary>
+        <form action={saveCrmDashboardPreferencesAction}>
+          {DEFAULT_WIDGETS.map(key=><label key={key}><input type="checkbox" name="widgets" value={key} defaultChecked={dashboardWidgets.includes(key)}/>{widgetData[key].label}</label>)}
+          <button type="submit">Save widgets</button>
+        </form>
+      </details>
 
       <div className={styles.workspace}>
         <aside className={styles.views}>
-          <div className={styles.viewsTitle}>Saved views</div>
-          {SAVED_VIEWS.map(([value, label]) => (
-            <Link
-              key={value}
-              className={savedView === value ? styles.viewActive : undefined}
-              href={buildHref({ view: value })}
-              aria-current={savedView === value ? "page" : undefined}
-            >
-              <span>{label}</span>
-              <small>{allLeads.filter((lead) => viewMatch(value, lead, userId, now)).length}</small>
+          <div className={styles.viewsTitle}>System views</div>
+          {SYSTEM_VIEWS.map(([value, label]) => (
+            <Link key={value} className={!selectedUserView && savedView === value ? styles.viewActive : undefined} href={buildHref({ view: value, saved: undefined })}>
+              <span>{label}</span><small>{allLeads.filter((lead) => viewMatch(value, lead, userId, now)).length}</small>
             </Link>
           ))}
+
+          <div className={styles.viewsDivider}/>
+          <div className={styles.viewsTitle}>My views</div>
+          {userViews.map(item=><div className={styles.savedViewRow} key={item.id}>
+            <Link className={selectedUserView?.id===item.id?styles.viewActive:undefined} href={`/workspace/recruiter/crm?saved=${item.id}`}><span>{item.name}</span></Link>
+            <form action={deleteCrmViewAction}><input type="hidden" name="view_id" value={item.id}/><button type="submit" aria-label={`Delete ${item.name}`}>×</button></form>
+          </div>)}
+          <details className={styles.saveView}>
+            <summary>+ Save current view</summary>
+            <form action={saveCrmViewAction}>
+              <input type="hidden" name="object_type" value="lead"/>
+              <input type="hidden" name="view" value={savedView}/>
+              <input type="hidden" name="owner" value={owner}/>
+              <input type="hidden" name="q" value={q}/>
+              <input type="hidden" name="mode" value={mode}/>
+              <input type="hidden" name="return_to" value={buildHref({})}/>
+              <input name="name" required minLength={2} maxLength={80} placeholder="View name"/>
+              <button type="submit">Save</button>
+            </form>
+          </details>
+
           <div className={styles.viewsDivider} />
+          <Link href="/workspace/recruiter/crm/import">Import / export</Link>
           <Link href="/workspace/recruiter/leads">Operations inbox</Link>
           <Link href="/workspace/recruiter/funnel"><Activity size={14}/> Funnel report</Link>
         </aside>
@@ -246,6 +298,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
             <form method="get" className={styles.searchForm}>
               <input type="hidden" name="view" value={savedView}/>
               <input type="hidden" name="mode" value={mode}/>
+              {selectedUserView?<input type="hidden" name="saved" value={selectedUserView.id}/>:null}
               <div className={styles.searchBox}><Search size={15}/><input name="q" defaultValue={q} placeholder="Search people, company, email, or role"/></div>
               <select name="owner" defaultValue={owner} aria-label="Filter by owner">
                 <option value="">All owners</option>
@@ -262,56 +315,31 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
           <div className={styles.viewHeader}>
             <div>
-              <h2>{SAVED_VIEWS.find(([value]) => value === savedView)?.[1] || "All active"}</h2>
+              <h2>{selectedUserView?.name || SYSTEM_VIEWS.find(([value]) => value === savedView)?.[1] || "All active"}</h2>
               <span>{visible.length} record{visible.length === 1 ? "" : "s"}</span>
             </div>
             <span className={styles.liveHint}><CheckCircle2 size={13}/> Live VAPH data</span>
           </div>
 
           {mode === "board" ? (
-            <div className={styles.boardWrap}>
-              <RecruiterLeadKanban initialLeads={pipelineLeads}/>
-            </div>
+            <div className={styles.boardWrap}><RecruiterLeadKanban initialLeads={pipelineLeads}/></div>
           ) : (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Record</th>
-                    <th>Stage</th>
-                    <th>Linked role</th>
-                    <th>Owner</th>
-                    <th>Next follow-up</th>
-                    <th>Value</th>
-                    <th>Last touch</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Record</th><th>Stage</th><th>Linked role</th><th>Owner</th><th>Next follow-up</th><th>Value</th><th>Last touch</th></tr></thead>
                 <tbody>
                   {visible.map((lead) => {
                     const job = lead.job_id ? jobMap.get(lead.job_id) : null;
                     const scored = scoreLead(lead);
-                    return (
-                      <tr key={lead.id}>
-                        <td>
-                          <Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}>
-                            <span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span>
-                            <span>
-                              <strong>{lead.name || lead.company || lead.email || "Client lead"}</strong>
-                              <small>{lead.company || lead.email || "No company"}</small>
-                            </span>
-                          </Link>
-                        </td>
-                        <td>
-                          <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
-                          <small className={styles.score}>{scored.temperature} · {scored.score}</small>
-                        </td>
-                        <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
-                        <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                        <td className={lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now ? styles.overdue : undefined}>{shortDate(lead.next_follow_up_at)}</td>
-                        <td>{money(lead.estimated_value_usd)}</td>
-                        <td>{relative(lead.last_contact_at || lead.first_contact_at || lead.created_at)}</td>
-                      </tr>
-                    );
+                    return <tr key={lead.id}>
+                      <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
+                      <td><span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span><small className={styles.score}>{scored.temperature} · {scored.score}</small></td>
+                      <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
+                      <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
+                      <td className={lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now ? styles.overdue : undefined}>{shortDate(lead.next_follow_up_at)}</td>
+                      <td>{money(lead.estimated_value_usd)}</td>
+                      <td>{relative(lead.last_contact_at || lead.first_contact_at || lead.created_at)}</td>
+                    </tr>;
                   })}
                 </tbody>
               </table>

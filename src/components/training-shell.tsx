@@ -167,6 +167,14 @@ export function TrainingShell({
               </Link>
               <strong className="app-topbar-page-title">{pageTitle}</strong>
             </div>
+            <details className="training-detail-account-menu">
+              <summary aria-label="Open training account menu"><CircleEllipsis size={19}/></summary>
+              <div className="training-detail-account-panel">
+                {workspaceHref ? <Link href={workspaceHref}>{workspaceLabel}</Link> : null}
+                <Link href="/workspace/account">Account settings</Link>
+                <form action={logoutAction}><button type="submit">Sign out</button></form>
+              </div>
+            </details>
           </div>
         </div>
         <div className="app-content">{children}</div>

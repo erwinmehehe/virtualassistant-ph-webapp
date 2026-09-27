@@ -101,6 +101,129 @@ export async function updateCandidateAccessAction(formData: FormData) {
   revalidatePath("/workspace/client/candidates");
 }
 
+export async function prepareTopMatchesForReviewAction(formData: FormData) {
+  const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
+  const jobId = String(formData.get("job_id") || "").trim();
+  const returnTo = safeReturnTo(
+    formData.get("return_to"),
+    profile.role === "recruiter" ? `/workspace/recruiter/roles/${jobId}` : `/workspace/admin/jobs/${jobId}`,
+  );
+  const fail = (message: string) =>
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_error=${encodeURIComponent(message)}#matching`);
+
+  if (!jobId) return fail("Role is required.");
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: directory }, { data: existing }] = await Promise.all([
+    admin.from("jobs").select("*").eq("id", jobId).maybeSingle(),
+    admin
+      .from("recruiter_va_directory")
+      .select("user_id,stage,account_status")
+      .eq("account_status", "active")
+      .in("stage", ["approved", "bench"]),
+    admin
+      .from("job_shortlist_candidates")
+      .select("va_id,shortlist_status,shortlist_order,created_by")
+      .eq("job_id", jobId),
+  ]);
+
+  if (!job) return fail("Role not found.");
+  if (profile.role === "recruiter" && job.recruiter_id && job.recruiter_id !== user.id) {
+    return fail("This role is assigned to another recruiter.");
+  }
+
+  if (profile.role === "recruiter" && !job.recruiter_id) {
+    const { error: claimError } = await admin
+      .from("jobs")
+      .update({ recruiter_id: user.id })
+      .eq("id", jobId)
+      .is("recruiter_id", null);
+    if (claimError) return fail("Could not claim this role. Refresh and try again.");
+
+    if (job.lead_id) {
+      await admin
+        .from("lead_intake")
+        .update({ owner_id: user.id })
+        .eq("id", job.lead_id)
+        .is("owner_id", null);
+    }
+  }
+
+  const existingRows = existing || [];
+  const existingHuman = existingRows
+    .filter((row: any) => row.shortlist_status === "proposed" && Boolean(row.created_by))
+    .sort((a: any, b: any) => Number(a.shortlist_order || 999) - Number(b.shortlist_order || 999));
+  const releasedIds = new Set(
+    existingRows.filter((row: any) => row.shortlist_status === "released").map((row: any) => String(row.va_id)),
+  );
+  const hiddenIds = new Set(
+    existingRows.filter((row: any) => row.shortlist_status === "hidden").map((row: any) => String(row.va_id)),
+  );
+  const alreadyChosen = new Set(existingHuman.map((row: any) => String(row.va_id)));
+  const needed = Math.max(0, 3 - existingHuman.length);
+
+  if (!needed) {
+    revalidatePath(returnTo);
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}quick_shortlist_existing=1#matching`);
+  }
+
+  const approvedIds = [...new Set((directory || []).map((row: any) => String(row.user_id)).filter(Boolean))];
+  if (!approvedIds.length) return fail("No approved or bench Virtual Assistants are available to review.");
+
+  const { data: vas, error: vaError } = await admin.from("va_profiles").select("*").in("user_id", approvedIds);
+  if (vaError) return fail("Could not load the approved VA pool. Please try again.");
+
+  const candidates = (vas || [])
+    .filter((va: any) => {
+      const vaId = String(va?.user_id || "");
+      return vaId && !alreadyChosen.has(vaId) && !releasedIds.has(vaId) && !hiddenIds.has(vaId);
+    })
+    .map((va: any) => ({ va, assessment: matchAssessment(job, va) }))
+    .filter(({ assessment }) => assessment.eligible !== false && assessment.score >= 60)
+    .sort((a, b) => b.assessment.score - a.assessment.score || b.assessment.confidence - a.assessment.confidence)
+    .slice(0, needed);
+
+  if (!candidates.length) {
+    return fail("No eligible 60%+ matches are available yet. Review the wider talent pool manually.");
+  }
+
+  const startOrder = existingHuman.reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
+  const rows = candidates.map(({ va, assessment }, index) => ({
+    job_id: jobId,
+    va_id: va.user_id,
+    match_score: assessment.score,
+    match_confidence: assessment.confidence,
+    shortlist_status: "proposed",
+    shortlist_order: startOrder + index + 1,
+    client_recommendation: null,
+    created_by: user.id,
+    released_at: null,
+  }));
+
+  const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
+  if (error) return fail("Could not prepare the internal shortlist. Please try again.");
+
+  const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "quick_shortlist_prepared",
+    description: `Prepared ${rows.length} top match${rows.length === 1 ? "" : "es"} for recruiter review`,
+    actorId: user.id,
+    metadata: { va_ids: rows.map((row) => row.va_id), internal_only: true },
+  });
+  await recordProductEvent("shortlist_internal_ready", {
+    userId: user.id,
+    path: returnTo,
+    metadata: { job_id: jobId, candidate_count: existingHuman.length + rows.length, source: "quick_prepare" },
+  });
+
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/recruiter/roles");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}quick_shortlist_prepared=${rows.length}#matching`);
+}
+
 export async function saveJobShortlistAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");
@@ -203,6 +326,15 @@ export async function saveJobShortlistAction(formData: FormData) {
     console.error("saveJobShortlistAction upsert failed:", error);
     return fail("Could not save the shortlist. Please try again.");
   }
+
+  await recordProductEvent(
+    mode === "release" || mode === "invite" ? "shortlist_sent" : "shortlist_internal_ready",
+    {
+      userId: user.id,
+      path: returnTo,
+      metadata: { job_id: jobId, candidate_count: selected.length, mode },
+    },
+  );
 
   const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
 

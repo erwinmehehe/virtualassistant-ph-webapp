@@ -4,21 +4,12 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("no-show rebooking email uses the approved direct copy with one branded greeting", async () => {
+test("no-show rebooking email is policy-suppressed before a VA shortlist", async () => {
   const email = await read("src/lib/email.ts");
   const start = email.indexOf("export async function sendDiscoveryNoShowRebookEmail");
   const end = email.indexOf("export async function sendDiscoveryReminderEmail", start);
-  assert.ok(start >= 0 && end > start);
   const block = email.slice(start, end);
-
-  assert.match(block, /subject: "Would you like to rebook your call\?"/);
-  assert.match(block, /We weren’t able to connect for your scheduled call today\./);
-  assert.match(block, /If you’d still like to discuss hiring a virtual assistant, you can choose another time here:/);
-  assert.match(block, /If you’re no longer looking, just reply and let us know so we can close the request\./);
-  assert.match(block, /ctaLabel: "Rebook your call"/);
-  assert.match(block, /appendSignature: false/);
-  assert.equal((block.match(/Hi \$\{firstName\}/g) || []).length, 1);
-  assert.doesNotMatch(block, /life happens|sorry we missed you|just checking in|hope you.re well/i);
+  assert.match(block, /client_email_deferred_until_shortlist/);
 });
 
 test("no-show rebooking action is no-show only and blocks duplicate sends before Resend", async () => {
@@ -35,25 +26,12 @@ test("no-show rebooking action is no-show only and blocks duplicate sends before
   assert.match(action, /next_follow_up_at: new Date\(now\.getTime\(\) \+ 2 \* 86400000\)/);
 });
 
-test("marking no-show prompts recruiter to send the rebooking email", async () => {
-  const [action, page] = await Promise.all([
-    read("src/app/actions/recruiter.ts"),
-    read("src/app/workspace/recruiter/leads/page.tsx")
-  ]);
-
-  assert.match(action, /outcome === "no_show" \? `discovery_completed=1&rebook_prompt=/);
-  assert.match(page, /Client marked No show\./);
-  assert.match(page, /Send rebooking email/);
-  assert.match(page, /Rebooking email sent/);
-  assert.match(page, /No duplicate email was sent/);
-  assert.match(page, /discovery_no_show_rebook/);
-  assert.match(page, /\.in\("status", \["sent", "delivered"\]\)/);
-  assert.match(page, /Rebooked/);
+test("marking no-show keeps the recruiter queue visible without client email", async () => {
+  const page = await read("src/app/workspace/recruiter/leads/page.tsx");
+  assert.match(page, /Client missed the call/);
+  assert.match(page, /No automatic rebooking email is sent/);
+  assert.doesNotMatch(page, /Send rebooking email/);
   assert.match(page, /Mark no-show/);
-  assert.match(page, /Subject: Would you like to rebook your call\?/);
-  assert.match(page, /Review the email below, then send one rebooking link\./);
-  assert.match(page, /crm-rebook-email-preview/);
-  assert.match(page, /lead\.discovery_outcome !== "no_show" \? <details className="crm-tool-panel"/);
 });
 
 test("client rebooking reopens discovery after a no-show", async () => {

@@ -28,7 +28,7 @@ const STAGES: Record<string, string> = {
   closed: "Closed",
 };
 const NEXT: Record<string, string> = {
-  intake: "Finish client activation and role requirements",
+  intake: "Review the client request and start matching",
   ready_to_recruit: "Start sourcing and review the vetted bench",
   sourcing: "Find qualified candidates and build the internal shortlist",
   internal_review: "Recruiter QA: verify evidence and choose the client shortlist",

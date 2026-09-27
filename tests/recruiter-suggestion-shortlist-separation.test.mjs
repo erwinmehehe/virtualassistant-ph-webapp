@@ -38,3 +38,12 @@ test("automation alone no longer advances a role to internal review",async()=>{
   assert.match(migration,/v_stage:='internal_review'/);
   assert.match(migration,/perform public\.sync_job_hiring_stage\(r\.id\)/);
 });
+
+
+test("automatic refresh never erases a recruiter-curated shortlist marker",async()=>{
+  const autoMatching=await read("src/lib/auto-matching.ts");
+  assert.match(autoMatching,/select\("va_id,shortlist_status,created_by"\)/);
+  assert.match(autoMatching,/existingRow\.shortlist_status === "proposed" && !existingRow\.created_by/);
+  assert.match(autoMatching,/const suggestionCandidates = qualified\.filter/);
+  assert.match(autoMatching,/if \(rows\.length\)/);
+});

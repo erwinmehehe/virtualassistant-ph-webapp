@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ChevronRight, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
+import { WorkspaceFeedbackHygiene } from "@/components/workspace-feedback-hygiene";
 import { getWorkspaceBadges, type WorkspaceBadges } from "@/lib/workspace-badges";
 import type { Role } from "@/lib/types";
 
@@ -43,6 +44,7 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
 
   return (
     <div className={`app-shell dashboard-shell workspace-role-${role}`}>
+      <WorkspaceFeedbackHygiene />
       <aside className="app-sidebar">
         <div className="app-sidebar-brand">
           <Link className="app-brand" href={workspaceHome[role]} aria-label={`Go to ${roleLabel} workspace home`}>

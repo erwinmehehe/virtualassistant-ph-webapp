@@ -30,8 +30,8 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   if (!job.summary || String(job.summary).trim().length < 20) missing.push("summary");
   if (!Array.isArray(job.responsibilities) || job.responsibilities.length === 0) missing.push("responsibilities");
   // Public hiring forms do not consistently ask for explicit skills,
-  // timezone, or preferred start. Those can be refined during recruiter
-  // discovery/matching and must not create a fake role-readiness blocker.
+  // timezone, preferred start, or a fixed weekly hour count. Those can be
+  // refined during recruiter discovery and matching.
   if (job.min_hourly_rate == null) missing.push("budget");
   return missing;
 }
@@ -61,10 +61,10 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   if (missing.length) {
     return {
       key: "needs_role_details",
-      label: "Needs role details",
+      label: "Brief incomplete",
       detail: job.status === "published"
-        ? `This published role is incomplete. Complete: ${missing.join(", ")}.`
-        : `Complete: ${missing.join(", ")}.`,
+        ? `This published role is missing required public content: ${missing.join(", ")}.`
+        : `Missing required public content: ${missing.join(", ")}.`,
     };
   }
 

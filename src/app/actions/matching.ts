@@ -304,14 +304,47 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (mode === "release" && job.client_id) {
     const { data: access } = await admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle();
     const unlocked = candidateAccessUnlocked(access?.access_status);
+    const clientHref = `/workspace/client/jobs/${jobId}`;
     await admin.from("notifications").insert({
       user_id: job.client_id,
       title: "Your curated shortlist is ready",
       body: unlocked
         ? `${selected.length} matched VA profile${selected.length === 1 ? " is" : "s are"} ready to review.`
         : `${selected.length} matched VA${selected.length === 1 ? " is" : "s are"} ready. Candidate identities stay protected until candidate access is activated.`,
-      href: `/workspace/client/jobs/${jobId}`
+      href: clientHref
     });
+
+    // Client hiring email is intentionally shortlist-only. This is the one
+    // outbound hiring email we send once real VA candidates are ready.
+    try {
+      const { data: clientAuth } = await admin.auth.admin.getUserById(job.client_id);
+      const clientEmail = clientAuth.user?.email || null;
+      if (clientEmail) {
+        const { sendTransactionalEventEmail } = await import("@/lib/email");
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+        await sendTransactionalEventEmail({
+          to: clientEmail,
+          firstName: String(clientAuth.user?.user_metadata?.full_name || "").trim().split(/\s+/)[0] || null,
+          subject: `Your VA shortlist is ready: ${job.title}`,
+          heading: "Your Virtual Assistants are ready to review",
+          body: `We selected ${selected.length} Virtual Assistant candidate${selected.length === 1 ? "" : "s"} for ${job.title}. Open your private hiring workspace to review the shortlist and choose who you want to move forward with.`,
+          href: `${appUrl}${clientHref}`,
+          hrefLabel: "Review my VA shortlist",
+          senderName: "VirtualAssistant.com.ph Hiring Team",
+          teamLabel: "Candidate shortlist",
+          footerText: "You are receiving this because your recruiter has selected Virtual Assistants for your hiring request.",
+          eventType: "client_shortlist_ready",
+          idempotencyKey: `client-shortlist-ready-${jobId}-${now.slice(0, 10)}`,
+          priority: "critical",
+        });
+      }
+    } catch (emailError) {
+      console.error("[client-shortlist-ready] email failed after shortlist release", {
+        jobId,
+        clientId: job.client_id,
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+      });
+    }
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);

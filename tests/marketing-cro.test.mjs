@@ -21,11 +21,11 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(layout, /import "\.\/service-match-form-final\.css"/);
   assert.match(header, /<SiteNav\s*\/>/);
   assert.doesNotMatch(nav, /href="\/book-client-call"/);
-  assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
+  assert.match(floating, /DISCOVERY_CALL_URL = "https:\/\/calendar\.app\.google\/FxedmioyeJhKras87"/);
   assert.doesNotMatch(floating, /Hiring a Virtual Assistant\?/);
   assert.match(floating, /INTERNAL_PATHS/);
   assert.match(floating, /floating-cta-compact/);
-  assert.match(floating, /<span>Discuss your VA needs<\/span>/);
+  assert.match(floating, /<span>Book a discovery call<\/span>/);
   assert.match(footer, /<FooterCta\s*\/>/);
   assert.doesNotMatch(footer, /HomepageShowcase/);
   assert.match(footerCta, /href="\/book-client-call"/);

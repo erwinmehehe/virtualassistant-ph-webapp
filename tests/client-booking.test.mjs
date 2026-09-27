@@ -4,8 +4,8 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("all client call entry points use the qualified booking route", async () => {
-  const files = await Promise.all([
+test("qualified booking flow stays available while the floating CTA goes directly to Google Calendar", async () => {
+  const [home, hire, floating, form, contact] = await Promise.all([
     read("src/app/page.tsx"),
     read("src/app/hire/page.tsx"),
     read("src/components/floating-cta.tsx"),
@@ -13,10 +13,11 @@ test("all client call entry points use the qualified booking route", async () =>
     read("src/app/contact/page.tsx"),
   ]);
 
-  for (const source of files) {
+  for (const source of [home, hire, form, contact]) {
     assert.match(source, /\/book-client-call/);
-    assert.doesNotMatch(source, /calendar\.app\.google\/FxedmioyeJhKras87/);
   }
+  assert.match(floating, /calendar\.app\.google\/FxedmioyeJhKras87/);
+  assert.doesNotMatch(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
 });
 
 test("booking flow blocks VA applicants before showing client slots", async () => {

@@ -525,6 +525,7 @@ export async function sendApplicationEmail(args: {
   jobTitle: string;
   applicationId: string;
 }) {
+  if (!CLIENT_PRE_SHORTLIST_EMAIL_ENABLED) return { sent: false as const, reason: "client_email_shortlist_only" as const };
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
   const delivery = await trackedSend(config, {

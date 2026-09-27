@@ -68,8 +68,10 @@ test("recruiter finance fails loudly instead of rendering false zero states", as
 test("recruiter notification actions rewrite legacy destinations and reject cross-role workspace links", async () => {
   const actions=await read("src/app/actions/recruiter-ops.ts");
   assert.ok(actions.includes("function recruiterActionPath"));
-  assert.ok(actions.includes("/workspace/recruiter/matching/"));
-  assert.ok(actions.includes("/workspace/admin/jobs/"));
+  assert.ok(actions.includes("const legacyMatch = path.match("));
+  assert.ok(actions.includes("const adminJob = path.match("));
+  assert.ok(actions.includes("legacyMatch[1]"));
+  assert.ok(actions.includes("adminJob[1]"));
   assert.ok(actions.includes('path.startsWith("/workspace/recruiter/")'));
   assert.ok(actions.includes('path === "/workspace/client-success"'));
   assert.ok(actions.includes('redirect(recruiterActionPath(notification.href, "/workspace/recruiter/notifications"))'));

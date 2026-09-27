@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   ListTodo,
   LifeBuoy,
+  LogOut,
   MessageSquare,
   Search,
   Settings,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { logoutAction } from "@/app/actions/auth";
 import type { Role } from "@/lib/types";
 
 type NavItem = readonly [string, string, typeof LayoutDashboard];
@@ -75,6 +77,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Client review", "/workspace/recruiter/client-review", MessageSquare],
         ["Placements", "/workspace/recruiter/placements", Wrench],
         ["Talent", "/workspace/recruiter/talent", Search],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
     {
@@ -243,6 +246,18 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
                   {group.items.map((item) => renderItem(item, true))}
                 </div>
               ))}
+              <div className="mobile-more-group mobile-account-actions">
+                <strong>Account</strong>
+                {!secondaryGroups.some((group) => group.items.some(([, href]) => href === "/workspace/account"))
+                  ? renderItem(["Account settings", "/workspace/account", Settings], true)
+                  : null}
+                <form action={logoutAction} className="mobile-logout-form">
+                  <button className="mobile-logout-button" type="submit">
+                    <span className="app-nav-icon nav-tone-rose" aria-hidden="true"><LogOut size={17} /></span>
+                    <span>Sign out</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </details>
         ) : null}

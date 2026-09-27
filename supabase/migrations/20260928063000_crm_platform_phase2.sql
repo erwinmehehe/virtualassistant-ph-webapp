@@ -190,7 +190,7 @@ $$;
 
 drop trigger if exists lead_intake_sync_crm_identity on public.lead_intake;
 create trigger lead_intake_sync_crm_identity
-after insert or update of name, email, phone, company, client_id, owner_id
+after insert or update of name, email, phone, company, client_id, owner_id, lead_type
 on public.lead_intake
 for each row execute function public.sync_crm_identity_from_lead();
 

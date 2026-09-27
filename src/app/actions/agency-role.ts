@@ -24,7 +24,7 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
   if(existing?.commercial_status)redirect(`/workspace/recruiter/roles/${jobId}`);
 
   const missing=publicationMissingDetails(job);
-  if(missing.length)throw new Error(`Complete the role quality gate first: ${missing.join(", ")}.`);
+  if(missing.length)throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
 
   const defaultFee=Number(settings?.default_placement_fee||0);
   if(defaultFee<=0)throw new Error("Admin must configure the standard placement fee first.");

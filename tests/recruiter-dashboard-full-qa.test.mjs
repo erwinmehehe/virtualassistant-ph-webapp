@@ -113,3 +113,10 @@ test("Talent links directly to canonical recruiter queues instead of legacy redi
   assert.ok(!page.includes('href="/workspace/recruiter/queue"'));
   assert.ok(!page.includes('href="/workspace/recruiter/matching"'));
 });
+
+
+test("talent operations no longer links recruiters through the legacy vetting route", async () => {
+  const panel=await read("src/components/recruiter-talent-operations-panel.tsx");
+  assert.ok(panel.includes('href="/workspace/recruiter/talent?stage=recruiter_review"'));
+  assert.ok(!panel.includes('href="/workspace/recruiter/queue"'));
+});

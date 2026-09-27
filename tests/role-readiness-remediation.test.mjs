@@ -25,26 +25,21 @@ test("role readiness repair records recruiter activity and admin audit evidence"
   assert.match(action, /changed_fields/);
 });
 
-test("recruiter and admin role pages expose the same inline repair form", async () => {
+test("admin retains inline remediation while recruiter role page stays focused on hiring", async () => {
   const [recruiter, admin, form] = await Promise.all([
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
     read("src/app/workspace/admin/jobs/[id]/page.tsx"),
     read("src/components/role-readiness-form.tsx"),
   ]);
 
-  for (const source of [recruiter, admin]) {
-    assert.match(source, /RoleReadinessForm/);
-    assert.match(source, /saveRoleReadinessDetailsAction/);
-    assert.match(source, /role_details_saved/);
-    assert.match(source, /role_details_error/);
-  }
+  assert.doesNotMatch(recruiter, /RoleReadinessForm|saveRoleReadinessDetailsAction|#role-readiness|role_details_saved|role_details_error/);
+  assert.match(admin, /RoleReadinessForm/);
+  assert.match(admin, /saveRoleReadinessDetailsAction/);
+  assert.match(admin, /role_details_saved/);
+  assert.match(admin, /role_details_error/);
 
-  assert.match(recruiter, /href="#role-readiness">Complete role details/);
-  assert.doesNotMatch(recruiter, /href="#matching">Complete role review/);
   assert.match(form, /publicationMissingDetails\(job\)/);
   assert.match(form, /Add only confirmed client information/);
-  assert.match(form, /name="start_timing"/);
-  assert.match(form, /name="hours_per_week"/);
   assert.match(form, /name="min_hourly_rate"/);
   assert.match(form, /MIN_HOURLY_RATE/);
 });

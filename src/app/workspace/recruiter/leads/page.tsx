@@ -449,15 +449,11 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
                     <strong>{lead.job_id ? linkedRole?.title || lead.service || "Recruiting role" : "No role yet"}</strong>
                     <small>
                       {lead.job_id
-                        ? roleReady
-                          ? "Role brief is ready for recruiter review and internal matching."
-                          : linkedRole
-                            ? `${missingRoleDetails.length} role detail${missingRoleDetails.length === 1 ? "" : "s"} still need confirmation. You can review matches now while completing the brief.`
-                            : "The linked role is ready to open in the recruiting workspace."
+                        ? "Role is linked and ready for recruiter review and internal matching."
                         : "Create the recruiting role from this enquiry and open internal matching immediately."}
                     </small>
                     {lead.job_id ? <div className="crm-role-meta">
-                      <span className={roleReady ? "badge badge-success" : "badge badge-warning"}>{roleReady ? "Brief ready" : "Needs role details"}</span>
+                      <span className="badge badge-success">Role linked</span>
                       {linkedRole ? <span className="badge">{hiringStageLabel(linkedRole.hiring_stage)}</span> : null}
                     </div> : null}
                     <div className="crm-hiring-progress" aria-label="Hiring progress">

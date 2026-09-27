@@ -76,7 +76,7 @@ test("training-only signup never creates candidate or hiring records", async () 
   assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
 });
 
-test("shared auth preserves training-only accounts while the workspace guard rejects client and recruiter roles", async () => {
+test("shared auth preserves training-only accounts while every authenticated account can use free training", async () => {
   const authAction = await readFile("src/app/actions/auth.ts", "utf8");
   const callback = await readFile("src/app/auth/callback/route.ts", "utf8");
   const confirm = await readFile("src/app/auth/confirm/route.ts", "utf8");
@@ -91,12 +91,9 @@ test("shared auth preserves training-only accounts while the workspace guard rej
   assert.match(callback, /app_metadata/);
   assert.doesNotMatch(callback, /updateUser\(\{ data: \{ account_type: "training" \} \}\)/);
   assert.match(auth, /export async function requireTrainingAccessFast/);
-  assert.match(auth, /role === "va" \|\| role === "admin"/);
-  assert.match(auth, /role === "client" \|\| role === "recruiter"/);
-  assert.match(auth, /getUserById\(session\.userId\)/);
-  assert.match(auth, /app_metadata\?\.account_type/);
-  assert.match(auth, /accountType === "training"/);
-  assert.doesNotMatch(auth, /claims\?\.user_metadata/);
+  assert.match(auth, /return requireAuthenticatedUserFast\("\/workspace\/training"\)/);
+  assert.doesNotMatch(auth, /does%20not%20have%20access%20to%20the%20learner%20workspace/);
+  assert.doesNotMatch(auth, /getUserById\(session\.userId\)/);
 });
 
 test("lesson completion is scoped to its course and certificate issuance is server-verified", async () => {

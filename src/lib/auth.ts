@@ -1,7 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
 import { withServerTiming } from "@/lib/server-timing";
 import type { Role } from "./types";
@@ -110,33 +109,11 @@ export async function requireAuthenticatedUserFast(nextPath = "/workspace/traini
 }
 
 export async function requireTrainingAccessFast() {
-  const session = await getFastRoleProfile();
-  if ("banned" in session && session.banned) {
-    redirect("/auth/login?error=Your%20account%20has%20been%20suspended.%20Contact%20support%20if%20you%20believe%20this%20is%20a%20mistake.");
-  }
-  if (!session.userId) redirect("/auth/login?next=%2Fworkspace%2Ftraining");
-
-  const role = session.profile?.role as Role | undefined;
-  if (role === "va" || role === "admin") {
-    return session as typeof session & { userId: string };
-  }
-  if (role === "client" || role === "recruiter") {
-    redirect(roleHome(role));
-  }
-
-  // Training-only accounts deliberately have no profiles row so they never
-  // enter the VA candidate or hiring systems. Account type is authorization
-  // data, so verify the server-controlled app_metadata value rather than
-  // trusting user-editable user_metadata claims.
-  const admin = createAdminClient();
-  const { data: trainingUser, error: trainingUserError } = await admin.auth.admin.getUserById(session.userId);
-  const accountType = trainingUser.user?.app_metadata?.account_type;
-
-  if (!trainingUserError && accountType === "training") {
-    return session as typeof session & { userId: string };
-  }
-
-  redirect("/auth/login?error=Your%20account%20does%20not%20have%20access%20to%20the%20learner%20workspace");
+  // Training is free and account-agnostic. Any authenticated, non-banned
+  // VirtualAssistant.com.ph account can use the learner workspace. This also
+  // keeps newly created or legacy training accounts working even when they do
+  // not have a profiles row yet.
+  return requireAuthenticatedUserFast("/workspace/training");
 }
 
 export async function requireRoleFast(role: Role) {

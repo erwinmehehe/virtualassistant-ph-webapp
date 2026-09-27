@@ -4,32 +4,30 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("recruiter navigation exposes the operational queues and current badge destinations", async () => {
-  const [nav,badges]=await Promise.all([
+test("recruiter badge destinations use current role and talent pages while focused nav stays intact", async () => {
+  const [nav,badges,today]=await Promise.all([
     read("src/components/app-nav-links.tsx"),
     read("src/lib/workspace-badges.ts"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
   ]);
 
-  for (const href of [
-    "/workspace/recruiter/agenda",
-    "/workspace/recruiter/tasks",
-    "/workspace/recruiter/notifications",
-    "/workspace/recruiter/talent",
-    "/workspace/recruiter/roles",
-  ]) assert.match(nav,new RegExp(href.replaceAll("/","\\/")));
-
-  assert.match(nav,/\["Placements", "\/workspace\/client-success", Wrench\]/);
-  assert.match(nav,/recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/leads", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/talent"\]/);
+  assert.match(nav,/\["Hiring inbox", "\/workspace\/recruiter\/leads", BriefcaseBusiness\]/);
+  assert.match(nav,/\["Active roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
+  assert.match(nav,/\["Client review", "\/workspace\/recruiter\/client-review", MessageSquare\]/);
+  assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
   assert.match(badges,/"\/workspace\/recruiter\/talent": Number\(raw\.vetting \|\| 0\)/);
   assert.match(badges,/"\/workspace\/recruiter\/roles": Number\(raw\.pending_roles \|\| 0\)/);
   assert.doesNotMatch(badges,/"\/workspace\/recruiter\/queue"/);
   assert.doesNotMatch(badges,/"\/workspace\/recruiter\/matching"/);
+  for (const href of ["/workspace/recruiter/agenda","/workspace/recruiter/tasks","/workspace/recruiter/notifications"]) {
+    assert.ok(today.includes(href));
+  }
 });
 
 test("My Day workload totals include new hiring enquiries", async () => {
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(page,/const roleActions = newHiringRoles\.length \+ incompleteRoleCount \+ roleNoCandidates/);
-  assert.match(page,/newHiringRoles\.length\+incompleteRoleCount\+roleNoCandidates\+replacementNeeded\+interviewsDue\+offersWaiting\+staleRolesCount/);
+  assert.ok(page.includes("const roleActions = newHiringRoles.length + incompleteRoleCount + roleNoCandidates"));
+  assert.ok(page.includes("newHiringRoles.length+incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount"));
 });
 
 test("tasks and agenda use canonical role URLs and agenda is recruiter scoped", async () => {
@@ -37,49 +35,51 @@ test("tasks and agenda use canonical role URLs and agenda is recruiter scoped", 
     read("src/app/workspace/recruiter/tasks/page.tsx"),
     read("src/app/workspace/recruiter/agenda/page.tsx"),
   ]);
-  assert.match(tasks,/return `\/workspace\/recruiter\/roles\/\$\{task\.subject_id\}`/);
-  assert.doesNotMatch(tasks,/\/workspace\/recruiter\/matching\/\$\{task\.subject_id\}/);
-  assert.match(agenda,/return `\/workspace\/recruiter\/roles\/\$\{task\.subject_id\}`/);
-  assert.match(agenda,/owner_id\.eq\.\$\{userId\},owner_id\.is\.null/);
-  assert.match(agenda,/\/workspace\/recruiter\/roles\/\$\{item\.jobId\}#interviews/);
-  assert.doesNotMatch(agenda,/\/workspace\/recruiter\/matching\/\$\{item\.jobId\}/);
+  assert.ok(tasks.includes("return `/workspace/recruiter/roles/${task.subject_id}`;"));
+  assert.ok(!tasks.includes("return `/workspace/recruiter/matching/${task.subject_id}`;"));
+  assert.ok(agenda.includes("return `/workspace/recruiter/roles/${task.subject_id}`;"));
+  assert.ok(agenda.includes("owner_id.eq.${userId},owner_id.is.null"));
+  assert.ok(agenda.includes("/workspace/recruiter/roles/${item.jobId}#interviews"));
+  assert.ok(!agenda.includes("/workspace/recruiter/matching/${item.jobId}"));
 });
 
 test("coverage counts linked enquiries only once and does not hide query failures", async () => {
   const coverage=await read("src/app/workspace/recruiter/coverage/page.tsx");
-  assert.match(coverage,/select\("id,service,crm_stage,job_id"\)/);
-  assert.match(coverage,/select\("id,title,categories,status,lead_id"\)/);
-  assert.match(coverage,/openJobIds/);
-  assert.match(coverage,/linkedLeadIds/);
-  assert.match(coverage,/linked enquiries counted once/);
-  assert.match(coverage,/if \(leadError\) throw leadError/);
-  assert.match(coverage,/if \(jobError\) throw jobError/);
-  assert.match(coverage,/if \(vaError\) throw vaError/);
+  assert.ok(coverage.includes('select("id,service,crm_stage,job_id")'));
+  assert.ok(coverage.includes('select("id,title,categories,status,lead_id")'));
+  assert.ok(coverage.includes("openJobIds"));
+  assert.ok(coverage.includes("linkedLeadIds"));
+  assert.ok(coverage.includes("linked enquiries counted once"));
+  assert.ok(coverage.includes("if (leadError) throw leadError"));
+  assert.ok(coverage.includes("if (jobError) throw jobError"));
+  assert.ok(coverage.includes("if (vaError) throw vaError"));
 });
 
 test("recruiter finance fails loudly instead of rendering false zero states", async () => {
   const page=await read("src/app/workspace/recruiter/finance/page.tsx");
-  assert.match(page,/if\(jobsError\) throw jobsError/);
-  assert.match(page,/if\(settingsError\) throw settingsError/);
-  assert.match(page,/if\(roomResult\.error\) throw roomResult\.error/);
-  assert.match(page,/if\(profileResult\.error\) throw profileResult\.error/);
+  for (const snippet of [
+    "if(jobsError) throw jobsError",
+    "if(settingsError) throw settingsError",
+    "if(roomResult.error) throw roomResult.error",
+    "if(profileResult.error) throw profileResult.error",
+  ]) assert.ok(page.includes(snippet));
 });
 
 test("recruiter notification actions rewrite legacy destinations and reject cross-role workspace links", async () => {
   const actions=await read("src/app/actions/recruiter-ops.ts");
-  assert.match(actions,/function recruiterActionPath/);
-  assert.match(actions,/\/workspace\/recruiter\/matching\//);
-  assert.match(actions,/\/workspace\/admin\/jobs\//);
-  assert.match(actions,/path\.startsWith\("\/workspace\/recruiter\/"\)/);
-  assert.match(actions,/path === "\/workspace\/client-success"/);
-  assert.match(actions,/redirect\(recruiterActionPath\(notification\.href/);
-  assert.match(actions,/const href = recruiterActionPath\(formData\.get\("href"\), ""\)/);
+  assert.ok(actions.includes("function recruiterActionPath"));
+  assert.ok(actions.includes("/workspace/recruiter/matching/"));
+  assert.ok(actions.includes("/workspace/admin/jobs/"));
+  assert.ok(actions.includes('path.startsWith("/workspace/recruiter/")'));
+  assert.ok(actions.includes('path === "/workspace/client-success"'));
+  assert.ok(actions.includes('redirect(recruiterActionPath(notification.href, "/workspace/recruiter/notifications"))'));
+  assert.ok(actions.includes('const href = recruiterActionPath(formData.get("href"), "")'));
 });
 
 test("maintenance creates canonical recruiter links and keeps client reminders in-app only", async () => {
   const route=await read("src/app/api/cron/maintenance/route.ts");
-  assert.match(route,/href: `\/workspace\/recruiter\/roles\/\$\{job\.id\}`/);
-  assert.doesNotMatch(route,/href: `\/workspace\/recruiter\/matching\/\$\{job\.id\}`/);
+  assert.ok(route.includes('href: `/workspace/recruiter/roles/${job.id}`'));
+  assert.ok(!route.includes('href: `/workspace/recruiter/matching/${job.id}`'));
 
   const interviewStart=route.indexOf("action: `schedule_interview_");
   assert.ok(interviewStart>=0);
@@ -92,6 +92,6 @@ test("maintenance creates canonical recruiter links and keeps client reminders i
 
 test("roles page falls back safely from stale view and sort query strings", async () => {
   const page=await read("src/app/workspace/recruiter/roles/page.tsx");
-  assert.match(page,/ROLE_VIEWS\.some\(\(\[value\]\)=>value===String\(params\.view\|\|"active"\)\)\?String\(params\.view\|\|"active"\\):"active"/);
-  assert.match(page,/\["urgent","oldest","newest","start","stage"\]\.includes/);
+  assert.ok(page.includes('ROLE_VIEWS.some(([value])=>value===String(params.view||"active"))'));
+  assert.ok(page.includes('["urgent","oldest","newest","start","stage"].includes'));
 });

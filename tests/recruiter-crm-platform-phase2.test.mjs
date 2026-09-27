@@ -16,6 +16,8 @@ test("CRM phase 2 adds first-class company contact field view workflow and dashb
     "crm_dashboard_preferences",
   ]) assert.match(migration,new RegExp(`create table if not exists public\\.${table}`));
   assert.match(migration,/lead_intake_sync_crm_identity/);
+  assert.ok(migration.includes("if new.lead_type <> 'client_hiring' then"));
+  assert.ok(migration.includes("owner_id, lead_type"));
   assert.match(migration,/enable row level security/);
 });
 

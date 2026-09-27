@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { joinTrainingAction } from "@/app/actions/training-auth";
+import { oauthAction } from "@/app/actions/auth";
 import { initialTrainingJoinState } from "@/lib/training-auth-state";
 import { resendSignupConfirmationAction } from "@/app/actions/resend-confirmation";
 import { TurnstileWidget } from "@/components/turnstile-widget";
@@ -25,8 +26,10 @@ const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admi
 
 export function TrainingJoinForm({
   course,
+  googleEnabled = false,
 }: {
   course?: { slug: string; title: string } | null;
+  googleEnabled?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(joinTrainingAction, initialTrainingJoinState);
   const [fullName, setFullName] = useState("");
@@ -48,7 +51,7 @@ export function TrainingJoinForm({
 
   if (state.status === "success") {
     return (
-      <div className="auth-card auth-card-wide training-signup-success">
+      <div className="auth-card auth-card-wide training-auth-card training-signup-success">
         <div className="auth-role-icon training-success-icon" aria-hidden="true"><MailCheck size={24}/></div>
         <div className="kicker">One quick step left</div>
         <h1>Check your email</h1>
@@ -93,7 +96,7 @@ export function TrainingJoinForm({
   }
 
   return (
-    <div className="auth-card auth-card-wide">
+    <div className="auth-card auth-card-wide training-auth-card">
       <div className="auth-role-icon" aria-hidden="true"><GraduationCap size={24}/></div>
       <div className="kicker">Free training account</div>
       <h1>Create your free training account</h1>
@@ -107,6 +110,22 @@ export function TrainingJoinForm({
       </p>
 
       {state.status === "error" ? <p className="alert" role="alert">{state.message}</p> : null}
+
+      {googleEnabled ? (
+        <>
+          <div className="auth-social-stack auth-social-stack-primary training-auth-google" aria-label="Training social signup">
+            <form action={oauthAction}>
+              <input type="hidden" name="provider" value="google"/>
+              <input type="hidden" name="next" value={destination}/>
+              <button className="btn auth-social-btn auth-provider-btn" type="submit">
+                <span className="auth-provider-mark auth-provider-google" aria-hidden="true">G</span>
+                <span>Continue with Google</span>
+              </button>
+            </form>
+          </div>
+          <div className="auth-divider"><span>or create with email</span></div>
+        </>
+      ) : null}
 
       <div className="auth-benefits" aria-label="Free training account benefits">
         <div><CheckCircle2 size={16}/><span>All training and completion certificates stay free</span></div>

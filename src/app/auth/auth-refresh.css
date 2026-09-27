@@ -476,3 +476,151 @@
   .auth-form-wrap { padding: 24px 17px; }
   .auth-role-switch a { padding-inline: 7px; font-size: 11px; }
 }
+
+
+/* Training auth: compact, modern, and visually connected to the training product. */
+.training-auth-page {
+  min-height: calc(100svh - 72px);
+  place-items: start center;
+  padding: clamp(42px, 7vh, 76px) 20px 64px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(68, 76, 231, .10), transparent 30rem),
+    radial-gradient(circle at 88% 12%, rgba(122, 90, 248, .08), transparent 28rem),
+    linear-gradient(180deg, #fbfcff 0%, #f7f9ff 100%);
+}
+
+.training-auth-page .training-auth-card {
+  width: min(560px, 100%);
+  padding: clamp(28px, 3vw, 38px);
+  border: 1px solid #e4e7ec;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow:
+    0 24px 70px rgba(16, 24, 40, .10),
+    0 8px 24px rgba(68, 76, 231, .06);
+}
+
+.training-auth-page .training-auth-card h1 {
+  margin: 5px 0 10px;
+  font-size: clamp(31px, 3.2vw, 39px);
+  line-height: 1.06;
+  letter-spacing: -.045em;
+}
+
+.training-auth-page .training-auth-card .auth-intro {
+  margin-bottom: 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.training-auth-benefit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.training-auth-benefit-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border: 1px solid #e0e7ff;
+  border-radius: 999px;
+  background: #f7f7ff;
+  color: #4f46e5;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.training-auth-page .auth-social-stack {
+  margin-top: 22px;
+}
+
+.training-auth-page .auth-provider-btn {
+  min-height: 52px;
+  border-radius: 12px;
+  border-color: #d0d5dd;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .03);
+}
+
+.training-auth-page .auth-provider-btn:hover {
+  border-color: #a5b4fc;
+  background: #f8f9ff;
+}
+
+.training-auth-page .auth-divider {
+  margin: 18px 0 16px;
+}
+
+.training-auth-page .field label {
+  color: #344054;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.training-auth-page .field input {
+  min-height: 50px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.training-auth-page .auth-primary-submit,
+.training-auth-page .auth-form .btn-primary {
+  min-height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #444ce7, #6d4aff);
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(68, 76, 231, .20);
+}
+
+.training-auth-page .auth-login-options {
+  grid-template-columns: 1fr;
+}
+
+.training-auth-page .training-auth-create {
+  min-height: 46px;
+  justify-content: center;
+  border-color: #d6d9ff;
+  color: #3538cd;
+  background: #f8f8ff;
+  font-weight: 750;
+}
+
+.training-auth-page .training-auth-create:hover {
+  border-color: #a5b4fc;
+  background: #f1f2ff;
+  color: #292bb7;
+}
+
+.training-auth-page .auth-benefits {
+  margin: 18px 0 22px;
+  background: #f9faff;
+  border-color: #e4e7ec;
+}
+
+.training-auth-page .training-auth-google {
+  margin-top: 18px;
+}
+
+@media (max-width: 680px) {
+  .training-auth-page {
+    min-height: calc(100svh - 64px);
+    padding: 22px 12px 34px;
+  }
+
+  .training-auth-page .training-auth-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .training-auth-page .training-auth-card h1 {
+    font-size: 31px;
+  }
+
+  .training-auth-benefit-row {
+    gap: 6px;
+  }
+}

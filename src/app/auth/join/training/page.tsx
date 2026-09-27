@@ -3,6 +3,7 @@ import { TrainingSiteHeader } from "@/components/training-site-header";
 import { TrainingJoinForm } from "@/components/training-join-form";
 import { getPublicTrainingOverview } from "@/lib/public-training";
 import { safeTrainingCourseSlug } from "@/lib/training-intent";
+import { googleLoginEnabled } from "@/lib/social-login";
 
 export const metadata: Metadata = {
   title: "Create a Free Training Account",
@@ -36,11 +37,13 @@ export default async function TrainingJoinPage({
     if (match) course = { slug: match.slug, title: match.title };
   }
 
+  const googleEnabled = googleLoginEnabled();
+
   return (
     <>
       <TrainingSiteHeader courseSlug={course?.slug} current="join"/>
       <main id="main-content" className="auth-page training-auth-page">
-        <TrainingJoinForm course={course}/>
+        <TrainingJoinForm course={course} googleEnabled={googleEnabled}/>
       </main>
     </>
   );

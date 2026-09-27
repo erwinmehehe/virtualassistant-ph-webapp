@@ -11,10 +11,15 @@ test("public training signup route renders the dedicated training account flow",
   ]);
 
   assert.match(page, /TrainingJoinForm/);
+  assert.match(page, /googleLoginEnabled/);
+  assert.match(page, /googleEnabled=\{googleEnabled\}/);
   assert.match(page, /robots: \{ index: false, follow: false \}/);
   assert.match(page, /current="join"/);
   assert.match(form, /useActionState\(joinTrainingAction/);
   assert.match(form, /training_signup_submit_click/);
+  assert.match(form, /oauthAction/);
+  assert.match(form, /Continue with Google/);
+  assert.match(form, /name="next" value=\{destination\}/);
   assert.match(form, /Training is separate from job applications/);
   assert.match(page, /description: "Create a free training account/);
 });

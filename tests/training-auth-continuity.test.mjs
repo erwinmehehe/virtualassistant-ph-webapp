@@ -21,12 +21,14 @@ test("training-directed login stays inside the training navigation experience", 
   assert.match(nav, /isLogin \? \([\s\S]*Training home/);
 });
 
-test("training login preserves course intent and avoids social signup", async () => {
+test("training login preserves course intent and supports Google auth", async () => {
   const login = await read("src/app/auth/login/page.tsx");
 
   assert.match(login, /trainingCourseSlug = safeTrainingCourseSlug/);
   assert.match(login, /trainingJoinHref\(trainingCourseSlug\)/);
-  assert.match(login, /socialEnabled = \(googleEnabled \|\| microsoftEnabled\) && !trainingLogin/);
+  assert.match(login, /socialEnabled = trainingLogin \? googleEnabled : \(googleEnabled \|\| microsoftEnabled\)/);
+  assert.match(login, /Continue with Google/);
+  assert.match(login, /!trainingLogin && microsoftEnabled/);
   assert.match(login, /data-course-slug=\{trainingCourseSlug \|\| undefined\}/);
 });
 

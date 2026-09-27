@@ -358,7 +358,6 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
           const followTime = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : null;
           const followOverdue = Boolean(followTime && followTime < now && isOpenLeadStage(stage));
           const response = responseLabel(lead.created_at, lead.first_contact_at);
-          const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
           const discoveryScheduled = Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at);
           const noShowRebookSentAt = rebookSentAt.get(lead.id) || null;
           const noShowRebooked = lead.discovery_outcome === "rescheduled" && Boolean(noShowRebookSentAt);

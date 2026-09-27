@@ -24,6 +24,8 @@ export type RecruiterRoleSummaryJob = {
   min_hourly_rate:number|null;
   start_timing:string|null;
   commercial_status:string|null;
+  candidate_access_status:string|null;
+  suggested_count:number;
   proposed_count:number;
   released_count:number;
   active_shortlist_count:number;

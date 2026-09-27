@@ -108,7 +108,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false }, { status: 400 });
+    return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
   const parsed = schema.safeParse(body);
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     !allowedEvent(parsed.data.event) ||
     JSON.stringify(parsed.data.metadata ?? {}).length > 8000
   ) {
-    return NextResponse.json({ ok: false }, { status: 400 });
+    return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
   }
 
   try {

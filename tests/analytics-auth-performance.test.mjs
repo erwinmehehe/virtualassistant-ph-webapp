@@ -18,3 +18,10 @@ test("analytics remains anonymous-safe and never blocks product requests",()=>{
   assert.match(route,/Never fail a product request because analytics storage is unavailable/);
   assert.match(route,/NextResponse\.json\(\{ ok: true \}\)/);
 });
+
+
+test("invalid analytics payloads are dropped without polluting production 4xx monitoring",()=>{
+  assert.match(route,/dropped: "invalid_json"/);
+  assert.match(route,/dropped: "invalid_event"/);
+  assert.doesNotMatch(route,/\{ ok: false \}.*status: 400/s);
+});

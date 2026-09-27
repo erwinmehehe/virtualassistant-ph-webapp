@@ -10,7 +10,7 @@ import { sendDiscoveryBookingEmail, sendDiscoveryNoShowRebookEmail, sendProfileC
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { writeAdminAudit } from "@/lib/admin-audit";
-import { isRowApprovable } from "@/lib/public-visibility";
+import { isPubliclyEligible, isRowApprovable } from "@/lib/public-visibility";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 
@@ -176,12 +176,32 @@ export async function bulkRecruiterVaAction(formData: FormData) {
       affected = eligible.length;
       await admin.from("notifications").insert(eligible.map((id: string) => ({ user_id: id, type: "profile_approved", title: "Your Virtual Assistant profile is approved", body: "Your profile is approved and can now be considered for client roles.", href: "/workspace/va/vetting" })));
       if (action === "approve_publish") {
-        // directory_visible is necessary but not sufficient: public_va_directory
-        // still enforces photo, resume, bio, skills, rate and the 2-year
-        // minimum, so setting it on a profile that falls short is harmless.
-        const { error: publishError } = await admin.from("va_profiles").update({ directory_visible: true }).in("user_id", eligible);
-        if (publishError) throw publishError;
-        const { count } = await admin.from("public_va_directory").select("user_id", { count: "exact", head: true }).in("user_id", eligible);
+        const [{ data: publicProfiles, error: publicProfileError }, { data: accounts, error: accountError }] = await Promise.all([
+          admin.from("va_profiles").select("*").in("user_id", eligible),
+          admin.from("profiles").select("id,avatar_url").in("id", eligible),
+        ]);
+        if (publicProfileError) throw publicProfileError;
+        if (accountError) throw accountError;
+
+        const avatarById = new Map((accounts || []).map((row: any) => [String(row.id), row.avatar_url]));
+        const publicReadyIds = (publicProfiles || [])
+          .filter((profile: any) => isPubliclyEligible(profile, avatarById.get(String(profile.user_id)) || null, "approved"))
+          .map((profile: any) => String(profile.user_id));
+        const publicReadySet = new Set(publicReadyIds);
+        const privateIds = eligible.filter((id: string) => !publicReadySet.has(String(id)));
+
+        if (publicReadyIds.length) {
+          const { error: publishError } = await admin.from("va_profiles").update({ directory_visible: true }).in("user_id", publicReadyIds);
+          if (publishError) throw publishError;
+        }
+        if (privateIds.length) {
+          const { error: privateError } = await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", privateIds);
+          if (privateError) throw privateError;
+        }
+
+        const { count } = publicReadyIds.length
+          ? await admin.from("public_va_directory").select("user_id", { count: "exact", head: true }).in("user_id", publicReadyIds)
+          : { count: 0 };
         published = count || 0;
       }
     }

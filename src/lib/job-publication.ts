@@ -32,7 +32,6 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   // Public hiring forms do not consistently ask for explicit skills,
   // timezone, or preferred start. Those can be refined during recruiter
   // discovery/matching and must not create a fake role-readiness blocker.
-  if (!job.hours_per_week) missing.push("hours");
   if (job.min_hourly_rate == null) missing.push("budget");
   return missing;
 }

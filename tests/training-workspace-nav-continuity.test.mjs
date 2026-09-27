@@ -76,9 +76,9 @@ test("certificate navigation always lands on a real learner-dashboard section", 
 });
 
 
-test("learner training rejects client and recruiter workspaces at the layout boundary", async () => {
+test("learner training uses a training-aware access guard at the layout boundary", async () => {
   const layout = await readFile(layoutPath, "utf8");
-  assert.match(layout, /requireAnyRoleFast\(\["va", "admin"\]\)/);
+  assert.match(layout, /requireTrainingAccessFast\(\)/);
   assert.doesNotMatch(layout, /requireAuthenticatedUserFast/);
 });
 

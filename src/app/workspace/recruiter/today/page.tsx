@@ -9,7 +9,6 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
 import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
-import { sendDiscoveryNoShowRebookAction } from "@/app/actions/recruiter";
 import { requestClientRoleDetailsAction } from "@/app/actions/agency-role";
 import { getRoleReadinessDashboard } from "@/lib/role-readiness-dashboard";
 import { roleReadinessMissingLabel } from "@/lib/role-readiness-policy";
@@ -174,7 +173,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const nextActionCandidates = [
     {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
     {count:incompleteRoleCount,title:"Complete blocked role briefs",copy:"Required hiring details are missing. Complete confirmed details or request them from the client before the role loses momentum.",href:"/workspace/recruiter/today#role-readiness",cta:"Review role details",icon:<BriefcaseBusiness size={20}/>},
-    {count:noShowNeedsEmail,title:"Send no-show rebooking links",copy:"These clients missed discovery and have not received a secure link to choose another time.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open rebooking",icon:<RefreshCw size={20}/>},
+    {count:noShowNeedsEmail,title:"Review discovery no-shows",copy:"These clients missed discovery. Keep the request visible without sending an automated rebooking email.",href:"/workspace/recruiter/today#call-rebooking",cta:"Review no-shows",icon:<RefreshCw size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
     {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
@@ -217,7 +216,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       hint:"Rebooking and decisions",
       icon:<RefreshCw size={17}/>,
       items:[
-        {label:"No-show email",count:noShowNeedsEmail,href:"/workspace/recruiter/today#call-rebooking"},
+        {label:"No-show review",count:noShowNeedsEmail,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Waiting to rebook",count:noShowWaitingRebook,href:"/workspace/recruiter/today#call-rebooking"},
         {label:"Client decisions",count:clientWaits.length,href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest"}
       ]
@@ -248,9 +247,6 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.role_close_warning ? <div className="alert" role="alert">The lead closed, but its linked role could not be closed automatically. Review the role before continuing.</div> : null}
     {params.followup_sent ? <div className="success-banner">Client shortlist follow-up sent.</div> : null}
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
-    {params.rebook_email_sent ? <div className="success-banner">Rebooking link sent to the client.</div> : null}
-    {params.rebook_email_already_sent ? <div className="info-banner">A rebooking link was already sent. No duplicate email was sent.</div> : null}
-    {params.rebook_email_error ? <div className="alert" role="alert">{params.rebook_email_error}</div> : null}
     {params.role_details_requested ? <div className="success-banner">Missing role details request added to the client workspace{params.role_details_email_warning ? "." : " and emailed to the client."}</div> : null}
     {params.role_details_email_warning ? <div className="alert" role="alert">The workspace request was created, but the email could not be delivered. The client can still complete the missing fields after signing in.</div> : null}
     {params.role_details_complete ? <div className="info-banner">This role is already complete. No request was sent.</div> : null}
@@ -278,7 +274,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <div className={styles.priorityStrip} aria-label="Recruiter today summary">
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and rebooking</small></Link>
+      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShowNeedsEmail+noShowWaitingRebook}</strong><small>Shortlists and no-shows</small></Link>
       <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{incompleteRoleCount+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
     </div>
 
@@ -307,7 +303,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
     {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head">
-        <div><h2>Call rebooking</h2><p>Clients who missed a discovery call stay here until they choose another time.</p></div>
+        <div><h2>Discovery no-shows</h2><p>Keep missed calls visible here. No automated rebooking email is sent.</p></div>
         <span className={`badge ${noShowNeedsEmail?"badge-warning":""}`}>{noShows.length} waiting</span>
       </div>
       <div className={styles.followList}>
@@ -318,14 +314,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             <span className={styles.followCopy}>
               <strong>{lead.name||lead.email||"Client discovery call"}</strong>
               <small>{lead.email||"No email on file"}</small>
-              <small>{sent?"Rebooking link sent. Waiting for the client to choose a new time.":"No-show recorded. Send the client a secure link to choose another time."}</small>
+              <small>{sent?"A historical rebooking link was sent before the new policy. Waiting for client action.":"No-show recorded. Keep the request open and wait for the client to re-engage."}</small>
             </span>
             <div className={styles.followActions}>
-              {!sent?<form action={sendDiscoveryNoShowRebookAction}>
-                <input type="hidden" name="lead_id" value={lead.id}/>
-                <input type="hidden" name="return_to" value="/workspace/recruiter/today"/>
-                <button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send rebooking link</button>
-              </form>:<span className="badge badge-success">Link sent</span>}
+              <span className="badge">{sent ? "Historical link sent" : "Email held"}</span>
               <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
             </div>
           </div>;

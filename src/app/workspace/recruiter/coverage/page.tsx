@@ -104,7 +104,7 @@ export default async function RecruiterCoveragePage() {
         <h1>Coverage: demand vs bench</h1>
         <p>Open client demand for each specialty against the VAs who could actually be presented today. Recruit against the shortfall column rather than in general.</p>
       </div>
-      <Link className="btn" href="/workspace/recruiter/categories">VA categories <ArrowRight size={15}/></Link>
+      <Link className="btn" href="/workspace/recruiter/roles#talent-coverage">VA categories <ArrowRight size={15}/></Link>
     </div>
 
     <div className="grid-3" style={{ marginBottom: 20 }}>

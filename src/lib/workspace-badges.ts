@@ -36,8 +36,8 @@ const getCachedRoleBadges = unstable_cache(
     if (role === "recruiter") {
       return {
         "/workspace/recruiter/leads": Number(raw.leads || 0),
-        "/workspace/recruiter/queue": Number(raw.vetting || 0),
-        "/workspace/recruiter/matching": Number(raw.pending_roles || 0),
+        "/workspace/recruiter/talent": Number(raw.vetting || 0),
+        "/workspace/recruiter/roles": Number(raw.pending_roles || 0),
         "/workspace/recruiter/notifications": Number(raw.notifications || 0),
         "/workspace/recruiter/tasks": Number(raw.tasks || 0),
       };

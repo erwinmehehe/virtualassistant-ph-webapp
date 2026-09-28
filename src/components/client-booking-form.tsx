@@ -2,12 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BriefcaseBusiness, CalendarCheck2, CalendarDays, CheckCircle2, Clock3, UserRoundSearch } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CheckCircle2, Clock3 } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 import { TurnstileWidget } from "@/components/turnstile-widget";
-
-type Audience = "client" | "va" | null;
 
 function timeZoneLabel(timeZone: string) {
   if (timeZone === "Australia/Sydney") return "Sydney time";
@@ -27,11 +25,9 @@ function localDateKey(date: Date, timeZone: string) {
 }
 
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
-  const [audience, setAudience] = useState<Audience>(null);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
-  // Browser-only APIs must not decide the server render. Waiting until the
-  // component mounts avoids briefly claiming that every visitor is in Manila.
+  const [showAllTimes, setShowAllTimes] = useState(false);
   const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,6 +83,17 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   }, [localDays, selectedDay]);
 
   const activeDay = localDays.find((day) => day.dateKey === selectedDay) || localDays[0];
+  const quickSlots = useMemo(() => {
+    const slots = activeDay?.slots || [];
+    if (slots.length <= 8) return slots;
+    const picks = new Set<number>();
+    const last = slots.length - 1;
+    for (let index = 0; index < 8; index += 1) {
+      picks.add(Math.round((index * last) / 7));
+    }
+    return [...picks].sort((a, b) => a - b).map((index) => slots[index]).filter(Boolean);
+  }, [activeDay]);
+  const visibleSlots = showAllTimes ? (activeDay?.slots || []) : quickSlots;
   const selectedSlotLabel = useMemo(() => {
     if (!selectedSlot) return "";
     const instant = new Date(selectedSlot);
@@ -106,161 +113,124 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
   return (
     <div className="booking-flow-card">
-      <div className="booking-flow-progress" aria-label="Booking progress">
-        <div className="is-active">
-          <span>1</span>
-          <div><strong>Who you are</strong><small>Hiring or applying</small></div>
+      <div className="booking-card-head">
+        <div>
+          <span className="booking-step-label">Book your call</span>
+          <h2>Pick a time that works for you.</h2>
+          <p>30-minute Google Meet. We only need a few details now. You can discuss budget, hours, and start date on the call.</p>
         </div>
-        <div className={audience === "client" ? "is-active" : ""}>
-          <span>2</span>
-          <div><strong>Time & brief</strong><small>Choose a slot and share the role</small></div>
-        </div>
+        <Link className="booking-va-link" href="/auth/join/va">Looking for VA work? Apply here</Link>
       </div>
 
-      <div className="booking-step-head">
-        <span>Step 1 of 2</span>
-        <h2>Who are you booking for?</h2>
-        <p>This calendar is for businesses hiring remote talent. We will route VA applicants to the right place.</p>
-      </div>
+      <form id="client-discovery-booking" className="booking-client-form" action={submitDiscoveryBookingAction}>
+        <input type="hidden" name="audience" value="client" />
+        <input type="hidden" name="scheduled_at" value={selectedSlot} />
+        <input type="hidden" name="timezone" value={displayTimeZone} />
+        <input type="hidden" name="phone" value="" />
+        <input type="hidden" name="company_url" value="" />
+        <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+        <TurnstileWidget />
 
-      <div className="booking-audience-grid" role="radiogroup" aria-label="Choose whether you are hiring or applying">
-        <button
-          className={`booking-audience-option ${audience === "client" ? "is-selected" : ""}`}
-          type="button"
-          role="radio"
-          aria-checked={audience === "client"}
-          onClick={() => setAudience("client")}
-        >
-          <BriefcaseBusiness size={24} />
-          <span><strong>I am hiring</strong><small>I need a Virtual Assistant for my business.</small></span>
-          {audience === "client" ? <CheckCircle2 size={20} /> : null}
-        </button>
-        <button
-          className={`booking-audience-option ${audience === "va" ? "is-selected" : ""}`}
-          type="button"
-          role="radio"
-          aria-checked={audience === "va"}
-          onClick={() => setAudience("va")}
-        >
-          <UserRoundSearch size={24} />
-          <span><strong>I am a Virtual Assistant</strong><small>I want to apply or manage my VA profile.</small></span>
-          {audience === "va" ? <CheckCircle2 size={20} /> : null}
-        </button>
-      </div>
+        {error ? <div className="booking-error" role="alert">{error}</div> : null}
 
-      {audience === "va" ? (
-        <div className="booking-va-route" role="status">
-          <UserRoundSearch size={30} />
-          <div>
-            <h3>You are in the right place, but this is not the VA interview calendar.</h3>
-            <p>Create or open your VA profile. Recruiter interview invitations and updates appear in your VA workspace.</p>
-            <div className="booking-va-actions">
-              <Link className="btn btn-primary" href="/auth/join/va">Apply as a Virtual Assistant</Link>
-              <Link className="btn" href="/auth/login?next=%2Fworkspace%2Fva">Open VA workspace</Link>
-              <Link className="text-link" href="/jobs">Browse VA jobs</Link>
-            </div>
+        <section className="booking-section">
+          <div className="booking-section-title">
+            <span>1. Choose a time</span>
+            <p aria-live="polite"><Clock3 size={14} /> {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)}.` : "Loading times in your local timezone…"}</p>
           </div>
-        </div>
-      ) : null}
 
-      {audience === "client" ? (
-        <form id="client-discovery-booking" className="booking-client-form" action={submitDiscoveryBookingAction}>
-          <input type="hidden" name="audience" value="client" />
-          <input type="hidden" name="scheduled_at" value={selectedSlot} />
-          <input type="hidden" name="timezone" value={displayTimeZone} />
-          <input type="hidden" name="phone" value="" />
-          <input type="hidden" name="company_url" value="" />
-          <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-          <TurnstileWidget />
+          {localDays.length ? (
+            <div className="booking-calendar-shell">
+              <div className="booking-date-tabs" role="tablist" aria-label="Available dates">
+                {localDays.map((day) => (
+                  <button
+                    key={day.dateKey}
+                    className={selectedDay === day.dateKey ? "is-active" : ""}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedDay === day.dateKey}
+                    onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); setShowAllTimes(false); }}
+                  >
+                    <CalendarDays size={15} /> {day.label}
+                  </button>
+                ))}
+              </div>
 
-          <div className="booking-section">
-            <div className="booking-section-title">
-              <span>Step 2 of 2</span>
-              <h3>Choose a time</h3>
-              <p aria-live="polite"><Clock3 size={14} /> 30 minutes. 24/7 availability. {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)} (${displayTimeZone}).` : "Loading times in your local timezone…"}</p>
-            </div>
+              <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
+                {visibleSlots.map((slot) => (
+                  <button
+                    key={slot.iso}
+                    className={selectedSlot === slot.iso ? "is-selected" : ""}
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedSlot === slot.iso}
+                    onClick={() => setSelectedSlot(slot.iso)}
+                  >
+                    {slot.timeLabel}
+                  </button>
+                ))}
+              </div>
 
-            {error ? <div className="alert error" role="alert">{error}</div> : null}
-
-            {localDays.length ? (
-              <>
-                <div className="booking-calendar-shell">
-                  <div className="booking-date-tabs" role="tablist" aria-label="Available conversation dates">
-                  {localDays.map((day) => (
-                    <button
-                      key={day.dateKey}
-                      className={selectedDay === day.dateKey ? "is-active" : ""}
-                      type="button"
-                      role="tab"
-                      aria-selected={selectedDay === day.dateKey}
-                      onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); }}
-                    >
-                      <CalendarDays size={15} /> {day.label}
-                    </button>
-                  ))}
-                  </div>
-                  <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
-                  {activeDay?.slots.map((slot) => (
-                    <button
-                      key={slot.iso}
-                      className={selectedSlot === slot.iso ? "is-selected" : ""}
-                      type="button"
-                      role="radio"
-                      aria-checked={selectedSlot === slot.iso}
-                      onClick={() => setSelectedSlot(slot.iso)}
-                    >
-                      {slot.timeLabel}
-                    </button>
-                  ))}
-                  </div>
-                  {selectedSlot ? (
-                    <div className="booking-selected-slot" role="status">
-                      <span><CheckCircle2 size={18} /></span>
-                      <div><small>Selected time</small><strong>{selectedSlotLabel}</strong></div>
-                    </div>
-                  ) : (
-                    <p className="booking-slot-hint">Choose a time to continue.</p>
-                  )}
-                </div>
-                <p className="booking-time-note">Times are shown in your local timezone. Your confirmation includes the exact date and time you selected.</p>
-
-                <div className="booking-details-head">
-                  <span>Your details</span>
-                  <strong>Tell us who we are meeting</strong>
-                </div>
-
-                <div className="booking-question-grid">
-                  <div className="field"><label htmlFor="booking-name">Your name *</label><input id="booking-name" name="name" required minLength={2} autoComplete="name" /></div>
-                  <div className="field"><label htmlFor="booking-email">Work email *</label><input id="booking-email" name="email" required type="email" autoComplete="email" /></div>
-                  <div className="field span-2"><label htmlFor="booking-company">Company *</label><input id="booking-company" name="company" required minLength={2} autoComplete="organization" /></div>
-                </div>
-
-                <div className="booking-section-title booking-brief-title">
-                  <span>Hiring brief</span>
-                  <h3>Help us prepare before the call</h3>
-                  <p>Keep it practical. We use this to understand the role before we meet. Nothing is published automatically.</p>
-                </div>
-
-                <div className="booking-question-grid">
-                  <div className="field span-2"><label htmlFor="booking-role">Role you need to hire *</label><input id="booking-role" name="service" required minLength={3} maxLength={100} placeholder="e.g. Dental Virtual Assistant, Executive Assistant, SEO Virtual Assistant" /></div>
-                  <div className="field"><label htmlFor="booking-hours">Hours per week *</label><input id="booking-hours" name="hours" required type="number" min={1} max={80} step={1} inputMode="numeric" placeholder="20" /></div>
-                  <div className="field"><label htmlFor="booking-budget">Hourly VA budget (USD) *</label><input id="booking-budget" name="budget" required minLength={1} maxLength={100} placeholder="e.g. $8-$12/hour" /></div>
-                  <div className="field span-2"><label htmlFor="booking-start">Preferred start *</label><select id="booking-start" name="start_time" required defaultValue=""><option value="" disabled>Select when you want the VA to start</option><option value="As soon as possible">As soon as possible</option><option value="Within 2 weeks">Within 2 weeks</option><option value="Within 30 days">Within 30 days</option><option value="Within 1-2 months">Within 1-2 months</option><option value="Flexible">Flexible</option></select></div>
-                  <div className="field span-2"><label htmlFor="booking-responsibilities">What should this VA own? *</label><textarea id="booking-responsibilities" name="message" required minLength={15} maxLength={3000} placeholder="List the main responsibilities, workflows, tools, or outcomes you want this person to own." /></div>
-                </div>
-
-                <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
-                  <CalendarCheck2 size={18} />
-                  Confirm booking
+              {(activeDay?.slots.length || 0) > quickSlots.length ? (
+                <button className="booking-show-times" type="button" onClick={() => setShowAllTimes((value) => !value)}>
+                  {showAllTimes ? "Show fewer times" : `Show all ${activeDay?.slots.length || 0} times`}
                 </button>
-                <p className="small muted booking-consent">We use this brief only to prepare the hiring conversation and private recruiter workspace. You can refine the role before anything is published.</p>
-              </>
-            ) : (
-              <div className="booking-no-slots">No online times are currently available. Please use the hiring request form and our team will contact you.</div>
-            )}
-          </div>
-        </form>
-      ) : null}
+              ) : null}
+
+              {selectedSlot ? (
+                <div className="booking-selected-slot" role="status">
+                  <CheckCircle2 size={18} />
+                  <div><small>Selected</small><strong>{selectedSlotLabel}</strong></div>
+                </div>
+              ) : (
+                <p className="booking-slot-hint">Select a time above.</p>
+              )}
+            </div>
+          ) : (
+            <div className="booking-no-slots">
+              No online times are available right now. <Link href="/hire">Send a hiring request instead</Link>.
+            </div>
+          )}
+        </section>
+
+        {localDays.length ? (
+          <section className="booking-section booking-details-section">
+            <div className="booking-section-title">
+              <span>2. Your details</span>
+              <p>That is it. No long questionnaire.</p>
+            </div>
+
+            <div className="booking-question-grid">
+              <div className="field">
+                <label htmlFor="booking-name">Your name</label>
+                <input id="booking-name" name="name" required minLength={2} autoComplete="name" placeholder="Your name" />
+              </div>
+              <div className="field">
+                <label htmlFor="booking-email">Work email</label>
+                <input id="booking-email" name="email" required type="email" autoComplete="email" placeholder="you@company.com" />
+              </div>
+              <div className="field">
+                <label htmlFor="booking-company">Company</label>
+                <input id="booking-company" name="company" required minLength={2} autoComplete="organization" placeholder="Company name" />
+              </div>
+              <div className="field">
+                <label htmlFor="booking-role">VA role you need</label>
+                <input id="booking-role" name="service" required minLength={3} maxLength={100} placeholder="e.g. Executive Assistant" />
+              </div>
+              <div className="field span-2">
+                <label htmlFor="booking-message">Anything we should know? <span>Optional</span></label>
+                <textarea id="booking-message" name="message" maxLength={1200} placeholder="Tools, schedule, must-have experience, or anything useful before the call." />
+              </div>
+            </div>
+
+            <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
+              <CalendarCheck2 size={18} />
+              {selectedSlot ? "Confirm 30-minute call" : "Choose a time first"}
+            </button>
+            <p className="booking-consent">No payment required. We use these details only to prepare for your hiring conversation.</p>
+          </section>
+        ) : null}
+      </form>
     </div>
   );
 }

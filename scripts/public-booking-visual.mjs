@@ -25,16 +25,16 @@ try {
 
     const response = await page.goto(`${baseUrl}/book-client-call`, { waitUntil: "networkidle", timeout: 90000 });
     if (!response?.ok()) throw new Error(`Booking page returned HTTP ${response?.status() || "unknown"}.`);
-    await page.getByRole("heading", { name: "Who are you booking for?" }).waitFor();
-    await page.screenshot({ path: path.join(outputDir, `booking-gate-${viewport.name}.png`), fullPage: true });
 
-    await page.getByRole("radio", { name: /I am hiring/ }).click();
-    await page.getByRole("heading", { name: "Choose a time", exact: true }).waitFor();
-    await page.screenshot({ path: path.join(outputDir, `client-calendar-${viewport.name}.png`), fullPage: true });
+    await page.getByRole("heading", { name: "Pick a time that works for you." }).waitFor();
+    await page.getByRole("link", { name: /Looking for VA work\? Apply here/ }).waitFor();
+    await page.screenshot({ path: path.join(outputDir, `booking-${viewport.name}.png`), fullPage: true });
 
-    await page.getByRole("radio", { name: /I am a Virtual Assistant/ }).click();
-    await page.getByText("this is not the VA interview calendar", { exact: false }).waitFor();
-    await page.screenshot({ path: path.join(outputDir, `va-redirect-${viewport.name}.png`), fullPage: true });
+    const firstSlot = page.locator(".booking-time-grid button").first();
+    await firstSlot.waitFor();
+    await firstSlot.click();
+    await page.locator(".booking-selected-slot").waitFor();
+    await page.screenshot({ path: path.join(outputDir, `booking-selected-${viewport.name}.png`), fullPage: true });
 
     if (consoleErrors.length) throw new Error(`${viewport.name} console errors:\n${consoleErrors.join("\n")}`);
     await context.close();

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
+import { VA_CATEGORIES } from "@/lib/constants";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { inferCategories, inferHours } from "@/lib/category-inference";
@@ -747,23 +747,20 @@ const discoveryBookingSchema = z.object({
   service: z.string().trim().min(3).max(100).refine((value) => !/^virtual assistant hiring$/i.test(value), {
     message: "Tell us the actual role you need to hire.",
   }),
-  hours: z.string().trim().min(1).max(3).refine((value) => {
-    const hours = Number(value);
-    return Number.isInteger(hours) && hours >= 1 && hours <= 80;
-  }, { message: "Hours per week must be between 1 and 80." }),
-  budget: z.string().trim().min(1).max(100).refine((value) => {
-    const rates = value.match(/\d+(?:\.\d+)?/g)?.map(Number).filter(Number.isFinite) || [];
-    return rates.length > 0 && rates.some((rate) => rate >= MIN_HOURLY_RATE);
-  }, { message: `Enter an hourly VA budget of at least USD ${MIN_HOURLY_RATE}/hour.` }),
-  start_time: z.string().trim().min(2).max(100),
-  message: z.string().trim().min(15).max(3000),
+  // Keep the public calendar intentionally lightweight. These details can be
+  // added during the call or inherited when the booking merges into a recent
+  // hiring request from the same client.
+  hours: z.string().trim().max(3).optional().default(""),
+  budget: z.string().trim().max(100).optional().default(""),
+  start_time: z.string().trim().max(100).optional().default(""),
+  message: z.string().trim().max(1200).optional().default(""),
   website: z.string().max(200).optional(),
 });
 
 export async function submitDiscoveryBookingAction(formData: FormData) {
   const parsed = discoveryBookingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
-    redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete all required client questions.")}`);
+    redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete your contact details.")}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
   if (!(await verifyTurnstile(formData))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");
@@ -789,13 +786,15 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";
   }
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const clientMessage = parsed.data.message || `Booked a discovery call to discuss hiring a ${parsed.data.service}.`;
   const clientDetails = [
     `Company website: ${parsed.data.company_url || "Not provided"}`,
-    `Hourly VA budget: ${parsed.data.budget}`,
-    `Preferred start: ${parsed.data.start_time}`,
+    `Hours per week: ${parsed.data.hours || "To discuss"}`,
+    `Hourly VA budget: ${parsed.data.budget || "To discuss"}`,
+    `Preferred start: ${parsed.data.start_time || "To discuss"}`,
     `Visitor timezone: ${parsed.data.timezone}`,
     "",
-    parsed.data.message,
+    clientMessage,
   ].join("\n");
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
@@ -804,9 +803,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     phone: parsed.data.phone || null,
     company: parsed.data.company,
     service: parsed.data.service,
-    hours: parsed.data.hours,
-    budget: parsed.data.budget,
-    start_time: parsed.data.start_time,
+    hours: parsed.data.hours || null,
+    budget: parsed.data.budget || null,
+    start_time: parsed.data.start_time || null,
     timezone: parsed.data.timezone,
     message: clientDetails,
     source_page: "client_discovery_booking",
@@ -877,7 +876,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
         hours: parsed.data.hours,
         timezone: parsed.data.timezone,
         startTime: parsed.data.start_time,
-        message: parsed.data.message,
+        message: clientMessage,
         budget: parsed.data.budget,
       });
     }
@@ -905,10 +904,10 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       companyUrl: parsed.data.company_url || null,
       phone: parsed.data.phone || null,
       service: parsed.data.service,
-      hours: parsed.data.hours,
-      budget: parsed.data.budget,
-      startTime: parsed.data.start_time,
-      message: parsed.data.message,
+      hours: parsed.data.hours || "To discuss",
+      budget: parsed.data.budget || "To discuss",
+      startTime: parsed.data.start_time || "To discuss",
+      message: clientMessage,
       scheduledAt: parsed.data.scheduled_at,
       clientLabel,
       manilaLabel,
@@ -928,10 +927,10 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       clientEmail: parsed.data.email,
       company: parsed.data.company,
       service: parsed.data.service,
-      hours: parsed.data.hours,
-      budget: parsed.data.budget,
-      startTime: parsed.data.start_time,
-      message: parsed.data.message,
+      hours: parsed.data.hours || "To discuss",
+      budget: parsed.data.budget || "To discuss",
+      startTime: parsed.data.start_time || "To discuss",
+      message: clientMessage,
       clientLabel,
       manilaLabel,
       meetingUrl: meeting?.joinUrl || null,

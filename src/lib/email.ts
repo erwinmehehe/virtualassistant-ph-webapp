@@ -540,8 +540,9 @@ export async function sendApplicationEmail(args: {
     subject: `New application: ${args.jobTitle}`,
     html: renderHiringEmail({
       firstName: "there",
-      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:24px;line-height:1.25;letter-spacing:-.3px;">New application received</h2><p style="margin:0 0 14px;color:#475467;font-size:15px;line-height:1.7;"><strong style="color:#101828;">${escapeHtml(args.applicantName)}</strong> applied for <strong style="color:#101828;">${escapeHtml(args.jobTitle)}</strong>.</p><p style="margin:0;color:#667085;font-size:14px;line-height:1.65;">Open your Client workspace to review the application and candidate details.</p>`,
+      bodyHtml: `<p style="margin:0 0 14px;color:#475467;font-size:15px;line-height:1.7;"><strong style="color:#101828;">${escapeHtml(args.applicantName)}</strong> applied for <strong style="color:#101828;">${escapeHtml(args.jobTitle)}</strong>.</p><p style="margin:0;color:#667085;font-size:14px;line-height:1.65;">Open your Client workspace to review the application and candidate details.</p>`,
       senderName: "VirtualAssistant.com.ph Hiring Team",
+      headline: "New application received",
       ctaHref: `${appUrl}/workspace/client`,
       ctaLabel: "Review application"
     })
@@ -801,7 +802,7 @@ function renderAuthActionEmail(args: {
   ctaHref: string;
   ctaLabel: string;
 }) {
-  const bodyHtml = `<h1 style="margin:0 0 14px;color:#101828;font-size:27px;line-height:1.2;letter-spacing:-.45px;">${escapeHtml(args.heading)}</h1><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">${escapeHtml(args.body)}</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;"><tr><td style="padding:14px 16px;border:1px solid #e4e7ec;border-radius:12px;background:#f8f9fc;color:#667085;font-size:12px;line-height:1.6;">This is a one-time security link. If you did not request this action, you can ignore this email.</td></tr></table>`;
+  const bodyHtml = `<p style="margin:0;color:#475467;font-size:15px;line-height:1.75;">${escapeHtml(args.body)}</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;"><tr><td style="padding:14px 16px;border:1px solid #e4e7ec;border-radius:12px;background:#f8f9fc;color:#667085;font-size:12px;line-height:1.6;">This is a one-time security link. If you did not request this action, you can ignore this email.</td></tr></table>`;
   return renderBrandedEmail({
     firstName: "there",
     bodyHtml,
@@ -812,6 +813,7 @@ function renderAuthActionEmail(args: {
     ctaLabel: args.ctaLabel,
     appendSignature: false,
     showGreeting: false,
+    headline: args.heading,
   });
 }
 
@@ -1045,6 +1047,7 @@ function renderHiringEmail(args: {
   ctaHref?: string | null;
   ctaLabel?: string;
   appendSignature?: boolean;
+  headline?: string;
 }) {
   return renderBrandedEmail({
     ...args,
@@ -1060,6 +1063,7 @@ export function renderTalentEmail(args: {
   ctaHref?: string | null;
   ctaLabel?: string;
   footerText?: string;
+  headline?: string;
 }) {
   return renderBrandedEmail({
     ...args,
@@ -1109,6 +1113,7 @@ export async function sendApplicationStatusEmail(args: { to?: string | null; job
     html: renderTalentEmail({
       firstName: "there",
       bodyHtml,
+      headline: "Application update",
       ctaHref: applicationsUrl,
       ctaLabel: "View my applications"
     })
@@ -1180,8 +1185,9 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
     text: `${args.heading}\n\n${args.body}${args.href ? `\n\n${args.hrefLabel || "Open VirtualAssistant.com.ph"}: ${args.href}` : ""}`,
     html: renderBrandedEmail({
       firstName: args.firstName?.trim().split(/\s+/)[0] || "there",
-      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:26px;line-height:1.22;letter-spacing:-.4px;">${escapeHtml(args.heading)}</h2>${bodyHtml}`,
+      bodyHtml,
       senderName: args.senderName || "VirtualAssistant.com.ph Team",
+      headline: args.heading,
       teamLabel: args.teamLabel || "Account update",
       footerText: args.footerText || "You are receiving this because of activity on your VirtualAssistant.com.ph account or workspace.",
       ctaHref: args.href,

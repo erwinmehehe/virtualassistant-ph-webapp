@@ -1609,3 +1609,107 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Simplified recruiter hiring workflow */
+.workflow {
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:6px;
+  margin:0 0 14px;
+  padding:10px;
+  border:1px solid #e4e7ec;
+  border-radius:14px;
+  background:#fff;
+}
+
+.workflow span {
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:5px;
+  min-width:0;
+  padding:7px 4px;
+  color:#98a2b3;
+  text-align:center;
+}
+
+.workflow span:not(:last-child)::after {
+  content:"";
+  position:absolute;
+  top:18px;
+  left:calc(50% + 14px);
+  width:calc(100% - 28px);
+  height:2px;
+  background:#eaecf0;
+}
+
+.workflow i {
+  position:relative;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border:1px solid #d0d5dd;
+  border-radius:999px;
+  background:#fff;
+  font-size:9px;
+  font-style:normal;
+  font-weight:800;
+}
+
+.workflow em {
+  overflow:hidden;
+  max-width:100%;
+  font-size:10px;
+  font-style:normal;
+  font-weight:750;
+  line-height:1.2;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.workflowDone {
+  color:#067647 !important;
+}
+
+.workflowDone i {
+  border-color:#abefc6 !important;
+  background:#ecfdf3 !important;
+  color:#067647 !important;
+}
+
+.workflowDone:not(:last-child)::after {
+  background:#abefc6 !important;
+}
+
+.workflowCurrent {
+  color:#4338ca !important;
+}
+
+.workflowCurrent i {
+  border-color:#a5b4fc !important;
+  background:#eef2ff !important;
+  color:#4338ca !important;
+}
+
+@media (max-width: 760px) {
+  .workflow {
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  .workflow span:not(:last-child)::after {
+    display:none;
+  }
+
+  .workflow em {
+    white-space:normal;
+  }
+}
+
+@media (max-width: 460px) {
+  .workflow {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}

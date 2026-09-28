@@ -20,7 +20,7 @@ test("login and registration share the premium auth shell",async()=>{
   assert.doesNotMatch(login,/Fastest|fastest sign-in/);
   assert.doesNotMatch(join,/auth-provider-note|Fastest/);
   assert.match(shell,/One account\. The right workspace\./);
-  assert.match(shell,/Build one profile recruiters can actually use\./);
+  assert.match(shell,/Create your profile first\. Build the details as you go\./);
   assert.match(css,/\.auth-experience \{/);
   assert.match(css,/grid-template-columns: minmax\(0, \.95fr\) minmax\(430px, \.72fr\)/);
   assert.match(css,/@media \(max-width: 600px\)/);

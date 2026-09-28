@@ -264,6 +264,67 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   redirectWithFlag(returnTo, "decision_saved");
 }
 
+export async function clientShortlistMessageAction(formData: FormData) {
+  const { user } = await requireRole("client");
+  const jobId = String(formData.get("job_id") || "");
+  const vaId = String(formData.get("va_id") || "");
+  const message = String(formData.get("message") || "").trim().slice(0, 500);
+  const returnTo = safeReturnTo(formData.get("return_to"), `/workspace/client/candidates?role=${encodeURIComponent(jobId)}`);
+  if (!jobId || !vaId || message.length < 2) throw new Error("Add a short message for your recruiter.");
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: shortlist }] = await Promise.all([
+    admin.from("jobs").select("id,title,client_id,recruiter_id,status").eq("id", jobId).eq("client_id", user.id).single(),
+    admin.from("job_shortlist_candidates").select("id").eq("job_id", jobId).eq("va_id", vaId).eq("shortlist_status", "released").maybeSingle(),
+  ]);
+  if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
+  if (!shortlist) throw new Error("This VA is not in the released shortlist.");
+
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "client_shortlist_message",
+    description: message,
+    actorId: user.id,
+    metadata: { va_id: vaId },
+  });
+  await writeRecruiterActivity({
+    subjectType: "va",
+    subjectId: vaId,
+    action: "client_shortlist_message",
+    description: message,
+    actorId: user.id,
+    metadata: { job_id: jobId },
+  });
+
+  const recipientIds = new Set<string>();
+  if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
+  if (!recipientIds.size) {
+    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
+    for (const row of recruiters || []) recipientIds.add(String(row.id));
+  }
+  if (recipientIds.size) {
+    await admin.from("notifications").insert([...recipientIds].map((id) => ({
+      user_id: id,
+      title: "Client sent shortlist feedback",
+      body: `${job.title}: ${message}`,
+      href: `/workspace/recruiter/roles/${jobId}`,
+      type: "client",
+      priority: "normal",
+    })));
+  }
+
+  await recordProductEvent("client_shortlist_message", {
+    userId: user.id,
+    path: returnTo,
+    metadata: { job_id: jobId, va_id: vaId },
+  });
+
+  revalidatePath("/workspace/client/candidates");
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  redirectWithFlag(returnTo, "message_sent");
+}
+
 export async function sendClientShortlistFollowupAction(formData: FormData) {
   const { user } = await requireAnyRole(["admin", "recruiter"]);
   const jobId = String(formData.get("job_id") || "");

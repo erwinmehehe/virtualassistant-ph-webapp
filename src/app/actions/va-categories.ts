@@ -55,7 +55,9 @@ export async function autoCategorizeUncategorizedVasAction() {
       ...(row.industries || [])
     );
     const stage = stageByVa.get(row.user_id) || "";
-    const primaryLocked = ["approved", "bench"].includes(stage);
+    // Never rewrite a vetted specialty, but repair legacy approved profiles
+    // that reached approval before primary_category became required.
+    const primaryLocked = ["approved", "bench"].includes(stage) && Boolean(row.primary_category);
     const resolvedPrimaryCategory = primaryLocked
       ? row.primary_category
       : row.primary_category || inferred[0] || null;

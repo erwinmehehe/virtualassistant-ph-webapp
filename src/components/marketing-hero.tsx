@@ -14,11 +14,11 @@ export function MarketingHero({
   intro: ReactNode;
   actions?: ReactNode;
   trust?: ReactNode;
-  form: ReactNode;
+  form?: ReactNode;
   className?: string;
 }) {
   return (
-    <section className={`va-marketing-hero ${className}`.trim()}>
+    <section className={`va-marketing-hero ${form ? "" : "va-marketing-hero-solo"} ${className}`.trim()}>
       <div className="container va-marketing-hero-grid">
         <div className="va-marketing-hero-copy">
           {eyebrow ? <div className="kicker">{eyebrow}</div> : null}
@@ -27,9 +27,11 @@ export function MarketingHero({
           {actions ? <div className="hero-actions">{actions}</div> : null}
           {trust ? <div className="va-trust-row">{trust}</div> : null}
         </div>
-        <aside className="va-marketing-form-shell" aria-label="Start a hiring request">
-          {form}
-        </aside>
+        {form ? (
+          <aside className="va-marketing-form-shell" aria-label="Start a hiring request">
+            {form}
+          </aside>
+        ) : null}
       </div>
     </section>
   );

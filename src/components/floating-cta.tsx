@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { CalendarClock, X } from "lucide-react";
 
 const DISMISS_KEY = "va_discovery_cta_dismissed";
-const DISCOVERY_CALL_URL = "https://calendar.app.google/FxedmioyeJhKras87";
+const DISCOVERY_CALL_URL = "/book-client-call";
 
 const VA_FACING_PATHS = [
   "/for-virtual-assistants",

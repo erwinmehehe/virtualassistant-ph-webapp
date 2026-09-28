@@ -4,12 +4,12 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("floating discovery CTA links directly to Google Calendar with clean copy", async () => {
+test("floating discovery CTA links to the internal booking page with clean copy", async () => {
   const source=await read("src/components/floating-cta.tsx");
-  assert.match(source,/https:\/\/calendar\.app\.google\/FxedmioyeJhKras87/);
+  assert.match(source,/DISCOVERY_CALL_URL = "\/book-client-call"/);
   assert.match(source,/Book a discovery call/);
   assert.doesNotMatch(source,/Discuss your VA needs/);
-  assert.doesNotMatch(source,/DISCOVERY_CALL_URL = "\/book-client-call"/);
+  assert.doesNotMatch(source,/calendar\.app\.google/);
 });
 
 test("floating discovery CTA has no white wrapper shell", async () => {

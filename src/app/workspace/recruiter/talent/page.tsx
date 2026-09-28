@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle2, ChevronDown, Clock3, Mail, Search, ShieldChe
 import { bulkRecruiterTalentAction } from "@/app/actions/recruiter-talent";
 import { RecruiterViewPreference } from "@/components/recruiter-view-preference";
 import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-operations-panel";
+import { RecruiterTalentSelectionControl } from "@/components/recruiter-talent-selection-control";
 import { PublicAvatar } from "@/components/public-avatar";
 import { requireRoleFast } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
@@ -310,7 +311,7 @@ export default async function RecruiterTalentDirectory({
       <div className="filter-primary-row">
         <label className="directory-filter-search" aria-label="Search Virtual Assistants">
           <Search size={17} />
-          <input name="q" defaultValue={effective.q} placeholder="Search VAs by name, role, or category" />
+          <input name="q" defaultValue={effective.q} placeholder="Search name, role, specialty, skill, or tool" />
         </label>
         <label className="filter-field">
           <span>Stage</span>
@@ -320,18 +321,13 @@ export default async function RecruiterTalentDirectory({
           </select>
         </label>
         <label className="filter-field">
-          <span>Readiness</span>
-          <select name="readiness" defaultValue={effective.readiness || ""}>
-            <option value="">Any readiness</option>
-            <option value="zero">Not started</option>
-            <option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option>
-            <option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option>
-            <option value="approval_cleanup">Approved below {APPROVAL_MIN_COMPLETION}%</option>
-            <option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option>
-            <option value="vetted_hidden">Approved, not public</option>
+          <span>Availability</span>
+          <select name="availability" defaultValue={effective.availability || ""}>
+            <option value="">Any availability</option>
+            <option value="available">Available now</option>
+            <option value="unavailable">Unavailable</option>
           </select>
         </label>
-        <button className="btn btn-primary filter-apply" type="submit"><SlidersHorizontal size={15} /> Apply</button>
         <label className="filter-field talent-sort-field">
           <span>Sort</span>
           <select name="sort" defaultValue={sort}>
@@ -343,6 +339,7 @@ export default async function RecruiterTalentDirectory({
             <option value="name">Name A–Z</option>
           </select>
         </label>
+        <button className="btn btn-primary filter-apply" type="submit"><Search size={15} /> Search</button>
         <Link className="filter-reset" href="/workspace/recruiter/talent?view=all&sort=recent"><X size={14} /> Clear</Link>
       </div>
 
@@ -370,12 +367,11 @@ export default async function RecruiterTalentDirectory({
               ))}
             </div>
           </fieldset>
+          <label className="filter-field"><span>Readiness</span><select name="readiness" defaultValue={effective.readiness || ""}><option value="">Any readiness</option><option value="zero">Not started</option><option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option><option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option><option value="approval_cleanup">Approved below {APPROVAL_MIN_COMPLETION}%</option><option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option><option value="vetted_hidden">Approved, not public</option></select></label>
           <label className="filter-field"><span>Classification</span><select name="classification" defaultValue={effective.classification || ""}><option value="">Any classification state</option><option value="classified">Classified talent</option><option value="ready_to_classify">Ready to classify</option><option value="incomplete_profile">Incomplete profile</option></select></label>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
-          <label className="filter-field"><span>Availability</span><select name="availability" defaultValue={effective.availability || ""}><option value="">Any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>
           <label className="filter-field"><span>Activity</span><select name="stale" defaultValue={effective.stale || ""}><option value="">Any</option><option value="30">Inactive 30+ days</option><option value="60">Inactive 60+ days</option><option value="90">Inactive 90+ days</option></select></label>
-          <label className="filter-field filter-field-wide"><span>Skill</span><input name="skill" defaultValue={effective.skill} placeholder="e.g. SEO, bookkeeping" /></label>
           <label className="filter-field"><span>Min. experience</span><input type="number" min="0" name="min_experience" defaultValue={effective.min_experience} placeholder="Years" /></label>
           <label className="filter-field"><span>Max. hourly rate</span><input type="number" min="5" step="1" name="max_rate" defaultValue={effective.max_rate} placeholder="USD / hr" /></label>
         </div>
@@ -409,13 +405,14 @@ export default async function RecruiterTalentDirectory({
       <span className="small muted"><ShieldCheck size={14} style={{ verticalAlign: "-2px" }} /> Internal recruiter data</span>
     </div>
 
-    <form action={bulkRecruiterTalentAction} className="stack">
+    <form id="recruiter-talent-bulk-form" action={bulkRecruiterTalentAction} className="stack">
       <input type="hidden" name="return_to" value={currentUrl} />
       {filterHidden}
       <div className="bulk-action-bar">
+        <RecruiterTalentSelectionControl formId="recruiter-talent-bulk-form" pageCount={rows.length} />
         <label className={`bulk-scope ${total > RECRUITER_BULK_LIMIT ? "bulk-scope-blocked" : ""}`}>
           <input type="checkbox" name="selection_scope" value="filtered" disabled={total > RECRUITER_BULK_LIMIT} />
-          <span><strong>{total > RECRUITER_BULK_LIMIT ? `Filtered bulk unavailable · ${total} VAs` : `Select all ${total} filtered VAs`}</strong><small>{total > RECRUITER_BULK_LIMIT ? `Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer before running a filtered bulk action.` : "Leave off to act only on checked rows."}</small></span>
+          <span><strong>{total > RECRUITER_BULK_LIMIT ? `All filtered unavailable · ${total} VAs` : `Use all ${total} filtered results`}</strong><small>{total > RECRUITER_BULK_LIMIT ? `Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer first.` : "Turn on only when the action should apply beyond this page."}</small></span>
         </label>
         <select name="bulk_action" required defaultValue="">
           <option value="" disabled>Bulk action…</option>

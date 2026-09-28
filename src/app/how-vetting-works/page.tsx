@@ -4,7 +4,6 @@ import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { Band, CheckList, CtaBand, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { canonicalPath } from "@/lib/seo-url";
 import "../homepage-sections.css";
@@ -34,7 +33,6 @@ export default function VettingPage() {
       intro={<p className="public-lede">VirtualAssistant.com.ph uses a staged screening workflow before a Virtual Assistant can appear in the public directory. The goal is to reduce weak-fit filtering for clients while keeping private candidate evidence protected.</p>}
       actions={<><Link className="btn btn-primary" href="/find-talent">Browse Virtual Assistants</Link><Link className="btn" href="/hire">Start a Hiring Request</Link></>}
       trust={<><span><ShieldCheck size={15}/>Structured screening</span><span><CheckCircle2 size={15}/>Human recruiter review</span><span><LockKeyhole size={15}/>Private evidence stays private</span></>}
-      form={<DiscoveryCallCard />}
     />
 
     <div className="hs-root sp-root">

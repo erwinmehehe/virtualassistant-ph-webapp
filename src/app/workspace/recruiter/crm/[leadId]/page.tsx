@@ -86,8 +86,6 @@ type Note = { id: string; note: string; created_at: string };
 type Task = { id: string; title: string; description: string | null; priority: string; status: string; due_at: string | null };
 type CustomField = { id:string; label:string; field_type:string; options:unknown };
 type CustomValue = { field_id:string; value:unknown };
-type Company = { id:string; name:string; website:string|null; industry:string|null; location:string|null };
-type Contact = { id:string; full_name:string|null; email:string|null; phone:string|null; title:string|null };
 type EmailEvent = { id:string; event_type:string; status:string; automation:string|null; error_message:string|null; created_at:string };
 type Proposal = { id:string; status:string; role_title:string|null; created_at:string; sent_at:string|null; viewed_at:string|null; accepted_at:string|null; declined_at:string|null; changes_requested_at:string|null; decline_reason:string|null };
 type Shortlist = { id:string; va_id:string; shortlist_status:string; released_at:string|null; created_at:string; client_decision:string|null; client_decision_note:string|null; client_decision_at:string|null };
@@ -140,7 +138,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -148,8 +146,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     admin.from("recruiter_activity").select("id,action,description,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(80),
     admin.from("recruiter_notes").select("id,note,created_at").eq("subject_type", "lead").eq("subject_id", leadId).order("created_at", { ascending: false }).limit(20),
     admin.from("recruiter_tasks").select("id,title,description,priority,status,due_at").eq("subject_type", "lead").eq("subject_id", leadId).eq("assignee_id", userId).order("created_at", { ascending: false }).limit(20),
-    lead.crm_company_id ? admin.from("crm_companies").select("id,name,website,industry,location").eq("id",lead.crm_company_id).maybeSingle() : Promise.resolve({data:null,error:null}),
-    lead.crm_contact_id ? admin.from("crm_contacts").select("id,full_name,email,phone,title").eq("id",lead.crm_contact_id).maybeSingle() : Promise.resolve({data:null,error:null}),
     admin.from("crm_custom_fields").select("id,label,field_type,options").eq("object_type","lead").order("created_at",{ascending:true}),
     admin.from("crm_custom_values").select("field_id,value").eq("object_type","lead").eq("object_id",leadId),
     lead.email
@@ -169,13 +165,11 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       ? admin.from("workrooms").select("id,va_id,status,placement_stage,created_at,placement_stage_entered_at,handoff_completed_at,ended_at").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(20)
       : Promise.resolve({data:[],error:null}),
   ]);
-  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult]) {
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult]) {
     if (result.error) throw result.error;
   }
 
   const job = jobResult.data as Job | null;
-  const company = companyResult.data as Company | null;
-  const contact = contactResult.data as Contact | null;
   const owners = (ownersResult.data || []) as Owner[];
   const activities = (activityResult.data || []) as Activity[];
   const notes = (notesResult.data || []) as Note[];

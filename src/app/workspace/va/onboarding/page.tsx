@@ -83,6 +83,12 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
             <span className="field-help">Use a short role-focused headline that a recruiter can understand at a glance.</span>
           </div>
 
+          <div className="field">
+            <label htmlFor="quick-address">Current home address <span className="muted">(private)</span></label>
+            <input id="quick-address" name="address" minLength={5} maxLength={200} required defaultValue={va?.address || ""} placeholder="Street / barangay, city, province" autoComplete="street-address"/>
+            <span className="field-help">For recruiter/admin hiring operations only. It will not appear on your public profile.</span>
+          </div>
+
           <div className="va-quick-setup-metrics">
             <div className="field">
               <label htmlFor="quick-years">Years of experience</label>

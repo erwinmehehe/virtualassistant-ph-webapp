@@ -1713,3 +1713,61 @@
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+.replyState {
+  display:inline-flex;
+  align-items:center;
+  width:fit-content;
+  min-height:22px;
+  padding:3px 7px;
+  border:1px solid #e4e7ec;
+  border-radius:999px;
+  background:#f8f9fb;
+  color:#667085;
+  font-size:9.5px;
+  font-weight:760;
+  line-height:1.2;
+}
+
+.replyNeedsAction {
+  border-color:#fecdca;
+  background:#fef3f2;
+  color:#b42318;
+}
+
+.replyAwaiting {
+  border-color:#fedf89;
+  background:#fffaeb;
+  color:#b54708;
+}
+
+.replyHandled {
+  border-color:#abefc6;
+  background:#ecfdf3;
+  color:#027a48;
+}
+
+.nextStepDate {
+  display:block;
+  margin-top:4px;
+  color:#98a2b3;
+  font-size:9.5px;
+}
+
+.actionStatus .statusReplyNeedsAction {
+  border-color:#fecdca;
+  background:#fef3f2;
+  color:#b42318;
+}
+
+.actionStatus .statusReplyWaiting {
+  border-color:#fedf89;
+  background:#fffaeb;
+  color:#b54708;
+}
+
+.actionStatus .statusReplyHandled {
+  border-color:#abefc6;
+  background:#ecfdf3;
+  color:#027a48;
+}

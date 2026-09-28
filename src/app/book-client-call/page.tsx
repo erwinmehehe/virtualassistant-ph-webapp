@@ -30,8 +30,9 @@ async function availableDays() {
       .gte("discovery_scheduled_at", now.toISOString())
       .lte("discovery_scheduled_at", until);
     return buildDiscoverySlotDays((data || []).map((row) => row.discovery_scheduled_at).filter(Boolean), now);
-  } catch {
-    return [];
+  } catch (error) {
+    console.error("[booking] Could not load booked discovery slots; showing provisional availability.", error);
+    return buildDiscoverySlotDays([], new Date());
   }
 }
 

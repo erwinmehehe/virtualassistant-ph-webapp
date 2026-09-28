@@ -13,6 +13,10 @@ function filterValue(formData: FormData, name: string) {
   return String(formData.get(name) || "");
 }
 
+function filterValues(formData: FormData, name: string) {
+  return [...new Set(formData.getAll(name).map((value) => String(value).trim()).filter(Boolean))];
+}
+
 function safeReturnTo(formData: FormData) {
   const value = String(formData.get("return_to") || "/workspace/recruiter/talent");
   return value.startsWith("/") && !value.startsWith("//") ? value : "/workspace/recruiter/talent";
@@ -50,7 +54,8 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
   const admin = createAdminClient();
   const filters = {
     q: filterValue(formData, "filter_q"),
-    category: filterValue(formData, "filter_category"),
+    category: filterValues(formData, "filter_category"),
+    category_match: filterValue(formData, "filter_category_match"),
     stage: filterValue(formData, "filter_stage"),
     readiness: filterValue(formData, "filter_readiness"),
     photo: filterValue(formData, "filter_photo"),

@@ -6,7 +6,8 @@ export const RECRUITER_BULK_LIMIT = 500;
 
 export type RecruiterTalentFilters = {
   q?: string | null;
-  category?: string | null;
+  category?: string | string[] | null;
+  category_match?: string | null;
   stage?: string | null;
   readiness?: string | null;
   photo?: string | null;
@@ -24,6 +25,11 @@ function numberValue(value: string | number | null | undefined) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function stringValues(value: string | string[] | null | undefined) {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))];
+}
+
 function excludeTerminalVettingStages(query: any) {
   return query.or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)");
 }
@@ -38,7 +44,8 @@ function excludeRejectedStage(query: any) {
  */
 export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalentFilters) {
   const q = String(filters.q || "").trim().replace(/[,%()]/g, " ");
-  const category = String(filters.category || "").trim();
+  const categories = stringValues(filters.category);
+  const categoryMatch = String(filters.category_match || "any") === "all" ? "all" : "any";
   const stage = String(filters.stage || "");
   const readiness = String(filters.readiness || "");
   const photo = String(filters.photo || "");
@@ -49,9 +56,19 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   const maxRate = numberValue(filters.max_rate);
   const stale = numberValue(filters.stale);
 
-  if (category) {
-    const quotedCategory = `"${category.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-    query = query.or(`primary_category.eq.${quotedCategory},categories.cs.{${quotedCategory}}`);
+  if (categories.length) {
+    if (categoryMatch === "all") {
+      query = query.contains("categories", categories);
+    } else {
+      const categoryTerms = categories.flatMap((category) => {
+        const quotedCategory = `"${category.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+        return [
+          `primary_category.eq.${quotedCategory}`,
+          `categories.cs.{${quotedCategory}}`,
+        ];
+      });
+      query = query.or(categoryTerms.join(","));
+    }
   }
   if (stage) query = query.eq("stage", stage);
   if (availability) query = query.eq("availability_status", availability);

@@ -115,6 +115,8 @@ export type RecruiterVaDirectoryRow = {
   avatar_url: string | null;
   headline: string | null;
   primary_category: string | null;
+  categories: string[] | null;
+  skills: string[] | null;
   availability_status: string | null;
   stage: string | null;
   completion_score: number | null;

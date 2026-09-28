@@ -39,7 +39,7 @@ test("client booking opens directly on the calendar and still routes VA applican
   assert.match(form,/resolvedOptions\(\)\.timeZone/);
   assert.match(form,/id="booking-timezone"/);
   assert.match(form,/setDisplayTimeZone\(event\.target\.value\)/);
-  assert.match(form,/Detected from your device/);
+  assert.match(form,/Detected:/);
 });
 
 test("discovery booking is available 24/7 and grouped in the visitor timezone", async () => {

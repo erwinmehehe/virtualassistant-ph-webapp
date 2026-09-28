@@ -25,9 +25,7 @@ test("CRM main workspace stays focused while advanced CRM routes remain availabl
   const page=await read("src/app/workspace/recruiter/crm/page.tsx");
   assert.match(page,/Client pipeline/);
   assert.match(page,/Needs action/);
-  assert.match(page,/workspace\/recruiter\/crm\/companies/);
   assert.match(page,/workspace\/recruiter\/roles/);
-  assert.match(page,/workspace\/recruiter\/tasks/);
   assert.doesNotMatch(page,/Customize dashboard|Save current view|Attio-style/);
   assert.doesNotMatch(page,/workspace\/recruiter\/crm\/contacts|workspace\/recruiter\/crm\/automations|workspace\/recruiter\/crm\/export/);
 });

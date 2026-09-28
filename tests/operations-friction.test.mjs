@@ -34,7 +34,7 @@ test("My Day routes to exact control centers and can send shortlist follow-up in
   assert.match(today, /placement_checkin/);
   assert.match(today, /placement_handoff/);
   assert.match(today, /candidates\/\$\{item\.id\}/);
-  assert.match(today, /q=\$\{encodeURIComponent\(email\)\}/);
+  assert.match(today, /workspace\/recruiter\/crm\/\$\{item\.id\}/);
   assert.match(today, /sendClientShortlistFollowupAction/);
   assert.match(today, /Send client follow-up/);
 });

@@ -36,6 +36,11 @@ try {
 
     const timezoneSelect = page.locator("#booking-timezone");
     await timezoneSelect.waitFor();
+    await page.waitForFunction(
+      (expected) => document.querySelector("#booking-timezone")?.value === expected,
+      fixture.timeZoneId,
+      { timeout: 15000 },
+    );
     if (await timezoneSelect.inputValue() !== fixture.timeZoneId) {
       throw new Error(`${fixture.name} detected ${await timezoneSelect.inputValue()} instead of ${fixture.timeZoneId}`);
     }

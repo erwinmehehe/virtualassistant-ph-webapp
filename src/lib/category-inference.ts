@@ -17,6 +17,7 @@ export type CategoryInferenceInput = {
 export type CategoryEvidence = {
   category: string;
   score: number;
+  roleScore: number;
   evidence: string[];
 };
 
@@ -37,15 +38,15 @@ const rules: CategoryRule[] = [
 ];
 
 const FIELD_WEIGHTS = {
-  headline: 8,
+  headline: 10,
   skills: 6,
-  industries: 1,
+  industries: 5,
   tools: 4,
   bio: 2,
   declaredCategories: 10,
 } as const;
 
-const MIN_CATEGORY_SCORE = 10;
+const MIN_CATEGORY_SCORE = 8;
 const MAX_CATEGORIES = 3;
 
 function normalize(value: string | null | undefined) {
@@ -79,6 +80,7 @@ export function inferCategoryEvidence(input: CategoryInferenceInput): CategoryEv
   return rules
     .map((rule, index) => {
       let score = 0;
+      let roleScore = 0;
       const evidence = new Set<string>();
 
       for (const field of fields) {
@@ -88,7 +90,9 @@ export function inferCategoryEvidence(input: CategoryInferenceInput): CategoryEv
           if (!text) continue;
 
           if (field.name === "declaredCategories" && normalize(rule.category) === text) {
-            score += fieldWeight * 5;
+            const contribution = fieldWeight * 5;
+            score += contribution;
+            roleScore += contribution;
             evidence.add("declared: " + rule.category);
             continue;
           }
@@ -96,7 +100,9 @@ export function inferCategoryEvidence(input: CategoryInferenceInput): CategoryEv
           for (const [term, termWeight] of rule.terms) {
             if (!phraseMatches(text, normalize(term))) continue;
             const exactBonus = text === normalize(term) ? 1.35 : 1;
-            score += fieldWeight * termWeight * exactBonus;
+            const contribution = fieldWeight * termWeight * exactBonus;
+            score += contribution;
+            if (field.name !== "industries") roleScore += contribution;
             evidence.add(field.name + ": " + term);
           }
         }
@@ -105,18 +111,26 @@ export function inferCategoryEvidence(input: CategoryInferenceInput): CategoryEv
       return {
         category: rule.category,
         score: Math.round(score * 10) / 10,
+        roleScore: Math.round(roleScore * 10) / 10,
         evidence: [...evidence],
         index,
       };
     })
     .filter((match) => match.score >= MIN_CATEGORY_SCORE)
-    .sort((a, b) => b.score - a.score || a.index - b.index)
+    // Role evidence (headline, skills, tools and bio) outranks industry-only
+    // experience so a Social Media VA who worked in real estate remains
+    // primarily Marketing while still being discoverable for Real Estate.
+    .sort((a, b) => b.roleScore - a.roleScore || b.score - a.score || a.index - b.index)
     .slice(0, MAX_CATEGORIES)
-    .map(({ category, score, evidence }) => ({ category, score, evidence }));
+    .map(({ category, score, roleScore, evidence }) => ({ category, score, roleScore, evidence }));
 }
 
 export function inferCategoriesFromProfile(input: CategoryInferenceInput) {
   return inferCategoryEvidence(input).map((match) => match.category);
+}
+
+export function inferPrimaryCategoryFromProfile(input: CategoryInferenceInput) {
+  return inferCategoryEvidence(input).find((match) => match.roleScore >= MIN_CATEGORY_SCORE)?.category || null;
 }
 
 // Compatibility helper for older callers. Treat free-form arguments as profile

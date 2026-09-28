@@ -495,6 +495,14 @@ const roleBriefSchema = z.object({
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") && !value.startsWith("//")).optional(),
   session_id: z.string().uuid().or(z.literal("")).optional(),
   website: z.string().max(200).optional()
+}).superRefine((value, ctx) => {
+  if (value.source_path === "/" && value.message.trim().length < 40) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["message"],
+      message: "Please add a little more detail. Minimum 40 characters."
+    });
+  }
 });
 
 const roleBriefFieldLabels: Record<string, string> = {
@@ -503,7 +511,7 @@ const roleBriefFieldLabels: Record<string, string> = {
   timezone: "Timezone / overlap",
   budget: "Hourly budget",
   email: "Work email",
-  message: "What should this Virtual Assistant own (at least 15 characters, including the actual tasks)"
+  message: "What should this Virtual Assistant own"
 };
 
 export async function submitRoleBriefAction(formData: FormData) {
@@ -524,7 +532,8 @@ export async function submitRoleBriefAction(formData: FormData) {
     const firstIssue = parsed.error.issues[0];
     const field = String(firstIssue?.path?.[0] ?? "");
     const label = roleBriefFieldLabels[field];
-    const message = label ? `Please fill in: ${label}` : "Please complete the required role details";
+    const issueMessage = firstIssue?.message && firstIssue.message !== "Required" ? firstIssue.message : null;
+    const message = issueMessage || (label ? `Please fill in: ${label}` : "Please complete the required role details");
     redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);

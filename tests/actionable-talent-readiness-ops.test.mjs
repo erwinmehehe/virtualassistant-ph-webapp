@@ -17,8 +17,11 @@ test("Roles talent coverage drills into exact primary specialties",async()=>{
   assert.match(filters,/primary_category\.eq/);
   assert.match(filters,/categories\.cs/);
   assert.match(filters,/query\.or/);
-  assert.match(talent,/filter_category: effective\.category/);
-  assert.match(action,/category: filterValue\(formData, "filter_category"\)/);
+  assert.match(filters,/query = query\.contains\("categories", categories\)/);
+  assert.match(talent,/name="filter_category"/);
+  assert.match(talent,/name="filter_category_match"/);
+  assert.match(action,/category: filterValues\(formData, "filter_category"\)/);
+  assert.match(action,/category_match: filterValue\(formData, "filter_category_match"\)/);
 });
 
 test("Work Readiness prioritizes ready incomplete and overdue queues with one simple evidence filter",async()=>{

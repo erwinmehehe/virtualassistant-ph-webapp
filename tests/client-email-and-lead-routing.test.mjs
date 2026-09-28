@@ -17,7 +17,7 @@ test("client follow-up email has one personalized greeting without an injected C
   assert.doesNotMatch(followup, /Choose a call time/);
   assert.doesNotMatch(followup, /Open hiring workspace/);
   assert.doesNotMatch(followup, /ctaHref:/);
-  assert.match(email, /VirtualAssistant<span style="color:#4f46e5;">\.com\.ph<\/span>/);
+  assert.match(email, /VirtualAssistant<span style="color:#a5b4fc;">\.com\.ph<\/span>/);
 });
 
 test("service-page enquiries are forced into the recruiter hiring pipeline", async () => {

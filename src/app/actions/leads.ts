@@ -218,7 +218,7 @@ async function createBookingHandoffRecoveryTask(args: {
       .select("id")
       .eq("role", "recruiter")
       .eq("account_status", "active")
-      .order("created_at", { ascending: true })
+      .order("full_name", { ascending: true })
       .limit(1)
       .maybeSingle();
     assigneeId = fallbackRecruiter?.id || null;

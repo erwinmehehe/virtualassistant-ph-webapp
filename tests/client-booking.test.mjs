@@ -187,3 +187,16 @@ test("booking page fails open to provisional slots when booked-slot lookup fails
   assert.match(page, /Could not load booked discovery slots; showing provisional availability/);
   assert.match(page, /return buildDiscoverySlotDays\(\[\], new Date\(\)\)/);
 });
+
+
+test("booking page shows a loading state before client timezone hydration", async () => {
+  const [form, css] = await Promise.all([
+    read("src/components/client-booking-form.tsx"),
+    read("src/app/book-client-call/booking.css"),
+  ]);
+  assert.match(form, /Loading available times/);
+  assert.match(form, /!displayTimeZone/);
+  assert.match(css, /\.booking-loading-times/);
+  assert.doesNotMatch(css, /\.booking-timezone-control/);
+  assert.doesNotMatch(css, /\.booking-timezone-note/);
+});

@@ -119,7 +119,9 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         <section className="booking-section">
           <div className="booking-section-title"><span>Date & time</span></div>
 
-          {localDays.length ? (
+          {!displayTimeZone ? (
+            <div className="booking-loading-times" role="status">Loading available times…</div>
+          ) : localDays.length ? (
             <div className="booking-calendar-shell">
               <div className="booking-date-tabs" role="tablist" aria-label="Available dates">
                 {localDays.map((day) => (

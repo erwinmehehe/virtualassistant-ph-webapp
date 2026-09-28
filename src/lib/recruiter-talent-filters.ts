@@ -145,7 +145,18 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   if (stale != null && stale > 0) {
     query = query.lt("last_activity_at", new Date(Date.now() - stale * 86400000).toISOString());
   }
-  if (q) query = query.or(`full_name.ilike.%${q}%,headline.ilike.%${q}%,primary_category.ilike.%${q}%`);
+  if (q) {
+    const quoted = `"${q.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+    query = query.or([
+      `full_name.ilike.%${q}%`,
+      `headline.ilike.%${q}%`,
+      `primary_category.ilike.%${q}%`,
+      `categories.cs.{${quoted}}`,
+      `skills.cs.{${quoted}}`,
+      `tools.cs.{${quoted}}`,
+      `industries.cs.{${quoted}}`,
+    ].join(","));
+  }
 
   return query;
 }

@@ -63,6 +63,13 @@
 .visibility-label { display:inline-flex; align-items:center; min-height:20px; padding:2px 7px; border-radius:999px; background:#f2f4f7; color:#475467; font-size:10px; font-weight:700; }
 .visibility-public { background:#ecfdf3; color:#027a48; }
 .visibility-hidden,.visibility-public-blocked { background:#fff6ed; color:#b54708; }
+.classification-state { display:inline-flex; align-items:center; min-height:20px; padding:2px 7px; border-radius:999px; font-size:10px; font-weight:750; }
+.classification-classified { background:#eef4ff; color:#3538cd; }
+.classification-ready_to_classify { background:#ecfdf3; color:#027a48; }
+.classification-incomplete_profile { background:#fff6ed; color:#b54708; }
+.classification-gap-copy,.classification-ready-copy { margin-top:6px; padding:6px 8px; border-radius:8px; font-size:10px; line-height:1.35; }
+.classification-gap-copy { background:#fffaf5; color:#b54708; }
+.classification-ready-copy { background:#f6fef9; color:#027a48; }
 .candidate-meta-line { margin-top:4px; color:#667085; font-size:11px; text-transform:capitalize; }
 .talent-specialty-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
 .talent-specialty-chip { display:inline-flex; align-items:center; min-height:22px; padding:3px 7px; border:1px solid #e4e7ec; border-radius:999px; background:#f8fafc; color:#475467; font-size:10px; font-weight:650; line-height:1.2; }

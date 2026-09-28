@@ -294,7 +294,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
         <TurnstileWidget />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />

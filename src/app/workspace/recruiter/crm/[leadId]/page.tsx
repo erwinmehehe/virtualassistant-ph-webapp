@@ -31,6 +31,7 @@ import {
 import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";
+import { ClientEngagementPanel } from "@/components/client-engagement-panel";
 
 type Lead = {
   id: string;
@@ -389,6 +390,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         {workflowSteps.map((label,index)=><span key={label} className={index < workflowIndex ? styles.workflowDone : index === workflowIndex ? styles.workflowCurrent : undefined}><i>{index < workflowIndex ? "✓" : index + 1}</i><em>{label}</em></span>)}
       </nav>
 
+      <ClientEngagementPanel
+        linked={Boolean(lead.client_id)}
+        lastLogin={clientLastLoginAt ? fmt(clientLastLoginAt, true) : "Never / not linked"}
+        lastVaView={lastCandidateViewAt ? fmt(lastCandidateViewAt, true) : "No tracked view"}
+        vaViews={candidateViewCount}
+        shortlistOpened={shortlistOpenedAt ? fmt(shortlistOpenedAt, true) : "Not tracked yet"}
+        shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
+        decision={decisionSummary}
+        lastEmailReply={lastEmailReplyAt ? fmt(lastEmailReplyAt, true) : "No reply logged"}
+      />
+
       <section className={styles.actionCenter}>
         <div className={styles.actionCenterHead}>
           <div>
@@ -547,10 +559,10 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <div><span>Discovery</span><strong>{lead.discovery_completed_at ? `Completed · ${lead.discovery_outcome || "outcome not set"}` : lead.discovery_scheduled_at ? fmt(lead.discovery_scheduled_at, true) : "Not booked"}</strong></div>
               </div>
               <details className={styles.compactDetails}>
-                <summary>Log client interaction</summary>
+                <summary>Log client interaction or email reply</summary>
                 <form action={recordLeadContactAction} className={styles.form}>
                   <input type="hidden" name="lead_id" value={lead.id}/>
-                  <label>Type<select name="contact_type" defaultValue="call"><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
+                  <label>Type<select name="contact_type" defaultValue="call"><option value="email">Email reply</option><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
                   <label>Note<input name="note" maxLength={1000} placeholder="What happened?"/></label>
                   <button type="submit">Log interaction</button>
                 </form>

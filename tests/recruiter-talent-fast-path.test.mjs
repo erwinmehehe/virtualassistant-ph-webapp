@@ -51,7 +51,7 @@ test("Recruiter Talent only selects table fields it renders", async () => {
 
   assert.match(
     page,
-    /select\("user_id,full_name,avatar_url,headline,primary_category,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status"/,
+    /select\("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status"/,
   );
   assert.doesNotMatch(page, /from\("recruiter_va_directory"\)[\s\S]{0,120}\.select\("\*"/);
 });
@@ -68,4 +68,27 @@ test("Recruiter Talent fast-path views are service-role only", async () => {
 test("Recruiter Talent has a route loading state", async () => {
   const loading = await read("src/app/workspace/recruiter/talent/loading.tsx");
   assert.match(loading, /WorkspaceSkeleton/);
+});
+
+
+test("Recruiter Talent exposes multi-specialty chips, any/all matching, and match evidence", async () => {
+  const [page, css, rows] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/app/workspace/recruiter-talent.css"),
+    read("src/lib/workspace-rows.ts"),
+  ]);
+
+  assert.match(page, /VA_CATEGORIES\.map/);
+  assert.match(page, /name="category" value=\{category\}/);
+  assert.match(page, /name="category_match"/);
+  assert.match(page, /Any selected/);
+  assert.match(page, /All selected/);
+  assert.match(page, /talent-specialty-chips/);
+  assert.match(page, /Matched because/);
+  assert.match(page, /matchEvidence\.join/);
+  assert.match(rows, /categories: string\[\] \| null/);
+  assert.match(rows, /skills: string\[\] \| null/);
+  assert.match(css, /\.talent-category-options/);
+  assert.match(css, /\.talent-specialty-chip\.primary/);
+  assert.match(css, /\.talent-match-reason/);
 });

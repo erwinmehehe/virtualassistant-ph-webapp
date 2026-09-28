@@ -11,11 +11,11 @@ test("shared outbound email shell uses the premium responsive design system", as
   const shell = email.slice(start, end);
 
   assert.match(shell, /max-width:640px/);
-  assert.match(shell, /border-radius:22px/);
+  assert.match(shell, /border-radius:24px/);
   assert.match(shell, /email-team-pill/);
-  assert.match(shell, /background:#f3f5fa/);
+  assert.match(shell, /background:#eef1f6/);
   assert.match(shell, /@media only screen and \(max-width: 640px\)/);
-  assert.match(shell, /Filipino Virtual Assistant hiring, training, and talent/);
+  assert.match(shell, /Hiring, talent, and training for remote work/);
   assert.match(shell, /&nbsp;→/);
 });
 
@@ -40,4 +40,15 @@ test("client application notification uses the branded hiring email", async () =
   assert.match(notification, /renderHiringEmail/);
   assert.match(notification, /Review application/);
   assert.match(notification, /workspace\/client/);
+});
+
+
+test("transactional emails place their heading in the premium dark hero", async () => {
+  const email = await read("src/lib/email.ts");
+  const start = email.indexOf("export async function sendTransactionalEventEmail");
+  const end = email.indexOf("export async function sendStaffDailyDigestEmail", start);
+  const transactional = email.slice(start, end);
+
+  assert.match(transactional, /headline: args\.heading/);
+  assert.match(email, /linear-gradient\(135deg,#0b1020 0%,#182230 52%,#312e81 100%\)/);
 });

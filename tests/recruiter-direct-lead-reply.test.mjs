@@ -16,7 +16,10 @@ test("recruiter CRM does not expose pre-shortlist client email composer", () => 
   assert.doesNotMatch(leads, /href=\{\`mailto:/);
 });
 
-test("legacy client follow-up action is server-gated by shortlist-only email policy", () => {
+test("explicit CRM client email is manual while automated pre-shortlist email stays gated", () => {
   assert.match(actions, /sendStaffClientFollowupEmail/);
-  assert.match(email, /sendStaffClientFollowupEmail[\s\S]*client_email_deferred_until_shortlist/);
+  const start=email.indexOf("export async function sendStaffClientFollowupEmail");
+  assert.ok(start >= 0);
+  assert.doesNotMatch(email.slice(start,start+1400),/client_email_deferred_until_shortlist/);
+  assert.match(email,/const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false/);
 });

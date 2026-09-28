@@ -533,6 +533,7 @@ export async function sendApplicationEmail(args: {
 }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
@@ -541,7 +542,7 @@ export async function sendApplicationEmail(args: {
       firstName: "there",
       bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:24px;line-height:1.25;letter-spacing:-.3px;">New application received</h2><p style="margin:0 0 14px;color:#475467;font-size:15px;line-height:1.7;"><strong style="color:#101828;">${escapeHtml(args.applicantName)}</strong> applied for <strong style="color:#101828;">${escapeHtml(args.jobTitle)}</strong>.</p><p style="margin:0;color:#667085;font-size:14px;line-height:1.65;">Open your Client workspace to review the application and candidate details.</p>`,
       senderName: "VirtualAssistant.com.ph Hiring Team",
-      ctaHref: "https://virtualassistant.com.ph/workspace/client",
+      ctaHref: `${appUrl}/workspace/client`,
       ctaLabel: "Review application"
     })
   }, "new_application", { archive: false, priority: "standard", idempotencyKey: `new-application-${args.applicationId}` });

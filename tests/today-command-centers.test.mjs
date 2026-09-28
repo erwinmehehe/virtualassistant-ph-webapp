@@ -4,25 +4,16 @@ import test from "node:test";
 
 const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 
-test("Recruiter My Day exposes the full operating queue",async()=>{
+test("Recruiter My Day exposes one action-first operating queue",async()=>{
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(page,/Four places to look/);
   assert.match(page,/recruiter-next-action/);
-  assert.match(page,/Approval-ready/);
-  assert.match(page,/Approval cleanup/);
-  assert.match(page,/Work setup ready/);
-  assert.match(page,/0% profiles/);
+  assert.match(page,/Today’s work queue/);
+  assert.match(page,/Talent operations/);
   assert.match(page,/Discovery no-shows/);
-  assert.match(page,/Waiting to rebook/);
-  assert.match(page,/Need candidates/);
-  assert.match(page,/Chase overdue client decisions/);
-  assert.match(page,/Interview action/);
-  assert.match(page,/Offers waiting/);
-  assert.match(page,/Need replacements/);
-  assert.match(page,/Stale roles/);
+  assert.match(page,/Role follow-through/);
   assert.match(page,/no_show_preview/);
-  assert.match(page,/role_no_candidates/);
-  assert.match(page,/replacement_needed/);
+  assert.match(page,/stale_roles_preview/);
+  assert.doesNotMatch(page,/Four places to look|priorityStrip/);
 });
 
 test("Recruiter My Day uses the compact summary RPC instead of repeated dashboard queries",async()=>{
@@ -53,9 +44,9 @@ test("Today dashboards retain action-first mobile responsive styles",async()=>{
     read("src/app/workspace/recruiter/today/today.module.css"),
     read("src/app/workspace/admin/today/today.module.css")
   ]);
-  assert.match(recruiterCss,/workstreamGrid/);
+  assert.doesNotMatch(recruiterCss,/workstreamGrid|priorityStrip/);
   assert.match(recruiterCss,/nextAction/);
-  assert.match(recruiterCss,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(recruiterCss,/operationsGrid/);
   assert.match(ownerCss,/snapshotGrid/);
   assert.match(ownerCss,/pipelineGrid/);
   assert.match(ownerCss,/@media \(max-width: 760px\)/);

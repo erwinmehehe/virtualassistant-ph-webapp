@@ -25,16 +25,18 @@ const PAGE_SIZE = 25;
 const SAVED_VIEWS = [
   { key: "all", label: "Talent pool", filters: { classification: "classified" } },
   { key: "incomplete_profiles", label: "Incomplete profiles", filters: { classification: "incomplete_profile" } },
-  { key: "ready_to_classify", label: "Ready to classify", filters: { classification: "ready_to_classify" } },
   { key: "approval_ready", label: "Approval-ready", filters: { readiness: "approval_ready" } },
+  { key: "available", label: "Available now", filters: { availability: "available" } },
+  { key: "needs_review", label: "Needs recruiter review", filters: { stage: "recruiter_review" } },
+  { key: "ready_to_classify", label: "Ready to classify", filters: { classification: "ready_to_classify" } },
   { key: "approval_cleanup", label: "Approval cleanup", filters: { readiness: "approval_cleanup" } },
   { key: "missing_photo", label: "Missing photo", filters: { photo: "no" } },
   { key: "approved_hidden", label: "Approved but hidden", filters: { readiness: "vetted_hidden" } },
   { key: "bench", label: "Bench / active pool", filters: { stage: "bench" } },
   { key: "stale_60", label: "Stale 60d+", filters: { stale: "60" } },
-  { key: "available", label: "Available now", filters: { availability: "available" } },
-  { key: "needs_review", label: "Needs recruiter review", filters: { stage: "recruiter_review" } }
 ] as const;
+
+const PRIMARY_SAVED_VIEW_KEYS = new Set(["all", "incomplete_profiles", "approval_ready", "available", "needs_review"]);
 
 
 function num(value: string | undefined) {
@@ -172,6 +174,9 @@ export default async function RecruiterTalentDirectory({
     ["available", Number(summary.available_count || 0)],
     ["needs_review", Number(summary.needs_review_count || 0)],
   ]);
+  const primarySavedViews = SAVED_VIEWS.filter((view) => PRIMARY_SAVED_VIEW_KEYS.has(view.key));
+  const secondarySavedViews = SAVED_VIEWS.filter((view) => !PRIMARY_SAVED_VIEW_KEYS.has(view.key));
+  const secondaryViewActive = secondarySavedViews.some((view) => view.key === params.view);
   const total = count || 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentUrl = `/workspace/recruiter/talent${qs(params, { page })}`;
@@ -296,14 +301,24 @@ export default async function RecruiterTalentDirectory({
     </section>
 
     <div className="recruiter-saved-views" aria-label="Saved talent views">
-      <div className="saved-view-head"><strong>Saved views</strong><span>One-click recruiter queues</span></div>
+      <div className="saved-view-head"><strong>Saved views</strong><span>Most-used recruiter queues</span></div>
       <div className="saved-view-list">
-        {SAVED_VIEWS.map((preset) => (
+        {primarySavedViews.map((preset) => (
           <Link key={preset.key} className={(params.view || "all") === preset.key ? "saved-view active" : "saved-view"} href={`/workspace/recruiter/talent?view=${preset.key}&sort=${sort}`}>
             <span>{preset.label}</span><strong>{savedViewCounts.get(preset.key) || 0}</strong>
           </Link>
         ))}
       </div>
+      <details className="saved-view-more" open={secondaryViewActive}>
+        <summary><span>More views</span><ChevronDown size={14} /></summary>
+        <div className="saved-view-list saved-view-list-secondary">
+          {secondarySavedViews.map((preset) => (
+            <Link key={preset.key} className={(params.view || "all") === preset.key ? "saved-view active" : "saved-view"} href={`/workspace/recruiter/talent?view=${preset.key}&sort=${sort}`}>
+              <span>{preset.label}</span><strong>{savedViewCounts.get(preset.key) || 0}</strong>
+            </Link>
+          ))}
+        </div>
+      </details>
     </div>
 
     <form className="recruiter-filter-panel recruiter-filter-panel-clean" method="get">
@@ -408,14 +423,15 @@ export default async function RecruiterTalentDirectory({
     <form id="recruiter-talent-bulk-form" action={bulkRecruiterTalentAction} className="stack">
       <input type="hidden" name="return_to" value={currentUrl} />
       {filterHidden}
-      <div className="bulk-action-bar">
-        <RecruiterTalentSelectionControl formId="recruiter-talent-bulk-form" pageCount={rows.length} />
-        <label className={`bulk-scope ${total > RECRUITER_BULK_LIMIT ? "bulk-scope-blocked" : ""}`}>
-          <input type="checkbox" name="selection_scope" value="filtered" disabled={total > RECRUITER_BULK_LIMIT} />
-          <span><strong>{total > RECRUITER_BULK_LIMIT ? `Filtered bulk unavailable · ${total} VAs` : `Use all ${total} filtered results`}</strong><small>{total > RECRUITER_BULK_LIMIT ? `Narrow the filters to ${RECRUITER_BULK_LIMIT} or fewer first.` : "Turn on only when the action should apply beyond this page."}</small></span>
-        </label>
+      <RecruiterTalentSelectionControl
+        formId="recruiter-talent-bulk-form"
+        pageCount={rows.length}
+        totalCount={total}
+        filteredSelectionAllowed={total <= RECRUITER_BULK_LIMIT}
+      />
+      <div className="bulk-action-bar bulk-action-controls" aria-label="Actions for selected Virtual Assistants">
         <select name="bulk_action" required defaultValue="">
-          <option value="" disabled>Bulk action…</option>
+          <option value="" disabled>Action for selected VAs…</option>
           <option value="approve">Approve eligible ({APPROVAL_MIN_COMPLETION}%+)</option>
           <option value="bench">Move approved to Bench</option>
           <option value="approve_publish">Approve + publish if public-ready</option>

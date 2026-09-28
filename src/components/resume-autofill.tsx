@@ -45,6 +45,7 @@ export function ResumeAutoFill({
     const form = document.getElementById(id) as HTMLFormElement | null;
     if (!form) return;
 
+    if (fields.address) setFormValue(form, "address", fields.address);
     if (fields.headline) setFormValue(form, "headline", fields.headline);
     if (fields.bio) setFormValue(form, "bio", fields.bio);
     if (fields.primary_category) setFormValue(form, "primary_category", fields.primary_category);
@@ -74,6 +75,7 @@ export function ResumeAutoFill({
 
   const filledCount = state.fields
     ? [
+        state.fields.address,
         state.fields.headline,
         state.fields.bio,
         state.fields.primary_category,
@@ -106,7 +108,7 @@ export function ResumeAutoFill({
             <strong id="resume-import-title">Use your resume to fill this profile</strong>
             {hasSavedResume && !selectedName ? <span className="badge badge-success"><CheckCircle2 size={12}/> Resume saved</span> : null}
           </div>
-          <p>Choose your resume once. PDF/DOCX can fill profile fields automatically; PDF, DOC, or DOCX will be saved privately when you save the profile.</p>
+          <p>Choose your resume once. PDF/DOCX can fill profile fields automatically, including your address when it is clearly listed. PDF, DOC, or DOCX will be saved privately when you save the profile.</p>
           {hasSavedResume && savedResumeName && !selectedName ? <span className="resume-saved-name">Saved file: {savedResumeName}</span> : null}
         </div>
       </div>

@@ -66,3 +66,19 @@ test("any authenticated account can enter the free learner workspace", async () 
   );
   assert.doesNotMatch(auth, /does%20not%20have%20access%20to%20the%20learner%20workspace/);
 });
+
+
+test("training-only Google accounts cannot leak into the VA recruiter directory", async () => {
+  const [bootstrap, migration] = await Promise.all([
+    read("src/lib/profile-bootstrap.ts"),
+    read("supabase/migrations/20260929081000_keep_training_accounts_out_of_va_directory.sql"),
+  ]);
+
+  assert.match(bootstrap, /isTrainingOnlyUser/);
+  assert.match(bootstrap, /account_type === "training"/);
+  assert.match(bootstrap, /if \(isTrainingOnlyUser\(user\)\) return null/);
+  assert.match(migration, /not in \('client', 'va'\)/);
+  assert.match(migration, /join auth\.users au on au\.id = p\.id/);
+  assert.match(migration, /raw_app_meta_data->>'account_type' = 'training'/);
+  assert.match(migration, /revoke all on public\.recruiter_va_directory from public, anon, authenticated/);
+});

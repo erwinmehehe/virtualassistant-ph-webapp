@@ -22,6 +22,14 @@ function bootstrapName(user: User) {
   return typeof value === "string" && value.trim() ? value.trim().slice(0, 100) : null;
 }
 
+function isTrainingOnlyUser(user: User) {
+  const explicitRole = user.user_metadata?.role;
+  const trainingAccount =
+    user.app_metadata?.account_type === "training"
+    || user.user_metadata?.account_type === "training";
+  return trainingAccount && explicitRole !== "va" && explicitRole !== "client";
+}
+
 async function ensureRoleRows(admin: ReturnType<typeof createAdminClient>, user: User, role: Role) {
   if (role === "client") {
     const { error } = await admin.from("client_profiles").upsert(
@@ -49,6 +57,7 @@ async function ensureRoleRows(admin: ReturnType<typeof createAdminClient>, user:
 
 export async function getOrBootstrapProfile(user: User): Promise<Profile | null> {
   try {
+    if (isTrainingOnlyUser(user)) return null;
     const admin = createAdminClient();
     const { data: existing } = await admin
       .from("profiles")

@@ -153,11 +153,31 @@ test("Recruiter Talent uses one unified search and explicit page selection", asy
   assert.match(page, /name="availability"/);
   assert.match(page, /RecruiterTalentSelectionControl/);
   assert.match(page, /id="recruiter-talent-bulk-form"/);
-  assert.match(page, /Use all .* filtered results/);
+  assert.match(page, /filteredSelectionAllowed=\{total <= RECRUITER_BULK_LIMIT\}/);
   assert.match(select, /Select page/);
   assert.match(select, /No rows selected/);
   assert.match(filters, /skills\.cs/);
   assert.match(filters, /tools\.cs/);
   assert.match(filters, /industries\.cs/);
   assert.match(css, /\.talent-selection-control/);
+});
+
+
+test("Recruiter Talent keeps five primary saved views and hides actions until selection", async () => {
+  const [page, select, css] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/components/recruiter-talent-selection-control.tsx"),
+    read("src/app/workspace/recruiter-talent.css"),
+  ]);
+
+  assert.match(page, /PRIMARY_SAVED_VIEW_KEYS/);
+  assert.match(page, /"all", "incomplete_profiles", "approval_ready", "available", "needs_review"/);
+  assert.match(page, /More views/);
+  assert.match(page, /secondarySavedViews/);
+  assert.match(page, /bulk-action-controls/);
+  assert.match(select, /Select all/);
+  assert.match(select, /selection_scope/);
+  assert.match(select, /dataset\.selectionActive/);
+  assert.match(css, /\.bulk-action-controls/);
+  assert.match(css, /data-selection-active="true"/);
 });

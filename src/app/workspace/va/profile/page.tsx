@@ -111,6 +111,18 @@ export default async function VaProfilePage({
                   <span className="field-help">Public pages show first name + last initial only.</span>
                 </div>
                 <div className="field">
+                  <label>Current home address <span className="muted">(private)</span></label>
+                  <input
+                    name="address"
+                    defaultValue={va?.address || ""}
+                    placeholder="Street / barangay, city, province"
+                    autoComplete="street-address"
+                    maxLength={200}
+                    required
+                  />
+                  <span className="field-help">Used only by our recruiter/admin team for hiring operations. It is never shown on your public profile.</span>
+                </div>
+                <div className="field">
                   <label>Professional headline</label>
                   <input
                     name="headline"

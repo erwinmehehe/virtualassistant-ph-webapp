@@ -28,10 +28,11 @@ test("approval-ready filters include null-stage VAs instead of losing them to ne
 });
 
 test("recruiter bulk actions hard-block selections above 500 and reuse the shared filter helper", async () => {
-  const [recruiter, talentAction, talentPage] = await Promise.all([
+  const [recruiter, talentAction, talentPage, selection] = await Promise.all([
     read("src/app/actions/recruiter.ts"),
     read("src/app/actions/recruiter-talent.ts"),
-    read("src/app/workspace/recruiter/talent/page.tsx")
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/components/recruiter-talent-selection-control.tsx")
   ]);
 
   assert.match(recruiter, /applyRecruiterTalentFilters/);
@@ -39,7 +40,8 @@ test("recruiter bulk actions hard-block selections above 500 and reuse the share
   assert.doesNotMatch(recruiter, /\.slice\(0, 500\)/);
   assert.match(recruiter, /Bulk actions are limited to \$\{RECRUITER_BULK_LIMIT\} selected VAs/);
   assert.match(talentAction, /Number\(filteredCount \|\| 0\) > RECRUITER_BULK_LIMIT/);
-  assert.match(talentPage, /Filtered bulk unavailable/);
+  assert.match(talentPage, /filteredSelectionAllowed=\{total <= RECRUITER_BULK_LIMIT\}/);
+  assert.match(selection, /disabled=\{!filteredSelectionAllowed\}/);
   assert.match(talentPage, /Approval cleanup/);
 });
 

@@ -6,6 +6,7 @@ import { RecruiterTalentOperationsPanel } from "@/components/recruiter-talent-op
 import { PublicAvatar } from "@/components/public-avatar";
 import { requireRoleFast } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
+import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT } from "@/lib/recruiter-talent-filters";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vettingStatusLabel } from "@/lib/vetting";
@@ -38,9 +39,22 @@ function num(value: string | undefined) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function qs(params: Record<string, string | undefined>, overrides: Record<string, string | number | undefined>) {
+function listParam(value: unknown) {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))];
+}
+
+function qs(
+  params: Record<string, string | undefined>,
+  overrides: Record<string, string | number | string[] | undefined>,
+) {
   const out = new URLSearchParams();
-  for (const [key, value] of Object.entries({ ...params, ...overrides })) {
+  const merged = { ...params, ...overrides } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(merged)) {
+    if (Array.isArray(value)) {
+      for (const item of value) if (String(item).trim()) out.append(key, String(item));
+      continue;
+    }
     if (value !== undefined && String(value) !== "") out.set(key, String(value));
   }
   const query = out.toString();
@@ -62,12 +76,15 @@ export default async function RecruiterTalentDirectory({
     ...params,
     ...(savedView?.filters || {})
   };
+  const selectedCategories = listParam(effective.category);
+  const categoryMatch = String(effective.category_match || "any") === "all" ? "all" : "any";
+  const skillFilter = String(effective.skill || "").trim();
 
   // The shared filter helper works on the untyped Supabase builder (no generated DB types).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = admin
     .from("recruiter_va_directory")
-    .select("user_id,full_name,avatar_url,headline,primary_category,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status", { count: "exact" });
+    .select("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status", { count: "exact" });
 
   if (sort === "completion") query = query.order("completion_score", { ascending: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
   else if (sort === "experience") query = query.order("years_experience", { ascending: false, nullsFirst: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
@@ -78,7 +95,8 @@ export default async function RecruiterTalentDirectory({
 
   query = applyRecruiterTalentFilters(query, {
     q: effective.q,
-    category: effective.category,
+    category: selectedCategories,
+    category_match: categoryMatch,
     stage: effective.stage,
     readiness: effective.readiness,
     photo: effective.photo,
@@ -157,7 +175,6 @@ export default async function RecruiterTalentDirectory({
   const filterHidden = <>
     {Object.entries({
       filter_q: effective.q,
-      filter_category: effective.category,
       filter_stage: effective.stage,
       filter_readiness: effective.readiness,
       filter_photo: effective.photo,
@@ -168,10 +185,12 @@ export default async function RecruiterTalentDirectory({
       filter_availability: effective.availability,
       filter_stale: effective.stale
     }).map(([name, value]) => <input key={name} type="hidden" name={name} value={value || ""} />)}
+    {selectedCategories.map((category) => <input key={category} type="hidden" name="filter_category" value={category} />)}
+    <input type="hidden" name="filter_category_match" value={categoryMatch} />
   </>;
 
   const stages = ["profile", "test", "video", "recruiter_review", "finalist", "approved", "bench", "rejected"];
-  const advancedFiltersActive = Boolean(effective.category || effective.photo || effective.resume || effective.skill || effective.min_experience || effective.max_rate || effective.availability || effective.stale);
+  const advancedFiltersActive = Boolean(selectedCategories.length || effective.photo || effective.resume || effective.skill || effective.min_experience || effective.max_rate || effective.availability || effective.stale);
   const readinessLabels: Record<string, string> = {
     zero: "Not started",
     incomplete: `Below ${APPROVAL_MIN_COMPLETION}%`,
@@ -182,7 +201,6 @@ export default async function RecruiterTalentDirectory({
   };
   const activeFilters = [
     effective.q ? { key: "q", label: `Search: ${effective.q}` } : null,
-    effective.category ? { key: "category", label: `Specialty: ${effective.category}` } : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
     effective.readiness ? { key: "readiness", label: readinessLabels[effective.readiness] || effective.readiness } : null,
     effective.photo ? { key: "photo", label: effective.photo === "yes" ? "Has photo" : "Missing photo" } : null,
@@ -301,7 +319,26 @@ export default async function RecruiterTalentDirectory({
       <details className="filter-more" open={advancedFiltersActive}>
         <summary><SlidersHorizontal size={15} /><span>More filters</span><ChevronDown size={15} className="filter-more-chevron" /></summary>
         <div className="filter-more-grid">
-          <label className="filter-field filter-field-wide"><span>Specialty</span><input name="category" defaultValue={effective.category} placeholder="Exact primary specialty" /></label>
+          <fieldset className="talent-category-filter">
+            <div className="talent-category-filter-head">
+              <div><legend>Specialties</legend><small>Select multiple specialties to find hybrid VAs.</small></div>
+              <label className="category-match-mode">
+                <span>Match</span>
+                <select name="category_match" defaultValue={categoryMatch}>
+                  <option value="any">Any selected</option>
+                  <option value="all">All selected</option>
+                </select>
+              </label>
+            </div>
+            <div className="talent-category-options">
+              {VA_CATEGORIES.map((category) => (
+                <label key={category} className={selectedCategories.includes(category) ? "talent-category-option selected" : "talent-category-option"}>
+                  <input type="checkbox" name="category" value={category} defaultChecked={selectedCategories.includes(category)} />
+                  <span>{vaCategoryLabel(category)}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
           <label className="filter-field"><span>Availability</span><select name="availability" defaultValue={effective.availability || ""}><option value="">Any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>
@@ -311,9 +348,19 @@ export default async function RecruiterTalentDirectory({
           <label className="filter-field"><span>Max. hourly rate</span><input type="number" min="5" step="1" name="max_rate" defaultValue={effective.max_rate} placeholder="USD / hr" /></label>
         </div>
       </details>
-      {activeFilters.length ? (
+      {activeFilters.length || selectedCategories.length ? (
         <div className="active-filter-row" aria-label="Active filters">
-          <span className="active-filter-label">{activeFilters.length} active</span>
+          <span className="active-filter-label">{activeFilters.length + selectedCategories.length} active</span>
+          {selectedCategories.map((category) => (
+            <Link
+              key={category}
+              className="active-filter-chip"
+              href={`/workspace/recruiter/talent${qs(params, { category: selectedCategories.filter((item) => item !== category), page: 1 })}`}
+            >
+              {vaCategoryLabel(category)}<X size={12} />
+            </Link>
+          ))}
+          {selectedCategories.length > 1 ? <span className="category-match-chip">{categoryMatch === "all" ? "Match all" : "Match any"}</span> : null}
           {activeFilters.map((filter) => (
             <Link key={filter.key} className="active-filter-chip" href={`/workspace/recruiter/talent${qs(params, { [filter.key]: undefined, page: 1 })}`}>
               {filter.label}<X size={12} />
@@ -403,6 +450,19 @@ export default async function RecruiterTalentDirectory({
                       ? "Public blocked"
                       : "Private";
               const score = row.completion_score || 0;
+              const specialties = [...new Set([
+                row.primary_category,
+                ...(Array.isArray(row.categories) ? row.categories : []),
+              ].filter((value): value is string => Boolean(value)))];
+              const rowSkills = Array.isArray(row.skills) ? row.skills : [];
+              const matchedCategories = selectedCategories.filter((category) => specialties.includes(category));
+              const matchedSkill = skillFilter && rowSkills.some((skill) => skill.toLowerCase() === skillFilter.toLowerCase())
+                ? skillFilter
+                : "";
+              const matchEvidence = [
+                ...matchedCategories.map((category) => vaCategoryLabel(category)),
+                ...(matchedSkill ? [`Skill: ${matchedSkill}`] : []),
+              ];
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
@@ -412,7 +472,11 @@ export default async function RecruiterTalentDirectory({
                     <div className="candidate-identity-copy">
                       <strong>{row.full_name || "VA account"}</strong>
                       <div className="small muted">{row.headline || row.primary_category || "Profile setup not started"}</div>
-                      <div className="candidate-meta-line">{row.availability_status || "Availability not set"}{row.primary_category && row.headline ? ` · ${row.primary_category}` : ""}</div>
+                      <div className="candidate-meta-line">{row.availability_status || "Availability not set"}</div>
+                      {specialties.length ? <div className="talent-specialty-chips" aria-label="VA specialties">
+                        {specialties.map((category) => <span key={category} className={category === row.primary_category ? "talent-specialty-chip primary" : "talent-specialty-chip"}>{vaCategoryLabel(category)}</span>)}
+                      </div> : null}
+                      {matchEvidence.length ? <div className="talent-match-reason"><strong>Matched because</strong><span>{matchEvidence.join(" · ")}</span></div> : null}
                     </div>
                   </div>
                 </td>

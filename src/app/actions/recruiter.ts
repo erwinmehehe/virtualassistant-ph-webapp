@@ -397,11 +397,16 @@ export async function sendClientFollowupAction(formData: FormData) {
         next_follow_up_at: existingFollowUp > now.getTime() ? leadSnapshot.next_follow_up_at : new Date(now.getTime() + 2 * 86400000).toISOString()
       };
       if (!leadSnapshot.first_contact_at) patch.first_contact_at = now.toISOString();
-      if ((leadSnapshot.crm_stage || "new") === "new") {
+      const advancedToContacted = (leadSnapshot.crm_stage || "new") === "new";
+      if (advancedToContacted) {
         patch.crm_stage = "contacted";
         patch.stage_updated_at = now.toISOString();
       }
-      await admin.from("lead_intake").update(patch).eq("id", activityId);
+      const { error: contactUpdateError } = await admin.from("lead_intake").update(patch).eq("id", activityId);
+      if (contactUpdateError) throw contactUpdateError;
+      if (advancedToContacted) {
+        await runCrmStageWorkflows({ leadId: activityId, stage: "contacted", actorId: user.id });
+      }
     }
   }
 
@@ -468,8 +473,12 @@ export async function recordLeadContactAction(formData: FormData) {
     patch.crm_stage = "contacted";
     patch.stage_updated_at = now.toISOString();
   }
+  const advancedToContacted = (lead.crm_stage || "new") === "new";
   const { error: updateError } = await admin.from("lead_intake").update(patch).eq("id", leadId);
   if (updateError) throw updateError;
+  if (advancedToContacted) {
+    await runCrmStageWorkflows({ leadId, stage: "contacted", actorId: user.id });
+  }
 
   await writeRecruiterActivity({
     subjectType: "lead",
@@ -494,6 +503,7 @@ export async function recordLeadContactAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
 }
 

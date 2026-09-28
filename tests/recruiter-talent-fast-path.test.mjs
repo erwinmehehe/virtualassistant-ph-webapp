@@ -92,3 +92,21 @@ test("Recruiter Talent exposes multi-specialty chips, any/all matching, and matc
   assert.match(css, /\.talent-specialty-chip\.primary/);
   assert.match(css, /\.talent-match-reason/);
 });
+
+
+test("recruiter candidate profile can correct primary and secondary specialties", async () => {
+  const [page, action] = await Promise.all([
+    read("src/app/workspace/recruiter/candidates/[id]/page.tsx"),
+    read("src/app/actions/recruiter.ts"),
+  ]);
+
+  assert.match(page, /updateVaCategoriesAction/);
+  assert.match(page, /name="primary_category"/);
+  assert.match(page, /name="categories"/);
+  assert.match(page, /Save specialties/);
+  assert.match(action, /export async function updateVaCategoriesAction/);
+  assert.match(action, /VA_CATEGORIES/);
+  assert.match(action, /categories\.length > 3/);
+  assert.match(action, /va_categories_recruiter_override/);
+  assert.match(action, /previous_categories/);
+});

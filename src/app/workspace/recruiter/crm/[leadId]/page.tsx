@@ -339,6 +339,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             : (lead.discovery_scheduled_at || lead.discovery_completed_at) ? 1
               : 0;
 
+  const latestDecision = shortlists
+    .filter((item) => item.client_decision_at)
+    .sort((x,y) => new Date(y.client_decision_at || 0).getTime() - new Date(x.client_decision_at || 0).getTime())[0] || null;
+  const shortlistActivityTimes = [shortlistOpenedAt, lastShortlistMessageAt, latestDecision?.client_decision_at || null].filter(Boolean) as string[];
+  const lastShortlistActivityAt = shortlistActivityTimes.length
+    ? shortlistActivityTimes.sort((x,y) => new Date(y).getTime() - new Date(x).getTime())[0]
+    : null;
+  const decisionSummary = latestDecision?.client_decision
+    ? `${String(latestDecision.client_decision).replaceAll("_", " ")} · ${fmt(latestDecision.client_decision_at, true)}`
+    : "No decision yet";
+
   return (
     <div className={styles.detailPage}>
       {query.crm_saved ? <div className="success-banner">CRM record updated.</div> : null}

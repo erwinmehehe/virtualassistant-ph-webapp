@@ -60,8 +60,13 @@ type Lead = {
   last_contact_at: string | null;
   stage_updated_at: string | null;
   discovery_scheduled_at: string | null;
+  discovery_duration_minutes: number | null;
+  discovery_meeting_url: string | null;
+  discovery_calendar_event_id: string | null;
   discovery_completed_at: string | null;
+  discovery_cancelled_at: string | null;
   discovery_outcome: string | null;
+  discovery_notes: string | null;
   created_at: string;
 };
 
@@ -85,7 +90,13 @@ type CustomField = { id:string; label:string; field_type:string; options:unknown
 type CustomValue = { field_id:string; value:unknown };
 type Company = { id:string; name:string; website:string|null; industry:string|null; location:string|null };
 type Contact = { id:string; full_name:string|null; email:string|null; phone:string|null; title:string|null };
-type EmailEvent = { id:string; event_type:string; status:string; automation:string|null; created_at:string };
+type EmailEvent = { id:string; event_type:string; status:string; automation:string|null; error_message:string|null; created_at:string };
+type Proposal = { id:string; status:string; role_title:string|null; created_at:string; sent_at:string|null; viewed_at:string|null; accepted_at:string|null; declined_at:string|null; changes_requested_at:string|null; decline_reason:string|null };
+type Shortlist = { id:string; va_id:string; shortlist_status:string; released_at:string|null; created_at:string; client_decision:string|null; client_decision_note:string|null; client_decision_at:string|null };
+type Interview = { id:string; va_id:string; status:string; created_at:string; scheduled_at:string|null; completed_at:string|null; cancelled_at:string|null; rescheduled_at:string|null; client_decision:string|null };
+type Offer = { id:string; va_id:string; status:string; created_at:string; va_accepted_at:string|null; client_confirmed_at:string|null; declined_at:string|null; start_date:string|null };
+type Workroom = { id:string; va_id:string; status:string; placement_stage:string|null; created_at:string; placement_stage_entered_at:string|null; handoff_completed_at:string|null; ended_at:string|null };
+type TimelineEvent = { id:string; at:string; kind:string; title:string; detail?:string|null };
 
 function fmt(value?: string | null, withTime = false) {
   if (!value) return "—";

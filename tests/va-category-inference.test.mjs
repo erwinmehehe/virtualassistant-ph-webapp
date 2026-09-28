@@ -9,7 +9,7 @@ test("VA profile save stores the primary plus inferred specialties in categories
   assert.match(profile,/inferCategoriesFromProfile/);
   assert.match(profile,/selectedPrimaryCategory/);
   assert.match(profile,/inferredCategories/);
-  assert.match(profile,/selectedPrimaryCategory \|\| inferredCategories\[0\] \|\| null/);
+  assert.match(profile,/selectedPrimaryCategory \|\| inferredPrimaryCategory \|\| inferredCategories\[0\] \|\| null/);
   assert.match(profile,/resolvedPrimaryCategory \? \[resolvedPrimaryCategory\] : \[\]/);
   assert.match(profile,/\.\.\.inferredCategories/);
   assert.match(profile,/primary_category: resolvedPrimaryCategory/);
@@ -43,9 +43,9 @@ test("category inference weights strong profile evidence and avoids generic word
   assert.doesNotMatch(inference,/\["support",\s*\d+\]/);
   assert.doesNotMatch(inference,/\["content",\s*\d+\]/);
   assert.doesNotMatch(inference,/\["website",\s*\d+\]/);
-  assert.match(inference,/category: "Administrative Support"[\s\S]*\["admin", 4\]/););
+  assert.match(inference,/category: "Administrative Support"[\s\S]*\["admin", 4\]/);
   assert.match(inference,/category: "SEO"[\s\S]*\["seo", 4\]/);
-  assert.match(inference,/category: "Real Estate"[\s\S]*\["real estate", 4\]/););
+  assert.match(inference,/category: "Real Estate"[\s\S]*\["real estate", 4\]/);
   assert.match(inference,/headline: 10/);
   assert.match(inference,/skills: 6/);
   assert.match(inference,/industries: 5/);
@@ -99,5 +99,5 @@ test("profile save treats user-selected specialties as declared evidence while b
   assert.match(refresh, /primaryLocked/);
   assert.match(refresh, /va_categories_recruiter_override/);
   assert.match(refresh, /recruiterOverrideIds/);
-  assert.match(refresh, /inferred\[0\] \|\| row\.primary_category/);
+  assert.match(refresh, /inferredPrimary \|\| row\.primary_category \|\| inferred\[0\]/);
 });

@@ -27,8 +27,7 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(floating, /<span>Book a discovery call<\/span>/);
   assert.doesNotMatch(footer, /FooterCta|footer-cta/);
   assert.doesNotMatch(footer, /HomepageShowcase/);
-  assert.match(footerCta, /href="\/book-client-call"/);
-  assert.match(footerCta, /pathname === "\/"/);
+  assert.match(footer, /<FloatingCta \/>/);
 });
 
 test("high-value public pages keep approved H1 copy and a valid conversion path", () => {

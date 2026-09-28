@@ -31,27 +31,6 @@
   line-height: 1.6;
 }
 
-.booking-hero-points {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: .55rem 1rem;
-  margin-top: .9rem;
-}
-
-.booking-hero-points span {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  color: #667085;
-  font-size: .72rem;
-  font-weight: 650;
-}
-
-.booking-hero-points svg {
-  color: #12b76a;
-}
-
 .booking-main-section {
   padding: .5rem 0 clamp(4rem, 8vw, 6rem);
   background: #fff;

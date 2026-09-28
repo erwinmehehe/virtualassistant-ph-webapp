@@ -324,3 +324,26 @@
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Form-free informational heroes: use a focused single-column layout instead of
+   leaving an empty second column where a lead form used to sit. */
+.va-marketing-hero-solo .va-marketing-hero-grid {
+  grid-template-columns: minmax(0, 860px);
+  justify-content: center;
+}
+
+.va-marketing-hero-solo .va-marketing-hero-copy {
+  max-width: 860px;
+}
+
+.va-marketing-hero-solo .public-page-title,
+.va-marketing-hero-solo .public-lede {
+  max-width: 760px;
+}
+
+@media (max-width: 760px) {
+  .va-marketing-hero-solo .va-marketing-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -271,7 +271,7 @@ function VerdictIcon({ verdict }: { verdict: Verdict }) {
   return null;
 }
 
-export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
+export function HiringModelsSection() {
   return (
     <section className="hs-section hs-band-white" aria-labelledby="hs-models-title">
       <div className="container">
@@ -309,13 +309,6 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
-                <tr>
-                  <td aria-hidden="true" />
-                  <td className="hs-managed hs-managed-foot"><Link className="hs-btn hs-btn-primary" href={bookingUrl}>Book a discovery call <ArrowRight size={16} /></Link></td>
-                  <td colSpan={2} />
-                </tr>
-              </tfoot>
             </table>
           </div>
 
@@ -333,7 +326,6 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
                     </li>
                   ))}
                 </ul>
-                {columnIndex === 0 ? <Link className="hs-btn hs-btn-primary" href={bookingUrl}>Book a discovery call <ArrowRight size={16} /></Link> : null}
               </article>
             ))}
           </div>
@@ -355,7 +347,7 @@ export function HiringModelsSection({ bookingUrl }: { bookingUrl: string }) {
 /* Why choose VirtualAssistant.com.ph                                         */
 /* -------------------------------------------------------------------------- */
 
-export function WhyChooseSection({ bookingUrl }: { bookingUrl: string }) {
+export function WhyChooseSection() {
   const points = [
     {
       title: "Screened before client presentation",
@@ -389,10 +381,6 @@ export function WhyChooseSection({ bookingUrl }: { bookingUrl: string }) {
             For businesses hiring a Virtual Assistant in the Philippines, our model combines human recruiting,
             practical screening, and support after placement while you stay in control of the final hiring decision.
           </p>
-          <div className="hs-whychoose-actions">
-            <Link className="hs-btn hs-btn-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
-            <Link className="hs-btn hs-btn-ghost" href={bookingUrl}>Discuss your VA needs</Link>
-          </div>
         </div>
 
         <div className="hs-whychoose-grid">
@@ -564,7 +552,6 @@ export function IndustriesSection() {
           <div>
             {more.map((industry) => <Link key={industry.slug} href={`/industries/${industry.slug}`}>{industry.label}</Link>)}
           </div>
-          <Link className="hs-link" href="/hire">Not listed? Tell us the work <ArrowRight size={14} /></Link>
         </div>
       </div>
     </section>

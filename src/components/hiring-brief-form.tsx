@@ -203,6 +203,7 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
       <div className="hb-field">
         <label htmlFor={`${id}-message`}>What should your VA handle?</label>
         <textarea id={`${id}-message`} name="message" rows={3} required minLength={messageMin} maxLength={3000} placeholder={placeholder} />
+        {messageMin >= 40 ? <small className="hb-field-hint">Minimum 40 characters.</small> : null}
       </div>
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>
@@ -294,7 +295,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
         <TurnstileWidget />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />

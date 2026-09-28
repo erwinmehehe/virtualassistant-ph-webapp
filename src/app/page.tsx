@@ -257,8 +257,8 @@ export default async function HomePage() {
         <div className="hs-root">
           <ServicesSection />
           <WhyPhilippinesSection />
-          <HiringModelsSection bookingUrl={BOOKING_URL} />
-          <WhyChooseSection bookingUrl={BOOKING_URL} />
+          <HiringModelsSection />
+          <WhyChooseSection />
           <TalentSection talent={featuredWithPhotos} />
           <HowItWorksSection />
           <IndustriesSection />

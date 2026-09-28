@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getClientLastLogin } from "@/lib/client-auth-activity";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
 import { dateInputValue as dateInput, dateTimeInputValue as dateTimeInput } from "@/lib/format";
 import {
@@ -30,6 +31,7 @@ import {
 import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";
+import { ClientEngagementPanel } from "@/components/client-engagement-panel";
 
 type Lead = {
   id: string;
@@ -183,6 +185,59 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const offers = (offerResult.data || []) as Offer[];
   const workrooms = (workroomResult.data || []) as Workroom[];
 
+  const [
+    clientLastLoginAt,
+    candidateViewResult,
+    shortlistOpenResult,
+    shortlistMessageResult,
+    emailReplyResult,
+  ] = await Promise.all([
+    getClientLastLogin(lead.client_id),
+    lead.client_id
+      ? admin.from("analytics_events")
+          .select("created_at", { count: "exact" })
+          .eq("user_id", lead.client_id)
+          .in("event_name", ["candidate_view", "candidate_viewed"])
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], count: 0, error: null }),
+    lead.client_id && lead.job_id
+      ? admin.from("recruiter_activity")
+          .select("created_at")
+          .eq("subject_type", "job")
+          .eq("subject_id", lead.job_id)
+          .eq("actor_id", lead.client_id)
+          .eq("action", "client_shortlist_viewed")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], error: null }),
+    lead.client_id && lead.job_id
+      ? admin.from("recruiter_activity")
+          .select("created_at")
+          .eq("subject_type", "job")
+          .eq("subject_id", lead.job_id)
+          .eq("actor_id", lead.client_id)
+          .eq("action", "client_shortlist_message")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], error: null }),
+    admin.from("recruiter_activity")
+      .select("created_at")
+      .eq("subject_type", "lead")
+      .eq("subject_id", leadId)
+      .eq("action", "client_contact_email")
+      .order("created_at", { ascending: false })
+      .limit(1),
+  ]);
+  for (const result of [candidateViewResult, shortlistOpenResult, shortlistMessageResult, emailReplyResult]) {
+    if (result.error) throw result.error;
+  }
+  const candidateViewCount = Number(candidateViewResult.count || 0);
+  const lastCandidateViewAt = candidateViewResult.data?.[0]?.created_at || null;
+  const shortlistOpenedAt = shortlistOpenResult.data?.[0]?.created_at || null;
+  const lastShortlistMessageAt = shortlistMessageResult.data?.[0]?.created_at || null;
+  const lastEmailReplyAt = emailReplyResult.data?.[0]?.created_at || null;
+
   const vaIds = [...new Set([
     ...shortlists.map(item=>item.va_id),
     ...interviews.map(item=>item.va_id),
@@ -285,6 +340,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             : (lead.discovery_scheduled_at || lead.discovery_completed_at) ? 1
               : 0;
 
+  const latestDecision = shortlists
+    .filter((item) => item.client_decision_at)
+    .sort((x,y) => new Date(y.client_decision_at || 0).getTime() - new Date(x.client_decision_at || 0).getTime())[0] || null;
+  const shortlistActivityTimes = [shortlistOpenedAt, lastShortlistMessageAt, latestDecision?.client_decision_at || null].filter(Boolean) as string[];
+  const lastShortlistActivityAt = shortlistActivityTimes.length
+    ? shortlistActivityTimes.sort((x,y) => new Date(y).getTime() - new Date(x).getTime())[0]
+    : null;
+  const decisionSummary = latestDecision?.client_decision
+    ? `${String(latestDecision.client_decision).replaceAll("_", " ")} · ${fmt(latestDecision.client_decision_at, true)}`
+    : "No decision yet";
+
   return (
     <div className={styles.detailPage}>
       {query.crm_saved ? <div className="success-banner">CRM record updated.</div> : null}
@@ -323,6 +389,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       <nav className={styles.workflow} aria-label="Hiring workflow">
         {workflowSteps.map((label,index)=><span key={label} className={index < workflowIndex ? styles.workflowDone : index === workflowIndex ? styles.workflowCurrent : undefined}><i>{index < workflowIndex ? "✓" : index + 1}</i><em>{label}</em></span>)}
       </nav>
+
+      <ClientEngagementPanel
+        linked={Boolean(lead.client_id)}
+        lastLogin={clientLastLoginAt ? fmt(clientLastLoginAt, true) : "Never / not linked"}
+        lastVaView={lastCandidateViewAt ? fmt(lastCandidateViewAt, true) : "No tracked view"}
+        vaViews={candidateViewCount}
+        shortlistOpened={shortlistOpenedAt ? fmt(shortlistOpenedAt, true) : "Not tracked yet"}
+        shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
+        decision={decisionSummary}
+        lastEmailReply={lastEmailReplyAt ? fmt(lastEmailReplyAt, true) : "No reply logged"}
+      />
 
       <section className={styles.actionCenter}>
         <div className={styles.actionCenterHead}>
@@ -482,10 +559,10 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <div><span>Discovery</span><strong>{lead.discovery_completed_at ? `Completed · ${lead.discovery_outcome || "outcome not set"}` : lead.discovery_scheduled_at ? fmt(lead.discovery_scheduled_at, true) : "Not booked"}</strong></div>
               </div>
               <details className={styles.compactDetails}>
-                <summary>Log client interaction</summary>
+                <summary>Log client interaction or email reply</summary>
                 <form action={recordLeadContactAction} className={styles.form}>
                   <input type="hidden" name="lead_id" value={lead.id}/>
-                  <label>Type<select name="contact_type" defaultValue="call"><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
+                  <label>Type<select name="contact_type" defaultValue="call"><option value="email">Email reply</option><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
                   <label>Note<input name="note" maxLength={1000} placeholder="What happened?"/></label>
                   <button type="submit">Log interaction</button>
                 </form>

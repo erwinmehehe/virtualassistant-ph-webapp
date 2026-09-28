@@ -35,17 +35,32 @@ export async function autoCategorizeUncategorizedVasAction() {
   }
 
   const ids = rows.map((row) => row.user_id);
-  const { data: vettingRows, error: vettingError } = await admin
-    .from("va_vetting")
-    .select("va_id,stage")
-    .in("va_id", ids);
+  const [
+    { data: vettingRows, error: vettingError },
+    { data: overrideRows, error: overrideError },
+  ] = await Promise.all([
+    admin.from("va_vetting").select("va_id,stage").in("va_id", ids),
+    admin
+      .from("recruiter_activity")
+      .select("subject_id")
+      .eq("subject_type", "va")
+      .eq("action", "va_categories_recruiter_override")
+      .in("subject_id", ids),
+  ]);
   if (vettingError) throw vettingError;
+  if (overrideError) throw overrideError;
 
   const stageByVa = new Map((vettingRows || []).map((row) => [String(row.va_id), String(row.stage || "")]));
+  const recruiterOverrideIds = new Set((overrideRows || []).map((row) => String(row.subject_id)));
   let categorized = 0;
   let skipped = 0;
 
   for (const row of rows) {
+    if (recruiterOverrideIds.has(row.user_id)) {
+      skipped += 1;
+      continue;
+    }
+
     const inferenceInput = {
       headline: row.headline,
       bio: row.bio,

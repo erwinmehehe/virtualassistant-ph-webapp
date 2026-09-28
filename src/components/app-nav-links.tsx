@@ -16,7 +16,6 @@ import {
   ListTodo,
   LifeBuoy,
   LogOut,
-  MessageSquare,
   Search,
   Settings,
   ShieldCheck,
@@ -73,26 +72,25 @@ const nav: Record<Role, readonly NavGroup[]> = {
   ],
   recruiter: [
     {
-      label: "Workspace",
+      label: "Hiring",
       items: [
         ["My Day", "/workspace/recruiter/today", ListTodo],
-        ["CRM", "/workspace/recruiter/crm", UsersRound],
-        ["Active roles", "/workspace/recruiter/roles", BriefcaseBusiness],
-        ["Client review", "/workspace/recruiter/client-review", MessageSquare],
-        ["Placements", "/workspace/recruiter/placements", Wrench],
+        ["Hiring pipeline", "/workspace/recruiter/crm", UsersRound],
+        ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
+        ["Placements", "/workspace/recruiter/placements", Wrench],
         ["Account settings", "/workspace/account", Settings],
       ],
     },
     {
-      label: "Recruiting tools",
+      label: "Tools",
       items: [
         ["Work Readiness", "/workspace/recruiter/work-readiness", ClipboardCheck],
         ["Coverage", "/workspace/recruiter/coverage", Target],
       ],
     },
     {
-      label: "Performance",
+      label: "Reports",
       items: [
         ["Agency Funnel", "/workspace/recruiter/funnel", Activity],
         ["Recruiting Analytics", "/workspace/recruiter/analytics", BarChart3],
@@ -130,7 +128,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/interviews"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 

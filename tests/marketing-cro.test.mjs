@@ -11,7 +11,6 @@ test("public marketing shell loads the shared CRO design system", () => {
   const header = source("src/components/site-header.tsx");
   const nav = source("src/components/site-nav.tsx");
   const footer = source("src/components/site-footer.tsx");
-  const footerCta = source("src/components/footer-cta.tsx");
   const floating = source("src/components/floating-cta.tsx");
 
   assert.match(layout, /import "\.\/va-design\.css"/);
@@ -21,28 +20,27 @@ test("public marketing shell loads the shared CRO design system", () => {
   assert.match(layout, /import "\.\/service-match-form-final\.css"/);
   assert.match(header, /<SiteNav\s*\/>/);
   assert.doesNotMatch(nav, /href="\/book-client-call"/);
-  assert.match(floating, /DISCOVERY_CALL_URL = "https:\/\/calendar\.app\.google\/FxedmioyeJhKras87"/);
+  assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
   assert.doesNotMatch(floating, /Hiring a Virtual Assistant\?/);
   assert.match(floating, /INTERNAL_PATHS/);
   assert.match(floating, /floating-cta-compact/);
   assert.match(floating, /<span>Book a discovery call<\/span>/);
-  assert.match(footer, /<FooterCta\s*\/>/);
+  assert.doesNotMatch(footer, /FooterCta|footer-cta/);
   assert.doesNotMatch(footer, /HomepageShowcase/);
-  assert.match(footerCta, /href="\/book-client-call"/);
-  assert.match(footerCta, /pathname === "\/"/);
+  assert.match(footer, /<FloatingCta \/>/);
 });
 
 test("high-value public pages keep approved H1 copy and a valid conversion path", () => {
   const checks = [
     ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /href="\/hire"/],
     ["src/app/industries/page.tsx", "Find VA support by business workflow.", /href="\/hire"/],
-    ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /<DiscoveryCallCard|<HiringBriefForm/],
+    ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /href="\/hire"/],
     ["src/app/blog/page.tsx", "Practical guides for hiring and managing Filipino VAs.", /href="\/hire"/],
-    ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /<DiscoveryCallCard|<HiringBriefForm/],
-    ["src/app/faq/page.tsx", "Questions before you hire or apply.", /<DiscoveryCallCard|href="\/book-client-call"/],
-    ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", /<DiscoveryCallCard|href="\/book-client-call"/],
-    ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", /<DiscoveryCallCard|href="\/book-client-call"/],
-    ["src/app/managed-vs-direct-hire/page.tsx", "Managed Virtual Assistant vs. Direct Hire", /<DiscoveryCallCard|<HiringBriefForm|href="\/book-client-call"/],
+    ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /href="\/hire"|href="\/book-client-call"/],
+    ["src/app/faq/page.tsx", "Questions before you hire or apply.", /href="\/hire"/],
+    ["src/app/about/page.tsx", "A recruiting team for businesses hiring Filipino Virtual Assistants.", /href="\/hire"/],
+    ["src/app/how-vetting-works/page.tsx", "“Vetted” should mean more than a profile badge.", /href="\/hire"|href="\/find-talent"/],
+    ["src/app/managed-vs-direct-hire/page.tsx", "Managed Virtual Assistant vs. Direct Hire", /href="\/hire"/],
     ["src/app/tools/page.tsx", "Plan the role before you post it.", /href="\/tools\/virtual-assistant-cost-calculator"/],
     ["src/app/contact/page.tsx", "What can we help with?", /submitContactAction/]
   ];

@@ -27,7 +27,7 @@ test("shared branded renderer strips a caller-supplied leading greeting", async 
   assert.match(email, /function stripLeadingBrandedGreeting\(bodyHtml: string\)/);
   assert.match(renderer, /const bodyHtml = stripLeadingBrandedGreeting\(args\.bodyHtml\)/);
   assert.match(renderer, /Hi \$\{escapeHtml\(args\.firstName\)\},/);
-  assert.match(renderer, /\$\{bodyHtml\}\$\{cta\}\$\{signature\}/);
+  assert.match(renderer, /\$\{bodyHtml\}[\s\S]*\$\{cta\}[\s\S]*\$\{signature\}/);
   assert.doesNotMatch(renderer, /\$\{args\.bodyHtml\}\$\{cta\}\$\{signature\}/);
 });
 

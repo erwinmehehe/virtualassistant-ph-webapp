@@ -4,21 +4,19 @@ import test from "node:test";
 
 const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 
-test("recruiter Today leads with one next action and four workstreams",async()=>{
+test("recruiter Today leads with one next action and only actionable operating sections",async()=>{
   const [page,css]=await Promise.all([
     read("src/app/workspace/recruiter/today/page.tsx"),
     read("src/app/workspace/recruiter/today/today.module.css")
   ]);
 
   assert.match(page,/id="recruiter-next-action"/);
-  assert.match(page,/const workstreams = \[/);
-  for(const label of ["Sales","Talent","Clients","Hiring"]){
-    assert.ok(page.includes(`label:"${label}"`),`missing ${label} workstream`);
-  }
-  assert.doesNotMatch(page,/Action lanes/);
-  assert.ok(page.indexOf('id="recruiter-next-action"') < page.indexOf('id="workstreams"'));
-  assert.match(css,/\.workstreamGrid\s*\{[\s\S]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
-  assert.match(css,/@media \(max-width: 520px\)[\s\S]*\.workstreamGrid\s*\{[\s\S]*grid-template-columns:1fr/);
+  assert.match(page,/Today’s work queue/);
+  assert.match(page,/Talent operations/);
+  assert.match(page,/Role follow-through/);
+  assert.doesNotMatch(page,/Four places to look|const workstreams = \[/);
+  assert.doesNotMatch(css,/\.workstreamGrid|\.priorityStrip/);
+  assert.match(css,/\.operationsGrid/);
 });
 
 test("owner dashboard puts exceptions before the business pipeline",async()=>{

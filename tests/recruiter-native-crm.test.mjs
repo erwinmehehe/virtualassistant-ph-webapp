@@ -8,8 +8,8 @@ test("recruiter CRM keeps table and board views on the same live lead records",a
   const page=await read("src/app/workspace/recruiter/crm/page.tsx");
   assert.match(page,/mode === "board"/);
   assert.match(page,/RecruiterLeadKanban/);
-  assert.match(page,/Saved views/);
-  assert.match(page,/Search people, company, email, or role/);
+  assert.match(page,/Hiring pipeline/);
+  assert.match(page,/Search client, company, email, or role/);
   assert.match(page,/lead_intake/);
   assert.match(page,/jobs/);
 });
@@ -24,12 +24,12 @@ test("CRM record page combines properties relationships activity notes and tasks
   assert.match(page,/recruiter_tasks/);
   assert.match(page,/Open linked role/);
   assert.match(page,/sendClientFollowupAction/);
-  assert.match(page,/Action center/);
-  assert.match(page,/Relationship timeline/);
+  assert.match(page,/Next actions/);
+  assert.match(page,/Activity history/);
 });
 
 test("recruiter navigation exposes CRM as a primary workspace destination",async()=>{
   const nav=await read("src/components/app-nav-links.tsx");
-  assert.match(nav,/["CRM", "/workspace/recruiter/crm", UsersRound]/);
-  assert.ok(nav.includes('recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/client-review"],'));
+  assert.match(nav,/["Hiring pipeline", "/workspace/recruiter/crm", UsersRound]/);
+  assert.ok(nav.includes('recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],'));
 });

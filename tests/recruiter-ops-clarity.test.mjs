@@ -59,11 +59,10 @@ test("recruiter analytics prioritizes operating health before diagnostics",async
 
 test("recruiter navigation names the connected hiring workflow clearly",async()=>{
   const nav=await read("src/components/app-nav-links.tsx");
-  assert.match(nav,/\["CRM", "\/workspace\/recruiter\/crm", UsersRound\]/);
-  assert.match(nav,/\["Active roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
+  assert.match(nav,/\["Hiring pipeline", "\/workspace\/recruiter\/crm", UsersRound\]/);
+  assert.match(nav,/\["Roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
   assert.match(nav,/\["Talent", "\/workspace\/recruiter\/talent", Search\]/);
-  assert.match(nav,/\["Client review", "\/workspace\/recruiter\/client-review", MessageSquare\]/);
   assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
+  assert.doesNotMatch(nav,/\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.doesNotMatch(nav,/\["Leads", "\/workspace\/recruiter\/leads"/);
-  assert.doesNotMatch(nav,/\["Roles", "\/workspace\/recruiter\/roles"/);
 });

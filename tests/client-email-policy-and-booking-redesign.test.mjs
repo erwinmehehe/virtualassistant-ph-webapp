@@ -112,7 +112,8 @@ test("booking page uses the simplified low-friction booking experience", async (
   assert.match(form,/Choose a time/);
   assert.match(form,/booking-calendar-shell/);
   assert.match(form,/booking-selected-slot/);
-  assert.doesNotMatch(form,/booking-timezone-control/);\n  assert.match(form,/Loading available times/);
+  assert.doesNotMatch(form,/booking-timezone-control/);
+  assert.match(form,/Loading available times/);
   assert.match(form,/activeDay\?\.slots\.map/);
   assert.doesNotMatch(form,/booking-show-times/);
   assert.match(form,/Book discovery call/);
@@ -120,6 +121,6 @@ test("booking page uses the simplified low-friction booking experience", async (
   assert.match(css,/\.booking-card-head/);
   assert.match(css,/\.booking-calendar-shell/);
   assert.match(css,/\.booking-selected-slot/);
-  assert.match(css,/\.booking-timezone-control/);
+  assert.doesNotMatch(css,/\.booking-timezone-control|\.booking-timezone-note/);
   assert.match(css,/background: #fff/);
 });

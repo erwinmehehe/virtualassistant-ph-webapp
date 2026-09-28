@@ -8,11 +8,12 @@ const action = read("src/app/actions/recruiter-cleanup.ts");
 const closeAction = read("src/app/actions/close-lead.ts");
 const migration = read("supabase/migrations/20260917004500_recruiter_cleanup_queue.sql");
 
-test("My Day has a dedicated sales cleanup queue without duplicate lead work items", () => {
+test("My Day removes duplicate lead work and routes cleanup into CRM Needs action", () => {
   assert.match(page, /recruiter_today_summary/);
-  assert.match(page, /Sales cleanup/);
   assert.match(page, /LEAD_QUEUE_KINDS = new Set\(\["lead_first_contact", "lead_followup"\]\)/);
   assert.match(page, /\.filter\(\(item:any\)=>!LEAD_QUEUE_KINDS\.has\(String\(item\.kind\)\)\)/);
+  assert.match(page, /workspace\/recruiter\/crm\?view=attention/);
+  assert.doesNotMatch(page, /<h2>Sales cleanup<\/h2>/);
 });
 
 test("cleanup queue surfaces the required operational reasons", () => {
@@ -35,12 +36,10 @@ test("cleanup actions preserve history without pre-shortlist client email", () =
   assert.match(action, /follow_up_later/);
   assert.doesNotMatch(action, /send_followup|sendStaffClientFollowupEmail/);
   assert.doesNotMatch(page, /cleanup_action" value="send_followup"/);
-  assert.match(page, /Review again in 3 days/);
+  assert.doesNotMatch(page, /recruiterCleanupLeadAction|closeLeadAction|Review again in 3 days/);
   for (const closeReason of ["No response", "Spam", "Not a fit"]) {
-    assert.match(page, new RegExp(`value=\\"${closeReason}\\"`));
     assert.match(closeAction, new RegExp(`\\"${closeReason}\\"`));
   }
-  assert.match(page, /action=\{closeLeadAction\}/);
   assert.match(action, /now\.getTime\(\) \+ 3 \* 86400000/);
   assert.match(closeAction, /lost_reason: rawReason/);
   assert.match(action, /writeRecruiterActivity/);

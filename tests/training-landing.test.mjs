@@ -48,9 +48,9 @@ test("the landing page separates new training signup from returning-user login a
 });
 
 test("the VA page never leads with the client CTA", () => {
-  const footerCta = source("src/components/footer-cta.tsx");
-  // /training is excluded from the hire-a-VA band, which addresses buyers.
-  assert.ok(footerCta.includes("/training"), "footer CTA should skip /training");
+  const footer = source("src/components/site-footer.tsx");
+  assert.doesNotMatch(footer, /FooterCta|footer-cta/);
+  assert.match(page, /Start free training|Join free training|Create free training account/);
 });
 
 

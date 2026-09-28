@@ -36,10 +36,10 @@ test("clients can reach discovery call management from their dashboard",()=>{
 
 test("Recruiter Today keeps no-shows visible without a rebooking email action",()=>{
   const today=read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(today,/id="call-rebooking"/);
-  assert.match(today,/>Call rebooking</);
-  assert.match(today,/no automatic client email is sent/i);
-  assert.match(today,/Client email is held until a VA shortlist is sent/);
+  assert.match(today,/Discovery no-shows/);
+  assert.match(today,/No-show recorded/);
+  assert.match(today,/workspace\/recruiter\/crm\/\$\{lead\.id\}/);
+  assert.match(today,/Role follow-through/);
   assert.doesNotMatch(today,/Send rebooking link/);
   assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction/);
 });

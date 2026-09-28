@@ -19,17 +19,17 @@ test("workspace shell leaves the page heading to the shared dashboard header", (
 });
 
 test("desktop and mobile navigation use simplified durable workspace groups", () => {
-  assert.equal((nav.match(/label: "Workspace"/g) || []).length, 4);
+  assert.equal((nav.match(/label: "Workspace"/g) || []).length, 3);
+  assert.match(nav, /label: "Hiring"/);
   for (const label of [
     "Hiring",
     "My Team",
     "Home",
     "Opportunities",
     "My Day",
-    "CRM",
-    "Active roles",
+    "Hiring pipeline",
+    "Roles",
     "Talent",
-    "Client review",
     "Placements",
     "Finance",
     "Analytics",
@@ -48,13 +48,13 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
 test("role dashboards share the organized dashboard surface", () => {
   assert.match(client, /dash-page role-overview client-overview/);
   assert.match(va, /dash-page role-overview va-overview/);
-  assert.match(recruiter, /Four places to look/);
+  assert.doesNotMatch(recruiter, /Four places to look/);
   assert.match(recruiter, /recruiter-next-action/);
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Today’s work queue/);
   assert.match(client, /refreshed when this page opened/);
   assert.match(va, /DashHeader title="VA dashboard"/);
-  assert.match(recruiter, /One owner · one next action · one due time/);
+  assert.match(recruiter, /One owner · one next step/);
 });
 
 test("overview pages preserve useful loading and degraded states", () => {

@@ -16,10 +16,9 @@ test("qualified booking flow stays available and the floating CTA uses the inter
   for (const source of [home, hire, form, contact]) {
     assert.match(source, /\/book-client-call/);
   }
-  assert.match(floating, /calendar\.app\.google\/FxedmioyeJhKras87/);
-  assert.doesNotMatch(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
+  assert.match(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
+  assert.doesNotMatch(floating, /calendar\.app\.google/);
 });
-
 test("client booking opens directly on the calendar and still routes VA applicants away", async () => {
   const [form, action] = await Promise.all([
     read("src/components/client-booking-form.tsx"),
@@ -32,14 +31,9 @@ test("client booking opens directly on the calendar and still routes VA applican
   assert.match(form, /href="\/auth\/join\/va"/);
   assert.match(action, /audience: z\.literal\("client"\)/);
   assert.match(action, /isAllowedDiscoverySlot/);
-  assert.match(form, /useState<string \| null>\(null\)/);
-  assert.ok(form.includes("Australia/Sydney"));
-  assert.ok(form.includes("America/Chicago"));
-  assert.ok(form.includes("America/Denver"));
-  assert.match(form,/resolvedOptions\(\)\.timeZone/);
-  assert.match(form,/id="booking-timezone"/);
-  assert.match(form,/setDisplayTimeZone\(event\.target\.value\)/);
-  assert.match(form,/Detected:/);
+  assert.match(form, /resolvedOptions\(\)\.timeZone/);
+  assert.match(form, /name="timezone" value=\{displayTimeZone \|\| ""\}/);
+  assert.doesNotMatch(form, /id="booking-timezone"|booking-timezone-control|Detected:/);
 });
 
 test("discovery booking is available 24/7 and grouped in the visitor timezone", async () => {

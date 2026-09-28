@@ -6,10 +6,10 @@ const read=(path)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("canonical recruiter My Day exposes the no-show queue without sending client email",()=>{
   const page=read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(page,/Call rebooking/);
-  assert.match(page,/No-show calls stay visible here/);
-  assert.match(page,/Client email is held until a VA shortlist is sent/);
-  assert.match(page,/Open lead/);
+  assert.match(page,/Discovery no-shows/);
+  assert.match(page,/No-show recorded/);
+  assert.match(page,/Role follow-through/);
+  assert.match(page,/workspace\/recruiter\/crm\/\$\{lead\.id\}/);
   assert.doesNotMatch(page,/sendDiscoveryNoShowRebookAction/);
   assert.doesNotMatch(page,/Send rebooking link/);
   assert.doesNotMatch(page,/rebook_email_sent/);

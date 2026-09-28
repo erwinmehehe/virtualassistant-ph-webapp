@@ -203,6 +203,7 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
       <div className="hb-field">
         <label htmlFor={`${id}-message`}>What should your VA handle?</label>
         <textarea id={`${id}-message`} name="message" rows={3} required minLength={messageMin} maxLength={3000} placeholder={placeholder} />
+        {messageMin >= 40 ? <small className="hb-field-hint">Minimum 40 characters.</small> : null}
       </div>
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>

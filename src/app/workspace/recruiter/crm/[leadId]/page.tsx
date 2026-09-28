@@ -184,6 +184,59 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const offers = (offerResult.data || []) as Offer[];
   const workrooms = (workroomResult.data || []) as Workroom[];
 
+  const [
+    clientLastLoginAt,
+    candidateViewResult,
+    shortlistOpenResult,
+    shortlistMessageResult,
+    emailReplyResult,
+  ] = await Promise.all([
+    getClientLastLogin(lead.client_id),
+    lead.client_id
+      ? admin.from("analytics_events")
+          .select("created_at", { count: "exact" })
+          .eq("user_id", lead.client_id)
+          .in("event_name", ["candidate_view", "candidate_viewed"])
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], count: 0, error: null }),
+    lead.client_id && lead.job_id
+      ? admin.from("recruiter_activity")
+          .select("created_at")
+          .eq("subject_type", "job")
+          .eq("subject_id", lead.job_id)
+          .eq("actor_id", lead.client_id)
+          .eq("action", "client_shortlist_viewed")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], error: null }),
+    lead.client_id && lead.job_id
+      ? admin.from("recruiter_activity")
+          .select("created_at")
+          .eq("subject_type", "job")
+          .eq("subject_id", lead.job_id)
+          .eq("actor_id", lead.client_id)
+          .eq("action", "client_shortlist_message")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : Promise.resolve({ data: [], error: null }),
+    admin.from("recruiter_activity")
+      .select("created_at")
+      .eq("subject_type", "lead")
+      .eq("subject_id", leadId)
+      .eq("action", "client_contact_email")
+      .order("created_at", { ascending: false })
+      .limit(1),
+  ]);
+  for (const result of [candidateViewResult, shortlistOpenResult, shortlistMessageResult, emailReplyResult]) {
+    if (result.error) throw result.error;
+  }
+  const candidateViewCount = Number(candidateViewResult.count || 0);
+  const lastCandidateViewAt = candidateViewResult.data?.[0]?.created_at || null;
+  const shortlistOpenedAt = shortlistOpenResult.data?.[0]?.created_at || null;
+  const lastShortlistMessageAt = shortlistMessageResult.data?.[0]?.created_at || null;
+  const lastEmailReplyAt = emailReplyResult.data?.[0]?.created_at || null;
+
   const vaIds = [...new Set([
     ...shortlists.map(item=>item.va_id),
     ...interviews.map(item=>item.va_id),

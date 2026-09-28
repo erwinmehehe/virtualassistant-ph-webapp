@@ -153,7 +153,7 @@ export default async function ContactPage({
         <section className="contact-hero">
           <div className="container contact-hero-inner">
             <p className="contact-kicker">Contact</p>
-            <h1>How can we help?</h1>
+            <h1>What can we help with?</h1>
             <p>Choose the fastest route below. Hiring and VA applications go straight to the right workflow, so you do not have to wait on a general inbox.</p>
           </div>
         </section>

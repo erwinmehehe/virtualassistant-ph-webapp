@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("qualified booking flow stays available while the floating CTA goes directly to Google Calendar", async () => {
+test("qualified booking flow stays available and the floating CTA uses the internal booking page", async () => {
   const [home, hire, floating, form, contact] = await Promise.all([
     read("src/app/page.tsx"),
     read("src/app/hire/page.tsx"),
@@ -66,19 +66,19 @@ test("client booking keeps the minimum brief lightweight", async () => {
 
   assert.match(form, /Date & time/);
   assert.match(form, /Your details/);
-  assert.match(form, /Four required fields/);
+  assert.match(form, /Five required fields/);
   assert.match(form, /name="name" required/);
   assert.match(form, /name="email" required/);
   assert.match(form, /name="company" required/);
   assert.match(form, /name="service" required/);
-  assert.match(form, /name="message"/);
+  assert.match(form, /name="message" required minLength=\{40\}/);
   assert.doesNotMatch(form, /name="hours" required/);
   assert.doesNotMatch(form, /name="budget" required/);
   assert.doesNotMatch(form, /name="start_time" required/);
   assert.match(action, /hours: z\.string\(\)\.trim\(\)\.max\(3\)\.optional\(\)\.default\(""\)/);
   assert.match(action, /budget: z\.string\(\)\.trim\(\)\.max\(100\)\.optional\(\)\.default\(""\)/);
   assert.match(action, /start_time: z\.string\(\)\.trim\(\)\.max\(100\)\.optional\(\)\.default\(""\)/);
-  assert.match(action, /message: z\.string\(\)\.trim\(\)\.max\(1200\)\.optional\(\)\.default\(""\)/);
+  assert.match(action, /message: z\.string\(\)\.trim\(\)\.min\(40/);
   assert.match(action, /Tell us the actual role you need to hire/);
   assert.match(action, /mergeBookingIntoRecentClientLead/);
   assert.match(action, /jobId = await ensurePendingRoleForLead/);
@@ -179,4 +179,11 @@ test("discovery booking lead merge is atomic and server-only", async () => {
   assert.match(migration, /delete from public\.lead_intake[\s\S]*booking_lead_id/);
   assert.match(migration, /grant execute on function public\.merge_discovery_booking_lead\(uuid, uuid\) to service_role/);
   assert.match(migration, /revoke all on function public\.merge_discovery_booking_lead\(uuid, uuid\) from public, anon, authenticated/);
+});
+
+
+test("booking page fails open to provisional slots when booked-slot lookup fails", async () => {
+  const page = await read("src/app/book-client-call/page.tsx");
+  assert.match(page, /Could not load booked discovery slots; showing provisional availability/);
+  assert.match(page, /return buildDiscoverySlotDays\(\[\], new Date\(\)\)/);
 });

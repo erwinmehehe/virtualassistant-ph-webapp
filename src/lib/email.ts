@@ -1415,11 +1415,17 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
   manilaLabel: string;
   meetingUrl?: string | null;
   manageUrl: string;
+  jobId?: string | null;
+  handoffIssue?: string | null;
 }) {
   const config = resendConfig();
   if (!config) return { sent: false as const, reason: "email_not_configured" };
 
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const crmUrl = `${appUrl}/workspace/recruiter/crm/${args.leadId}`;
+  const roleUrl = args.jobId ? `${appUrl}/workspace/recruiter/roles/${args.jobId}` : null;
   const meetingLine = args.meetingUrl ? `Google Meet: ${args.meetingUrl}` : "Google Meet: pending";
+  const handoffLine = roleUrl ? `Recruiting role: ${roleUrl}` : `Recruiting role: needs attention in CRM — ${crmUrl}`;
   const bodyHtml = `
     <p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">A new client discovery call is confirmed. The booking is ready for the hiring team to review before the meeting.</p>
 
@@ -1448,6 +1454,12 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
       <div style="font-size:15px;line-height:1.7;color:#344054;white-space:pre-line;">${escapeHtml(args.message)}</div>
     </div>
 
+    <div style="margin:0 0 24px;padding:16px 18px;border:1px solid ${args.handoffIssue ? "#fecdca" : "#d1fadf"};border-radius:14px;background:${args.handoffIssue ? "#fff6f5" : "#f6fef9"};">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${args.handoffIssue ? "#b42318" : "#027a48"};margin-bottom:7px;">Recruiter handoff</div>
+      <div style="font-size:14px;line-height:1.65;color:#344054;">${roleUrl ? `Linked recruiting role is ready. <a href="${escapeHtml(roleUrl)}">Open role</a> · <a href="${escapeHtml(crmUrl)}">Open CRM record</a>` : `The booking is saved, but the recruiting role needs attention. <a href="${escapeHtml(crmUrl)}">Open CRM record</a>.`}</div>
+      ${args.handoffIssue ? `<div style="margin-top:8px;color:#b42318;font-size:12px;line-height:1.55;">Automatic role handoff error: ${escapeHtml(args.handoffIssue)}</div>` : ""}
+    </div>
+
     <p style="margin:0;color:#475467;font-size:15px;line-height:1.7;"><strong>Google Meet:</strong> ${args.meetingUrl ? `<a href="${escapeHtml(args.meetingUrl)}">${escapeHtml(args.meetingUrl)}</a>` : "Pending"}<br><a href="${escapeHtml(args.manageUrl)}">Manage this booking</a></p>
   `;
 
@@ -1470,14 +1482,16 @@ export async function sendInternalDiscoveryBookingNotificationEmail(args: {
       `Client time: ${args.clientLabel}`,
       `Philippines time: ${args.manilaLabel}`,
       meetingLine,
+      handoffLine,
+      `CRM booking: ${crmUrl}`,
       `Manage booking: ${args.manageUrl}`,
     ].join("\n"),
     html: renderHiringEmail({
       firstName: "team",
       bodyHtml,
       senderName: "VirtualAssistant.com.ph Booking System",
-      ctaHref: args.meetingUrl || args.manageUrl,
-      ctaLabel: args.meetingUrl ? "Join Google Meet" : "Manage booking",
+      ctaHref: roleUrl || crmUrl,
+      ctaLabel: roleUrl ? "Review hiring role" : "Review booking in CRM",
     }),
   }, "discovery_booking_internal_team", {
     archive: false,

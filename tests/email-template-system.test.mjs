@@ -16,14 +16,15 @@ test("outbound emails share branded client and talent wrappers", async () => {
   assert.match(email, /renderBrandedEmail\(\{/);
 });
 
-test("client emails route replies to the configured team mailbox", async () => {
+test("client emails route replies through the configured mailbox with exact lead/job context", async () => {
   const email = await read("src/lib/email.ts");
 
   assert.match(email, /function configuredReplyTo/);
+  assert.match(email, /function configuredReplyToFor/);
   assert.match(email, /process\.env\.CLIENT_REPLY_TO_EMAIL/);
   assert.match(email, /process\.env\.LEAD_NOTIFICATION_EMAIL/);
-  const replyUses = email.match(/replyTo: configuredReplyTo\(\)/g) || [];
-  assert.ok(replyUses.length >= 6, `expected client reply routing across major templates, got ${replyUses.length}`);
+  const contextualReplyUses = email.match(/replyTo: configuredReplyToFor\(/g) || [];
+  assert.ok(contextualReplyUses.length >= 6, `expected contextual client reply routing across major templates, got ${contextualReplyUses.length}`);
 });
 
 test("manual recruiter follow-up preserves the written closing without extra CTA or signature", async () => {

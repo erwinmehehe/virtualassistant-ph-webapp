@@ -121,6 +121,30 @@ function configuredReplyTo() {
   ])[0] || undefined;
 }
 
+const REPLY_CONTEXT_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function configuredReplyToFor(context?: { leadId?: string | null; jobId?: string | null }) {
+  const fallback = configuredReplyTo();
+  if (!fallback) return undefined;
+
+  const address = bareEmailAddress(fallback);
+  const at = address.lastIndexOf("@");
+  if (at <= 0) return fallback;
+
+  const domain = address.slice(at + 1).toLowerCase();
+  // Exact reply routing only works on the Resend receiving subdomain. Keep the
+  // existing mailbox unchanged until CLIENT_REPLY_TO_EMAIL is switched there.
+  if (!domain.startsWith("replies.")) return fallback;
+
+  const leadId = String(context?.leadId || "").trim().toLowerCase();
+  if (REPLY_CONTEXT_ID_RE.test(leadId)) return `lead-${leadId}@${domain}`;
+
+  const jobId = String(context?.jobId || "").trim().toLowerCase();
+  if (REPLY_CONTEXT_ID_RE.test(jobId)) return `job-${jobId}@${domain}`;
+
+  return fallback;
+}
+
 const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false;
 
 
@@ -622,7 +646,7 @@ export async function sendLeadAcknowledgementEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: `Got your ${service} request`,
     text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nActivate your client hiring workspace here: ${joinUrl}\n\nYour original hiring request is already saved, so you will not need to fill it out again.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
@@ -739,7 +763,7 @@ export async function sendClaimDraftEmail(args: { to: string; name?: string | nu
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: `Claim your Virtual Assistant hiring request — ${args.jobTitle}`,
     text: `Hi ${firstName},\n\nYou asked about hiring for ${args.jobTitle}. Create or log in to your client account with this same email address to claim the role and continue the hiring workflow:\n\n${claimUrl}\n\nPrefer to talk first? ${hiringCallUrl}\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
@@ -777,7 +801,7 @@ export async function sendRoleDetailsRequestEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ jobId: args.jobId }),
     subject: `A few details are still needed for ${args.jobTitle}`,
     text: `Hi ${firstName},\n\nWe are ready to keep ${args.jobTitle} moving, but the hiring brief is still missing: ${missingLabel}.\n\nComplete the missing details here:\n${roleUrl}\n\nOnce saved, your recruiter will see the update automatically.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
@@ -1129,6 +1153,8 @@ export async function sendStaffClientFollowupEmail(args: {
   href?: string | null;
   archiveCopy?: boolean;
   idempotencyKey?: string;
+  leadId?: string | null;
+  jobId?: string | null;
 }) {
   // Manual recruiter email only. No automation invokes this helper by itself.
   const config = resendConfig();
@@ -1141,7 +1167,7 @@ export async function sendStaffClientFollowupEmail(args: {
     from: config.from,
     to: [recipient],
     bcc: args.archiveCopy ? staffClientFollowupBccRecipients.filter((email) => email.toLowerCase() !== recipient.toLowerCase()) : undefined,
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId, jobId: args.jobId }),
     subject: normalized.subject,
     text: `Hi ${normalized.firstName},\n\n${normalized.message}`,
     html: renderHiringEmail({
@@ -1253,6 +1279,7 @@ export async function sendDiscoveryBookingEmail(args: {
   meetingUrl?: string | null;
   recruiterName?: string | null;
   idempotencyKey?: string;
+  leadId?: string | null;
 }) {
   if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
   const config = resendConfig();
@@ -1264,7 +1291,7 @@ export async function sendDiscoveryBookingEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: `Discovery call booked — ${args.scheduledLabel}`,
     text: `Hi ${firstName},\n\nYour discovery call is booked for ${args.scheduledLabel} for about ${args.durationMinutes} minutes.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nBest,\n${senderName}`,
     html: renderHiringEmail({
@@ -1329,7 +1356,7 @@ export async function sendPublicDiscoveryBookingEmail(args: {
     service: args.service,
     meetingUrl: args.meetingUrl
   });
-  const replyTo = configuredReplyTo();
+  const replyTo = configuredReplyToFor({ leadId: args.leadId });
 
   const meetingBlock = args.meetingUrl
     ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
@@ -1543,7 +1570,7 @@ export async function sendDiscoveryNoShowRebookEmail(args: {
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: "Would you like to rebook your call?",
     text: `Hi ${firstName},
 
@@ -1586,7 +1613,7 @@ export async function sendDiscoveryReminderEmail(args: { leadId: string; to: str
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
-    replyTo: configuredReplyTo(),
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: `Reminder: your discovery call is ${timing}`,
     text: `Hi ${firstName},\n\nYour VirtualAssistant.com.ph discovery call is ${timing}, at ${args.scheduledLabel}.${args.meetingUrl ? `\n\nJoin Google Meet: ${args.meetingUrl}` : ""}\n\nReschedule or cancel: ${args.manageUrl}`,
     html: renderHiringEmail({

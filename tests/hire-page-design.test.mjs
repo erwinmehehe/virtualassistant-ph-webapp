@@ -2,9 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("/hire owns its closing CTA so the global footer CTA is suppressed", async () => {
-  const source = await readFile(new URL("../src/components/footer-cta.tsx", import.meta.url), "utf8");
-  assert.match(source, /\/\^\\\/hire\\\/\?\$\//);
+test("/hire owns its closing CTA without a second global footer CTA", async () => {
+  const [hire, footer] = await Promise.all([
+    readFile(new URL("../src/app/hire/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/site-footer.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(hire, /id="hire-form"/);
+  assert.doesNotMatch(footer, /FooterCta|footer-cta/);
 });
 
 test("/hire hero stays focused on the hiring brief instead of duplicating service-model cards", async () => {

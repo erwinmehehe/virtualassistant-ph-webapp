@@ -53,39 +53,63 @@ export default async function ForVirtualAssistantsPage() {
           <div className="container va-hub-hero-grid">
             <div className="va-hub-hero-copy">
               <span className="va-hub-eyebrow">For Filipino Virtual Assistants</span>
-              <h1>Build skills. Show your work. Apply when you are ready.</h1>
+              <h1>Build a VA profile recruiters can understand in minutes.</h1>
               <p>
-                Use one place for practical training, your professional profile, reviewed VA jobs,
-                and the tools you need after you apply.
+                Create your free profile, complete a short setup, then add your experience, skills,
+                tools, availability, and work evidence when you are ready.
               </p>
               <div className="va-hub-actions">
-                <Link className="btn btn-primary btn-lg" href="/training">
-                  Start free training <ArrowRight size={16} />
+                <Link className="btn btn-primary btn-lg" href="/auth/join/va">
+                  Create free VA profile <ArrowRight size={16} />
                 </Link>
                 <Link className="btn btn-lg" href="/jobs">Browse VA jobs</Link>
               </div>
               <div className="va-hub-utility-links">
-                <Link href="/auth/join/va">Create your VA profile</Link>
+                <Link href="/auth/login?next=%2Fworkspace%2Fva">Already registered? Log in</Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/auth/login?next=%2Fworkspace%2Fva">Log in</Link>
+                <Link href="/training">Free VA training</Link>
+              </div>
+              <div className="va-hub-assurances" aria-label="VA account assurances">
+                <span><Check size={14} /> Free to join</span>
+                <span><Check size={14} /> No worker placement fee</span>
+                <span><ShieldCheck size={14} /> Private until you opt in</span>
               </div>
             </div>
 
-            <aside className="va-hub-hero-panel" aria-label="What you can do here">
-              <div className="va-hub-panel-label">Your VA workspace</div>
-              <div className="va-hub-panel-item">
-                <GraduationCap size={20} />
-                <div><strong>Learn</strong><span>Free training with practical exercises and certificates.</span></div>
+            <aside className="va-hub-hero-panel" aria-label="How VA registration works">
+              <div className="va-hub-panel-label">How it works</div>
+              <div className="va-hub-panel-step">
+                <span>01</span>
+                <div><strong>Create your free account</strong><small>Name, email, and a secure password. Google sign-up is available when enabled.</small></div>
               </div>
-              <div className="va-hub-panel-item">
-                <CircleUserRound size={20} />
-                <div><strong>Build your profile</strong><span>Show experience, tools, work samples, and availability clearly.</span></div>
+              <div className="va-hub-panel-step">
+                <span>02</span>
+                <div><strong>Complete the quick setup</strong><small>Add your main specialty, professional headline, experience, and weekly availability.</small></div>
               </div>
-              <div className="va-hub-panel-item">
-                <BriefcaseBusiness size={20} />
-                <div><strong>Find work</strong><span>Browse reviewed roles and apply when the fit makes sense.</span></div>
+              <div className="va-hub-panel-step">
+                <span>03</span>
+                <div><strong>Build your profile and vetting</strong><small>Add your photo, summary, skills, tools, resume, and work-readiness evidence at your own pace.</small></div>
+              </div>
+              <div className="va-hub-panel-step">
+                <span>04</span>
+                <div><strong>Apply for suitable roles</strong><small>Review the responsibilities, hours, schedule, and compensation before you apply.</small></div>
               </div>
             </aside>
+          </div>
+        </section>
+
+        <section className="va-hub-quick-start">
+          <div className="container va-hub-quick-start-grid">
+            <div>
+              <span className="va-hub-kicker">Start with the essentials</span>
+              <h2>Your first setup is short. The detailed profile comes after.</h2>
+              <p>Create the account first, then save the details recruiters need for a quick first read. You can finish the rest of your profile over time.</p>
+            </div>
+            <div className="va-hub-quick-list">
+              <div><CircleUserRound size={18}/><span><strong>Specialty + headline</strong><small>Make your role easy to understand at a glance.</small></span></div>
+              <div><BriefcaseBusiness size={18}/><span><strong>Experience + availability</strong><small>Show seniority and how much weekly capacity you have.</small></span></div>
+              <div><FileCheck2 size={18}/><span><strong>Profile + evidence later</strong><small>Add your resume, tools, summary, photo, and vetting items after setup.</small></span></div>
+            </div>
           </div>
         </section>
 

@@ -42,16 +42,24 @@ export function JoinAccountForm({
           <div className="auth-role-icon" aria-hidden="true">{client ? <BriefcaseBusiness size={22}/> : <UserRoundCheck size={22}/>}</div>
           <div>
             <div className="kicker">{client ? "Client account" : "Virtual Assistant account"}</div>
-            <h1>{client ? "Create your client workspace" : "Create your VA account"}</h1>
+            <h1>{client ? "Create your client workspace" : "Create your free VA profile"}</h1>
             <p className="muted auth-intro">{client
               ? "Start with your account, then manage hiring requests, shortlists, interviews, and placements from one workspace."
-              : "Start with your account, then complete a guided profile and vetting flow at your own pace."}</p>
+              : "Create your free account first. Then complete a short setup and build the rest of your profile at your own pace."}</p>
           </div>
         </div>
 
         {lead && client ? <div className="success-banner small">Use the same email from your hiring request and we&apos;ll attach that role after you confirm your account.</div> : null}
         {talent && client ? <div className="success-banner small">The VA profile you requested will stay attached to your hiring path.</div> : null}
         {error ? <div className="alert auth-alert" role="alert"><strong>Signup needs attention</strong><span>{error}</span></div> : null}
+
+        {!client ? (
+          <div className="va-auth-assurances" aria-label="VA registration assurances">
+            <span>Free to join</span>
+            <span>No worker placement fee</span>
+            <span>Private until you opt in</span>
+          </div>
+        ) : null}
 
         {socialEnabled ? (
           <>

@@ -33,15 +33,15 @@ const content: Record<Variant, {
     flow: ["Create account", "Confirm your brief", "Review matches", "Interview & hire"],
   },
   va: {
-    eyebrow: "For Virtual Assistants",
-    title: "Build one profile recruiters can actually use.",
-    description: "Create your VA workspace, complete your profile and vetting, then use the same account for training and matching roles.",
+    eyebrow: "Free VA profile",
+    title: "Create your profile first. Build the details as you go.",
+    description: "Start with a free account and a short setup. Add your experience, skills, tools, availability, resume, and work evidence when you are ready.",
     points: [
-      "Guided profile setup instead of one giant form",
-      "One place for vetting, training, and role activity",
-      "Your profile remains private until publication requirements are met",
+      "No fee to create a profile or apply for roles",
+      "Short guided setup before the detailed profile",
+      "Your profile stays private until you choose to make it public",
     ],
-    flow: ["Create account", "Complete profile", "Vetting", "Role matching"],
+    flow: ["Create account", "Quick setup", "Build profile", "Apply for roles"],
   },
 };
 

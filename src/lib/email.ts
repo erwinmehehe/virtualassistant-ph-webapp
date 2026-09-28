@@ -121,7 +121,6 @@ function configuredReplyTo() {
   ])[0] || undefined;
 }
 
-const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false;
 
 type EmailPriority = "critical" | "standard" | "low";
 type EmailEventStatus = "sending" | "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";
@@ -595,7 +594,7 @@ export async function sendLeadAcknowledgementEmail(args: {
   /** Lets the account link claim this request once the client signs up. */
   leadId?: string | null;
 }) {
-  if (!CLIENT_PRE_SHORTLIST_EMAILS_ENABLED) return { sent: false as const, reason: "client_email_deferred_until_shortlist" };
+  // This helper is only called from an explicit staff action. Automated pre-shortlist email remains disabled elsewhere.
   const config = resendConfig();
   const recipient = normalizeEmailAddress(args.to);
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };

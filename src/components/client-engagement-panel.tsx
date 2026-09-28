@@ -33,6 +33,6 @@ export function ClientEngagementPanel({
       <div><span>Decision received</span><strong>{decision}</strong></div>
       <div><span>Last email reply</span><strong>{lastEmailReply}</strong></div>
     </div>
-    <p className={styles.note}>Candidate views and shortlist activity are tracked automatically. Email replies appear after a recruiter logs the inbound email in the CRM.</p>
+    <p className={styles.note}>Candidate views, shortlist activity, and inbound client email replies are tracked automatically when they reach the configured reply mailbox. Recruiters can still log a reply manually if needed.</p>
   </section>;
 }

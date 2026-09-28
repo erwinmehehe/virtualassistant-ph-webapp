@@ -7,7 +7,7 @@ const rules: Array<[string, string[]]> = [
   ["Video Editing & Creative", ["video editing", "video editor", "reels", "youtube shorts", "short-form video", "ad creative", "canva design", "graphic design"]],
   ["SEO", ["seo", "search engine optimization", "keyword research", "technical seo", "on-page seo", "link building", "backlink"]],
   ["Executive Assistance", ["executive assistant", "executive support", "calendar management", "inbox management", "email management", "travel management"]],
-  ["Administrative Support", ["administrative assistant", "admin assistant", "administrative support", "data entry", "spreadsheet management", "document management", "research assistant"]],
+  ["Administrative Support", ["administrative assistant", "admin assistant", "administrative support", "admin", "data entry", "spreadsheet management", "document management", "research assistant"]],
   ["Bookkeeping & Finance", ["bookkeeping", "bookkeeper", "accounts payable", "accounts receivable", "accounting", "quickbooks", "xero"]],
   ["Real Estate", ["real estate", "property management", "realtor", "mls", "transaction coordinator"]],
   ["Ecommerce", ["ecommerce", "e-commerce", "shopify", "amazon seller", "product listing", "woocommerce"]],

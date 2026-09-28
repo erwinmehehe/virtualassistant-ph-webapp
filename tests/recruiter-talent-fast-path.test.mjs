@@ -138,3 +138,26 @@ test("Recruiter Talent separates incomplete profiles from the classified talent 
   assert.match(readiness, /CLASSIFICATION_MIN_SIGNALS = 2/);
   assert.match(readiness, /roleSignalCount >= 1/);
 });
+
+
+test("Recruiter Talent uses one unified search and explicit page selection", async () => {
+  const [page, filters, select, css] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/lib/recruiter-talent-filters.ts"),
+    read("src/components/recruiter-talent-selection-control.tsx"),
+    read("src/app/workspace/recruiter-talent.css"),
+  ]);
+
+  assert.match(page, /Search name, role, specialty, skill, or tool/);
+  assert.doesNotMatch(page, /<span>Skill<\/span><input name="skill"/);
+  assert.match(page, /name="availability"/);
+  assert.match(page, /RecruiterTalentSelectionControl/);
+  assert.match(page, /id="recruiter-talent-bulk-form"/);
+  assert.match(page, /Use all .* filtered results/);
+  assert.match(select, /Select page/);
+  assert.match(select, /No rows selected/);
+  assert.match(filters, /skills\.cs/);
+  assert.match(filters, /tools\.cs/);
+  assert.match(filters, /industries\.cs/);
+  assert.match(css, /\.talent-selection-control/);
+});

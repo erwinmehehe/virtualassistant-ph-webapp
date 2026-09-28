@@ -316,6 +316,103 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
       </header>
 
+      <section className={styles.actionCenter}>
+        <div className={styles.actionCenterHead}>
+          <div>
+            <span className={styles.kicker}>Work this relationship</span>
+            <h2>Action center</h2>
+            <p>Everything a recruiter needs for the next client step, without leaving the CRM record.</p>
+          </div>
+          <div className={styles.actionStatus}>
+            <span className={lead.client_id ? styles.statusGood : styles.statusNeutral}>{lead.client_id ? "Client account active" : "Client account not activated"}</span>
+            <span>{lead.next_follow_up_at ? `Follow-up ${fmt(lead.next_follow_up_at)}` : "No follow-up scheduled"}</span>
+          </div>
+        </div>
+
+        <div className={styles.actionLinks}>
+          {job ? <Link href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={14}/> Role</Link> : null}
+          {job ? <Link href={`/workspace/recruiter/matching/${job.id}`}><UserRound size={14}/> Matching</Link> : null}
+          {job ? <Link href="/workspace/recruiter/roles?view=client_review&sort=urgent"><UsersRound size={14}/> Client review</Link> : null}
+          {lead.discovery_meeting_url && !lead.discovery_completed_at && !lead.discovery_cancelled_at ? <a href={lead.discovery_meeting_url} target="_blank" rel="noreferrer"><CalendarDays size={14}/> Join discovery</a> : null}
+        </div>
+
+        <div className={styles.actionGrid}>
+          <details className={styles.actionCard}>
+            <summary><span className={styles.actionIcon}><Mail size={16}/></span><span><strong>Email client</strong><small>Only send when you need clarification or have a concrete update.</small></span><ArrowRight size={15}/></summary>
+            <form action={sendClientFollowupAction} className={styles.actionForm}>
+              <input type="hidden" name="lead_id" value={lead.id}/>
+              <input type="hidden" name="job_id" value={lead.job_id || ""}/>
+              <input type="hidden" name="return_to" value={returnTo}/>
+              <label>Subject<input name="subject" required minLength={3} maxLength={180} defaultValue={`About ${job?.title || lead.service || "your Virtual Assistant hiring request"}`}/></label>
+              <label>Message<textarea name="message" required minLength={10} maxLength={5000} placeholder="Write the actual question or update the client needs. No generic second acknowledgement."/></label>
+              <div className={styles.formHint}>This is a manual recruiter email. It is not sent automatically.</div>
+              <button type="submit"><Send size={14}/> Send client email</button>
+            </form>
+          </details>
+
+          <details className={styles.actionCard} open={stage === "contacted" && !lead.discovery_scheduled_at}>
+            <summary><span className={styles.actionIcon}><CalendarPlus size={16}/></span><span><strong>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? "Reschedule discovery" : "Book discovery"}</strong><small>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? fmt(lead.discovery_scheduled_at,true) : "Create the meeting only when a call is actually needed."}</small></span><ArrowRight size={15}/></summary>
+            <div className={styles.actionFormStack}>
+              <form action={scheduleDiscoveryAction} className={styles.actionForm}>
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="request_id" value={crypto.randomUUID()}/>
+                <input type="hidden" name="return_to" value={returnTo}/>
+                <label>Date & time <span className={styles.muted}>(Manila)</span><input type="datetime-local" name="discovery_scheduled_at" required defaultValue={dateTimeInput(lead.discovery_scheduled_at)}/></label>
+                <label>Duration<select name="discovery_duration_minutes" defaultValue={String(lead.discovery_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label>
+                <label>Meeting link <span className={styles.muted}>(optional)</span><input type="url" name="discovery_meeting_url" defaultValue={lead.discovery_meeting_url || ""} placeholder="Leave blank to create Google Meet"/></label>
+                <button type="submit"><CalendarPlus size={14}/> Save booking</button>
+              </form>
+
+              {lead.discovery_scheduled_at && !lead.discovery_completed_at && !lead.discovery_cancelled_at ? <div className={styles.actionSubsection}>
+                <form action={completeDiscoveryAction} className={styles.actionForm}>
+                  <input type="hidden" name="lead_id" value={lead.id}/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <label>Outcome<select name="outcome" defaultValue="qualified"><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="rescheduled">Rescheduled</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></label>
+                  <label>Discovery notes<textarea name="discovery_notes" required minLength={3} maxLength={5000} defaultValue={lead.discovery_notes || ""} placeholder="Priorities, tools, schedule, budget, decision process, next step…"/></label>
+                  <label>Lost reason <span className={styles.muted}>(only if lost)</span><input name="lost_reason" maxLength={1000} placeholder="Budget, timing, hired elsewhere…"/></label>
+                  <button type="submit">Complete discovery</button>
+                </form>
+                <form action={cancelRecruiterDiscoveryAction}>
+                  <input type="hidden" name="lead_id" value={lead.id}/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <button className={styles.textButton} type="submit">Cancel booking</button>
+                </form>
+              </div> : null}
+            </div>
+          </details>
+
+          <details className={styles.actionCard}>
+            <summary><span className={styles.actionIcon}><ListTodo size={16}/></span><span><strong>Create follow-up</strong><small>Add the next recruiter action without leaving this record.</small></span><ArrowRight size={15}/></summary>
+            <form action={createRecruiterTaskAction} className={styles.actionForm}>
+              <input type="hidden" name="subject_type" value="lead"/>
+              <input type="hidden" name="subject_id" value={lead.id}/>
+              <input type="hidden" name="href" value={returnTo}/>
+              <input type="hidden" name="return_to" value={returnTo}/>
+              <label>Task<input name="title" required minLength={3} maxLength={180} defaultValue={`Follow up with ${lead.name || lead.company || "client"}`}/></label>
+              <label>Due<input type="datetime-local" name="due_at"/></label>
+              <label>Priority<select name="priority" defaultValue="normal"><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
+              <button type="submit">Create follow-up</button>
+            </form>
+          </details>
+
+          <div className={styles.actionCardStatic}>
+            <div className={styles.actionCardTitle}><span className={styles.actionIcon}><ArrowRight size={16}/></span><span><strong>Move stage</strong><small>Use the likely next step. Full stage control stays in Properties.</small></span></div>
+            <div className={styles.quickStages}>
+              {(quickStages[stage] || []).map(item=><form action={updateLeadCrmAction} key={item.value}>
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="return_to" value={returnTo}/>
+                <input type="hidden" name="owner_id" value={lead.owner_id || ""}/>
+                <input type="hidden" name="next_follow_up_at" value={dateInput(lead.next_follow_up_at)}/>
+                <input type="hidden" name="estimated_value_usd" value={lead.estimated_value_usd ?? ""}/>
+                <input type="hidden" name="lost_reason" value={lead.lost_reason || ""}/>
+                <button type="submit" name="crm_stage" value={item.value}>{item.label}</button>
+              </form>)}
+              {!(quickStages[stage] || []).length ? <span className={styles.muted}>No suggested transition from this stage.</span> : null}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className={styles.detailGrid}>
         <div className="stack">
           <section className={styles.panel}>

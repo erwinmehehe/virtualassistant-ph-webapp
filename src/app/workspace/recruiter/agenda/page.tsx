@@ -26,6 +26,7 @@ function timeLabel(value:string,zone:string){try{return new Intl.DateTimeFormat(
 function ymdInManila(date:Date){return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).format(date);}
 function weekRange(){const ymd=ymdInManila(new Date());const [y,m,d]=ymd.split("-").map(Number);const weekday=new Date(Date.UTC(y,m-1,d)).getUTCDay();const mondayOffset=weekday===0?-6:1-weekday;const start=new Date(`${ymd}T00:00:00+08:00`);start.setUTCDate(start.getUTCDate()+mondayOffset);const end=new Date(start.getTime()+7*86400000);return{start,end};}
 function taskHref(task:AgendaTaskRow){if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/roles/${task.subject_id}`;if(task.subject_type==="va"&&task.subject_id)return `/workspace/recruiter/candidates/${task.subject_id}`;return task.href||null;}
+function meetingActionLabel(value?:string|null){try{const host=new URL(String(value||"")).hostname.toLowerCase();if(host==="meet.google.com")return "Join Google Meet";if(host==="zoom.us"||host.endsWith(".zoom.us"))return "Join Zoom";if(host==="teams.microsoft.com"||host.endsWith(".teams.microsoft.com")||host==="teams.live.com")return "Join Teams";}catch{}return "Join call";}
 
 export default async function RecruiterAgendaPage(){
   const {userId}=await requireRoleFast("recruiter");
@@ -72,8 +73,8 @@ export default async function RecruiterAgendaPage(){
             </>:item.kind==="client_interview"?<div className="small muted">Client/VA: {timeLabel(item.at,item.timezone||"Asia/Manila")} ({item.timezone}) · Recruiter: {timeLabel(item.at,"Asia/Manila")} (Manila) · {item.duration} min</div>:<div className="small muted">{timeLabel(item.at,"Asia/Manila")} · Manila</div>}
           </div>
           <div className="row wrap">
-            {item.kind==="discovery"&&item.meetingUrl?<a className="btn btn-sm btn-primary" href={item.meetingUrl} target="_blank" rel="noreferrer"><Video size={13}/> Join Zoom <ExternalLink size={12}/></a>:null}
-            {item.kind==="discovery"?<><Link className="btn btn-sm" href={`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(item.email||item.bookedBy||item.title)}`}>View booking</Link><Link className="btn btn-sm" href={`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(item.email||item.bookedBy||item.title)}`}>Complete discovery</Link></>:null}
+            {item.kind==="discovery"&&item.meetingUrl?<a className="btn btn-sm btn-primary" href={item.meetingUrl} target="_blank" rel="noreferrer"><Video size={13}/> {meetingActionLabel(item.meetingUrl)} <ExternalLink size={12}/></a>:null}
+            {item.kind==="discovery"?<><Link className="btn btn-sm" href={`/workspace/recruiter/crm/${item.id}`}>View booking</Link><Link className="btn btn-sm" href={`/workspace/recruiter/crm/${item.id}`}>Complete discovery</Link></>:null}
             {item.kind==="client_interview"&&item.meetingUrl?<a className="btn btn-sm btn-primary" href={item.meetingUrl} target="_blank" rel="noreferrer"><Video size={13}/> Join interview <ExternalLink size={12}/></a>:null}
             {item.kind==="client_interview"?<Link className="btn btn-sm" href={`/workspace/recruiter/roles/${item.jobId}#interviews`}>Open interview</Link>:null}
             {item.kind==="vetting_interview"?<Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${item.vaId}`}>View VA</Link>:null}

@@ -468,22 +468,89 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
 
         <aside className="stack">
           <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Properties</h2><span className={styles.muted}>CRM fields</span></div>
+            <div className={styles.panelHead}><h2>Next step</h2><span className={styles.muted}>Keep it moving</span></div>
             <div className={styles.panelBody}>
               <form action={updateLeadCrmAction} className={styles.form}>
                 <input type="hidden" name="lead_id" value={lead.id}/>
                 <input type="hidden" name="return_to" value={returnTo}/>
+                <input type="hidden" name="estimated_value_usd" value={lead.estimated_value_usd ?? ""}/>
                 <label>Stage<select name="crm_stage" defaultValue={lead.crm_stage || "new"}>{LEAD_CRM_STAGES.map((stage) => <option key={stage.value} value={stage.value}>{stage.label}</option>)}</select></label>
                 <label>Owner<select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{owners.map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></label>
                 <label>Next follow-up<input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/></label>
+                <label>Lost reason <span className={styles.muted}>(only if closing as lost)</span><input name="lost_reason" defaultValue={lead.lost_reason || ""} placeholder="Budget, timing, hired elsewhere…"/></label>
+                <button type="submit">Save next step</button>
+              </form>
+            </div>
+          </section>
+
+          <section className={styles.panel}>
+            <div className={styles.panelHead}><h2>Contact</h2><Phone size={15}/></div>
+            <div className={styles.panelBody}>
+              <div className={styles.contactList}>
+                <div><span>Email</span>{lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : <strong>—</strong>}</div>
+                <div><span>Phone</span>{lead.phone ? <a href={`tel:${lead.phone}`}>{lead.phone}</a> : <strong>—</strong>}</div>
+                <div><span>Discovery</span><strong>{lead.discovery_completed_at ? `Completed · ${lead.discovery_outcome || "outcome not set"}` : lead.discovery_scheduled_at ? fmt(lead.discovery_scheduled_at, true) : "Not booked"}</strong></div>
+              </div>
+              <details className={styles.compactDetails}>
+                <summary>Log client interaction</summary>
+                <form action={recordLeadContactAction} className={styles.form}>
+                  <input type="hidden" name="lead_id" value={lead.id}/>
+                  <label>Type<select name="contact_type" defaultValue="call"><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
+                  <label>Note<input name="note" maxLength={1000} placeholder="What happened?"/></label>
+                  <button type="submit">Log interaction</button>
+                </form>
+              </details>
+            </div>
+          </section>
+
+          <section className={styles.panel}>
+            <div className={styles.panelHead}><h2>Tasks</h2><ListTodo size={15}/></div>
+            <div className={styles.panelBody}>
+              <div className="stack">
+                {tasks.filter((task) => task.status !== "done").length ? tasks.filter((task) => task.status !== "done").map((task) => (
+                  <div className={styles.note} key={task.id}>
+                    <strong>{task.title}</strong>
+                    {task.description ? <div>{task.description}</div> : null}
+                    <time>{task.due_at ? `Due ${fmt(task.due_at, true)} · ` : ""}{task.priority}</time>
+                    <form action={completeRecruiterTaskAction} style={{ marginTop: 7 }}>
+                      <input type="hidden" name="task_id" value={task.id}/>
+                      <input type="hidden" name="return_to" value={returnTo}/>
+                      <button className={styles.secondaryButton} type="submit"><Check size={13}/> Done</button>
+                    </form>
+                  </div>
+                )) : <div className={styles.muted}>No open tasks.</div>}
+              </div>
+              <details className={styles.compactDetails}>
+                <summary>+ Add follow-up task</summary>
+                <form action={createRecruiterTaskAction} className={styles.form}>
+                  <input type="hidden" name="subject_type" value="lead"/>
+                  <input type="hidden" name="subject_id" value={lead.id}/>
+                  <input type="hidden" name="href" value={returnTo}/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <label>Task<input name="title" required minLength={3} maxLength={180} defaultValue={`Follow up with ${lead.name || lead.company || "client"}`}/></label>
+                  <label>Due<input type="datetime-local" name="due_at"/></label>
+                  <label>Priority<select name="priority" defaultValue="normal"><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
+                  <button type="submit">Create task</button>
+                </form>
+              </details>
+            </div>
+          </section>
+
+          <details className={styles.panelDetails}>
+            <summary><span><strong>Advanced CRM fields</strong><small>Deal value and custom fields</small></span><ArrowRight size={15}/></summary>
+            <div className={styles.panelBody}>
+              <form action={updateLeadCrmAction} className={styles.form}>
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="return_to" value={returnTo}/>
+                <input type="hidden" name="crm_stage" value={lead.crm_stage || "new"}/>
+                <input type="hidden" name="owner_id" value={lead.owner_id || ""}/>
+                <input type="hidden" name="next_follow_up_at" value={dateInput(lead.next_follow_up_at)}/>
+                <input type="hidden" name="lost_reason" value={lead.lost_reason || ""}/>
                 <label>Estimated value (USD)<input type="number" name="estimated_value_usd" min="0" step="1" defaultValue={lead.estimated_value_usd ?? ""}/></label>
-                <label>Lost reason<input name="lost_reason" defaultValue={lead.lost_reason || ""} placeholder="Required only when stage is Lost"/></label>
-                <button type="submit">Save properties</button>
+                <button type="submit">Save value</button>
               </form>
 
-              <div className={styles.viewsDivider} style={{margin:"14px 0"}}/>
-              <div className={styles.viewsTitle} style={{padding:0,marginBottom:8}}>Custom fields</div>
-              <div className="stack">
+              {customFields.length ? <div className={styles.advancedFields}>
                 {customFields.map(field=>{
                   const current=customValueMap.get(field.id);
                   const raw=current==null?"":typeof current==="string"||typeof current==="number"?String(current):current===true?"true":current===false?"false":"";
@@ -501,10 +568,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                     <button type="submit">Save {field.label}</button>
                   </form>;
                 })}
-                {!customFields.length?<div className={styles.muted}>No custom fields yet.</div>:null}
-              </div>
+              </div> : <div className={styles.muted}>No custom fields.</div>}
 
-              <details className={styles.saveView} style={{marginTop:12}}>
+              <details className={styles.compactDetails}>
                 <summary>+ Add custom field</summary>
                 <form action={createCrmCustomFieldAction} className={styles.form}>
                   <input type="hidden" name="object_type" value="lead"/>
@@ -516,67 +582,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 </form>
               </details>
             </div>
-          </section>
-
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Contact</h2><Phone size={15}/></div>
-            <div className={styles.panelBody}>
-              <div className={styles.contactList}>
-                <div><span>Email</span>{lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : <strong>—</strong>}</div>
-                <div><span>Phone</span>{lead.phone ? <a href={`tel:${lead.phone}`}>{lead.phone}</a> : <strong>—</strong>}</div>
-                <div><span>Client account</span><strong>{lead.client_id ? "Connected" : "Not activated"}</strong></div>
-                <div><span>Last touch</span><strong>{fmt(lead.last_contact_at || lead.first_contact_at, true)}</strong></div>
-                <div><span>Discovery</span><strong>{lead.discovery_completed_at ? `Completed · ${lead.discovery_outcome || "outcome not set"}` : lead.discovery_scheduled_at ? fmt(lead.discovery_scheduled_at, true) : "Not booked"}</strong></div>
-              </div>
-              <form action={recordLeadContactAction} className={styles.form} style={{ marginTop: 12 }}>
-                <input type="hidden" name="lead_id" value={lead.id}/>
-                <label>Log interaction<select name="contact_type" defaultValue="call"><option value="call">Call</option><option value="meeting">Meeting</option><option value="follow_up">Follow-up</option></select></label>
-                <label>Note<input name="note" maxLength={1000} placeholder="What happened?"/></label>
-                <button type="submit">Log client touch</button>
-              </form>
-            </div>
-          </section>
-
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Tasks</h2><ListTodo size={15}/></div>
-            <div className={styles.panelBody}>
-              <form action={createRecruiterTaskAction} className={styles.form}>
-                <input type="hidden" name="subject_type" value="lead"/>
-                <input type="hidden" name="subject_id" value={lead.id}/>
-                <input type="hidden" name="href" value={returnTo}/>
-                <input type="hidden" name="return_to" value={returnTo}/>
-                <label>Task<input name="title" required minLength={3} maxLength={180} placeholder="Follow up with client"/></label>
-                <label>Due<input type="datetime-local" name="due_at"/></label>
-                <label>Priority<select name="priority" defaultValue="normal"><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
-                <button type="submit">Create task</button>
-              </form>
-              <div style={{ marginTop: 12 }} className="stack">
-                {tasks.filter((task) => task.status !== "done").length ? tasks.filter((task) => task.status !== "done").map((task) => (
-                  <div className={styles.note} key={task.id}>
-                    <strong>{task.title}</strong>
-                    {task.description ? <div>{task.description}</div> : null}
-                    <time>{task.due_at ? `Due ${fmt(task.due_at, true)} · ` : ""}{task.priority}</time>
-                    <form action={completeRecruiterTaskAction} style={{ marginTop: 7 }}>
-                      <input type="hidden" name="task_id" value={task.id}/>
-                      <input type="hidden" name="return_to" value={returnTo}/>
-                      <button className={styles.secondaryButton} type="submit"><Check size={13}/> Done</button>
-                    </form>
-                  </div>
-                )) : <div className={styles.muted}>No open tasks for this lead.</div>}
-              </div>
-            </div>
-          </section>
-
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Dates</h2><Clock3 size={15}/></div>
-            <div className={styles.panelBody}>
-              <div className={styles.contactList}>
-                <div><span>Created</span><strong>{fmt(lead.created_at, true)}</strong></div>
-                <div><span>Stage updated</span><strong>{fmt(lead.stage_updated_at, true)}</strong></div>
-                <div><span>Next follow-up</span><strong>{fmt(lead.next_follow_up_at, true)}</strong></div>
-              </div>
-            </div>
-          </section>
+          </details>
         </aside>
       </div>
     </div>

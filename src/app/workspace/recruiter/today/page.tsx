@@ -13,16 +13,6 @@ const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"ba
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
 const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
 
-type ApprovalReadyVa = {
-  user_id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  primary_category: string | null;
-  completion_score: number | null;
-  stage: string | null;
-  availability_status: string | null;
-};
-
 type DailyActionRow = {
   priority: string | null;
   action_type: string | null;
@@ -138,13 +128,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewRequests = dailyActions
     .filter((item)=>item.action_type==="interview_requested" && item.subject_id)
     .sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
-  const approvalReady = (Array.isArray(summary.approval_ready_preview) ? summary.approval_ready_preview : []) as ApprovalReadyVa[];
   const staleRolePreview = (Array.isArray(summary.stale_roles_preview) ? summary.stale_roles_preview : []) as ActiveRoleRow[];
   const staleRolesCount = Number(summary.stale_roles_count || 0);
   const unreadNotifications = Number(summary.unread_notifications || 0);
   const openTasks = Number(summary.open_tasks || 0);
   const approvalReadyCount = Number(summary.approval_ready_count || 0);
-  const missingPhotoCount = Number(summary.missing_photo_count || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
   const clientResponseOverdue = Number(summary.client_response_overdue || 0);
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
@@ -339,6 +327,5 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
       {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
     </section>
-    </div>
   </div>;
 }

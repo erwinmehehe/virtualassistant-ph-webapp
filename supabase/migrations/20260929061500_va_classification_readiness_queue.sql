@@ -131,9 +131,6 @@ stalled as (
 select
   1::integer as id,
   count(*)::integer as all_count,
-  count(*) filter (where classification_status = 'classified')::integer as talent_pool_count,
-  count(*) filter (where classification_status = 'incomplete_profile')::integer as classification_incomplete_count,
-  count(*) filter (where classification_status = 'ready_to_classify')::integer as classification_ready_count,
   count(*) filter (
     where completion_score >= 60
       and account_status = 'active'
@@ -168,7 +165,10 @@ select
   (select count(*)::integer from recent) as new_accounts_7d,
   (select count(*)::integer from recent where completion_score = 0) as recent_zero_7d,
   (select count(*)::integer from recent where completion_score = 0 and email_verified = true) as verified_recent_zero_7d,
-  stalled.rows as stalled
+  stalled.rows as stalled,
+  count(*) filter (where classification_status = 'classified')::integer as talent_pool_count,
+  count(*) filter (where classification_status = 'incomplete_profile')::integer as classification_incomplete_count,
+  count(*) filter (where classification_status = 'ready_to_classify')::integer as classification_ready_count
 from directory
 cross join stalled
 group by stalled.rows;

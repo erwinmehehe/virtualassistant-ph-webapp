@@ -21,7 +21,7 @@ export type CategoryEvidence = {
 };
 
 const rules: CategoryRule[] = [
-  { category: "Dental & Healthcare", terms: [["dental", 3], ["healthcare", 3], ["medical", 2], ["patient care", 3], ["medical billing", 4], ["dental billing", 4], ["clinic", 2], ["cliniko", 3]] },
+  { category: "Dental & Healthcare", terms: [["dental", 4], ["healthcare", 4], ["medical", 2], ["patient care", 3], ["medical billing", 4], ["dental billing", 4], ["clinic", 2], ["cliniko", 3]] },
   { category: "Customer Service", terms: [["customer service", 4], ["customer support", 4], ["helpdesk", 3], ["support ticket", 3], ["zendesk", 3], ["gorgias", 3], ["dispatch", 2]] },
   { category: "Phone & Reception", terms: [["receptionist", 4], ["reception", 3], ["phone support", 4], ["inbound call", 3], ["outbound call", 3], ["cold call", 3], ["appointment setting", 4], ["appointment setter", 4]] },
   { category: "Lead Generation & Sales", terms: [["lead generation", 4], ["lead gen", 4], ["prospecting", 3], ["sales development", 4], ["sales outreach", 4], ["pipeline management", 3], ["appointment setter", 3], ["business development", 3], ["crm management", 2]] },
@@ -29,9 +29,9 @@ const rules: CategoryRule[] = [
   { category: "Video Editing & Creative", terms: [["video editing", 4], ["video editor", 4], ["reels", 2], ["youtube shorts", 3], ["short-form video", 4], ["ad creative", 3], ["canva design", 3], ["graphic design", 4], ["photoshop", 2], ["premiere pro", 3], ["capcut", 2]] },
   { category: "SEO", terms: [["search engine optimization", 5], ["technical seo", 5], ["on-page seo", 5], ["off-page seo", 5], ["local seo", 5], ["seo", 4], ["keyword research", 4], ["link building", 4], ["backlink", 3], ["google search console", 3], ["semrush", 3], ["ahrefs", 3]] },
   { category: "Executive Assistance", terms: [["executive assistant", 5], ["executive support", 4], ["calendar management", 4], ["inbox management", 4], ["email management", 3], ["travel management", 4], ["chief of staff", 4], ["meeting coordination", 3]] },
-  { category: "Administrative Support", terms: [["administrative assistant", 5], ["admin assistant", 5], ["administrative support", 5], ["general virtual assistant", 4], ["general va", 4], ["admin", 3], ["data entry", 4], ["spreadsheet management", 3], ["document management", 3], ["research assistant", 3], ["back office", 3]] },
+  { category: "Administrative Support", terms: [["administrative assistant", 5], ["admin assistant", 5], ["administrative support", 5], ["general virtual assistant", 4], ["general va", 4], ["admin", 4], ["data entry", 4], ["spreadsheet management", 3], ["document management", 3], ["research assistant", 3], ["back office", 3]] },
   { category: "Bookkeeping & Finance", terms: [["bookkeeping", 5], ["bookkeeper", 5], ["accounts payable", 4], ["accounts receivable", 4], ["accounting", 4], ["quickbooks", 4], ["xero", 4], ["bank reconciliation", 4], ["payroll", 3], ["invoicing", 2]] },
-  { category: "Real Estate", terms: [["real estate", 5], ["property management", 5], ["property manager", 5], ["realtor", 4], ["mls", 4], ["transaction coordinator", 5], ["property admin", 4], ["leasing", 3], ["airbnb", 3], ["short-term rental", 4]] },
+  { category: "Real Estate", terms: [["real estate", 4], ["property management", 5], ["property manager", 5], ["realtor", 4], ["mls", 4], ["transaction coordinator", 5], ["property admin", 4], ["leasing", 3], ["airbnb", 3], ["short-term rental", 4]] },
   { category: "Ecommerce", terms: [["ecommerce", 5], ["e-commerce", 5], ["shopify", 4], ["amazon seller", 4], ["product listing", 4], ["woocommerce", 4], ["etsy", 3], ["klaviyo", 3], ["order management", 3], ["product upload", 3]] },
   { category: "Web & WordPress", terms: [["wordpress", 5], ["web design", 4], ["web developer", 5], ["elementor", 4], ["webflow", 4], ["woocommerce development", 5], ["frontend developer", 4], ["website development", 4], ["landing page", 2]] },
 ];
@@ -39,13 +39,13 @@ const rules: CategoryRule[] = [
 const FIELD_WEIGHTS = {
   headline: 8,
   skills: 6,
-  industries: 5,
+  industries: 1,
   tools: 4,
   bio: 2,
   declaredCategories: 10,
 } as const;
 
-const MIN_CATEGORY_SCORE = 8;
+const MIN_CATEGORY_SCORE = 10;
 const MAX_CATEGORIES = 3;
 
 function normalize(value: string | null | undefined) {

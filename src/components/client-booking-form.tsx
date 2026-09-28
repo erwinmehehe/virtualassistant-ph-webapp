@@ -2,24 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarCheck2, CalendarDays, CheckCircle2, Clock3, Globe2 } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CheckCircle2 } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 import { TurnstileWidget } from "@/components/turnstile-widget";
-
-function timeZoneLabel(timeZone: string) {
-  const labels: Record<string, string> = {
-    "Australia/Sydney": "Sydney",
-    "Asia/Manila": "Philippines",
-    "America/Chicago": "Central Time (US)",
-    "America/Denver": "Mountain Time (US)",
-    "America/New_York": "Eastern Time (US)",
-    "America/Los_Angeles": "Pacific Time (US)",
-    "Europe/London": "London",
-    "Asia/Singapore": "Singapore",
-  };
-  return labels[timeZone] || timeZone.replaceAll("_", " ");
-}
 
 function localDateKey(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -35,32 +21,15 @@ function localDateKey(date: Date, timeZone: string) {
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
   const [displayTimeZone, setDisplayTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
     const detected = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Manila";
-    setBrowserTimeZone(detected);
     setDisplayTimeZone(detected);
   }, []);
 
-  const timeZoneOptions = useMemo(() => {
-    const supported = (Intl as typeof Intl & { supportedValuesOf?: (key: "timeZone") => string[] }).supportedValuesOf?.("timeZone") || [];
-    const priority = [
-      browserTimeZone,
-      "Australia/Sydney",
-      "Asia/Manila",
-      "America/Chicago",
-      "America/Denver",
-      "America/New_York",
-      "America/Los_Angeles",
-      "Europe/London",
-      "Asia/Singapore",
-    ].filter((value): value is string => Boolean(value));
-    return [...new Set([...priority, ...supported])];
-  }, [browserTimeZone]);
 
-  const formatTimeZone = displayTimeZone || browserTimeZone || "Asia/Manila";
+  const formatTimeZone = displayTimeZone || "Asia/Manila";
 
   const localDays = useMemo(() => {
     if (!displayTimeZone) return [];
@@ -148,32 +117,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         {error ? <div className="booking-error" role="alert">{error}</div> : null}
 
         <section className="booking-section">
-          <div className="booking-section-title">
-            <span>Date & time</span>
-            <div className="booking-timezone-control">
-              <Globe2 size={14} />
-              <label htmlFor="booking-timezone">Timezone</label>
-              <select
-                id="booking-timezone"
-                value={displayTimeZone || ""}
-                onChange={(event) => {
-                  setDisplayTimeZone(event.target.value);
-                  setSelectedDay("");
-                  setSelectedSlot("");
-                }}
-                aria-label="Timezone used for booking times"
-              >
-                {!displayTimeZone ? <option value="">Detecting timezone…</option> : null}
-                {timeZoneOptions.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
-              </select>
-            </div>
-          </div>
-          <p className="booking-timezone-note" aria-live="polite">
-            <Clock3 size={14} />
-            {browserTimeZone
-              ? `Detected: ${timeZoneLabel(browserTimeZone)}. Times shown in ${timeZoneLabel(formatTimeZone)}.`
-              : "Detecting your device timezone…"}
-          </p>
+          <div className="booking-section-title"><span>Date & time</span></div>
 
           {localDays.length ? (
             <div className="booking-calendar-shell">
@@ -248,9 +192,9 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                 <input id="booking-role" name="service" required minLength={3} maxLength={100} placeholder="e.g. Executive Assistant" />
               </div>
               <div className="field span-2">
-                <label htmlFor="booking-message">Anything we should know?</label>
-                <textarea id="booking-message" name="message" required minLength={40} maxLength={1200} placeholder="Tools, schedule, must-have experience, or anything useful before the call." />
-                <small>Minimum 40 characters.</small>
+                <label htmlFor="booking-message">Tell us about the role</label>
+                <textarea id="booking-message" name="message" required minLength={40} maxLength={1200} placeholder="Main tasks, tools, schedule, must-have experience, or anything else we should prepare for." />
+                <small>Share at least 40 characters so we can prepare for the call.</small>
               </div>
             </div>
 

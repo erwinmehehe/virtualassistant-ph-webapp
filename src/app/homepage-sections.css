@@ -676,7 +676,6 @@
   align-items: center;
 }
 .hs-whychoose-copy .hs-lede { max-width: 56ch; }
-.hs-whychoose-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
 .hs-whychoose-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
 .hs-whychoose-card {
   display: flex;
@@ -709,5 +708,4 @@
 }
 @media (max-width: 620px) {
   .hs-whychoose-grid { grid-template-columns: minmax(0, 1fr); }
-  .hs-whychoose-actions .hs-btn { width: 100%; }
 }

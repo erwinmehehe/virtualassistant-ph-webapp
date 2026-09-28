@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
-import { clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
+import { clientShortlistDecisionAction, clientShortlistMessageAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
@@ -150,6 +150,7 @@ export default async function ClientCandidatesPage({
 
   return <div className="client-hiring-room">
     {query.decision_saved?<div className="success-banner" role="status">Shortlist decision saved. Your recruiter can see it immediately.</div>:null}
+    {query.message_sent?<div className="success-banner" role="status">Message sent to your recruiter.</div>:null}
     <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
@@ -187,7 +188,7 @@ export default async function ClientCandidatesPage({
       <div className="dashboard-section-head">
         <div>
           <h2>Recruiter shortlist{selectedJob ? ` for ${selectedJob.title}` : ""}</h2>
-          <p>We have already screened these VAs. Your decisions and notes go directly back to the recruiting team.</p>
+          <p>We have already screened these VAs. Mark a decision or use Message recruiter to ask a question. Your feedback appears immediately in the recruiter workspace.</p>
         </div>
       </div>
 
@@ -301,6 +302,17 @@ export default async function ClientCandidatesPage({
                           </select>
                           <input name="decision_note" maxLength={300} placeholder="Optional note for your recruiter"/>
                           <PendingSubmitButton className="btn btn-sm" label="Confirm pass" pendingLabel="Saving…"/>
+                        </form>
+                      </details>
+
+                      <details className="client-shortlist-message">
+                        <summary className="btn btn-sm">Message recruiter</summary>
+                        <form action={clientShortlistMessageAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
+                          <input type="hidden" name="job_id" value={selectedJob.id}/>
+                          <input type="hidden" name="va_id" value={row.va_id}/>
+                          <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
+                          <textarea name="message" required minLength={2} maxLength={500} placeholder="Ask a question or send feedback about this VA."/>
+                          <PendingSubmitButton className="btn btn-sm btn-primary" label="Send to recruiter" pendingLabel="Sending…"/>
                         </form>
                       </details>
                     </div>

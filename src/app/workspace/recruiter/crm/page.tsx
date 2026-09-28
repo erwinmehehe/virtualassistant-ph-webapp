@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Search,
   Table2,
-  UsersRound,
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";

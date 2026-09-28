@@ -325,7 +325,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       source_page: sourcePage,
       page_url: pageUrl,
       session_id: parsed.data.session_id || null
-    }).select("id,owner_id").single();
+    }).select("id").single();
     if (error || !lead?.id) return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
 
     const clientId = await currentClientId();
@@ -903,7 +903,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       "Booked by a prospective client through the public qualification calendar.",
       meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
     ].filter(Boolean).join("\n"),
-  }).select("id").single();
+  }).select("id,owner_id").single();
 
   if (error || !lead?.id) {
     if (meeting?.eventId) {

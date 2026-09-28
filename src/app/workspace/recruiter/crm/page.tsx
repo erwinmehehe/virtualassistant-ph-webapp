@@ -1,11 +1,8 @@
 import Link from "next/link";
 import {
   BriefcaseBusiness,
-  Building2,
-  CalendarClock,
   CheckCircle2,
   LayoutDashboard,
-  ListTodo,
   Search,
   Table2,
   UsersRound,
@@ -173,28 +170,18 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
       <header className={styles.header}>
         <div>
           <div className={styles.kicker}>Recruiter workspace</div>
-          <h1>Hiring pipeline</h1>
-          <p>Enquiry → call → role → shortlist → interview → hire. Keep the pipeline focused on the next action.</p>
+          <h1>Client pipeline</h1>
+          <p>One client record per hiring request. Move it from enquiry to call, then work the linked role through shortlist, interview, and hire.</p>
         </div>
         <div className={styles.headerActions}>
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/tasks"><ListTodo size={15}/> Tasks</Link>
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/agenda"><CalendarClock size={15}/> Calendar</Link>
-          <Link className={styles.primaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Roles</Link>
+          <Link className={styles.primaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Open roles</Link>
         </div>
       </header>
 
-      <nav className={styles.objectBar} aria-label="Hiring workspace">
-        <Link className={styles.objectActive} href="/workspace/recruiter/crm"><UsersRound size={15}/> Pipeline</Link>
-        <Link href="/workspace/recruiter/crm/companies"><Building2 size={15}/> Companies</Link>
-        <Link href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Roles</Link>
-        <Link href="/workspace/recruiter/tasks"><ListTodo size={15}/> Tasks</Link>
-        <Link href="/workspace/recruiter/agenda"><CalendarClock size={15}/> Calendar</Link>
-      </nav>
-
-      <section className={styles.summary} aria-label="Hiring pipeline summary">
+      <section className={styles.summary} aria-label="Client pipeline summary">
         <div><span>Needs action</span><strong>{needsAction.length}</strong></div>
-        <div><span>Discovery</span><strong>{discovery.length}</strong></div>
-        <div><span>Qualified</span><strong>{qualified.length}</strong></div>
+        <div><span>Calls booked</span><strong>{discovery.length}</strong></div>
+        <div><span>Ready to recruit</span><strong>{qualified.length}</strong></div>
         <div><span>Active</span><strong>{active.length}</strong></div>
       </section>
 

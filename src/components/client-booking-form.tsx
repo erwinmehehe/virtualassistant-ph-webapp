@@ -227,7 +227,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <section className="booking-section booking-details-section">
             <div className="booking-section-title">
               <span>Your details</span>
-              <p>Four required fields. That’s it.</p>
+              <p>Five required fields. That’s it.</p>
             </div>
 
             <div className="booking-question-grid">
@@ -248,8 +248,9 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                 <input id="booking-role" name="service" required minLength={3} maxLength={100} placeholder="e.g. Executive Assistant" />
               </div>
               <div className="field span-2">
-                <label htmlFor="booking-message">Anything we should know? <span>Optional</span></label>
-                <textarea id="booking-message" name="message" maxLength={1200} placeholder="Tools, schedule, must-have experience, or anything useful before the call." />
+                <label htmlFor="booking-message">Anything we should know?</label>
+                <textarea id="booking-message" name="message" required minLength={40} maxLength={1200} placeholder="Tools, schedule, must-have experience, or anything useful before the call." />
+                <small>Minimum 40 characters.</small>
               </div>
             </div>
 

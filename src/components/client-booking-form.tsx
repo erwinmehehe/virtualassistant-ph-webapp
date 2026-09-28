@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarCheck2, CalendarDays, CheckCircle2, Clock3 } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CheckCircle2, Clock3, Globe2 } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 import { TurnstileWidget } from "@/components/turnstile-widget";
@@ -27,17 +27,35 @@ function localDateKey(date: Date, timeZone: string) {
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [showAllTimes, setShowAllTimes] = useState(false);
   const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
+  const [displayTimeZone, setDisplayTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
-    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    setBrowserTimeZone(detected || "Asia/Manila");
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Manila";
+    setBrowserTimeZone(detected);
+    setDisplayTimeZone(detected);
   }, []);
 
-  const displayTimeZone = browserTimeZone || "Asia/Manila";
+  const timeZoneOptions = useMemo(() => {
+    const supported = (Intl as typeof Intl & { supportedValuesOf?: (key: "timeZone") => string[] }).supportedValuesOf?.("timeZone") || [];
+    const priority = [
+      browserTimeZone,
+      "Australia/Sydney",
+      "Asia/Manila",
+      "America/Chicago",
+      "America/Denver",
+      "America/New_York",
+      "America/Los_Angeles",
+      "Europe/London",
+      "Asia/Singapore",
+    ].filter((value): value is string => Boolean(value));
+    return [...new Set([...priority, ...supported])];
+  }, [browserTimeZone]);
+
+  const formatTimeZone = displayTimeZone || browserTimeZone || "Asia/Manila";
 
   const localDays = useMemo(() => {
+    if (!displayTimeZone) return [];
     const grouped = new Map<string, DiscoverySlotDay>();
     for (const day of days) {
       for (const slot of day.slots) {
@@ -83,17 +101,6 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   }, [localDays, selectedDay]);
 
   const activeDay = localDays.find((day) => day.dateKey === selectedDay) || localDays[0];
-  const quickSlots = useMemo(() => {
-    const slots = activeDay?.slots || [];
-    if (slots.length <= 8) return slots;
-    const picks = new Set<number>();
-    const last = slots.length - 1;
-    for (let index = 0; index < 8; index += 1) {
-      picks.add(Math.round((index * last) / 7));
-    }
-    return [...picks].sort((a, b) => a - b).map((index) => slots[index]).filter(Boolean);
-  }, [activeDay]);
-  const visibleSlots = showAllTimes ? (activeDay?.slots || []) : quickSlots;
   const selectedSlotLabel = useMemo(() => {
     if (!selectedSlot) return "";
     const instant = new Date(selectedSlot);
@@ -101,15 +108,15 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
       weekday: "short",
       month: "short",
       day: "numeric",
-      timeZone: displayTimeZone,
+      timeZone: formatTimeZone,
     }).format(instant);
     const time = new Intl.DateTimeFormat(undefined, {
       hour: "numeric",
       minute: "2-digit",
-      timeZone: displayTimeZone,
+      timeZone: formatTimeZone,
     }).format(instant);
     return `${date} · ${time}`;
-  }, [selectedSlot, displayTimeZone]);
+  }, [selectedSlot, formatTimeZone]);
 
   return (
     <div className="booking-flow-card">
@@ -125,7 +132,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
       <form id="client-discovery-booking" className="booking-client-form" action={submitDiscoveryBookingAction}>
         <input type="hidden" name="audience" value="client" />
         <input type="hidden" name="scheduled_at" value={selectedSlot} />
-        <input type="hidden" name="timezone" value={displayTimeZone} />
+        <input type="hidden" name="timezone" value={displayTimeZone || ""} />
         <input type="hidden" name="phone" value="" />
         <input type="hidden" name="company_url" value="" />
         <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
@@ -136,8 +143,30 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         <section className="booking-section">
           <div className="booking-section-title">
             <span>1. Choose a time</span>
-            <p aria-live="polite"><Clock3 size={14} /> {browserTimeZone ? `Times shown in ${timeZoneLabel(displayTimeZone)}.` : "Loading times in your local timezone…"}</p>
+            <div className="booking-timezone-control">
+              <Globe2 size={14} />
+              <label htmlFor="booking-timezone">Timezone</label>
+              <select
+                id="booking-timezone"
+                value={displayTimeZone || ""}
+                onChange={(event) => {
+                  setDisplayTimeZone(event.target.value);
+                  setSelectedDay("");
+                  setSelectedSlot("");
+                }}
+                aria-label="Timezone used for booking times"
+              >
+                {!displayTimeZone ? <option value="">Detecting timezone…</option> : null}
+                {timeZoneOptions.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+              </select>
+            </div>
           </div>
+          <p className="booking-timezone-note" aria-live="polite">
+            <Clock3 size={14} />
+            {browserTimeZone
+              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(formatTimeZone)}.`
+              : "Detecting your device timezone…"}
+          </p>
 
           {localDays.length ? (
             <div className="booking-calendar-shell">
@@ -149,7 +178,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                     type="button"
                     role="tab"
                     aria-selected={selectedDay === day.dateKey}
-                    onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); setShowAllTimes(false); }}
+                    onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); }}
                   >
                     <CalendarDays size={15} /> {day.label}
                   </button>
@@ -157,7 +186,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
               </div>
 
               <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
-                {visibleSlots.map((slot) => (
+                {activeDay?.slots.map((slot) => (
                   <button
                     key={slot.iso}
                     className={selectedSlot === slot.iso ? "is-selected" : ""}
@@ -170,12 +199,6 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                   </button>
                 ))}
               </div>
-
-              {(activeDay?.slots.length || 0) > quickSlots.length ? (
-                <button className="booking-show-times" type="button" onClick={() => setShowAllTimes((value) => !value)}>
-                  {showAllTimes ? "Show fewer times" : `Show all ${activeDay?.slots.length || 0} times`}
-                </button>
-              ) : null}
 
               {selectedSlot ? (
                 <div className="booking-selected-slot" role="status">

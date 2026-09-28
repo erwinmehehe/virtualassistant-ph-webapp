@@ -34,7 +34,12 @@ test("client booking opens directly on the calendar and still routes VA applican
   assert.match(action, /isAllowedDiscoverySlot/);
   assert.match(form, /useState<string \| null>\(null\)/);
   assert.ok(form.includes("Australia/Sydney"));
-  assert.ok(form.includes("Times shown in ${timeZoneLabel"));
+  assert.ok(form.includes("America/Chicago"));
+  assert.ok(form.includes("America/Denver"));
+  assert.match(form,/resolvedOptions\(\)\.timeZone/);
+  assert.match(form,/id="booking-timezone"/);
+  assert.match(form,/setDisplayTimeZone\(event\.target\.value\)/);
+  assert.match(form,/Detected from your device/);
 });
 
 test("discovery booking is available 24/7 and grouped in the visitor timezone", async () => {
@@ -48,6 +53,9 @@ test("discovery booking is available 24/7 and grouped in the visitor timezone", 
   assert.doesNotMatch(booking, /weekday === 0|weekday === 6/);
   assert.match(form, /localDateKey/);
   assert.match(form, /localDays\.map/);
+  assert.match(form, /activeDay\?\.slots\.map/);
+  assert.doesNotMatch(form, /booking-show-times/);
+  assert.doesNotMatch(form, /showAllTimes/);
 });
 
 test("client booking keeps the minimum brief lightweight", async () => {

@@ -43,7 +43,7 @@ test("manual CRM client email is explicit and automated pre-shortlist email rema
   assert.ok(start>=0);
   const helper=email.slice(start,start+1500);
   assert.doesNotMatch(helper,/client_email_deferred_until_shortlist/);
-  assert.match(helper,/explicit staff action/);
+  assert.match(helper,/Manual recruiter email only/);
 });
 
 test("direct client touches and discovery stage changes trigger existing CRM workflows",async()=>{

@@ -1,3 +1,5 @@
+import styles from "./client-engagement-panel.module.css";
+
 export function ClientEngagementPanel({
   linked,
   lastLogin,
@@ -17,12 +19,12 @@ export function ClientEngagementPanel({
   decision: string;
   lastEmailReply: string;
 }) {
-  return <section className="crm-client-engagement">
-    <div className="crm-client-engagement-head">
+  return <section className={styles.card}>
+    <div className={styles.head}>
       <div><span>Client activity</span><h2>What has the client actually done?</h2></div>
       <b>{linked ? "Account linked" : "No client account"}</b>
     </div>
-    <div className="crm-client-engagement-grid">
+    <div className={styles.grid}>
       <div><span>Last login</span><strong>{lastLogin}</strong></div>
       <div><span>Last VA viewed</span><strong>{lastVaView}</strong></div>
       <div><span>VAs viewed</span><strong>{vaViews}</strong></div>
@@ -31,6 +33,6 @@ export function ClientEngagementPanel({
       <div><span>Decision received</span><strong>{decision}</strong></div>
       <div><span>Last email reply</span><strong>{lastEmailReply}</strong></div>
     </div>
-    <p>Candidate views and shortlist activity are tracked automatically. Email replies appear after a recruiter logs the inbound email in the CRM.</p>
+    <p className={styles.note}>Candidate views and shortlist activity are tracked automatically. Email replies appear after a recruiter logs the inbound email in the CRM.</p>
   </section>;
 }

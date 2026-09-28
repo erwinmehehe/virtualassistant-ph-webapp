@@ -11,17 +11,25 @@ function rowCheckboxes(formId: string) {
 export function RecruiterTalentSelectionControl({
   formId,
   pageCount,
+  totalCount,
+  filteredSelectionAllowed,
 }: {
   formId: string;
   pageCount: number;
+  totalCount: number;
+  filteredSelectionAllowed: boolean;
 }) {
   const [selectedCount, setSelectedCount] = useState(0);
+  const [allFiltered, setAllFiltered] = useState(false);
 
   useEffect(() => {
     const form = document.getElementById(formId);
     if (!(form instanceof HTMLFormElement)) return;
 
-    const update = () => {
+    const update = (event?: Event) => {
+      if (event?.target instanceof HTMLInputElement && event.target.name === "va_id") {
+        setAllFiltered(false);
+      }
       setSelectedCount(rowCheckboxes(formId).filter((checkbox) => checkbox.checked).length);
     };
     update();
@@ -29,21 +37,65 @@ export function RecruiterTalentSelectionControl({
     return () => form.removeEventListener("change", update);
   }, [formId]);
 
-  const allSelected = pageCount > 0 && selectedCount === pageCount;
+  useEffect(() => {
+    const form = document.getElementById(formId);
+    if (!(form instanceof HTMLFormElement)) return;
+    form.dataset.selectionActive = selectedCount > 0 || allFiltered ? "true" : "false";
+  }, [formId, selectedCount, allFiltered]);
+
+  const allPageSelected = pageCount > 0 && selectedCount === pageCount;
+
+  function setPageSelection(checked: boolean) {
+    for (const checkbox of rowCheckboxes(formId)) checkbox.checked = checked;
+    setSelectedCount(checked ? pageCount : 0);
+  }
 
   function togglePage() {
-    for (const checkbox of rowCheckboxes(formId)) {
-      checkbox.checked = !allSelected;
-      checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+    setAllFiltered(false);
+    setPageSelection(!allPageSelected);
+  }
+
+  function toggleAllFiltered() {
+    if (allFiltered) {
+      setAllFiltered(false);
+      setPageSelection(false);
+      return;
     }
+    if (!filteredSelectionAllowed) return;
+    setPageSelection(true);
+    setAllFiltered(true);
   }
 
   return (
-    <div className="talent-selection-control">
-      <button type="button" className="btn btn-sm" onClick={togglePage} disabled={!pageCount}>
-        {allSelected ? "Clear page" : "Select page (" + pageCount + ")"}
-      </button>
-      <span>{selectedCount ? selectedCount + " selected" : "No rows selected"}</span>
+    <div className="talent-selection-row">
+      <input type="hidden" name="selection_scope" value={allFiltered ? "filtered" : ""} />
+      <div className="talent-selection-control">
+        <button type="button" className="btn btn-sm" onClick={togglePage} disabled={!pageCount}>
+          {allPageSelected && !allFiltered ? "Clear page" : "Select page (" + pageCount + ")"}
+        </button>
+        {totalCount > pageCount ? (
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={toggleAllFiltered}
+            disabled={!filteredSelectionAllowed}
+            title={filteredSelectionAllowed ? undefined : "Narrow the filters before selecting all results."}
+          >
+            {allFiltered
+              ? "Clear all results"
+              : filteredSelectionAllowed
+                ? "Select all " + totalCount + " results"
+                : "All " + totalCount + " exceeds limit"}
+          </button>
+        ) : null}
+        <span>
+          {allFiltered
+            ? "All " + totalCount + " filtered selected"
+            : selectedCount
+              ? selectedCount + " selected"
+              : "No rows selected"}
+        </span>
+      </div>
     </div>
   );
 }

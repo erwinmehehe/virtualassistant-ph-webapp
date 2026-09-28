@@ -8,9 +8,17 @@ import type { DiscoverySlotDay } from "@/lib/discovery-booking";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
 function timeZoneLabel(timeZone: string) {
-  if (timeZone === "Australia/Sydney") return "Sydney time";
-  if (timeZone === "Asia/Manila") return "Philippine time";
-  return timeZone.replaceAll("_", " ");
+  const labels: Record<string, string> = {
+    "Australia/Sydney": "Sydney",
+    "Asia/Manila": "Philippines",
+    "America/Chicago": "Central Time (US)",
+    "America/Denver": "Mountain Time (US)",
+    "America/New_York": "Eastern Time (US)",
+    "America/Los_Angeles": "Pacific Time (US)",
+    "Europe/London": "London",
+    "Asia/Singapore": "Singapore",
+  };
+  return labels[timeZone] || timeZone.replaceAll("_", " ");
 }
 
 function localDateKey(date: Date, timeZone: string) {
@@ -122,9 +130,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
     <div className="booking-flow-card">
       <div className="booking-card-head">
         <div>
-          <span className="booking-step-label">Book your call</span>
-          <h2>Pick a time that works for you.</h2>
-          <p>30-minute Google Meet. We only need a few details now. You can discuss budget, hours, and start date on the call.</p>
+          <h2>Choose a time</h2>
+          <p>All available times are shown below. Your timezone is detected automatically.</p>
         </div>
         <Link className="booking-va-link" href="/auth/join/va">Looking for VA work? Apply here</Link>
       </div>
@@ -142,7 +149,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
         <section className="booking-section">
           <div className="booking-section-title">
-            <span>1. Choose a time</span>
+            <span>Date & time</span>
             <div className="booking-timezone-control">
               <Globe2 size={14} />
               <label htmlFor="booking-timezone">Timezone</label>
@@ -164,7 +171,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <p className="booking-timezone-note" aria-live="polite">
             <Clock3 size={14} />
             {browserTimeZone
-              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(formatTimeZone)}.`
+              ? `Detected: ${timeZoneLabel(browserTimeZone)}. Times shown in ${timeZoneLabel(formatTimeZone)}.`
               : "Detecting your device timezone…"}
           </p>
 
@@ -219,8 +226,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         {localDays.length ? (
           <section className="booking-section booking-details-section">
             <div className="booking-section-title">
-              <span>2. Your details</span>
-              <p>That is it. No long questionnaire.</p>
+              <span>Your details</span>
+              <p>Four required fields. That’s it.</p>
             </div>
 
             <div className="booking-question-grid">
@@ -248,7 +255,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
 
             <button className="btn btn-primary btn-lg booking-submit" type="submit" disabled={!selectedSlot}>
               <CalendarCheck2 size={18} />
-              {selectedSlot ? "Confirm 30-minute call" : "Choose a time first"}
+              {selectedSlot ? "Book discovery call" : "Choose a time first"}
             </button>
             <p className="booking-consent">No payment required. We use these details only to prepare for your hiring conversation.</p>
           </section>

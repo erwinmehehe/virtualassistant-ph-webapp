@@ -242,6 +242,27 @@
   box-shadow: 0 7px 16px rgba(79,70,229,.2);
 }
 
+.booking-show-times {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-top: .65rem;
+  padding: 0 .8rem;
+  border: 1px solid #d7d9ee;
+  border-radius: .65rem;
+  color: #5145cd;
+  background: #fff;
+  font-size: .7rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.booking-show-times:hover {
+  border-color: #a5b4fc;
+  background: #f8f7ff;
+}
+
 .booking-selected-slot {
   display: flex;
   align-items: center;

@@ -14,7 +14,9 @@ test("Roles talent coverage drills into exact primary specialties",async()=>{
   assert.match(roles,/talent\?category=/);
   assert.match(roles,/Source for/);
   assert.match(roles,/Review thin pool/);
-  assert.match(filters,/query\.eq\("primary_category", category\)/);
+  assert.match(filters,/primary_category\.eq/);
+  assert.match(filters,/categories\.cs/);
+  assert.match(filters,/query\.or/);
   assert.match(talent,/filter_category: effective\.category/);
   assert.match(action,/category: filterValue\(formData, "filter_category"\)/);
 });

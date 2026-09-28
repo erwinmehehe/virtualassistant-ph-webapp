@@ -23,7 +23,7 @@ test("CRM phase 2 adds first-class company contact field view workflow and dashb
 
 test("CRM main workspace stays focused while advanced CRM routes remain available",async()=>{
   const page=await read("src/app/workspace/recruiter/crm/page.tsx");
-  assert.match(page,/Hiring pipeline/);
+  assert.match(page,/Client pipeline/);
   assert.match(page,/Needs action/);
   assert.match(page,/workspace\/recruiter\/crm\/companies/);
   assert.match(page,/workspace\/recruiter\/roles/);

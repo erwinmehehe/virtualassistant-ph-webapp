@@ -19,7 +19,7 @@ test("Resend webhook verifies signatures before tracking inbound client replies"
 test("inbound reply tracking stores metadata only and does not process message content", async () => {
   const route = await read("src/app/api/webhooks/resend/route.ts");
 
-  assert.match(route, /subject: subject/);
+  assert.match(route, /\n\s+subject,/);
   assert.match(route, /message_id/);
   assert.doesNotMatch(route, /emails\.receiving\.get/);
   assert.doesNotMatch(route, /html:/);

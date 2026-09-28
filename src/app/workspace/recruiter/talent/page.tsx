@@ -216,9 +216,19 @@ export default async function RecruiterTalentDirectory({
     ready_to_classify: "Ready to classify",
     incomplete_profile: "Incomplete profile",
   };
+  const directoryHeading = params.view === "incomplete_profiles"
+    ? "Incomplete VA profiles"
+    : params.view === "ready_to_classify"
+      ? "Ready to classify"
+      : "Talent pool";
+  const directoryDescription = params.view === "incomplete_profiles"
+    ? "Profiles without enough role evidence stay here until the VA adds enough information for reliable classification."
+    : params.view === "ready_to_classify"
+      ? "These profiles have enough evidence to classify but still need an automatic or recruiter-confirmed specialty."
+      : "Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue.";
   const activeFilters = [
     effective.q ? { key: "q", label: `Search: ${effective.q}` } : null,
-    effective.classification && effective.classification !== "classified"
+    !params.view && effective.classification && effective.classification !== "classified"
       ? { key: "classification", label: classificationLabels[effective.classification] || effective.classification }
       : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
@@ -238,8 +248,8 @@ export default async function RecruiterTalentDirectory({
     <div className="page-head">
       <div>
         <div className="kicker">Master VA directory</div>
-        <h1>Talent pool</h1>
-        <p>Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue until there is enough evidence to classify them reliably.</p>
+        <h1>{directoryHeading}</h1>
+        <p>{directoryDescription}</p>
       </div>
       <div className="row wrap">
         <Link className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Vetting queue</Link>
@@ -288,7 +298,7 @@ export default async function RecruiterTalentDirectory({
       <div className="saved-view-head"><strong>Saved views</strong><span>One-click recruiter queues</span></div>
       <div className="saved-view-list">
         {SAVED_VIEWS.map((preset) => (
-          <Link key={preset.key} className={params.view === preset.key ? "saved-view active" : "saved-view"} href={`/workspace/recruiter/talent?view=${preset.key}&sort=${sort}`}>
+          <Link key={preset.key} className={(params.view || "all") === preset.key ? "saved-view active" : "saved-view"} href={`/workspace/recruiter/talent?view=${preset.key}&sort=${sort}`}>
             <span>{preset.label}</span><strong>{savedViewCounts.get(preset.key) || 0}</strong>
           </Link>
         ))}
@@ -515,9 +525,9 @@ export default async function RecruiterTalentDirectory({
                   <div className="status-stack">
                     <span className="badge">{vettingStatusLabel(row.stage || "profile")}</span>
                     <span className={`visibility-label visibility-${visibility.toLowerCase().replaceAll(" ", "-")}`}>{visibility}</span>
-                    <span className={`classification-state classification-${classificationStatus}`}>
-                      {classificationStatus === "classified" ? "Classified" : classificationStatus === "ready_to_classify" ? "Ready to classify" : "Incomplete profile"}
-                    </span>
+                    {classificationStatus !== "classified" ? <span className={`classification-state classification-${classificationStatus}`}>
+                      {classificationStatus === "ready_to_classify" ? "Ready to classify" : "Incomplete profile"}
+                    </span> : null}
                     {!publicNow && approved ? <span className="public-blocker-copy">{publicMissing.length ? `Needs ${publicMissing.slice(0, 2).join(" · ")}${publicMissing.length > 2 ? ` +${publicMissing.length - 2}` : ""}` : "Eligible once visibility is enabled"}</span> : null}
                   </div>
                 </td>

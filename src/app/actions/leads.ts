@@ -762,7 +762,7 @@ const discoveryBookingSchema = z.object({
   hours: z.string().trim().max(3).optional().default(""),
   budget: z.string().trim().max(100).optional().default(""),
   start_time: z.string().trim().max(100).optional().default(""),
-  message: z.string().trim().max(1200).optional().default(""),
+  message: z.string().trim().min(40, "Please add a little more detail. Minimum 40 characters.").max(1200),
   website: z.string().max(200).optional(),
 });
 

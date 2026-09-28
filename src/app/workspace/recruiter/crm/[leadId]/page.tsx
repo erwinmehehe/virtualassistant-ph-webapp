@@ -185,9 +185,101 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const customFields = (customFieldsResult.data || []) as CustomField[];
   const customValueMap = new Map(((customValuesResult.data || []) as CustomValue[]).map(item=>[item.field_id,item.value]));
   const emailEvents = (emailResult.data || []) as EmailEvent[];
-  const communication = activities.filter(item=>/email|contact|meeting|discovery|follow_up/.test(item.action));
+  const proposals = (proposalResult.data || []) as Proposal[];
+  const shortlists = (shortlistResult.data || []) as Shortlist[];
+  const interviews = (interviewResult.data || []) as Interview[];
+  const offers = (offerResult.data || []) as Offer[];
+  const workrooms = (workroomResult.data || []) as Workroom[];
+
+  const vaIds = [...new Set([
+    ...shortlists.map(item=>item.va_id),
+    ...interviews.map(item=>item.va_id),
+    ...offers.map(item=>item.va_id),
+    ...workrooms.map(item=>item.va_id),
+  ].filter(Boolean))];
+  const { data: vaRows, error: vaError } = vaIds.length
+    ? await admin.from("profiles").select("id,full_name").in("id",vaIds)
+    : { data: [] as {id:string;full_name:string|null}[], error: null };
+  if (vaError) throw vaError;
+  const vaName = new Map((vaRows || []).map(item=>[item.id,item.full_name || "Candidate"]));
+  const candidateLabel = (id:string) => vaName.get(id) || "Candidate";
+
+  const timeline: TimelineEvent[] = [];
+  const pushEvent = (event: TimelineEvent | null) => { if (event?.at) timeline.push(event); };
+
+  pushEvent({ id:"lead-created", at:lead.created_at, kind:"lead", title:"Hiring enquiry received", detail:lead.service || lead.company || null });
+  for (const item of activities) {
+    if (item.action === "note_added") continue;
+    pushEvent({ id:`activity-${item.id}`, at:item.created_at, kind:"activity", title:activityTitle(item.action), detail:item.description });
+  }
+  for (const item of emailEvents) {
+    pushEvent({
+      id:`email-${item.id}`,
+      at:item.created_at,
+      kind:"email",
+      title:`Email ${item.status}`,
+      detail:item.error_message || (item.automation ? item.automation.replaceAll("_"," ") : item.event_type.replaceAll("_"," ")),
+    });
+  }
+  if (lead.discovery_scheduled_at) {
+    pushEvent({ id:"discovery-scheduled", at:lead.discovery_scheduled_at, kind:"calendar", title:"Discovery scheduled", detail:`${lead.discovery_duration_minutes || 30} minutes${lead.discovery_meeting_url ? " · meeting link ready" : ""}` });
+  }
+  if (lead.discovery_completed_at) {
+    pushEvent({ id:"discovery-completed", at:lead.discovery_completed_at, kind:"calendar", title:"Discovery completed", detail:lead.discovery_outcome || lead.discovery_notes || null });
+  }
+  if (lead.discovery_cancelled_at) {
+    pushEvent({ id:"discovery-cancelled", at:lead.discovery_cancelled_at, kind:"calendar", title:"Discovery cancelled", detail:lead.discovery_notes || null });
+  }
+
+  for (const proposal of proposals) {
+    pushEvent({ id:`proposal-created-${proposal.id}`, at:proposal.created_at, kind:"proposal", title:"Proposal created", detail:proposal.role_title });
+    if (proposal.sent_at) pushEvent({ id:`proposal-sent-${proposal.id}`, at:proposal.sent_at, kind:"proposal", title:"Proposal sent", detail:proposal.role_title });
+    if (proposal.viewed_at) pushEvent({ id:`proposal-viewed-${proposal.id}`, at:proposal.viewed_at, kind:"proposal", title:"Client viewed proposal", detail:proposal.role_title });
+    if (proposal.changes_requested_at) pushEvent({ id:`proposal-changes-${proposal.id}`, at:proposal.changes_requested_at, kind:"proposal", title:"Client requested proposal changes", detail:proposal.role_title });
+    if (proposal.accepted_at) pushEvent({ id:`proposal-accepted-${proposal.id}`, at:proposal.accepted_at, kind:"proposal", title:"Proposal accepted", detail:proposal.role_title });
+    if (proposal.declined_at) pushEvent({ id:`proposal-declined-${proposal.id}`, at:proposal.declined_at, kind:"proposal", title:"Proposal declined", detail:proposal.decline_reason || proposal.role_title });
+  }
+
+  for (const item of shortlists) {
+    if (item.released_at) pushEvent({ id:`shortlist-release-${item.id}`, at:item.released_at, kind:"shortlist", title:"Candidate released to client", detail:candidateLabel(item.va_id) });
+    if (item.client_decision_at) pushEvent({ id:`shortlist-decision-${item.id}`, at:item.client_decision_at, kind:"shortlist", title:`Client shortlist decision: ${String(item.client_decision || "updated").replaceAll("_"," ")}`, detail:`${candidateLabel(item.va_id)}${item.client_decision_note ? ` · ${item.client_decision_note}` : ""}` });
+  }
+
+  for (const item of interviews) {
+    pushEvent({ id:`interview-created-${item.id}`, at:item.created_at, kind:"interview", title:"Interview requested", detail:candidateLabel(item.va_id) });
+    if (item.scheduled_at) pushEvent({ id:`interview-scheduled-${item.id}`, at:item.scheduled_at, kind:"interview", title:"Interview scheduled", detail:candidateLabel(item.va_id) });
+    if (item.completed_at) pushEvent({ id:`interview-completed-${item.id}`, at:item.completed_at, kind:"interview", title:"Interview completed", detail:`${candidateLabel(item.va_id)}${item.client_decision ? ` · ${item.client_decision}` : ""}` });
+    if (item.rescheduled_at) pushEvent({ id:`interview-rescheduled-${item.id}`, at:item.rescheduled_at, kind:"interview", title:"Interview rescheduled", detail:candidateLabel(item.va_id) });
+    if (item.cancelled_at) pushEvent({ id:`interview-cancelled-${item.id}`, at:item.cancelled_at, kind:"interview", title:"Interview cancelled", detail:candidateLabel(item.va_id) });
+  }
+
+  for (const item of offers) {
+    pushEvent({ id:`offer-created-${item.id}`, at:item.created_at, kind:"offer", title:"Placement offer created", detail:candidateLabel(item.va_id) });
+    if (item.va_accepted_at) pushEvent({ id:`offer-va-${item.id}`, at:item.va_accepted_at, kind:"offer", title:"VA accepted offer", detail:candidateLabel(item.va_id) });
+    if (item.client_confirmed_at) pushEvent({ id:`offer-client-${item.id}`, at:item.client_confirmed_at, kind:"offer", title:"Client confirmed offer", detail:candidateLabel(item.va_id) });
+    if (item.declined_at) pushEvent({ id:`offer-declined-${item.id}`, at:item.declined_at, kind:"offer", title:"Offer declined", detail:candidateLabel(item.va_id) });
+  }
+
+  for (const item of workrooms) {
+    pushEvent({ id:`workroom-created-${item.id}`, at:item.created_at, kind:"placement", title:"Placement workspace created", detail:`${candidateLabel(item.va_id)} · ${item.status}` });
+    if (item.placement_stage_entered_at) pushEvent({ id:`placement-stage-${item.id}`, at:item.placement_stage_entered_at, kind:"placement", title:`Placement stage: ${String(item.placement_stage || item.status).replaceAll("_"," ")}`, detail:candidateLabel(item.va_id) });
+    if (item.handoff_completed_at) pushEvent({ id:`handoff-${item.id}`, at:item.handoff_completed_at, kind:"placement", title:"Recruiter handoff completed", detail:candidateLabel(item.va_id) });
+    if (item.ended_at) pushEvent({ id:`placement-ended-${item.id}`, at:item.ended_at, kind:"placement", title:"Placement ended", detail:candidateLabel(item.va_id) });
+  }
+
+  timeline.sort((a,b)=>new Date(b.at).getTime()-new Date(a.at).getTime());
   const returnTo = `/workspace/recruiter/crm/${lead.id}`;
   const initial = (lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase();
+  const stage = String(lead.crm_stage || "new");
+  const quickStages: Record<string,{value:string;label:string}[]> = {
+    new:[{value:"contacted",label:"Mark contacted"}],
+    contacted:[{value:"qualified",label:"Mark qualified"},{value:"nurture",label:"Move to nurture"}],
+    discovery_booked:[{value:"qualified",label:"Mark qualified"},{value:"nurture",label:"Move to nurture"}],
+    qualified:[{value:"terms_sent",label:"Terms sent"},{value:"nurture",label:"Move to nurture"}],
+    terms_sent:[{value:"shortlist_sent",label:"Shortlist sent"},{value:"nurture",label:"Move to nurture"}],
+    shortlist_sent:[{value:"won",label:"Mark won"},{value:"nurture",label:"Move to nurture"}],
+    nurture:[{value:"contacted",label:"Reopen as contacted"}],
+  };
 
   return (
     <div className={styles.detailPage}>

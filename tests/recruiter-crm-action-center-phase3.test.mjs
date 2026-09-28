@@ -6,7 +6,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("CRM record keeps only the primary recruiter actions visible by default",async()=>{
   const page=await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
-  assert.match(page,/Next actions/);
+  assert.match(page,/Move this hire forward/);
   assert.match(page,/sendClientFollowupAction/);
   assert.match(page,/scheduleDiscoveryAction/);
   assert.match(page,/completeDiscoveryAction/);

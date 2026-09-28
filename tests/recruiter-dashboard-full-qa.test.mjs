@@ -11,7 +11,7 @@ test("recruiter badge destinations use current role and talent pages while focus
     read("src/app/workspace/recruiter/today/page.tsx"),
   ]);
 
-  assert.match(nav,/\["Hiring pipeline", "\/workspace\/recruiter\/crm", UsersRound\]/);
+  assert.match(nav,/\["Clients", "\/workspace\/recruiter\/crm", UsersRound\]/);
   assert.match(nav,/\["Roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
   assert.doesNotMatch(nav,/\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
@@ -26,7 +26,7 @@ test("recruiter badge destinations use current role and talent pages while focus
 
 test("My Day removes duplicate summary layers and keeps a single next-action hierarchy", async () => {
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.ok(page.includes("Start with the next action"));
+  assert.ok(page.includes("Work the next action, then clear the queue"));
   assert.ok(page.includes("newHiringRoles.length"));
   assert.ok(page.includes("cleanupQueue.length"));
   assert.ok(!page.includes("priorityStrip"));

@@ -27,7 +27,7 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
     "Home",
     "Opportunities",
     "My Day",
-    "Hiring pipeline",
+    "Clients",
     "Roles",
     "Talent",
     "Placements",
@@ -51,10 +51,10 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.doesNotMatch(recruiter, /Four places to look/);
   assert.match(recruiter, /recruiter-next-action/);
   assert.match(recruiter, /recruiter_today_summary/);
-  assert.match(recruiter, /Today’s work queue/);
+  assert.match(recruiter, /Needs action/);
   assert.match(client, /refreshed when this page opened/);
   assert.match(va, /DashHeader title="VA dashboard"/);
-  assert.match(recruiter, /One owner · one next step/);
+  assert.match(recruiter, /Less scanning · clearer ownership/);
 });
 
 test("overview pages preserve useful loading and degraded states", () => {

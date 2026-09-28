@@ -37,50 +37,11 @@
 }
 
 
-.operationsGrid {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:14px;
-  align-items:start;
-}
-
-.signalRow {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-  margin-bottom:14px;
-}
-
-.signalRow a {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  min-height:42px;
-  padding:10px 11px;
-  border:1px solid #e4e7ec;
-  border-radius:11px;
-  background:#f9fafb;
-  color:#344054;
-  font-size:12px;
-}
-
-.signalRow a:hover {
-  border-color:#c7d2fe;
-  background:#f7f7ff;
-}
-
-.signalRow svg {
-  flex:none;
-  color:#444ce7;
-}
-
-.compactPeople,
 .followList {
   display:grid;
   gap:8px;
 }
 
-.personRow,
 .followRow {
   display:flex;
   gap:10px;
@@ -92,12 +53,10 @@
   text-decoration:none;
 }
 
-.personRow:first-child,
 .followList .followRow:first-of-type {
   border-top:0;
 }
 
-.personCopy,
 .followCopy {
   display:grid;
   gap:2px;
@@ -105,7 +64,6 @@
   flex:1;
 }
 
-.personCopy strong,
 .followCopy strong {
   overflow:hidden;
   color:#101828;
@@ -114,7 +72,6 @@
   white-space:nowrap;
 }
 
-.personCopy small,
 .followCopy small {
   overflow:hidden;
   color:#667085;
@@ -124,7 +81,6 @@
   white-space:nowrap;
 }
 
-.personRow > svg:last-child,
 .followRow > svg:last-child {
   flex:none;
   color:#98a2b3;
@@ -165,23 +121,7 @@
   font-weight:700;
 }
 
-@media (max-width: 1080px) {
-  .operationsGrid {
-    grid-template-columns:1fr;
-  }
-}
-
 @media (max-width: 640px) {
-  .signalRow {
-    grid-template-columns:1fr;
-  }
-
-  .priorityItem {
-    min-height:64px;
-  }
-
-  .personCopy strong,
-  .personCopy small,
   .followCopy strong,
   .followCopy small {
     white-space:normal;

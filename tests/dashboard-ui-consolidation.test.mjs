@@ -11,12 +11,12 @@ test("recruiter Today leads with one next action and only actionable operating s
   ]);
 
   assert.match(page,/id="recruiter-next-action"/);
-  assert.match(page,/Today’s work queue/);
-  assert.match(page,/Talent operations/);
-  assert.match(page,/Role follow-through/);
+  assert.match(page,/Needs action/);
+  assert.doesNotMatch(page,/Talent operations/);
+  assert.match(page,/Follow-through/);
   assert.doesNotMatch(page,/Four places to look|const workstreams = \[/);
   assert.doesNotMatch(css,/\.workstreamGrid|\.priorityStrip/);
-  assert.match(css,/\.operationsGrid/);
+  assert.doesNotMatch(css,/\.operationsGrid/);
 });
 
 test("owner dashboard puts exceptions before the business pipeline",async()=>{

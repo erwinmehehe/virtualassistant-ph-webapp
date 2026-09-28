@@ -8,13 +8,13 @@ test("recruiter CRM keeps table and board views on the same live lead records",a
   const page=await read("src/app/workspace/recruiter/crm/page.tsx");
   assert.match(page,/mode === "board"/);
   assert.match(page,/RecruiterLeadKanban/);
-  assert.match(page,/Hiring pipeline/);
+  assert.match(page,/Client pipeline/);
   assert.match(page,/Search client, company, email, or role/);
   assert.match(page,/lead_intake/);
   assert.match(page,/jobs/);
 });
 
-test("CRM record page combines properties relationships activity notes and tasks",async()=>{
+test("CRM record page keeps client actions primary and secondary controls collapsed",async()=>{
   const page=await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
   assert.match(page,/updateLeadCrmAction/);
   assert.match(page,/addRecruiterNoteAction/);
@@ -24,7 +24,7 @@ test("CRM record page combines properties relationships activity notes and tasks
   assert.match(page,/recruiter_tasks/);
   assert.match(page,/Open linked role/);
   assert.match(page,/sendClientFollowupAction/);
-  assert.match(page,/Next actions/);
+  assert.match(page,/Move this hire forward/);
   assert.match(page,/Activity history/);
 });
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Building2, Search, UsersRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { updateCrmContactAction } from "@/app/actions/crm";
+import { createCrmContactAction, updateCrmContactAction } from "@/app/actions/crm";
 import styles from "../crm.module.css";
 
 type Contact = {
@@ -52,8 +52,20 @@ export default async function CrmContactsPage({ searchParams }: { searchParams: 
         <p>People connected to employer accounts and hiring relationships.</p>
       </div>
       <div className={styles.headerActions}>
+        <details className={styles.saveView}>
+          <summary className={styles.primaryButton}>+ New contact</summary>
+          <form action={createCrmContactAction} className={styles.form}>
+            <input type="hidden" name="return_to" value="/workspace/recruiter/crm/contacts"/>
+            <label>Name<input name="full_name" placeholder="Client name"/></label>
+            <label>Email<input name="email" type="email" placeholder="client@example.com"/></label>
+            <label>Company<select name="company_id" defaultValue=""><option value="">No company</option>{((companies||[]) as Company[]).map(company=><option key={company.id} value={company.id}>{company.name}</option>)}</select></label>
+            <label>Title<input name="title" placeholder="Founder, Operations Manager…"/></label>
+            <label>Phone<input name="phone"/></label>
+            <button type="submit">Create contact</button>
+          </form>
+        </details>
         <Link className={styles.secondaryButton} href="/workspace/recruiter/crm/companies"><Building2 size={15}/> Companies</Link>
-        <Link className={styles.primaryButton} href="/workspace/recruiter/crm">Back to CRM</Link>
+        <Link className={styles.secondaryButton} href="/workspace/recruiter/crm">Back to CRM</Link>
       </div>
     </header>
 
@@ -80,10 +92,10 @@ export default async function CrmContactsPage({ searchParams }: { searchParams: 
           <tbody>
             {rows.map(contact=><tr key={contact.id}>
               <td>
-                {contact.lead_id ? <Link className={styles.recordLink} href={`/workspace/recruiter/crm/${contact.lead_id}`}>
+                <Link className={styles.recordLink} href={`/workspace/recruiter/crm/contacts/${contact.id}`}>
                   <span className={styles.avatar}>{(contact.full_name||contact.email||"?").slice(0,1).toUpperCase()}</span>
                   <span><strong>{contact.full_name||contact.email||"Contact"}</strong><small>{contact.email||"No email"}</small></span>
-                </Link> : <div className={styles.recordLink}><span className={styles.avatar}>{(contact.full_name||"?").slice(0,1).toUpperCase()}</span><span><strong>{contact.full_name||"Contact"}</strong><small>{contact.email||"No email"}</small></span></div>}
+                </Link>
               </td>
               <td>{contact.company_id ? <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/companies/${contact.company_id}`}>{companyMap.get(contact.company_id)||"Company"}</Link> : <span className={styles.muted}>—</span>}</td>
               <td>{contact.title||<span className={styles.muted}>—</span>}</td>

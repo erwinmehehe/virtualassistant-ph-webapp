@@ -533,11 +533,18 @@ export async function sendApplicationEmail(args: {
 }) {
   const config = resendConfig();
   if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [args.to],
     subject: `New application: ${args.jobTitle}`,
-    html: `<p>${escapeHtml(args.applicantName)} applied for <strong>${escapeHtml(args.jobTitle)}</strong>.</p><p>Open your client workspace to review the application.</p>`
+    html: renderHiringEmail({
+      firstName: "there",
+      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:24px;line-height:1.25;letter-spacing:-.3px;">New application received</h2><p style="margin:0 0 14px;color:#475467;font-size:15px;line-height:1.7;"><strong style="color:#101828;">${escapeHtml(args.applicantName)}</strong> applied for <strong style="color:#101828;">${escapeHtml(args.jobTitle)}</strong>.</p><p style="margin:0;color:#667085;font-size:14px;line-height:1.65;">Open your Client workspace to review the application and candidate details.</p>`,
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      ctaHref: `${appUrl}/workspace/client`,
+      ctaLabel: "Review application"
+    })
   }, "new_application", { archive: false, priority: "standard", idempotencyKey: `new-application-${args.applicationId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
@@ -794,7 +801,18 @@ function renderAuthActionEmail(args: {
   ctaHref: string;
   ctaLabel: string;
 }) {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">Account security</div></td></tr><tr><td style="padding:30px;"><h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;color:#101828;">${escapeHtml(args.heading)}</h1><p style="margin:0 0 22px;color:#475467;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p><table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">${escapeHtml(args.ctaLabel)}</a></td></tr></table><p style="margin:24px 0 0;color:#667085;font-size:13px;line-height:1.6;">This is a one-time security link. If you did not request this, you can ignore this email.</p></td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">VirtualAssistant.com.ph</p></td></tr></table></body></html>`;
+  const bodyHtml = `<h1 style="margin:0 0 14px;color:#101828;font-size:27px;line-height:1.2;letter-spacing:-.45px;">${escapeHtml(args.heading)}</h1><p style="margin:0;color:#475467;font-size:15px;line-height:1.7;">${escapeHtml(args.body)}</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;"><tr><td style="padding:14px 16px;border:1px solid #e4e7ec;border-radius:12px;background:#f8f9fc;color:#667085;font-size:12px;line-height:1.6;">This is a one-time security link. If you did not request this action, you can ignore this email.</td></tr></table>`;
+  return renderBrandedEmail({
+    firstName: "there",
+    bodyHtml,
+    senderName: "VirtualAssistant.com.ph",
+    teamLabel: "Account security",
+    footerText: "This security email was sent for activity on your VirtualAssistant.com.ph account.",
+    ctaHref: args.ctaHref,
+    ctaLabel: args.ctaLabel,
+    appendSignature: false,
+    showGreeting: false,
+  });
 }
 
 export async function sendAccountConfirmationEmail(args: { to: string; actionUrl: string; idempotencyKey?: string }) {
@@ -939,15 +957,78 @@ function renderBrandedEmail(args: {
   ctaHref?: string | null;
   ctaLabel?: string;
   appendSignature?: boolean;
+  showGreeting?: boolean;
 }) {
   const bodyHtml = stripLeadingBrandedGreeting(args.bodyHtml);
   const cta = args.ctaHref
-    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
+    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 30px;"><tr><td style="border-radius:12px;background:#444ce7;box-shadow:0 8px 18px rgba(68,76,231,.18);"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:14px 22px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;line-height:1.15;letter-spacing:-.1px;">${escapeHtml(args.ctaLabel || "Continue")} &nbsp;→</a></td></tr></table>`
     : "";
   const signature = args.appendSignature === false
     ? ""
-    : `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p>`;
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${bodyHtml}${cta}${signature}</td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
+    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:30px;"><tr><td style="padding-top:22px;border-top:1px solid #eef0f4;"><p style="margin:0;color:#667085;font-size:13px;line-height:1.5;">Best,</p><p style="margin:3px 0 0;color:#101828;font-size:14px;line-height:1.5;font-weight:800;">${escapeHtml(args.senderName)}</p></td></tr></table>`;
+  const greeting = args.showGreeting === false
+    ? ""
+    : `<p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.6;">Hi ${escapeHtml(args.firstName)},</p>`;
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    @media only screen and (max-width: 640px) {
+      .email-outer { padding: 18px 10px !important; }
+      .email-card { border-radius: 18px !important; }
+      .email-header { padding: 20px 22px !important; }
+      .email-body { padding: 26px 22px 28px !important; }
+      .email-brand { font-size: 19px !important; }
+      .email-team-pill { font-size: 10px !important; padding: 6px 9px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f3f5fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,Helvetica,sans-serif;color:#101828;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f3f5fa;">
+    <tr>
+      <td class="email-outer" align="center" style="padding:40px 14px;">
+        <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #e4e7ec;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(16,24,40,.08);">
+          <tr><td style="height:6px;background:#444ce7;font-size:0;line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td class="email-header" style="padding:24px 34px;border-bottom:1px solid #eef0f4;background:#ffffff;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td valign="middle">
+                    <a href="https://virtualassistant.com.ph" style="display:inline-block;text-decoration:none;color:#101828;">
+                      <span class="email-brand" style="font-size:21px;font-weight:850;letter-spacing:-.55px;color:#101828;">VirtualAssistant<span style="color:#444ce7;">.com.ph</span></span>
+                    </a>
+                  </td>
+                  <td align="right" valign="middle">
+                    <span class="email-team-pill" style="display:inline-block;padding:7px 10px;border:1px solid #dfe3ff;border-radius:999px;background:#f7f7ff;color:#444ce7;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">${escapeHtml(args.teamLabel)}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="email-body" style="padding:34px 34px 36px;">
+              ${greeting}
+              ${bodyHtml}
+              ${cta}
+              ${signature}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 34px 20px;border-top:1px solid #eef0f4;background:#fafbfc;">
+              <p style="margin:0;color:#98a2b3;font-size:11px;line-height:1.6;">${escapeHtml(args.footerText)}</p>
+              <p style="margin:8px 0 0;color:#b0b7c3;font-size:10.5px;line-height:1.5;">VirtualAssistant.com.ph · Filipino Virtual Assistant hiring, training, and talent</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 function renderHiringEmail(args: {
@@ -1083,7 +1164,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
     return { sent: false as const, reason: "dashboard_only" };
   }
   const isPasswordChangeNotice = args.subject.trim().toLowerCase() === "your password was changed" || args.heading.trim().toLowerCase() === "password updated";
-  const bodyHtml = `<p style="margin:0;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p>`;
+  const bodyHtml = `<p style="margin:0;color:#475467;font-size:15px;line-height:1.75;">${escapeHtml(args.body)}</p>`;
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
@@ -1092,7 +1173,7 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
     text: `${args.heading}\n\n${args.body}${args.href ? `\n\n${args.hrefLabel || "Open VirtualAssistant.com.ph"}: ${args.href}` : ""}`,
     html: renderBrandedEmail({
       firstName: args.firstName?.trim().split(/\s+/)[0] || "there",
-      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:22px;line-height:1.3;">${escapeHtml(args.heading)}</h2>${bodyHtml}`,
+      bodyHtml: `<h2 style="margin:0 0 14px;color:#101828;font-size:26px;line-height:1.22;letter-spacing:-.4px;">${escapeHtml(args.heading)}</h2>${bodyHtml}`,
       senderName: args.senderName || "VirtualAssistant.com.ph Team",
       teamLabel: args.teamLabel || "Account update",
       footerText: args.footerText || "You are receiving this because of activity on your VirtualAssistant.com.ph account or workspace.",

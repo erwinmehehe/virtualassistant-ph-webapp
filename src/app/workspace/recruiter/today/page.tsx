@@ -146,15 +146,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const openTasks = Number(summary.open_tasks || 0);
   const approvalReadyCount = Number(summary.approval_ready_count || 0);
   const missingPhotoCount = Number(summary.missing_photo_count || 0);
-  const approvalCleanupCount = Number(summary.approval_cleanup_count || 0);
-  const workSetupReadyCount = Number(summary.work_setup_ready_count || 0);
-  const recentZeroCount = Number(summary.recent_zero_count || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
-  const roleNoCandidates = Number(summary.role_no_candidates || 0);
-  const replacementNeeded = Number(summary.replacement_needed || 0);
-  const clientResponseOverdue = Number(summary.client_response_overdue || 0);
-  const interviewsDue = Number(summary.interviews_due || 0);
-  const offersWaiting = Number(summary.offers_waiting || 0);
 
   const nextActionCandidates = [
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},

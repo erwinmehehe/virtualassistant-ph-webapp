@@ -42,7 +42,7 @@ export function HiringHero({
   primary: { href: string; label: string; track?: string };
   secondary?: { href: string; label: string };
   note?: ReactNode;
-  form?: ReactNode;
+  form: ReactNode;
   footer?: ReactNode;
 }) {
   const faces = talent.filter((va) => va.avatar_url).slice(0, 4);
@@ -59,7 +59,7 @@ export function HiringHero({
           ))}
         </nav>
 
-        <div className={`hh-grid${form ? "" : " hh-grid-solo"}`}>
+        <div className="hh-grid">
           <div className="hh-copy">
             <span className="hh-eyebrow"><BadgeCheck size={14} />{eyebrow}</span>
             <h1 className="hh-title">
@@ -99,7 +99,7 @@ export function HiringHero({
             {note ? <p className="hh-note">{note}</p> : null}
           </div>
 
-          {form ? <div className="hh-form">{form}</div> : null}
+          <div className="hh-form">{form}</div>
         </div>
         {footer}
       </div>

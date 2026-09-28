@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { ArrowRight, BadgeCheck, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -74,6 +75,8 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
+  const matchService = relatedServices.find((service) => service?.directoryCategory === page.directoryCategory) || relatedServices[0];
+  const matchExample = `Run our ${page.software} workflow: ${page.tasks.slice(0, 3).join(", ")}, and flag anything that needs a decision.`;
   const longForm = localizeContent(softwareLongFormCopy(page), page.locale);
 
   const faqs = localizeContent([
@@ -98,7 +101,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
 
     <section className="section public-hero-small specialty-seo-hero service-hero-v2"><div className="container">
       <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/software">Software</Link><span aria-hidden="true">/</span><span aria-current="page">{page.software}</span></nav>
-      <div className="specialty-hero-grid service-conversion-hero-grid service-conversion-hero-grid-solo">
+      <div className="specialty-hero-grid service-conversion-hero-grid">
         <div className="public-page-head service-conversion-copy">
           <span className="badge">{page.category}</span>
           <h1 className="public-page-title" style={{ marginTop: 12 }}>{page.h1}</h1>
@@ -115,10 +118,20 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
           </div>
 
           <div className="service-hero-secondary-actions">
-            <Link className="btn btn-primary btn-lg" href={hireHref}>Start hiring <ArrowRight size={15}/></Link>
-            <Link className="btn btn-lg" href={talentHref}>Browse {page.software} Virtual Assistants</Link>
+            <Link className="btn btn-lg" href={talentHref}>Browse {page.software} Virtual Assistants <ArrowRight size={15}/></Link>
+            <Link className="text-link" href={hireHref}>Or get a managed Virtual Assistant</Link>
           </div>
         </div>
+
+        {matchService ? <HiringBriefForm
+          variant="service"
+          slug={matchService.slug}
+          category={matchService.directoryCategory}
+          roleLabel={`${page.software} virtual assistant`}
+          example={matchExample}
+          talentHref={talentHref}
+          sourcePath={`/software/${page.slug}/`}
+        /> : null}
       </div>
     </div></section>
 

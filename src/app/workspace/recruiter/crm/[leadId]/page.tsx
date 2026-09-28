@@ -448,29 +448,21 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           ) : null}
 
           <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Communication history</h2><CalendarDays size={15}/></div>
-            <div className={styles.panelBody}>
-              {communication.length || emailEvents.length || lead.discovery_scheduled_at ? <div className={styles.timeline}>
-                {lead.discovery_scheduled_at ? <div className={styles.timelineItem}><span className={styles.timelineDot}/><div><strong>{lead.discovery_completed_at?"Discovery completed":"Discovery scheduled"}</strong><p>{lead.discovery_outcome || "Calendar event linked to this hiring relationship."}</p><time>{fmt(lead.discovery_completed_at || lead.discovery_scheduled_at,true)}</time></div></div> : null}
-                {emailEvents.slice(0,20).map(item=><div className={styles.timelineItem} key={`email-${item.id}`}><span className={styles.timelineDot}/><div><strong>{item.event_type.replaceAll("_"," ")}</strong><p>Email {item.status}{item.automation?` · ${item.automation}`:""}</p><time>{fmt(item.created_at,true)}</time></div></div>)}
-                {communication.slice(0,20).map(item=><div className={styles.timelineItem} key={`communication-${item.id}`}><span className={styles.timelineDot}/><div><strong>{activityTitle(item.action)}</strong>{item.description?<p>{item.description}</p>:null}<time>{fmt(item.created_at,true)}</time></div></div>)}
-              </div> : <div className={styles.empty}>No email, call, meeting, or calendar activity has been logged yet.</div>}
+            <div className={styles.panelHead}>
+              <h2>Relationship timeline</h2>
+              <span className={styles.muted}>{timeline.length} events · newest first</span>
             </div>
-          </section>
-
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Activity</h2><span className={styles.muted}>{activities.length} events</span></div>
             <div className={styles.panelBody}>
-              {activities.length ? <div className={styles.timeline}>{activities.map((item) => (
-                <div className={styles.timelineItem} key={item.id}>
+              {timeline.length ? <div className={styles.timeline}>
+                {timeline.slice(0,100).map(item=><div className={styles.timelineItem} key={item.id}>
                   <span className={styles.timelineDot}/>
                   <div>
-                    <strong>{activityTitle(item.action)}</strong>
-                    {item.description ? <p>{item.description}</p> : null}
-                    <time>{fmt(item.created_at, true)}</time>
+                    <div className={styles.timelineTitle}><strong>{item.title}</strong><span className={styles.timelineKind}>{item.kind}</span></div>
+                    {item.detail ? <p>{item.detail}</p> : null}
+                    <time>{fmt(item.at,true)}</time>
                   </div>
-                </div>
-              ))}</div> : <div className={styles.empty}>No activity recorded yet.</div>}
+                </div>)}
+              </div> : <div className={styles.empty}>No relationship activity has been recorded yet.</div>}
             </div>
           </section>
 

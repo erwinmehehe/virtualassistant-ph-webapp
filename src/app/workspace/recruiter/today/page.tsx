@@ -146,7 +146,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const openTasks = Number(summary.open_tasks || 0);
   const approvalReadyCount = Number(summary.approval_ready_count || 0);
   const missingPhotoCount = Number(summary.missing_photo_count || 0);
-  const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;\n  const clientResponseOverdue = Number(summary.client_response_overdue || 0);\n  const roleNoCandidates = Number(summary.role_no_candidates || 0);\n  const interviewsDue = Number(summary.interviews_due || 0);\n
+  const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
+  const clientResponseOverdue = Number(summary.client_response_overdue || 0);
+  const roleNoCandidates = Number(summary.role_no_candidates || 0);
+  const interviewsDue = Number(summary.interviews_due || 0);
+
   const nextActionCandidates = [
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},

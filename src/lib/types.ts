@@ -18,6 +18,7 @@ export type Profile = {
 
 export type VaProfile = {
   user_id: string;
+  address: string | null;
   headline: string | null;
   bio: string | null;
   primary_category: string | null;

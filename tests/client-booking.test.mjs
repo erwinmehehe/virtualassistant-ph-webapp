@@ -64,9 +64,9 @@ test("client booking keeps the minimum brief lightweight", async () => {
     read("src/app/actions/leads.ts"),
   ]);
 
-  assert.match(form, /1\. Choose a time/);
-  assert.match(form, /2\. Your details/);
-  assert.match(form, /No long questionnaire/);
+  assert.match(form, /Date & time/);
+  assert.match(form, /Your details/);
+  assert.match(form, /Four required fields/);
   assert.match(form, /name="name" required/);
   assert.match(form, /name="email" required/);
   assert.match(form, /name="company" required/);

@@ -28,7 +28,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
-  const [displayTimeZone, setDisplayTimeZone] = useState("Asia/Manila");
+  const [displayTimeZone, setDisplayTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
     const detected = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Manila";
@@ -53,6 +53,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   }, [browserTimeZone]);
 
   const localDays = useMemo(() => {
+    if (!displayTimeZone) return [];
     const grouped = new Map<string, DiscoverySlotDay>();
     for (const day of days) {
       for (const slot of day.slots) {
@@ -129,7 +130,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
       <form id="client-discovery-booking" className="booking-client-form" action={submitDiscoveryBookingAction}>
         <input type="hidden" name="audience" value="client" />
         <input type="hidden" name="scheduled_at" value={selectedSlot} />
-        <input type="hidden" name="timezone" value={displayTimeZone} />
+        <input type="hidden" name="timezone" value={displayTimeZone || ""} />
         <input type="hidden" name="phone" value="" />
         <input type="hidden" name="company_url" value="" />
         <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
@@ -145,7 +146,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
               <label htmlFor="booking-timezone">Timezone</label>
               <select
                 id="booking-timezone"
-                value={displayTimeZone}
+                value={displayTimeZone || ""}
                 onChange={(event) => {
                   setDisplayTimeZone(event.target.value);
                   setSelectedDay("");
@@ -153,6 +154,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                 }}
                 aria-label="Timezone used for booking times"
               >
+                {!displayTimeZone ? <option value="">Detecting timezone…</option> : null}
                 {timeZoneOptions.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
               </select>
             </div>
@@ -160,7 +162,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <p className="booking-timezone-note" aria-live="polite">
             <Clock3 size={14} />
             {browserTimeZone
-              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(displayTimeZone)}.`
+              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(displayTimeZone || browserTimeZone)}.`
               : "Detecting your device timezone…"}
           </p>
 

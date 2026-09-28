@@ -10,8 +10,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import "./booking.css";
 
 export const metadata: Metadata = {
-  title: "Book a Virtual Assistant Hiring Call",
-  description: "Choose a time for a 30-minute Virtual Assistant hiring call.",
+  title: "Book a Discovery Call",
+  description: "Choose a time for a 30-minute Virtual Assistant discovery call.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
 };
@@ -50,8 +50,8 @@ export default async function BookClientCallPage({
       <main id="main-content" className="booking-page">
         <section className="booking-hero">
           <div className="container booking-hero-inner">
-            <h1>Book a client call</h1>
-            <p>Choose a time that works for you.</p>
+            <h1>Book a discovery call</h1>
+            <p>Choose a time that works for you. We’ll use the call to understand the role and what you need help with.</p>
             <div className="booking-hero-points">
               <span><Clock3 size={15} /> 30 minutes</span>
               <span><Video size={15} /> Google Meet</span>

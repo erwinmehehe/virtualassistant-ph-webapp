@@ -958,17 +958,21 @@ function renderBrandedEmail(args: {
   ctaLabel?: string;
   appendSignature?: boolean;
   showGreeting?: boolean;
+  headline?: string;
 }) {
   const bodyHtml = stripLeadingBrandedGreeting(args.bodyHtml);
   const cta = args.ctaHref
-    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 30px;"><tr><td style="border-radius:12px;background:#444ce7;box-shadow:0 8px 18px rgba(68,76,231,.18);"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:14px 22px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;line-height:1.15;letter-spacing:-.1px;">${escapeHtml(args.ctaLabel || "Continue")} &nbsp;→</a></td></tr></table>`
+    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:30px 0 10px;"><tr><td style="border-radius:12px;background:#444ce7;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;line-height:1.15;letter-spacing:-.1px;">${escapeHtml(args.ctaLabel || "Continue")} &nbsp;→</a></td></tr></table>`
     : "";
   const signature = args.appendSignature === false
     ? ""
-    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:30px;"><tr><td style="padding-top:22px;border-top:1px solid #eef0f4;"><p style="margin:0;color:#667085;font-size:13px;line-height:1.5;">Best,</p><p style="margin:3px 0 0;color:#101828;font-size:14px;line-height:1.5;font-weight:800;">${escapeHtml(args.senderName)}</p></td></tr></table>`;
+    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:32px;"><tr><td style="padding-top:22px;border-top:1px solid #edf0f4;"><p style="margin:0;color:#98a2b3;font-size:12px;line-height:1.5;">Best,</p><p style="margin:4px 0 0;color:#101828;font-size:14px;line-height:1.5;font-weight:800;">${escapeHtml(args.senderName)}</p></td></tr></table>`;
   const greeting = args.showGreeting === false
     ? ""
-    : `<p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.6;">Hi ${escapeHtml(args.firstName)},</p>`;
+    : `<p style="margin:0 0 18px;color:#667085;font-size:14px;line-height:1.6;">Hi ${escapeHtml(args.firstName)},</p>`;
+  const headline = args.headline
+    ? `<h1 class="email-headline" style="margin:34px 0 0;max-width:520px;color:#ffffff;font-size:32px;line-height:1.08;letter-spacing:-1.05px;font-weight:820;">${escapeHtml(args.headline)}</h1>`
+    : "";
 
   return `<!doctype html>
 <html>
@@ -978,39 +982,42 @@ function renderBrandedEmail(args: {
   <meta name="supported-color-schemes" content="light">
   <style>
     @media only screen and (max-width: 640px) {
-      .email-outer { padding: 18px 10px !important; }
-      .email-card { border-radius: 18px !important; }
-      .email-header { padding: 20px 22px !important; }
-      .email-body { padding: 26px 22px 28px !important; }
-      .email-brand { font-size: 19px !important; }
-      .email-team-pill { font-size: 10px !important; padding: 6px 9px !important; }
+      .email-outer { padding: 14px 8px !important; }
+      .email-card { border-radius: 20px !important; }
+      .email-hero { padding: 24px 22px 28px !important; }
+      .email-body { padding: 28px 22px 30px !important; }
+      .email-footer { padding: 18px 22px 20px !important; }
+      .email-brand { font-size: 18px !important; }
+      .email-team-pill { font-size: 9px !important; padding: 6px 8px !important; }
+      .email-headline { margin-top:28px !important;font-size:28px !important;line-height:1.1 !important;letter-spacing:-.8px !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f3f5fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,Helvetica,sans-serif;color:#101828;-webkit-font-smoothing:antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f3f5fa;">
+<body style="margin:0;padding:0;background:#eef1f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,Helvetica,sans-serif;color:#101828;-webkit-font-smoothing:antialiased;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${args.headline ? escapeHtml(args.headline) : escapeHtml(args.teamLabel)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#eef1f6;">
     <tr>
-      <td class="email-outer" align="center" style="padding:40px 14px;">
-        <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #e4e7ec;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(16,24,40,.08);">
-          <tr><td style="height:6px;background:#444ce7;font-size:0;line-height:0;">&nbsp;</td></tr>
+      <td class="email-outer" align="center" style="padding:42px 14px;">
+        <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #dfe3ea;border-radius:24px;overflow:hidden;box-shadow:0 22px 56px rgba(16,24,40,.10);">
           <tr>
-            <td class="email-header" style="padding:24px 34px;border-bottom:1px solid #eef0f4;background:#ffffff;">
+            <td class="email-hero" style="padding:28px 34px 32px;background:#111827;background-image:linear-gradient(135deg,#0b1020 0%,#182230 52%,#312e81 100%);">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td valign="middle">
-                    <a href="https://virtualassistant.com.ph" style="display:inline-block;text-decoration:none;color:#101828;">
-                      <span class="email-brand" style="font-size:21px;font-weight:850;letter-spacing:-.55px;color:#101828;">VirtualAssistant<span style="color:#444ce7;">.com.ph</span></span>
+                    <a href="https://virtualassistant.com.ph" style="display:inline-block;text-decoration:none;">
+                      <span class="email-brand" style="font-size:20px;font-weight:850;letter-spacing:-.55px;color:#ffffff;">VirtualAssistant<span style="color:#a5b4fc;">.com.ph</span></span>
                     </a>
                   </td>
                   <td align="right" valign="middle">
-                    <span class="email-team-pill" style="display:inline-block;padding:7px 10px;border:1px solid #dfe3ff;border-radius:999px;background:#f7f7ff;color:#444ce7;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">${escapeHtml(args.teamLabel)}</span>
+                    <span class="email-team-pill" style="display:inline-block;padding:7px 10px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);color:#e0e7ff;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">${escapeHtml(args.teamLabel)}</span>
                   </td>
                 </tr>
               </table>
+              ${headline}
             </td>
           </tr>
           <tr>
-            <td class="email-body" style="padding:34px 34px 36px;">
+            <td class="email-body" style="padding:34px 34px 36px;background:#ffffff;">
               ${greeting}
               ${bodyHtml}
               ${cta}
@@ -1018,9 +1025,9 @@ function renderBrandedEmail(args: {
             </td>
           </tr>
           <tr>
-            <td style="padding:18px 34px 20px;border-top:1px solid #eef0f4;background:#fafbfc;">
+            <td class="email-footer" style="padding:19px 34px 21px;border-top:1px solid #edf0f4;background:#f8fafc;">
               <p style="margin:0;color:#98a2b3;font-size:11px;line-height:1.6;">${escapeHtml(args.footerText)}</p>
-              <p style="margin:8px 0 0;color:#b0b7c3;font-size:10.5px;line-height:1.5;">VirtualAssistant.com.ph · Filipino Virtual Assistant hiring, training, and talent</p>
+              <p style="margin:9px 0 0;color:#b0b7c3;font-size:10.5px;line-height:1.5;">VirtualAssistant.com.ph · Hiring, talent, and training for remote work</p>
             </td>
           </tr>
         </table>

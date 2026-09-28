@@ -14,6 +14,7 @@ import { isPubliclyEligible, isRowApprovable, PUBLIC_VA_MIN_COMPLETION } from "@
 import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalentFilters } from "@/lib/recruiter-talent-filters";
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
+import { VA_CATEGORIES } from "@/lib/constants";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -1085,6 +1086,83 @@ export async function markVaReviewEvidenceAction(formData: FormData) {
   await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `${kind}_reviewed`, description: `${kind === "profile" ? "Profile" : "Resume"} reviewed`, actorId: user.id });
   revalidatePath(returnTo);
   redirect(returnTo);
+}
+
+export async function updateVaCategoriesAction(formData: FormData) {
+  const { user } = await requireRole("recruiter");
+  const vaId = String(formData.get("va_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), `/workspace/recruiter/candidates/${vaId}`);
+  const primaryCategory = String(formData.get("primary_category") || "").trim() || null;
+  const categories = [...new Set(
+    formData.getAll("categories").map((value) => String(value).trim()).filter(Boolean)
+  )];
+
+  const valid = new Set<string>(VA_CATEGORIES);
+  if (!vaId) throw new Error("Choose a Virtual Assistant.");
+  if (primaryCategory && !valid.has(primaryCategory)) throw new Error("Choose a valid primary specialty.");
+  if (categories.some((category) => !valid.has(category))) throw new Error("Choose valid specialties.");
+  if (categories.length > 3) throw new Error("Choose up to three specialties.");
+
+  const resolvedCategories = [...new Set([
+    ...(primaryCategory ? [primaryCategory] : []),
+    ...categories,
+  ])].slice(0, 3);
+  if (primaryCategory && !resolvedCategories.includes(primaryCategory)) {
+    throw new Error("The primary specialty must also be selected.");
+  }
+
+  const admin = createAdminClient();
+  const [{ data: current, error: currentError }, { data: vetting, error: vettingError }] = await Promise.all([
+    admin.from("va_profiles").select("primary_category,categories").eq("user_id", vaId).maybeSingle(),
+    admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle(),
+  ]);
+  if (currentError) throw currentError;
+  if (vettingError) throw vettingError;
+  if (!current) throw new Error("Virtual Assistant profile not found.");
+
+  const { error } = await admin
+    .from("va_profiles")
+    .update({
+      primary_category: primaryCategory,
+      categories: resolvedCategories,
+    })
+    .eq("user_id", vaId);
+  if (error) throw error;
+
+  if (String(vetting?.stage || "") === "bench") {
+    const { error: clearError } = await admin.from("bench_memberships").delete().eq("va_id", vaId);
+    if (clearError) throw clearError;
+    if (primaryCategory) {
+      const { error: benchError } = await admin.from("bench_memberships").insert({
+        va_id: vaId,
+        category: primaryCategory,
+        status: "active",
+        priority: 3,
+        created_by: user.id,
+      });
+      if (benchError) throw benchError;
+    }
+  }
+
+  await writeRecruiterActivity({
+    subjectType: "va",
+    subjectId: vaId,
+    action: "va_categories_recruiter_override",
+    description: "Recruiter corrected VA specialties.",
+    actorId: user.id,
+    metadata: {
+      previous_primary_category: current.primary_category || null,
+      previous_categories: current.categories || [],
+      primary_category: primaryCategory,
+      categories: resolvedCategories,
+    },
+  });
+
+  revalidatePath(returnTo);
+  revalidatePath("/workspace/recruiter/talent");
+  revalidatePath("/workspace/recruiter/roles");
+  revalidatePath("/find-talent");
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}categories_saved=1`);
 }
 
 export async function assignVaToRoleAction(formData: FormData) {

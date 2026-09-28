@@ -2,21 +2,33 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowRight,
   BriefcaseBusiness,
   Building2,
   CalendarDays,
+  CalendarPlus,
   Check,
   Clock3,
   ListTodo,
+  Mail,
   MessageSquareText,
   Phone,
+  Send,
   UserRound,
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
-import { dateInputValue as dateInput } from "@/lib/format";
-import { updateLeadCrmAction, addRecruiterNoteAction, recordLeadContactAction } from "@/app/actions/recruiter";
+import { dateInputValue as dateInput, dateTimeInputValue as dateTimeInput } from "@/lib/format";
+import {
+  updateLeadCrmAction,
+  addRecruiterNoteAction,
+  recordLeadContactAction,
+  sendClientFollowupAction,
+  scheduleDiscoveryAction,
+  completeDiscoveryAction,
+  cancelRecruiterDiscoveryAction,
+} from "@/app/actions/recruiter";
 import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";

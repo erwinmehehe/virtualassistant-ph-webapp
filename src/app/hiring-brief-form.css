@@ -227,31 +227,3 @@
   .hb-card .hb-submit:hover { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) { .contact-route:hover { transform: none; } }
-
-
-/* Form-free service and industry heroes */
-.hh-grid-solo {
-  grid-template-columns: minmax(0, 820px);
-  justify-content: center;
-}
-
-.hh-grid-solo .hh-copy {
-  max-width: 820px;
-}
-
-.hh-grid-solo .hh-title,
-.hh-grid-solo .hh-lede {
-  max-width: 760px;
-}
-
-.hh-grid-solo .hh-btn {
-  border-color: #444ce7;
-  background: #444ce7;
-  color: #fff;
-}
-
-.hh-grid-solo .hh-btn:hover {
-  border-color: #3538cd;
-  background: #3538cd;
-  color: #fff;
-}

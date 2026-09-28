@@ -69,7 +69,7 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, rep
   const followDue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(stage));
   const firstResponseDue = !lead.first_contact_at && now - new Date(lead.created_at).getTime() > 30 * 60 * 1000 && stage === "new";
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
-  if (view === "attention") return clientReplyNeedsAction(replyStatus) || followDue || firstResponseDue;
+  if (view === "attention") return (isOpenLeadStage(stage) && clientReplyNeedsAction(replyStatus)) || followDue || firstResponseDue;
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
   if (view === "won") return stage === "won";

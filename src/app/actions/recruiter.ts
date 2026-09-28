@@ -372,6 +372,8 @@ export async function sendClientFollowupAction(formData: FormData) {
     href,
     archiveCopy,
     idempotencyKey: followupIdempotencyKey,
+    leadId: activityType === "lead" ? activityId : null,
+    jobId: linkedJobId || jobId || null,
   });
   if (!result.sent) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_error=${encodeURIComponent("Client email could not be sent. Check Email Health and the recipient address, then try again.")}${activityId ? `&action_lead=${encodeURIComponent(activityId)}` : ""}`);
@@ -720,6 +722,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
       meetingUrl: generatedMeetingUrl,
       recruiterName: profile.full_name,
       idempotencyKey: stableEmailIdempotencyKey("discovery-booking", [leadId, scheduledIso]),
+      leadId,
     });
   } catch (emailError) {
     console.error("[discovery-booking] Confirmation email failed after booking was saved", {

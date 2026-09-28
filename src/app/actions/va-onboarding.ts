@@ -20,12 +20,14 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   const [{ user }, settings] = await Promise.all([requireRole("va"), getBusinessSettings()]);
   const category = String(formData.get("primary_category") || "").trim();
   const headline = String(formData.get("headline") || "").trim();
+  const address = String(formData.get("address") || "").replace(/\s+/g, " ").trim();
   const yearsExperience = numberValue(formData.get("years_experience"));
   const weeklyHours = numberValue(formData.get("weekly_hours"));
   const hourlyRate = numberValue(formData.get("hourly_rate"));
 
   if (!VA_CATEGORIES.includes(category as (typeof VA_CATEGORIES)[number])) onboardingError("Choose the VA specialty that best matches your work.");
   if (headline.length < 8 || headline.length > 80) onboardingError("Write a short professional headline between 8 and 80 characters.");
+  if (address.length < 5 || address.length > 200) onboardingError("Enter your current home address.");
   if (yearsExperience == null || !Number.isInteger(yearsExperience) || yearsExperience < 0 || yearsExperience > 60) onboardingError("Enter your years of professional experience.");
   if (weeklyHours == null || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80) onboardingError("Enter how many hours you can work each week.");
   if (hourlyRate == null || hourlyRate < settings.minHourlyRate || hourlyRate > 1000) onboardingError(`Preferred rate must be at least USD ${settings.minHourlyRate} per hour.`);
@@ -34,6 +36,7 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   const { data: updatedProfile, error: profileError } = await admin.from("va_profiles").update({
     primary_category: category,
     headline,
+    address,
     years_experience: yearsExperience,
     weekly_hours: weeklyHours,
     hourly_rate: hourlyRate

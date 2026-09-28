@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
-import { inferCategoriesFromProfile } from "@/lib/category-inference";
+import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
@@ -133,7 +133,7 @@ export async function updateVaProfileAction(formData: FormData) {
   const tools = list(formData.get("tools"), "tool");
   const industries = list(formData.get("industries"), "industry");
   const languages = list(formData.get("languages"), "language");
-  const inferredCategories = inferCategoriesFromProfile({
+  const inferenceInput = {
     headline: headlineValue,
     bio: bioValue,
     skills,
@@ -143,7 +143,9 @@ export async function updateVaProfileAction(formData: FormData) {
       ...(selectedPrimaryCategory ? [selectedPrimaryCategory] : []),
       ...selectedCategories,
     ],
-  });
+  };
+  const inferredCategories = inferCategoriesFromProfile(inferenceInput);
+  const inferredPrimaryCategory = inferPrimaryCategoryFromProfile(inferenceInput);
 
   // Validate every file before writing profile fields. A rejected resume/photo
   // must not leave the user with a "save failed" message after other edits
@@ -159,7 +161,7 @@ export async function updateVaProfileAction(formData: FormData) {
   if (!current) throw new Error("VA profile not found.");
 
   const inferenceAllowed = !["approved", "bench"].includes(String(vetting?.stage || ""));
-  const proposedPrimaryCategory = selectedPrimaryCategory || inferredCategories[0] || null;
+  const proposedPrimaryCategory = selectedPrimaryCategory || inferredPrimaryCategory || inferredCategories[0] || null;
   const resolvedPrimaryCategory = inferenceAllowed
     ? proposedPrimaryCategory
     : selectedPrimaryCategory || current.primary_category || null;

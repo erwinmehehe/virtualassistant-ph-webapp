@@ -114,6 +114,8 @@ export async function updateVaProfileAction(formData: FormData) {
 
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (fullName.length < 2 || fullName.length > 100) throw new Error("Enter your full name.");
+  const address = String(formData.get("address") ?? "").replace(/\s+/g, " ").trim();
+  if (address.length < 5 || address.length > 200) throw new Error("Enter your current address.");
   const hourlyRate = numberOrNull(formData.get("hourly_rate"));
   const yearsExperience = numberOrNull(formData.get("years_experience"));
   const weeklyHours = numberOrNull(formData.get("weekly_hours"));
@@ -178,6 +180,7 @@ export async function updateVaProfileAction(formData: FormData) {
   ])].slice(0, 3);
 
   const updates = {
+    address,
     headline: headlineValue,
     bio: bioValue,
     primary_category: resolvedPrimaryCategory,
@@ -200,6 +203,7 @@ export async function updateVaProfileAction(formData: FormData) {
   const listKey = (value: unknown) => Array.isArray(value) ? [...value].map(String).sort().join("\u0000") : "";
   const categoryChanged = (current?.primary_category ?? null) !== updates.primary_category;
   let materialChanged = categoryChanged ||
+    (current?.address ?? null) !== updates.address ||
     (current?.headline ?? null) !== updates.headline ||
     (current?.bio ?? null) !== updates.bio ||
     listKey(current?.categories) !== listKey(updates.categories) ||

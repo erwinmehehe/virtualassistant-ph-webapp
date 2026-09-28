@@ -27,6 +27,7 @@ function localDateKey(date: Date, timeZone: string) {
 export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; error?: string }) {
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [showAllTimes, setShowAllTimes] = useState(false);
   const [browserTimeZone, setBrowserTimeZone] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,6 +83,17 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
   }, [localDays, selectedDay]);
 
   const activeDay = localDays.find((day) => day.dateKey === selectedDay) || localDays[0];
+  const quickSlots = useMemo(() => {
+    const slots = activeDay?.slots || [];
+    if (slots.length <= 8) return slots;
+    const picks = new Set<number>();
+    const last = slots.length - 1;
+    for (let index = 0; index < 8; index += 1) {
+      picks.add(Math.round((index * last) / 7));
+    }
+    return [...picks].sort((a, b) => a - b).map((index) => slots[index]).filter(Boolean);
+  }, [activeDay]);
+  const visibleSlots = showAllTimes ? (activeDay?.slots || []) : quickSlots;
   const selectedSlotLabel = useMemo(() => {
     if (!selectedSlot) return "";
     const instant = new Date(selectedSlot);
@@ -137,7 +149,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                     type="button"
                     role="tab"
                     aria-selected={selectedDay === day.dateKey}
-                    onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); }}
+                    onClick={() => { setSelectedDay(day.dateKey); setSelectedSlot(""); setShowAllTimes(false); }}
                   >
                     <CalendarDays size={15} /> {day.label}
                   </button>
@@ -145,7 +157,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
               </div>
 
               <div className="booking-time-grid" role="radiogroup" aria-label={`Available times for ${activeDay?.label || "selected date"}`}>
-                {activeDay?.slots.map((slot) => (
+                {visibleSlots.map((slot) => (
                   <button
                     key={slot.iso}
                     className={selectedSlot === slot.iso ? "is-selected" : ""}
@@ -158,6 +170,12 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
                   </button>
                 ))}
               </div>
+
+              {(activeDay?.slots.length || 0) > quickSlots.length ? (
+                <button className="booking-show-times" type="button" onClick={() => setShowAllTimes((value) => !value)}>
+                  {showAllTimes ? "Show fewer times" : `Show all ${activeDay?.slots.length || 0} times`}
+                </button>
+              ) : null}
 
               {selectedSlot ? (
                 <div className="booking-selected-slot" role="status">

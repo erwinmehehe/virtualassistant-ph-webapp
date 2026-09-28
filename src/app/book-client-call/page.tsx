@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Video } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClientBookingForm } from "@/components/client-booking-form";
@@ -52,11 +52,6 @@ export default async function BookClientCallPage({
           <div className="container booking-hero-inner">
             <h1>Book a discovery call</h1>
             <p>Choose a time that works for you. We’ll use the call to understand the role and what you need help with.</p>
-            <div className="booking-hero-points">
-              <span><Clock3 size={15} /> 30 minutes</span>
-              <span><Video size={15} /> Google Meet</span>
-              <span><CheckCircle2 size={15} /> Free to book</span>
-            </div>
           </div>
         </section>
 

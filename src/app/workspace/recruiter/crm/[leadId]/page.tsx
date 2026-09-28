@@ -291,6 +291,13 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.field_saved ? <div className="success-banner">Custom field created.</div> : null}
       {query.field_value_saved ? <div className="success-banner">Custom field updated.</div> : null}
       {query.field_error ? <div className="alert" role="alert">{query.field_error}</div> : null}
+      {query.contact_sent ? <div className="success-banner">Client email sent.</div> : null}
+      {query.contact_already_sent ? <div className="success-banner">That email was already sent. A duplicate was prevented.</div> : null}
+      {query.contact_error ? <div className="alert" role="alert">{query.contact_error}</div> : null}
+      {query.discovery_saved ? <div className="success-banner">Discovery booking saved.</div> : null}
+      {query.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
+      {query.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
+      {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}
 
       <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to CRM</Link>
 

@@ -769,7 +769,11 @@ const discoveryBookingSchema = z.object({
 export async function submitDiscoveryBookingAction(formData: FormData) {
   const parsed = discoveryBookingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
-    redirect(`/book-client-call?error=${encodeURIComponent("Please choose a time and complete your contact details.")}`);
+    const firstIssue = parsed.error.issues[0];
+    const message = firstIssue?.path?.[0] === "message"
+      ? firstIssue.message
+      : "Please choose a time and complete all required details.";
+    redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
   if (!(await verifyTurnstile(formData))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");

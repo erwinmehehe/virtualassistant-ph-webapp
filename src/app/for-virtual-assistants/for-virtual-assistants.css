@@ -104,28 +104,6 @@
   margin-bottom: 12px;
 }
 
-.va-hub-panel-item {
-  display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: 14px;
-  padding: 22px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.va-hub-panel-item:first-of-type {
-  border-top: 0;
-}
-
-.va-hub-panel-item svg {
-  color: #c7d7fe;
-  margin-top: 2px;
-}
-
-.va-hub-panel-item strong,
-.va-hub-panel-item span {
-  display: block;
-}
-
 .va-hub-panel-item strong {
   margin-bottom: 5px;
   font-size: 17px;

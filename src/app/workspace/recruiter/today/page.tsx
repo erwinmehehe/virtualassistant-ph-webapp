@@ -6,8 +6,6 @@ import { DashHeader } from "@/components/dash-ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
-import { recruiterCleanupLeadAction } from "@/app/actions/recruiter-cleanup";
-import { closeLeadAction } from "@/app/actions/close-lead";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import styles from "./today.module.css";
@@ -77,14 +75,6 @@ function manilaTime(value?: string | null) {
   return new Intl.DateTimeFormat("en-PH", { dateStyle:"medium", timeStyle:"short", timeZone:"Asia/Manila" }).format(new Date(value));
 }
 
-function overdueAge(value?: string | null) {
-  if (!value) return null;
-  const diff = Date.now() - new Date(value).getTime();
-  if (!Number.isFinite(diff) || diff <= 0) return null;
-  const hours = Math.max(1, Math.floor(diff / 3600000));
-  return hours < 24 ? `${hours}h` : `${Math.floor(hours / 24)}d`;
-}
-
 function meetingActionLabel(value: unknown) {
   const raw = String(value || "").trim();
   try {
@@ -125,11 +115,6 @@ function actionLabel(item:any) {
   return "Review role";
 }
 
-function cleanupLeadHref(item:any) {
-  const email=String(item?.email||"").trim();
-  return email ? `/workspace/recruiter/leads?view=attention&q=${encodeURIComponent(email)}` : "/workspace/recruiter/leads?view=attention";
-}
-
 export default async function RecruiterTodayPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
@@ -164,7 +149,6 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const approvalCleanupCount = Number(summary.approval_cleanup_count || 0);
   const workSetupReadyCount = Number(summary.work_setup_ready_count || 0);
   const recentZeroCount = Number(summary.recent_zero_count || 0);
-  const noShowWaitingRebook = Number(summary.no_show_waiting_rebook || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
   const replacementNeeded = Number(summary.replacement_needed || 0);
@@ -172,14 +156,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewsDue = Number(summary.interviews_due || 0);
   const offersWaiting = Number(summary.offers_waiting || 0);
 
-  const talentActions = approvalReadyCount + approvalCleanupCount + workSetupReadyCount + recentZeroCount;
-  const clientActions = clientWaits.length + noShows.length;
-  const roleActions = newHiringRoles.length + roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount;
-  const totalSignals = cleanupQueue.length + talentActions + clientActions + roleActions;
-
   const nextActionCandidates = [
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
-    {count:cleanupQueue.length,title:"Clean up client leads",copy:"Resolve missed responses, overdue follow-ups, and stale client records before they age further.",href:"/workspace/recruiter/today#sales-cleanup",cta:"Open sales cleanup",icon:<MessageSquare size={20}/>},
+    {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
@@ -196,55 +175,6 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     icon:<CheckCircle2 size={20}/>
   };
 
-  const workstreams = [
-    {
-      label:"Sales",
-      count:cleanupQueue.length,
-      hint:"Lead follow-up and cleanup",
-      icon:<MessageSquare size={17}/>,
-      items:[
-        {label:"Lead cleanup",count:cleanupQueue.length,href:"/workspace/recruiter/today#sales-cleanup"}
-      ]
-    },
-    {
-      label:"Talent",
-      count:talentActions,
-      hint:"Approval, readiness, onboarding",
-      icon:<UserRoundCheck size={17}/>,
-      items:[
-        {label:"Approval-ready",count:approvalReadyCount,href:"/workspace/recruiter/talent?view=approval_ready&sort=completion"},
-        {label:"Approval cleanup",count:approvalCleanupCount,href:"/workspace/recruiter/talent?view=approval_cleanup&sort=completion"},
-        {label:"Work setup ready",count:workSetupReadyCount,href:"/workspace/recruiter/work-readiness?view=ready"},
-        {label:"0% profiles",count:recentZeroCount,href:"/workspace/recruiter/talent?readiness=zero"}
-      ]
-    },
-    {
-      label:"Clients",
-      count:clientActions,
-      hint:"No-shows and decisions",
-      icon:<RefreshCw size={17}/>,
-      items:[
-        {label:"Discovery no-shows",count:noShows.length,href:"/workspace/recruiter/today#call-rebooking"},
-        {label:"Waiting to rebook",count:noShowWaitingRebook,href:"/workspace/recruiter/today#call-rebooking"},
-        {label:"Client decisions",count:clientWaits.length,href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest"}
-      ]
-    },
-    {
-      label:"Hiring",
-      count:roleActions,
-      hint:"Roles, interviews, offers",
-      icon:<BriefcaseBusiness size={17}/>,
-      items:[
-        {label:"New enquiries",count:newHiringRoles.length,href:"/workspace/recruiter/today#new-hiring-enquiries"},
-        {label:"Need candidates",count:roleNoCandidates,href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent"},
-        {label:"Interview action",count:interviewsDue,href:"/workspace/recruiter/roles?view=interviewing&sort=urgent"},
-        {label:"Offers waiting",count:offersWaiting,href:"/workspace/recruiter/roles?view=ready_offer&sort=urgent"},
-        {label:"Need replacements",count:replacementNeeded,href:"/workspace/recruiter/roles?view=replacement&sort=urgent"},
-        {label:"Stale roles",count:staleRolesCount,href:"/workspace/recruiter/roles?view=stale&sort=oldest"}
-      ]
-    }
-  ];
-
   return <div className="dash-page recruiter-today-page">
     {params.contact_sent ? <div className="success-banner">Email sent and the next follow-up was scheduled.</div> : null}
     {params.contact_error ? <div className="alert" role="alert">{params.contact_error}</div> : null}
@@ -259,7 +189,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <DashHeader
       kicker="Agency daily workflow"
       title="My Day"
-      subtitle={<>Work the single highest-priority queue first, then scan the four operating workstreams below. <span className="dash-freshness">One owner · one next action · one due time</span></>}
+      subtitle={<>Start with the next action. Everything else only appears when it needs attention. <span className="dash-freshness">One owner · one next step</span></>}
       actions={<>
         <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
         <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
@@ -321,91 +251,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
     </section> : null}
 
-    <div className={styles.priorityStrip} aria-label="Recruiter today summary">
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#sales-cleanup"><span>Sales cleanup</span><strong>{cleanupQueue.length}</strong><small>{cleanupQueue.length ? "Client leads need action" : "Clear"}</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Talent actions</span><strong>{Number(approvalReadyCount||0)+Number(approvalCleanupCount||0)+Number(workSetupReadyCount||0)+Number(recentZeroCount||0)}</strong><small>Approval, setup, onboarding</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Client follow-through</span><strong>{clientWaits.length+noShows.length}</strong><small>Shortlists and no-shows</small></Link>
-      <Link prefetch={false} className={styles.priorityItem} href="/workspace/recruiter/today#workstreams"><span>Role delivery</span><strong>{newHiringRoles.length+roleNoCandidates+replacementNeeded+interviewsDue+offersWaiting+staleRolesCount}</strong><small>Roles that need movement</small></Link>
-    </div>
 
-    <section id="workstreams" className={styles.workstreamSection} aria-labelledby="workstreams-title">
-      <div className={styles.workstreamHead}>
-        <div><div className="dash-kicker">Operating workstreams</div><h2 id="workstreams-title">Four places to look</h2><p>Healthy queues stay quiet. Only non-zero work is expanded.</p></div>
-        <span className={`badge ${totalSignals ? "badge-warning" : "badge-success"}`}>{totalSignals} open signal{totalSignals===1?"":"s"}</span>
-      </div>
-      <div className={styles.workstreamGrid}>
-        {workstreams.map((stream)=>{
-          const activeItems=stream.items.filter((item)=>item.count>0);
-          return <article className={`${styles.workstream} ${activeItems.length ? styles.workstreamOpen : styles.workstreamClear}`} key={stream.label}>
-            <div className={styles.workstreamTop}>
-              <span className={styles.workstreamIcon}>{stream.icon}</span>
-              <span className={styles.workstreamTitle}><strong>{stream.label}</strong><small>{stream.hint}</small></span>
-              <b>{stream.count}</b>
-            </div>
-            {activeItems.length?<div className={styles.workstreamLinks}>
-              {activeItems.slice(0,4).map((item)=><Link prefetch={false} href={item.href} key={item.label}><span>{item.label}</span><strong>{item.count}</strong><ArrowRight size={13}/></Link>)}
-              {activeItems.length>4?<Link prefetch={false} href="/workspace/recruiter/roles"><span>More hiring signals</span><strong>+{activeItems.length-4}</strong><ArrowRight size={13}/></Link>:null}
-            </div>:<div className={styles.workstreamEmpty}><CheckCircle2 size={15}/> Clear</div>}
-          </article>;
-        })}
-      </div>
-    </section>
-
-    {noShows.length?<section id="call-rebooking" className={`card dashboard-section-card ${styles.followCard}`}>
-      <div className="dashboard-section-head">
-        <div><h2>Call rebooking</h2><p>No-show calls stay visible here, but no automatic client email is sent. Open the lead when the client returns.</p></div>
-        <span className="badge">{noShows.length} waiting</span>
-      </div>
-      <div className={styles.followList}>
-        {noShows.slice(0,8).map((lead)=><div className={styles.followRow} key={`rebook-${lead.id}`}>
-          <span className={styles.followIcon}><RefreshCw size={15}/></span>
-          <span className={styles.followCopy}>
-            <strong>{lead.name||lead.email||"Client discovery call"}</strong>
-            <small>{lead.email||"No email on file"}</small>
-            <small>No-show recorded. Client email is held until a VA shortlist is sent.</small>
-          </span>
-          <div className={styles.followActions}>
-            <Link prefetch={false} className="btn btn-sm" href={lead.email?`/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(lead.email)}`:"/workspace/recruiter/leads?view=discovery"}>Open lead</Link>
-          </div>
-        </div>)}
-      </div>
-      {noShows.length>8?<Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/leads?view=discovery">+{noShows.length-8} more no-show clients</Link>:null}
-    </section>:null}
-
-    <section id="sales-cleanup" className={`card dashboard-section-card ${styles.queueCard}`}>
-      <div className="dashboard-section-head"><div><h2>Sales cleanup</h2><p>Missed responses, overdue follow-ups, leads without a next step, stale leads, and records ready for a close decision.</p></div><span className={`badge ${cleanupQueue.length ? "badge-warning" : "badge-success"}`}>{cleanupQueue.length} to clean up</span></div>
-      {cleanupQueue.length ? <>
-        {cleanupQueue.length > 3 ? <div className={styles.scrollHint}>Resolve the oldest and highest-risk items first. Closed leads leave this queue automatically.</div> : null}
-        <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Sales cleanup queue, ${cleanupQueue.length} leads`}>
-          {cleanupQueue.map((item:any)=>{
-            const labels=Array.isArray(item.cleanup_labels)?item.cleanup_labels:[];
-            const attempts=Number(item.contact_count||0);
-            const overdue=overdueAge(item.due_at);
-            const overdueCopy=overdue ? (String(item.primary_reason||"").startsWith("Stale") || item.primary_reason === "No next step" ? `${overdue} stale` : `${overdue} overdue`) : null;
-            return <article className="dash-action" key={`cleanup-${item.id}`}>
-              <span className="dash-action-count"><Clock3 size={16}/></span>
-              <span className="dash-action-copy">
-                <span className="dash-action-title"><strong>{item.company||item.name||item.email||"Client lead"}</strong><span className="badge badge-warning">{item.primary_reason||"Needs cleanup"}</span></span>
-                <small>{[item.name,item.service,item.email].filter(Boolean).join(" · ")}</small>
-                <div className="row wrap" style={{marginTop:6}}>{labels.map((label:string)=><span className={`badge ${["Missed first response","Follow-up overdue","Ready to close"].includes(label)?"badge-warning":""}`} key={label}>{label}</span>)}{overdueCopy ? <span className="badge badge-warning days-overdue">{overdueCopy}</span> : null}</div>
-                <small className="muted">Last activity {manilaTime(item.last_touch_at)} · {attempts} recorded contact attempt{attempts===1?"":"s"}</small>
-                {item.next_follow_up_at ? <small className="muted">Current follow-up: {manilaTime(item.next_follow_up_at)}</small> : null}
-                <div className="row wrap" style={{marginTop:8}}>
-                  <form action={recruiterCleanupLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="cleanup_action" value="follow_up_later"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Review again in 3 days</button></form>
-                  <Link prefetch={false} className="btn btn-sm" href={cleanupLeadHref(item)}>Open lead</Link>
-                </div>
-                <div className="row wrap" style={{marginTop:6}}>
-                  <span className="small muted">Close:</span>
-                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="No response"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">No response</button></form>
-                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="Spam"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Spam</button></form>
-                  <form action={closeLeadAction}><input type="hidden" name="lead_id" value={item.id}/><input type="hidden" name="reason" value="Not a fit"/><input type="hidden" name="close_linked_role" value="1"/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm" type="submit">Not a fit</button></form>
-                </div>
-              </span>
-            </article>;
-          })}
-        </div>
-      </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Sales pipeline is clean.</strong><p>No active client-hiring lead currently needs cleanup.</p></div><Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/leads">Open CRM</Link></div>}
-    </section>
 
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
       <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Recruitment, interviews, offers, placements, and client decisions that need action now.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
@@ -473,6 +319,22 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
         </div>
 
+        {noShows.length ? <div className={styles.followList}>
+          <div className={styles.groupLabel}>Discovery no-shows</div>
+          {noShows.slice(0,5).map((lead)=>(
+            <div className={styles.followRow} key={`no-show-${lead.id}`}>
+              <span className={styles.followIcon}><RefreshCw size={15}/></span>
+              <span className={styles.followCopy}>
+                <strong>{lead.name||lead.email||"Client discovery call"}</strong>
+                <small>{lead.email||"No email on file"} · No-show recorded</small>
+              </span>
+              <div className={styles.followActions}>
+                <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/crm/${lead.id}`}>Open</Link>
+              </div>
+            </div>
+          ))}
+        </div> : null}
+
         {clientWaits.length ? <div className={styles.followList}>
           <div className={styles.groupLabel}>Waiting on client</div>
           {clientWaits.slice(0,5).map((item)=>(
@@ -508,7 +370,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           {staleRolesCount > staleRolePreview.length ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRolesCount - staleRolePreview.length} more stale roles</Link> : null}
         </div> : null}
 
-        {!clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
+        {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
       </section>
     </div>
   </div>;

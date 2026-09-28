@@ -4,7 +4,6 @@ import { ArrowRight, CheckCircle2, Eye, Linkedin, LockKeyhole, Scale, ShieldChec
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { canonicalPath } from "@/lib/seo-url";
 
 export const metadata: Metadata = {
@@ -22,7 +21,6 @@ export default function AboutPage() {
       intro={<p className="public-lede">VirtualAssistant.com.ph helps businesses define the role, screen credible candidates, build a focused shortlist, coordinate the hiring process, and support the placement after the right person starts.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Start a Hiring Request <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/how-vetting-works">See how we screen</Link></>}
       trust={<><span><CheckCircle2 size={15}/>Role-first recruiting</span><span><CheckCircle2 size={15}/>Human recruiter review</span><span><CheckCircle2 size={15}/>Placement support</span></>}
-      form={<DiscoveryCallCard />}
     />
 
     <section className="section section-white">

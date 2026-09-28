@@ -32,15 +32,17 @@ test("Stalled work is consolidated into Roles needs-intervention queue",async()=
 });
 
 test("filtered Talent bulk actions hard-stop above 500 results",async()=>{
-  const [action,page]=await Promise.all([
+  const [action,page,selection]=await Promise.all([
     read("src/app/actions/recruiter-talent.ts"),
-    read("src/app/workspace/recruiter/talent/page.tsx")
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/components/recruiter-talent-selection-control.tsx")
   ]);
   assert.match(action,/count: "exact", head: true/);
   assert.match(action,/Number\(filteredCount \|\| 0\) > RECRUITER_BULK_LIMIT/);
   assert.match(action,/Filtered bulk actions are limited to \$\{RECRUITER_BULK_LIMIT\} VAs/);
-  assert.match(page,/Filtered bulk unavailable/);
-  assert.match(page,/disabled=\{total > RECRUITER_BULK_LIMIT\}/);
+  assert.match(page,/filteredSelectionAllowed=\{total <= RECRUITER_BULK_LIMIT\}/);
+  assert.match(selection,/disabled=\{!filteredSelectionAllowed\}/);
+  assert.match(selection,/exceeds limit/);
   assert.doesNotMatch(page,/Select first 500 filtered VAs/);
 });
 

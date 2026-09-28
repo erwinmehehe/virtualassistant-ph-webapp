@@ -21,16 +21,15 @@ test("CRM phase 2 adds first-class company contact field view workflow and dashb
   assert.match(migration,/enable row level security/);
 });
 
-test("CRM main workspace supports saved views dashboard preferences companies contacts and automations",async()=>{
+test("CRM main workspace stays focused while advanced CRM routes remain available",async()=>{
   const page=await read("src/app/workspace/recruiter/crm/page.tsx");
-  assert.match(page,/crm_saved_views/);
-  assert.match(page,/crm_dashboard_preferences/);
-  assert.match(page,/saveCrmViewAction/);
-  assert.match(page,/saveCrmDashboardPreferencesAction/);
+  assert.match(page,/Hiring pipeline/);
+  assert.match(page,/Needs action/);
   assert.match(page,/workspace\/recruiter\/crm\/companies/);
-  assert.match(page,/workspace\/recruiter\/crm\/contacts/);
-  assert.match(page,/workspace\/recruiter\/crm\/automations/);
-  assert.match(page,/workspace\/recruiter\/crm\/export/);
+  assert.match(page,/workspace\/recruiter\/roles/);
+  assert.match(page,/workspace\/recruiter\/tasks/);
+  assert.doesNotMatch(page,/Customize dashboard|Save current view|Attio-style/);
+  assert.doesNotMatch(page,/workspace\/recruiter\/crm\/contacts|workspace\/recruiter\/crm\/automations|workspace\/recruiter\/crm\/export/);
 });
 
 test("CRM relationship pages expose companies contacts imports and workflow controls",async()=>{
@@ -63,7 +62,7 @@ test("CRM records support custom fields and consolidated communication history",
   assert.match(page,/crm_custom_values/);
   assert.match(page,/createCrmCustomFieldAction/);
   assert.match(page,/setCrmCustomValueAction/);
-  assert.match(page,/Relationship timeline/);
+  assert.match(page,/Activity history/);
   assert.match(page,/crm_company_id/);
   assert.match(page,/crm_contact_id/);
 });

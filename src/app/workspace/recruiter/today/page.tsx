@@ -8,6 +8,8 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import styles from "./today.module.css";
+import { isOpenLeadStage } from "@/lib/lead-crm";
+import type { ClientReplyStateRow } from "@/lib/client-reply-state";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
@@ -81,6 +83,7 @@ function meetingActionLabel(value: unknown) {
 function exactActionHref(item:any) {
   const meta=item?.metadata||{};
   if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
+  if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
@@ -91,6 +94,7 @@ function exactActionHref(item:any) {
 
 function actionLabel(item:any) {
   if(item.kind==="discovery") return "View booking";
+  if(item.kind==="client_email_reply") return "Reply to client";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
   if(item.kind==="interview_requested") return "Schedule interview";
@@ -113,9 +117,32 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const summary = (summaryData || {}) as Record<string,any>;
   const newHiringRoles = (Array.isArray(summary.new_hiring_roles) ? summary.new_hiring_roles : []) as NewHiringRoleRow[];
+
+  const { data: replyStateData, error: replyStateError } = await admin
+    .from("recruiter_client_reply_state")
+    .select("lead_id,owner_id,job_id,name,company,crm_stage,last_client_reply_at,last_recruiter_response_at,last_recruiter_response_action,reply_status")
+    .eq("owner_id", userId)
+    .eq("reply_status", "needs_action")
+    .order("last_client_reply_at", { ascending: false })
+    .limit(20);
+  if (replyStateError) throw replyStateError;
+  const clientReplies = ((replyStateData || []) as ClientReplyStateRow[])
+    .filter((row) => isOpenLeadStage(row.crm_stage || "new"));
+
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
-  const queue = nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind)));
+  const queue = [
+    ...clientReplies.map((row) => ({
+      kind: "client_email_reply",
+      id: row.lead_id,
+      title: `${row.name || row.company || "Client"} replied by email`,
+      subtitle: "Open the client record and respond or record the action taken.",
+      due_at: row.last_client_reply_at,
+      priority: "high",
+      href: `/workspace/recruiter/crm/${row.lead_id}`,
+    })),
+    ...nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind))),
+  ];
   const cleanupQueue = Array.isArray(summary.cleanup_queue) ? summary.cleanup_queue as any[] : [];
   const dailyActions = (Array.isArray(summary.daily_actions) ? summary.daily_actions : []) as DailyActionRow[];
   const clientWaitByJob = new Map<string,DailyActionRow>();
@@ -139,6 +166,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewsDue = Number(summary.interviews_due || 0);
 
   const nextActionCandidates = [
+    {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"/workspace/recruiter/crm?view=attention",cta:"Open client replies",icon:<MessageSquare size={20}/>},
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},

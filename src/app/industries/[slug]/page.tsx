@@ -246,7 +246,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
         title={`Build Virtual Assistant support around the workflows that matter to ${page.audience}.`}
         body={`Tell us how your team handles ${page.workflows.slice(0, 3).join(", ")}, which tools matter, the hours you need covered, and what must stay internal. Our recruiters use that brief to find approved Virtual Assistants whose experience fits the workflow.`}
         primary={{ href: hireHref, label: "Start hiring", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
-        secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}
+        secondary={{ href: talentHref, label: "Browse Virtual Assistants" }}
       />
     </div>
   </main><SiteFooter/></>;

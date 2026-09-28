@@ -32,6 +32,7 @@ import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actio
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";
 import { ClientEngagementPanel } from "@/components/client-engagement-panel";
+import { clientReplyStatusLabel, type ClientReplyStateRow } from "@/lib/client-reply-state";
 
 type Lead = {
   id: string;
@@ -140,7 +141,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -166,8 +167,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     lead.job_id
       ? admin.from("workrooms").select("id,va_id,status,placement_stage,created_at,placement_stage_entered_at,handoff_completed_at,ended_at").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(20)
       : Promise.resolve({data:[],error:null}),
+    admin.from("recruiter_client_reply_state")
+      .select("lead_id,owner_id,job_id,name,company,crm_stage,last_client_reply_at,last_recruiter_response_at,last_recruiter_response_action,reply_status")
+      .eq("lead_id", leadId)
+      .maybeSingle(),
   ]);
-  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult]) {
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult]) {
     if (result.error) throw result.error;
   }
 
@@ -184,13 +189,13 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const interviews = (interviewResult.data || []) as Interview[];
   const offers = (offerResult.data || []) as Offer[];
   const workrooms = (workroomResult.data || []) as Workroom[];
+  const replyState = replyStateResult.data as ClientReplyStateRow | null;
 
   const [
     clientLastLoginAt,
     candidateViewResult,
     shortlistOpenResult,
     shortlistMessageResult,
-    emailReplyResult,
   ] = await Promise.all([
     getClientLastLogin(lead.client_id),
     lead.client_id
@@ -221,22 +226,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           .order("created_at", { ascending: false })
           .limit(1)
       : Promise.resolve({ data: [], error: null }),
-    admin.from("recruiter_activity")
-      .select("created_at")
-      .eq("subject_type", "lead")
-      .eq("subject_id", leadId)
-      .eq("action", "client_contact_email")
-      .order("created_at", { ascending: false })
-      .limit(1),
   ]);
-  for (const result of [candidateViewResult, shortlistOpenResult, shortlistMessageResult, emailReplyResult]) {
+  for (const result of [candidateViewResult, shortlistOpenResult, shortlistMessageResult]) {
     if (result.error) throw result.error;
   }
   const candidateViewCount = Number(candidateViewResult.count || 0);
   const lastCandidateViewAt = candidateViewResult.data?.[0]?.created_at || null;
   const shortlistOpenedAt = shortlistOpenResult.data?.[0]?.created_at || null;
   const lastShortlistMessageAt = shortlistMessageResult.data?.[0]?.created_at || null;
-  const lastEmailReplyAt = emailReplyResult.data?.[0]?.created_at || null;
+  const lastEmailReplyAt = replyState?.last_client_reply_at || null;
+  const replyStatus = String(replyState?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
+  const replyStatusLabel = clientReplyStatusLabel(replyStatus);
 
   const vaIds = [...new Set([
     ...shortlists.map(item=>item.va_id),
@@ -399,6 +399,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
         decision={decisionSummary}
         lastEmailReply={lastEmailReplyAt ? fmt(lastEmailReplyAt, true) : "No reply logged"}
+        replyStatus={replyStatusLabel}
       />
 
       <section className={styles.actionCenter}>
@@ -409,6 +410,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             <p>Use the client record for the brief and call. Use the linked role for matching, shortlist, interviews, and hire.</p>
           </div>
           <div className={styles.actionStatus}>
+            <span className={replyStatus === "needs_action" ? styles.statusReplyNeedsAction : replyStatus === "awaiting_reply" ? styles.statusReplyWaiting : replyStatus === "handled" ? styles.statusReplyHandled : styles.statusNeutral}>{replyStatusLabel}</span>
             <span className={lead.client_id ? styles.statusGood : styles.statusNeutral}>{lead.client_id ? "Client account active" : "Client account not activated"}</span>
             <span>{lead.next_follow_up_at ? `Follow-up ${fmt(lead.next_follow_up_at)}` : "No follow-up scheduled"}</span>
           </div>
@@ -421,8 +423,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <div className={styles.actionGrid}>
-          <details className={styles.actionCard}>
-            <summary><span className={styles.actionIcon}><Mail size={16}/></span><span><strong>Email client</strong><small>Only send when you need clarification or have a concrete update.</small></span><ArrowRight size={15}/></summary>
+          <details className={styles.actionCard} open={replyStatus === "needs_action"}>
+            <summary><span className={styles.actionIcon}><Mail size={16}/></span><span><strong>{replyStatus === "needs_action" ? "Reply to client" : "Email client"}</strong><small>{replyStatus === "needs_action" ? "The client replied. Respond or record the action taken." : "Only send when you need clarification or have a concrete update."}</small></span><ArrowRight size={15}/></summary>
             <form action={sendClientFollowupAction} className={styles.actionForm}>
               <input type="hidden" name="lead_id" value={lead.id}/>
               <input type="hidden" name="job_id" value={lead.job_id || ""}/>

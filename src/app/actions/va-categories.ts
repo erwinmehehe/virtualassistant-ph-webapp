@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
+import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 
 type VaCategoryRepairRow = {
   user_id: string;
@@ -68,6 +69,11 @@ export async function autoCategorizeUncategorizedVasAction() {
       tools: row.tools,
       industries: row.industries,
     };
+    const classificationReadiness = getClassificationEvidenceReadiness(inferenceInput);
+    if (!classificationReadiness.ready) {
+      skipped += 1;
+      continue;
+    }
     const inferred = inferCategoriesFromProfile(inferenceInput);
     const inferredPrimary = inferPrimaryCategoryFromProfile(inferenceInput);
     const stage = stageByVa.get(row.user_id) || "";

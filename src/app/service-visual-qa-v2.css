@@ -354,14 +354,3 @@ main:has(> .service-hero-v2) .grid-4 {
     transform: none !important;
   }
 }
-
-
-/* Software detail heroes without embedded lead forms */
-.service-conversion-hero-grid-solo {
-  grid-template-columns: minmax(0, 820px) !important;
-  justify-content: center;
-}
-
-.service-conversion-hero-grid-solo .service-conversion-copy {
-  max-width: 820px;
-}

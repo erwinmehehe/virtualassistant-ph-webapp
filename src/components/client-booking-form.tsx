@@ -52,6 +52,8 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
     return [...new Set([...priority, ...supported])];
   }, [browserTimeZone]);
 
+  const formatTimeZone = displayTimeZone || browserTimeZone || "Asia/Manila";
+
   const localDays = useMemo(() => {
     if (!displayTimeZone) return [];
     const grouped = new Map<string, DiscoverySlotDay>();
@@ -106,15 +108,15 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
       weekday: "short",
       month: "short",
       day: "numeric",
-      timeZone: displayTimeZone,
+      timeZone: formatTimeZone,
     }).format(instant);
     const time = new Intl.DateTimeFormat(undefined, {
       hour: "numeric",
       minute: "2-digit",
-      timeZone: displayTimeZone,
+      timeZone: formatTimeZone,
     }).format(instant);
     return `${date} · ${time}`;
-  }, [selectedSlot, displayTimeZone]);
+  }, [selectedSlot, formatTimeZone]);
 
   return (
     <div className="booking-flow-card">
@@ -162,7 +164,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
           <p className="booking-timezone-note" aria-live="polite">
             <Clock3 size={14} />
             {browserTimeZone
-              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(displayTimeZone || browserTimeZone)}.`
+              ? `Detected from your device: ${timeZoneLabel(browserTimeZone)}. Times below are shown in ${timeZoneLabel(formatTimeZone)}.`
               : "Detecting your device timezone…"}
           </p>
 

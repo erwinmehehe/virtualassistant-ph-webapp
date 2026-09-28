@@ -27,9 +27,9 @@ test("Recruiter My Day keeps client waits out of the generic work queue once pro
 });
 
 test("Recruiter My Day daily operations layout collapses cleanly on smaller screens", async () => {
-  const css = await read("src/app/workspace/recruiter/today/today.module.css");
+  const [page, css] = await Promise.all([read("src/app/workspace/recruiter/today/page.tsx"), read("src/app/workspace/recruiter/today/today.module.css")]);
 
-  assert.match(css, /\.priorityStrip/);
+  assert.doesNotMatch(page, /priorityStrip/);
   assert.match(css, /\.operationsGrid/);
   assert.match(css, /@media \(max-width: 1080px\)/);
   assert.match(css, /@media \(max-width: 640px\)/);

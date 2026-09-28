@@ -48,12 +48,12 @@ test("Hiring inbox keeps lead scoring visible while linking to the employer boar
   assert.match(crm,/scoreLead\(lead, now\)/);
 });
 
-test("My Day shows how stale or overdue cleanup items are", async()=>{
-  const today=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(today,/function overdueAge/);
-  assert.match(today,/days-overdue/);
-  assert.match(today,/stale/);
-  assert.match(today,/overdue/);
+test("CRM Needs action owns overdue client follow-up visibility", async()=>{
+  const crm=await read("src/app/workspace/recruiter/crm/page.tsx");
+  assert.match(crm,/view === "attention"/);
+  assert.match(crm,/followDue/);
+  assert.match(crm,/firstResponseDue/);
+  assert.match(crm,/styles\.overdue/);
 });
 
 test("sales analytics keep responsive trend and source charts while funnels explain stage-to-stage conversion", async()=>{

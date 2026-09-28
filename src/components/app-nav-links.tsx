@@ -16,7 +16,6 @@ import {
   ListTodo,
   LifeBuoy,
   LogOut,
-  MessageSquare,
   Search,
   Settings,
   ShieldCheck,

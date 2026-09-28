@@ -11,7 +11,6 @@ test("client hiring email is deferred until a VA shortlist is actually sent", as
     "sendLeadAcknowledgementEmail",
     "sendClaimDraftEmail",
     "sendRoleDetailsRequestEmail",
-    "sendStaffClientFollowupEmail",
     "sendDiscoveryBookingEmail",
     "sendPublicDiscoveryBookingEmail",
     "sendDiscoveryNoShowRebookEmail",
@@ -23,6 +22,10 @@ test("client hiring email is deferred until a VA shortlist is actually sent", as
     const excerpt=email.slice(start,start+1400);
     assert.match(excerpt,/client_email_deferred_until_shortlist/);
   }
+  const manualStart=email.indexOf("export async function sendStaffClientFollowupEmail");
+  assert.ok(manualStart >= 0, "missing staff client email helper");
+  assert.doesNotMatch(email.slice(manualStart,manualStart+1400),/client_email_deferred_until_shortlist/);
+  assert.match(email.slice(manualStart,manualStart+1400),/explicit staff action/);
 });
 
 test("pre-shortlist workflows do not call client email helpers", async () => {

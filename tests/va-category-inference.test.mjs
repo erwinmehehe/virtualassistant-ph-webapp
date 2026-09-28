@@ -101,3 +101,22 @@ test("profile save treats user-selected specialties as declared evidence while b
   assert.match(refresh, /recruiterOverrideIds/);
   assert.match(refresh, /inferredPrimary \|\| row\.primary_category \|\| inferred\[0\]/);
 });
+
+
+test("automatic classification waits for enough profile evidence", async () => {
+  const [profile, refresh, readiness] = await Promise.all([
+    read("src/app/actions/profile.ts"),
+    read("src/app/actions/va-categories.ts"),
+    read("src/lib/classification-readiness.ts"),
+  ]);
+
+  assert.match(profile, /getClassificationEvidenceReadiness/);
+  assert.match(profile, /classificationReadiness\.ready/);
+  assert.match(refresh, /getClassificationEvidenceReadiness/);
+  assert.match(refresh, /if \(!classificationReadiness\.ready\)/);
+  assert.match(readiness, /headline.*length >= 8/s);
+  assert.match(readiness, /bio.*length >= 80/s);
+  assert.match(readiness, /skills.*length >= 3/s);
+  assert.match(readiness, /tools.*length >= 2/s);
+  assert.match(readiness, /industries.*length >= 1/s);
+});

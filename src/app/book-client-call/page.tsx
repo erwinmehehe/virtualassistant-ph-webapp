@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarCheck2, CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Clock3, Video } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClientBookingForm } from "@/components/client-booking-form";
@@ -11,7 +11,7 @@ import "./booking.css";
 
 export const metadata: Metadata = {
   title: "Book a Virtual Assistant Hiring Call",
-  description: "Book a focused 30-minute call to discuss the Virtual Assistant role, hours, budget, and hiring timeline.",
+  description: "Choose a time for a 30-minute Virtual Assistant hiring call.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
 };
@@ -49,35 +49,15 @@ export default async function BookClientCallPage({
       <SiteHeader />
       <main id="main-content" className="booking-page">
         <section className="booking-hero">
-          <div className="container booking-hero-grid">
-            <div className="booking-hero-copy">
-              <span className="booking-eyebrow">30-minute hiring call</span>
-              <h1>Book a focused call about the VA you need.</h1>
-              <p>Choose a time, share the essentials, and give our recruiting team enough context to make the conversation useful from minute one.</p>
-              <div className="booking-hero-points">
-                <span><Clock3 size={16} /> 30 minutes</span>
-                <span><ShieldCheck size={16} /> Private hiring brief</span>
-                <span><CheckCircle2 size={16} /> No payment required</span>
-              </div>
+          <div className="container booking-hero-inner">
+            <span className="booking-eyebrow">Client hiring call</span>
+            <h1>Book a time. We’ll handle the rest.</h1>
+            <p>Pick a slot and tell us the role you need. No long form and no payment required.</p>
+            <div className="booking-hero-points">
+              <span><Clock3 size={15} /> 30 minutes</span>
+              <span><Video size={15} /> Google Meet</span>
+              <span><CheckCircle2 size={15} /> Free to book</span>
             </div>
-            <aside className="booking-call-preview">
-              <div className="booking-call-preview-head">
-                <span><CalendarCheck2 size={18} /></span>
-                <div>
-                  <small>What we will cover</small>
-                  <strong>A clear hiring plan, not a generic sales call</strong>
-                </div>
-              </div>
-              <ol>
-                <li><span>1</span><div><strong>Role</strong><small>What the VA should own and what good looks like.</small></div></li>
-                <li><span>2</span><div><strong>Fit</strong><small>Hours, budget, start date, tools, and must-have experience.</small></div></li>
-                <li><span>3</span><div><strong>Next step</strong><small>What we need to shortlist the right candidates.</small></div></li>
-              </ol>
-              <div className="booking-applicant-route">
-                <span>Looking for VA work?</span>
-                <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
-              </div>
-            </aside>
           </div>
         </section>
 
@@ -87,11 +67,11 @@ export default async function BookClientCallPage({
               <div className="booking-success" role="status">
                 <span><CheckCircle2 size={30} /></span>
                 <div>
-                  <p className="kicker">Time confirmed</p>
-                  <h2>We will talk on {bookedWhen}</h2>
-                  <p>Your time is locked in. We will use the hiring brief you submitted to prepare before the conversation.</p>
+                  <p className="kicker">Call confirmed</p>
+                  <h2>{bookedWhen}</h2>
+                  <p>Your booking is saved. We’ll use the details you sent to prepare for the conversation.</p>
                   <div className="booking-success-actions">
-                    <Link className="btn btn-primary" href="/hire">Add more role details</Link>
+                    <Link className="btn btn-primary" href="/workspace/client">Open client workspace</Link>
                     <Link className="btn" href="/">Return home</Link>
                   </div>
                 </div>

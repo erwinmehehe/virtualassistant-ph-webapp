@@ -507,3 +507,46 @@
     white-space:normal;
   }
 }
+
+
+.handoffSteps {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+
+.handoffSteps span {
+  position:relative;
+  padding:5px 9px;
+  border:1px solid #e4e7ec;
+  border-radius:999px;
+  background:#f9fafb;
+  color:#667085;
+  font-size:10.5px;
+  font-weight:750;
+  line-height:1;
+}
+
+.handoffSteps .stepDone {
+  border-color:#abefc6;
+  background:#ecfdf3;
+  color:#067647;
+}
+
+.handoffSteps .stepCurrent {
+  border-color:#c7d2fe;
+  background:#eef2ff;
+  color:#4338ca;
+}
+
+@media (max-width: 640px) {
+  .handoffSteps {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .handoffSteps span {
+    text-align:center;
+  }
+}

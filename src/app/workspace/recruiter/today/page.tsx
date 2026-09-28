@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ImageOff, ListTodo, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ListTodo, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
-import { PublicAvatar } from "@/components/public-avatar";
 import { DashHeader } from "@/components/dash-ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
@@ -182,9 +181,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {params.followup_error ? <div className="alert" role="alert">{params.followup_error}</div> : null}
 
     <DashHeader
-      kicker="Agency daily workflow"
-      title="My Day"
-      subtitle={<>Start with the next action. Everything else only appears when it needs attention. <span className="dash-freshness">One owner · one next step</span></>}
+      kicker="Recruiter workspace"
+      title="Today"
+      subtitle={<>Work the next action, then clear the queue. Roles and talent stay in their dedicated workspaces. <span className="dash-freshness">Less scanning · clearer ownership</span></>}
       actions={<>
         <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
         <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
@@ -249,7 +248,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
 
     <section className={`card dashboard-section-card ${styles.queueCard}`}>
-      <div className="dashboard-section-head"><div><h2>Today’s work queue</h2><p>Recruitment, interviews, offers, placements, and client decisions that need action now.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
+      <div className="dashboard-section-head"><div><h2>Needs action</h2><p>Only work that needs a recruiter decision or follow-up today.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
         {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}
         <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Today's work queue, ${queue.length} items`}>
@@ -281,92 +280,65 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current Recruitment or Client Success work is waiting right now.</p></div><Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles</Link></div>}
     </section>
 
-    <div className={styles.operationsGrid}>
-      <section className="card dashboard-section-card">
-        <div className="dashboard-section-head">
-          <div><h2>Talent operations</h2><p>Profiles that are far enough along for a recruiter decision.</p></div>
-          <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/talent?readiness=approval_ready">Open talent <ArrowRight size={13}/></Link>
-        </div>
+    <section id="role-follow-through" className="card dashboard-section-card">
+      <div className="dashboard-section-head">
+        <div><h2>Follow-through</h2><p>No-shows, client decisions, and roles that have stopped moving.</p></div>
+        <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
+      </div>
 
-        <div className={styles.signalRow}>
-          <Link href="/workspace/recruiter/talent?readiness=approval_ready"><UserRoundCheck size={16}/><span><strong>{Number(approvalReadyCount || 0)}</strong> approval-ready</span></Link>
-          <Link href="/workspace/recruiter/talent?readiness=approval_ready&photo=no"><ImageOff size={16}/><span><strong>{Number(missingPhotoCount || 0)}</strong> need a photo</span></Link>
-        </div>
-
-        {approvalReady.length ? <div className={styles.compactPeople}>
-          {approvalReady.map((va)=>(
-            <Link prefetch={false} className={styles.personRow} href={`/workspace/recruiter/candidates/${va.user_id}`} key={va.user_id}>
-              <PublicAvatar name={va.full_name || "VA"} src={va.avatar_url} size="sm"/>
-              <span className={styles.personCopy}>
-                <strong>{va.full_name || "VA candidate"}</strong>
-                <small>{va.primary_category || "Category not set"} · {va.completion_score || 0}% complete</small>
-                <small>{va.avatar_url ? (va.availability_status || "Availability not set") : "Photo missing"}</small>
-              </span>
-              <ArrowRight size={15}/>
-            </Link>
-          ))}
-        </div> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>No approval-ready profiles waiting.</strong><p>The current talent queue is caught up.</p></div></div>}
-      </section>
-
-      <section id="role-follow-through" className="card dashboard-section-card">
-        <div className="dashboard-section-head">
-          <div><h2>Role follow-through</h2><p>Client decisions and roles that have stopped moving.</p></div>
-          <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
-        </div>
-
-        {noShows.length ? <div className={styles.followList}>
-          <div className={styles.groupLabel}>Discovery no-shows</div>
-          {noShows.slice(0,5).map((lead)=>(
-            <div className={styles.followRow} key={`no-show-${lead.id}`}>
-              <span className={styles.followIcon}><RefreshCw size={15}/></span>
-              <span className={styles.followCopy}>
-                <strong>{lead.name||lead.email||"Client discovery call"}</strong>
-                <small>{lead.email||"No email on file"} · No-show recorded</small>
-              </span>
-              <div className={styles.followActions}>
-                <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/crm/${lead.id}`}>Open</Link>
-              </div>
+      {noShows.length ? <div className={styles.followList}>
+        <div className={styles.groupLabel}>Discovery no-shows</div>
+        {noShows.slice(0,5).map((lead)=>(
+          <div className={styles.followRow} key={`no-show-${lead.id}`}>
+            <span className={styles.followIcon}><RefreshCw size={15}/></span>
+            <span className={styles.followCopy}>
+              <strong>{lead.name||lead.email||"Client discovery call"}</strong>
+              <small>{lead.email||"No email on file"} · No-show recorded</small>
+            </span>
+            <div className={styles.followActions}>
+              <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/crm/${lead.id}`}>Open</Link>
             </div>
-          ))}
-        </div> : null}
+          </div>
+        ))}
+      </div> : null}
 
-        {clientWaits.length ? <div className={styles.followList}>
-          <div className={styles.groupLabel}>Waiting on client</div>
-          {clientWaits.slice(0,5).map((item)=>(
-            <div className={styles.followRow} key={`wait-${item.action_type}-${item.subject_id}`}>
-              <span className={styles.followIcon}><MessageSquare size={15}/></span>
-              <span className={styles.followCopy}>
-                <strong>{item.title || "Client decision pending"}</strong>
-                <small>{item.description || "Shortlist feedback is still pending."}</small>
-                <small>{ageLabel(item.age_hours)} waiting</small>
-              </span>
-              <div className={styles.followActions}>
-                {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
-                {item.subject_id ? <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
-              </div>
+      {clientWaits.length ? <div className={styles.followList}>
+        <div className={styles.groupLabel}>Waiting on client</div>
+        {clientWaits.slice(0,5).map((item)=>(
+          <div className={styles.followRow} key={`wait-${item.action_type}-${item.subject_id}`}>
+            <span className={styles.followIcon}><MessageSquare size={15}/></span>
+            <span className={styles.followCopy}>
+              <strong>{item.title || "Client decision pending"}</strong>
+              <small>{item.description || "Shortlist feedback is still pending."}</small>
+              <small>{ageLabel(item.age_hours)} waiting</small>
+            </span>
+            <div className={styles.followActions}>
+              {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
+              {item.subject_id ? <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
             </div>
-          ))}
-        </div> : null}
+          </div>
+        ))}
+      </div> : null}
 
-        {staleRolePreview.length ? <div className={styles.followList}>
-          <div className={styles.groupLabel}>No recent movement</div>
-          {staleRolePreview.map((role)=>{
-            const lastStageAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
-            return <Link prefetch={false} className={styles.followRow} href={`/workspace/recruiter/roles/${role.id}`} key={`stale-${role.id}`}>
-              <span className={styles.followIcon}><BriefcaseBusiness size={15}/></span>
-              <span className={styles.followCopy}>
-                <strong>{role.title || "Client role"}</strong>
-                <small>{role.company_name || "Client"} · {role.hiring_stage || role.status || "Open"}</small>
-                <small>{stageAge(lastStageAt)}d in the same stage</small>
-              </span>
-              <ArrowRight size={15}/>
-            </Link>;
-          })}
-          {staleRolesCount > staleRolePreview.length ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRolesCount - staleRolePreview.length} more stale roles</Link> : null}
-        </div> : null}
+      {staleRolePreview.length ? <div className={styles.followList}>
+        <div className={styles.groupLabel}>No recent movement</div>
+        {staleRolePreview.map((role)=>{
+          const lastStageAt = role.hiring_stage_entered_at || role.updated_at || role.created_at;
+          return <Link prefetch={false} className={styles.followRow} href={`/workspace/recruiter/roles/${role.id}`} key={`stale-${role.id}`}>
+            <span className={styles.followIcon}><BriefcaseBusiness size={15}/></span>
+            <span className={styles.followCopy}>
+              <strong>{role.title || "Client role"}</strong>
+              <small>{role.company_name || "Client"} · {role.hiring_stage || role.status || "Open"}</small>
+              <small>{stageAge(lastStageAt)}d in the same stage</small>
+            </span>
+            <ArrowRight size={15}/>
+          </Link>;
+        })}
+        {staleRolesCount > staleRolePreview.length ? <Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles">+{staleRolesCount - staleRolePreview.length} more stale roles</Link> : null}
+      </div> : null}
 
-        {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
-      </section>
+      {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
+    </section>
     </div>
   </div>;
 }

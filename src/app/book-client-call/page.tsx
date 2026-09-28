@@ -50,9 +50,8 @@ export default async function BookClientCallPage({
       <main id="main-content" className="booking-page">
         <section className="booking-hero">
           <div className="container booking-hero-inner">
-            <span className="booking-eyebrow">Client hiring call</span>
-            <h1>Book a time. We’ll handle the rest.</h1>
-            <p>Pick a slot and tell us the role you need. No long form and no payment required.</p>
+            <h1>Book a client call</h1>
+            <p>Choose a time that works for you.</p>
             <div className="booking-hero-points">
               <span><Clock3 size={15} /> 30 minutes</span>
               <span><Video size={15} /> Google Meet</span>

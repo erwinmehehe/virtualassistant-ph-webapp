@@ -49,7 +49,10 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   const maxRate = numberValue(filters.max_rate);
   const stale = numberValue(filters.stale);
 
-  if (category) query = query.eq("primary_category", category);
+  if (category) {
+    const quotedCategory = `"${category.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+    query = query.or(`primary_category.eq.${quotedCategory},categories.cs.{${quotedCategory}}`);
+  }
   if (stage) query = query.eq("stage", stage);
   if (availability) query = query.eq("availability_status", availability);
 

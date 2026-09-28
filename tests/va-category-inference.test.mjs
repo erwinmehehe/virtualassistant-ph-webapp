@@ -27,6 +27,7 @@ test("recruiter category refresh enriches multi-category profiles while preservi
   assert.match(action,/select\("user_id,headline,bio,primary_category,categories,skills,tools,industries"\)/);
   assert.match(action,/inferCategories/);
   assert.match(action,/primaryLocked/);
+  assert.match(action,/primaryLocked = \["approved", "bench"\]\.includes\(stage\) && Boolean\(row\.primary_category\)/);
   assert.match(action,/approved/);
   assert.match(action,/bench/);
   assert.match(action,/\.\.\.inferred/);
@@ -55,4 +56,19 @@ test("recruiter talent category filter checks primary and categories array",asyn
   assert.match(filters,/primary_category\.eq/);
   assert.match(filters,/categories\.cs/);
   assert.match(filters,/query\.or/);
+});
+
+
+test("SEO, Admin, and Real Estate can coexist as the three inferred specialties", async () => {
+  const inference = await read("src/lib/category-inference.ts");
+  const seo = inference.indexOf('["SEO"');
+  const admin = inference.indexOf('["Administrative Support"');
+  const realEstate = inference.indexOf('["Real Estate"');
+
+  assert.ok(seo >= 0 && admin >= 0 && realEstate >= 0);
+  assert.ok(seo < admin && admin < realEstate);
+  assert.match(inference, /\["SEO", \[[^\]]*"seo"/);
+  assert.match(inference, /\["Administrative Support", \[[^\]]*"admin"/);
+  assert.match(inference, /\["Real Estate", \[[^\]]*"real estate"/);
+  assert.match(inference, /slice\(0, 3\)/);
 });

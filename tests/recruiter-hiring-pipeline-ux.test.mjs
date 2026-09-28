@@ -10,7 +10,7 @@ test("recruiter navigation keeps the CRM inside the connected hiring workflow", 
     read("src/app/workspace/recruiter/leads/board/page.tsx"),
   ]);
 
-  for (const label of ["Hiring pipeline", "Roles", "Placements", "Talent"]) {
+  for (const label of ["Clients", "Roles", "Placements", "Talent"]) {
     assert.match(nav, new RegExp(`\\["${label}"`));
   }
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);

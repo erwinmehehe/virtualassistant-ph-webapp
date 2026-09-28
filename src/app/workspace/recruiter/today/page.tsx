@@ -146,12 +146,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const openTasks = Number(summary.open_tasks || 0);
   const approvalReadyCount = Number(summary.approval_ready_count || 0);
   const missingPhotoCount = Number(summary.missing_photo_count || 0);
-  const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
-
+  const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;\n  const clientResponseOverdue = Number(summary.client_response_overdue || 0);\n  const roleNoCandidates = Number(summary.role_no_candidates || 0);\n  const interviewsDue = Number(summary.interviews_due || 0);\n
   const nextActionCandidates = [
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
-    {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#call-rebooking",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
+    {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
@@ -161,7 +160,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const primaryAction = nextActionCandidates.find((item)=>item.count>0) || {
     count:0,
     title:"You are caught up",
-    copy:"No urgent recruiter queue needs attention right now. Use the workstreams below for routine review.",
+    copy:"No urgent recruiter action needs attention right now. Open Roles or Talent for routine review.",
     href:"/workspace/recruiter/roles",
     cta:"Review roles",
     icon:<CheckCircle2 size={20}/>

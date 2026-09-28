@@ -4,14 +4,20 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("client hiring email is deferred until a VA shortlist is actually sent", async () => {
+test("client gets one acknowledgement while automated pre-shortlist nudges stay off", async () => {
   const email=await read("src/lib/email.ts");
   assert.match(email,/const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false/);
+
+  const acknowledgementStart=email.indexOf("export async function sendLeadAcknowledgementEmail");
+  assert.ok(acknowledgementStart >= 0, "missing lead acknowledgement");
+  const acknowledgement=email.slice(acknowledgementStart,acknowledgementStart+2200);
+  assert.doesNotMatch(acknowledgement,/client_email_deferred_until_shortlist/);
+  assert.match(acknowledgement,/Activate my hiring workspace/);
+  assert.doesNotMatch(acknowledgement,/Book a 20-minute call/);
+
   for (const fn of [
-    "sendLeadAcknowledgementEmail",
     "sendClaimDraftEmail",
     "sendRoleDetailsRequestEmail",
-    "sendStaffClientFollowupEmail",
     "sendDiscoveryBookingEmail",
     "sendPublicDiscoveryBookingEmail",
     "sendDiscoveryNoShowRebookEmail",
@@ -23,8 +29,13 @@ test("client hiring email is deferred until a VA shortlist is actually sent", as
     const excerpt=email.slice(start,start+1400);
     assert.match(excerpt,/client_email_deferred_until_shortlist/);
   }
-});
 
+  const manualStart=email.indexOf("export async function sendStaffClientFollowupEmail");
+  assert.ok(manualStart >= 0, "missing staff client email helper");
+  const manual=email.slice(manualStart,manualStart+1600);
+  assert.doesNotMatch(manual,/client_email_deferred_until_shortlist/);
+  assert.match(manual,/Manual recruiter email only/);
+});
 test("pre-shortlist workflows do not call client email helpers", async () => {
   const [agency,applications,cleanup,recruiterOps,ops,reminders,rolePage,today] = await Promise.all([
     read("src/app/actions/agency-role.ts"),
@@ -50,7 +61,7 @@ test("pre-shortlist workflows do not call client email helpers", async () => {
   assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction|Send rebooking link/);
 });
 
-test("releasing recruiter-approved VAs sends the one client hiring email", async () => {
+test("releasing recruiter-approved VAs sends the next automated client hiring email", async () => {
   const matching=await read("src/app/actions/matching.ts");
   assert.match(matching,/eventType: "client_shortlist_delivery"/);
   assert.match(matching,/subject: `Your VA shortlist is ready:/);

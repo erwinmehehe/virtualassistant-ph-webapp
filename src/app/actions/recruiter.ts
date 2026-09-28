@@ -397,11 +397,16 @@ export async function sendClientFollowupAction(formData: FormData) {
         next_follow_up_at: existingFollowUp > now.getTime() ? leadSnapshot.next_follow_up_at : new Date(now.getTime() + 2 * 86400000).toISOString()
       };
       if (!leadSnapshot.first_contact_at) patch.first_contact_at = now.toISOString();
-      if ((leadSnapshot.crm_stage || "new") === "new") {
+      const advancedToContacted = (leadSnapshot.crm_stage || "new") === "new";
+      if (advancedToContacted) {
         patch.crm_stage = "contacted";
         patch.stage_updated_at = now.toISOString();
       }
-      await admin.from("lead_intake").update(patch).eq("id", activityId);
+      const { error: contactUpdateError } = await admin.from("lead_intake").update(patch).eq("id", activityId);
+      if (contactUpdateError) throw contactUpdateError;
+      if (advancedToContacted) {
+        await runCrmStageWorkflows({ leadId: activityId, stage: "contacted", actorId: user.id });
+      }
     }
   }
 
@@ -468,8 +473,12 @@ export async function recordLeadContactAction(formData: FormData) {
     patch.crm_stage = "contacted";
     patch.stage_updated_at = now.toISOString();
   }
+  const advancedToContacted = (lead.crm_stage || "new") === "new";
   const { error: updateError } = await admin.from("lead_intake").update(patch).eq("id", leadId);
   if (updateError) throw updateError;
+  if (advancedToContacted) {
+    await runCrmStageWorkflows({ leadId, stage: "contacted", actorId: user.id });
+  }
 
   await writeRecruiterActivity({
     subjectType: "lead",
@@ -494,6 +503,7 @@ export async function recordLeadContactAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
 }
 
@@ -690,6 +700,9 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   if (lead.discovery_calendar_event_id && generatedEventId !== lead.discovery_calendar_event_id) {
     try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* saved replacement stays valid */ }
   }
+  if (String(lead.crm_stage || "new") !== "discovery_booked") {
+    await runCrmStageWorkflows({ leadId, stage: "discovery_booked", actorId: user.id });
+  }
 
   const scheduledLabel = new Intl.DateTimeFormat("en-PH", {
     dateStyle: "medium",
@@ -729,6 +742,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
   redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
@@ -816,6 +830,9 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
     stage_updated_at: now
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not cancel the discovery booking.");
+  if (String(lead.crm_stage || "new") !== "nurture") {
+    await runCrmStageWorkflows({ leadId, stage: "nurture", actorId: user.id });
+  }
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
   await writeRecruiterActivity({
     subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
@@ -824,6 +841,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
   });
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_cancelled=1`);
 }
@@ -887,6 +905,9 @@ export async function completeDiscoveryAction(formData: FormData) {
     lost_at: stage === "lost" ? now.toISOString() : null
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not save the discovery outcome.");
+  if (stage !== String(lead.crm_stage || "new")) {
+    await runCrmStageWorkflows({ leadId, stage, actorId: user.id });
+  }
 
   await writeRecruiterActivity({
     subjectType: "lead",
@@ -899,6 +920,7 @@ export async function completeDiscoveryAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
   const suffix = outcome === "no_show" ? `discovery_completed=1&rebook_prompt=${encodeURIComponent(leadId)}` : "discovery_completed=1";

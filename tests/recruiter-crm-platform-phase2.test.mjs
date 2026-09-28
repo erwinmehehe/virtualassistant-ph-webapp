@@ -63,7 +63,7 @@ test("CRM records support custom fields and consolidated communication history",
   assert.match(page,/crm_custom_values/);
   assert.match(page,/createCrmCustomFieldAction/);
   assert.match(page,/setCrmCustomValueAction/);
-  assert.match(page,/Communication history/);
+  assert.match(page,/Relationship timeline/);
   assert.match(page,/crm_company_id/);
   assert.match(page,/crm_contact_id/);
 });

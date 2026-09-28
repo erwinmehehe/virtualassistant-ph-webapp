@@ -24,10 +24,13 @@ test("recruiter badge destinations use current role and talent pages while focus
   }
 });
 
-test("My Day workload totals include new hiring enquiries", async () => {
+test("My Day removes duplicate summary layers and keeps a single next-action hierarchy", async () => {
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.ok(page.includes("const roleActions = newHiringRoles.length + roleNoCandidates"));
-  assert.ok(page.includes("newHiringRoles.length + roleNoCandidates + replacementNeeded + interviewsDue + offersWaiting + staleRolesCount"));
+  assert.ok(page.includes("Start with the next action"));
+  assert.ok(page.includes("newHiringRoles.length"));
+  assert.ok(page.includes("cleanupQueue.length"));
+  assert.ok(!page.includes("priorityStrip"));
+  assert.ok(!page.includes("Four places to look"));
 });
 
 test("tasks and agenda use canonical role URLs and agenda is recruiter scoped", async () => {

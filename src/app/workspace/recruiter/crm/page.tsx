@@ -91,23 +91,22 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const q = String(params.q || "").trim();
   const owner = String(params.owner || "").trim();
 
+  let leadQuery = admin
+    .from("lead_intake")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,stage_updated_at,created_at")
+    .eq("lead_type", "client_hiring")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (owner) leadQuery = leadQuery.eq("owner_id", owner);
+  if (q) {
+    const safe = q.replace(/[,%()]/g, " ").trim();
+    if (safe) leadQuery = leadQuery.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%,service.ilike.%${safe}%`);
+  }
+
   const [{ data: ownerData, error: ownerError }, leadResult] = await Promise.all([
     admin.from("profiles").select("id,full_name,role,account_status").in("role", ["recruiter", "admin"]).eq("account_status", "active").order("full_name"),
-    (async () => {
-      let query = admin
-        .from("lead_intake")
-        .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,stage_updated_at,created_at")
-        .eq("lead_type", "client_hiring")
-        .order("created_at", { ascending: false })
-        .limit(500);
-
-      if (owner) query = query.eq("owner_id", owner);
-      if (q) {
-        const safe = q.replace(/[,%()]/g, " ").trim();
-        if (safe) query = query.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%,service.ilike.%${safe}%`);
-      }
-      return query;
-    })(),
+    leadQuery,
   ]);
 
   if (ownerError) throw ownerError;

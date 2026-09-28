@@ -100,20 +100,21 @@ test("public discovery booking does not trigger Google attendee email", async ()
   assert.match(ops,/sendUpdates=\$\{args\.notifyAttendees === false \? "none" : "all"\}/);
 });
 
-test("booking page uses the sleek two-step booking experience", async () => {
+test("booking page uses the simplified low-friction booking experience", async () => {
   const [page,form,css]=await Promise.all([
     read("src/app/book-client-call/page.tsx"),
     read("src/components/client-booking-form.tsx"),
     read("src/app/book-client-call/booking.css"),
   ]);
-  assert.match(page,/Book a focused call about the VA you need/);
-  assert.match(page,/booking-call-preview/);
-  assert.match(form,/booking-flow-progress/);
+  assert.match(page,/Book a time\. We’ll handle the rest\./);
+  assert.doesNotMatch(page,/booking-call-preview/);
+  assert.doesNotMatch(form,/booking-flow-progress/);
+  assert.match(form,/Pick a time that works for you/);
   assert.match(form,/booking-calendar-shell/);
   assert.match(form,/booking-selected-slot/);
-  assert.match(form,/Confirm booking/);
-  assert.match(css,/\.booking-call-preview/);
-  assert.match(css,/\.booking-flow-progress/);
+  assert.match(form,/Confirm 30-minute call/);
+  assert.match(form,/No long questionnaire/);
+  assert.match(css,/\.booking-card-head/);
   assert.match(css,/\.booking-calendar-shell/);
   assert.match(css,/\.booking-selected-slot/);
 });

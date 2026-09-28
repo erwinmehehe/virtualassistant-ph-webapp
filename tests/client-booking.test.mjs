@@ -39,7 +39,7 @@ test("client booking opens directly on the calendar and still routes VA applican
   assert.match(form,/resolvedOptions\(\)\.timeZone/);
   assert.match(form,/id="booking-timezone"/);
   assert.match(form,/setDisplayTimeZone\(event\.target\.value\)/);
-  assert.match(form,/Detected from your device/);
+  assert.match(form,/Detected:/);
 });
 
 test("discovery booking is available 24/7 and grouped in the visitor timezone", async () => {
@@ -64,9 +64,9 @@ test("client booking keeps the minimum brief lightweight", async () => {
     read("src/app/actions/leads.ts"),
   ]);
 
-  assert.match(form, /1\. Choose a time/);
-  assert.match(form, /2\. Your details/);
-  assert.match(form, /No long questionnaire/);
+  assert.match(form, /Date & time/);
+  assert.match(form, /Your details/);
+  assert.match(form, /Four required fields/);
   assert.match(form, /name="name" required/);
   assert.match(form, /name="email" required/);
   assert.match(form, /name="company" required/);

@@ -313,7 +313,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
         <div className={styles.headerActions}>
           {job ? <Link className={styles.primaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/leads"><UserRound size={15}/> Operations inbox</Link>
+          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Hiring pipeline</Link>
         </div>
       </header>
 
@@ -321,8 +321,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         <div className={styles.actionCenterHead}>
           <div>
             <span className={styles.kicker}>Work this relationship</span>
-            <h2>Action center</h2>
-            <p>Everything a recruiter needs for the next client step, without leaving the CRM record.</p>
+            <h2>Next actions</h2>
+            <p>Only the actions that move this hiring request forward.</p>
           </div>
           <div className={styles.actionStatus}>
             <span className={lead.client_id ? styles.statusGood : styles.statusNeutral}>{lead.client_id ? "Client account active" : "Client account not activated"}</span>
@@ -333,7 +333,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         <div className={styles.actionLinks}>
           {job ? <Link href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={14}/> Role</Link> : null}
           {job ? <Link href={`/workspace/recruiter/matching/${job.id}`}><UserRound size={14}/> Matching</Link> : null}
-          {job ? <Link href="/workspace/recruiter/roles?view=client_review&sort=urgent"><UsersRound size={14}/> Client review</Link> : null}
           {lead.discovery_meeting_url && !lead.discovery_completed_at && !lead.discovery_cancelled_at ? <a href={lead.discovery_meeting_url} target="_blank" rel="noreferrer"><CalendarDays size={14}/> Join discovery</a> : null}
         </div>
 
@@ -380,20 +379,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 </form>
               </div> : null}
             </div>
-          </details>
-
-          <details className={styles.actionCard}>
-            <summary><span className={styles.actionIcon}><ListTodo size={16}/></span><span><strong>Create follow-up</strong><small>Add the next recruiter action without leaving this record.</small></span><ArrowRight size={15}/></summary>
-            <form action={createRecruiterTaskAction} className={styles.actionForm}>
-              <input type="hidden" name="subject_type" value="lead"/>
-              <input type="hidden" name="subject_id" value={lead.id}/>
-              <input type="hidden" name="href" value={returnTo}/>
-              <input type="hidden" name="return_to" value={returnTo}/>
-              <label>Task<input name="title" required minLength={3} maxLength={180} defaultValue={`Follow up with ${lead.name || lead.company || "client"}`}/></label>
-              <label>Due<input type="datetime-local" name="due_at"/></label>
-              <label>Priority<select name="priority" defaultValue="normal"><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
-              <button type="submit">Create follow-up</button>
-            </form>
           </details>
 
           <div className={styles.actionCardStatic}>
@@ -448,14 +433,11 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             </section>
           ) : null}
 
-          <section className={styles.panel}>
-            <div className={styles.panelHead}>
-              <h2>Relationship timeline</h2>
-              <span className={styles.muted}>{timeline.length} events · newest first</span>
-            </div>
+          <details className={styles.panelDetails}>
+            <summary><span><strong>Activity history</strong><small>{timeline.length} event{timeline.length===1?"":"s"} · newest first</small></span><ArrowRight size={15}/></summary>
             <div className={styles.panelBody}>
               {timeline.length ? <div className={styles.timeline}>
-                {timeline.slice(0,100).map(item=><div className={styles.timelineItem} key={item.id}>
+                {timeline.slice(0,30).map(item=><div className={styles.timelineItem} key={item.id}>
                   <span className={styles.timelineDot}/>
                   <div>
                     <div className={styles.timelineTitle}><strong>{item.title}</strong><span className={styles.timelineKind}>{item.kind}</span></div>
@@ -463,9 +445,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                     <time>{fmt(item.at,true)}</time>
                   </div>
                 </div>)}
-              </div> : <div className={styles.empty}>No relationship activity has been recorded yet.</div>}
+              </div> : <div className={styles.empty}>No activity recorded yet.</div>}
             </div>
-          </section>
+          </details>
 
           <section className={styles.panel}>
             <div className={styles.panelHead}><h2>Private notes</h2><MessageSquareText size={15}/></div>

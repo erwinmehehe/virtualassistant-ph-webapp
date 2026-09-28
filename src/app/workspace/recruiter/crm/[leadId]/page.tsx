@@ -134,7 +134,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
 
   const { data: leadData, error: leadError } = await admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_company_id,crm_contact_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_completed_at,discovery_outcome,created_at,lead_type")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_company_id,crm_contact_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_completed_at,discovery_cancelled_at,discovery_outcome,discovery_notes,created_at,lead_type")
     .eq("id", leadId)
     .eq("lead_type", "client_hiring")
     .maybeSingle();
@@ -142,7 +142,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -154,9 +154,24 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     lead.crm_contact_id ? admin.from("crm_contacts").select("id,full_name,email,phone,title").eq("id",lead.crm_contact_id).maybeSingle() : Promise.resolve({data:null,error:null}),
     admin.from("crm_custom_fields").select("id,label,field_type,options").eq("object_type","lead").order("created_at",{ascending:true}),
     admin.from("crm_custom_values").select("field_id,value").eq("object_type","lead").eq("object_id",leadId),
-    admin.from("outbound_email_events").select("id,event_type,status,automation,created_at").eq("recipient",lead.email).order("created_at",{ascending:false}).limit(30),
+    lead.email
+      ? admin.from("outbound_email_events").select("id,event_type,status,automation,error_message,created_at").ilike("recipient", `%${lead.email}%`).order("created_at",{ascending:false}).limit(40)
+      : Promise.resolve({data:[],error:null}),
+    admin.from("lead_proposals").select("id,status,role_title,created_at,sent_at,viewed_at,accepted_at,declined_at,changes_requested_at,decline_reason").eq("lead_id",leadId).order("created_at",{ascending:false}).limit(20),
+    lead.job_id
+      ? admin.from("job_shortlist_candidates").select("id,va_id,shortlist_status,released_at,created_at,client_decision,client_decision_note,client_decision_at").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(50)
+      : Promise.resolve({data:[],error:null}),
+    lead.job_id
+      ? admin.from("candidate_interviews").select("id,va_id,status,created_at,scheduled_at,completed_at,cancelled_at,rescheduled_at,client_decision").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(30)
+      : Promise.resolve({data:[],error:null}),
+    lead.job_id
+      ? admin.from("placement_offers").select("id,va_id,status,created_at,va_accepted_at,client_confirmed_at,declined_at,start_date").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(30)
+      : Promise.resolve({data:[],error:null}),
+    lead.job_id
+      ? admin.from("workrooms").select("id,va_id,status,placement_stage,created_at,placement_stage_entered_at,handoff_completed_at,ended_at").eq("job_id",lead.job_id).order("created_at",{ascending:false}).limit(20)
+      : Promise.resolve({data:[],error:null}),
   ]);
-  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult]) {
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, companyResult, contactResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult]) {
     if (result.error) throw result.error;
   }
 

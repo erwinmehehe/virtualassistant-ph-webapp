@@ -80,6 +80,7 @@ async function recordInboundClientReply(
       source: "resend_inbound",
       provider_id: providerId,
       message_id: event.data?.message_id || null,
+      subject,
       sender,
       recipient: event.data?.to?.[0] || null,
     },
@@ -131,15 +132,7 @@ export async function POST(request: Request) {
   if (["bounced", "complained", "suppressed"].includes(status)) {
     for (const raw of event.data?.to || []) {
       const email = String(raw || "").trim().toLowerCase();
-      if (email) {
-        await admin.from("email_suppressions").upsert({
-          email,
-          reason: status,
-          provider_id: providerId,
-          suppressed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "email" });
-      }
+      if (email) await admin.from("email_suppressions").upsert({ email, reason: status, provider_id: providerId, suppressed_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
     }
   }
 

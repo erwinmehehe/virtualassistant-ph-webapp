@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { inferCategories } from "@/lib/category-inference";
+import { inferCategoriesFromProfile } from "@/lib/category-inference";
 
 type VaCategoryRepairRow = {
   user_id: string;
@@ -46,24 +46,22 @@ export async function autoCategorizeUncategorizedVasAction() {
   let skipped = 0;
 
   for (const row of rows) {
-    const inferred = inferCategories(
-      row.headline,
-      row.bio,
-      ...(row.categories || []),
-      ...(row.skills || []),
-      ...(row.tools || []),
-      ...(row.industries || [])
-    );
+    const inferred = inferCategoriesFromProfile({
+      headline: row.headline,
+      bio: row.bio,
+      skills: row.skills,
+      tools: row.tools,
+      industries: row.industries,
+    });
     const stage = stageByVa.get(row.user_id) || "";
-    // Never rewrite a vetted specialty, but repair legacy approved profiles
-    // that reached approval before primary_category became required.
+    // Recruiter-approved primaries are durable. Everyone else can be corrected
+    // by stronger profile evidence during a full classification refresh.
     const primaryLocked = ["approved", "bench"].includes(stage) && Boolean(row.primary_category);
     const resolvedPrimaryCategory = primaryLocked
       ? row.primary_category
-      : row.primary_category || inferred[0] || null;
+      : inferred[0] || row.primary_category || null;
     const resolvedCategories = [...new Set([
       ...(resolvedPrimaryCategory ? [resolvedPrimaryCategory] : []),
-      ...(row.categories || []),
       ...inferred
     ])].slice(0, 3);
 

@@ -30,8 +30,8 @@ try {
     const response = await page.goto(`${baseUrl}/book-client-call`, { waitUntil: "networkidle", timeout: 90000 });
     if (!response?.ok()) throw new Error(`Booking page returned HTTP ${response?.status() || "unknown"}.`);
 
-    await page.getByRole("heading", { name: "Book a client call" }).waitFor();
-    await page.getByRole("heading", { name: "Pick a time that works for you." }).waitFor();
+    await page.getByRole("heading", { name: "Book a discovery call" }).waitFor();
+    await page.getByRole("heading", { name: "Choose a time" }).waitFor();
     await page.getByRole("link", { name: /Looking for VA work\? Apply here/ }).waitFor();
 
     const timezoneSelect = page.locator("#booking-timezone");

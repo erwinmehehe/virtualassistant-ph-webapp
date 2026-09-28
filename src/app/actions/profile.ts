@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
-import { inferCategories } from "@/lib/category-inference";
+import { inferCategoriesFromProfile } from "@/lib/category-inference";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
@@ -133,14 +133,17 @@ export async function updateVaProfileAction(formData: FormData) {
   const tools = list(formData.get("tools"), "tool");
   const industries = list(formData.get("industries"), "industry");
   const languages = list(formData.get("languages"), "language");
-  const inferredCategories = inferCategories(
-    headlineValue,
-    bioValue,
-    selectedCategories.join(" "),
-    skills.join(" "),
-    tools.join(" "),
-    industries.join(" ")
-  );
+  const inferredCategories = inferCategoriesFromProfile({
+    headline: headlineValue,
+    bio: bioValue,
+    skills,
+    tools,
+    industries,
+    declaredCategories: [
+      ...(selectedPrimaryCategory ? [selectedPrimaryCategory] : []),
+      ...selectedCategories,
+    ],
+  });
 
   // Validate every file before writing profile fields. A rejected resume/photo
   // must not leave the user with a "save failed" message after other edits

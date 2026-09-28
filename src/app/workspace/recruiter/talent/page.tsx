@@ -22,7 +22,9 @@ import type {
 const PAGE_SIZE = 25;
 
 const SAVED_VIEWS = [
-  { key: "all", label: "All VAs", filters: {} },
+  { key: "all", label: "Talent pool", filters: { classification: "classified" } },
+  { key: "incomplete_profiles", label: "Incomplete profiles", filters: { classification: "incomplete_profile" } },
+  { key: "ready_to_classify", label: "Ready to classify", filters: { classification: "ready_to_classify" } },
   { key: "approval_ready", label: "Approval-ready", filters: { readiness: "approval_ready" } },
   { key: "approval_cleanup", label: "Approval cleanup", filters: { readiness: "approval_cleanup" } },
   { key: "missing_photo", label: "Missing photo", filters: { photo: "no" } },
@@ -73,6 +75,7 @@ export default async function RecruiterTalentDirectory({
   const savedView = SAVED_VIEWS.find((item) => item.key === params.view);
   const sort = String(params.sort || "recent");
   const effective: Record<string, string | undefined> = {
+    classification: "classified",
     ...params,
     ...(savedView?.filters || {})
   };
@@ -84,7 +87,7 @@ export default async function RecruiterTalentDirectory({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = admin
     .from("recruiter_va_directory")
-    .select("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status", { count: "exact" });
+    .select("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing", { count: "exact" });
 
   if (sort === "completion") query = query.order("completion_score", { ascending: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
   else if (sort === "experience") query = query.order("years_experience", { ascending: false, nullsFirst: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
@@ -97,6 +100,7 @@ export default async function RecruiterTalentDirectory({
     q: effective.q,
     category: selectedCategories,
     category_match: categoryMatch,
+    classification: effective.classification,
     stage: effective.stage,
     readiness: effective.readiness,
     photo: effective.photo,
@@ -155,7 +159,9 @@ export default async function RecruiterTalentDirectory({
   const publicIds = new Set(metaRows.filter((row) => row.public_now).map((row) => row.va_id));
   const visibilityMap = new Map(metaRows.map((row) => [row.va_id, row]));
   const savedViewCounts = new Map<string, number>([
-    ["all", Number(summary.all_count || 0)],
+    ["all", Number(summary.talent_pool_count || 0)],
+    ["incomplete_profiles", Number(summary.classification_incomplete_count || 0)],
+    ["ready_to_classify", Number(summary.classification_ready_count || 0)],
     ["approval_ready", Number(summary.approval_ready_count || 0)],
     ["approval_cleanup", Number(summary.approval_cleanup_count || 0)],
     ["missing_photo", Number(summary.missing_photo_count || 0)],
@@ -175,6 +181,7 @@ export default async function RecruiterTalentDirectory({
   const filterHidden = <>
     {Object.entries({
       filter_q: effective.q,
+      filter_classification: effective.classification,
       filter_stage: effective.stage,
       filter_readiness: effective.readiness,
       filter_photo: effective.photo,
@@ -190,7 +197,12 @@ export default async function RecruiterTalentDirectory({
   </>;
 
   const stages = ["profile", "test", "video", "recruiter_review", "finalist", "approved", "bench", "rejected"];
-  const advancedFiltersActive = Boolean(selectedCategories.length || effective.photo || effective.resume || effective.skill || effective.min_experience || effective.max_rate || effective.availability || effective.stale);
+  const advancedFiltersActive = Boolean(
+    selectedCategories.length
+    || (effective.classification && effective.classification !== "classified")
+    || effective.photo || effective.resume || effective.skill || effective.min_experience
+    || effective.max_rate || effective.availability || effective.stale
+  );
   const readinessLabels: Record<string, string> = {
     zero: "Not started",
     incomplete: `Below ${APPROVAL_MIN_COMPLETION}%`,
@@ -199,8 +211,16 @@ export default async function RecruiterTalentDirectory({
     ready: `${PUBLIC_VA_MIN_COMPLETION}%+ with photo`,
     vetted_hidden: "Approved, not public"
   };
+  const classificationLabels: Record<string, string> = {
+    classified: "Classified talent",
+    ready_to_classify: "Ready to classify",
+    incomplete_profile: "Incomplete profile",
+  };
   const activeFilters = [
     effective.q ? { key: "q", label: `Search: ${effective.q}` } : null,
+    effective.classification && effective.classification !== "classified"
+      ? { key: "classification", label: classificationLabels[effective.classification] || effective.classification }
+      : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
     effective.readiness ? { key: "readiness", label: readinessLabels[effective.readiness] || effective.readiness } : null,
     effective.photo ? { key: "photo", label: effective.photo === "yes" ? "Has photo" : "Missing photo" } : null,
@@ -218,8 +238,8 @@ export default async function RecruiterTalentDirectory({
     <div className="page-head">
       <div>
         <div className="kicker">Master VA directory</div>
-        <h1>All VA accounts</h1>
-        <p>Recruiter-only view of every VA, regardless of public visibility. Filter the backlog, identify what is missing, and act in bulk.</p>
+        <h1>Talent pool</h1>
+        <p>Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue until there is enough evidence to classify them reliably.</p>
       </div>
       <div className="row wrap">
         <Link className="btn" href="/workspace/recruiter/talent?stage=recruiter_review">Vetting queue</Link>
@@ -247,7 +267,7 @@ export default async function RecruiterTalentDirectory({
     <section className="talent-onboarding-rescue">
       <div className="talent-onboarding-head">
         <div><div className="kicker">New VA onboarding</div><h2>Signup → profile rescue</h2><p>New accounts that are still at 0% belong here in Talent, not in a separate Categories dashboard. Email-verified accounts are prioritized first.</p></div>
-        <Link className="btn btn-sm" href="/workspace/recruiter/talent?readiness=zero">View all 0% profiles</Link>
+        <Link className="btn btn-sm" href="/workspace/recruiter/talent?view=incomplete_profiles">Open incomplete profiles</Link>
       </div>
       <div className="talent-onboarding-stats">
         <div><span>New accounts · 7 days</span><strong>{newAccountsCount}</strong><small>Recent VA signups</small></div>
@@ -340,6 +360,7 @@ export default async function RecruiterTalentDirectory({
               ))}
             </div>
           </fieldset>
+          <label className="filter-field"><span>Classification</span><select name="classification" defaultValue={effective.classification || ""}><option value="">Any classification state</option><option value="classified">Classified talent</option><option value="ready_to_classify">Ready to classify</option><option value="incomplete_profile">Incomplete profile</option></select></label>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
           <label className="filter-field"><span>Availability</span><select name="availability" defaultValue={effective.availability || ""}><option value="">Any</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>
@@ -370,7 +391,7 @@ export default async function RecruiterTalentDirectory({
           <Link className="active-filter-clear" href="/workspace/recruiter/talent?view=all&sort=recent">Clear all</Link>
         </div>
       ) : null}
-      <div className="filter-context-note"><strong>{APPROVAL_MIN_COMPLETION}%</strong> is enough for recruiter approval. A photo is only required for public visibility, together with the remaining public-directory requirements.</div>
+      <div className="filter-context-note"><strong>Classification gate:</strong> a VA needs at least two profile evidence signals, including at least one role signal from headline, summary, skills, or tools. Incomplete profiles stay out of the normal talent pool until that threshold is met and a specialty is assigned.</div>
     </form>
 
     <div className="row-between wrap" style={{ margin: "16px 0" }}>
@@ -451,6 +472,15 @@ export default async function RecruiterTalentDirectory({
                       ? "Public blocked"
                       : "Private";
               const score = row.completion_score || 0;
+              const classificationMissing = Array.isArray(row.classification_missing) ? row.classification_missing : [];
+              const classificationStatus = String(row.classification_status || "incomplete_profile");
+              const classificationMissingLabels: Record<string, string> = {
+                headline: "headline",
+                bio: "summary",
+                skills: "3+ skills",
+                tools: "2+ tools",
+                industries: "industry",
+              };
               const specialties = [...new Set([
                 row.primary_category,
                 ...(Array.isArray(row.categories) ? row.categories : []),
@@ -485,6 +515,9 @@ export default async function RecruiterTalentDirectory({
                   <div className="status-stack">
                     <span className="badge">{vettingStatusLabel(row.stage || "profile")}</span>
                     <span className={`visibility-label visibility-${visibility.toLowerCase().replaceAll(" ", "-")}`}>{visibility}</span>
+                    <span className={`classification-state classification-${classificationStatus}`}>
+                      {classificationStatus === "classified" ? "Classified" : classificationStatus === "ready_to_classify" ? "Ready to classify" : "Incomplete profile"}
+                    </span>
                     {!publicNow && approved ? <span className="public-blocker-copy">{publicMissing.length ? `Needs ${publicMissing.slice(0, 2).join(" · ")}${publicMissing.length > 2 ? ` +${publicMissing.length - 2}` : ""}` : "Eligible once visibility is enabled"}</span> : null}
                   </div>
                 </td>
@@ -493,6 +526,9 @@ export default async function RecruiterTalentDirectory({
                     <div className="readiness-line"><strong>{score}% complete</strong>{score >= APPROVAL_MIN_COMPLETION && !approved ? <span className="approval-ready-label">Approval-ready</span> : null}</div>
                     <div className="progress mini"><span style={{ width: `${score}%` }} /></div>
                     <div className="profile-issues">{missing.length ? `Needs: ${missing.slice(0, 2).join(" · ")}${missing.length > 2 ? ` +${missing.length - 2}` : ""}` : "No profile gaps flagged"}</div>
+                    {classificationStatus === "incomplete_profile" ? <div className="classification-gap-copy">
+                      Classification blocked · add {classificationMissing.slice(0, 3).map((key) => classificationMissingLabels[key] || key).join(" · ")}{classificationMissing.length > 3 ? ` +${classificationMissing.length - 3}` : ""}
+                    </div> : classificationStatus === "ready_to_classify" ? <div className="classification-ready-copy">Enough profile evidence to classify</div> : null}
                   </div>
                 </td>
                 <td data-label="Experience">{row.years_experience ?? 0} yrs<div className="small muted">{row.hourly_rate ? `USD ${Number(row.hourly_rate).toFixed(2)}/hr` : "Rate missing"}</div></td>

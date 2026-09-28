@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FloatingCta } from "@/components/floating-cta";
-import { FooterCta } from "@/components/footer-cta";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
@@ -19,8 +18,6 @@ export function SiteFooter() {
     <>
       <FloatingCta />
       <footer className="footer va-site-footer">
-        <FooterCta />
-
         <div className="container footer-grid">
           <div className="footer-brand-block">
             <Link className="brand" href="/" style={{ gap: 0 }}><span style={{ marginLeft: 9, display: "inline-flex", gap: 0 }}>VirtualAssistant<span className="ph" style={{ marginLeft: 0, paddingLeft: 0 }}>.com.ph</span></span></Link>

@@ -10,6 +10,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
+import { clientReplyNeedsAction, clientReplyStatusLabel, type ClientReplyStateRow } from "@/lib/client-reply-state";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
 import styles from "./crm.module.css";
 
@@ -63,12 +64,12 @@ function stageClass(stage?: string | null) {
   return `${styles.stage} ${styles[`stage_${value}`] || ""}`;
 }
 
-function viewMatch(view: string, lead: LeadRow, userId: string, now: number) {
+function viewMatch(view: string, lead: LeadRow, userId: string, now: number, replyStatus?: string | null) {
   const stage = lead.crm_stage || "new";
   const followDue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(stage));
   const firstResponseDue = !lead.first_contact_at && now - new Date(lead.created_at).getTime() > 30 * 60 * 1000 && stage === "new";
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
-  if (view === "attention") return followDue || firstResponseDue;
+  if (view === "attention") return clientReplyNeedsAction(replyStatus) || followDue || firstResponseDue;
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
   if (view === "won") return stage === "won";
@@ -112,6 +113,16 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const owners = (ownerData || []) as Owner[];
   const ownerMap = new Map(owners.map((item) => [item.id, item.full_name || item.role || "Owner"]));
 
+  const leadIds = allLeads.map((lead) => lead.id);
+  const { data: replyStateData, error: replyStateError } = leadIds.length
+    ? await admin
+        .from("recruiter_client_reply_state")
+        .select("lead_id,owner_id,job_id,name,company,crm_stage,last_client_reply_at,last_recruiter_response_at,last_recruiter_response_action,reply_status")
+        .in("lead_id", leadIds)
+    : { data: [] as ClientReplyStateRow[], error: null };
+  if (replyStateError) throw replyStateError;
+  const replyStateMap = new Map(((replyStateData || []) as ClientReplyStateRow[]).map((row) => [row.lead_id, row]));
+
   const jobIds = [...new Set(allLeads.map((lead) => lead.job_id).filter((id): id is string => Boolean(id)))];
   const { data: jobs, error: jobsError } = jobIds.length
     ? await admin.from("jobs").select("id,title,status,hiring_stage").in("id", jobIds)
@@ -121,7 +132,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
   const now = Date.now();
   const visible = allLeads
-    .filter((lead) => viewMatch(view, lead, userId, now))
+    .filter((lead) => viewMatch(view, lead, userId, now, replyStateMap.get(lead.id)?.reply_status))
     .sort((a, b) => {
       if (view === "attention") {
         const aDue = a.next_follow_up_at ? new Date(a.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
@@ -132,7 +143,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
     });
 
   const active = allLeads.filter((lead) => isOpenLeadStage(lead.crm_stage || "new"));
-  const needsAction = allLeads.filter((lead) => viewMatch("attention", lead, userId, now));
+  const needsAction = allLeads.filter((lead) => viewMatch("attention", lead, userId, now, replyStateMap.get(lead.id)?.reply_status));
   const discovery = allLeads.filter((lead) => lead.crm_stage === "discovery_booked");
   const qualified = allLeads.filter((lead) => ["qualified", "terms_sent", "shortlist_sent"].includes(String(lead.crm_stage || "")));
 
@@ -189,7 +200,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
           {SYSTEM_VIEWS.map(([value, label]) => (
             <Link key={value} className={view === value ? styles.viewActive : undefined} href={buildHref({ view: value })}>
               <span>{label}</span>
-              <small>{allLeads.filter((lead) => viewMatch(value, lead, userId, now)).length}</small>
+              <small>{allLeads.filter((lead) => viewMatch(value, lead, userId, now, replyStateMap.get(lead.id)?.reply_status)).length}</small>
             </Link>
           ))}
         </nav>
@@ -230,12 +241,19 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                 {visible.map((lead) => {
                   const job = lead.job_id ? jobMap.get(lead.job_id) : null;
                   const overdue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(lead.crm_stage || "new"));
+                  const replyState = replyStateMap.get(lead.id);
+                  const replyStatus = String(replyState?.reply_status || "not_contacted");
                   return <tr key={lead.id}>
                     <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                     <td><span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span></td>
                     <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
                     <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                    <td className={overdue ? styles.overdue : undefined}>{shortDate(lead.next_follow_up_at)}</td>
+                    <td className={overdue ? styles.overdue : undefined}>
+                      <span className={replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
+                        {clientReplyStatusLabel(replyStatus)}
+                      </span>
+                      <small className={styles.nextStepDate}>{replyStatus === "needs_action" && replyState?.last_client_reply_at ? `Replied ${shortDate(replyState.last_client_reply_at)}` : shortDate(lead.next_follow_up_at)}</small>
+                    </td>
                   </tr>;
                 })}
               </tbody>

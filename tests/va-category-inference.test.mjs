@@ -51,11 +51,14 @@ test("category inference recognizes explicit multi-role evidence without generic
   assert.match(inference,/slice\(0, 3\)/);
 });
 
-test("recruiter talent category filter checks primary and categories array",async()=>{
+test("recruiter talent category filter supports multiple specialties with any or all semantics",async()=>{
   const filters=await read("src/lib/recruiter-talent-filters.ts");
+  assert.match(filters,/stringValues\(filters\.category\)/);
+  assert.match(filters,/category_match/);
   assert.match(filters,/primary_category\.eq/);
   assert.match(filters,/categories\.cs/);
-  assert.match(filters,/query\.or/);
+  assert.match(filters,/query\.or\(categoryTerms\.join/);
+  assert.match(filters,/query = query\.contains\("categories", categories\)/);
 });
 
 

@@ -4,16 +4,16 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("CRM record has a recruiter action center for email discovery follow-up and stage movement",async()=>{
+test("CRM record keeps only the primary recruiter actions visible by default",async()=>{
   const page=await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
-  assert.match(page,/Action center/);
+  assert.match(page,/Next actions/);
   assert.match(page,/sendClientFollowupAction/);
   assert.match(page,/scheduleDiscoveryAction/);
   assert.match(page,/completeDiscoveryAction/);
   assert.match(page,/cancelRecruiterDiscoveryAction/);
   assert.match(page,/createRecruiterTaskAction/);
   assert.match(page,/Mark contacted/);
-  assert.match(page,/Client review/);
+  assert.match(page,/Advanced CRM fields/);
   assert.match(page,/No generic second acknowledgement/);
 });
 
@@ -27,7 +27,7 @@ test("CRM relationship timeline merges delivery proposal shortlist interview off
     "placement_offers",
     "workrooms",
   ]) assert.match(page,new RegExp(table));
-  assert.match(page,/Relationship timeline/);
+  assert.match(page,/Activity history/);
   assert.match(page,/Client viewed proposal/);
   assert.match(page,/Candidate released to client/);
   assert.match(page,/Interview scheduled/);

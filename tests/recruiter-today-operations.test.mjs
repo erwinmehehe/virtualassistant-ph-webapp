@@ -4,7 +4,7 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("Recruiter My Day surfaces the daily talent and role operations queues", async () => {
+test("Recruiter Today keeps role follow-through visible without duplicating Talent", async () => {
   const page = await read("src/app/workspace/recruiter/today/page.tsx");
 
   assert.match(page, /Talent operations/);
@@ -26,7 +26,7 @@ test("Recruiter My Day keeps client waits out of the generic work queue once pro
   assert.match(page, /sendClientShortlistFollowupAction/);
 });
 
-test("Recruiter My Day daily operations layout collapses cleanly on smaller screens", async () => {
+test("Recruiter Today stays mobile-friendly after removing the duplicate talent panel", async () => {
   const [page, css] = await Promise.all([read("src/app/workspace/recruiter/today/page.tsx"), read("src/app/workspace/recruiter/today/today.module.css")]);
 
   assert.doesNotMatch(page, /priorityStrip/);

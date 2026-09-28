@@ -7,10 +7,10 @@ const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 test("Recruiter My Day exposes one action-first operating queue",async()=>{
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
   assert.match(page,/recruiter-next-action/);
-  assert.match(page,/Today’s work queue/);
-  assert.match(page,/Talent operations/);
+  assert.match(page,/Needs action/);
+  assert.doesNotMatch(page,/Talent operations/);
   assert.match(page,/Discovery no-shows/);
-  assert.match(page,/Role follow-through/);
+  assert.match(page,/Follow-through/);
   assert.match(page,/no_show_preview/);
   assert.match(page,/stale_roles_preview/);
   assert.doesNotMatch(page,/Four places to look|priorityStrip/);
@@ -46,7 +46,7 @@ test("Today dashboards retain action-first mobile responsive styles",async()=>{
   ]);
   assert.doesNotMatch(recruiterCss,/workstreamGrid|priorityStrip/);
   assert.match(recruiterCss,/nextAction/);
-  assert.match(recruiterCss,/operationsGrid/);
+  assert.doesNotMatch(recruiterCss,/operationsGrid/);
   assert.match(ownerCss,/snapshotGrid/);
   assert.match(ownerCss,/pipelineGrid/);
   assert.match(ownerCss,/@media \(max-width: 760px\)/);

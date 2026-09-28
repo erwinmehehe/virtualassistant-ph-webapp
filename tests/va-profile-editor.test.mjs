@@ -139,6 +139,6 @@ test("VA address is private, required, and can be suggested from a resume", asyn
   assert.match(parser, /address: extractAddress\(text\)/);
   assert.match(autofill, /setFormValue\(form, "address", fields\.address\)/);
   assert.match(migration, /add column if not exists address text/);
-  assert.doesNotMatch(migration, /public_va_directory.*address/s);
+  assert.doesNotMatch(migration, /create or replace view public\.public_va_directory/);
   assert.match(recruiterPage, /Private address/);
 });

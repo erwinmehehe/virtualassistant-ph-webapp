@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getClientLastLogin } from "@/lib/client-auth-activity";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
 import { dateInputValue as dateInput, dateTimeInputValue as dateTimeInput } from "@/lib/format";
 import {

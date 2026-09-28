@@ -10,11 +10,14 @@ type VaCategoryRepairRow = {
   user_id: string;
   headline: string | null;
   bio: string | null;
+  primary_category: string | null;
   categories: string[] | null;
   skills: string[] | null;
   tools: string[] | null;
   industries: string[] | null;
 };
+
+const listKey = (value: string[] | null | undefined) => [...(value || [])].map(String).sort().join("\u0000");
 
 export async function autoCategorizeUncategorizedVasAction() {
   await requireRole("recruiter");
@@ -22,8 +25,7 @@ export async function autoCategorizeUncategorizedVasAction() {
 
   const { data, error } = await admin
     .from("va_profiles")
-    .select("user_id,headline,bio,categories,skills,tools,industries")
-    .is("primary_category", null)
+    .select("user_id,headline,bio,primary_category,categories,skills,tools,industries")
     .limit(2000);
   if (error) throw error;
 
@@ -44,12 +46,6 @@ export async function autoCategorizeUncategorizedVasAction() {
   let skipped = 0;
 
   for (const row of rows) {
-    const stage = stageByVa.get(row.user_id) || "";
-    if (["approved", "bench"].includes(stage)) {
-      skipped += 1;
-      continue;
-    }
-
     const inferred = inferCategories(
       row.headline,
       row.bio,
@@ -58,32 +54,38 @@ export async function autoCategorizeUncategorizedVasAction() {
       ...(row.tools || []),
       ...(row.industries || [])
     );
-    if (!inferred.length) {
+    const stage = stageByVa.get(row.user_id) || "";
+    const primaryLocked = ["approved", "bench"].includes(stage);
+    const resolvedPrimaryCategory = primaryLocked
+      ? row.primary_category
+      : row.primary_category || inferred[0] || null;
+    const resolvedCategories = [...new Set([
+      ...(resolvedPrimaryCategory ? [resolvedPrimaryCategory] : []),
+      ...(row.categories || []),
+      ...inferred
+    ])].slice(0, 3);
+
+    if (!resolvedPrimaryCategory && !resolvedCategories.length) {
+      skipped += 1;
+      continue;
+    }
+    if (
+      row.primary_category === resolvedPrimaryCategory
+      && listKey(row.categories) === listKey(resolvedCategories)
+    ) {
       skipped += 1;
       continue;
     }
 
-    const additional = [...new Set([
-      ...(row.categories || []),
-      ...inferred.slice(1)
-    ])]
-      .filter((category) => category !== inferred[0])
-      .slice(0, 3);
-
-    const { data: updated, error: updateError } = await admin
+    const { error: updateError } = await admin
       .from("va_profiles")
       .update({
-        primary_category: inferred[0],
-        categories: additional
+        primary_category: resolvedPrimaryCategory,
+        categories: resolvedCategories
       })
-      .eq("user_id", row.user_id)
-      .is("primary_category", null)
-      .select("user_id")
-      .maybeSingle();
-
+      .eq("user_id", row.user_id);
     if (updateError) throw updateError;
-    if (updated) categorized += 1;
-    else skipped += 1;
+    categorized += 1;
   }
 
   revalidatePath("/workspace/recruiter/roles");

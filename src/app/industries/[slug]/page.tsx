@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ArrowRight, CheckCircle2, ClipboardList, Clock3, KeyRound, MessageSquareText, Search, Split, TriangleAlert, Wrench } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
 import { Band, CheckList, CtaBand, FaqBlock, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
@@ -78,7 +77,6 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const titleParts = [page.h1, "", ""];
   const first30Days = localizeContent(industryFirst30Days(page), page.locale);
   const metrics = localizeContent(industryMetrics(page), page.locale);
-  const matchExample = loc(`We need help with ${page.workflows.slice(0, 3).join(", ")} for about 20 hours per week. Our team uses ${page.tools.slice(0, 2).join(" and ")}.`);
   const interviewScenarios = localizeContent([
     `Walk me through how you would handle ${page.workflows[0]} from intake to completion. What would you document and when would you escalate?`,
     `If ${page.workflows[1] || page.workflows[0]} and ${page.workflows[2] || page.workflows[0]} both became urgent, how would you prioritize the work and communicate the tradeoff?`,
@@ -117,9 +115,8 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       lede={loc(industryHeroIntro(page))}
       tasks={page.workflows.slice(0, 6).map(titleCase)}
       tools={page.tools}
-      primary={{ href: talentHref, label: "Browse Virtual Assistants" }}
-      secondary={{ href: "#industry-workflows", label: "See common workflows" }}
-      form={<HiringBriefForm variant="industry" slug={page.slug} industryLabel={page.label} example={matchExample} talentHref={talentHref} sourcePath={`/industries/${page.slug}`} />}
+      primary={{ href: hireHref, label: "Start hiring" }}
+      secondary={{ href: talentHref, label: "Browse Virtual Assistants" }}
     />
 
     <div className="hs-root sp-root">
@@ -239,7 +236,6 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
           { title: "Use real scenarios", copy: "Ask how the candidate would handle the same exceptions and handoffs they will face after hiring." },
           { title: "Confirm onboarding", copy: "Agree on rate, start date, responsibilities, access, reporting, and escalation before work starts." }
         ]}/>
-        <div className="sp-center"><a className="hs-btn hs-btn-primary" href="#hiring-brief">Start with a quick brief <ArrowRight size={16}/></a></div>
       </Band>
 
       <Band tone={spokes.length ? "soft" : "white"}>
@@ -249,8 +245,8 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       <CtaBand
         title={`Build Virtual Assistant support around the workflows that matter to ${page.audience}.`}
         body={`Tell us how your team handles ${page.workflows.slice(0, 3).join(", ")}, which tools matter, the hours you need covered, and what must stay internal. Our recruiters use that brief to find approved Virtual Assistants whose experience fits the workflow.`}
-        primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
-        secondary={{ href: hireHref, label: "Get a managed Virtual Assistant" }}
+        primary={{ href: hireHref, label: "Start hiring", track: `industry_${page.slug.replaceAll("-", "_")}_final_cta` }}
+        secondary={{ href: talentHref, label: "Browse Virtual Assistants" }}
       />
     </div>
   </main><SiteFooter/></>;

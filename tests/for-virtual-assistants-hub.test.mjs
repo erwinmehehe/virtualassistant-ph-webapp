@@ -9,7 +9,10 @@ async function source(path) {
 test("VA hub leads with profile registration while keeping training and jobs available", async () => {
   const page = await source("src/app/for-virtual-assistants/page.tsx");
   assert.match(page, /Build a VA profile recruiters can understand in minutes\./);
-  assert.match(page, /Create free VA profile/);\n  assert.match(page, /Free to join/);\n  assert.match(page, /No worker placement fee/);\n  assert.match(page, /href="\/training"/);
+  assert.match(page, /Create free VA profile/);
+  assert.match(page, /Free to join/);
+  assert.match(page, /No worker placement fee/);
+  assert.match(page, /href="\/training"/);
   assert.match(page, /href="\/jobs"/);
   assert.match(page, /href="\/auth\/join\/va"/);
   assert.match(page, /getPublicTrainingOverview/);

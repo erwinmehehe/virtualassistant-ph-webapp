@@ -6,10 +6,10 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("VA profile save stores the primary plus inferred specialties in categories",async()=>{
   const profile=await read("src/app/actions/profile.ts");
-  assert.match(profile,/inferCategories/);
+  assert.match(profile,/inferCategoriesFromProfile/);
   assert.match(profile,/selectedPrimaryCategory/);
   assert.match(profile,/inferredCategories/);
-  assert.match(profile,/selectedPrimaryCategory \|\| inferredCategories\[0\] \|\| null/);
+  assert.match(profile,/selectedPrimaryCategory \|\| inferredPrimaryCategory \|\| inferredCategories\[0\] \|\| null/);
   assert.match(profile,/resolvedPrimaryCategory \? \[resolvedPrimaryCategory\] : \[\]/);
   assert.match(profile,/\.\.\.inferredCategories/);
   assert.match(profile,/primary_category: resolvedPrimaryCategory/);
@@ -25,7 +25,7 @@ test("recruiter category refresh enriches multi-category profiles while preservi
   assert.match(action,/autoCategorizeUncategorizedVasAction/);
   assert.doesNotMatch(action,/\.is\("primary_category", null\)/);
   assert.match(action,/select\("user_id,headline,bio,primary_category,categories,skills,tools,industries"\)/);
-  assert.match(action,/inferCategories/);
+  assert.match(action,/inferCategoriesFromProfile/);
   assert.match(action,/primaryLocked/);
   assert.match(action,/primaryLocked = \["approved", "bench"\]\.includes\(stage\) && Boolean\(row\.primary_category\)/);
   assert.match(action,/approved/);
@@ -38,17 +38,25 @@ test("recruiter category refresh enriches multi-category profiles while preservi
   assert.match(legacy,/redirect\("\/workspace\/recruiter\/roles#talent-coverage"\)/);
 });
 
-test("category inference recognizes explicit multi-role evidence without generic support/content words",async()=>{
+test("category inference weights strong profile evidence and avoids generic words",async()=>{
   const inference=await read("src/lib/category-inference.ts");
-  assert.doesNotMatch(inference,/\["Customer Service", \[[^\]]*"support"[,]?\]/);
-  assert.doesNotMatch(inference,/\["Marketing & Social Media", \[[^\]]*"content"[,]?\]/);
-  assert.doesNotMatch(inference,/\["Web & WordPress", \[[^\]]*"website"[,]?\]/);
-  assert.match(inference,/\["Administrative Support", \[[^\]]*"admin"/);
-  assert.match(inference,/\["SEO", \[[^\]]*"seo"/);
-  assert.match(inference,/\["Real Estate", \[[^\]]*"real estate"/);
-  assert.match(inference,/score: terms\.reduce/);
-  assert.match(inference,/sort\(\(a, b\) => b\.score - a\.score/);
-  assert.match(inference,/slice\(0, 3\)/);
+  assert.doesNotMatch(inference,/\["support",\s*\d+\]/);
+  assert.doesNotMatch(inference,/\["content",\s*\d+\]/);
+  assert.doesNotMatch(inference,/\["website",\s*\d+\]/);
+  assert.match(inference,/category: "Administrative Support"[\s\S]*\["admin", 4\]/);
+  assert.match(inference,/category: "SEO"[\s\S]*\["seo", 4\]/);
+  assert.match(inference,/category: "Real Estate"[\s\S]*\["real estate", 4\]/);
+  assert.match(inference,/headline: 10/);
+  assert.match(inference,/skills: 6/);
+  assert.match(inference,/industries: 5/);
+  assert.match(inference,/tools: 4/);
+  assert.match(inference,/bio: 2/);
+  assert.match(inference,/declaredCategories: 10/);
+  assert.match(inference,/roleScore/);
+  assert.match(inference,/field.name !== "industries"/);
+  assert.match(inference,/inferPrimaryCategoryFromProfile/);
+  assert.match(inference,/MIN_CATEGORY_SCORE = 8/);
+  assert.match(inference,/slice\(0, MAX_CATEGORIES\)/);
 });
 
 test("recruiter talent category filter supports multiple specialties with any or all semantics",async()=>{
@@ -62,16 +70,34 @@ test("recruiter talent category filter supports multiple specialties with any or
 });
 
 
-test("SEO, Admin, and Real Estate can coexist as the three inferred specialties", async () => {
+test("SEO, Admin, and Real Estate can coexist as three weighted specialties", async () => {
   const inference = await read("src/lib/category-inference.ts");
-  const seo = inference.indexOf('["SEO"');
-  const admin = inference.indexOf('["Administrative Support"');
-  const realEstate = inference.indexOf('["Real Estate"');
+  assert.match(inference, /category: "SEO"/);
+  assert.match(inference, /category: "Administrative Support"/);
+  assert.match(inference, /category: "Real Estate"/);
+  assert.match(inference, /MAX_CATEGORIES = 3/);
+  assert.match(inference, /inferCategoryEvidence/);
+  assert.match(inference, /inferCategoriesFromProfile/);
+});
 
-  assert.ok(seo >= 0 && admin >= 0 && realEstate >= 0);
-  assert.ok(seo < admin && admin < realEstate);
-  assert.match(inference, /\["SEO", \[[^\]]*"seo"/);
-  assert.match(inference, /\["Administrative Support", \[[^\]]*"admin"/);
-  assert.match(inference, /\["Real Estate", \[[^\]]*"real estate"/);
-  assert.match(inference, /slice\(0, 3\)/);
+
+test("profile save treats user-selected specialties as declared evidence while bulk refresh uses profile evidence", async () => {
+  const [profile, refresh] = await Promise.all([
+    read("src/app/actions/profile.ts"),
+    read("src/app/actions/va-categories.ts"),
+  ]);
+
+  assert.match(profile, /declaredCategories:/);
+  assert.match(profile, /selectedPrimaryCategory/);
+  assert.match(profile, /\.\.\.selectedCategories/);
+  assert.match(refresh, /headline: row\.headline/);
+  assert.match(refresh, /bio: row\.bio/);
+  assert.match(refresh, /skills: row\.skills/);
+  assert.match(refresh, /tools: row\.tools/);
+  assert.match(refresh, /industries: row\.industries/);
+  assert.doesNotMatch(refresh, /declaredCategories: row\.categories/);
+  assert.match(refresh, /primaryLocked/);
+  assert.match(refresh, /va_categories_recruiter_override/);
+  assert.match(refresh, /recruiterOverrideIds/);
+  assert.match(refresh, /inferredPrimary \|\| row\.primary_category \|\| inferred\[0\]/);
 });

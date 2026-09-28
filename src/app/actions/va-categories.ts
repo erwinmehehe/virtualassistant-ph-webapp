@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { inferCategories } from "@/lib/category-inference";
+import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
 
 type VaCategoryRepairRow = {
   user_id: string;
@@ -35,35 +35,50 @@ export async function autoCategorizeUncategorizedVasAction() {
   }
 
   const ids = rows.map((row) => row.user_id);
-  const { data: vettingRows, error: vettingError } = await admin
-    .from("va_vetting")
-    .select("va_id,stage")
-    .in("va_id", ids);
+  const [
+    { data: vettingRows, error: vettingError },
+    { data: overrideRows, error: overrideError },
+  ] = await Promise.all([
+    admin.from("va_vetting").select("va_id,stage").in("va_id", ids),
+    admin
+      .from("recruiter_activity")
+      .select("subject_id")
+      .eq("subject_type", "va")
+      .eq("action", "va_categories_recruiter_override")
+      .in("subject_id", ids),
+  ]);
   if (vettingError) throw vettingError;
+  if (overrideError) throw overrideError;
 
   const stageByVa = new Map((vettingRows || []).map((row) => [String(row.va_id), String(row.stage || "")]));
+  const recruiterOverrideIds = new Set((overrideRows || []).map((row) => String(row.subject_id)));
   let categorized = 0;
   let skipped = 0;
 
   for (const row of rows) {
-    const inferred = inferCategories(
-      row.headline,
-      row.bio,
-      ...(row.categories || []),
-      ...(row.skills || []),
-      ...(row.tools || []),
-      ...(row.industries || [])
-    );
+    if (recruiterOverrideIds.has(row.user_id)) {
+      skipped += 1;
+      continue;
+    }
+
+    const inferenceInput = {
+      headline: row.headline,
+      bio: row.bio,
+      skills: row.skills,
+      tools: row.tools,
+      industries: row.industries,
+    };
+    const inferred = inferCategoriesFromProfile(inferenceInput);
+    const inferredPrimary = inferPrimaryCategoryFromProfile(inferenceInput);
     const stage = stageByVa.get(row.user_id) || "";
-    // Never rewrite a vetted specialty, but repair legacy approved profiles
-    // that reached approval before primary_category became required.
+    // Recruiter-approved primaries are durable. Everyone else can be corrected
+    // by stronger profile evidence during a full classification refresh.
     const primaryLocked = ["approved", "bench"].includes(stage) && Boolean(row.primary_category);
     const resolvedPrimaryCategory = primaryLocked
       ? row.primary_category
-      : row.primary_category || inferred[0] || null;
+      : inferredPrimary || row.primary_category || inferred[0] || null;
     const resolvedCategories = [...new Set([
       ...(resolvedPrimaryCategory ? [resolvedPrimaryCategory] : []),
-      ...(row.categories || []),
       ...inferred
     ])].slice(0, 3);
 

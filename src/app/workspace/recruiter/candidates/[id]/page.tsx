@@ -4,7 +4,7 @@ import { CheckCircle2, FileText, Globe2, Mail, ShieldCheck, Sparkles } from "luc
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { submitScorecardAction } from "@/app/actions/vetting";
-import { addRecruiterNoteAction, assignVaToRoleAction, markVaReviewEvidenceAction } from "@/app/actions/recruiter";
+import { addRecruiterNoteAction, assignVaToRoleAction, markVaReviewEvidenceAction, updateVaCategoriesAction } from "@/app/actions/recruiter";
 import { getVaCompletion } from "@/lib/profile-completeness";
 import { dateShort } from "@/lib/format";
 import { vettingStatusLabel } from "@/lib/vetting";
@@ -15,6 +15,7 @@ import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
 import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
 import { TrainingCredentials } from "@/components/training-credentials";
 import { recordProductEvent } from "@/lib/product-events";
+import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 
 const Rating=({name,label}:{name:string;label:string})=><div className="field"><label>{label}</label><select name={name} defaultValue="3" required><option value="1">1 - weak</option><option value="2">2 - below standard</option><option value="3">3 - meets standard</option><option value="4">4 - strong</option><option value="5">5 - excellent</option></select></div>;
 
@@ -49,7 +50,7 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
   const publicState=publicLive?"Public now":!approved?"Awaiting approval":!consentActive?"Consent required":!candidateVa.directory_visible?"Visibility off":publicMissing.length?"Blocked":"Eligible";
   const consentDate=candidateVa.public_profile_consent_at?dateShort(candidateVa.public_profile_consent_at):null;
   return <div className="recruiter-candidate-page">
-    {query.assigned?<div className="success-banner">VA assigned to the selected role.</div>:null}{query.note_saved?<div className="success-banner">Private recruiter note saved.</div>:null}
+    {query.assigned?<div className="success-banner">VA assigned to the selected role.</div>:null}{query.note_saved?<div className="success-banner">Private recruiter note saved.</div>:null}{query.categories_saved?<div className="success-banner">VA specialties updated.</div>:null}
     <div className="internal-view-banner"><ShieldCheck size={18}/><div><strong>Internal Recruiter View</strong><span>Full identity, account email, resume, notes, and operational history are private and never shown on the public VA profile.</span></div></div>
     <section className="candidate-overview-card">
       <div className="candidate-overview-main">
@@ -83,7 +84,16 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
     </div>
     <div className="profile-layout recruiter-candidate-layout"><div className="stack recruiter-candidate-main">
       <section className="card"><div className="row-between wrap"><div><h3 style={{margin:0}}>Profile readiness</h3><p className="small muted">Exactly what is missing before this profile is recruiter-ready.</p></div><strong className="score-big">{completionData.score}%</strong></div><div className="progress" style={{margin:"12px 0"}}><span style={{width:`${completionData.score}%`}}/></div>{missing.length?<div className="pill-list">{missing.map(item=><span className="badge badge-warning" key={item}>{item}</span>)}</div>:<div className="success-banner"><CheckCircle2 size={16}/> All profile readiness items are complete.</div>}</section>
-      <section className="card"><div className="row-between wrap"><div><h3 style={{margin:0}}>Structured profile</h3><p className="small muted">Recruiter hiring evidence and working preferences.</p></div><form action={markVaReviewEvidenceAction}><input type="hidden" name="va_id" value={id}/><input type="hidden" name="kind" value="profile"/><input type="hidden" name="return_to" value={`/workspace/recruiter/candidates/${id}`}/><button className="btn btn-sm" type="submit">{vetting?.profile_reviewed_at?"Reviewed ✓":"Mark profile reviewed"}</button></form></div><p>{candidateVa.bio||"No professional summary yet."}</p><div className="score-grid"><div><span>Category</span><strong>{candidateVa.primary_category||"Not set"}</strong></div><div><span>Experience</span><strong>{candidateVa.years_experience??0} years</strong></div><div><span>Availability</span><strong>{candidateVa.weekly_hours?`${candidateVa.weekly_hours} hrs/week`:"Not set"}</strong></div><div><span>Rate</span><strong>{candidateVa.hourly_rate?`USD ${candidateVa.hourly_rate}/hr`:"Not set"}</strong></div><div><span>Timezone</span><strong>{candidateVa.preferred_timezone||candidateVa.schedule||"Not set"}</strong></div><div><span>Last active</span><strong>{profile.last_active_at?dateShort(profile.last_active_at):dateShort(profile.created_at)}</strong></div></div><div style={{marginTop:16}}><div className="small muted">Skills</div><div className="pill-list" style={{marginTop:7}}>{uniqueStrings(candidateVa.skills).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div><div style={{marginTop:16}}><div className="small muted">Tools</div><div className="pill-list" style={{marginTop:7}}>{uniqueStrings(candidateVa.tools).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div></section>
+      <section className="card"><div className="row-between wrap"><div><h3 style={{margin:0}}>Structured profile</h3><p className="small muted">Recruiter hiring evidence and working preferences.</p></div><form action={markVaReviewEvidenceAction}><input type="hidden" name="va_id" value={id}/><input type="hidden" name="kind" value="profile"/><input type="hidden" name="return_to" value={`/workspace/recruiter/candidates/${id}`}/><button className="btn btn-sm" type="submit">{vetting?.profile_reviewed_at?"Reviewed ✓":"Mark profile reviewed"}</button></form></div><p>{candidateVa.bio||"No professional summary yet."}</p><div className="score-grid"><div><span>Primary category</span><strong>{candidateVa.primary_category?vaCategoryLabel(candidateVa.primary_category):"Not set"}</strong></div><div><span>Experience</span><strong>{candidateVa.years_experience??0} years</strong></div><div><span>Availability</span><strong>{candidateVa.weekly_hours?`${candidateVa.weekly_hours} hrs/week`:"Not set"}</strong></div><div><span>Rate</span><strong>{candidateVa.hourly_rate?`USD ${candidateVa.hourly_rate}/hr`:"Not set"}</strong></div><div><span>Timezone</span><strong>{candidateVa.preferred_timezone||candidateVa.schedule||"Not set"}</strong></div><div><span>Last active</span><strong>{profile.last_active_at?dateShort(profile.last_active_at):dateShort(profile.created_at)}</strong></div></div><div style={{marginTop:16}}><div className="small muted">Skills</div><div className="pill-list" style={{marginTop:7}}>{uniqueStrings(candidateVa.skills).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div><div style={{marginTop:16}}><div className="small muted">Tools</div><div className="pill-list" style={{marginTop:7}}>{uniqueStrings(candidateVa.tools).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
+      <div style={{marginTop:16}}><div className="small muted">Specialties</div><div className="pill-list" style={{marginTop:7}}>{uniqueStrings(candidateVa.categories).map((x,index)=><span className="badge" key={`category-${String(x)}-${index}`}>{vaCategoryLabel(String(x))}</span>)}</div></div>
+      <form action={updateVaCategoriesAction} className="stack" style={{marginTop:18}}>
+        <input type="hidden" name="va_id" value={id}/>
+        <input type="hidden" name="return_to" value={`/workspace/recruiter/candidates/${id}`}/>
+        <div className="field"><label>Primary specialty</label><select name="primary_category" defaultValue={candidateVa.primary_category||""}><option value="">No primary specialty</option>{VA_CATEGORIES.map((category)=><option key={category} value={category}>{vaCategoryLabel(category)}</option>)}</select></div>
+        <div><div className="small muted">Categories · choose up to 3</div><div className="pill-list" style={{marginTop:8}}>{VA_CATEGORIES.map((category)=><label className="choice" key={category}><input type="checkbox" name="categories" value={category} defaultChecked={uniqueStrings(candidateVa.categories).includes(category)}/><span>{vaCategoryLabel(category)}</span></label>)}</div></div>
+        <button className="btn btn-sm" type="submit">Save specialties</button>
+      </form>
+      </section>
       <TrainingCredentials
         credentials={trainingCredentials}
         heading="Verified training & certificates"

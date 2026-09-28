@@ -23,7 +23,9 @@ test("CRM record page combines properties relationships activity notes and tasks
   assert.match(page,/recruiter_notes/);
   assert.match(page,/recruiter_tasks/);
   assert.match(page,/Open linked role/);
-  assert.doesNotMatch(page,/sendClientFollowupAction/);
+  assert.match(page,/sendClientFollowupAction/);
+  assert.match(page,/Action center/);
+  assert.match(page,/Relationship timeline/);
 });
 
 test("recruiter navigation exposes CRM as a primary workspace destination",async()=>{

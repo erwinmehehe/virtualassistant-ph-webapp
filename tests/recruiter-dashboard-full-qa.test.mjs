@@ -11,9 +11,9 @@ test("recruiter badge destinations use current role and talent pages while focus
     read("src/app/workspace/recruiter/today/page.tsx"),
   ]);
 
-  assert.match(nav,/\["CRM", "\/workspace\/recruiter\/crm", UsersRound\]/);
-  assert.match(nav,/\["Active roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
-  assert.match(nav,/\["Client review", "\/workspace\/recruiter\/client-review", MessageSquare\]/);
+  assert.match(nav,/\["Hiring pipeline", "\/workspace\/recruiter\/crm", UsersRound\]/);
+  assert.match(nav,/\["Roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
+  assert.doesNotMatch(nav,/\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
   assert.match(badges,/"\/workspace\/recruiter\/talent": Number\(raw\.vetting \|\| 0\)/);
   assert.match(badges,/"\/workspace\/recruiter\/roles": Number\(raw\.pending_roles \|\| 0\)/);

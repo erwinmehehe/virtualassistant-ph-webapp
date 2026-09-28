@@ -121,6 +121,8 @@ function configuredReplyTo() {
   ])[0] || undefined;
 }
 
+const CLIENT_PRE_SHORTLIST_EMAILS_ENABLED = false;
+
 
 type EmailPriority = "critical" | "standard" | "low";
 type EmailEventStatus = "sending" | "sent" | "failed" | "suppressed" | "skipped_quota" | "suppression_unavailable" | "duplicate_prevented";

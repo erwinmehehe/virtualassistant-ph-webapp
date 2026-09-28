@@ -128,11 +128,12 @@ async function mergeBookingIntoRecentClientLead(args: {
   timezone: string;
   startTime: string;
   clientId?: string | null;
+  ownerId?: string | null;
 }) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { data: candidates } = await args.admin
     .from("lead_intake")
-    .select("id,job_id,company")
+    .select("id,job_id,company,owner_id")
     .ilike("email", args.email)
     .eq("lead_type", "client_hiring")
     .not("job_id", "is", null)
@@ -165,6 +166,16 @@ async function mergeBookingIntoRecentClientLead(args: {
   );
   if (mergeError) throw mergeError;
 
+  const handoffOwnerId = related.owner_id || args.ownerId || null;
+  if (handoffOwnerId) {
+    const { error: ownerError } = await args.admin
+      .from("lead_intake")
+      .update({ owner_id: handoffOwnerId })
+      .eq("id", String(mergedLeadId || related.id))
+      .is("owner_id", null);
+    if (ownerError) throw ownerError;
+  }
+
   const rates = rateRangeFromBudget(args.budget);
   const hoursPerWeek = inferHours(args.hours);
   const { error: jobError } = await args.admin.from("jobs").update({
@@ -177,11 +188,65 @@ async function mergeBookingIntoRecentClientLead(args: {
     start_timing: args.startTime,
   }).eq("id", related.job_id);
   if (jobError) throw jobError;
+  if (handoffOwnerId) {
+    const { error: recruiterError } = await args.admin
+      .from("jobs")
+      .update({ recruiter_id: handoffOwnerId })
+      .eq("id", related.job_id)
+      .is("recruiter_id", null);
+    if (recruiterError) throw recruiterError;
+  }
 
   return {
     leadId: String(mergedLeadId || related.id),
     jobId: String(related.job_id),
   };
+}
+
+async function createBookingHandoffRecoveryTask(args: {
+  admin: ReturnType<typeof createAdminClient>;
+  leadId: string;
+  ownerId?: string | null;
+  company: string;
+  service: string;
+  error: string;
+}) {
+  let assigneeId = args.ownerId || null;
+  if (!assigneeId) {
+    const { data: fallbackRecruiter } = await args.admin
+      .from("profiles")
+      .select("id")
+      .eq("role", "recruiter")
+      .eq("account_status", "active")
+      .order("full_name", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    assigneeId = fallbackRecruiter?.id || null;
+  }
+  if (!assigneeId) return;
+
+  const { data: existing } = await args.admin
+    .from("recruiter_tasks")
+    .select("id")
+    .eq("subject_type", "lead")
+    .eq("subject_id", args.leadId)
+    .eq("status", "todo")
+    .ilike("title", "Fix booking role handoff%")
+    .limit(1)
+    .maybeSingle();
+  if (existing?.id) return;
+
+  await args.admin.from("recruiter_tasks").insert({
+    title: `Fix booking role handoff · ${args.company}`,
+    description: `The discovery booking was saved, but its recruiting role could not be created or linked automatically. Role: ${args.service}. Error: ${args.error.slice(0, 500)}`,
+    assignee_id: assigneeId,
+    subject_type: "lead",
+    subject_id: args.leadId,
+    href: `/workspace/recruiter/crm/${args.leadId}`,
+    priority: "urgent",
+    status: "todo",
+    due_at: new Date().toISOString(),
+  });
 }
 
 async function resolveRequestedVaId(admin: ReturnType<typeof createAdminClient>, talent?: string | null) {
@@ -822,6 +887,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     timezone: parsed.data.timezone,
     message: clientDetails,
     source_page: "client_discovery_booking",
+    lead_type: "client_hiring",
     page_url: `${base}/book-client-call`,
     crm_stage: "discovery_booked",
     discovery_scheduled_at: parsed.data.scheduled_at,
@@ -837,7 +903,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       "Booked by a prospective client through the public qualification calendar.",
       meetingError ? `Automatic Google Meet setup failed: ${meetingError}` : null,
     ].filter(Boolean).join("\n"),
-  }).select("id").single();
+  }).select("id,owner_id").single();
 
   if (error || !lead?.id) {
     if (meeting?.eventId) {
@@ -850,7 +916,9 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   }
 
   let leadId = lead.id as string;
+  const bookingOwnerId = (lead.owner_id as string | null) || null;
   let jobId: string | null = null;
+  let handoffIssue: string | null = null;
   try {
     const clientId = await currentClientId();
     const merged = await mergeBookingIntoRecentClientLead({
@@ -864,6 +932,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       timezone: parsed.data.timezone,
       startTime: parsed.data.start_time,
       clientId,
+      ownerId: bookingOwnerId,
     });
     if (merged) {
       leadId = merged.leadId;
@@ -891,20 +960,45 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
         startTime: parsed.data.start_time,
         message: clientMessage,
         budget: parsed.data.budget,
+        ownerId: bookingOwnerId,
+        recruiterId: bookingOwnerId,
       });
     }
   } catch (jobError) {
+    handoffIssue = jobError instanceof Error ? jobError.message : String(jobError);
     console.error("[booking] Could not create or merge pending job draft", {
       leadId,
-      error: jobError instanceof Error ? jobError.message : String(jobError),
+      error: handoffIssue,
     });
+    try {
+      await createBookingHandoffRecoveryTask({
+        admin,
+        leadId,
+        ownerId: bookingOwnerId,
+        company: parsed.data.company,
+        service: parsed.data.service,
+        error: handoffIssue,
+      });
+    } catch (recoveryError) {
+      console.error("[booking] Could not create recruiter recovery task", {
+        leadId,
+        error: recoveryError instanceof Error ? recoveryError.message : String(recoveryError),
+      });
+    }
   }
 
-  await admin.from("analytics_events").insert({
-    event_name: "booking_completed",
-    path: "/book-client-call",
-    metadata: { lead_id: leadId, job_id: jobId, service: parsed.data.service, audience: "client" },
-  });
+  await admin.from("analytics_events").insert([
+    {
+      event_name: "booking_completed",
+      path: "/book-client-call",
+      metadata: { lead_id: leadId, job_id: jobId, service: parsed.data.service, audience: "client" },
+    },
+    {
+      event_name: jobId ? "booking_handoff_ready" : "booking_handoff_recovery_needed",
+      path: "/book-client-call",
+      metadata: { lead_id: leadId, job_id: jobId, owner_id: bookingOwnerId, service: parsed.data.service },
+    },
+  ]);
 
   const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
   const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
@@ -948,6 +1042,8 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       manilaLabel,
       meetingUrl: meeting?.joinUrl || null,
       manageUrl: bookingManageUrl(manage.token),
+      jobId,
+      handoffIssue,
     });
   } catch {
     // Never lose a confirmed client booking because an internal alert failed.

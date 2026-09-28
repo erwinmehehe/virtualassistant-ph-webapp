@@ -101,8 +101,7 @@ function meetingActionLabel(value: unknown) {
 
 function exactActionHref(item:any) {
   const meta=item?.metadata||{};
-  const email=String(meta.email||"").trim();
-  if(item.kind==="discovery"&&email) return `/workspace/recruiter/leads?view=discovery&q=${encodeURIComponent(email)}`;
+  if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
@@ -280,7 +279,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
     {newHiringRoles.length ? <section id="new-hiring-enquiries" className="card dashboard-section-card" style={{marginTop:18}}>
       <div className="dashboard-section-head">
-        <div><h2>New hiring enquiries</h2><p>These enquiries already have a linked role but no recruiter-built shortlist yet. Claim the role and prepare the strongest internal matches without emailing the client.</p></div>
+        <div><h2>New hiring enquiries</h2><p>Each enquiry should already have one CRM record and one linked recruiting role. Work the handoff in order: review the brief, match VAs, then release the shortlist.</p></div>
         <span className="badge badge-warning">{newHiringRoles.length} waiting</span>
       </div>
       <div className="stack" style={{marginTop:12}}>
@@ -290,9 +289,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               <div className="row wrap"><span className="badge">{job.recruiter_id===userId?"My role":"Unassigned"}</span><span className="small muted">{ageLabel((Date.now()-new Date(job.created_at).getTime())/3600000)} old</span></div>
               <h3 style={{margin:"7px 0 3px"}}>{job.title||"Virtual Assistant role"}</h3>
               <p className="small muted" style={{margin:0}}>{job.company_name||"New client"} · {String(job.hiring_stage||"intake").replaceAll("_"," ")}</p>
+              <div className={styles.handoffSteps} aria-label="Booking to shortlist handoff"><span className={styles.stepDone}>Booked</span><span className={styles.stepCurrent}>Review brief</span><span>Match VAs</span><span>Shortlist</span></div>
             </div>
             <div className="row wrap">
-              <Link className="btn" href={`/workspace/recruiter/roles/${job.id}#overview`}>Open brief</Link>
+              {job.lead_id?<Link className="btn" href={`/workspace/recruiter/crm/${job.lead_id}`}>Review booking</Link>:null}
+              <Link className="btn" href={`/workspace/recruiter/roles/${job.id}#overview`}>Review brief</Link>
               <form action={prepareTopMatchesForReviewAction}>
                 <input type="hidden" name="job_id" value={job.id}/>
                 <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${job.id}`}/>

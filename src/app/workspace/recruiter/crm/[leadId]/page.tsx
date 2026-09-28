@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BriefcaseBusiness,
-  Building2,
   CalendarDays,
   CalendarPlus,
   Check,
@@ -279,6 +278,18 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     shortlist_sent:[{value:"won",label:"Mark won"},{value:"nurture",label:"Move to nurture"}],
     nurture:[{value:"contacted",label:"Reopen as contacted"}],
   };
+  const hasReleasedShortlist = shortlists.some((item) => Boolean(item.released_at) || item.shortlist_status === "released");
+  const hasInterview = interviews.length > 0;
+  const hasOffer = offers.length > 0;
+  const hasHire = workrooms.length > 0 || job?.status === "filled";
+  const workflowSteps = ["Enquiry", "Call", "Role", "Shortlist", "Interview", "Offer", "Hire"] as const;
+  const workflowIndex = hasHire ? 6
+    : hasOffer ? 5
+      : hasInterview ? 4
+        : hasReleasedShortlist ? 3
+          : job ? 2
+            : (lead.discovery_scheduled_at || lead.discovery_completed_at) ? 1
+              : 0;
 
   return (
     <div className={styles.detailPage}>
@@ -298,7 +309,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
       {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}
 
-      <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to CRM</Link>
+      <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to clients</Link>
 
       <header className={styles.detailHeader}>
         <div className={styles.detailIdentity}>
@@ -311,16 +322,20 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
         <div className={styles.headerActions}>
           {job ? <Link className={styles.primaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Hiring pipeline</Link>
+          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Clients</Link>
         </div>
       </header>
+
+      <nav className={styles.workflow} aria-label="Hiring workflow">
+        {workflowSteps.map((label,index)=><span key={label} className={index < workflowIndex ? styles.workflowDone : index === workflowIndex ? styles.workflowCurrent : undefined}><i>{index < workflowIndex ? "✓" : index + 1}</i><em>{label}</em></span>)}
+      </nav>
 
       <section className={styles.actionCenter}>
         <div className={styles.actionCenterHead}>
           <div>
-            <span className={styles.kicker}>Work this relationship</span>
-            <h2>Next actions</h2>
-            <p>Only the actions that move this hiring request forward.</p>
+            <span className={styles.kicker}>Next step</span>
+            <h2>Move this hire forward</h2>
+            <p>Use the client record for the brief and call. Use the linked role for matching, shortlist, interviews, and hire.</p>
           </div>
           <div className={styles.actionStatus}>
             <span className={lead.client_id ? styles.statusGood : styles.statusNeutral}>{lead.client_id ? "Client account active" : "Client account not activated"}</span>
@@ -414,23 +429,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             </div>
           </section>
 
-          {(job || company || contact) ? (
-            <section className={styles.panel}>
-              <div className={styles.panelHead}><h2>Relationships</h2><span className={styles.muted}>Connected CRM objects</span></div>
-              <div className={styles.panelBody}>
-                <div className="stack">
-                  {company ? <Link className={styles.linkedRole} href={`/workspace/recruiter/crm/companies/${company.id}`}>
-                    <span><strong>{company.name}</strong><small>{[company.industry,company.location].filter(Boolean).join(" · ") || "Company record"}</small></span><Building2 size={17}/>
-                  </Link> : null}
-                  {contact ? <div className={styles.linkedRole}><span><strong>{contact.full_name || contact.email || "Contact"}</strong><small>{[contact.title,contact.email,contact.phone].filter(Boolean).join(" · ") || "Contact record"}</small></span><UserRound size={17}/></div> : null}
-                  {job ? <Link className={styles.linkedRole} href={`/workspace/recruiter/roles/${job.id}`}>
-                    <span><strong>{job.title || "Virtual Assistant role"}</strong><small>{job.company_name || lead.company || "Client"} · {String(job.hiring_stage || "intake").replaceAll("_", " ")} · {job.status || "pending"}</small></span><BriefcaseBusiness size={17}/>
-                  </Link> : null}
-                </div>
-              </div>
-            </section>
-          ) : null}
-
           <details className={styles.panelDetails}>
             <summary><span><strong>Activity history</strong><small>{timeline.length} event{timeline.length===1?"":"s"} · newest first</small></span><ArrowRight size={15}/></summary>
             <div className={styles.panelBody}>
@@ -465,8 +463,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <aside className="stack">
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Next step</h2><span className={styles.muted}>Keep it moving</span></div>
+          <details className={styles.panelDetails}>
+            <summary><span><strong>Record settings</strong><small>Owner, CRM stage, follow-up date</small></span><ArrowRight size={15}/></summary>
             <div className={styles.panelBody}>
               <form action={updateLeadCrmAction} className={styles.form}>
                 <input type="hidden" name="lead_id" value={lead.id}/>
@@ -479,7 +477,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <button type="submit">Save next step</button>
               </form>
             </div>
-          </section>
+          </details>
 
           <section className={styles.panel}>
             <div className={styles.panelHead}><h2>Contact</h2><Phone size={15}/></div>
@@ -501,8 +499,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             </div>
           </section>
 
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><h2>Tasks</h2><ListTodo size={15}/></div>
+          <details className={styles.panelDetails}>
+            <summary><span><strong>Tasks</strong><small>{tasks.filter((task)=>task.status!=="done").length} open</small></span><ListTodo size={15}/></summary>
             <div className={styles.panelBody}>
               <div className="stack">
                 {tasks.filter((task) => task.status !== "done").length ? tasks.filter((task) => task.status !== "done").map((task) => (
@@ -532,7 +530,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 </form>
               </details>
             </div>
-          </section>
+          </details>
 
           <details className={styles.panelDetails}>
             <summary><span><strong>Advanced CRM fields</strong><small>Deal value and custom fields</small></span><ArrowRight size={15}/></summary>

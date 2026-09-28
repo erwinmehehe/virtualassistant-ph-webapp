@@ -106,15 +106,20 @@ test("booking page uses the simplified low-friction booking experience", async (
     read("src/components/client-booking-form.tsx"),
     read("src/app/book-client-call/booking.css"),
   ]);
-  assert.match(page,/Book a time\. We’ll handle the rest\./);
+  assert.match(page,/Book a client call/);
   assert.doesNotMatch(page,/booking-call-preview/);
   assert.doesNotMatch(form,/booking-flow-progress/);
   assert.match(form,/Pick a time that works for you/);
   assert.match(form,/booking-calendar-shell/);
   assert.match(form,/booking-selected-slot/);
+  assert.match(form,/booking-timezone-control/);
+  assert.match(form,/activeDay\?\.slots\.map/);
+  assert.doesNotMatch(form,/booking-show-times/);
   assert.match(form,/Confirm 30-minute call/);
   assert.match(form,/No long questionnaire/);
   assert.match(css,/\.booking-card-head/);
   assert.match(css,/\.booking-calendar-shell/);
   assert.match(css,/\.booking-selected-slot/);
+  assert.match(css,/\.booking-timezone-control/);
+  assert.match(css,/background: #fff/);
 });

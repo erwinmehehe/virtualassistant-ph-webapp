@@ -942,12 +942,71 @@ function renderBrandedEmail(args: {
 }) {
   const bodyHtml = stripLeadingBrandedGreeting(args.bodyHtml);
   const cta = args.ctaHref
-    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 30px;"><tr><td style="border-radius:10px;background:#4f46e5;"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:13px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:1;">${escapeHtml(args.ctaLabel || "Continue")}</a></td></tr></table>`
+    ? `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 30px;"><tr><td style="border-radius:12px;background:#444ce7;box-shadow:0 8px 18px rgba(68,76,231,.18);"><a href="${escapeHtml(args.ctaHref)}" style="display:inline-block;padding:14px 22px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;line-height:1.15;letter-spacing:-.1px;">${escapeHtml(args.ctaLabel || "Continue")} &nbsp;→</a></td></tr></table>`
     : "";
   const signature = args.appendSignature === false
     ? ""
-    : `<p style="margin:28px 0 0;color:#344054;font-size:15px;line-height:1.6;">Best,<br><strong>${escapeHtml(args.senderName)}</strong></p>`;
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#101828;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border:1px solid #eaecf0;border-radius:16px;overflow:hidden;"><tr><td style="height:5px;background:#4f46e5;font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:22px 30px;border-bottom:1px solid #f2f4f7;"><div style="font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#101828;">VirtualAssistant<span style="color:#4f46e5;">.com.ph</span></div><div style="margin-top:4px;font-size:12px;color:#667085;">${escapeHtml(args.teamLabel)}</div></td></tr><tr><td style="padding:30px;"><p style="margin:0 0 18px;color:#101828;font-size:16px;line-height:1.7;">Hi ${escapeHtml(args.firstName)},</p>${bodyHtml}${cta}${signature}</td></tr></table><p style="max-width:620px;margin:14px auto 0;color:#98a2b3;font-size:11px;line-height:1.5;text-align:center;">${escapeHtml(args.footerText)}</p></td></tr></table></body></html>`;
+    : `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:30px;"><tr><td style="padding-top:22px;border-top:1px solid #eef0f4;"><p style="margin:0;color:#667085;font-size:13px;line-height:1.5;">Best,</p><p style="margin:3px 0 0;color:#101828;font-size:14px;line-height:1.5;font-weight:800;">${escapeHtml(args.senderName)}</p></td></tr></table>`;
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    @media only screen and (max-width: 640px) {
+      .email-outer { padding: 18px 10px !important; }
+      .email-card { border-radius: 18px !important; }
+      .email-header { padding: 20px 22px !important; }
+      .email-body { padding: 26px 22px 28px !important; }
+      .email-brand { font-size: 19px !important; }
+      .email-team-pill { font-size: 10px !important; padding: 6px 9px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f3f5fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,Helvetica,sans-serif;color:#101828;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f3f5fa;">
+    <tr>
+      <td class="email-outer" align="center" style="padding:40px 14px;">
+        <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #e4e7ec;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(16,24,40,.08);">
+          <tr><td style="height:6px;background:#444ce7;font-size:0;line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td class="email-header" style="padding:24px 34px;border-bottom:1px solid #eef0f4;background:#ffffff;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td valign="middle">
+                    <a href="https://virtualassistant.com.ph" style="display:inline-block;text-decoration:none;color:#101828;">
+                      <span class="email-brand" style="font-size:21px;font-weight:850;letter-spacing:-.55px;color:#101828;">VirtualAssistant<span style="color:#444ce7;">.com.ph</span></span>
+                    </a>
+                  </td>
+                  <td align="right" valign="middle">
+                    <span class="email-team-pill" style="display:inline-block;padding:7px 10px;border:1px solid #dfe3ff;border-radius:999px;background:#f7f7ff;color:#444ce7;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">${escapeHtml(args.teamLabel)}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="email-body" style="padding:34px 34px 36px;">
+              <p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.6;">Hi ${escapeHtml(args.firstName)},</p>
+              ${bodyHtml}
+              ${cta}
+              ${signature}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 34px 20px;border-top:1px solid #eef0f4;background:#fafbfc;">
+              <p style="margin:0;color:#98a2b3;font-size:11px;line-height:1.6;">${escapeHtml(args.footerText)}</p>
+              <p style="margin:8px 0 0;color:#b0b7c3;font-size:10.5px;line-height:1.5;">VirtualAssistant.com.ph · Filipino Virtual Assistant hiring, training, and talent</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 function renderHiringEmail(args: {

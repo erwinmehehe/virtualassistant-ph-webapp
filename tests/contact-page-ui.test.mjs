@@ -6,7 +6,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("contact page routes hiring discovery and VA applications before the support form", async () => {
   const page=await read("src/app/contact/page.tsx");
-  assert.match(page,/How can we help\?/);
+  assert.match(page,/What can we help with\?/);
   assert.match(page,/Hire a Virtual Assistant/);
   assert.match(page,/Book a discovery call/);
   assert.match(page,/Apply as a Virtual Assistant/);

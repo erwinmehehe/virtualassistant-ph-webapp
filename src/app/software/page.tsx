@@ -4,7 +4,6 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { DiscoveryCallCard } from "@/components/hiring-brief-form";
 import { Band, CtaBand, SectionHead } from "@/components/hiring-page-sections";
 import { softwarePages } from "@/lib/software-pages";
 import { canonicalPath } from "@/lib/seo-url";
@@ -36,7 +35,6 @@ export default function SoftwareIndexPage() {
       intro={<p className="public-lede">Looking for a human Virtual Assistant who already knows the software your business uses? Browse platform-specific workflow guides to decide what to delegate, which decisions stay with your team, and what to test in an interview.</p>}
       actions={<><Link className="btn btn-primary btn-lg" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn btn-lg" href="/services">Browse Virtual Assistant services</Link></>}
       trust={<><span><CheckCircle2 size={15}/>Platform-aware matching</span><span><CheckCircle2 size={15}/>Private role brief</span><span><CheckCircle2 size={15}/>No account required</span></>}
-      form={<DiscoveryCallCard />}
     />
 
     <div className="hs-root sp-root">

@@ -396,3 +396,71 @@
     grid-column:auto;
   }
 }
+
+
+/* Compact saved views and selection-driven bulk actions */
+.saved-view-more {
+  margin-top:2px;
+}
+.saved-view-more > summary {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  width:fit-content;
+  color:#667085;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  list-style:none;
+}
+.saved-view-more > summary::-webkit-details-marker { display:none; }
+.saved-view-more > summary svg { transition:transform .15s ease; }
+.saved-view-more[open] > summary svg { transform:rotate(180deg); }
+.saved-view-list-secondary {
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid #eaecf0;
+}
+
+.talent-selection-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:2px 0 10px;
+}
+.talent-selection-control {
+  flex-wrap:wrap;
+}
+.bulk-action-controls {
+  display:none;
+  grid-template-columns:minmax(210px,.8fr) minmax(260px,1fr) auto;
+  animation:talentBulkReveal .12s ease-out;
+}
+#recruiter-talent-bulk-form[data-selection-active="true"] .bulk-action-controls {
+  display:grid;
+}
+@keyframes talentBulkReveal {
+  from { opacity:0; transform:translateY(-3px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .bulk-action-controls {
+    grid-template-columns:1fr 1fr;
+  }
+  .bulk-action-controls .btn {
+    grid-column:1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  .saved-view-more > summary {
+    min-height:34px;
+  }
+  .bulk-action-controls {
+    grid-template-columns:1fr;
+  }
+  .bulk-action-controls .btn {
+    grid-column:auto;
+  }
+}

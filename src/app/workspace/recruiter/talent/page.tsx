@@ -320,8 +320,9 @@ export default async function RecruiterTalentDirectory({
         <summary><SlidersHorizontal size={15} /><span>More filters</span><ChevronDown size={15} className="filter-more-chevron" /></summary>
         <div className="filter-more-grid">
           <fieldset className="talent-category-filter">
+            <legend>Specialties</legend>
             <div className="talent-category-filter-head">
-              <div><legend>Specialties</legend><small>Select multiple specialties to find hybrid VAs.</small></div>
+              <small>Select multiple specialties to find hybrid VAs.</small>
               <label className="category-match-mode">
                 <span>Match</span>
                 <select name="category_match" defaultValue={categoryMatch}>

@@ -56,6 +56,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     q: filterValue(formData, "filter_q"),
     category: filterValues(formData, "filter_category"),
     category_match: filterValue(formData, "filter_category_match"),
+    classification: filterValue(formData, "filter_classification"),
     stage: filterValue(formData, "filter_stage"),
     readiness: filterValue(formData, "filter_readiness"),
     photo: filterValue(formData, "filter_photo"),

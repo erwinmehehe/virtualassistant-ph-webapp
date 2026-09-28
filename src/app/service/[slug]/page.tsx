@@ -22,6 +22,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
+import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
 import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { SERVICE_PAGES, serviceMetaDescription, serviceMetaTitle, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
@@ -574,7 +575,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const editorial = localizeContent(serviceEditorial(s), s.locale);
   const priorityModule = localizeContent(priorityServiceModule(s.slug), s.locale);
   const talentHref = `/find-talent?category=${encodeURIComponent(s.directoryCategory)}&q=${encodeURIComponent(roleName(s.name))}`;
-  const hireHref = `/hire?category=${encodeURIComponent(s.directoryCategory)}&source=${encodeURIComponent(`/service/${s.slug}`)}`;
+  const matchExample = localizeEnglish(`Handle ${s.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, exceptions, and next steps.`, s.locale);
 
   const interviewQuestions = localizeContent([
     { q: `Walk me through how you would handle ${s.tasks[0]} from intake to completion.`, a: "A concrete process, the information they need first, quality checks, documentation, and when they would ask for clarification." },
@@ -639,8 +640,16 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         tools={s.tools}
         talent={talent}
         talentLabel={`Approved ${roleName(s.name)} VAs you can interview`}
-        primary={{ href: hireHref, label: `Start hiring a ${roleName(s.name)} VA`, track: `service_${s.slug.replaceAll("-", "_")}_hire` }}
-        secondary={{ href: talentHref, label: `Browse ${roleName(s.name)} VAs` }}
+        primary={{ href: "#talent", label: `Browse ${roleName(s.name)} VAs`, track: `service_${s.slug.replaceAll("-", "_")}_browse` }}
+        secondary={{ href: "#responsibilities", label: "See what you can delegate" }}
+        form={<HiringBriefForm
+          variant="service"
+          slug={s.slug}
+          category={s.directoryCategory}
+          roleLabel={roleName(s.name)}
+          example={matchExample}
+          talentHref={talentHref}
+        />}
       />
 
       <div className="hs-root sp-root">
@@ -669,8 +678,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
                 </div>
               </article>)}
             </div>
-            <p className="sp-note">Want us to narrow the list for you? <a className="hs-link" href={hireHref}>Send a quick brief <ArrowRight size={14}/></a></p>
-          </> : <div className="sp-empty"><Search size={24} aria-hidden="true"/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Send the workload, hours, and workflow context so we can identify relevant approved talent.</p></div><a className="hs-btn hs-btn-primary" href={hireHref}>Send a quick brief <ArrowRight size={16}/></a></div>}
+            <p className="sp-note">Want us to narrow the list for you? <a className="hs-link" href="#hiring-brief">Send a quick brief <ArrowRight size={14}/></a></p>
+          </> : <div className="sp-empty"><Search size={24} aria-hidden="true"/><div><h3>Tell us the exact version of this role you need.</h3><p>Availability changes. Send the workload, hours, and workflow context so we can identify relevant approved talent.</p></div><a className="hs-btn hs-btn-primary" href="#hiring-brief">Send a quick brief <ArrowRight size={16}/></a></div>}
         </Band>
 
         <JumpNav links={[
@@ -691,6 +700,10 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
               <p>{group.intro}</p>
               <CheckList items={group.tasks.map(toTitle)}/>
             </article>)}
+          </div>
+          <div className="sp-inline-cta">
+            <div><strong>Not sure what to delegate? Start with the work that repeats every week.</strong><p>List the recurring tasks, bottlenecks, tools, response times, and approvals. That is usually enough to define the first version of the role.</p></div>
+            <a className="hs-btn hs-btn-primary" href="#hiring-brief">Send a quick brief <ArrowRight size={16}/></a>
           </div>
         </Band>
 
@@ -800,6 +813,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
             { title: "Interview with real scenarios", copy: "Use examples from your workflow to understand process, quality checks, judgment, and limits." },
             { title: "Confirm the hire", copy: "Agree on final rate, start date, hours, responsibilities, reporting, and onboarding before work begins." }
           ]}/>
+          <div className="sp-center"><a className="hs-btn hs-btn-primary" href="#hiring-brief">Start with a quick brief <ArrowRight size={16}/></a></div>
         </Band>
 
         <Band tone="soft">
@@ -881,7 +895,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         <CtaBand
           title={copy.finalTitle}
           body={copy.finalBody}
-          primary={{ href: hireHref, label: "Start hiring", track: `service_${s.slug.replaceAll("-", "_")}_final_cta` }}
+          primary={{ href: "#hiring-brief", label: "Send a quick brief", track: `service_${s.slug.replaceAll("-", "_")}_final_cta` }}
           secondary={{ href: "/pricing", label: "See how pricing works" }}
         />
       </div>

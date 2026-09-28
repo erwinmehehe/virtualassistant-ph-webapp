@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
+import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
@@ -144,8 +145,13 @@ export async function updateVaProfileAction(formData: FormData) {
       ...selectedCategories,
     ],
   };
-  const inferredCategories = inferCategoriesFromProfile(inferenceInput);
-  const inferredPrimaryCategory = inferPrimaryCategoryFromProfile(inferenceInput);
+  const classificationReadiness = getClassificationEvidenceReadiness(inferenceInput);
+  const inferredCategories = classificationReadiness.ready
+    ? inferCategoriesFromProfile(inferenceInput)
+    : [];
+  const inferredPrimaryCategory = classificationReadiness.ready
+    ? inferPrimaryCategoryFromProfile(inferenceInput)
+    : null;
 
   // Validate every file before writing profile fields. A rejected resume/photo
   // must not leave the user with a "save failed" message after other edits

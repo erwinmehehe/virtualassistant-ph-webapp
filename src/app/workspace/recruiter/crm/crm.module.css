@@ -1510,3 +1510,102 @@
     display: none;
   }
 }
+
+
+/* Simplified CRM record */
+.detailPage .actionGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.panelDetails {
+  overflow: hidden;
+  border: 1px solid var(--crm-line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.panelDetails > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 13px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.panelDetails > summary::-webkit-details-marker {
+  display: none;
+}
+
+.panelDetails > summary > span {
+  display: grid;
+  gap: 2px;
+}
+
+.panelDetails > summary strong {
+  color: #2f3440;
+  font-size: 12.5px;
+}
+
+.panelDetails > summary small {
+  color: var(--crm-muted);
+  font-size: 10.5px;
+}
+
+.panelDetails > summary svg {
+  color: #9297a3;
+  transition: transform .15s ease;
+}
+
+.panelDetails[open] > summary {
+  border-bottom: 1px solid var(--crm-line);
+}
+
+.panelDetails[open] > summary svg {
+  transform: rotate(90deg);
+}
+
+.compactDetails {
+  margin-top: 12px;
+  border-top: 1px solid #eef0f3;
+}
+
+.compactDetails > summary {
+  padding: 11px 0 0;
+  color: #5e6470;
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 720;
+  list-style: none;
+}
+
+.compactDetails > summary::-webkit-details-marker {
+  display: none;
+}
+
+.compactDetails > .form,
+.compactDetails > form {
+  margin-top: 10px;
+}
+
+.advancedFields {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eef0f3;
+}
+
+@media (max-width: 1050px) {
+  .detailPage .actionGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .detailPage .actionGrid {
+    grid-template-columns: 1fr;
+  }
+}

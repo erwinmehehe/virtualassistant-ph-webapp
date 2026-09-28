@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowRight, CheckCircle2, ClipboardList, Clock3, KeyRound, MessageSquareText, Search, Split, TriangleAlert, Wrench } from "lucide-react";
+import { CheckCircle2, ClipboardList, Clock3, KeyRound, MessageSquareText, Search, Split, TriangleAlert, Wrench } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HiringHero } from "@/components/hiring-hero";

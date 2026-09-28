@@ -51,7 +51,7 @@ test("Recruiter Talent only selects table fields it renders", async () => {
 
   assert.match(
     page,
-    /select\("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status"/,
+    /select\("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing"/,
   );
   assert.doesNotMatch(page, /from\("recruiter_va_directory"\)[\s\S]{0,120}\.select\("\*"/);
 });
@@ -109,4 +109,32 @@ test("recruiter candidate profile can correct primary and secondary specialties"
   assert.match(action, /categories\.length > 3/);
   assert.match(action, /va_categories_recruiter_override/);
   assert.match(action, /previous_categories/);
+});
+
+
+test("Recruiter Talent separates incomplete profiles from the classified talent pool", async () => {
+  const [page, filters, rows, migration, action, readiness] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/lib/recruiter-talent-filters.ts"),
+    read("src/lib/workspace-rows.ts"),
+    read("supabase/migrations/20260929061500_va_classification_readiness_queue.sql"),
+    read("src/app/actions/recruiter-talent.ts"),
+    read("src/lib/classification-readiness.ts"),
+  ]);
+
+  assert.match(page, /Incomplete profiles/);
+  assert.match(page, /Ready to classify/);
+  assert.match(page, /classification: "classified"/);
+  assert.match(page, /Classification blocked/);
+  assert.match(page, /Enough profile evidence to classify/);
+  assert.match(filters, /classification_status/);
+  assert.match(filters, /incomplete_profile/);
+  assert.match(action, /filter_classification/);
+  assert.match(rows, /classification_missing/);
+  assert.match(rows, /classification_evidence_count/);
+  assert.match(migration, /classification_incomplete_count/);
+  assert.match(migration, /classification_ready_count/);
+  assert.match(migration, /talent_pool_count/);
+  assert.match(readiness, /CLASSIFICATION_MIN_SIGNALS = 2/);
+  assert.match(readiness, /roleSignalCount >= 1/);
 });

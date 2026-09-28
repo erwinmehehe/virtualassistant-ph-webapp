@@ -8,6 +8,7 @@ export type RecruiterTalentFilters = {
   q?: string | null;
   category?: string | string[] | null;
   category_match?: string | null;
+  classification?: string | null;
   stage?: string | null;
   readiness?: string | null;
   photo?: string | null;
@@ -46,6 +47,7 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   const q = String(filters.q || "").trim().replace(/[,%()]/g, " ");
   const categories = stringValues(filters.category);
   const categoryMatch = String(filters.category_match || "any") === "all" ? "all" : "any";
+  const classification = String(filters.classification || "");
   const stage = String(filters.stage || "");
   const readiness = String(filters.readiness || "");
   const photo = String(filters.photo || "");
@@ -70,6 +72,10 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
       query = query.or(categoryTerms.join(","));
     }
   }
+  if (classification === "classified") query = query.eq("classification_status", "classified");
+  if (classification === "ready_to_classify") query = query.eq("classification_status", "ready_to_classify");
+  if (classification === "incomplete_profile") query = query.eq("classification_status", "incomplete_profile");
+
   if (stage) query = query.eq("stage", stage);
   if (availability) query = query.eq("availability_status", availability);
 

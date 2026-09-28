@@ -128,11 +128,17 @@ export type RecruiterVaDirectoryRow = {
   email_verified?: boolean | null;
   account_created_at?: string | null;
   account_status?: string | null;
+  classification_status?: "classified" | "ready_to_classify" | "incomplete_profile" | string | null;
+  classification_evidence_count?: number | null;
+  classification_missing?: string[] | null;
 };
 
 export type RecruiterTalentSummaryRow = {
   id: number;
   all_count: number | null;
+  talent_pool_count: number | null;
+  classification_incomplete_count: number | null;
+  classification_ready_count: number | null;
   approval_ready_count: number | null;
   approval_cleanup_count: number | null;
   missing_photo_count: number | null;

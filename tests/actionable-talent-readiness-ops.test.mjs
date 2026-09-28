@@ -22,6 +22,7 @@ test("Roles talent coverage drills into exact primary specialties",async()=>{
   assert.match(talent,/name="filter_category_match"/);
   assert.match(action,/category: filterValues\(formData, "filter_category"\)/);
   assert.match(action,/category_match: filterValue\(formData, "filter_category_match"\)/);
+  assert.match(action,/classification: filterValue\(formData, "filter_classification"\)/);
 });
 
 test("Work Readiness prioritizes ready incomplete and overdue queues with one simple evidence filter",async()=>{

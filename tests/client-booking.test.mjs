@@ -20,16 +20,16 @@ test("qualified booking flow stays available while the floating CTA goes directl
   assert.doesNotMatch(floating, /DISCOVERY_CALL_URL = "\/book-client-call"/);
 });
 
-test("booking flow blocks VA applicants before showing client slots", async () => {
+test("client booking opens directly on the calendar and still routes VA applicants away", async () => {
   const [form, action] = await Promise.all([
     read("src/components/client-booking-form.tsx"),
     read("src/app/actions/leads.ts"),
   ]);
 
-  assert.match(form, /I am hiring/);
-  assert.match(form, /I am a Virtual Assistant/);
-  assert.match(form, /audience === "va"/);
-  assert.match(form, /Apply as a Virtual Assistant/);
+  assert.doesNotMatch(form, /Who are you booking for\?/);
+  assert.doesNotMatch(form, /I am hiring/);
+  assert.match(form, /Looking for VA work\? Apply here/);
+  assert.match(form, /href="\/auth\/join\/va"/);
   assert.match(action, /audience: z\.literal\("client"\)/);
   assert.match(action, /isAllowedDiscoverySlot/);
   assert.match(form, /useState<string \| null>\(null\)/);
@@ -46,48 +46,37 @@ test("discovery booking is available 24/7 and grouped in the visitor timezone", 
   assert.match(booking, /for \(let hour = 0; hour < 24; hour \+= 1\)/);
   assert.doesNotMatch(booking, /START_HOUR|END_HOUR/);
   assert.doesNotMatch(booking, /weekday === 0|weekday === 6/);
-  assert.match(form, /24\/7 availability/);
   assert.match(form, /localDateKey/);
   assert.match(form, /localDays\.map/);
 });
 
-test("client booking stays two steps but requires a job-ready minimum brief", async () => {
+test("client booking keeps the minimum brief lightweight", async () => {
   const [form, action] = await Promise.all([
     read("src/components/client-booking-form.tsx"),
     read("src/app/actions/leads.ts"),
   ]);
 
-  assert.match(form, /Step 1 of 2/);
-  assert.match(form, /Step 2 of 2/);
-  assert.doesNotMatch(form, /Step 3 of 3/);
-  assert.match(form, /Role you need to hire \*/);
-  assert.match(form, /Hours per week \*/);
-  assert.match(form, /Hourly VA budget \(USD\) \*/);
-  assert.match(form, /Preferred start \*/);
-  assert.match(form, /What should this VA own\? \*/);
+  assert.match(form, /1\. Choose a time/);
+  assert.match(form, /2\. Your details/);
+  assert.match(form, /No long questionnaire/);
+  assert.match(form, /name="name" required/);
+  assert.match(form, /name="email" required/);
+  assert.match(form, /name="company" required/);
   assert.match(form, /name="service" required/);
-  assert.match(form, /name="hours" required type="number"/);
-  assert.match(form, /name="budget" required/);
-  assert.match(form, /name="start_time" required/);
-  assert.match(form, /name="message" required/);
-  assert.doesNotMatch(form, /Virtual Assistant hiring/);
-  assert.doesNotMatch(form, /To discuss on the call/);
+  assert.match(form, /name="message"/);
+  assert.doesNotMatch(form, /name="hours" required/);
+  assert.doesNotMatch(form, /name="budget" required/);
+  assert.doesNotMatch(form, /name="start_time" required/);
+  assert.match(action, /hours: z\.string\(\)\.trim\(\)\.max\(3\)\.optional\(\)\.default\(""\)/);
+  assert.match(action, /budget: z\.string\(\)\.trim\(\)\.max\(100\)\.optional\(\)\.default\(""\)/);
+  assert.match(action, /start_time: z\.string\(\)\.trim\(\)\.max\(100\)\.optional\(\)\.default\(""\)/);
+  assert.match(action, /message: z\.string\(\)\.trim\(\)\.max\(1200\)\.optional\(\)\.default\(""\)/);
   assert.match(action, /Tell us the actual role you need to hire/);
-  assert.match(action, /Hours per week must be between 1 and 80/);
-  assert.match(action, /Enter an hourly VA budget of at least USD/);
   assert.match(action, /mergeBookingIntoRecentClientLead/);
-  assert.match(action, /\.ilike\("email", args\.email\)/);
-  assert.match(action, /\.eq\("lead_type", "client_hiring"\)/);
-  assert.match(action, /\.is\("discovery_scheduled_at", null\)/);
-  assert.match(action, /String\(row\.company \|\| ""\)\.trim\(\)\.toLowerCase\(\) === companyKey/);
-  assert.match(action, /admin\.rpc\([\s\S]*"merge_discovery_booking_lead"/);
-  assert.match(action, /leadId = merged\.leadId/);
-  assert.match(action, /jobId = merged\.jobId/);
   assert.match(action, /jobId = await ensurePendingRoleForLead/);
   assert.match(action, /title: parsed\.data\.service/);
   assert.match(action, /metadata: \{ lead_id: leadId, job_id: jobId/);
 });
-
 test("floating call prompt is restricted to high-intent behavior", async () => {
   const cta = await read("src/components/floating-cta.tsx");
   assert.match(cta, /HIGH_INTENT_PATHS/);

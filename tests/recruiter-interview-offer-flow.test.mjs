@@ -40,3 +40,18 @@ test("placement offer action requires a completed Proceed interview and stays in
   assert.match(feedbackAction,/\/workspace\/recruiter\/roles\/\$\{row\.job_id\}#interviews/);
   assert.doesNotMatch(feedbackAction,/\/workspace\/recruiter\/matching\//);
 });
+
+
+test("Role Control Center gives the recruiter one conversion-focused next action", async () => {
+  const page = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
+  assert.match(page, /roleNextAction/);
+  assert.match(page, /Close role/);
+  assert.match(page, /Review offer/);
+  assert.match(page, /Schedule interview/);
+  assert.match(page, /Review decision/);
+  assert.match(page, /Follow up/);
+  assert.match(page, /Send to client/);
+  assert.match(page, /Review client-ready matches/);
+  assert.match(page, /roleNextAction\.detail/);
+  assert.match(page, /roleNextAction\.label/);
+});

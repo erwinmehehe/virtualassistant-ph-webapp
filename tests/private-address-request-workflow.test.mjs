@@ -63,3 +63,16 @@ test("VA dashboard summary includes private address requests in recruiter reques
   assert.match(migration, /revoke all on function public\.va_dashboard_summary\(uuid\) from authenticated/);
   assert.match(migration, /grant execute on function public\.va_dashboard_summary\(uuid\) to service_role/);
 });
+
+
+test("recruiter profile health separates auth, profile completeness and private address queues", async () => {
+  const talent = await read("src/app/workspace/recruiter/talent/page.tsx");
+  assert.match(talent, /Profile health/);
+  assert.match(talent, /Email unconfirmed/);
+  assert.match(talent, /Profile incomplete/);
+  assert.match(talent, /Private address missing/);
+  assert.match(talent, /Resume address review/);
+  assert.match(talent, /registration_health", "profile_incomplete"/);
+  assert.match(talent, /has_private_address", false/);
+  assert.match(talent, /Never public/);
+});

@@ -7,6 +7,7 @@ import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { isTalentAgencyCertified, talentReadinessActions } from "@/lib/talent-operations";
 
 type Props={job:any;viewerRole:"admin"|"recruiter";returnTo:string};
 
@@ -21,15 +22,18 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   ]);
 
   const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
-  const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs}]=ids.length?await Promise.all([
+  const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs},{data:activeMemberships}]=ids.length?await Promise.all([
     admin.from("profiles").select("id,full_name,avatar_url").in("id",ids),
     admin.from("va_profiles").select("*").in("user_id",ids),
     admin.from("job_shortlist_candidates").select("job_id,va_id,client_decision").in("va_id",ids).eq("shortlist_status","released"),
     admin.from("applications").select("job_id,va_id,status").in("va_id",ids).in("status",["interview","offered","hired"]),
-    admin.from("jobs").select("id,title,hours_per_week,status").neq("status","closed")
-  ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
+    admin.from("jobs").select("id,title,hours_per_week,status").neq("status","closed"),
+    admin.from("bench_memberships").select("va_id").in("va_id",ids).eq("status","active")
+  ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
 
   const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
+  const stageMap=new Map((vettingRows||[]).map((row:any)=>[row.va_id,row.stage]));
+  const activePoolIds=new Set((activeMemberships||[]).map((row:any)=>row.va_id));
   const shortlistMap=new Map((shortlistRows||[]).map((row:any)=>[row.va_id,row]));
   const interestMap=new Map((interestRows||[]).map((row:any)=>[row.va_id,row]));
   const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
@@ -42,15 +46,25 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     const otherClientReviews=(releasedAcross||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&row.client_decision!=="pass"&&activeJobMap.has(row.job_id)).length;
     const activeProcesses=(processRows||[]).filter((row:any)=>row.va_id===va.user_id&&row.job_id!==job.id&&activeJobMap.has(row.job_id));
     const potentialCommittedHours=activeProcesses.filter((row:any)=>["offered","hired"].includes(row.status)).reduce((sum:number,row:any)=>sum+Number((activeJobMap.get(row.job_id) as any)?.hours_per_week||0),0);
-    return{va,account,shortlist,job,interest,...assessment,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
-  }).sort((a:any,b:any)=>b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
+    const readinessInput={
+      stage:stageMap.get(va.user_id),
+      activePool:activePoolIds.has(va.user_id),
+      availabilityStatus:va.availability_status,
+      availabilityConfirmedAt:va.availability_confirmed_at,
+      workSetupVerifiedAt:va.work_setup_verified_at
+    };
+    const clientReady=isTalentAgencyCertified(readinessInput);
+    const readinessGaps=clientReady?[]:talentReadinessActions(readinessInput);
+    return{va,account,shortlist,job,interest,...assessment,clientReady,readinessGaps,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
+  }).sort((a:any,b:any)=>Number(b.clientReady)-Number(a.clientReady)||b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
 
   const suggestedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed"&&!row.created_by).length;
   const proposedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed"&&Boolean(row.created_by)).length;
   const releasedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="released").length;
   const awaitingClientCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="released"&&!row.client_decision).length;
   const interested=pool.filter((row:any)=>row.interest).sort((a:any,b:any)=>b.score-a.score);
-  const recommended=pool.filter((row:any)=>row.score>=60&&row.eligible!==false).slice(0,3);
+  const clientReadyCount=pool.filter((row:any)=>row.clientReady).length;
+  const recommended=pool.filter((row:any)=>row.clientReady&&row.score>=60&&row.eligible!==false).slice(0,3);
   const canInviteClient=!job.client_id&&Boolean(job.lead_id);
   const candidateAccessReady=candidateAccessUnlocked(candidateAccess?.access_status);
   const canSendClient=Boolean(job.client_id&&job.status==="published"&&commercial?.commercial_status==="accepted"&&candidateAccessReady);
@@ -67,7 +81,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const roleReady=!missing.length;
 
   return <section className="card staff-matching-card unified-role-matching">
-    <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Matching & shortlist builder</h2></div><p className="muted">Review recruiter-only match suggestions and VA interest, build the shortlist, preview the client experience, then release only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"&&awaitingClientCount?<a className="btn btn-sm" href="#client-handoff">Client feedback · {awaitingClientCount} waiting</a>:null}</div></div>
+    <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Matching & shortlist builder</h2></div><p className="muted">Review recruiter-only match suggestions and VA interest, build the shortlist, preview the client experience, then release only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge badge-success">{clientReadyCount} client-ready</span><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"&&awaitingClientCount?<a className="btn btn-sm" href="#client-handoff">Client feedback · {awaitingClientCount} waiting</a>:null}</div></div>
 
     {viewerRole==="recruiter"&&releasedCount===0&&proposedCount<3&&recommended.length?<div className="info-banner quick-shortlist-banner"><div><strong>Fast path: prepare the strongest matches for review</strong><p className="small muted" style={{margin:"5px 0 0"}}>This only builds an internal recruiter shortlist. Nothing is emailed or shown to the client until you review the candidates and explicitly send them.</p></div><form action={prepareTopMatchesForReviewAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-primary" type="submit">Prepare top {Math.min(3,recommended.length)} matches</button></form></div>:null}
 
@@ -77,7 +91,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
     {interested.length?<div className="info-banner" style={{marginBottom:14}}><strong>{interested.length} vetted VA{interested.length===1?" has":"s have"} expressed interest</strong><p style={{margin:"5px 0 8px"}}>Interest is internal. Review their evidence and fit before adding them to the recruiter shortlist.</p><div className="row wrap">{interested.slice(0,8).map((row:any)=><Link className="badge" key={row.va.user_id} href={`/workspace/recruiter/candidates/${row.va.user_id}`}>{row.account?.full_name||"VA candidate"} · {row.score}% internal match</Link>)}</div></div>:null}
 
-    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Match scores are recruiter-only screening aids. Hard requirements, verified evidence, capacity, and recruiter judgment should decide who reaches the client.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
+    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Only client-ready VAs are recommended here: approved talent-pool members with fresh availability and recruiter-verified work setup. Match scores remain recruiter-only screening aids.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
 
     <div className="matching-summary-grid"><div className="matching-summary-card"><span>Match suggestions</span><strong>{suggestedCount}</strong><small>Automatic · not shortlisted</small></div><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Selected internally</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms + candidate access active":!candidateAccessReady&&job.client_id?"Candidate access must be activated":"Client + approved terms required"}</small></div></div>
 

@@ -128,6 +128,7 @@ export default async function RecruiterTalentDirectory({
     { data: summaryData, error: summaryError },
     { count: neverStartedCount, error: neverStartedError },
     { count: emailUnconfirmedCount, error: emailUnconfirmedError },
+    { count: profileIncompleteCount, error: profileIncompleteError },
     { count: missingAddressCount, error: missingAddressError },
     { count: addressReviewCount, error: addressReviewError },
   ] = await Promise.all([
@@ -145,6 +146,7 @@ export default async function RecruiterTalentDirectory({
       .single(),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "never_started"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "email_unconfirmed"),
+    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "profile_incomplete"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false).eq("address_resume_status", "review"),
   ]);
@@ -153,6 +155,7 @@ export default async function RecruiterTalentDirectory({
   if (summaryError) throw summaryError;
   if (neverStartedError) throw neverStartedError;
   if (emailUnconfirmedError) throw emailUnconfirmedError;
+  if (profileIncompleteError) throw profileIncompleteError;
   if (missingAddressError) throw missingAddressError;
   if (addressReviewError) throw addressReviewError;
 
@@ -320,6 +323,31 @@ export default async function RecruiterTalentDirectory({
     {params.bulk_error ? <div className="alert">{params.bulk_error}</div> : null}
 
     {params.view === "bench" ? <RecruiterTalentOperationsPanel /> : null}
+
+    <section className="card dashboard-section-card" style={{ marginBottom: 18 }}>
+      <div className="dashboard-section-head">
+        <div>
+          <div className="kicker">Profile health</div>
+          <h2>Fix the exact missing thing</h2>
+          <p>Email confirmation, profile completion, and private address are separate health signals. A VA can have one problem without being treated as 0% or incomplete everywhere.</p>
+        </div>
+        <ShieldCheck size={20} />
+      </div>
+      <div className="stats">
+        <Link className="stat-card" href="/workspace/recruiter/talent?view=email_unconfirmed">
+          <span className="small muted">Email unconfirmed</span><strong>{Number(emailUnconfirmedCount || 0)}</strong><small className="muted">Auth confirmation only</small>
+        </Link>
+        <Link className="stat-card" href="/workspace/recruiter/talent?registration=profile_incomplete">
+          <span className="small muted">Profile incomplete</span><strong>{Number(profileIncompleteCount || 0)}</strong><small className="muted">Profile data still missing</small>
+        </Link>
+        <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_address">
+          <span className="small muted">Private address missing</span><strong>{Number(missingAddressCount || 0)}</strong><small className="muted">Never public</small>
+        </Link>
+        <Link className="stat-card" href="/workspace/recruiter/talent?view=address_review">
+          <span className="small muted">Resume address review</span><strong>{Number(addressReviewCount || 0)}</strong><small className="muted">Needs recruiter judgment</small>
+        </Link>
+      </div>
+    </section>
 
     <section className="talent-onboarding-rescue">
       <div className="talent-onboarding-head">

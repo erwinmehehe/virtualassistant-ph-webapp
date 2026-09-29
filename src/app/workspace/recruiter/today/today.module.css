@@ -267,3 +267,269 @@
     text-align:center;
   }
 }
+
+
+/* Recruiter Today section cleanup: flatter hierarchy, denser operational rows. */
+.sectionShell {
+  overflow: hidden;
+  padding: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(16,24,40,.035) !important;
+}
+
+.sectionHead {
+  margin: 0 !important;
+  padding: 15px 16px 13px;
+  border-bottom: 1px solid #eaecf0;
+  background: #fff;
+}
+
+.sectionHead h2 {
+  margin: 0;
+  font-size: 15px !important;
+  line-height: 1.25;
+}
+
+.sectionHead p {
+  max-width: 720px;
+  margin: 4px 0 0;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+}
+
+.enquiryList,
+.compactList {
+  display: grid;
+  background: #fff;
+}
+
+.enquiryRow {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-width: 0;
+  padding: 14px 16px;
+  border-top: 1px solid #f2f4f7;
+}
+
+.enquiryRow:first-child,
+.compactRow:first-child {
+  border-top: 0;
+}
+
+.enquiryRow:hover,
+.compactRow:hover {
+  background: #fcfcfd;
+}
+
+.enquiryMain {
+  min-width: 0;
+}
+
+.enquiryMeta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #98a2b3;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.enquiryMain h3 {
+  margin: 6px 0 2px;
+  overflow: hidden;
+  color: #101828;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enquiryMain p {
+  margin: 0;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.enquiryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.enquiryActions form {
+  margin: 0;
+}
+
+.compactRow {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 16px;
+  border-top: 1px solid #f2f4f7;
+}
+
+.compactCopy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.compactCopy strong {
+  overflow: hidden;
+  color: #101828;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compactCopy small {
+  overflow: hidden;
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.operationsGrid {
+  display: grid;
+  grid-template-columns: minmax(0,1.15fr) minmax(340px,.85fr);
+  gap: 14px;
+  align-items: start;
+  margin-top: 14px;
+}
+
+.operationsGrid > .sectionShell {
+  margin-top: 0 !important;
+}
+
+.queueCard {
+  min-height: 0;
+}
+
+.queueCard .scrollHint {
+  margin: 0;
+  padding: 10px 16px 0;
+}
+
+.queue {
+  max-height: clamp(300px, calc(100dvh - 360px), 620px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding: 10px 12px 12px;
+  outline: none;
+}
+
+.queueItem {
+  gap: 10px !important;
+  padding: 11px 12px !important;
+  border-radius: 12px !important;
+  background: #fff;
+}
+
+.queueItem :global(.dash-action-count) {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.sectionShell > .followList {
+  padding: 0 16px;
+}
+
+.sectionShell > .followList + .followList {
+  border-top: 1px solid #eaecf0;
+}
+
+.sectionShell > .followList .groupLabel {
+  margin-top: 0;
+  padding-top: 12px;
+}
+
+.sectionShell > :global(.dashboard-caught-up) {
+  margin: 14px 16px 16px;
+}
+
+@media (max-width: 1040px) {
+  .operationsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .queue {
+    max-height: none;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .sectionShell {
+    border-radius: 13px !important;
+  }
+
+  .sectionHead {
+    gap: 9px !important;
+    padding: 13px;
+  }
+
+  .sectionHead > :last-child {
+    flex: none;
+  }
+
+  .enquiryRow,
+  .compactRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .enquiryMain h3,
+  .compactCopy strong,
+  .compactCopy small {
+    white-space: normal;
+  }
+
+  .enquiryActions {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    justify-content: stretch;
+  }
+
+  .enquiryActions form {
+    grid-column: 1 / -1;
+  }
+
+  .enquiryActions .btn,
+  .enquiryActions form .btn,
+  .compactRow > .btn {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .queue {
+    padding: 9px 10px 10px;
+  }
+
+  .queueItem {
+    align-items: flex-start !important;
+  }
+
+  .sectionShell > .followList {
+    padding: 0 13px;
+  }
+
+  .sectionShell > :global(.dashboard-caught-up) {
+    margin: 12px 13px 13px;
+  }
+}

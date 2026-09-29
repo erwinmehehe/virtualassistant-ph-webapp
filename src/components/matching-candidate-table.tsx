@@ -124,7 +124,7 @@ export function MatchingCandidateTable({
     <div className="row-between wrap" style={{margin:"12px 0",gap:10}}>
       <div>
         <strong>{selectedCount} selected · {clientReadyCount} client-ready</strong>
-        <div className="small muted">The default list surfaces client-ready candidates first. Near-ready or pipeline VAs remain searchable for development, but cannot be selected for a client shortlist until readiness is complete.</div>
+        <div className="small muted">Only checked candidates are included in Save or Send. Aim for 3–5 client-ready candidates; five is the maximum. The default list surfaces client-ready candidates first. Near-ready or pipeline VAs remain searchable for development, but cannot be selected until readiness is complete.</div>
       </div>
       <div className="row wrap">
         <button className="btn" type="button" disabled={!selectedCount} aria-expanded={showClientPreview} onClick={() => setShowClientPreview((value) => !value)}>

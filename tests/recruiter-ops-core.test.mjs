@@ -87,3 +87,27 @@ test("agenda stays bounded to the current week", async () => {
   assert.match(page, /Recruiter:/);
   assert.match(page, /Join Zoom/);
 });
+
+
+test("recruiter notifications auto-resolve from live lead and role state", async () => {
+  const [maintenance, migration] = await Promise.all([
+    read("src/app/api/cron/maintenance/route.ts"),
+    read("supabase/migrations/20260929061141_auto_resolve_recruiter_notifications.sql"),
+  ]);
+
+  assert.match(maintenance, /\.in\("shortlist_status", \["proposed", "released"\]\)/);
+  assert.match(maintenance, /const candidateRows = shortlistByJob\.get\(job\.id\) \|\| \[\]/);
+  assert.match(maintenance, /const released = candidateRows\.filter/);
+  assert.match(maintenance, /needsCandidateWork/);
+  assert.match(maintenance, /candidateJobIds\.has\(jobId\)/);
+  assert.match(maintenance, /applicationJobIds\.has\(jobId\)/);
+
+  assert.match(migration, /'\/workspace\/recruiter\/crm\/' \|\| new\.id::text/);
+  assert.match(migration, /'lead_first_response'/);
+  assert.match(migration, /resolve_lead_first_response_notifications/);
+  assert.match(migration, /resolve_role_needs_candidates_from_shortlist/);
+  assert.match(migration, /shortlist_status in \('proposed', 'released'\)/);
+  assert.match(migration, /resolve_role_needs_candidates_from_job/);
+  assert.match(migration, /new\.hiring_stage not in \('ready_to_recruit', 'sourcing'\)/);
+  assert.match(migration, /created_at < now\(\) - interval '24 hours'/);
+});

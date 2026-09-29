@@ -207,8 +207,8 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
 async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>) {
   const [{ data: recruiters }, { data: jobs }, { data: shortlist }, { data: apps }, { data: interviews }, { data: offers }] = await Promise.all([
     admin.from("profiles").select("id").eq("role", "recruiter"),
-    admin.from("jobs").select("id,client_id,title,status,created_at,recruiter_id").in("status", ["pending", "published"]).gte("created_at", daysAgo(30)).limit(300),
-    admin.from("job_shortlist_candidates").select("job_id,shortlist_status,released_at,client_decision").eq("shortlist_status", "released"),
+    admin.from("jobs").select("id,client_id,title,status,hiring_stage,created_at,recruiter_id").in("status", ["pending", "published"]).gte("created_at", daysAgo(30)).limit(300),
+    admin.from("job_shortlist_candidates").select("job_id,shortlist_status,released_at,client_decision").in("shortlist_status", ["proposed", "released"]),
     admin.from("applications").select("id,job_id,va_id,status,updated_at").in("status", ["interview", "offered"]).gte("updated_at", daysAgo(30)).limit(300),
     admin.from("candidate_interviews").select("id,job_id,va_id,client_id,application_id,status,created_at,scheduled_at").in("status", ["requested", "scheduled", "completed"]).gte("created_at", daysAgo(30)).limit(300),
     admin.from("placement_offers").select("id,job_id,va_id,client_id,application_id,status,created_at,va_accepted_at").in("status", ["pending_va", "pending_client", "accepted"]).gte("created_at", daysAgo(30)).limit(300)
@@ -223,8 +223,10 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   let recruiterNudges = 0; let client24h = 0; let client48h = 0; let vaNudges = 0; let interviewScheduleNudges = 0; let offerNudges = 0;
 
   for (const job of jobs || []) {
-    const released = shortlistByJob.get(job.id) || [];
-    if (!released.length && !appJobIds.has(job.id) && new Date(job.created_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
+    const candidateRows = shortlistByJob.get(job.id) || [];
+    const released = candidateRows.filter((row: any) => row.shortlist_status === "released");
+    const needsCandidateWork = !job.hiring_stage || ["ready_to_recruit", "sourcing"].includes(String(job.hiring_stage));
+    if (needsCandidateWork && !candidateRows.length && !appJobIds.has(job.id) && new Date(job.created_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
       const recipients = job.recruiter_id ? [job.recruiter_id] : (recruiters || []).map((r: any) => r.id);
       for (const recipientId of recipients) {
         if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no recruiter-approved shortlist yet. Review the automatic suggestions and decide who should move forward.", href: `/workspace/recruiter/roles/${job.id}`, repeatDays: 1 })) recruiterNudges++;
@@ -524,12 +526,24 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
     return href.match(rolePattern)?.[1] || href.match(adminJobPattern)?.[1] || null;
   }).filter(Boolean))] as string[];
   const jobs: any[] = [];
+  const candidateJobIds = new Set<string>();
+  const applicationJobIds = new Set<string>();
   for (let index = 0; index < roleIds.length; index += 200) {
-    const { data, error } = await admin.from("jobs").select("id,status").in("id", roleIds.slice(index, index + 200));
-    if (error) throw error;
-    jobs.push(...(data || []));
+    const batch = roleIds.slice(index, index + 200);
+    const [{ data: jobRows, error: jobError }, { data: candidateRows, error: candidateError }, { data: applicationRows, error: applicationError }] = await Promise.all([
+      admin.from("jobs").select("id,status,hiring_stage").in("id", batch),
+      admin.from("job_shortlist_candidates").select("job_id").in("job_id", batch).in("shortlist_status", ["proposed", "released"]),
+      admin.from("applications").select("job_id").in("job_id", batch).in("status", ["interview", "offered"]),
+    ]);
+    if (jobError) throw jobError;
+    if (candidateError) throw candidateError;
+    if (applicationError) throw applicationError;
+    jobs.push(...(jobRows || []));
+    for (const row of candidateRows || []) candidateJobIds.add(String(row.job_id));
+    for (const row of applicationRows || []) applicationJobIds.add(String(row.job_id));
   }
   const jobStatus = new Map(jobs.map((job: any) => [String(job.id), String(job.status || "")]));
+  const jobStage = new Map(jobs.map((job: any) => [String(job.id), String(job.hiring_stage || "")]));
 
   const archive = new Set<string>();
   const rewrites = new Map<string, string[]>();
@@ -563,6 +577,17 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
 
     const status = jobStatus.get(jobId);
     if (!status || status === "closed") {
+      archive.add(String(row.id));
+      continue;
+    }
+    if (
+      String(row.title || "").startsWith("Role needs candidates:") &&
+      (
+        candidateJobIds.has(jobId) ||
+        applicationJobIds.has(jobId) ||
+        (jobStage.get(jobId) && !["ready_to_recruit", "sourcing"].includes(String(jobStage.get(jobId))))
+      )
+    ) {
       archive.add(String(row.id));
       continue;
     }

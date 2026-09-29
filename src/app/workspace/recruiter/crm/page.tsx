@@ -10,7 +10,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
-import { clientReplyNeedsAction, clientReplyStatusLabel } from "@/lib/client-reply-state";
+import { clientReplyNeedsAction } from "@/lib/client-reply-state";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
 import styles from "./crm.module.css";
 

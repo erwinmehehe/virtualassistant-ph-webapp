@@ -66,6 +66,10 @@ const fixedEvents = new Set([
   "training_assessment_reviewed",
   "training_course_complete",
   "training_certificate_issued",
+  "va_onboarding_started",
+  "va_onboarding_step_saved",
+  "va_onboarding_validation_error",
+  "va_onboarding_complete",
   "web_vital",
 ]);
 

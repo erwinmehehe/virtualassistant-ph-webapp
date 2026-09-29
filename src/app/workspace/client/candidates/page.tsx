@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
-import { clientShortlistDecisionAction, clientShortlistMessageAction } from "@/app/actions/client-shortlist";
+import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
@@ -89,8 +89,8 @@ export default async function ClientCandidatesPage({
   const activeOffers = Number(summary.active_offers || 0);
   const activeInterviews = Number(summary.active_interviews || 0);
   const held = selectedReleased.filter((row) => row.client_decision === "hold").length;
-  const undecided = selectedReleased.filter((row) => !row.client_decision).length;
-  const remaining = selectedReleased.filter((row) => !row.client_decision || row.client_decision === "hold").length;
+  const undecided = selectedReleased.filter((row) => !row.client_decision || row.client_decision === "hold").length;
+  const remaining = undecided;
   const interested = selectedReleased.filter((row) => row.client_decision === "interested").length;
   const interviewRequested = selectedReleased.filter((row) => row.client_decision === "interview").length;
   const passed = selectedReleased.filter((row) => row.client_decision === "pass").length;
@@ -116,8 +116,8 @@ export default async function ClientCandidatesPage({
         ? {
             title: `${remaining} shortlist decision${remaining === 1 ? "" : "s"} still open`,
             copy: held
-              ? `You have ${held} candidate${held === 1 ? "" : "s"} on hold. Resolve held candidates or review any remaining shortlist options.`
-              : "Mark each recruiter-selected VA as interested, request an interview, place them on hold with context, or pass.",
+              ? `You have ${held} legacy hold decision${held === 1 ? "" : "s"}. Update those candidates to Interested, Interview, or Pass, or ask for more options.`
+              : "Mark each recruiter-selected VA as Interested, Interview, or Pass. If the shortlist is not right, ask your recruiter for more options.",
             href: selectedJob
               ? `/workspace/client/candidates?role=${encodeURIComponent(selectedJob.id)}#recruiter-shortlist`
               : "/workspace/client/candidates",
@@ -150,11 +150,11 @@ export default async function ClientCandidatesPage({
 
   return <div className="client-hiring-room">
     {query.decision_saved?<div className="success-banner" role="status">Shortlist decision saved. Your recruiter can see it immediately.</div>:null}
-    {query.message_sent?<div className="success-banner" role="status">Message sent to your recruiter.</div>:null}
+    {query.more_options_requested?<div className="success-banner" role="status">Your recruiter has been asked for more candidate options.</div>:null}
     <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
-        <p>Only candidates selected by our recruiting team appear here. Review recruiter-selected VAs, request interviews, hold candidates for follow-up, and send clear feedback without sorting through raw applicants.</p>
+        <p>Only recruiter-selected candidates appear here. Choose Interested, Interview, or Pass for each VA, or ask your recruiter for more options.</p>
       </div>
     </div>
 
@@ -188,7 +188,7 @@ export default async function ClientCandidatesPage({
       <div className="dashboard-section-head">
         <div>
           <h2>Recruiter shortlist{selectedJob ? ` for ${selectedJob.title}` : ""}</h2>
-          <p>We have already screened these VAs. Mark a decision or use Message recruiter to ask a question. Your feedback appears immediately in the recruiter workspace.</p>
+          <p>We have already screened these VAs. Your decisions and notes appear immediately in the recruiter workspace. Questions belong in Client messages so the conversation stays with the role.</p>
         </div>
       </div>
 
@@ -196,8 +196,23 @@ export default async function ClientCandidatesPage({
         <div><span>Waiting</span><strong>{undecided}</strong></div>
         <div><span>Interested</span><strong>{interested}</strong></div>
         <div><span>Interview</span><strong>{interviewRequested}</strong></div>
-        <div><span>Hold / pass</span><strong>{held + passed}</strong></div>
+        <div><span>Passed</span><strong>{passed}</strong></div>
       </div> : null}
+
+      {selectedReleased.length && selectedJob ? (
+        <div className="client-more-options card">
+          <div>
+            <strong>Not seeing the right fit?</strong>
+            <p className="small muted">Ask for more options. Your recruiter will see this as a high-priority hiring action, not a message to the VA.</p>
+          </div>
+          <form action={clientRequestMoreOptionsAction} className="row wrap">
+            <input type="hidden" name="job_id" value={selectedJob.id}/>
+            <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
+            <input name="decision_note" maxLength={300} placeholder="Optional: what should be different?"/>
+            <PendingSubmitButton className="btn btn-sm" label="Need more options" pendingLabel="Sending…"/>
+          </form>
+        </div>
+      ) : null}
 
       {selectedReleased.length ? (
         selectedPublished && selectedAccessUnlocked ? (
@@ -235,62 +250,31 @@ export default async function ClientCandidatesPage({
                   </span>
                 ) : null}
                 actions={selectedJob ? (
-                  <div className="stack client-shortlist-actions" style={{ marginTop: 10 }}>
+                  <form action={clientShortlistDecisionAction} className="stack client-shortlist-actions client-shortlist-decision-form" style={{ marginTop: 10 }}>
+                    <input type="hidden" name="job_id" value={selectedJob.id}/>
+                    <input type="hidden" name="va_id" value={row.va_id}/>
+                    <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
+                    <input name="decision_note" maxLength={300} defaultValue={row.client_decision_note || ""} placeholder="Optional note for your recruiter"/>
                     <div className="row wrap client-shortlist-action-grid">
-                      <form action={clientShortlistDecisionAction}>
-                        <input type="hidden" name="job_id" value={selectedJob.id}/>
-                        <input type="hidden" name="va_id" value={row.va_id}/>
-                        <input type="hidden" name="decision" value="interested"/>
-                        <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
-                        <PendingSubmitButton
-                          className={`btn btn-sm ${decision === "interested" ? "btn-primary" : ""}`}
-                          label="Interested"
-                          pendingLabel="Saving…"
-                        />
-                      </form>
-
-                      <form action={clientShortlistDecisionAction}>
-                        <input type="hidden" name="job_id" value={selectedJob.id}/>
-                        <input type="hidden" name="va_id" value={row.va_id}/>
-                        <input type="hidden" name="decision" value="interview"/>
-                        <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
-                        <PendingSubmitButton
-                          className={`btn btn-sm ${decision === "interview" ? "btn-primary" : ""}`}
-                          label="Request interview"
-                          pendingLabel="Saving…"
-                        />
-                      </form>
-
-                      <details>
-                        <summary className={`btn btn-sm ${decision === "hold" ? "btn-primary" : ""}`}>Hold</summary>
-                        <form action={clientShortlistDecisionAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
-                          <input type="hidden" name="job_id" value={selectedJob.id}/>
-                          <input type="hidden" name="va_id" value={row.va_id}/>
-                          <input type="hidden" name="decision" value="hold"/>
-                          <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
-                          <select name="hold_reason" defaultValue="">
-                            <option value="">Reason optional</option>
-                            <option value="need_more_information">Need more information</option>
-                            <option value="comparing_candidates">Comparing candidates</option>
-                            <option value="rate_concern">Rate concern</option>
-                            <option value="schedule_timezone_concern">Schedule / timezone concern</option>
-                            <option value="team_approval">Need team approval</option>
-                            <option value="other">Other</option>
-                          </select>
-                          <input name="decision_note" maxLength={300} placeholder="Optional note for your recruiter"/>
-                          <PendingSubmitButton className="btn btn-sm" label="Place on hold" pendingLabel="Saving…"/>
-                        </form>
-                      </details>
-
-                      <details>
-                        <summary className="btn btn-sm">Pass</summary>
-                        <form action={clientShortlistDecisionAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
-                          <input type="hidden" name="job_id" value={selectedJob.id}/>
-                          <input type="hidden" name="va_id" value={row.va_id}/>
-                          <input type="hidden" name="decision" value="pass"/>
-                          <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
+                      <PendingSubmitButton
+                        className={`btn btn-sm ${decision === "interested" ? "btn-primary" : ""}`}
+                        label="Interested"
+                        pendingLabel="Saving…"
+                        name="decision"
+                        value="interested"
+                      />
+                      <PendingSubmitButton
+                        className={`btn btn-sm ${decision === "interview" ? "btn-primary" : ""}`}
+                        label="Interview"
+                        pendingLabel="Saving…"
+                        name="decision"
+                        value="interview"
+                      />
+                      <details className="client-shortlist-pass">
+                        <summary className={`btn btn-sm ${decision === "pass" ? "btn-primary" : ""}`}>Pass</summary>
+                        <div className="stack" style={{ marginTop: 8 }}>
                           <select name="pass_reason" defaultValue="">
-                            <option value="">Reason optional</option>
+                            <option value="">Pass reason optional</option>
                             <option value="skills">Skills</option>
                             <option value="rate">Rate</option>
                             <option value="schedule_timezone">Schedule / timezone</option>
@@ -300,23 +284,18 @@ export default async function ClientCandidatesPage({
                             <option value="availability">Availability</option>
                             <option value="other">Other</option>
                           </select>
-                          <input name="decision_note" maxLength={300} placeholder="Optional note for your recruiter"/>
-                          <PendingSubmitButton className="btn btn-sm" label="Confirm pass" pendingLabel="Saving…"/>
-                        </form>
-                      </details>
-
-                      <details className="client-shortlist-message">
-                        <summary className="btn btn-sm">Message recruiter</summary>
-                        <form action={clientShortlistMessageAction} className="stack client-shortlist-decision-form" style={{ marginTop: 8 }}>
-                          <input type="hidden" name="job_id" value={selectedJob.id}/>
-                          <input type="hidden" name="va_id" value={row.va_id}/>
-                          <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
-                          <textarea name="message" required minLength={2} maxLength={500} placeholder="Ask a question or send feedback about this VA."/>
-                          <PendingSubmitButton className="btn btn-sm btn-primary" label="Send to recruiter" pendingLabel="Sending…"/>
-                        </form>
+                          <PendingSubmitButton
+                            className="btn btn-sm"
+                            label="Confirm pass"
+                            pendingLabel="Saving…"
+                            name="decision"
+                            value="pass"
+                          />
+                        </div>
                       </details>
                     </div>
-                  </div>
+                    <Link className="small inline-link" href={`/workspace/client/messages?job=${encodeURIComponent(selectedJob.id)}`}>Message recruiter about this role</Link>
+                  </form>
                 ) : null}
                 feedback={row.client_decision_note ? (
                   <div className="small muted">Feedback: {row.client_decision_note}</div>

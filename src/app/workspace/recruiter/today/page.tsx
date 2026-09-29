@@ -228,12 +228,12 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             <div className={styles.handoffSteps} aria-label="Booking to shortlist handoff"><span className={styles.stepDone}>Booked</span><span className={styles.stepCurrent}>Review brief</span><span>Match VAs</span><span>Shortlist</span></div>
           </div>
           <div className={styles.enquiryActions}>
-            {job.lead_id?<Link className="btn btn-sm" href={`/workspace/recruiter/crm/${job.lead_id}`}>Booking</Link>:null}
+            {job.lead_id?<Link className="btn btn-sm" href={`/workspace/recruiter/crm/${job.lead_id}`}>Review booking</Link>:null}
             <Link className="btn btn-sm" href={`/workspace/recruiter/roles/${job.id}#overview`}>Brief</Link>
             <form action={prepareTopMatchesForReviewAction}>
               <input type="hidden" name="job_id" value={job.id}/>
               <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${job.id}`}/>
-              <button className="btn btn-sm btn-primary" type="submit">Prepare matches</button>
+              <button className="btn btn-sm btn-primary" type="submit">Prepare top matches</button>
             </form>
           </div>
         </article>)}
@@ -258,7 +258,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
 
 
-    <div className={styles.operationsGrid}>
+    <div className={styles.actionColumns}>
     <section className={`card dashboard-section-card ${styles.sectionShell} ${styles.queueCard}`}>
       <div className={`dashboard-section-head ${styles.sectionHead}`}><div><h2>Needs action</h2><p>Only work that needs a recruiter decision or follow-up today.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>

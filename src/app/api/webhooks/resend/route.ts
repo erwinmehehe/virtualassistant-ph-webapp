@@ -1,4 +1,5 @@
 import { Webhook } from "svix";
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ResendEvent = {
@@ -205,14 +206,20 @@ async function recordInboundClientReply(
   if (attribution.ownerId) {
     await admin.from("notifications").insert({
       user_id: attribution.ownerId,
-      title: "Client replied by email",
-      body: subject || "A client replied to a hiring email.",
+      title: "Client replied · action needed",
+      body: subject || "A client replied to a hiring email and needs recruiter follow-up.",
       href: attribution.subjectType === "lead"
         ? `/workspace/recruiter/crm/${attribution.subjectId}`
         : `/workspace/recruiter/roles/${attribution.subjectId}`,
       type: "client",
-      priority: "normal",
+      priority: "high",
     });
+  }
+
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/today");
+  if (attribution.subjectType === "lead") {
+    revalidatePath(`/workspace/recruiter/crm/${attribution.subjectId}`);
   }
 }
 

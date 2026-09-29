@@ -57,3 +57,27 @@ test("a lost recruiter claim cannot render another recruiter's client messages",
   assert.match(action, /if \(!claimed\) throw new Error\("Another recruiter has taken this conversation/);
   assert.doesNotMatch(action, /thread = claimed \|\| data/);
 });
+
+
+test("client recruiter chat stays scoped to the selected hiring role", () => {
+  const lib = source("src/lib/recruiter-client-chat.ts");
+  assert.match(lib, /getOrCreateClientRecruiterThread\(clientId: string, jobId\?: string \| null\)/);
+  assert.match(lib, /\.eq\("job_id", normalizedJobId\)/);
+
+  const clientAction = source("src/app/actions/client-recruiter-chat.ts");
+  assert.match(clientAction, /\.eq\("id", requestedThreadId\)/);
+  assert.match(clientAction, /\.eq\("client_id", user\.id\)/);
+  assert.match(clientAction, /if \(thread\.job_id\) leadQuery = leadQuery\.eq\("job_id", thread\.job_id\)/);
+
+  const recruiterInbox = source("src/app/workspace/recruiter/messages/page.tsx");
+  assert.match(recruiterInbox, /getOrCreateClientRecruiterThread\(client\.id, params\.job \|\| null\)/);
+
+  const clientInbox = source("src/app/workspace/client/messages/page.tsx");
+  assert.match(clientInbox, /Choose hiring role/);
+  assert.match(clientInbox, /getOrCreateClientRecruiterThread\(userId, selectedJob\?\.id \|\| null\)/);
+
+  const migration = source("supabase/migrations/20260929152000_client_recruiter_role_threads.sql");
+  assert.match(migration, /add column if not exists job_id uuid references public\.jobs/);
+  assert.match(migration, /client_recruiter_threads_job_unique/);
+  assert.match(migration, /where id = new\.job_id and client_id = new\.client_id/);
+});

@@ -6,6 +6,7 @@ export type RecruiterClientThread = {
   id: string;
   client_id: string;
   recruiter_id: string | null;
+  job_id: string | null;
   created_at: string;
   updated_at: string;
   last_message_at: string | null;
@@ -56,29 +57,49 @@ async function resolvedRecruiterId(clientId: string) {
   return recruiter?.id || null;
 }
 
-export async function getOrCreateClientRecruiterThread(clientId: string) {
+export async function getOrCreateClientRecruiterThread(clientId: string, jobId?: string | null) {
   const admin = createAdminClient();
-  const { data: existing, error: existingError } = await admin
+  const normalizedJobId = jobId || null;
+  let existingQuery = admin
     .from("client_recruiter_threads")
     .select("*")
-    .eq("client_id", clientId)
-    .maybeSingle();
+    .eq("client_id", clientId);
+  existingQuery = normalizedJobId
+    ? existingQuery.eq("job_id", normalizedJobId)
+    : existingQuery.is("job_id", null);
+  const { data: existing, error: existingError } = await existingQuery.maybeSingle();
   if (existingError) throw existingError;
   if (existing) return existing as RecruiterClientThread;
 
-  const recruiterId = await resolvedRecruiterId(clientId);
+  if (normalizedJobId) {
+    const { data: job, error: jobError } = await admin
+      .from("jobs")
+      .select("id,client_id,recruiter_id")
+      .eq("id", normalizedJobId)
+      .eq("client_id", clientId)
+      .maybeSingle();
+    if (jobError) throw jobError;
+    if (!job) throw new Error("This role does not belong to the client.");
+  }
+
+  const recruiterId = normalizedJobId
+    ? ((await admin.from("jobs").select("recruiter_id").eq("id", normalizedJobId).maybeSingle()).data?.recruiter_id || await resolvedRecruiterId(clientId))
+    : await resolvedRecruiterId(clientId);
   const { data: created, error } = await admin
     .from("client_recruiter_threads")
-    .insert({ client_id: clientId, recruiter_id: recruiterId })
+    .insert({ client_id: clientId, recruiter_id: recruiterId, job_id: normalizedJobId })
     .select("*")
     .single();
 
   if (error?.code === "23505") {
-    const { data: raced, error: racedError } = await admin
+    let racedQuery = admin
       .from("client_recruiter_threads")
       .select("*")
-      .eq("client_id", clientId)
-      .single();
+      .eq("client_id", clientId);
+    racedQuery = normalizedJobId
+      ? racedQuery.eq("job_id", normalizedJobId)
+      : racedQuery.is("job_id", null);
+    const { data: raced, error: racedError } = await racedQuery.single();
     if (racedError) throw racedError;
     return raced as RecruiterClientThread;
   }

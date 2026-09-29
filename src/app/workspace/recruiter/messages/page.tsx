@@ -35,7 +35,7 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
       .eq("role", "client")
       .maybeSingle();
     if (client) {
-      const candidate = await getOrCreateClientRecruiterThread(client.id);
+      const candidate = await getOrCreateClientRecruiterThread(client.id, params.job || null);
       if (!candidate.recruiter_id || candidate.recruiter_id === userId) requestedThread = candidate;
     }
   }

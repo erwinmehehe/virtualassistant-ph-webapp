@@ -19,7 +19,7 @@ test("recruiter CRM shows role-scoped client engagement signals", async () => {
     read("src/components/client-engagement-panel.tsx"),
     read("src/components/client-candidate-view-tracker.tsx"),
     read("src/app/api/analytics/route.ts"),
-    read("supabase/migrations/20260929171000_role_scoped_client_candidate_views.sql"),
+    read("supabase/migrations/20260929200600_client_contact_snapshot.sql"),
   ]);
 
   for (const label of [
@@ -29,7 +29,7 @@ test("recruiter CRM shows role-scoped client engagement signals", async () => {
     "Shortlist opened",
     "Last shortlist activity",
     "Decision received",
-    "Last email reply",
+    "Last email / chat reply",
   ]) {
     assert.match(panel, new RegExp(label));
   }
@@ -85,9 +85,28 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.match(migration, /client_shortlist_message/);
   assert.match(migration, /job_shortlist_candidates/);
   assert.match(migration, /client_recruiter_messages/);
+  assert.match(migration, /last_client_chat_at/);
+  assert.match(migration, /last_client_contact_at/);
   assert.match(migration, /m\.read_at is null/);
   assert.match(migration, /grant execute on function public\.recruiter_client_activity_snapshot\(uuid\[\]\) to service_role/);
 
   assert.match(css, /\.clientSignals/);
   assert.match(css, /\.signalUnread/);
+});
+
+
+test("recruiter CRM gives one explicit operational next action", async () => {
+  const [record, panel, pipeline] = await Promise.all([
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
+    read("src/components/client-engagement-panel.tsx"),
+    read("src/app/workspace/recruiter/crm/page.tsx"),
+  ]);
+
+  for (const label of ["Follow up", "Review decision", "Schedule interview", "Close role"]) {
+    assert.match(record, new RegExp(label));
+    assert.match(pipeline, new RegExp(label));
+  }
+  assert.match(panel, /Recruiter next action/);
+  assert.match(panel, /nextAction\.label/);
+  assert.match(panel, /lastClientContact/);
 });

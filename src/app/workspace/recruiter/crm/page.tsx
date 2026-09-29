@@ -275,11 +275,12 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                     <td>
                       <div className={styles.clientSignals}>
                         <span><b>Login</b>{shortDate(activity?.last_login_at, "Never")}</span>
-                        <span><b>VA views</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
+                        <span title="Account-wide candidate viewing activity"><b>VA views*</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
                         <span><b>Shortlist</b>{shortDate(activity?.last_shortlist_activity_at)}</span>
                         {activity?.latest_decision ? <span className={styles.signalDecision}><b>Decision</b>{decisionLabel(activity.latest_decision)}</span> : null}
                         {unreadChat ? <span className={styles.signalUnread}><b>Chat</b>{unreadChat} unread</span> : null}
                       </div>
+                      <small className={styles.signalNote}>* Account-wide; shortlist, decision, reply and chat signals are role-specific.</small>
                     </td>
                     <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
                     <td className={overdue || unreadChat > 0 ? styles.overdue : undefined}>

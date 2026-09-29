@@ -50,6 +50,7 @@ test("client Hiring Room stacks shortlist cards and actions safely", async () =>
     "client-shortlist-grid",
     "client-shortlist-action-grid",
     "client-shortlist-decision-form",
+    "client-more-options",
   ]) {
     assert.match(page, new RegExp(className));
   }

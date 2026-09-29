@@ -30,12 +30,23 @@ test("recruiters can attach client-facing recommendations while availability sta
   assert.match(matching, /potentialCommittedHours/);
 });
 
-test("client shortlist records viewed state and offers interested interview and pass decisions", () => {
+test("client shortlist keeps decisions simple and gives the recruiter an explicit more-options signal", () => {
   assert.match(clientCandidates, /recordClientShortlistView/);
   assert.match(clientHiringRoomMigration, /client_shortlist_viewed/);
   assert.match(clientCandidates, /label="Interested"/);
-  assert.match(clientCandidates, /label="Request interview"/);
+  assert.match(clientCandidates, /label="Interview"/);
   assert.match(clientCandidates, /label="Confirm pass"/);
+  assert.match(clientCandidates, /Need more options/);
+  assert.match(clientCandidates, /clientRequestMoreOptionsAction/);
+  assert.match(clientCandidates, /Message recruiter about this role/);
+  assert.doesNotMatch(clientCandidates, /summary className=.*>Hold<\/summary>/);
+  assert.doesNotMatch(clientCandidates, /clientShortlistMessageAction/);
+  assert.match(actions, /client_more_options_requested/);
+  assert.match(actions, /Client needs more candidate options/);
+  assert.match(actions, /hiring_stage: "sourcing"/);
+  assert.match(actions, /candidateAccessUnlocked\(access\?\.access_status\)/);
+  assert.match(actions, /There is no released shortlist to request replacements for/);
+  assert.match(actions, /ask for more options so we can keep your search moving/);
   assert.match(clientCandidateCard, /Why we recommend this VA/);
   assert.match(clientCandidates, /ClientShortlistCandidateCard/);
 });
@@ -44,6 +55,8 @@ test("canonical recruiter role workspace exposes client follow-up and replacemen
   assert.match(recruiterRole, /Client handoff/);
   assert.match(recruiterRole, /Send client follow-up/);
   assert.match(recruiterRole, /Needs replacement matches/);
+  assert.match(recruiterRole, /Client requested more options/);
+  assert.match(recruiterRole, /Build more options/);
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.match(nav, /\["Roles", "\/workspace\/recruiter\/roles"/);
 });

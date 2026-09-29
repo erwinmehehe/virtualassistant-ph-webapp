@@ -89,7 +89,7 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, act
   const firstResponseDue = !lead.first_contact_at && now - new Date(lead.created_at).getTime() > 30 * 60 * 1000 && stage === "new";
   const unreadChat = Number(activity?.unread_chat || 0);
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
-  if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || clientReplyNeedsAction(activity?.reply_status))) || followDue || firstResponseDue;
+  if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || activity?.latest_decision === "need_more_options" || clientReplyNeedsAction(activity?.reply_status))) || followDue || firstResponseDue;
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
   if (view === "won") return stage === "won";
@@ -147,6 +147,32 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   if (jobsError) throw jobsError;
   const jobMap = new Map(((jobs || []) as Job[]).map((job) => [job.id, job]));
 
+  const { data: moreOptionsData, error: moreOptionsError } = jobIds.length
+    ? await admin
+        .from("recruiter_activity")
+        .select("subject_id,created_at")
+        .eq("subject_type", "job")
+        .eq("action", "client_more_options_requested")
+        .in("subject_id", jobIds)
+        .order("created_at", { ascending: false })
+    : { data: [] as Array<{ subject_id: string; created_at: string }>, error: null };
+  if (moreOptionsError) throw moreOptionsError;
+  const moreOptionsByJob = new Map<string, string>();
+  for (const row of moreOptionsData || []) {
+    if (!moreOptionsByJob.has(row.subject_id)) moreOptionsByJob.set(row.subject_id, row.created_at);
+  }
+  for (const lead of allLeads) {
+    if (!lead.job_id) continue;
+    const job = jobMap.get(lead.job_id);
+    const requestedAt = moreOptionsByJob.get(lead.job_id);
+    if (!requestedAt || job?.hiring_stage !== "sourcing") continue;
+    const current = activityMap.get(lead.id);
+    if (current) {
+      current.latest_decision = "need_more_options";
+      current.latest_decision_at = requestedAt;
+    }
+  }
+
   const now = Date.now();
   const visible = allLeads
     .filter((lead) => viewMatch(view, lead, userId, now, activityMap.get(lead.id)))
@@ -154,8 +180,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
       if (view === "attention") {
         const aActivity = activityMap.get(a.id);
         const bActivity = activityMap.get(b.id);
-        const aPriority = Number(aActivity?.unread_chat || 0) > 0 ? 0 : clientReplyNeedsAction(aActivity?.reply_status) ? 1 : 2;
-        const bPriority = Number(bActivity?.unread_chat || 0) > 0 ? 0 : clientReplyNeedsAction(bActivity?.reply_status) ? 1 : 2;
+        const aPriority = Number(aActivity?.unread_chat || 0) > 0 ? 0 : aActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(aActivity?.reply_status) ? 2 : 3;
+        const bPriority = Number(bActivity?.unread_chat || 0) > 0 ? 0 : bActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(bActivity?.reply_status) ? 2 : 3;
         if (aPriority !== bPriority) return aPriority - bPriority;
         const aDue = a.next_follow_up_at ? new Date(a.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
         const bDue = b.next_follow_up_at ? new Date(b.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
@@ -267,7 +293,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                   const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
                   const unreadChat = Number(activity?.unread_chat || 0);
                   const vaViews = Number(activity?.va_views || 0);
-                  const nextStepLabel = unreadChat > 0 ? "Reply in chat" : clientReplyStatusLabel(replyStatus);
+                  const needsMoreOptions = activity?.latest_decision === "need_more_options";
+                  const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
                   return <tr key={lead.id}>
                     <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                     <td><span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span></td>
@@ -283,12 +310,12 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                       <small className={styles.signalNote}>* Account-wide; shortlist, decision, reply and chat signals are role-specific.</small>
                     </td>
                     <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                    <td className={overdue || unreadChat > 0 ? styles.overdue : undefined}>
-                      <span className={unreadChat > 0 || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
-                        {unreadChat > 0 || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
+                    <td className={overdue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
+                      <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
+                        {unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
                         {nextStepLabel}
                       </span>
-                      <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
+                      <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
                     </td>
                   </tr>;
                 })}

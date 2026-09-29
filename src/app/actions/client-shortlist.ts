@@ -249,7 +249,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       title: notificationTitle,
       body: `${job.title}: client feedback was recorded${decisionNote ? ` (${decisionNote})` : ""}.`,
       href: `/workspace/recruiter/roles/${jobId}`,
-      type: "interview",
+      type: "client_review",
       priority: decision === "interview" ? "high" : "normal"
     })));
   }
@@ -262,6 +262,110 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   revalidatePath("/workspace/recruiter/matching");
   if (decision === "interview") redirect("/workspace/client/interviews?requested=1");
   redirectWithFlag(returnTo, "decision_saved");
+}
+
+export async function clientRequestMoreOptionsAction(formData: FormData) {
+  const { user } = await requireRole("client");
+  const jobId = String(formData.get("job_id") || "");
+  const note = cleanNote(formData.get("decision_note"), 300);
+  const returnTo = safeReturnTo(
+    formData.get("return_to"),
+    `/workspace/client/candidates?role=${encodeURIComponent(jobId)}#recruiter-shortlist`
+  );
+  if (!jobId) throw new Error("Role is required.");
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: access }, { count: releasedCount }, { data: latestRequest }] = await Promise.all([
+    admin
+      .from("jobs")
+      .select("id,title,client_id,recruiter_id,status,hiring_stage")
+      .eq("id", jobId)
+      .eq("client_id", user.id)
+      .maybeSingle(),
+    admin
+      .from("job_candidate_access")
+      .select("access_status")
+      .eq("job_id", jobId)
+      .maybeSingle(),
+    admin
+      .from("job_shortlist_candidates")
+      .select("id", { count: "exact", head: true })
+      .eq("job_id", jobId)
+      .eq("shortlist_status", "released"),
+    admin
+      .from("recruiter_activity")
+      .select("id,created_at")
+      .eq("subject_type", "job")
+      .eq("subject_id", jobId)
+      .eq("actor_id", user.id)
+      .eq("action", "client_more_options_requested")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
+  if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access must be active before requesting more options.");
+  if (!releasedCount) throw new Error("There is no released shortlist to request replacements for.");
+
+  const recentCutoff = Date.now() - 5 * 60 * 1000;
+  if (latestRequest?.created_at && new Date(latestRequest.created_at).getTime() >= recentCutoff) {
+    redirectWithFlag(returnTo, "more_options_requested");
+  }
+
+  const now = new Date().toISOString();
+  await writeRecruiterActivity({
+    subjectType: "job",
+    subjectId: jobId,
+    action: "client_more_options_requested",
+    description: note ? `Client requested more options: ${note}` : "Client requested more candidate options",
+    actorId: user.id,
+    metadata: { note },
+  });
+
+  if (["client_review", "internal_review"].includes(String(job.hiring_stage || ""))) {
+    await admin
+      .from("jobs")
+      .update({ hiring_stage: "sourcing", hiring_stage_entered_at: now, updated_at: now })
+      .eq("id", jobId)
+      .eq("client_id", user.id);
+  }
+
+  const recipientIds = new Set<string>();
+  if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
+  if (!recipientIds.size) {
+    const { data: recruiters } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("role", "recruiter")
+      .eq("account_status", "active");
+    for (const row of recruiters || []) recipientIds.add(String(row.id));
+  }
+
+  if (recipientIds.size) {
+    await admin.from("notifications").insert([...recipientIds].map((id) => ({
+      user_id: id,
+      title: "Client needs more candidate options",
+      body: `${job.title}: the client asked for more options${note ? ` (${note})` : ""}.`,
+      href: `/workspace/recruiter/roles/${jobId}#matching`,
+      type: "client_review",
+      priority: "high",
+    })));
+  }
+
+  await recordProductEvent("client_more_options_requested", {
+    userId: user.id,
+    path: returnTo,
+    metadata: { job_id: jobId, note: note || null },
+  });
+
+  revalidatePath("/workspace/client/candidates");
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath("/workspace/recruiter/roles");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/today");
+  redirectWithFlag(returnTo, "more_options_requested");
 }
 
 export async function clientShortlistMessageAction(formData: FormData) {
@@ -340,7 +444,7 @@ export async function sendClientShortlistFollowupAction(formData: FormData) {
   const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
   const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "job").eq("subject_id", jobId).eq("action", "client_shortlist_followup").gte("created_at", cutoff);
   if (!count) {
-    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as interested, request an interview, place them on hold with context, or pass so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
+    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as Interested, Interview, or Pass, or ask for more options so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "client_shortlist_followup", description: "Sent client shortlist feedback reminder", actorId: user.id });
   }
   revalidatePath(returnTo);

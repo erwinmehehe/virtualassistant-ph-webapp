@@ -4,13 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { PUBLIC_PROFILE_CONSENT_VERSION } from "@/lib/privacy-consent";
+import { isPubliclyEligible } from "@/lib/public-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function updateVaPublicProfileConsentAction(formData: FormData) {
   const { user } = await requireRole("va");
   const granted = formData.get("public_profile_consent") === "on";
   const admin = createAdminClient();
-  const { data: current } = await admin.from("va_profiles").select("public_profile_consent,directory_visible").eq("user_id", user.id).maybeSingle();
+  const [{ data: current }, { data: account }, { data: vetting }] = await Promise.all([
+    admin.from("va_profiles").select("*").eq("user_id", user.id).maybeSingle(),
+    admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle(),
+    admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
+  ]);
 
   const { error } = await admin.rpc("record_va_public_profile_consent", {
     p_va_id: user.id,
@@ -25,8 +30,21 @@ export async function updateVaPublicProfileConsentAction(formData: FormData) {
 
   if (!granted) {
     await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
-  } else if (!current?.public_profile_consent) {
-    await admin.from("va_profiles").update({ directory_visible: true }).eq("user_id", user.id);
+  } else if (current) {
+    const eligible = isPubliclyEligible(
+      {
+        ...current,
+        public_profile_consent: true,
+        public_profile_consent_at: new Date().toISOString(),
+        public_profile_consent_withdrawn_at: null,
+        public_profile_consent_version: PUBLIC_PROFILE_CONSENT_VERSION,
+      },
+      account?.avatar_url,
+      vetting?.stage
+    );
+    if (!eligible && current.directory_visible) {
+      await admin.from("va_profiles").update({ directory_visible: false }).eq("user_id", user.id);
+    }
   }
 
   revalidatePath("/workspace/va");

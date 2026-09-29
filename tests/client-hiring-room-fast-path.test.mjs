@@ -53,9 +53,8 @@ test("client shortlist decisions disable while saving", async () => {
   const page = await read("src/app/workspace/client/candidates/page.tsx");
 
   assert.match(page, /PendingSubmitButton[\s\S]*label="Interested"[\s\S]*pendingLabel="Saving…"/);
-  assert.match(page, /PendingSubmitButton[\s\S]*label="Request interview"[\s\S]*pendingLabel="Saving…"/);
-  assert.match(page, /PendingSubmitButton className="btn btn-sm" label="Place on hold" pendingLabel="Saving…"/);
-  assert.match(page, /PendingSubmitButton className="btn btn-sm" label="Confirm pass" pendingLabel="Saving…"/);
+  assert.match(page, /PendingSubmitButton[\s\S]*label="Interview"[\s\S]*pendingLabel="Saving…"/);
+  assert.match(page, /PendingSubmitButton[\s\S]*label="Confirm pass"[\s\S]*pendingLabel="Saving…"/);
 });
 
 

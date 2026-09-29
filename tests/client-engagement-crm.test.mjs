@@ -4,18 +4,13 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("clients can message the recruiter directly from a reviewed shortlist candidate", async () => {
-  const [actions, page] = await Promise.all([
-    read("src/app/actions/client-shortlist.ts"),
-    read("src/app/workspace/client/candidates/page.tsx"),
-  ]);
+test("reviewed shortlist questions route into the role-scoped recruiter chat", async () => {
+  const page = await read("src/app/workspace/client/candidates/page.tsx");
 
-  assert.match(actions, /clientShortlistMessageAction/);
-  assert.match(actions, /client_shortlist_message/);
-  assert.match(actions, /Client sent shortlist feedback/);
-  assert.match(page, /Message recruiter/);
-  assert.match(page, /Send to recruiter/);
-  assert.match(page, /Message sent to your recruiter/);
+  assert.match(page, /Message recruiter about this role/);
+  assert.match(page, /\/workspace\/client\/messages\?job=/);
+  assert.doesNotMatch(page, /clientShortlistMessageAction/);
+  assert.doesNotMatch(page, /Send to recruiter/);
 });
 
 test("recruiter CRM shows the requested client engagement signals", async () => {
@@ -70,7 +65,10 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.match(pipeline, /Decision/);
   assert.match(pipeline, /Reply in chat/);
   assert.match(pipeline, /unread client message/);
-  assert.match(pipeline, /unreadChat > 0 \|\| clientReplyNeedsAction/);
+  assert.match(pipeline, /client_more_options_requested/);
+  assert.match(pipeline, /need_more_options/);
+  assert.match(pipeline, /Build more options/);
+  assert.match(pipeline, /unreadChat > 0 \|\| activity\?\.latest_decision === "need_more_options"/);
 
   assert.match(migration, /auth\.users/);
   assert.match(migration, /candidate_view/);

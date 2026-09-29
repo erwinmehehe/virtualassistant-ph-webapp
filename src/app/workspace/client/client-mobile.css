@@ -38,6 +38,29 @@
   width: 100%;
 }
 
+.client-more-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-style: dashed;
+  background: #fcfcfd;
+}
+
+.client-more-options p {
+  margin: 4px 0 0;
+}
+
+.client-more-options form {
+  flex: 0 1 560px;
+}
+
+.client-more-options form input {
+  min-width: 240px;
+  flex: 1 1 280px;
+}
+
 @media (max-width: 680px) {
   /* Dashboard */
   .client-mobile-dashboard {
@@ -555,6 +578,25 @@
   .client-shortlist-grid .info-banner p {
     font-size: 10.75px;
     line-height: 1.45;
+  }
+
+  .client-more-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .client-more-options form,
+  .client-more-options form input,
+  .client-more-options form .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .client-more-options form input {
+    min-height: 44px;
+    font-size: 16px;
   }
 
   .client-shortlist-action-grid {

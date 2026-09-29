@@ -1479,11 +1479,53 @@
   min-width: 760px;
 }
 
-.pipelineWorkspace .table th:first-child { width: 30%; }
-.pipelineWorkspace .table th:nth-child(2) { width: 15%; }
-.pipelineWorkspace .table th:nth-child(3) { width: 25%; }
-.pipelineWorkspace .table th:nth-child(4) { width: 15%; }
-.pipelineWorkspace .table th:nth-child(5) { width: 15%; }
+.pipelineWorkspace .table th:first-child { width: 23%; }
+.pipelineWorkspace .table th:nth-child(2) { width: 11%; }
+.pipelineWorkspace .table th:nth-child(3) { width: 18%; }
+.pipelineWorkspace .table th:nth-child(4) { width: 25%; }
+.pipelineWorkspace .table th:nth-child(5) { width: 10%; }
+.pipelineWorkspace .table th:nth-child(6) { width: 13%; }
+
+.clientSignals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 180px;
+}
+
+.clientSignals span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 3px 6px;
+  border: 1px solid #eaecf0;
+  border-radius: 7px;
+  background: #f9fafb;
+  color: #667085;
+  font-size: 9.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.clientSignals b {
+  color: #344054;
+  font-size: 9px;
+  font-weight: 780;
+}
+
+.clientSignals .signalDecision {
+  border-color: #d9d6fe;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.clientSignals .signalUnread {
+  border-color: #fecdca;
+  background: #fef3f2;
+  color: #b42318;
+  font-weight: 740;
+}
 
 @media (max-width: 760px) {
   .pipelineWorkspace {
@@ -1502,12 +1544,19 @@
     min-width: 0;
   }
 
-  .pipelineWorkspace .table td:nth-child(3) {
+  .pipelineWorkspace .table td:nth-child(3),
+  .pipelineWorkspace .table td:nth-child(4),
+  .pipelineWorkspace .table td:nth-child(6) {
     display: block;
   }
 
-  .pipelineWorkspace .table td:nth-child(4) {
+  .pipelineWorkspace .table td:nth-child(5) {
     display: none;
+  }
+
+  .clientSignals {
+    min-width: 0;
+    margin: 2px 0;
   }
 }
 

@@ -143,15 +143,25 @@ export default async function RoleControlCenter({
   const publication = publicationBlocker(job, commercial);
   const clientViewedAt = activity.find((row) => row.action === "client_shortlist_viewed")?.created_at || null;
   const lastClientFollowupAt = activity.find((row) => row.action === "client_shortlist_followup")?.created_at || null;
-  const oldestReleasedAt = released.map((row) => row.released_at).filter(Boolean).sort()[0] || null;
+  const latestMoreOptions = activity.find((row) => row.action === "client_more_options_requested") || null;
+  const releasedTimes = released.map((row) => row.released_at).filter((value): value is string => Boolean(value)).sort();
+  const oldestReleasedAt = releasedTimes[0] || null;
+  const newestReleasedAt = releasedTimes[releasedTimes.length - 1] || null;
+  const moreOptionsOpen = Boolean(
+    latestMoreOptions &&
+    (!newestReleasedAt || new Date(latestMoreOptions.created_at).getTime() > new Date(newestReleasedAt).getTime())
+  );
   const hoursWaiting = oldestReleasedAt ? Math.max(0, (Date.now() - new Date(oldestReleasedAt).getTime()) / 3600000) : 0;
   const followupRecent = Boolean(lastClientFollowupAt && Date.now() - new Date(lastClientFollowupAt).getTime() < 20 * 3600000);
   const feedbackCount = released.filter((row) => row.client_decision && row.client_decision !== "hold").length;
   const heldCount = released.filter((row) => row.client_decision === "hold").length;
+  const passedCount = released.filter((row) => row.client_decision === "pass").length;
   const allPassed = Boolean(released.length && released.every((row) => row.client_decision === "pass"));
-  const clientStatus = !released.length
-    ? "Not sent"
-    : allPassed
+  const clientStatus = moreOptionsOpen
+    ? "Needs more options"
+    : !released.length
+      ? "Not sent"
+      : allPassed
       ? "Needs replacement matches"
       : feedbackCount === released.length
       ? "Feedback complete"
@@ -369,13 +379,21 @@ export default async function RoleControlCenter({
             <h2 style={{ margin: "3px 0 0" }}>Client handoff</h2>
             <p className="small muted" style={{ margin: "5px 0 0" }}>Track whether the shortlist was viewed, what the client decided, and whether follow-up is due.</p>
           </div>
-          <span className={`badge ${clientStatus === "Feedback complete" ? "badge-success" : released.length && hoursWaiting >= 24 ? "badge-warning" : ""}`}>{clientStatus}</span>
+          <span className={`badge ${clientStatus === "Feedback complete" ? "badge-success" : clientStatus === "Needs more options" || (released.length && hoursWaiting >= 24) ? "badge-warning" : ""}`}>{clientStatus}</span>
         </div>
+
+        {moreOptionsOpen && latestMoreOptions ? (
+          <div className="alert" role="status">
+            <strong>Client requested more options</strong>
+            <p className="small" style={{ margin: "5px 0 0" }}>{latestMoreOptions.description || "The current shortlist is not the right fit. Build new recruiter-reviewed options."}</p>
+            <a className="btn btn-sm" href="#matching" style={{ marginTop: 10 }}>Build more options</a>
+          </div>
+        ) : null}
 
         <div className="role-handoff-stats">
           <div><span>Sent</span><strong>{released.length}</strong></div>
-          <div><span>Waiting</span><strong>{waiting.length}</strong></div>
-          <div><span>On hold</span><strong>{heldCount}</strong></div>
+          <div><span>Waiting</span><strong>{waiting.length + heldCount}</strong></div>
+          <div><span>Passed</span><strong>{passedCount}</strong></div>
           <div><span>Decided</span><strong>{feedbackCount}</strong></div>
         </div>
 
@@ -392,6 +410,7 @@ export default async function RoleControlCenter({
                   <div>
                     <strong>{vaMap.get(x.va_id) || "VA"}</strong>
                     <div className="small muted">{x.client_recommendation || "Recruiter-curated candidate"}</div>
+                    {x.client_decision_note ? <div className="small" style={{ marginTop: 4 }}>Client note: {x.client_decision_note}</div> : null}
                   </div>
                   <span className={`badge ${x.client_decision === "pass" || x.client_decision === "hold" ? "badge-warning" : x.client_decision ? "badge-success" : ""}`}>
                     {x.client_decision ? x.client_decision.replaceAll("_", " ") : "Waiting"}

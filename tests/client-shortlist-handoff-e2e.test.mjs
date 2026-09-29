@@ -63,8 +63,8 @@ test("preview controls cannot accidentally submit client decisions", () => {
 });
 
 
-test("client decisions and more-options requests resolve stale shortlist reminders", async () => {
-  const actions = await read("src/app/actions/client-shortlist.ts");
+test("client decisions and more-options requests resolve stale shortlist reminders", () => {
+  const actions = clientActions;
   assert.match(actions, /resolveClientShortlistFollowups/);
   assert.match(actions, /type", "shortlist_followup"/);
   assert.match(actions, /client_decision\.is\.null,client_decision\.eq\.hold/);

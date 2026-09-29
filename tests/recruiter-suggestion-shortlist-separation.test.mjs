@@ -47,3 +47,21 @@ test("automatic refresh never erases a recruiter-curated shortlist marker",async
   assert.match(autoMatching,/const suggestionCandidates = qualified\.filter/);
   assert.match(autoMatching,/if \(rows\.length\)/);
 });
+
+
+test("matching defaults to agency-certified client-ready talent and blocks near-ready selection", async () => {
+  const [matching, table] = await Promise.all([
+    read("src/components/staff-job-matching.tsx"),
+    read("src/components/matching-candidate-table.tsx"),
+  ]);
+  assert.match(matching, /isTalentAgencyCertified/);
+  assert.match(matching, /talentReadinessActions/);
+  assert.match(matching, /bench_memberships/);
+  assert.match(matching, /clientReadyCount/);
+  assert.match(matching, /row\.clientReady&&row\.score>=60/);
+  assert.match(table, /selectionBlocked/);
+  assert.match(table, /Not client-ready yet/);
+  assert.match(table, /Strongest client-ready candidates first|strongest client-ready candidates first/i);
+  assert.match(table, /row\.clientReady\)/);
+  assert.match(table, /\["proposed", "released"\]/);
+});

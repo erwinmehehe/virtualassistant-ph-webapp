@@ -13,7 +13,7 @@ function numberValue(value: FormDataEntryValue | null) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-async function onboardingError(userId: string, step: number, field: string, message: string) {
+async function onboardingError(userId: string, step: number, field: string, message: string): Promise<never> {
   await recordProductEvent("va_onboarding_validation_error", {
     userId,
     path: "/workspace/va/onboarding",

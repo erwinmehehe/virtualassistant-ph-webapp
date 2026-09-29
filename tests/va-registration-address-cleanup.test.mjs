@@ -56,8 +56,9 @@ test("resume address backfill only auto-saves explicit high-confidence addresses
   assert.match(parser, /confidence: "high"/);
   assert.match(parser, /confidence: "review"/);
   assert.match(worker, /candidate\.confidence === "high"/);
-  assert.match(worker, /address_resume_status: "review"/);
-  assert.match(worker, /address_resume_status: "no_match"/);
+  assert.match(worker, /candidate\.confidence === "review" \? "review" : "no_match"/);
+  assert.match(worker, /address_resume_status: status/);
+  
   assert.match(worker, /address_resume_status: "unsupported"/);
   assert.match(worker, /address_resume_status: "error"/);
   assert.match(worker, /storage\.from\("resumes"\)\.download/);

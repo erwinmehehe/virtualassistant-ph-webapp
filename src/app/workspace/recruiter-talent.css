@@ -464,3 +464,81 @@
     grid-column:auto;
   }
 }
+
+
+/* VA profile-health rescue queue */
+.talent-onboarding-rescue {
+  display:grid;
+  gap:14px;
+  margin:0 0 16px;
+  padding:16px;
+  border:1px solid #e4e7ec;
+  border-radius:14px;
+  background:#fff;
+}
+.talent-onboarding-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.talent-onboarding-head > div:first-child { max-width:720px; }
+.talent-onboarding-head h2 {
+  margin:3px 0 5px;
+  color:#101828;
+  font-size:17px;
+  letter-spacing:-.02em;
+}
+.talent-onboarding-head p {
+  margin:0;
+  color:#667085;
+  font-size:11px;
+  line-height:1.55;
+}
+.talent-onboarding-stats {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  overflow:hidden;
+  border:1px solid #eef0f3;
+  border-radius:12px;
+  background:#f9fafb;
+}
+.talent-onboarding-stats > div {
+  min-width:0;
+  padding:12px 13px;
+  border-right:1px solid #eef0f3;
+}
+.talent-onboarding-stats > div:last-child { border-right:0; }
+.talent-onboarding-stats span,
+.talent-onboarding-stats strong,
+.talent-onboarding-stats small { display:block; }
+.talent-onboarding-stats span {
+  color:#667085;
+  font-size:9px;
+  font-weight:750;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.talent-onboarding-stats strong {
+  margin-top:4px;
+  color:#101828;
+  font-size:20px;
+}
+.talent-onboarding-stats small {
+  margin-top:2px;
+  color:#98a2b3;
+  font-size:9px;
+  line-height:1.35;
+}
+@media (max-width: 980px) {
+  .talent-onboarding-head { flex-direction:column; }
+  .talent-onboarding-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .talent-onboarding-stats > div { border-bottom:1px solid #eef0f3; }
+}
+@media (max-width: 560px) {
+  .talent-onboarding-rescue { padding:14px; }
+  .talent-onboarding-head .row { width:100%; }
+  .talent-onboarding-head .btn { flex:1 1 100%; }
+  .talent-onboarding-stats { grid-template-columns:1fr; }
+  .talent-onboarding-stats > div { border-right:0; }
+}

@@ -92,3 +92,36 @@ test("recruiter mobile shell prevents dashboard-wide horizontal page overflow", 
   assert.match(css, /\.workspace-role-recruiter \.table-wrap:not\(\.responsive-table\)[\s\S]*overflow-x: auto/);
   assert.match(css, /\.workspace-role-recruiter \.role-workflow-nav[\s\S]*overflow-x: auto/);
 });
+
+
+test("recruiter Talent and Notifications have phone-specific layouts", async () => {
+  const [talent, notifications, css] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("src/app/workspace/recruiter/notifications/page.tsx"),
+    read("src/app/workspace/recruiter/recruiter-mobile.css"),
+  ]);
+
+  assert.match(talent, /recruiter-talent-page/);
+  assert.match(notifications, /recruiter-notifications-page/);
+  assert.match(css, /\.recruiter-talent-page \.filter-primary-row[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(css, /\.recruiter-talent-page \.bulk-action-controls[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(css, /\.recruiter-notifications-page \.notification-card > \.row-between[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(css, /@media \(max-width: 420px\)[\s\S]*recruiter-notifications-page/);
+});
+
+test("recruiter CRM and both message channels remain usable at 375px", async () => {
+  const [crmCss, inboxCss, chatCss, clientMessages, vaMessages] = await Promise.all([
+    read("src/app/workspace/recruiter/crm/crm.module.css"),
+    read("src/components/recruiter-client-chat-page.module.css"),
+    read("src/components/recruiter-client-chat.module.css"),
+    read("src/app/workspace/recruiter/messages/page.tsx"),
+    read("src/app/workspace/recruiter/va-messages/page.tsx"),
+  ]);
+
+  assert.match(crmCss, /@media \(max-width: 460px\)[\s\S]*\.pipelineWorkspace \.searchForm[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(crmCss, /\.pipelineWorkspace \.modeSwitch[\s\S]*grid-template-columns: 1fr 1fr/);
+  assert.match(inboxCss, /@media\(max-width:480px\)[\s\S]*\.threadList\{max-height:210px/);
+  assert.match(chatCss, /@media\(max-width:480px\)[\s\S]*\.composer textarea\{min-height:78px;font-size:16px/);
+  assert.match(clientMessages, /Client messages/);
+  assert.match(vaMessages, /RecruiterVaChatPage/);
+});

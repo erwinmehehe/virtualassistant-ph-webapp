@@ -23,7 +23,7 @@ export default async function RecruiterNotificationsPage({searchParams}:{searchP
   const rows=[...(data||[])].sort((a:any,b:any)=>(PRIORITY_ORDER[a.priority]??2)-(PRIORITY_ORDER[b.priority]??2)||new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
   const unread=rows.filter((row:any)=>!row.read_at&&!row.done_at).length;
 
-  return <div className="dash-page">
+  return <div className="dash-page recruiter-notifications-page">
     <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>Notification Inbox</h1><p>Click an alert to go straight to the client, role, interview, offer, or candidate that needs action.</p></div>{unread?<form action={markAllRecruiterNotificationsReadAction}><button className="btn" type="submit">Mark all read</button></form>:null}</div>
 
     <div className="role-filter-tabs" aria-label="Notification views">

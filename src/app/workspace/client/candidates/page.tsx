@@ -4,6 +4,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
+import { ClientCandidateViewTracker } from "@/components/client-candidate-view-tracker";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import {
   getClientHiringRoomSummary,
@@ -231,8 +232,9 @@ export default async function ClientCandidatesPage({
                       ? "Passed"
                       : "";
 
-              return <ClientShortlistCandidateCard
-                key={row.va_id}
+              return <div className="client-candidate-review-card" key={row.va_id}>
+                <ClientCandidateViewTracker jobId={selectedJob.id} vaId={row.va_id}/>
+                <ClientShortlistCandidateCard
                 fullName={profile?.full_name}
                 headline={va?.headline}
                 primaryCategory={va?.primary_category}
@@ -300,7 +302,8 @@ export default async function ClientCandidatesPage({
                 feedback={row.client_decision_note ? (
                   <div className="small muted">Feedback: {row.client_decision_note}</div>
                 ) : null}
-              />;
+              />
+              </div>;
             })}
           </div>
         ) : selectedPublished ? (

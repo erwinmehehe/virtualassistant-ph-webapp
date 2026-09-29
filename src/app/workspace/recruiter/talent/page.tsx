@@ -290,7 +290,7 @@ export default async function RecruiterTalentDirectory({
   ].filter(Boolean) as { key: string; label: string }[];
 
 
-  return <>
+  return <div className="recruiter-talent-page">
     <RecruiterViewPreference storageKey="recruiter-talent-view-v1" view={params.view} sort={params.sort} />
     <div className="page-head">
       <div>
@@ -644,5 +644,5 @@ export default async function RecruiterTalentDirectory({
       <span className="small muted">{total ? from + 1 : 0}-{Math.min(from + PAGE_SIZE, total)} of {total}</span>
       {page < pages ? <Link className="btn btn-sm" href={`/workspace/recruiter/talent${qs(params, { page: page + 1 })}`}>Next →</Link> : <span />}
     </div>
-  </>;
+  </div>;
 }

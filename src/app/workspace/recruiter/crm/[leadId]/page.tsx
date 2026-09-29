@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getClientLastLogin } from "@/lib/client-auth-activity";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
 import { dateInputValue as dateInput, dateTimeInputValue as dateTimeInput } from "@/lib/format";
 import {
@@ -192,49 +191,22 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const workrooms = (workroomResult.data || []) as Workroom[];
   const replyState = replyStateResult.data as ClientReplyStateRow | null;
 
-  const [
-    clientLastLoginAt,
-    candidateViewResult,
-    shortlistOpenResult,
-    shortlistMessageResult,
-  ] = await Promise.all([
-    getClientLastLogin(lead.client_id),
-    lead.client_id
-      ? admin.from("analytics_events")
-          .select("created_at", { count: "exact" })
-          .eq("user_id", lead.client_id)
-          .in("event_name", ["candidate_view", "candidate_viewed"])
-          .order("created_at", { ascending: false })
-          .limit(1)
-      : Promise.resolve({ data: [], count: 0, error: null }),
-    lead.client_id && lead.job_id
-      ? admin.from("recruiter_activity")
-          .select("created_at")
-          .eq("subject_type", "job")
-          .eq("subject_id", lead.job_id)
-          .eq("actor_id", lead.client_id)
-          .eq("action", "client_shortlist_viewed")
-          .order("created_at", { ascending: false })
-          .limit(1)
-      : Promise.resolve({ data: [], error: null }),
-    lead.client_id && lead.job_id
-      ? admin.from("recruiter_activity")
-          .select("created_at")
-          .eq("subject_type", "job")
-          .eq("subject_id", lead.job_id)
-          .eq("actor_id", lead.client_id)
-          .eq("action", "client_shortlist_message")
-          .order("created_at", { ascending: false })
-          .limit(1)
-      : Promise.resolve({ data: [], error: null }),
-  ]);
-  for (const result of [candidateViewResult, shortlistOpenResult, shortlistMessageResult]) {
-    if (result.error) throw result.error;
-  }
-  const candidateViewCount = Number(candidateViewResult.count || 0);
-  const lastCandidateViewAt = candidateViewResult.data?.[0]?.created_at || null;
-  const shortlistOpenedAt = shortlistOpenResult.data?.[0]?.created_at || null;
-  const lastShortlistMessageAt = shortlistMessageResult.data?.[0]?.created_at || null;
+  const { data: engagementRows, error: engagementError } = await admin
+    .rpc("recruiter_client_activity_snapshot", { lead_ids: [leadId] });
+  if (engagementError) throw engagementError;
+  const engagement = (engagementRows || [])[0] as {
+    last_login_at?: string | null;
+    last_va_view_at?: string | null;
+    va_views?: number | null;
+    shortlist_opened_at?: string | null;
+    last_shortlist_activity_at?: string | null;
+  } | undefined;
+
+  const clientLastLoginAt = engagement?.last_login_at || null;
+  const candidateViewCount = Number(engagement?.va_views || 0);
+  const lastCandidateViewAt = engagement?.last_va_view_at || null;
+  const shortlistOpenedAt = engagement?.shortlist_opened_at || null;
+  const snapshotShortlistActivityAt = engagement?.last_shortlist_activity_at || null;
   const lastEmailReplyAt = replyState?.last_client_reply_at || null;
   const replyStatus = String(replyState?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
   const replyStatusLabel = clientReplyStatusLabel(replyStatus);
@@ -344,7 +316,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const latestDecision = shortlists
     .filter((item) => item.client_decision_at)
     .sort((x,y) => new Date(y.client_decision_at || 0).getTime() - new Date(x.client_decision_at || 0).getTime())[0] || null;
-  const shortlistActivityTimes = [shortlistOpenedAt, lastShortlistMessageAt, latestDecision?.client_decision_at || null].filter(Boolean) as string[];
+  const shortlistActivityTimes = [snapshotShortlistActivityAt, shortlistOpenedAt, latestDecision?.client_decision_at || null].filter(Boolean) as string[];
   const lastShortlistActivityAt = shortlistActivityTimes.length
     ? shortlistActivityTimes.sort((x,y) => new Date(y).getTime() - new Date(x).getTime())[0]
     : null;

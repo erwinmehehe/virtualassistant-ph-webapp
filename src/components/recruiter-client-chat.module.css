@@ -11,3 +11,17 @@
 .empty{min-height:300px;display:grid;place-items:center;align-content:center;gap:6px;text-align:center;color:#667085}.empty strong{color:#344054}.empty p{margin:0;font-size:11px}
 .composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:14px 16px;border-top:1px solid #eaecf0;background:#fff}.composer textarea{resize:vertical;min-height:74px;max-height:180px}.composer button{min-height:40px}
 @media(max-width:680px){.chatHeader{align-items:flex-start;flex-direction:column}.rule{align-self:flex-start}.messages{min-height:320px;max-height:52vh;padding:12px}.mine,.theirs{max-width:88%}.composer{grid-template-columns:1fr}.composer button{width:100%}}
+
+@media(max-width:480px){
+  .chatCard{border-radius:14px}
+  .chatHeader{gap:9px;padding:12px}
+  .chatTitle h2{font-size:15px}
+  .chatTitle p{font-size:10px}
+  .rule{white-space:normal}
+  .messages{min-height:260px;max-height:46vh;padding:10px}
+  .mine,.theirs{max-width:94%}
+  .bubble{padding:9px 10px;font-size:12.5px}
+  .composer{gap:8px;padding:10px 11px}
+  .composer textarea{min-height:78px;font-size:16px}
+  .composer button{min-height:44px}
+}

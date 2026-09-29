@@ -12,6 +12,7 @@ const fixedEvents = new Set([
   "pricing_view",
   "hire_page_view",
   "candidate_view",
+  "candidate_viewed",
   "directory_profile_view",
   "directory_role_brief",
   "featured_profile_view",

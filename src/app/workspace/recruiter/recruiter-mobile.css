@@ -719,3 +719,165 @@
     -webkit-overflow-scrolling: touch;
   }
 }
+
+
+/* Recruiter phone QA: Talent and Notifications need route-specific controls,
+   not just the shared responsive-table fallback. */
+@media (max-width: 680px) {
+  .recruiter-talent-page,
+  .recruiter-notifications-page {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .recruiter-talent-page .page-head,
+  .recruiter-talent-page .talent-onboarding-head,
+  .recruiter-talent-page .saved-view-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .recruiter-talent-page .page-head h1,
+  .recruiter-notifications-page .dash-header h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .recruiter-talent-page .talent-onboarding-head > .row,
+  .recruiter-talent-page .filter-primary-row,
+  .recruiter-talent-page .filter-more-grid,
+  .recruiter-talent-page .bulk-action-controls {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  .recruiter-talent-page .talent-onboarding-head .btn,
+  .recruiter-talent-page .filter-primary-row > *,
+  .recruiter-talent-page .filter-more-grid > *,
+  .recruiter-talent-page .bulk-action-controls > *,
+  .recruiter-talent-page .bulk-action-controls .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .recruiter-talent-page .recruiter-saved-views .saved-view-list {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recruiter-talent-page .recruiter-saved-views .saved-view {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .recruiter-talent-page .talent-onboarding-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .recruiter-talent-page .talent-onboarding-list > a {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    gap: 8px;
+  }
+
+  .recruiter-talent-page .talent-onboarding-list > a > :last-child {
+    grid-column: 2;
+  }
+
+  .recruiter-talent-page .recruiter-filter-panel input,
+  .recruiter-talent-page .recruiter-filter-panel select,
+  .recruiter-talent-page .bulk-action-controls select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .recruiter-talent-page .recruiter-talent-table tr {
+    padding: 12px !important;
+    border-radius: 13px;
+  }
+
+  .recruiter-talent-page .recruiter-talent-table td[data-label="Select"] {
+    padding-bottom: 4px;
+  }
+
+  .recruiter-talent-page .recruiter-talent-table td[data-label="Action"] .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .recruiter-talent-page .candidate-identity-cell {
+    align-items: flex-start;
+  }
+
+  .recruiter-notifications-page .dash-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .recruiter-notifications-page .dash-header form,
+  .recruiter-notifications-page .dash-header .btn {
+    width: 100%;
+  }
+
+  .recruiter-notifications-page .notification-card {
+    padding: 12px;
+  }
+
+  .recruiter-notifications-page .notification-card > .row-between {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px !important;
+  }
+
+  .recruiter-notifications-page .notification-card > .row-between > .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+  }
+
+  .recruiter-notifications-page .notification-card > .row-between > .row > form,
+  .recruiter-notifications-page .notification-card > .row-between > .row > form > .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .recruiter-notifications-page .notification-card form.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+
+  .recruiter-notifications-page .notification-card select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .recruiter-talent-page .page-head h1,
+  .recruiter-notifications-page .dash-header h1 {
+    font-size: 25px;
+  }
+
+  .recruiter-notifications-page .notification-card > .row-between > .row {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-notifications-page .notification-card form.row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .recruiter-talent-page .pagination {
+    justify-content: space-between;
+    gap: 7px;
+  }
+}

@@ -7,3 +7,16 @@
 .emptyThreads,.noActive{display:grid;place-items:center;align-content:center;gap:6px;min-height:220px;text-align:center;color:#667085;padding:20px}.emptyThreads p,.noActive p{margin:0;max-width:420px}.noActive h2{margin:0;color:#344054;font-size:17px}
 .chatPane{min-width:0}
 @media(max-width:860px){.layout{grid-template-columns:1fr}.threadList{position:static;max-height:260px}.threadMeta small{display:none}}
+
+@media(max-width:480px){
+  .page{gap:12px}
+  .layout{gap:10px}
+  .threadList{max-height:210px;border-radius:13px}
+  .threadListHead{padding:10px 11px}
+  .thread,.threadActive{gap:8px;padding:10px 11px}
+  .thread>div:first-child,.threadActive>div:first-child{min-width:0}
+  .thread strong,.threadActive strong{overflow-wrap:anywhere}
+  .thread small,.threadActive small{font-size:9px;line-height:1.35}
+  .threadMeta{min-width:28px}
+  .chatPane{width:100%}
+}

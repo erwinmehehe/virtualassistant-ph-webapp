@@ -43,6 +43,6 @@ export function ClientEngagementPanel({
       <div><span>Last email / chat reply</span><strong>{lastClientContact}</strong></div>
       <div><span>Reply status</span><strong className={replyStatus.startsWith("Client replied") ? styles.needsAction : replyStatus.startsWith("Awaiting") ? styles.awaiting : styles.handled}>{replyStatus}</strong></div>
     </div>
-    <p className={styles.note}>VA views are distinct candidates actually viewed in this role's Hiring Room. Shortlist activity and inbound client email/chat replies are tracked automatically and kept role-scoped so signals do not bleed across a client's other roles. Recruiters can still log a reply manually if needed.</p>
+    <p className={styles.note}>VA views are distinct candidates actually viewed in this role's Hiring Room. Shortlist activity and inbound client email replies are tracked automatically; in-app chat replies are tracked too, and all signals stay role-scoped so they do not bleed across a client's other roles. Recruiters can still log a reply manually if needed.</p>
   </section>;
 }

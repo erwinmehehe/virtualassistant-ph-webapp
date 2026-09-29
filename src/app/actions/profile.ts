@@ -222,6 +222,28 @@ export async function updateVaProfileAction(formData: FormData) {
   if (nameError) throw nameError;
   if (profileError) throw profileError;
 
+  if (address) {
+    const resolvedAt = new Date().toISOString();
+    const { data: resolvedAddressRequests, error: resolveAddressError } = await admin
+      .from("notifications")
+      .update({ done_at: resolvedAt, read_at: resolvedAt, snoozed_until: null })
+      .eq("user_id", user.id)
+      .eq("type", "private_address_request")
+      .is("done_at", null)
+      .select("id");
+    if (resolveAddressError) throw resolveAddressError;
+
+    if (resolvedAddressRequests?.length) {
+      await writeRecruiterActivity({
+        subjectType: "va",
+        subjectId: user.id,
+        action: "private_address_provided",
+        description: "VA provided the requested private home address.",
+        actorId: user.id,
+      });
+    }
+  }
+
   if (resumeUpload) {
     const { file: resume, expectedMime, safeName } = resumeUpload;
     const path = `${user.id}/${Date.now()}-${safeName}`;

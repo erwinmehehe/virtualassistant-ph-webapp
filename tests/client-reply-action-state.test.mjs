@@ -65,8 +65,8 @@ test("inbound replies refresh CRM and create high priority recruiter notificatio
 test("Recruiter Today prioritizes assigned client replies", async () => {
   const today = await read("src/app/workspace/recruiter/today/page.tsx");
 
-  assert.match(today, /recruiter_client_reply_state/);
-  assert.match(today, /reply_status", "needs_action"/);
+  assert.match(today, /summary\.client_replies/);
+  assert.match(today, /clientReplies/);
   assert.match(today, /client_email_reply/);
   assert.match(today, /Reply to clients/);
 });

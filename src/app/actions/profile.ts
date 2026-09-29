@@ -197,6 +197,7 @@ export async function updateVaProfileAction(formData: FormData) {
     portfolio_url: cleanUrl(formData.get("portfolio_url")),
     linkedin_url: cleanUrl(formData.get("linkedin_url")),
     availability_status: String(formData.get("availability_status") ?? "available"),
+    availability_confirmed_at: new Date().toISOString(),
     directory_visible: formData.get("directory_visible") === "on"
   };
 

@@ -1,0 +1,13 @@
+.chatCard{border:1px solid #e4e7ec;border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.chatHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border-bottom:1px solid #eaecf0;background:#fcfcfd}
+.chatTitle{display:flex;align-items:center;gap:10px;min-width:0}.chatTitle h2{margin:0;font-size:16px}.chatTitle p{margin:3px 0 0;color:#667085;font-size:11px}
+.icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef4ff;color:#444ce7;flex:0 0 auto}
+.rule{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#ecfdf3;color:#027a48;font-size:10px;font-weight:750;white-space:nowrap}
+.messages{min-height:360px;max-height:58vh;overflow:auto;padding:18px;background:linear-gradient(#fafbfc,#fff)}
+.mine,.theirs{display:flex;flex-direction:column;gap:4px;margin:0 0 12px;max-width:min(78%,640px)}.mine{margin-left:auto;align-items:flex-end}.theirs{align-items:flex-start}
+.bubble{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border-radius:14px;font-size:13px;line-height:1.45}
+.mine .bubble{background:#444ce7;color:#fff;border-bottom-right-radius:5px}.theirs .bubble{background:#f2f4f7;color:#101828;border-bottom-left-radius:5px}
+.mine small,.theirs small{color:#98a2b3;font-size:9.5px}
+.empty{min-height:300px;display:grid;place-items:center;align-content:center;gap:6px;text-align:center;color:#667085}.empty strong{color:#344054}.empty p{margin:0;font-size:11px}
+.composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:14px 16px;border-top:1px solid #eaecf0;background:#fff}.composer textarea{resize:vertical;min-height:74px;max-height:180px}.composer button{min-height:40px}
+@media(max-width:680px){.chatHeader{align-items:flex-start;flex-direction:column}.rule{align-self:flex-start}.messages{min-height:320px;max-height:52vh;padding:12px}.mine,.theirs{max-width:88%}.composer{grid-template-columns:1fr}.composer button{width:100%}}

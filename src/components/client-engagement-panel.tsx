@@ -9,6 +9,7 @@ export function ClientEngagementPanel({
   shortlistActivity,
   decision,
   lastEmailReply,
+  replyStatus,
 }: {
   linked: boolean;
   lastLogin: string;
@@ -18,6 +19,7 @@ export function ClientEngagementPanel({
   shortlistActivity: string;
   decision: string;
   lastEmailReply: string;
+  replyStatus: string;
 }) {
   return <section className={styles.card}>
     <div className={styles.head}>
@@ -32,6 +34,7 @@ export function ClientEngagementPanel({
       <div><span>Last shortlist activity</span><strong>{shortlistActivity}</strong></div>
       <div><span>Decision received</span><strong>{decision}</strong></div>
       <div><span>Last email reply</span><strong>{lastEmailReply}</strong></div>
+      <div><span>Reply status</span><strong className={replyStatus.startsWith("Client replied") ? styles.needsAction : replyStatus.startsWith("Awaiting") ? styles.awaiting : styles.handled}>{replyStatus}</strong></div>
     </div>
     <p className={styles.note}>Candidate views, shortlist activity, and inbound client email replies are tracked automatically when they reach the configured reply mailbox. Recruiters can still log a reply manually if needed.</p>
   </section>;

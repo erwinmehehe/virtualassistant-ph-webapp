@@ -199,7 +199,7 @@ export default async function ClientCandidatesPage({
         <div><span>Passed</span><strong>{passed}</strong></div>
       </div> : null}
 
-      {selectedReleased.length && selectedJob ? (
+      {selectedReleased.length && selectedJob && selectedPublished && selectedAccessUnlocked ? (
         <div className="client-more-options card">
           <div>
             <strong>Not seeing the right fit?</strong>

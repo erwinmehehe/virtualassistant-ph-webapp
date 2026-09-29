@@ -563,7 +563,29 @@ export default async function RecruiterTalentDirectory({
                 ...matchedCategories.map((category) => vaCategoryLabel(category)),
                 ...(matchedSkill ? [`Skill: ${matchedSkill}`] : []),
               ];
-              const hasPrivateAddress = Boolean(addressMap.get(row.user_id));
+              const hasPrivateAddress = Boolean(row.has_private_address);
+              const registrationHealth = String(row.registration_health || "");
+              const registrationLabel = registrationHealth === "email_unconfirmed"
+                ? "Email unconfirmed"
+                : registrationHealth === "never_started"
+                  ? "Never started profile"
+                  : registrationHealth === "profile_incomplete"
+                    ? "Profile incomplete"
+                    : "";
+              const addressStatus = String(row.address_resume_status || "");
+              const addressCopy = hasPrivateAddress
+                ? "Private address recorded"
+                : addressStatus === "review"
+                  ? "Resume address needs recruiter review"
+                  : addressStatus === "no_match"
+                    ? "No address found in resume"
+                    : addressStatus === "unsupported"
+                      ? "Resume format needs manual address review"
+                      : addressStatus === "error"
+                        ? "Resume address check failed"
+                        : row.has_resume
+                          ? "Private address missing · resume pending"
+                          : "Private address missing · no resume source";
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
@@ -595,10 +617,9 @@ export default async function RecruiterTalentDirectory({
                   <div className="readiness-cell">
                     <div className="readiness-line"><strong>{score}% complete</strong>{score >= APPROVAL_MIN_COMPLETION && !approved ? <span className="approval-ready-label">Approval-ready</span> : null}</div>
                     <div className="progress mini"><span style={{ width: `${score}%` }} /></div>
+                    {registrationLabel ? <div className="classification-gap-copy"><strong>{registrationLabel}</strong>{registrationHealth === "never_started" && row.last_sign_in_at ? " · Signed in but setup was never started" : ""}</div> : null}
                     <div className="profile-issues">{missing.length ? `Needs: ${missing.slice(0, 2).join(" · ")}${missing.length > 2 ? ` +${missing.length - 2}` : ""}` : "No profile gaps flagged"}</div>
-                    <div className={hasPrivateAddress ? "small muted" : "classification-gap-copy"}>
-                      {hasPrivateAddress ? "Private address recorded" : "Private address missing"}
-                    </div>
+                    <div className={hasPrivateAddress ? "small muted" : "classification-gap-copy"}>{addressCopy}</div>
                     {classificationStatus === "incomplete_profile" ? <div className="classification-gap-copy">
                       Classification blocked · add {classificationMissing.slice(0, 3).map((key) => classificationMissingLabels[key] || key).join(" · ")}{classificationMissing.length > 3 ? ` +${classificationMissing.length - 3}` : ""}
                     </div> : classificationStatus === "ready_to_classify" ? <div className="classification-ready-copy">Enough profile evidence to classify</div> : null}

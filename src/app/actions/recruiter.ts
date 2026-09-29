@@ -91,6 +91,8 @@ function talentFiltersFromFormData(formData: FormData): RecruiterTalentFilters {
   return {
     q: String(formData.get("filter_q") || ""),
     category: String(formData.get("filter_category") || ""),
+    registration: String(formData.get("filter_registration") || ""),
+    address: String(formData.get("filter_address") || ""),
     stage: String(formData.get("filter_stage") || ""),
     readiness: String(formData.get("filter_readiness") || ""),
     photo: String(formData.get("filter_photo") || ""),
@@ -112,7 +114,7 @@ async function filteredVaRows(formData: FormData, returnTo: string) {
   const filters = talentFiltersFromFormData(formData);
 
   let countQuery: any = admin
-    .from("recruiter_va_directory")
+    .from("recruiter_va_directory_health")
     .select("user_id", { count: "exact", head: true });
   countQuery = applyRecruiterTalentFilters(countQuery, filters);
   const { count, error: countError } = await countQuery;
@@ -122,7 +124,7 @@ async function filteredVaRows(formData: FormData, returnTo: string) {
   }
 
   let query: any = admin
-    .from("recruiter_va_directory")
+    .from("recruiter_va_directory_health")
     .select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at")
     .limit(RECRUITER_BULK_LIMIT);
   query = applyRecruiterTalentFilters(query, filters);
@@ -144,7 +146,7 @@ async function resolveBulkRows(formData: FormData, returnTo: string) {
   if (!selected.length) return [];
 
   const { data, error } = await createAdminClient()
-    .from("recruiter_va_directory")
+    .from("recruiter_va_directory_health")
     .select("user_id,full_name,primary_category,completion_score,missing_items,last_activity_at,stage,account_status,edited_since_approval_at")
     .in("user_id", selected);
   if (error) throw error;
@@ -1186,7 +1188,7 @@ export async function assignVaToRoleAction(formData: FormData) {
   const [{ data: job }, { data: va }, { data: vetting }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).in("status", ["pending", "published"]).maybeSingle(),
     admin.from("va_profiles").select("*").eq("user_id", vaId).maybeSingle(),
-    admin.from("recruiter_va_directory").select("user_id,stage").eq("user_id", vaId).maybeSingle()
+    admin.from("recruiter_va_directory_health").select("user_id,stage").eq("user_id", vaId).maybeSingle()
   ]);
   if (!job || !va || !vetting || !["approved", "bench"].includes(String(vetting.stage || ""))) {
     throw new Error("This Virtual Assistant must be approved or on the recruiter bench before role assignment.");
@@ -1236,7 +1238,7 @@ export async function repairVaRecordsAction() {
 export async function hideIncompletePublicProfilesAction() {
   const { user } = await requireAnyRole(["admin"]);
   const admin = createAdminClient();
-  const { data: rows } = await admin.from("recruiter_va_directory").select("user_id").eq("directory_visible", true).lt("completion_score", PUBLIC_VA_MIN_COMPLETION).limit(500);
+  const { data: rows } = await admin.from("recruiter_va_directory_health").select("user_id").eq("directory_visible", true).lt("completion_score", PUBLIC_VA_MIN_COMPLETION).limit(500);
   const ids = (rows || []).map((r: any) => r.user_id);
   if (ids.length) await admin.from("va_profiles").update({ directory_visible: false }).in("user_id", ids);
   await writeAdminAudit({ actorId: user.id, action: "hide_incomplete_public_profiles", targetType: "va", metadata: { count: ids.length } });

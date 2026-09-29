@@ -1527,6 +1527,14 @@
   font-weight: 740;
 }
 
+.signalNote {
+  display: block;
+  margin-top: 4px;
+  color: #98a2b3;
+  font-size: 8.5px;
+  line-height: 1.25;
+}
+
 @media (max-width: 760px) {
   .pipelineWorkspace {
     border-radius: 11px;

@@ -37,10 +37,10 @@ export async function saveVaOnboardingBasicsAction(formData: FormData) {
   const headline = String(formData.get("headline") || "").trim();
 
   if (!VA_CATEGORIES.includes(category as (typeof VA_CATEGORIES)[number])) {
-    await onboardingError(user.id, 1, "primary_category", "Choose the VA specialty that best matches your work.");
+    return onboardingError(user.id, 1, "primary_category", "Choose the VA specialty that best matches your work.");
   }
   if (headline.length < 8 || headline.length > 80) {
-    await onboardingError(user.id, 1, "headline", "Write a short professional headline between 8 and 80 characters.");
+    return onboardingError(user.id, 1, "headline", "Write a short professional headline between 8 and 80 characters.");
   }
 
   const admin = createAdminClient();
@@ -55,7 +55,7 @@ export async function saveVaOnboardingBasicsAction(formData: FormData) {
     .maybeSingle();
 
   if (profileError || !updatedProfile) {
-    await onboardingError(user.id, 1, "save", "We could not save this step. Please try again.");
+    return onboardingError(user.id, 1, "save", "We could not save this step. Please try again.");
   }
 
   await recordProductEvent("va_onboarding_step_saved", {
@@ -75,13 +75,13 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
   const hourlyRate = numberValue(formData.get("hourly_rate"));
 
   if (yearsExperience == null || !Number.isInteger(yearsExperience) || yearsExperience < 0 || yearsExperience > 60) {
-    await onboardingError(user.id, 2, "years_experience", "Enter your years of professional experience.");
+    return onboardingError(user.id, 2, "years_experience", "Enter your years of professional experience.");
   }
   if (weeklyHours == null || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80) {
-    await onboardingError(user.id, 2, "weekly_hours", "Enter how many hours you can work each week.");
+    return onboardingError(user.id, 2, "weekly_hours", "Enter how many hours you can work each week.");
   }
   if (hourlyRate == null || hourlyRate < settings.minHourlyRate || hourlyRate > 1000) {
-    await onboardingError(user.id, 2, "hourly_rate", `Preferred rate must be at least USD ${settings.minHourlyRate} per hour.`);
+    return onboardingError(user.id, 2, "hourly_rate", `Preferred rate must be at least USD ${settings.minHourlyRate} per hour.`);
   }
 
   const admin = createAdminClient();
@@ -97,7 +97,7 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
     .maybeSingle();
 
   if (profileError || !updatedProfile) {
-    await onboardingError(user.id, 2, "save", "We could not save this step. Please try again.");
+    return onboardingError(user.id, 2, "save", "We could not save this step. Please try again.");
   }
 
   await recordProductEvent("va_onboarding_step_saved", {
@@ -115,7 +115,7 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   const address = String(formData.get("address") || "").replace(/\s+/g, " ").trim();
 
   if (address.length < 5 || address.length > 200) {
-    await onboardingError(user.id, 3, "address", "Enter your current home address.");
+    return onboardingError(user.id, 3, "address", "Enter your current home address.");
   }
 
   const admin = createAdminClient();
@@ -127,18 +127,18 @@ export async function completeVaQuickSetupAction(formData: FormData) {
     .maybeSingle();
 
   if (profileError || !updatedProfile) {
-    await onboardingError(user.id, 3, "save", "We could not save your address. Please try again.");
+    return onboardingError(user.id, 3, "save", "We could not save your address. Please try again.");
   }
 
   if (!updatedProfile.primary_category || String(updatedProfile.headline || "").trim().length < 8) {
-    await onboardingError(user.id, 1, "incomplete_step", "Finish your specialty and headline first.");
+    return onboardingError(user.id, 1, "incomplete_step", "Finish your specialty and headline first.");
   }
   if (
     updatedProfile.years_experience == null ||
     updatedProfile.weekly_hours == null ||
     updatedProfile.hourly_rate == null
   ) {
-    await onboardingError(user.id, 2, "incomplete_step", "Finish your experience, availability, and rate first.");
+    return onboardingError(user.id, 2, "incomplete_step", "Finish your experience, availability, and rate first.");
   }
 
   const { error: vettingError } = await admin.from("va_vetting").upsert(
@@ -146,7 +146,7 @@ export async function completeVaQuickSetupAction(formData: FormData) {
     { onConflict: "va_id", ignoreDuplicates: true }
   );
   if (vettingError) {
-    await onboardingError(user.id, 3, "vetting", "Your profile was saved, but we could not initialize vetting. Please try again.");
+    return onboardingError(user.id, 3, "vetting", "Your profile was saved, but we could not initialize vetting. Please try again.");
   }
 
   await recordProductEvent("va_onboarding_step_saved", {

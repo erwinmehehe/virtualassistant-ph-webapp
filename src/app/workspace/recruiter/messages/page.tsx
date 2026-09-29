@@ -62,10 +62,17 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
   }
 
   const clientIds = [...new Set(threads.map((thread) => thread.client_id).concat(active ? [active.client_id] : []))];
-  const { data: clientProfiles } = clientIds.length
-    ? await admin.from("profiles").select("id,full_name").in("id", clientIds)
-    : { data: [] as Array<{id:string;full_name:string|null}> };
+  const jobIds = [...new Set(threads.map((thread) => thread.job_id).concat(active?.job_id || []).filter((id): id is string => Boolean(id)))];
+  const [{ data: clientProfiles }, { data: jobs }] = await Promise.all([
+    clientIds.length
+      ? admin.from("profiles").select("id,full_name").in("id", clientIds)
+      : Promise.resolve({ data: [] as Array<{id:string;full_name:string|null}> }),
+    jobIds.length
+      ? admin.from("jobs").select("id,title").in("id", jobIds)
+      : Promise.resolve({ data: [] as Array<{id:string;title:string|null}> }),
+  ]);
   const clientMap = new Map((clientProfiles || []).map((profile) => [profile.id, profile.full_name || "Client"]));
+  const jobMap = new Map((jobs || []).map((job) => [job.id, job.title || "Hiring role"]));
 
   const unreadByThread = new Map<string, number>();
   if (threads.length) {
@@ -88,7 +95,7 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
     <div className="page-head">
       <div>
         <div className="kicker">Client communication</div>
-        <h1>Messages</h1>
+        <h1>Client messages</h1>
         <p>Private client conversations owned by the recruiting team. Virtual Assistants cannot access or send messages here.</p>
       </div>
     </div>
@@ -106,7 +113,7 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
           >
             <div>
               <strong>{clientMap.get(thread.client_id) || "Client"}</strong>
-              <small>{thread.recruiter_id ? "Assigned to you" : "Unassigned team chat"}</small>
+              <small>{thread.job_id ? jobMap.get(thread.job_id) || "Hiring role" : "General conversation"} · {thread.recruiter_id ? "Assigned to you" : "Unassigned team chat"}</small>
             </div>
             <div className={pageStyles.threadMeta}>
               {unread ? <span className={pageStyles.unread}>{unread}</span> : null}

@@ -42,7 +42,7 @@ test("chat is first-class in client and recruiter navigation with unread badges"
   ]);
 
   assert.match(nav, /\["Messages", "\/workspace\/client\/messages", MessageCircle\]/);
-  assert.match(nav, /\["Messages", "\/workspace\/recruiter\/messages", MessageCircle\]/);
+  assert.match(nav, /\["Client messages", "\/workspace\/recruiter\/messages", MessageCircle\]/);
   assert.match(badges, /client_recruiter_messages/);
   assert.match(badges, /"\/workspace\/recruiter\/messages": chatUnread/);
   assert.match(dashboard, /Message your recruiter/);

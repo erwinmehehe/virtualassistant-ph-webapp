@@ -74,6 +74,11 @@ export default async function VaProfilePage({
       {params.certificate_visibility === "hidden" ? (
         <div className="success-banner profile-feedback-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
       ) : null}
+      {!String(va?.address || "").trim() ? (
+        <div className="alert profile-feedback-banner" role="status">
+          <strong>Add your private home address.</strong> Recruiters need it for hiring operations. It is never shown on your public profile.
+        </div>
+      ) : null}
 
       <div className="page-head va-profile-head va-profile-mobile-head">
         <div>

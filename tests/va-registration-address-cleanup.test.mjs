@@ -26,6 +26,8 @@ test("Talent exposes exact zero-percent and private-address rescue queues with b
 
   assert.match(page, /0% \/ not started/);
   assert.match(page, /Email unconfirmed/);
+  assert.match(page, /Profile incomplete/);
+  assert.match(page, /Missing resume/);
   assert.match(page, /Missing private address/);
   assert.match(page, /Resume address review/);
   assert.match(page, /recruiter_va_directory_health/);
@@ -63,4 +65,22 @@ test("resume address backfill only auto-saves explicit high-confidence addresses
   assert.match(worker, /address_resume_status: "error"/);
   assert.match(worker, /storage\.from\("resumes"\)\.download/);
   assert.match(maintenance, /runVaAddressResumeBackfill\(8\)/);
+});
+
+
+test("profile health separates private address, email and completion and resolves satisfied alerts", async () => {
+  const [page, migration, profile] = await Promise.all([
+    read("src/app/workspace/recruiter/talent/page.tsx"),
+    read("supabase/migrations/20260929200600_resolve_va_profile_notifications.sql"),
+    read("src/app/actions/profile.ts"),
+  ]);
+
+  assert.match(page, /Email confirmation, profile completion, resume readiness, and private address are separate signals/);
+  assert.match(page, /A missing private address never appears to clients and is not counted as profile completion/);
+  assert.match(page, /view=profile_incomplete/);
+  assert.match(page, /view=missing_resume/);
+  assert.match(migration, /resolve_va_profile_notifications/);
+  assert.match(migration, /type = 'private_address_request'/);
+  assert.match(migration, /type = 'availability'/);
+  assert.match(profile, /availability_confirmed_at: new Date\(\)\.toISOString\(\)/);
 });

@@ -110,3 +110,14 @@ test("recruiter CRM gives one explicit operational next action", async () => {
   assert.match(panel, /nextAction\.label/);
   assert.match(panel, /lastClientContact/);
 });
+
+
+test("client shortlist follow-up reminders clear after an actual client action", async () => {
+  const action = await read("src/app/actions/client-shortlist.ts");
+
+  assert.match(action, /resolveClientShortlistFollowups/);
+  assert.match(action, /type", "shortlist_followup"/);
+  assert.match(action, /client_decision\.is\.null,client_decision\.eq\.hold/);
+  assert.match(action, /resolveClientShortlistFollowups\(admin, user\.id, jobId\)/);
+  assert.match(action, /resolveClientShortlistFollowups\(admin, user\.id, jobId, true\)/);
+});

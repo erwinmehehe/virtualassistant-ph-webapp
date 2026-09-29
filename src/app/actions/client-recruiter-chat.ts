@@ -37,9 +37,23 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
   if (!body) throw new Error("Write a message before sending.");
 
   const admin = createAdminClient();
-  let thread = profile.role === "client"
-    ? await getOrCreateClientRecruiterThread(user.id)
-    : null;
+  let thread = null as Awaited<ReturnType<typeof getOrCreateClientRecruiterThread>> | null;
+
+  if (profile.role === "client") {
+    if (requestedThreadId) {
+      const { data, error } = await admin
+        .from("client_recruiter_threads")
+        .select("*")
+        .eq("id", requestedThreadId)
+        .eq("client_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error("You cannot access this conversation.");
+      thread = data;
+    } else {
+      thread = await getOrCreateClientRecruiterThread(user.id);
+    }
+  }
 
   if (profile.role === "recruiter") {
     if (!requestedThreadId) throw new Error("Choose a client conversation.");
@@ -104,11 +118,13 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
       })));
     }
 
-    const { data: lead } = await admin
+    let leadQuery = admin
       .from("lead_intake")
       .select("id")
       .eq("client_id", user.id)
-      .eq("lead_type", "client_hiring")
+      .eq("lead_type", "client_hiring");
+    if (thread.job_id) leadQuery = leadQuery.eq("job_id", thread.job_id);
+    const { data: lead } = await leadQuery
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -119,7 +135,7 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
         action: "client_chat_message",
         description: body,
         actorId: user.id,
-        metadata: { thread_id: thread.id, source: "in_app_chat" },
+        metadata: { thread_id: thread.id, job_id: thread.job_id || null, source: "in_app_chat" },
       });
       revalidatePath("/workspace/recruiter/crm/" + lead.id);
     }

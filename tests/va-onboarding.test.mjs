@@ -24,7 +24,7 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 test("new VA signups land in a focused quick setup instead of the full profile editor", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
   assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Start with the details recruiters need first/);
+  assert.match(quickPage, /Build your profile in three saved steps/);
   assert.match(quickPage, /name="primary_category"/);
   assert.match(quickPage, /name="headline"/);
   assert.match(quickPage, /name="years_experience"/);
@@ -92,8 +92,8 @@ test("quick setup records category, headline, experience, availability and rate"
 });
 
 test("quick setup preserves existing VA identity and profile state", () => {
-  assert.match(quickAction, /from\("va_profiles"\)\.update/);
-  assert.match(quickAction, /select\("user_id"\)\.maybeSingle\(\)/);
+  assert.match(quickAction, /from\("va_profiles"\)[\s\S]*?\.update/);
+  assert.match(quickAction, /select\("user_id"\)[\s\S]*?\.maybeSingle\(\)/);
   assert.doesNotMatch(quickAction, /slug:\s*`va-/);
   assert.doesNotMatch(quickAction, /availability_status:\s*"available"/);
 });

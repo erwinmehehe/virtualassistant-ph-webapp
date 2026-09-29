@@ -8,6 +8,7 @@ import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candi
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
+import { isClientReadyTalent } from "@/lib/client-ready-talent";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
@@ -117,8 +118,8 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
   const [{ data: job }, { data: directory }, { data: existing }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).maybeSingle(),
     admin
-      .from("recruiter_va_directory")
-      .select("user_id,stage,account_status")
+      .from("recruiter_va_directory_health")
+      .select("user_id,stage,account_status,registration_health,email_confirmed,has_resume,completion_score,availability_status")
       .eq("account_status", "active")
       .in("stage", ["approved", "bench"]),
     admin
@@ -163,10 +164,13 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}quick_shortlist_existing=1#matching`);
   }
 
-  const approvedIds = [...new Set((directory || []).map((row: any) => String(row.user_id)).filter(Boolean))];
-  if (!approvedIds.length) return fail("No approved or bench Virtual Assistants are available to review.");
+  const clientReadyIds = [...new Set((directory || [])
+    .filter((row: any) => isClientReadyTalent(row))
+    .map((row: any) => String(row.user_id))
+    .filter(Boolean))];
+  if (!clientReadyIds.length) return fail("No client-ready Virtual Assistants are available yet. Complete profile health or availability first.");
 
-  const { data: vas, error: vaError } = await admin.from("va_profiles").select("*").in("user_id", approvedIds);
+  const { data: vas, error: vaError } = await admin.from("va_profiles").select("*").in("user_id", clientReadyIds);
   if (vaError) return fail("Could not load the approved VA pool. Please try again.");
 
   const candidates = (vas || [])
@@ -241,9 +245,11 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (!["save", "release", "invite"].includes(mode)) return fail("Invalid shortlist action.");
 
   const admin = createAdminClient();
-  const [{ data: job }, { data: vetting }, { data: commercial }] = await Promise.all([
+  const [{ data: job }, { data: talentHealth }, { data: commercial }] = await Promise.all([
     admin.from("jobs").select("*").eq("id", jobId).single(),
-    admin.from("recruiter_va_directory").select("user_id,stage").in("user_id", selected).in("stage", ["approved", "bench"]),
+    admin.from("recruiter_va_directory_health")
+      .select("user_id,stage,account_status,registration_health,email_confirmed,has_resume,completion_score,availability_status")
+      .in("user_id", selected),
     admin.from("job_commercials").select("commercial_status").eq("job_id", jobId).maybeSingle()
   ]);
   if (!job) return fail("Job not found.");
@@ -251,8 +257,16 @@ export async function saveJobShortlistAction(formData: FormData) {
     const missingRoleDetails = publicationMissingDetails(job);
     if (missingRoleDetails.length) return fail(`Complete the role brief before sending candidates to the client: ${missingRoleDetails.join(", ")}.`);
   }
-  const approvedIds = new Set((vetting || []).map((row: any) => row.user_id));
+  const approvedIds = new Set((talentHealth || [])
+    .filter((row: any) => ["approved", "bench"].includes(String(row.stage || "")) && row.account_status === "active")
+    .map((row: any) => row.user_id));
   if (approvedIds.size !== selected.length) return fail("One or more selected VAs are no longer approved or on the recruiter bench.");
+  if (mode === "release") {
+    const clientReadyIds = new Set((talentHealth || []).filter((row: any) => isClientReadyTalent(row)).map((row: any) => row.user_id));
+    if (clientReadyIds.size !== selected.length) {
+      return fail("One or more selected VAs are not client-ready. Confirm profile completion, email, resume, and current availability before sending.");
+    }
+  }
   if (mode === "release" && !job.client_id) return fail("This role has no linked client account yet. Use Save + invite client to review instead.");
   if (mode === "release" && job.status !== "published") return fail("Publish the role before sending candidates to the client.");
   if (mode === "release" && commercial?.commercial_status !== "accepted") return fail("Client-approved service terms are required before sending candidates.");

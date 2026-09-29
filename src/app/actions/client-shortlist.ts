@@ -31,6 +31,38 @@ function reasonLabel(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+
+async function resolveClientShortlistFollowups(
+  admin: ReturnType<typeof createAdminClient>,
+  clientId: string,
+  jobId: string,
+  force = false,
+) {
+  let canResolve = force;
+  if (!force) {
+    const { count, error } = await admin
+      .from("job_shortlist_candidates")
+      .select("id", { count: "exact", head: true })
+      .eq("job_id", jobId)
+      .eq("shortlist_status", "released")
+      .or("client_decision.is.null,client_decision.eq.hold");
+    if (error) throw error;
+    canResolve = Number(count || 0) === 0;
+  }
+  if (!canResolve) return;
+
+  const href = `/workspace/client/candidates?role=${jobId}`;
+  const now = new Date().toISOString();
+  const { error } = await admin
+    .from("notifications")
+    .update({ done_at: now, read_at: now, snoozed_until: null })
+    .eq("user_id", clientId)
+    .eq("type", "shortlist_followup")
+    .eq("href", href)
+    .is("done_at", null);
+  if (error) throw error;
+}
+
 async function requireApprovedVa(vaId: string) {
   const admin = createAdminClient();
   const { data: vetting } = await admin
@@ -254,6 +286,8 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     })));
   }
 
+  await resolveClientShortlistFollowups(admin, user.id, jobId);
+
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath("/workspace/client/candidates");
   revalidatePath("/workspace/client/interviews");
@@ -358,6 +392,7 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
     path: returnTo,
     metadata: { job_id: jobId, note: note || null },
   });
+  await resolveClientShortlistFollowups(admin, user.id, jobId, true);
 
   revalidatePath("/workspace/client/candidates");
   revalidatePath(`/workspace/client/jobs/${jobId}`);

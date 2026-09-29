@@ -53,3 +53,19 @@ test("direct client touches and discovery stage changes trigger existing CRM wor
   assert.match(actions,/cancelRecruiterDiscoveryAction[\s\S]*runCrmStageWorkflows\(\{ leadId, stage: "nurture"/);
   assert.match(actions,/completeDiscoveryAction[\s\S]*runCrmStageWorkflows\(\{ leadId, stage, actorId: user\.id \}\)/);
 });
+
+
+test("CRM activity panel combines email and in-app chat signals and exposes one next action", async () => {
+  const [page, panel] = await Promise.all([
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
+    read("src/components/client-engagement-panel.tsx"),
+  ]);
+  assert.match(page, /last_client_contact_at/);
+  assert.match(page, /lastClientReplyAt/);
+  assert.match(panel, /Last email \/ chat reply/);
+  for (const label of ["Follow up", "Review decision", "Schedule interview", "Close role", "Send client-ready shortlist"]) {
+    assert.match(page, new RegExp(label));
+  }
+  assert.match(page, /nextAction\.detail/);
+  assert.match(page, /nextAction\.label/);
+});

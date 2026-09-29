@@ -114,9 +114,12 @@ function resendConfig() {
   return { client: new Resend(apiKey), from };
 }
 
+const DEFAULT_CLIENT_REPLY_TO = "clients@replies.virtualassistant.com.ph";
+
 function configuredReplyTo() {
   return normalizeEmailList([
     process.env.CLIENT_REPLY_TO_EMAIL,
+    DEFAULT_CLIENT_REPLY_TO,
     process.env.LEAD_NOTIFICATION_EMAIL
   ])[0] || undefined;
 }
@@ -132,8 +135,8 @@ function configuredReplyToFor(context?: { leadId?: string | null; jobId?: string
   if (at <= 0) return fallback;
 
   const domain = address.slice(at + 1).toLowerCase();
-  // Exact reply routing only works on the Resend receiving subdomain. Keep the
-  // existing mailbox unchanged until CLIENT_REPLY_TO_EMAIL is switched there.
+  // Exact reply routing uses the dedicated Resend receiving subdomain. The
+  // subdomain is receive-only here; outbound mail still uses EMAIL_FROM.
   if (!domain.startsWith("replies.")) return fallback;
 
   const leadId = String(context?.leadId || "").trim().toLowerCase();

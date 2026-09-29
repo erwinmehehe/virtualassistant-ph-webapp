@@ -422,6 +422,8 @@ export async function sendClientFollowupAction(formData: FormData) {
     metadata: { job_id: linkedJobId || null, recipient }
   });
   revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath(returnTo);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}contact_sent=1&action_lead=${encodeURIComponent(activityId)}`);
 }
@@ -506,7 +508,9 @@ export async function recordLeadContactAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");
 }
 
@@ -746,7 +750,9 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");
   const joiner = returnTo.includes("?") ? "&" : "?";
   redirect(`${returnTo}${joiner}discovery_saved=1${emailResult.sent ? "" : "&discovery_email=failed"}`);
@@ -924,7 +930,9 @@ export async function completeDiscoveryAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
   const suffix = outcome === "no_show" ? `discovery_completed=1&rebook_prompt=${encodeURIComponent(leadId)}` : "discovery_completed=1";
@@ -1008,6 +1016,9 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${joiner}rebook_email_sent=1&action_lead=${encodeURIComponent(leadId)}`);
 }

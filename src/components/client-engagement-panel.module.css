@@ -122,3 +122,8 @@
     border-right: 0 !important;
   }
 }
+
+
+.needsAction { color:#b42318 !important; }
+.awaiting { color:#b54708 !important; }
+.handled { color:#027a48 !important; }

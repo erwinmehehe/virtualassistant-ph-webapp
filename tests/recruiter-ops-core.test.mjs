@@ -90,9 +90,10 @@ test("agenda stays bounded to the current week", async () => {
 
 
 test("recruiter notifications auto-resolve from live lead and role state", async () => {
-  const [maintenance, migration] = await Promise.all([
+  const [maintenance, migration, salesMigration] = await Promise.all([
     read("src/app/api/cron/maintenance/route.ts"),
     read("supabase/migrations/20260929061141_auto_resolve_recruiter_notifications.sql"),
+    read("supabase/migrations/20260929184855_canonical_sales_followup_notifications.sql"),
   ]);
 
   assert.match(maintenance, /\.in\("shortlist_status", \["proposed", "released"\]\)/);
@@ -110,4 +111,11 @@ test("recruiter notifications auto-resolve from live lead and role state", async
   assert.match(migration, /resolve_role_needs_candidates_from_job/);
   assert.match(migration, /new\.hiring_stage not in \('ready_to_recruit', 'sourcing'\)/);
   assert.match(migration, /created_at < now\(\) - interval '24 hours'/);
+
+  assert.match(maintenance, /href: \`\/workspace\/recruiter\/crm\/\$\{lead\.id\}\`/);
+  assert.match(maintenance, /notificationType: "sales_follow_up"/);
+  assert.match(salesMigration, /resolve_sales_followup_notifications/);
+  assert.match(salesMigration, /type = 'sales_follow_up'/);
+  assert.match(salesMigration, /new\.next_follow_up_at > now\(\)/);
+  assert.match(salesMigration, /href = '\/workspace\/recruiter\/leads\?view=attention'/);
 });

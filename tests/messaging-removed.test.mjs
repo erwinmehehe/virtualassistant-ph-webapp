@@ -104,8 +104,13 @@ test("recruiter and client messaging stay first-class beside recruiter VA chat",
 
 test("chat trigger helpers are not callable through the public data API", () => {
   const migration = source("supabase/migrations/20260929165000_lock_chat_trigger_functions_and_indexes.sql");
+  const vaMigration = source("supabase/migrations/20260929184335_lock_recruiter_va_trigger_helpers.sql");
   assert.match(migration, /revoke execute on function public\.validate_client_recruiter_thread\(\) from public, anon, authenticated/);
   assert.match(migration, /revoke execute on function public\.validate_client_recruiter_message\(\) from public, anon, authenticated/);
   assert.match(migration, /client_recruiter_messages_sender_idx/);
   assert.match(migration, /recruiter_va_messages_sender_idx/);
+  assert.match(vaMigration, /revoke execute on function public\.validate_recruiter_va_thread\(\) from public, anon, authenticated/);
+  assert.match(vaMigration, /revoke execute on function public\.validate_recruiter_va_message\(\) from public, anon, authenticated/);
+  assert.match(vaMigration, /grant execute on function public\.validate_recruiter_va_thread\(\) to service_role/);
+  assert.match(vaMigration, /grant execute on function public\.validate_recruiter_va_message\(\) to service_role/);
 });

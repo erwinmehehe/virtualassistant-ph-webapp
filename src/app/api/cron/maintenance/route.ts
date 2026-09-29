@@ -163,7 +163,7 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
 }
 
 type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
-async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string }) {
+async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string; notificationType?: string }) {
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
   const maxReminders = args.maxReminders ?? MAX_WORKFLOW_REMINDERS;
@@ -179,7 +179,7 @@ async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>,
     .eq("title", args.title)
     .eq("href", args.href)
     .is("done_at", null);
-  await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href });
+  await admin.from("notifications").insert({ user_id: args.recipientId, title: args.title, body: args.body, href: args.href, type: args.notificationType || null });
   if (!args.email) return true;
 
   const { data: auth } = await admin.auth.admin.getUserById(args.recipientId);
@@ -479,7 +479,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   for (const lead of leads || []) {
     const recipients = lead.owner_id ? [lead.owner_id] : staffIds;
     for (const recipientId of recipients) {
-      if (await sendWorkflowReminder(admin, { subjectType: "lead", subjectId: lead.id, recipientId, action: "sales_follow_up_due", title: `Sales follow-up due: ${lead.company || lead.name || "client lead"}`, body: `This ${String(lead.crm_stage || "open").replaceAll("_", " ")} opportunity is due for follow-up now.`, href: "/workspace/recruiter/leads?view=attention", repeatDays: 1 })) leadReminders++;
+      if (await sendWorkflowReminder(admin, { subjectType: "lead", subjectId: lead.id, recipientId, action: "sales_follow_up_due", title: `Sales follow-up due: ${lead.company || lead.name || "client lead"}`, body: `This ${String(lead.crm_stage || "open").replaceAll("_", " ")} opportunity is due for follow-up now.`, href: `/workspace/recruiter/crm/${lead.id}`, repeatDays: 1, notificationType: "sales_follow_up" })) leadReminders++;
     }
   }
 

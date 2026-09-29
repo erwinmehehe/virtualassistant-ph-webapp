@@ -43,3 +43,14 @@ test("recruiter assignment is ownership metadata, not a role access gate",()=>{
     assert.doesNotMatch(content,/job\.recruiter_id && job\.recruiter_id !==/);
   }
 });
+
+
+test("profiles that stop being VAs are removed from active shortlists",()=>{
+  const migration=source("supabase/migrations/20260929185400_hide_non_va_shortlist_rows.sql");
+  assert.match(migration,/hide_shortlists_when_va_role_removed/);
+  assert.match(migration,/after update of role on public\.profiles/);
+  assert.match(migration,/shortlist_status in \('proposed','released'\)/);
+  assert.match(migration,/set shortlist_status = 'hidden'/);
+  assert.match(migration,/p\.role <> 'va'::public\.user_role/);
+  assert.match(migration,/revoke execute on function private\.hide_shortlists_when_va_role_removed\(\) from public, anon, authenticated/);
+});

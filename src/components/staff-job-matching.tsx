@@ -7,20 +7,27 @@ import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { isClientReadyTalent } from "@/lib/client-ready-talent";
 
 type Props={job:any;viewerRole:"admin"|"recruiter";returnTo:string};
 
 export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const admin=createAdminClient();
-  const [{data:vettingRows},{data:shortlistRows},{data:interestRows},{data:commercial},{data:candidateAccess}]=await Promise.all([
-    admin.from("va_vetting").select("va_id,stage").in("stage",["approved","bench"]),
+  const [{data:talentHealthRows},{data:shortlistRows},{data:interestRows},{data:commercial},{data:candidateAccess}]=await Promise.all([
+    admin.from("recruiter_va_directory_health")
+      .select("user_id,stage,account_status,registration_health,email_confirmed,has_resume,completion_score,availability_status")
+      .eq("account_status","active")
+      .in("stage",["approved","bench"]),
     admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,shortlist_order,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at,created_by").eq("job_id",job.id).order("shortlist_order",{ascending:true,nullsFirst:false}),
     admin.from("applications").select("id,va_id,status,cover_note,match_score,applied_at").eq("job_id",job.id).not("status","in",'(withdrawn,rejected)'),
     admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle(),
     admin.from("job_candidate_access").select("access_status").eq("job_id",job.id).maybeSingle()
   ]);
 
-  const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
+  const healthRows=talentHealthRows||[];
+  const clientReadyHealthRows=healthRows.filter((row:any)=>isClientReadyTalent(row));
+  const ids=[...new Set(clientReadyHealthRows.map((row:any)=>row.user_id))];
+  const excludedHealthCount=Math.max(0,healthRows.length-clientReadyHealthRows.length);
   const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs}]=ids.length?await Promise.all([
     admin.from("profiles").select("id,full_name,avatar_url").in("id",ids),
     admin.from("va_profiles").select("*").in("user_id",ids),

@@ -81,3 +81,22 @@ test("client recruiter chat stays scoped to the selected hiring role", () => {
   assert.match(migration, /client_recruiter_threads_job_unique/);
   assert.match(migration, /where id = new\.job_id and client_id = new\.client_id/);
 });
+
+
+test("recruiter and client messaging stay first-class beside recruiter VA chat", () => {
+  const nav = source("src/components/app-nav-links.tsx");
+  assert.match(nav, /\["Client messages", "\/workspace\/recruiter\/messages", MessageCircle\]/);
+  assert.match(nav, /\["VA messages", "\/workspace\/recruiter\/va-messages", MessageCircle\]/);
+  assert.match(nav, /\["Messages", "\/workspace\/client\/messages", MessageCircle\]/);
+
+  const badges = source("src/lib/workspace-badges.ts");
+  assert.match(badges, /from\("client_recruiter_threads"\)[\s\S]*\.eq\("client_id", userId\)/);
+  assert.match(badges, /\.in\("thread_id", threadIds\)/);
+  assert.doesNotMatch(badges, /role === "client"[\s\S]{0,700}\.maybeSingle\(\)/);
+
+  const recruiterInbox = source("src/app/workspace/recruiter/messages/page.tsx");
+  assert.match(recruiterInbox, /<h1>Client messages<\/h1>/);
+  assert.match(recruiterInbox, /jobMap/);
+  assert.match(recruiterInbox, /General conversation/);
+  assert.match(recruiterInbox, /Assigned to you/);
+});

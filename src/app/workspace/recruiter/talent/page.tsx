@@ -149,15 +149,19 @@ export default async function RecruiterTalentDirectory({
   const rows = (rowData || []) as RecruiterVaDirectoryRow[];
   const ids = rows.map((row) => row.user_id);
   let metaRows: RecruiterTalentPageMetaRow[] = [];
+  let addressRows: Array<{ user_id: string; address: string | null }> = [];
   if (ids.length) {
-    const { data: pageMeta, error: pageMetaError } = await admin
-      .from("recruiter_talent_page_meta")
-      .select("*")
-      .in("va_id", ids);
+    const [{ data: pageMeta, error: pageMetaError }, { data: privateProfiles, error: privateProfileError }] = await Promise.all([
+      admin.from("recruiter_talent_page_meta").select("*").in("va_id", ids),
+      admin.from("va_profiles").select("user_id,address").in("user_id", ids),
+    ]);
     if (pageMetaError) throw pageMetaError;
+    if (privateProfileError) throw privateProfileError;
     metaRows = (pageMeta || []) as RecruiterTalentPageMetaRow[];
+    addressRows = (privateProfiles || []) as Array<{ user_id: string; address: string | null }>;
   }
 
+  const addressMap = new Map(addressRows.map((row) => [row.user_id, String(row.address || "").trim()]));
   const reminderMap = new Map(metaRows.map((row) => [row.va_id, row]));
   const publicIds = new Set(metaRows.filter((row) => row.public_now).map((row) => row.va_id));
   const visibilityMap = new Map(metaRows.map((row) => [row.va_id, row]));
@@ -517,6 +521,7 @@ export default async function RecruiterTalentDirectory({
                 ...matchedCategories.map((category) => vaCategoryLabel(category)),
                 ...(matchedSkill ? [`Skill: ${matchedSkill}`] : []),
               ];
+              const hasPrivateAddress = Boolean(addressMap.get(row.user_id));
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
@@ -549,6 +554,9 @@ export default async function RecruiterTalentDirectory({
                     <div className="readiness-line"><strong>{score}% complete</strong>{score >= APPROVAL_MIN_COMPLETION && !approved ? <span className="approval-ready-label">Approval-ready</span> : null}</div>
                     <div className="progress mini"><span style={{ width: `${score}%` }} /></div>
                     <div className="profile-issues">{missing.length ? `Needs: ${missing.slice(0, 2).join(" · ")}${missing.length > 2 ? ` +${missing.length - 2}` : ""}` : "No profile gaps flagged"}</div>
+                    <div className={hasPrivateAddress ? "small muted" : "classification-gap-copy"}>
+                      {hasPrivateAddress ? "Private address recorded" : "Private address missing"}
+                    </div>
                     {classificationStatus === "incomplete_profile" ? <div className="classification-gap-copy">
                       Classification blocked · add {classificationMissing.slice(0, 3).map((key) => classificationMissingLabels[key] || key).join(" · ")}{classificationMissing.length > 3 ? ` +${classificationMissing.length - 3}` : ""}
                     </div> : classificationStatus === "ready_to_classify" ? <div className="classification-ready-copy">Enough profile evidence to classify</div> : null}

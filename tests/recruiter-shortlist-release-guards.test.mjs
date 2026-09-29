@@ -54,3 +54,22 @@ test("profiles that stop being VAs are removed from active shortlists",()=>{
   assert.match(migration,/p\.role <> 'va'::public\.user_role/);
   assert.match(migration,/revoke execute on function private\.hide_shortlists_when_va_role_removed\(\) from public, anon, authenticated/);
 });
+
+
+test("client-facing matching uses explicit client-ready talent health",()=>{
+  const helper=source("src/lib/client-ready-talent.ts");
+  const action=source("src/app/actions/matching.ts");
+  const server=source("src/components/staff-job-matching.tsx");
+
+  assert.match(helper,/CLIENT_READY_MIN_COMPLETION = 80/);
+  assert.match(helper,/registration_health === "ready"/);
+  assert.match(helper,/email_confirmed === true/);
+  assert.match(helper,/has_resume === true/);
+  assert.match(helper,/availability_status === "available"/);
+  assert.doesNotMatch(helper,/has_private_address/);
+  assert.match(action,/recruiter_va_directory_health/);
+  assert.match(action,/isClientReadyTalent/);
+  assert.match(action,/not client-ready/);
+  assert.match(server,/client-ready VAs assessed/);
+  assert.match(server,/held back by profile health/);
+});

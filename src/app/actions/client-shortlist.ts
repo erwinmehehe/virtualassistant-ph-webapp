@@ -444,7 +444,7 @@ export async function sendClientShortlistFollowupAction(formData: FormData) {
   const cutoff = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
   const { count } = await admin.from("recruiter_activity").select("id", { count: "exact", head: true }).eq("subject_type", "job").eq("subject_id", jobId).eq("action", "client_shortlist_followup").gte("created_at", cutoff);
   if (!count) {
-    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as interested, request an interview, place them on hold with context, or pass so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
+    await admin.from("notifications").insert({ user_id: job.client_id, title: `Quick feedback needed for ${job.title}`, body: "Your recruiter is waiting on your shortlist feedback. Mark each VA as Interested, Interview, or Pass, or ask for more options so we can keep your search moving.", href: `/workspace/client/candidates?role=${encodeURIComponent(jobId)}` });
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: "client_shortlist_followup", description: "Sent client shortlist feedback reminder", actorId: user.id });
   }
   revalidatePath(returnTo);

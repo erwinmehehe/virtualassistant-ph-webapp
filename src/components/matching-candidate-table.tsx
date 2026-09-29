@@ -74,7 +74,7 @@ export function MatchingCandidateTable({
   const [showClientPreview, setShowClientPreview] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<string[]>(
     () => pool
-      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by))
+      .filter((row) => row.shortlist?.shortlist_status === "proposed" && Boolean(row.shortlist?.created_by) && row.clientReady)
       .sort((a, b) => Number(a.shortlist?.shortlist_order ?? 999) - Number(b.shortlist?.shortlist_order ?? 999))
       .map((row) => String(row.va.user_id))
   );
@@ -92,7 +92,7 @@ export function MatchingCandidateTable({
     });
   }, [pool, query]);
 
-  const defaultRows = filtered.filter((row) => row.clientReady || Boolean(row.shortlist?.shortlist_status));
+  const defaultRows = filtered.filter((row) => row.clientReady || ["proposed", "released"].includes(String(row.shortlist?.shortlist_status || "")));
   const visible = query || showAll ? filtered : defaultRows.slice(0, 20);
   const clientReadyCount = pool.filter((row) => row.clientReady).length;
   const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];

@@ -18,7 +18,9 @@ function isTrainingPath(pathname: string) {
 }
 
 function trackablePath(pathname: string) {
-  return isTrainingPath(pathname) || (!pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
+  return pathname === "/workspace/va/onboarding"
+    || isTrainingPath(pathname)
+    || (!pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
 }
 
 /**
@@ -124,6 +126,11 @@ export function Analytics() {
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;
+
+    if (pathname === "/workspace/va/onboarding") {
+      send("va_onboarding_started");
+      return;
+    }
 
     if (pathname.startsWith("/workspace/training")) {
       if (pathname === "/workspace/training") {

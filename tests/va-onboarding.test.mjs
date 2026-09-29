@@ -24,7 +24,7 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 test("new VA signups land in a focused quick setup instead of the full profile editor", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
   assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Start with the details recruiters need first/);
+  assert.match(quickPage, /Build your profile in three saved steps/);
   assert.match(quickPage, /name="primary_category"/);
   assert.match(quickPage, /name="headline"/);
   assert.match(quickPage, /name="years_experience"/);
@@ -92,8 +92,8 @@ test("quick setup records category, headline, experience, availability and rate"
 });
 
 test("quick setup preserves existing VA identity and profile state", () => {
-  assert.match(quickAction, /from\("va_profiles"\)\.update/);
-  assert.match(quickAction, /select\("user_id"\)\.maybeSingle\(\)/);
+  assert.match(quickAction, /from\("va_profiles"\)[\s\S]*?\.update/);
+  assert.match(quickAction, /select\("user_id"\)[\s\S]*?\.maybeSingle\(\)/);
   assert.doesNotMatch(quickAction, /slug:\s*`va-/);
   assert.doesNotMatch(quickAction, /availability_status:\s*"available"/);
 });
@@ -130,4 +130,44 @@ test("quick setup uses the same live minimum hourly rate as the full VA profile"
   assert.match(quickAction, /getBusinessSettings/);
   assert.match(quickAction, /settings\.minHourlyRate/);
   assert.doesNotMatch(quickAction, /MIN_HOURLY_RATE/);
+});
+
+
+test("VA quick setup saves progress after each step and removes competing exits", () => {
+  assert.match(quickPage, /saveVaOnboardingBasicsAction/);
+  assert.match(quickPage, /saveVaOnboardingWorkAction/);
+  assert.match(quickPage, /completeVaQuickSetupAction/);
+  assert.match(quickPage, /Build your profile in three saved steps/);
+  assert.match(quickPage, /Step saved/);
+  assert.match(quickPage, /id="va-onboarding-step-1"/);
+  assert.match(quickPage, /id="va-onboarding-step-2"/);
+  assert.match(quickPage, /id="va-onboarding-step-3"/);
+  assert.doesNotMatch(quickPage, /Open full profile/);
+  assert.match(quickAction, /va_onboarding_step_saved/);
+  assert.match(quickAction, /va_onboarding_validation_error/);
+  assert.match(quickAction, /va_onboarding_complete/);
+  assert.match(quickAction, /redirect\("\/workspace\/va\/onboarding\?step=2&saved=1"\)/);
+  assert.match(quickAction, /redirect\("\/workspace\/va\/onboarding\?step=3&saved=1"\)/);
+});
+
+test("VA onboarding hides training and workspace distractions until quick setup is saved", () => {
+  const announcement = fs.readFileSync("src/components/va-training-announcement.tsx", "utf8");
+  const css = fs.readFileSync("src/app/workspace/va/va-workspace.css", "utf8");
+
+  assert.match(vaLayout, /VaTrainingAnnouncement/);
+  assert.match(announcement, /pathname === "\/workspace\/va\/onboarding"/);
+  assert.match(css, /workspace-role-va:has\(\.va-quick-setup-page\) \.app-sidebar/);
+  assert.match(css, /display:none/);
+});
+
+test("VA onboarding funnel is tracked beyond generic web vitals", () => {
+  const analyticsRoute = fs.readFileSync("src/app/api/analytics/route.ts", "utf8");
+  const analytics = fs.readFileSync("src/components/analytics.tsx", "utf8");
+
+  assert.match(analyticsRoute, /"va_onboarding_started"/);
+  assert.match(analyticsRoute, /"va_onboarding_step_saved"/);
+  assert.match(analyticsRoute, /"va_onboarding_validation_error"/);
+  assert.match(analyticsRoute, /"va_onboarding_complete"/);
+  assert.match(analytics, /pathname === "\/workspace\/va\/onboarding"/);
+  assert.match(analytics, /send\("va_onboarding_started"\)/);
 });

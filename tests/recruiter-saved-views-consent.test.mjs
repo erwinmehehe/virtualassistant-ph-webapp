@@ -17,11 +17,12 @@ test("public VA directory requires current active versioned consent", async()=>{
   assert.match(migration,/v\.public_profile_consent_version = '2026-09-12-v1'/);
 });
 
-test("new consent enables discovery switch and withdrawal disables it", async()=>{
+test("public consent never bypasses public-profile eligibility", async()=>{
   const action=await read("src/app/actions/privacy-consent.ts");
-  assert.match(action,/current\?\.public_profile_consent/);
-  assert.match(action,/directory_visible: true/);
+  assert.match(action,/isPubliclyEligible/);
+  assert.match(action,/PUBLIC_PROFILE_CONSENT_VERSION/);
   assert.match(action,/directory_visible: false/);
+  assert.doesNotMatch(action,/else if \(!current\?\.public_profile_consent\)[\s\S]{0,160}directory_visible: true/);
 });
 
 test("talent directory exposes saved queues sorting counts and real public blockers", async()=>{
@@ -38,6 +39,8 @@ test("talent directory exposes saved queues sorting counts and real public block
   assert.match(page,/Most experience/);
   assert.match(page,/Consent needed/);
   assert.match(page,/publicVisibilityRequirements/);
+  assert.match(page,/Private address missing/);
+  assert.match(page,/Private address recorded/);
 });
 
 test("recruiter roles expose saved action queues with counts and sorting", async()=>{

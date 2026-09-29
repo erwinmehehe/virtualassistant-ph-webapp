@@ -20,6 +20,8 @@ type Row = {
   score: number;
   confidence: number;
   eligible?: boolean;
+  clientReady?: boolean;
+  readinessGaps?: string[];
   hardFailures?: string[];
   evidenceGaps?: string[];
   otherClientReviews?: number;
@@ -90,7 +92,9 @@ export function MatchingCandidateTable({
     });
   }, [pool, query]);
 
-  const visible = query || showAll ? filtered : filtered.slice(0, 20);
+  const defaultRows = filtered.filter((row) => row.clientReady || Boolean(row.shortlist?.shortlist_status));
+  const visible = query || showAll ? filtered : defaultRows.slice(0, 20);
+  const clientReadyCount = pool.filter((row) => row.clientReady).length;
   const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];
   const selectedCount = selectedOrder.length;
 
@@ -119,8 +123,8 @@ export function MatchingCandidateTable({
     <input type="hidden" name="shortlist_order" value={selectedOrder.join(",")} />
     <div className="row-between wrap" style={{margin:"12px 0",gap:10}}>
       <div>
-        <strong>{selectedCount} selected</strong>
-        <div className="small muted">Only checked candidates are included in Save or Send. Aim for 3–5 client-ready candidates; five is the maximum. Previously released candidates stay with the client and are not re-sent.</div>
+        <strong>{selectedCount} selected · {clientReadyCount} client-ready</strong>
+        <div className="small muted">The default list surfaces client-ready candidates first. Near-ready or pipeline VAs remain searchable for development, but cannot be selected for a client shortlist until readiness is complete.</div>
       </div>
       <div className="row wrap">
         <button className="btn" type="button" disabled={!selectedCount} aria-expanded={showClientPreview} onClick={() => setShowClientPreview((value) => !value)}>
@@ -184,7 +188,7 @@ export function MatchingCandidateTable({
     <div className="row-between wrap" style={{ margin: "0 0 12px", gap: 10 }}>
       <div className="field" style={{ margin: 0, flex: "1 1 340px" }}>
         <input type="search" placeholder={`Search ${pool.length} candidates by name, category, or skill...`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search candidates" />
-        {query ? <div className="small muted" style={{ marginTop: 6 }}>{filtered.length} of {pool.length} candidates match.</div> : <div className="small muted" style={{ marginTop: 6 }}>Showing the top {Math.min(20, pool.length)} ranked candidates first.</div>}
+        {query ? <div className="small muted" style={{ marginTop: 6 }}>{filtered.length} of {pool.length} candidates match.</div> : <div className="small muted" style={{ marginTop: 6 }}>Showing the strongest client-ready candidates first.</div>}
       </div>
       {!query && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
     </div>
@@ -197,27 +201,29 @@ export function MatchingCandidateTable({
         const decision = decisionLabel(row.shortlist?.client_decision);
         const hasConflict = Boolean(row.otherClientReviews || row.activeProcessCount || row.potentialCommittedHours);
         const hardBlocked = row.eligible === false;
+        const readinessBlocked = row.clientReady === false;
+        const selectionBlocked = hardBlocked || readinessBlocked;
         const vaId = String(row.va.user_id);
         const checked = alreadyReleased || selected.has(vaId);
         return <tr key={vaId} className={alreadyReleased ? "released-match-row" : undefined}>
-          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || hardBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
+          <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || selectionBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
-            {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
+            {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:readinessBlocked?<div className="info-banner" style={{marginTop:8,padding:10}}><div className="row"><AlertTriangle size={15}/><strong>Not client-ready yet</strong></div>{(row.readinessGaps||["Complete talent readiness"]).map((gap)=><small key={gap} style={{display:"block",marginTop:4}}>• {gap}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
             {(row.evidenceGaps||[]).length?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Verify before sending:</strong>{(row.evidenceGaps||[]).map((gap)=><span key={gap} style={{display:"block"}}>• {gap}</span>)}</div>:null}
             {hasConflict?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Placement risk:</strong>{row.otherClientReviews ? ` also with ${row.otherClientReviews} client role${row.otherClientReviews===1?"":"s"}.` : ""}{row.activeProcessCount ? ` ${row.activeProcessCount} active interview/offer process${row.activeProcessCount===1?"":"es"}.` : ""}{row.potentialCommittedHours ? ` ${row.potentialCommittedHours} hrs/week potentially committed.` : ""}</div>:null}
             <div style={{marginTop:8}}><Link className="text-link small" href={`/workspace/recruiter/candidates/${vaId}/screening`}>Open recruiter scorecard</Link></div>
           </td>
           <td data-label="Match">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></>}</td>
           <td data-label="Availability">
-            <span className={`badge ${row.va.availability_status === "available" ? "badge-success" : ""}`}>{availabilityLabel(row.va.availability_status)}</span>
+            <span className={`badge ${row.clientReady ? "badge-success" : ""}`}>{row.clientReady ? "Client-ready" : availabilityLabel(row.va.availability_status)}</span>
           </td>
           <td data-label="Hours">{row.va.weekly_hours != null ? `${row.va.weekly_hours}/week` : "Not set"}</td>
           <td data-label="Rate">{row.va.hourly_rate != null ? `USD ${Number(row.va.hourly_rate).toFixed(2)}/hr` : "Not set"}</td>
           <td data-label="Client recommendation">
-            <textarea name={`recommendation_${vaId}`} value={recommendations[vaId] || ""} onChange={(event) => setRecommendations((current) => ({ ...current, [vaId]: event.target.value }))} maxLength={500} rows={3} placeholder="Why this VA is a strong fit for this client..." disabled={hardBlocked&&!alreadyReleased}/>
-            {!hardBlocked||alreadyReleased?<div className="row wrap" style={{marginTop:6}}><button className="text-button" type="submit" formAction={saveClientRecommendationAction} name="recommendation_va_id" value={vaId}>Save client note</button></div>:<span className="small muted">Change the hard requirement before recommending.</span>}
-            {!hardBlocked||alreadyReleased?<div className="small muted" style={{marginTop:4}}>Saved separately, or automatically when you Save/Send selected candidates.</div>:null}
+            <textarea name={`recommendation_${vaId}`} value={recommendations[vaId] || ""} onChange={(event) => setRecommendations((current) => ({ ...current, [vaId]: event.target.value }))} maxLength={500} rows={3} placeholder="Why this VA is a strong fit for this client..." disabled={selectionBlocked&&!alreadyReleased}/>
+            {!selectionBlocked||alreadyReleased?<div className="row wrap" style={{marginTop:6}}><button className="text-button" type="submit" formAction={saveClientRecommendationAction} name="recommendation_va_id" value={vaId}>Save client note</button></div>:<span className="small muted">{hardBlocked ? "Change the hard requirement before recommending." : "Complete client-readiness before recommending."}</span>}
+            {!selectionBlocked||alreadyReleased?<div className="small muted" style={{marginTop:4}}>Saved separately, or automatically when you Save/Send selected candidates.</div>:null}
           </td>
           <td data-label="Client review">{alreadyReleased ? <div className="stack-inline"><span className="badge badge-success"><CheckCircle2 size={13}/> Sent to client</span>{hardBlocked?<span className="badge badge-warning">Review requirement change</span>:null}{decision?<span className={`badge ${row.shortlist?.client_decision === "pass" ? "badge-warning" : "badge-success"}`}>{decision}</span>:<span className="small muted">Waiting for decision</span>}<button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={vaId}>Remove</button></div> : row.shortlist?.shortlist_status === "proposed" ? <div className="stack-inline"><span className="badge">{row.shortlist?.created_by ? "Internal shortlist" : "Match suggestion"}</span><button className="text-button" type="submit" formAction={hideShortlistCandidateAction} name="remove_va_id" value={vaId}>Remove</button></div> : <span className="small muted">—</span>}</td>
         </tr>;

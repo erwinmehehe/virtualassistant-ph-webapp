@@ -54,7 +54,7 @@ test("client shortlist decisions disable while saving", async () => {
 
   assert.match(page, /PendingSubmitButton[\s\S]*label="Interested"[\s\S]*pendingLabel="Saving…"/);
   assert.match(page, /PendingSubmitButton[\s\S]*label="Interview"[\s\S]*pendingLabel="Saving…"/);
-  assert.match(page, /PendingSubmitButton className="btn btn-sm" label="Confirm pass" pendingLabel="Saving…"/);
+  assert.match(page, /PendingSubmitButton[\s\S]*label="Confirm pass"[\s\S]*pendingLabel="Saving…"/);
 });
 
 

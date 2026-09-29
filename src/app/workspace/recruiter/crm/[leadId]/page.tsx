@@ -200,6 +200,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     va_views?: number | null;
     shortlist_opened_at?: string | null;
     last_shortlist_activity_at?: string | null;
+    latest_decision?: string | null;
+    latest_decision_at?: string | null;
+    last_client_reply_at?: string | null;
+    last_client_chat_at?: string | null;
+    last_client_contact_at?: string | null;
+    unread_chat?: number | null;
   } | undefined;
 
   const clientLastLoginAt = engagement?.last_login_at || null;
@@ -207,7 +213,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const lastCandidateViewAt = engagement?.last_va_view_at || null;
   const shortlistOpenedAt = engagement?.shortlist_opened_at || null;
   const snapshotShortlistActivityAt = engagement?.last_shortlist_activity_at || null;
-  const lastEmailReplyAt = replyState?.last_client_reply_at || null;
+  const lastClientReplyAt = engagement?.last_client_contact_at || replyState?.last_client_reply_at || null;
   const replyStatus = String(replyState?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
   const replyStatusLabel = clientReplyStatusLabel(replyStatus);
 
@@ -323,6 +329,22 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const decisionSummary = latestDecision?.client_decision
     ? `${String(latestDecision.client_decision).replaceAll("_", " ")} · ${fmt(latestDecision.client_decision_at, true)}`
     : "No decision yet";
+  const interviewRequested = shortlists.some((item) => item.client_decision === "interview");
+  const clientDecisionReceived = shortlists.some((item) => Boolean(item.client_decision_at));
+  const openInterview = interviews.some((item) => !["cancelled", "completed"].includes(item.status));
+  const nextAction = hasHire
+    ? { label: "Close role", href: job ? `/workspace/recruiter/roles/${job.id}#overview` : returnTo, detail: "A placement exists. Close the role when no additional hiring is needed." }
+    : hasOffer
+      ? { label: "Review offer", href: job ? `/workspace/recruiter/roles/${job.id}#interviews` : returnTo, detail: "An offer is active. Keep the placement moving through acceptance and client confirmation." }
+      : interviewRequested && !openInterview
+        ? { label: "Schedule interview", href: job ? `/workspace/recruiter/roles/${job.id}#interviews` : returnTo, detail: "The client requested an interview. Schedule it before doing more sourcing." }
+        : clientDecisionReceived
+          ? { label: "Review decision", href: job ? `/workspace/recruiter/roles/${job.id}#client-handoff` : returnTo, detail: "The client has responded to the shortlist. Process that decision before sending more candidates." }
+          : hasReleasedShortlist
+            ? { label: "Follow up", href: lead.client_id ? `/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}` : returnTo, detail: "The shortlist is with the client. Follow up on a decision instead of adding more internal suggestions." }
+            : job
+              ? { label: "Send client-ready shortlist", href: `/workspace/recruiter/roles/${job.id}#matching`, detail: "Review client-ready candidates and release only the shortlist you are prepared to recommend." }
+              : { label: "Finish role setup", href: returnTo, detail: "Create or link the hiring role before matching candidates." };
 
   return (
     <div className={styles.detailPage}>
@@ -372,7 +394,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         shortlistOpened={shortlistOpenedAt ? fmt(shortlistOpenedAt, true) : "Not tracked yet"}
         shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
         decision={decisionSummary}
-        lastEmailReply={lastEmailReplyAt ? fmt(lastEmailReplyAt, true) : "No reply logged"}
+        lastClientReply={lastClientReplyAt ? fmt(lastClientReplyAt, true) : "No email or chat reply logged"}
         replyStatus={replyStatusLabel}
       />
 
@@ -381,7 +403,10 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <div>
             <span className={styles.kicker}>Next step</span>
             <h2>Move this hire forward</h2>
-            <p>Use the client record for the brief and call. Use the linked role for matching, shortlist, interviews, and hire.</p>
+            <p>{nextAction.detail}</p>
+          </div>
+          <div className={styles.headerActions}>
+            <Link className={styles.primaryButton} href={nextAction.href}><ArrowRight size={15}/> {nextAction.label}</Link>
           </div>
           <div className={styles.actionStatus}>
             <span className={replyStatus === "needs_action" ? styles.statusReplyNeedsAction : replyStatus === "awaiting_reply" ? styles.statusReplyWaiting : replyStatus === "handled" ? styles.statusReplyHandled : styles.statusNeutral}>{replyStatusLabel}</span>

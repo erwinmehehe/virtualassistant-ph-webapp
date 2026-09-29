@@ -49,3 +49,11 @@ test("VA messages open recruiter chat while client messages remain separate", ()
   assert.doesNotMatch(config, /source: "\/workspace\/client\/messages", destination: "\/workspace\/client\/support"/);
   assert.doesNotMatch(config, /source: "\/workspace\/va\/messages", destination: "\/workspace\/va\/support"/);
 });
+
+test("a lost recruiter claim cannot render another recruiter's client messages", () => {
+  const inbox = source("src/app/workspace/recruiter/messages/page.tsx");
+  assert.match(inbox, /active = claimed \? claimed as RecruiterClientThread : null/);
+  const action = source("src/app/actions/client-recruiter-chat.ts");
+  assert.match(action, /if \(!claimed\) throw new Error\("Another recruiter has taken this conversation/);
+  assert.doesNotMatch(action, /thread = claimed \|\| data/);
+});

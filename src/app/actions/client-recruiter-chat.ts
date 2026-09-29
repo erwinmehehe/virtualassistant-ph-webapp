@@ -62,7 +62,8 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
         .select("*")
         .maybeSingle();
       if (claimError) throw claimError;
-      thread = claimed || data;
+      if (!claimed) throw new Error("Another recruiter has taken this conversation. Refresh your inbox.");
+      thread = claimed;
     } else {
       thread = data;
     }

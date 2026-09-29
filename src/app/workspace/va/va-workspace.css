@@ -2904,3 +2904,53 @@
     justify-content: center;
   }
 }
+
+
+/* Progressive VA onboarding: keep the setup focused and make saved progress obvious. */
+.va-quick-setup-step.is-current {
+  padding: 8px;
+  margin: -8px;
+  border-radius: 10px;
+  background: #f5f7ff;
+}
+.va-quick-setup-step.is-current > span {
+  background: #444ce7;
+  color: #fff;
+}
+.va-quick-setup-step.is-done > span {
+  background: #ecfdf3;
+  color: #027a48;
+}
+.va-quick-setup-step.is-done strong {
+  color: #027a48;
+}
+.va-onboarding-form .field-help:has(svg) {
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+}
+.va-onboarding-form .field-help svg {
+  flex:0 0 auto;
+  margin-top:1px;
+}
+
+/* Do not advertise jobs, training, or other workspace destinations until
+ * the quick setup essentials have been saved. */
+.workspace-role-va:has(.va-quick-setup-page) {
+  grid-template-columns:minmax(0,1fr);
+}
+.workspace-role-va:has(.va-quick-setup-page) .app-sidebar {
+  display:none;
+}
+.workspace-role-va:has(.va-quick-setup-page) .app-topbar-workspace-home {
+  display:none;
+}
+.workspace-role-va:has(.va-quick-setup-page) .app-content {
+  max-width:1120px;
+}
+
+@media (max-width: 680px) {
+  .workspace-role-va:has(.va-quick-setup-page) .app-content {
+    padding-bottom:24px;
+  }
+}

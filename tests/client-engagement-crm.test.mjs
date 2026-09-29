@@ -13,11 +13,13 @@ test("reviewed shortlist questions route into the role-scoped recruiter chat", a
   assert.doesNotMatch(page, /Send to recruiter/);
 });
 
-test("recruiter CRM shows the requested client engagement signals", async () => {
-  const [record, panel, auth] = await Promise.all([
+test("recruiter CRM shows role-scoped client engagement signals", async () => {
+  const [record, panel, tracker, analyticsApi, migration] = await Promise.all([
     read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
     read("src/components/client-engagement-panel.tsx"),
-    read("src/lib/client-auth-activity.ts"),
+    read("src/components/client-candidate-view-tracker.tsx"),
+    read("src/app/api/analytics/route.ts"),
+    read("supabase/migrations/20260929171000_role_scoped_client_candidate_views.sql"),
   ]);
 
   for (const label of [
@@ -32,14 +34,17 @@ test("recruiter CRM shows the requested client engagement signals", async () => 
     assert.match(panel, new RegExp(label));
   }
 
-  assert.match(record, /candidate_view/);
-  assert.match(record, /candidate_viewed/);
-  assert.match(record, /client_shortlist_viewed/);
-  assert.match(record, /client_shortlist_message/);
-  assert.match(record, /client_contact_email/);
+  assert.match(record, /recruiter_client_activity_snapshot/);
   assert.match(record, /ClientEngagementPanel/);
-  assert.match(auth, /getUserById/);
-  assert.match(auth, /last_sign_in_at/);
+  assert.match(tracker, /event: "candidate_viewed"/);
+  assert.match(tracker, /job_id: jobId/);
+  assert.match(tracker, /va_id: vaId/);
+  assert.match(tracker, /surface: "client_hiring_room"/);
+  assert.match(analyticsApi, /"candidate_viewed"/);
+  assert.match(migration, /count\(distinct nullif\(a\.metadata ->> 'va_id', ''\)\)/);
+  assert.match(migration, /a\.metadata ->> 'job_id' = l\.job_id::text/);
+  assert.match(migration, /a\.metadata ->> 'surface' = 'client_hiring_room'/);
+  assert.match(panel, /distinct candidates actually viewed in this role's Hiring Room/);
 });
 
 test("recruiter can explicitly log inbound email replies", async () => {
@@ -61,6 +66,8 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.match(pipeline, /Client activity/);
   assert.match(pipeline, /Login/);
   assert.match(pipeline, /VA views/);
+  assert.doesNotMatch(pipeline, /VA views\*/);
+  assert.doesNotMatch(pipeline, /Account-wide candidate viewing activity/);
   assert.match(pipeline, /Shortlist/);
   assert.match(pipeline, /Decision/);
   assert.match(pipeline, /Reply in chat/);

@@ -19,7 +19,7 @@ test("recruiter CRM shows role-scoped client engagement signals", async () => {
     read("src/components/client-engagement-panel.tsx"),
     read("src/components/client-candidate-view-tracker.tsx"),
     read("src/app/api/analytics/route.ts"),
-    read("supabase/migrations/20260929200600_client_contact_snapshot.sql"),
+    read("supabase/migrations/20260929195800_client_contact_snapshot.sql"),
   ]);
 
   for (const label of [
@@ -70,11 +70,11 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.doesNotMatch(pipeline, /Account-wide candidate viewing activity/);
   assert.match(pipeline, /Shortlist/);
   assert.match(pipeline, /Decision/);
-  assert.match(pipeline, /Reply in chat/);
+  assert.match(pipeline, /Follow up/);
   assert.match(pipeline, /unread client message/);
   assert.match(pipeline, /client_more_options_requested/);
   assert.match(pipeline, /need_more_options/);
-  assert.match(pipeline, /Build more options/);
+  assert.match(pipeline, /Review decision/);
   assert.match(pipeline, /unreadChat > 0 \|\| activity\?\.latest_decision === "need_more_options"/);
 
   assert.match(migration, /auth\.users/);

@@ -214,54 +214,53 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
     </section>
 
-    {newHiringRoles.length ? <section id="new-hiring-enquiries" className="card dashboard-section-card" style={{marginTop:18}}>
-      <div className="dashboard-section-head">
-        <div><h2>New hiring enquiries</h2><p>Each enquiry should already have one CRM record and one linked recruiting role. Work the handoff in order: review the brief, match VAs, then release the shortlist.</p></div>
+    {newHiringRoles.length ? <section id="new-hiring-enquiries" className={`card dashboard-section-card ${styles.sectionShell}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>New hiring enquiries</h2><p>Review the brief, prepare matches, then release only the VAs you want the client to see.</p></div>
         <span className="badge badge-warning">{newHiringRoles.length} waiting</span>
       </div>
-      <div className="stack" style={{marginTop:12}}>
-        {newHiringRoles.map((job)=><div className="card" key={job.id} style={{padding:14}}>
-          <div className="row-between wrap">
-            <div>
-              <div className="row wrap"><span className="badge">{job.recruiter_id===userId?"My role":"Unassigned"}</span><span className="small muted">{ageLabel((Date.now()-new Date(job.created_at).getTime())/3600000)} old</span></div>
-              <h3 style={{margin:"7px 0 3px"}}>{job.title||"Virtual Assistant role"}</h3>
-              <p className="small muted" style={{margin:0}}>{job.company_name||"New client"} · {String(job.hiring_stage||"intake").replaceAll("_"," ")}</p>
-              <div className={styles.handoffSteps} aria-label="Booking to shortlist handoff"><span className={styles.stepDone}>Booked</span><span className={styles.stepCurrent}>Review brief</span><span>Match VAs</span><span>Shortlist</span></div>
-            </div>
-            <div className="row wrap">
-              {job.lead_id?<Link className="btn" href={`/workspace/recruiter/crm/${job.lead_id}`}>Review booking</Link>:null}
-              <Link className="btn" href={`/workspace/recruiter/roles/${job.id}#overview`}>Review brief</Link>
-              <form action={prepareTopMatchesForReviewAction}>
-                <input type="hidden" name="job_id" value={job.id}/>
-                <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${job.id}`}/>
-                <button className="btn btn-primary" type="submit">Prepare top matches</button>
-              </form>
-            </div>
+      <div className={styles.enquiryList}>
+        {newHiringRoles.map((job)=><article className={styles.enquiryRow} key={job.id}>
+          <div className={styles.enquiryMain}>
+            <div className={styles.enquiryMeta}><span className="badge">{job.recruiter_id===userId?"My role":"Unassigned"}</span><span>{ageLabel((Date.now()-new Date(job.created_at).getTime())/3600000)} old</span></div>
+            <h3>{job.title||"Virtual Assistant role"}</h3>
+            <p>{job.company_name||"New client"} · {String(job.hiring_stage||"intake").replaceAll("_"," ")}</p>
+            <div className={styles.handoffSteps} aria-label="Booking to shortlist handoff"><span className={styles.stepDone}>Booked</span><span className={styles.stepCurrent}>Review brief</span><span>Match VAs</span><span>Shortlist</span></div>
           </div>
-        </div>)}
+          <div className={styles.enquiryActions}>
+            {job.lead_id?<Link className="btn btn-sm" href={`/workspace/recruiter/crm/${job.lead_id}`}>Booking</Link>:null}
+            <Link className="btn btn-sm" href={`/workspace/recruiter/roles/${job.id}#overview`}>Brief</Link>
+            <form action={prepareTopMatchesForReviewAction}>
+              <input type="hidden" name="job_id" value={job.id}/>
+              <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${job.id}`}/>
+              <button className="btn btn-sm btn-primary" type="submit">Prepare matches</button>
+            </form>
+          </div>
+        </article>)}
       </div>
     </section> : null}
 
-    {interviewRequests.length ? <section id="interview-requests" className="card dashboard-section-card" style={{marginTop:18}}>
-      <div className="dashboard-section-head">
-        <div><h2>Interview requests</h2><p>Clients have asked to meet these candidates. Schedule directly from the role; no separate client email is required.</p></div>
+    {interviewRequests.length ? <section id="interview-requests" className={`card dashboard-section-card ${styles.sectionShell}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>Interview requests</h2><p>Clients have asked to meet these candidates. Schedule from the role and keep the next step in one place.</p></div>
         <span className="badge badge-warning">{interviewRequests.length} waiting</span>
       </div>
-      <div className="stack" style={{marginTop:12}}>
-        {interviewRequests.slice(0,6).map((item)=><div className="row-between wrap review-answer" key={item.subject_id || item.title}>
-          <div>
+      <div className={styles.compactList}>
+        {interviewRequests.slice(0,6).map((item)=><div className={styles.compactRow} key={item.subject_id || item.title}>
+          <div className={styles.compactCopy}>
             <strong>{item.title || "Client requested an interview"}</strong>
-            <div className="small muted">{item.description || "Interview time has not been scheduled yet."}</div>
+            <small>{item.description || "Interview time has not been scheduled yet."}</small>
           </div>
-          {item.subject_id?<Link className="btn btn-primary btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}#interviews`}>Schedule interview</Link>:null}
+          {item.subject_id?<Link className="btn btn-primary btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}#interviews`}>Schedule</Link>:null}
         </div>)}
       </div>
     </section> : null}
 
 
 
-    <section className={`card dashboard-section-card ${styles.queueCard}`}>
-      <div className="dashboard-section-head"><div><h2>Needs action</h2><p>Only work that needs a recruiter decision or follow-up today.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
+    <div className={styles.operationsGrid}>
+    <section className={`card dashboard-section-card ${styles.sectionShell} ${styles.queueCard}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}><div><h2>Needs action</h2><p>Only work that needs a recruiter decision or follow-up today.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
         {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}
         <div className={`dash-actions ${styles.queue}`} tabIndex={0} aria-label={`Today's work queue, ${queue.length} items`}>
@@ -270,7 +269,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             const isTask = item.kind === "task";
             const isClientFollowup=["client_shortlist_waiting","client_response_overdue"].includes(item.kind);
             const actionHref=exactActionHref(item);
-            return <article className="dash-action" key={`${item.kind}-${item.id}`}>
+            return <article className={`dash-action ${styles.queueItem}`} key={`${item.kind}-${item.id}`}>
               <span className="dash-action-count"><Clock3 size={16}/></span>
               <span className="dash-action-copy">
                 <span className="dash-action-title"><strong>{item.title}</strong><span className={`badge ${PRIORITY_CLASS[item.priority] || ""}`}>{item.priority}</span></span>
@@ -293,8 +292,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </> : <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>You’re caught up.</strong><p>No current Recruitment or Client Success work is waiting right now.</p></div><Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles</Link></div>}
     </section>
 
-    <section id="role-follow-through" className="card dashboard-section-card">
-      <div className="dashboard-section-head">
+    <section id="role-follow-through" className={`card dashboard-section-card ${styles.sectionShell}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
         <div><h2>Follow-through</h2><p>No-shows, client decisions, and roles that have stopped moving.</p></div>
         <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
       </div>
@@ -352,5 +351,6 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
       {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
     </section>
+    </div>
   </div>;
 }

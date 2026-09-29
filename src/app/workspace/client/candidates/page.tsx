@@ -254,7 +254,7 @@ export default async function ClientCandidatesPage({
                     <input type="hidden" name="job_id" value={selectedJob.id}/>
                     <input type="hidden" name="va_id" value={row.va_id}/>
                     <input type="hidden" name="return_to" value={`/workspace/client/candidates?role=${selectedJob.id}#recruiter-shortlist`}/>
-                    <input name="decision_note" maxLength={300} defaultValue={row.client_decision_note || ""} placeholder="Optional note for your recruiter"/>
+                    <input name="decision_note" maxLength={300} placeholder="Optional note for your recruiter"/>
                     <div className="row wrap client-shortlist-action-grid">
                       <PendingSubmitButton
                         className={`btn btn-sm ${decision === "interested" ? "btn-primary" : ""}`}

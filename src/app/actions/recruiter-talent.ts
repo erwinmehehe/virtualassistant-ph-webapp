@@ -57,6 +57,8 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     category: filterValues(formData, "filter_category"),
     category_match: filterValue(formData, "filter_category_match"),
     classification: filterValue(formData, "filter_classification"),
+    registration: filterValue(formData, "filter_registration"),
+    address: filterValue(formData, "filter_address"),
     stage: filterValue(formData, "filter_stage"),
     readiness: filterValue(formData, "filter_readiness"),
     photo: filterValue(formData, "filter_photo"),
@@ -68,7 +70,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     stale: filterValue(formData, "filter_stale")
   };
 
-  let countQuery: any = admin.from("recruiter_va_directory").select("user_id", { count: "exact", head: true });
+  let countQuery: any = admin.from("recruiter_va_directory_health").select("user_id", { count: "exact", head: true });
   countQuery = applyRecruiterTalentFilters(countQuery, filters);
   const { count: filteredCount, error: countError } = await countQuery;
   if (countError) throw countError;
@@ -77,7 +79,7 @@ export async function bulkRecruiterTalentAction(formData: FormData) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}bulk_error=${encodeURIComponent(`Filtered bulk actions are limited to ${RECRUITER_BULK_LIMIT} VAs. Narrow the filters before running the action.`)}`);
   }
 
-  let query: any = admin.from("recruiter_va_directory").select("user_id").limit(RECRUITER_BULK_LIMIT);
+  let query: any = admin.from("recruiter_va_directory_health").select("user_id").limit(RECRUITER_BULK_LIMIT);
   query = applyRecruiterTalentFilters(query, filters);
 
   const { data, error } = await query;

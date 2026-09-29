@@ -133,6 +133,13 @@ export type RecruiterVaDirectoryRow = {
   classification_status?: "classified" | "ready_to_classify" | "incomplete_profile" | string | null;
   classification_evidence_count?: number | null;
   classification_missing?: string[] | null;
+  registration_health?: "email_unconfirmed" | "never_started" | "profile_incomplete" | "ready" | string | null;
+  email_confirmed?: boolean | null;
+  last_sign_in_at?: string | null;
+  has_private_address?: boolean | null;
+  has_resume?: boolean | null;
+  address_resume_status?: "saved" | "review" | "no_match" | "unsupported" | "error" | string | null;
+  address_resume_checked_at?: string | null;
 };
 
 export type RecruiterTalentSummaryRow = {

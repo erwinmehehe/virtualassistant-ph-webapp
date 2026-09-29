@@ -149,18 +149,23 @@ function looksLikeSectionHeading(line: string): boolean {
   return letters.length > 2 && letters === letters.toUpperCase();
 }
 
-function extractAddress(text: string): string | null {
+export type ResumeAddressCandidate = {
+  address: string | null;
+  confidence: "high" | "review" | "none";
+};
+
+export function extractResumeAddressCandidate(text: string): ResumeAddressCandidate {
   const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
   const top = lines.slice(0, 24);
 
   for (let i = 0; i < top.length; i += 1) {
     const labeled = top[i].match(/^(?:home\s+)?(?:address|location|residence)\s*[:\-]\s*(.{5,180})$/i);
-    if (labeled?.[1]) return labeled[1].trim().slice(0, 200);
+    if (labeled?.[1]) return { address: labeled[1].trim().slice(0, 200), confidence: "high" };
 
     if (/^(?:home\s+)?(?:address|location|residence)\s*:?$/i.test(top[i])) {
       const next = top[i + 1]?.trim();
       if (next && next.length >= 5 && next.length <= 200 && !/@|https?:\/\/|linkedin\.com/i.test(next)) {
-        return next;
+        return { address: next.slice(0, 200), confidence: "high" };
       }
     }
   }
@@ -174,7 +179,13 @@ function extractAddress(text: string): string | null {
     !/^\+?\d[\d\s().-]{7,}$/.test(line)
   );
 
-  return likely ? likely.slice(0, 200) : null;
+  return likely
+    ? { address: likely.slice(0, 200), confidence: "review" }
+    : { address: null, confidence: "none" };
+}
+
+function extractAddress(text: string): string | null {
+  return extractResumeAddressCandidate(text).address;
 }
 
 function extractBio(text: string): string | null {

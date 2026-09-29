@@ -51,7 +51,7 @@ test("Recruiter Talent only selects table fields it renders", async () => {
 
   assert.match(
     page,
-    /select\("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing"/,
+    /select\("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing,registration_health,email_confirmed,last_sign_in_at,has_private_address,has_resume,address_resume_status,address_resume_checked_at"/,
   );
   assert.doesNotMatch(page, /from\("recruiter_va_directory"\)[\s\S]{0,120}\.select\("\*"/);
 });

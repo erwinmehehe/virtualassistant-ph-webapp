@@ -69,3 +69,10 @@ test("Work Readiness bulk verify and reminders are guarded",async()=>{
   assert.match(action,/work_setup_reminder_sent/);
   assert.doesNotMatch(action,/sendTransactionalEventEmail/);
 });
+
+
+test("VA profile save refreshes the availability confirmation used by client-ready gating", async () => {
+  const profile = await read("src/app/actions/profile.ts");
+  assert.match(profile, /availability_confirmed_at: new Date\(\)\.toISOString\(\)/);
+  assert.match(profile, /availability_status: String\(formData\.get\("availability_status"\)/);
+});

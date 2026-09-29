@@ -16,6 +16,7 @@ import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
 import { TrainingCredentials } from "@/components/training-credentials";
 import { recordProductEvent } from "@/lib/product-events";
 import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
+import { sendRecruiterVaMessageAction } from "@/app/actions/recruiter-va-chat";
 
 const Rating=({name,label}:{name:string;label:string})=><div className="field"><label>{label}</label><select name={name} defaultValue="3" required><option value="1">1 - weak</option><option value="2">2 - below standard</option><option value="3">3 - meets standard</option><option value="4">4 - strong</option><option value="5">5 - excellent</option></select></div>;
 
@@ -75,6 +76,16 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
         {vetting?.video_url?<a className="btn" href={vetting.video_url} target="_blank" rel="noreferrer">Watch video</a>:null}
         {publicListing?.slug?<Link className="btn btn-primary" href={"/va/"+publicListing.slug} target="_blank">Open public profile</Link>:null}
       </div>
+    </section>
+    <section className="card" style={{ marginBottom: 18 }}>
+      <h2>Message this VA</h2>
+      <p className="small muted">This private conversation is between recruiters and this VA. Clients cannot see or join it.</p>
+      <form action={sendRecruiterVaMessageAction} className="stack">
+        <input type="hidden" name="va_id" value={id}/>
+        <label htmlFor="recruiter-va-first-message">Your message</label>
+        <textarea id="recruiter-va-first-message" name="body" required maxLength={4000} rows={3}/>
+        <button className="btn btn-primary" type="submit">Send to VA</button>
+      </form>
     </section>
     <div className="candidate-status-grid">
       <div><span>Profile completion</span><strong>{completionData.score}%</strong><small>{missing.length?missing.length+" readiness item"+(missing.length===1?"":"s")+" missing":"Recruiter-ready"}</small></div>

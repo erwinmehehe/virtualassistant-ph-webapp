@@ -12,6 +12,7 @@ import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-s
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { isTalentAgencyCertified, talentReadinessActions } from "@/lib/talent-operations";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -126,8 +127,39 @@ export default async function RoleControlCenter({
   ]);
   const vaMap = new Map(((vaData || []) as ProfileSummaryRow[]).map((v) => [v.id, v.full_name || "VA"]));
   const staffMap = new Map(((staffData || []) as StaffProfileRow[]).map((v) => [v.id, v.full_name || v.role]));
-  const proposed = shortlist.filter((x) => x.shortlist_status === "proposed");
+  const proposed = shortlist.filter((x) => x.shortlist_status === "proposed" && Boolean(x.created_by));
   const released = shortlist.filter((x) => x.shortlist_status === "released");
+  const proposedVaIds = [...new Set(proposed.map((x) => x.va_id).filter(Boolean))];
+  const [{ data: proposedVetting }, { data: proposedProfiles }, { data: proposedPool }] = proposedVaIds.length
+    ? await Promise.all([
+        admin.from("va_vetting").select("va_id,stage").in("va_id", proposedVaIds),
+        admin.from("va_profiles").select("user_id,availability_status,availability_confirmed_at,work_setup_verified_at").in("user_id", proposedVaIds),
+        admin.from("bench_memberships").select("va_id").in("va_id", proposedVaIds).eq("status", "active"),
+      ])
+    : [{ data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }];
+  const proposedStage = new Map((proposedVetting || []).map((row: any) => [row.va_id, row.stage]));
+  const proposedProfile = new Map((proposedProfiles || []).map((row: any) => [row.user_id, row]));
+  const proposedPoolIds = new Set((proposedPool || []).map((row: any) => row.va_id));
+  const blockedProposed = proposed.filter((row) => {
+    const profile = proposedProfile.get(row.va_id) as any;
+    return !isTalentAgencyCertified({
+      stage: proposedStage.get(row.va_id) as string | null | undefined,
+      activePool: proposedPoolIds.has(row.va_id),
+      availabilityStatus: profile?.availability_status,
+      availabilityConfirmedAt: profile?.availability_confirmed_at,
+      workSetupVerifiedAt: profile?.work_setup_verified_at,
+    });
+  });
+  const readinessActions = [...new Set(blockedProposed.flatMap((row) => {
+    const profile = proposedProfile.get(row.va_id) as any;
+    return talentReadinessActions({
+      stage: proposedStage.get(row.va_id) as string | null | undefined,
+      activePool: proposedPoolIds.has(row.va_id),
+      availabilityStatus: profile?.availability_status,
+      availabilityConfirmedAt: profile?.availability_confirmed_at,
+      workSetupVerifiedAt: profile?.work_setup_verified_at,
+    });
+  }))];
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
   const activeOffers = offers.filter((x) => !["declined", "cancelled"].includes(x.status));
@@ -179,9 +211,11 @@ export default async function RoleControlCenter({
           ? { label: "Review decision", href: "#client-handoff", detail: "Client feedback is in. Process the decision before sending more candidates." }
           : waiting.length > 0
             ? { label: "Follow up", href: "#client-handoff", detail: "The shortlist is with the client. Follow up for a decision rather than building more internal suggestions." }
-            : proposed.length > 0
-              ? { label: "Send to client", href: "#matching", detail: "You have an internal shortlist. Review readiness and release the candidates you are prepared to recommend." }
-              : { label: "Review client-ready matches", href: "#matching", detail: NEXT[job.hiring_stage] || "Review the role and move it forward." };
+            : blockedProposed.length > 0
+              ? { label: "Fix shortlist readiness", href: "#matching", detail: `${blockedProposed.length} of ${proposed.length} recruiter-selected candidate${proposed.length === 1 ? "" : "s"} cannot be released yet. ${readinessActions.slice(0, 3).join(" · ") || "Complete talent readiness first"}.` }
+              : proposed.length > 0
+                ? { label: "Send to client", href: "#matching", detail: "Every recruiter-selected candidate is client-ready. Clear any remaining role gates, preview the shortlist, then release it." }
+                : { label: "Review client-ready matches", href: "#matching", detail: NEXT[job.hiring_stage] || "Review the role and move it forward." };
   const clientClaimHref = lead?.id && !job.client_id
     ? `/auth/join/client?lead=${encodeURIComponent(lead.id)}&next=${encodeURIComponent(`/workspace/client/jobs/${job.id}`)}`
     : null;
@@ -465,6 +499,7 @@ export default async function RoleControlCenter({
           <div>
             <span className="small muted">Internal review</span>
             <strong style={{ display: "block", fontSize: 22 }}>{proposed.length}</strong>
+            {proposed.length ? <span className="small muted">{proposed.length - blockedProposed.length}/{proposed.length} client-ready</span> : null}
           </div>
           <div>
             <span className="small muted">Sent to client</span>

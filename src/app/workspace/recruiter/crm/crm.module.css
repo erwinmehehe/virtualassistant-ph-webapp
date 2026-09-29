@@ -1838,3 +1838,34 @@
   background:#ecfdf3;
   color:#027a48;
 }
+
+@media (max-width: 460px) {
+  .pipelineWorkspace .searchForm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pipelineWorkspace .searchBox {
+    grid-column: auto;
+  }
+
+  .pipelineWorkspace .searchForm > button,
+  .pipelineWorkspace .searchForm > a,
+  .pipelineWorkspace .searchForm > select {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .pipelineWorkspace .modeSwitch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .pipelineWorkspace .modeSwitch a {
+    justify-content: center;
+  }
+
+  .clientSignals span {
+    white-space: normal;
+  }
+}

@@ -30,6 +30,7 @@ test("CRM record page keeps client actions primary and secondary controls collap
 
 test("recruiter navigation exposes CRM as a primary workspace destination",async()=>{
   const nav=await read("src/components/app-nav-links.tsx");
-  assert.match(nav,/["Hiring pipeline", "/workspace/recruiter/crm", UsersRound]/);
-  assert.ok(nav.includes('recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],'));
+  assert.match(nav,/\["Clients", "\/workspace\/recruiter\/crm", UsersRound\]/);
+  assert.match(nav,/\["Messages", "\/workspace\/recruiter\/messages", MessageCircle\]/);
+  assert.ok(nav.includes('recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/messages", "/workspace/recruiter/roles"],'));
 });

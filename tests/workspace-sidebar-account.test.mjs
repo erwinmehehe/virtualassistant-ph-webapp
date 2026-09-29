@@ -119,6 +119,6 @@ test("client mobile navigation exposes the decision-making hiring stages", async
   assert.match(nav, /\["Workroom", "\/workspace\/client\/workroom"/);
   assert.match(
     nav,
-    /client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/candidates", "\/workspace\/client\/interviews"\]/,
+    /client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/candidates", "\/workspace\/client\/messages"\]/,
   );
 });

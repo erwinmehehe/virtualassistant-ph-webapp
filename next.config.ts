@@ -139,9 +139,8 @@ const nextConfig: NextConfig = {
       { source: "/resources/how-to-start-a-virtual-assistant-business/", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
       { source: "/resources/virtual-assistant-side-hustle-business-guide", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
       { source: "/resources/virtual-assistant-side-hustle-business-guide/", destination: "/blog/how-to-start-a-virtual-assistant-business", permanent: true },
-      // In-app client/VA messaging was removed; coordination runs through the
-      // recruiter. Old notification links and bookmarks land on support.
-      { source: "/workspace/client/messages", destination: "/workspace/client/support", permanent: false },
+      // Direct client/VA messaging remains disabled. The client now has a
+      // dedicated recruiter-only chat; old VA message links still land on support.
       { source: "/workspace/va/messages", destination: "/workspace/va/support", permanent: false },
       // Correct newly generated resource slugs that used "a" before vowel-sound roles.
       { source: "/resources/what-does-a-administrative-virtual-assistant-do", destination: "/service/admin-inbox", permanent: true },

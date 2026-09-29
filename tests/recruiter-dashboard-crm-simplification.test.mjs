@@ -7,11 +7,11 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("recruiter navigation is centered on the hiring workflow", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
 
-  for (const label of ["My Day", "Clients", "Roles", "Talent", "Placements"]) {
+  for (const label of ["My Day", "Clients", "Messages", "Roles", "Talent", "Placements"]) {
     assert.match(nav, new RegExp(`\\["${label}"`));
   }
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
-  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/talent"\]/);
+  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/messages", "\/workspace\/recruiter\/roles"\]/);
 });
 
 test("Recruiter Today has one next-action layer and no duplicate talent dashboard", async () => {

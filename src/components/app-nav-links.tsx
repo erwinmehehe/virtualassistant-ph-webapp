@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   ListTodo,
   LifeBuoy,
+  MessageCircle,
   LogOut,
   Search,
   Settings,
@@ -42,6 +43,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Overview", "/workspace/client", LayoutDashboard],
         ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
         ["Hiring Room", "/workspace/client/candidates", UsersRound],
+        ["Messages", "/workspace/client/messages", MessageCircle],
         ["Interviews", "/workspace/client/interviews", CalendarDays],
         ["Offers", "/workspace/client/offers", ClipboardCheck],
         ["My Team", "/workspace/client/team", UsersRound],
@@ -76,6 +78,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["My Day", "/workspace/recruiter/today", ListTodo],
         ["Clients", "/workspace/recruiter/crm", UsersRound],
+        ["Messages", "/workspace/recruiter/messages", MessageCircle],
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
         ["Placements", "/workspace/recruiter/placements", Wrench],
@@ -126,9 +129,9 @@ const nav: Record<Role, readonly NavGroup[]> = {
 };
 
 const mobilePrimary: Record<Role, string[]> = {
-  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/interviews"],
+  client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
-  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/roles", "/workspace/recruiter/talent"],
+  recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/messages", "/workspace/recruiter/roles"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
 
@@ -145,6 +148,7 @@ function navToneFor(label: string, href: string) {
   if (key.includes("payout") || key.includes("payment") || key.includes("finance")) return "emerald";
   if (key.includes("support")) return "rose";
   if (key.includes("work readiness") || key.includes("coverage")) return "teal";
+  if (key.includes("message")) return "indigo";
   if (key.includes("interview")) return "sky";
   if (key.includes("opportunit") || key.includes("/jobs") || key.includes("hiring") || key.includes("roles")) return "amber";
   if (key.includes("placement") || key.includes("client success")) return "purple";

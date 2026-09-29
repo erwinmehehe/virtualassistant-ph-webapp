@@ -33,9 +33,44 @@ const getCachedRoleBadges = unstable_cache(
     if (error) throw error;
 
     const raw = (data || {}) as Record<string, unknown>;
+
+    let chatUnread = 0;
+    if (role === "client") {
+      const { data: thread } = await admin
+        .from("client_recruiter_threads")
+        .select("id")
+        .eq("client_id", userId)
+        .maybeSingle();
+      if (thread?.id) {
+        const { count } = await admin
+          .from("client_recruiter_messages")
+          .select("id", { count: "exact", head: true })
+          .eq("thread_id", thread.id)
+          .neq("sender_id", userId)
+          .is("read_at", null);
+        chatUnread = Number(count || 0);
+      }
+    } else if (role === "recruiter") {
+      const { data: threads } = await admin
+        .from("client_recruiter_threads")
+        .select("id")
+        .or(`recruiter_id.eq.${userId},recruiter_id.is.null`);
+      const threadIds = (threads || []).map((thread) => thread.id);
+      if (threadIds.length) {
+        const { count } = await admin
+          .from("client_recruiter_messages")
+          .select("id", { count: "exact", head: true })
+          .in("thread_id", threadIds)
+          .neq("sender_id", userId)
+          .is("read_at", null);
+        chatUnread = Number(count || 0);
+      }
+    }
+
     if (role === "recruiter") {
       return {
         "/workspace/recruiter/leads": Number(raw.leads || 0),
+        "/workspace/recruiter/messages": chatUnread,
         "/workspace/recruiter/talent": Number(raw.vetting || 0),
         "/workspace/recruiter/roles": Number(raw.pending_roles || 0),
         "/workspace/recruiter/notifications": Number(raw.notifications || 0),
@@ -45,6 +80,7 @@ const getCachedRoleBadges = unstable_cache(
 
     const base = `/workspace/${role}`;
     return {
+      [`${base}/messages`]: role === "client" ? chatUnread : 0,
       [`${base}/notifications`]: Number(raw.notifications || 0),
     };
   },

@@ -64,11 +64,3 @@ test("resume address backfill only auto-saves explicit high-confidence addresses
   assert.match(worker, /storage\.from\("resumes"\)\.download/);
   assert.match(maintenance, /runVaAddressResumeBackfill\(8\)/);
 });
-
-test("temporary production address backfill trigger stores only a token hash", async () => {
-  const route = await read("src/app/api/internal/va-address-backfill/route.ts");
-  assert.match(route, /EXPECTED_TOKEN_HASH/);
-  assert.match(route, /timingSafeEqual/);
-  assert.match(route, /runVaAddressResumeBackfill\(12\)/);
-  assert.doesNotMatch(route, /hnQRAxLpIkaisBxPQQps7qdN8riri0b1B5cDPwh8jC4/);
-});

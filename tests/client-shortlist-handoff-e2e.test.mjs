@@ -61,3 +61,13 @@ test("preview controls cannot accidentally submit client decisions", () => {
   assert.match(matchingTable, /type="button" disabled>Hold/);
   assert.match(matchingTable, /type="button" disabled>Pass/);
 });
+
+
+test("client decisions and more-options requests resolve stale shortlist reminders", () => {
+  const actions = clientActions;
+  assert.match(actions, /resolveClientShortlistFollowups/);
+  assert.match(actions, /type", "shortlist_followup"/);
+  assert.match(actions, /client_decision\.is\.null,client_decision\.eq\.hold/);
+  assert.match(actions, /resolveClientShortlistFollowups\(admin, user\.id, jobId\)/);
+  assert.match(actions, /resolveClientShortlistFollowups\(admin, user\.id, jobId, true\)/);
+});

@@ -76,3 +76,14 @@ test("recruiter profile health separates auth, profile completeness and private 
   assert.match(talent, /has_private_address", false/);
   assert.match(talent, /Never public/);
 });
+
+
+test("profile health includes a distinct missing-resume client-readiness queue", async () => {
+  const talent = await read("src/app/workspace/recruiter/talent/page.tsx");
+  assert.match(talent, /key: "missing_resume"/);
+  assert.match(talent, /has_resume", false/);
+  assert.match(talent, /Missing resume/);
+  assert.match(talent, /Client-readiness blocker/);
+  assert.match(talent, /\["profile_incomplete", Number\(profileIncompleteCount \|\| 0\)\]/);
+  assert.match(talent, /\["missing_resume", Number\(missingResumeCount \|\| 0\)\]/);
+});

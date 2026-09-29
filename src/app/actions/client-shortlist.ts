@@ -31,6 +31,37 @@ function reasonLabel(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+
+async function resolveClientShortlistFollowups(
+  admin: ReturnType<typeof createAdminClient>,
+  clientId: string,
+  jobId: string,
+  force = false,
+) {
+  let canResolve = force;
+  if (!force) {
+    const { count, error } = await admin
+      .from("job_shortlist_candidates")
+      .select("id", { count: "exact", head: true })
+      .eq("job_id", jobId)
+      .eq("shortlist_status", "released")
+      .or("client_decision.is.null,client_decision.eq.hold");
+    if (error) throw error;
+    canResolve = Number(count || 0) === 0;
+  }
+  if (!canResolve) return;
+
+  const now = new Date().toISOString();
+  const { error } = await admin
+    .from("notifications")
+    .update({ done_at: now, read_at: now, snoozed_until: null })
+    .eq("user_id", clientId)
+    .eq("type", "shortlist_followup")
+    .eq("href", `/workspace/client/candidates?role=${jobId}`)
+    .is("done_at", null);
+  if (error) throw error;
+}
+
 async function requireApprovedVa(vaId: string) {
   const admin = createAdminClient();
   const { data: vetting } = await admin
@@ -230,6 +261,8 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     await writeRecruiterActivity({ subjectType: "job", subjectId: jobId, action: `client_shortlist_${decision}`, description: `Client ${label}`, actorId: user.id, metadata: { va_id: vaId, reason: decisionNote, interview_created: interviewCreated, interview_id: interviewId } });
     await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote, interview_id: interviewId } });
   } catch {}
+  await resolveClientShortlistFollowups(admin, user.id, jobId);
+
   const notificationTitle = decision === "interview"
     ? "Client requested an interview"
     : decision === "interested"
@@ -358,6 +391,8 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
     path: returnTo,
     metadata: { job_id: jobId, note: note || null },
   });
+
+  await resolveClientShortlistFollowups(admin, user.id, jobId, true);
 
   revalidatePath("/workspace/client/candidates");
   revalidatePath(`/workspace/client/jobs/${jobId}`);

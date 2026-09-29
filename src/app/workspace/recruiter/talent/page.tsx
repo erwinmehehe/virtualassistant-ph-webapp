@@ -36,6 +36,8 @@ const SAVED_VIEWS = [
   { key: "stale_60", label: "Stale 60d+", filters: { stale: "60" } },
   { key: "zero_not_started", label: "0% / not started", filters: { classification: undefined, registration: "never_started" } },
   { key: "email_unconfirmed", label: "Email unconfirmed", filters: { classification: undefined, registration: "email_unconfirmed" } },
+  { key: "profile_incomplete", label: "Profile incomplete", filters: { classification: undefined, registration: "profile_incomplete" } },
+  { key: "missing_resume", label: "Missing resume", filters: { classification: undefined, resume: "no" } },
   { key: "missing_address", label: "Missing private address", filters: { classification: undefined, address: "missing" } },
   { key: "address_review", label: "Resume address review", filters: { classification: undefined, address: "review" } },
 ] as const;
@@ -129,6 +131,7 @@ export default async function RecruiterTalentDirectory({
     { count: neverStartedCount, error: neverStartedError },
     { count: emailUnconfirmedCount, error: emailUnconfirmedError },
     { count: profileIncompleteCount, error: profileIncompleteError },
+    { count: missingResumeCount, error: missingResumeError },
     { count: missingAddressCount, error: missingAddressError },
     { count: addressReviewCount, error: addressReviewError },
   ] = await Promise.all([
@@ -147,6 +150,7 @@ export default async function RecruiterTalentDirectory({
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "never_started"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "email_unconfirmed"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "profile_incomplete"),
+    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_resume", false),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false).eq("address_resume_status", "review"),
   ]);
@@ -156,6 +160,7 @@ export default async function RecruiterTalentDirectory({
   if (neverStartedError) throw neverStartedError;
   if (emailUnconfirmedError) throw emailUnconfirmedError;
   if (profileIncompleteError) throw profileIncompleteError;
+  if (missingResumeError) throw missingResumeError;
   if (missingAddressError) throw missingAddressError;
   if (addressReviewError) throw addressReviewError;
 
@@ -195,6 +200,8 @@ export default async function RecruiterTalentDirectory({
     ["needs_review", Number(summary.needs_review_count || 0)],
     ["zero_not_started", Number(neverStartedCount || 0)],
     ["email_unconfirmed", Number(emailUnconfirmedCount || 0)],
+    ["profile_incomplete", Number(profileIncompleteCount || 0)],
+    ["missing_resume", Number(missingResumeCount || 0)],
     ["missing_address", Number(missingAddressCount || 0)],
     ["address_review", Number(addressReviewCount || 0)],
   ]);
@@ -337,8 +344,11 @@ export default async function RecruiterTalentDirectory({
         <Link className="stat-card" href="/workspace/recruiter/talent?view=email_unconfirmed">
           <span className="small muted">Email unconfirmed</span><strong>{Number(emailUnconfirmedCount || 0)}</strong><small className="muted">Auth confirmation only</small>
         </Link>
-        <Link className="stat-card" href="/workspace/recruiter/talent?registration=profile_incomplete">
+        <Link className="stat-card" href="/workspace/recruiter/talent?view=profile_incomplete">
           <span className="small muted">Profile incomplete</span><strong>{Number(profileIncompleteCount || 0)}</strong><small className="muted">Profile data still missing</small>
+        </Link>
+        <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_resume">
+          <span className="small muted">Missing resume</span><strong>{Number(missingResumeCount || 0)}</strong><small className="muted">Client-readiness blocker</small>
         </Link>
         <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_address">
           <span className="small muted">Private address missing</span><strong>{Number(missingAddressCount || 0)}</strong><small className="muted">Never public</small>

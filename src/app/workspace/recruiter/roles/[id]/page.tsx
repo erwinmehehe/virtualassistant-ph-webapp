@@ -168,6 +168,20 @@ export default async function RoleControlCenter({
       : clientViewedAt
         ? "Viewed, waiting on decisions"
         : "Sent, not viewed";
+  const hasInterviewRequest = released.some((row) => row.client_decision === "interview");
+  const roleNextAction = room || job.status === "filled"
+    ? { label: "Close role", href: "#overview", detail: "A placement exists. Close the role when no additional hiring is needed." }
+    : currentOffer
+      ? { label: "Review offer", href: "#interviews", detail: "An offer is active. Keep acceptance and client confirmation moving." }
+      : hasInterviewRequest && activeInterviews.length === 0
+        ? { label: "Schedule interview", href: "#interviews", detail: "The client requested an interview. Schedule it before sourcing more candidates." }
+        : feedbackCount > 0
+          ? { label: "Review decision", href: "#client-handoff", detail: "Client feedback is in. Process the decision before sending more candidates." }
+          : waiting.length > 0
+            ? { label: "Follow up", href: "#client-handoff", detail: "The shortlist is with the client. Follow up for a decision rather than building more internal suggestions." }
+            : proposed.length > 0
+              ? { label: "Send to client", href: "#matching", detail: "You have an internal shortlist. Review readiness and release the candidates you are prepared to recommend." }
+              : { label: "Review client-ready matches", href: "#matching", detail: NEXT[job.hiring_stage] || "Review the role and move it forward." };
   const clientClaimHref = lead?.id && !job.client_id
     ? `/auth/join/client?lead=${encodeURIComponent(lead.id)}&next=${encodeURIComponent(`/workspace/client/jobs/${job.id}`)}`
     : null;
@@ -287,9 +301,12 @@ export default async function RoleControlCenter({
         <div className="row-between wrap">
           <div>
             <h2 style={{ margin: 0 }}>Next operational action</h2>
-            <p style={{ margin: "7px 0 0" }}>{NEXT[job.hiring_stage] || "Review the role."}</p>
+            <p style={{ margin: "7px 0 0" }}>{roleNextAction.detail}</p>
           </div>
-          <Clock3 size={20} />
+          <div className="row wrap">
+            <a className="btn btn-primary" href={roleNextAction.href}>{roleNextAction.label}</a>
+            <Clock3 size={20} />
+          </div>
         </div>
       </section>
 

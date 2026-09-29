@@ -27,7 +27,7 @@ test("Recruiter Today has one next-action layer and no duplicate talent dashboar
   assert.doesNotMatch(css, /\.operationsGrid|\.signalRow|\.compactPeople|\.priorityStrip|\.workstreamSection|\.workstreamGrid/);
 });
 
-test("client CRM defaults to a simple pipeline with fixed views and five useful columns", async () => {
+test("client CRM defaults to a simple pipeline with fixed views and focused activity columns", async () => {
   const page = await read("src/app/workspace/recruiter/crm/page.tsx");
 
   assert.match(page, /<h1>Client pipeline<\/h1>/);
@@ -35,7 +35,9 @@ test("client CRM defaults to a simple pipeline with fixed views and five useful 
   for (const label of ["Active", "Mine", "Needs action", "Discovery", "Qualified", "Won", "Closed"]) {
     assert.match(page, new RegExp(`"${label}"`));
   }
-  assert.match(page, /<th>Client<\/th><th>Stage<\/th><th>Role<\/th><th>Owner<\/th><th>Next step<\/th>/);
+  assert.match(page, /<th>Client<\/th><th>Stage<\/th><th>Role<\/th><th>Client activity<\/th><th>Owner<\/th><th>Next step<\/th>/);
+  assert.match(page, /VA views\*/);
+  assert.match(page, /Account-wide; shortlist, decision, reply and chat signals are role-specific/);
   assert.doesNotMatch(page, /Customize dashboard|Save current view|Attio-style|Pipeline value|objectBar/);
 });
 

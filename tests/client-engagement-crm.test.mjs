@@ -53,3 +53,34 @@ test("recruiter can explicitly log inbound email replies", async () => {
   assert.match(record, /Log client interaction or email reply/);
   assert.match(record, /<option value="email">Email reply<\/option>/);
 });
+
+
+test("recruiter pipeline surfaces client activity and unread work without opening each record", async () => {
+  const [pipeline, migration, css] = await Promise.all([
+    read("src/app/workspace/recruiter/crm/page.tsx"),
+    read("supabase/migrations/20260929161000_recruiter_client_activity_snapshot.sql"),
+    read("src/app/workspace/recruiter/crm/crm.module.css"),
+  ]);
+
+  assert.match(pipeline, /recruiter_client_activity_snapshot/);
+  assert.match(pipeline, /Client activity/);
+  assert.match(pipeline, /Login/);
+  assert.match(pipeline, /VA views/);
+  assert.match(pipeline, /Shortlist/);
+  assert.match(pipeline, /Decision/);
+  assert.match(pipeline, /Reply in chat/);
+  assert.match(pipeline, /unread client message/);
+  assert.match(pipeline, /unreadChat > 0 \|\| clientReplyNeedsAction/);
+
+  assert.match(migration, /auth\.users/);
+  assert.match(migration, /candidate_view/);
+  assert.match(migration, /client_shortlist_viewed/);
+  assert.match(migration, /client_shortlist_message/);
+  assert.match(migration, /job_shortlist_candidates/);
+  assert.match(migration, /client_recruiter_messages/);
+  assert.match(migration, /m\.read_at is null/);
+  assert.match(migration, /grant execute on function public\.recruiter_client_activity_snapshot\(uuid\[\]\) to service_role/);
+
+  assert.match(css, /\.clientSignals/);
+  assert.match(css, /\.signalUnread/);
+});

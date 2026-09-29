@@ -31,8 +31,9 @@ test("CRM Needs action surfaces unread-style client reply indicators", async () 
     read("src/app/workspace/recruiter/crm/crm.module.css"),
   ]);
 
-  assert.match(page, /recruiter_client_reply_state/);
-  assert.match(page, /clientReplyNeedsAction\(replyStatus\)/);
+  assert.match(page, /recruiter_client_activity_snapshot/);
+  assert.match(page, /clientReplyNeedsAction\(activity\?\.reply_status\)/);
+  assert.match(page, /unreadChat > 0/);
   assert.match(page, /replyDot/);
   assert.match(helper, /Client replied · needs action/);
   assert.match(helper, /Awaiting client reply/);

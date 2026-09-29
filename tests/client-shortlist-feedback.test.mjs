@@ -44,6 +44,9 @@ test("client shortlist keeps decisions simple and gives the recruiter an explici
   assert.match(actions, /client_more_options_requested/);
   assert.match(actions, /Client needs more candidate options/);
   assert.match(actions, /hiring_stage: "sourcing"/);
+  assert.match(actions, /candidateAccessUnlocked\(access\?\.access_status\)/);
+  assert.match(actions, /There is no released shortlist to request replacements for/);
+  assert.match(actions, /ask for more options so we can keep your search moving/);
   assert.match(clientCandidateCard, /Why we recommend this VA/);
   assert.match(clientCandidates, /ClientShortlistCandidateCard/);
 });

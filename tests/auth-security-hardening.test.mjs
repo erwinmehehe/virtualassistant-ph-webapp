@@ -83,3 +83,17 @@ test("Google OAuth supports login and role-aware first-time signup", async () =>
   assert.match(chooseRole, /I&apos;m hiring a VA/);
   assert.match(chooseRole, /I&apos;m a Virtual Assistant/);
 });
+
+
+test("Supabase SSR refresh validates claims and forwards cache headers", async () => {
+  const [middleware, server] = await Promise.all([
+    read("middleware.ts"),
+    read("src/lib/supabase/server.ts"),
+  ]);
+
+  assert.match(middleware, /setAll\(cookiesToSet, headers\)/);
+  assert.match(middleware, /Object\.entries\(headers\)/);
+  assert.match(middleware, /supabase\.auth\.getClaims\(\)/);
+  assert.doesNotMatch(middleware, /supabase\.auth\.getUser\(\)/);
+  assert.match(server, /setAll\(cookiesToSet, _headers\)/);
+});

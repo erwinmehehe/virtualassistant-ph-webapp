@@ -27,6 +27,8 @@ export type RecruiterRoleSummaryJob = {
   candidate_access_status:string|null;
   suggested_count:number;
   proposed_count:number;
+  client_ready_proposed_count:number;
+  blocked_proposed_count:number;
   released_count:number;
   active_shortlist_count:number;
   released_pass_count:number;

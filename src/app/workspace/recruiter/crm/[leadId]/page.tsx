@@ -118,6 +118,7 @@ function activityTitle(action: string) {
     client_contact_meeting: "Client meeting logged",
     client_contact_follow_up: "Follow-up logged",
     client_followup_sent: "Client follow-up sent",
+    client_chat_message: "Client chat message",
     note_added: "Private note added",
   };
   if (labels[action]) return labels[action];
@@ -381,7 +382,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </div>
         </div>
         <div className={styles.headerActions}>
-          {job ? <Link className={styles.primaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
+          {lead.client_id ? <Link className={styles.primaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}`}><MessageSquareText size={15}/> Message client</Link> : null}
+          {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
           <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Clients</Link>
         </div>
       </header>
@@ -417,6 +419,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <div className={styles.actionLinks}>
+          {lead.client_id ? <Link href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}`}><MessageSquareText size={14}/> Chat</Link> : null}
           {job ? <Link href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={14}/> Role</Link> : null}
           {job ? <Link href={`/workspace/recruiter/matching/${job.id}`}><UserRound size={14}/> Matching</Link> : null}
           {lead.discovery_meeting_url && !lead.discovery_completed_at && !lead.discovery_cancelled_at ? <a href={lead.discovery_meeting_url} target="_blank" rel="noreferrer"><CalendarDays size={14}/> Join discovery</a> : null}

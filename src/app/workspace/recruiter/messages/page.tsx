@@ -42,10 +42,22 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
 
   const threads = await getRecruiterChatThreads(userId);
   const requestedId = params.thread || requestedThread?.id || "";
-  const active = (requestedId ? threads.find((thread) => thread.id === requestedId) : null)
+  let active = (requestedId ? threads.find((thread) => thread.id === requestedId) : null)
     || requestedThread
     || threads[0]
     || null;
+
+  if (active && !active.recruiter_id) {
+    const { data: claimed, error: claimError } = await admin
+      .from("client_recruiter_threads")
+      .update({ recruiter_id: userId, updated_at: new Date().toISOString() })
+      .eq("id", active.id)
+      .is("recruiter_id", null)
+      .select("*")
+      .maybeSingle();
+    if (claimError) throw claimError;
+    if (claimed) active = claimed as RecruiterClientThread;
+  }
 
   const clientIds = [...new Set(threads.map((thread) => thread.client_id).concat(active ? [active.client_id] : []))];
   const { data: clientProfiles } = clientIds.length

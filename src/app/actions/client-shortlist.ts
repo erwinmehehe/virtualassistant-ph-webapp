@@ -275,12 +275,17 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
   if (!jobId) throw new Error("Role is required.");
 
   const admin = createAdminClient();
-  const [{ data: job }, { count: releasedCount }, { data: latestRequest }] = await Promise.all([
+  const [{ data: job }, { data: access }, { count: releasedCount }, { data: latestRequest }] = await Promise.all([
     admin
       .from("jobs")
       .select("id,title,client_id,recruiter_id,status,hiring_stage")
       .eq("id", jobId)
       .eq("client_id", user.id)
+      .maybeSingle(),
+    admin
+      .from("job_candidate_access")
+      .select("access_status")
+      .eq("job_id", jobId)
       .maybeSingle(),
     admin
       .from("job_shortlist_candidates")
@@ -299,7 +304,8 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
       .maybeSingle(),
   ]);
 
-  if (!job || job.status === "closed") throw new Error("This role is not open for client review.");
+  if (!job || job.status !== "published") throw new Error("This role is not open for client review.");
+  if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access must be active before requesting more options.");
   if (!releasedCount) throw new Error("There is no released shortlist to request replacements for.");
 
   const recentCutoff = Date.now() - 5 * 60 * 1000;

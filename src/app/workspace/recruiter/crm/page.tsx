@@ -52,6 +52,8 @@ type ClientActivitySnapshot = {
   latest_decision: string | null;
   latest_decision_at: string | null;
   last_client_reply_at: string | null;
+  last_client_chat_at: string | null;
+  last_client_contact_at: string | null;
   reply_status: string | null;
   unread_chat: number | string | null;
 };
@@ -294,7 +296,20 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                   const unreadChat = Number(activity?.unread_chat || 0);
                   const vaViews = Number(activity?.va_views || 0);
                   const needsMoreOptions = activity?.latest_decision === "need_more_options";
-                  const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
+                  const nextStepLabel = job?.status === "filled" || job?.hiring_stage === "filled"
+                    ? "Close role"
+                    : activity?.latest_decision === "interview"
+                      ? "Schedule interview"
+                      : activity?.latest_decision
+                        ? "Review decision"
+                        : "Follow up";
+                  const nextStepHref = nextStepLabel === "Schedule interview" && job
+                    ? `/workspace/recruiter/roles/${job.id}#interviews`
+                    : nextStepLabel === "Review decision" && job
+                      ? `/workspace/recruiter/roles/${job.id}#client-handoff`
+                      : nextStepLabel === "Close role" && job
+                        ? `/workspace/recruiter/roles/${job.id}`
+                        : `/workspace/recruiter/crm/${lead.id}`;
                   return <tr key={lead.id}>
                     <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                     <td><span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span></td>
@@ -305,6 +320,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                         <span title="Distinct VAs viewed by this client for this hiring role"><b>VA views</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
                         <span><b>Shortlist</b>{shortDate(activity?.last_shortlist_activity_at)}</span>
                         {activity?.latest_decision ? <span className={styles.signalDecision}><b>Decision</b>{decisionLabel(activity.latest_decision)}</span> : null}
+                        <span><b>Contact</b>{shortDate(activity?.last_client_contact_at, "No reply")}</span>
                         {unreadChat ? <span className={styles.signalUnread}><b>Chat</b>{unreadChat} unread</span> : null}
                       </div>
                     </td>
@@ -312,9 +328,9 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                     <td className={overdue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
                       <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
                         {unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
-                        {nextStepLabel}
+                        <Link className={styles.inlineLink} href={nextStepHref}>{nextStepLabel}</Link>
                       </span>
-                      <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
+                      <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : activity?.last_client_contact_at ? `Client activity ${shortDate(activity.last_client_contact_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
                     </td>
                   </tr>;
                 })}

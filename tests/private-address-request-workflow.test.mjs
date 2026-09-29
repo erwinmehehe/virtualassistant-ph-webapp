@@ -53,3 +53,13 @@ test("address requests point VAs directly to the private profile field", async (
   assert.match(profilePage, /name="address"/);
   assert.match(profilePage, /never shown on your public profile/);
 });
+
+
+test("VA dashboard summary includes private address requests in recruiter requests", async () => {
+  const migration = await read("supabase/migrations/20260929160000_va_dashboard_private_address_requests.sql");
+
+  assert.match(migration, /type in \('profile_update_request', 'private_address_request'\)/);
+  assert.match(migration, /revoke all on function public\.va_dashboard_summary\(uuid\) from anon/);
+  assert.match(migration, /revoke all on function public\.va_dashboard_summary\(uuid\) from authenticated/);
+  assert.match(migration, /grant execute on function public\.va_dashboard_summary\(uuid\) to service_role/);
+});

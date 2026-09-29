@@ -36,6 +36,8 @@ const SAVED_VIEWS = [
   { key: "stale_60", label: "Stale 60d+", filters: { stale: "60" } },
   { key: "zero_not_started", label: "0% / not started", filters: { classification: undefined, registration: "never_started" } },
   { key: "email_unconfirmed", label: "Email unconfirmed", filters: { classification: undefined, registration: "email_unconfirmed" } },
+  { key: "profile_incomplete", label: "Profile incomplete", filters: { classification: undefined, registration: "profile_incomplete" } },
+  { key: "missing_resume", label: "Missing resume", filters: { classification: undefined, resume: "no" } },
   { key: "missing_address", label: "Missing private address", filters: { classification: undefined, address: "missing" } },
   { key: "address_review", label: "Resume address review", filters: { classification: undefined, address: "review" } },
 ] as const;
@@ -128,6 +130,8 @@ export default async function RecruiterTalentDirectory({
     { data: summaryData, error: summaryError },
     { count: neverStartedCount, error: neverStartedError },
     { count: emailUnconfirmedCount, error: emailUnconfirmedError },
+    { count: profileIncompleteCount, error: profileIncompleteError },
+    { count: missingResumeCount, error: missingResumeError },
     { count: missingAddressCount, error: missingAddressError },
     { count: addressReviewCount, error: addressReviewError },
   ] = await Promise.all([
@@ -145,6 +149,8 @@ export default async function RecruiterTalentDirectory({
       .single(),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "never_started"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "email_unconfirmed"),
+    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "profile_incomplete"),
+    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_resume", false),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false).eq("address_resume_status", "review"),
   ]);
@@ -153,6 +159,8 @@ export default async function RecruiterTalentDirectory({
   if (summaryError) throw summaryError;
   if (neverStartedError) throw neverStartedError;
   if (emailUnconfirmedError) throw emailUnconfirmedError;
+  if (profileIncompleteError) throw profileIncompleteError;
+  if (missingResumeError) throw missingResumeError;
   if (missingAddressError) throw missingAddressError;
   if (addressReviewError) throw addressReviewError;
 
@@ -192,6 +200,8 @@ export default async function RecruiterTalentDirectory({
     ["needs_review", Number(summary.needs_review_count || 0)],
     ["zero_not_started", Number(neverStartedCount || 0)],
     ["email_unconfirmed", Number(emailUnconfirmedCount || 0)],
+    ["profile_incomplete", Number(profileIncompleteCount || 0)],
+    ["missing_resume", Number(missingResumeCount || 0)],
     ["missing_address", Number(missingAddressCount || 0)],
     ["address_review", Number(addressReviewCount || 0)],
   ]);
@@ -253,7 +263,11 @@ export default async function RecruiterTalentDirectory({
         ? "0% VA registrations"
         : params.view === "email_unconfirmed"
           ? "Unconfirmed VA emails"
-          : params.view === "missing_address"
+          : params.view === "profile_incomplete"
+            ? "Incomplete VA registration profiles"
+            : params.view === "missing_resume"
+              ? "VAs missing a resume"
+              : params.view === "missing_address"
             ? "Missing private addresses"
             : params.view === "address_review"
               ? "Resume address review"
@@ -265,8 +279,12 @@ export default async function RecruiterTalentDirectory({
       : params.view === "zero_not_started"
         ? "Email-confirmed VA accounts that never started profile setup. These stay outside the normal talent pool."
         : params.view === "email_unconfirmed"
-          ? "VA registrations that have not confirmed their email address yet."
-          : params.view === "missing_address"
+          ? "VA registrations that have not confirmed their email address yet. Email confirmation is tracked separately from profile completion."
+          : params.view === "profile_incomplete"
+            ? "Email-confirmed VA accounts below the 80% profile threshold. This queue is profile completion, not email verification."
+            : params.view === "missing_resume"
+              ? "VA profiles without a resume on file. Resume readiness is separate from private-address collection."
+              : params.view === "missing_address"
             ? "Private address is missing. Resume-backed recovery runs automatically when a safe labeled address is available."
             : params.view === "address_review"
               ? "A resume appears to contain a location, but it was not explicit enough to save automatically."
@@ -342,6 +360,28 @@ export default async function RecruiterTalentDirectory({
           <span>{lastActiveDays == null ? "Never active" : String(lastActiveDays) + "d ago"}</span>
         </Link>;
       })}</div> : <div className="talent-onboarding-clear"><CheckCircle2 size={16}/><span>No recent 0% VA accounts need onboarding rescue.</span></div>}
+    </section>
+
+    <section className="talent-onboarding-rescue">
+      <div className="talent-onboarding-head">
+        <div>
+          <div className="kicker">Profile health</div>
+          <h2>Keep onboarding blockers separate</h2>
+          <p>Email confirmation, profile completion, resume readiness, and private address are separate signals. A missing private address never appears to clients and is not counted as profile completion.</p>
+        </div>
+        <div className="row wrap">
+          <Link className="btn btn-sm" href="/workspace/recruiter/talent?view=profile_incomplete">Profile incomplete</Link>
+          <Link className="btn btn-sm" href="/workspace/recruiter/talent?view=missing_resume">Missing resume</Link>
+          <Link className="btn btn-sm" href="/workspace/recruiter/talent?view=missing_address">Missing private address</Link>
+        </div>
+      </div>
+      <div className="talent-onboarding-stats">
+        <div><span>Email unconfirmed</span><strong>{Number(emailUnconfirmedCount || 0)}</strong><small>Verification only</small></div>
+        <div><span>Profile incomplete</span><strong>{Number(profileIncompleteCount || 0)}</strong><small>Below 80% completion</small></div>
+        <div><span>Missing resume</span><strong>{Number(missingResumeCount || 0)}</strong><small>Client-readiness blocker</small></div>
+        <div><span>Missing private address</span><strong>{Number(missingAddressCount || 0)}</strong><small>Recruiter-only data</small></div>
+        <div><span>Address review</span><strong>{Number(addressReviewCount || 0)}</strong><small>Resume needs manual review</small></div>
+      </div>
     </section>
 
     <div className="recruiter-saved-views" aria-label="Saved talent views">

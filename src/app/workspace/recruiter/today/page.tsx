@@ -8,8 +8,6 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import styles from "./today.module.css";
-import { isOpenLeadStage } from "@/lib/lead-crm";
-import type { ClientReplyStateRow } from "@/lib/client-reply-state";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
@@ -117,17 +115,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const summary = (summaryData || {}) as Record<string,any>;
   const newHiringRoles = (Array.isArray(summary.new_hiring_roles) ? summary.new_hiring_roles : []) as NewHiringRoleRow[];
-
-  const { data: replyStateData, error: replyStateError } = await admin
-    .from("recruiter_client_reply_state")
-    .select("lead_id,owner_id,job_id,name,company,crm_stage,last_client_reply_at,last_recruiter_response_at,last_recruiter_response_action,reply_status")
-    .eq("owner_id", userId)
-    .eq("reply_status", "needs_action")
-    .order("last_client_reply_at", { ascending: false })
-    .limit(20);
-  if (replyStateError) throw replyStateError;
-  const clientReplies = ((replyStateData || []) as ClientReplyStateRow[])
-    .filter((row) => isOpenLeadStage(row.crm_stage || "new"));
+  const clientReplies = (Array.isArray(summary.client_replies) ? summary.client_replies : []) as Array<{
+    lead_id:string;
+    owner_id?:string|null;
+    job_id?:string|null;
+    name?:string|null;
+    company?:string|null;
+    crm_stage?:string|null;
+    last_client_reply_at?:string|null;
+    reply_status?:string|null;
+  }>;
 
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));

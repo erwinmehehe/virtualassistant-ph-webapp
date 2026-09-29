@@ -58,7 +58,7 @@ test("recruiter can explicitly log inbound email replies", async () => {
 test("recruiter pipeline surfaces client activity and unread work without opening each record", async () => {
   const [pipeline, migration, css] = await Promise.all([
     read("src/app/workspace/recruiter/crm/page.tsx"),
-    read("supabase/migrations/20260929171000_role_scoped_client_candidate_views.sql"),
+    read("supabase/migrations/20260929195800_client_contact_snapshot.sql"),
     read("src/app/workspace/recruiter/crm/crm.module.css"),
   ]);
 

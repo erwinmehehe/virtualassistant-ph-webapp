@@ -65,3 +65,26 @@ test("matching defaults to agency-certified client-ready talent and blocks near-
   assert.match(table, /row\.clientReady\)/);
   assert.match(table, /\["proposed", "released"\]/);
 });
+
+
+test("role queues only mark fully client-ready human shortlists as ready to send", async () => {
+  const [migration, roles, summary, detail] = await Promise.all([
+    read("supabase/migrations/20260929233000_recruiter_shortlist_readiness_queue.sql"),
+    read("src/app/workspace/recruiter/roles/page.tsx"),
+    read("src/lib/recruiter-roles-summary.ts"),
+    read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
+  ]);
+
+  assert.match(migration, /client_ready_proposed_count/);
+  assert.match(migration, /blocked_proposed_count/);
+  assert.match(migration, /availability_confirmed_at >= now\(\) - interval '30 days'/);
+  assert.match(migration, /work_setup_verified_at is not null/);
+  assert.match(summary, /client_ready_proposed_count:number/);
+  assert.match(summary, /blocked_proposed_count:number/);
+  assert.match(roles, /\["shortlist_blocked", "Shortlist blocked"\]/);
+  assert.match(roles, /job\.client_ready_proposed_count===job\.proposed_count/);
+  assert.match(roles, /job\.blocked_proposed_count>0/);
+  assert.match(detail, /shortlist_status === "proposed" && Boolean\(x\.created_by\)/);
+  assert.match(detail, /Fix shortlist readiness/);
+  assert.match(detail, /isTalentAgencyCertified/);
+});

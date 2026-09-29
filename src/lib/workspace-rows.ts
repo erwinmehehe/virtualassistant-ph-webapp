@@ -74,6 +74,7 @@ export type ShortlistCandidateRow = {
   client_decision_at?: string | null;
   client_recommendation: string | null;
   released_at: string | null;
+  created_by: string | null;
   created_at: string;
 };
 

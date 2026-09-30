@@ -8,6 +8,7 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
+import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
@@ -51,6 +52,7 @@ type UpcomingDiscoveryRow = {
   id: string;
   company: string | null;
   service: string | null;
+  timezone: string | null;
   message: string | null;
   created_at: string;
   discovery_scheduled_at: string;
@@ -74,6 +76,12 @@ function stageAge(value?: string | null) {
 function manilaTime(value?: string | null) {
   if (!value) return "No due time";
   return new Intl.DateTimeFormat("en-PH", { dateStyle:"medium", timeStyle:"short", timeZone:"Asia/Manila" }).format(new Date(value));
+}
+
+function discoveryTime(value?: string | null, timeZone?: string | null) {
+  if (!value) return "No call time";
+  if (isValidTimeZone(timeZone)) return formatDateTimeInTimeZone(value, timeZone);
+  return `${formatDateTimeInTimeZone(value, "UTC")} · client timezone not confirmed`;
 }
 
 function discoveryPain(message?: string | null) {
@@ -263,7 +271,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         {upcomingDiscoveryCalls.map((lead) => <article className={styles.discoveryRow} key={lead.id}>
           <div className={styles.discoveryMain}>
             <div className={styles.discoveryMeta}>
-              <span><CalendarDays size={13}/>{manilaTime(lead.discovery_scheduled_at)}</span>
+              <span><CalendarDays size={13}/>{discoveryTime(lead.discovery_scheduled_at, lead.timezone)}</span>
               <span><Clock3 size={13}/>{ageLabel((Date.now()-new Date(lead.created_at).getTime())/3600000)} lead age</span>
             </div>
             <h3>{lead.company || "Client"} <em>· {lead.service || "Virtual Assistant role"}</em></h3>
@@ -367,7 +375,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
                 <span className="dash-action-title"><strong>{item.title}</strong><span className={`badge ${PRIORITY_CLASS[item.priority] || ""}`}>{item.priority}</span></span>
                 <small>{item.subtitle}</small>
                 {isDiscovery && item.metadata?.name ? <small className="muted"><UserRound size={12}/> Booked by {item.metadata.name}{item.metadata.email ? ` · ${item.metadata.email}` : ""}</small> : null}
-                <small className="muted">{manilaTime(item.due_at)} · Manila</small>
+                <small className="muted">{isDiscovery ? discoveryTime(item.due_at, item.metadata?.timezone) : `${manilaTime(item.due_at)} · Manila`}</small>
                 <div className="row wrap" style={{marginTop:8}}>
                   {isDiscovery && item.action_url ? <a className="btn btn-sm btn-primary" href={item.action_url} target="_blank" rel="noreferrer">{meetingActionLabel(item.action_url)} <ExternalLink size={13}/></a> : null}
                   {isClientFollowup&&item.id?<form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit"><MessageSquare size={13}/> Send client follow-up</button></form>:null}

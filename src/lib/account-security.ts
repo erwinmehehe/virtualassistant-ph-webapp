@@ -167,6 +167,26 @@ export async function recordSuccessfulLoginAndMaybeAlert(args: {
       baseline: loginHistory.length === 0,
     },
   });
+
+  if (!recognized && loginHistory.length > 0) {
+    const location = [
+      requestContext.location.city,
+      requestContext.location.region,
+      requestContext.location.country,
+    ].filter(Boolean).join(", ");
+    const detail = [device.browser, device.os, location ? `near ${location}` : null]
+      .filter(Boolean)
+      .join(" · ");
+
+    await admin.from("notifications").insert({
+      user_id: args.userId,
+      title: "New sign-in detected",
+      body: detail
+        ? `A new device signed in to your account: ${detail}. Review your active sessions if this was not you.`
+        : "A new device signed in to your account. Review your active sessions if this was not you.",
+      href: "/workspace/account",
+    });
+  }
 }
 
 export async function getAccountSecurityState(): Promise<AccountSecurityState> {

@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security";
 
 export async function POST(request: Request) {
+  if (isExplicitCrossSiteRequest(request)) return new Response(null, { status: 204 });
   try {
-    const body = await request.json().catch(() => ({}));
+    const body = await readRequestJson<any>(request, 32_768).catch(() => ({}));
     const message = String(body?.message || "Unknown client error").slice(0, 1000);
     const digest = body?.digest ? String(body.digest).slice(0, 200) : null;
     const path = body?.path ? String(body.path).slice(0, 500) : null;

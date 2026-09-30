@@ -21,7 +21,14 @@ export async function enforceActionRateLimit(actionKey: string, subject: string,
     console.error("[rate-limit] atomic limiter failed", { actionKey, code: error.code });
     throw new Error("We could not verify this request safely. Please try again.");
   }
-  if (!data) throw new Error("Too many attempts. Please wait a few minutes and try again.");
+  if (!data) {
+    console.warn("[security] rate_limit_blocked", {
+      actionKey,
+      subjectHashPrefix: subjectHash.slice(0, 12),
+      windowMinutes,
+    });
+    throw new Error("Too many attempts. Please wait a few minutes and try again.");
+  }
 }
 
 async function requestIp() {

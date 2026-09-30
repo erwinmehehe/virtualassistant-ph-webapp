@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
+import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security";
 
 const fixedEvents = new Set([
   "page_view",
@@ -104,6 +105,7 @@ function requestIp(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (isExplicitCrossSiteRequest(request)) return NextResponse.json({ ok: true, dropped: "cross_site" }, { status: 202 });
   const userAgent = request.headers.get("user-agent") || "";
   if (!userAgent || BOT_USER_AGENT.test(userAgent)) {
     return NextResponse.json({ ok: true, dropped: "bot" }, { status: 202 });
@@ -111,7 +113,7 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readRequestJson(request, 32_768);
   } catch {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }

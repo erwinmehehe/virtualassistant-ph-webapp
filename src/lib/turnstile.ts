@@ -1,3 +1,5 @@
+import "server-only";
+
 export async function verifyTurnstile(formData: FormData) {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
   if (!secret) return true;

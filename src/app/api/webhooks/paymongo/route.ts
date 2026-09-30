@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
 import { verifyPaymongoWebhookSignature } from "@/lib/paymongo";
+import { RequestBodyTooLargeError, readRequestText } from "@/lib/http-security";
 
 export const runtime = "nodejs";
 
@@ -199,7 +200,15 @@ async function sendPaidSideEffects(
 
 export async function POST(request: Request) {
   const signatureHeader = request.headers.get("paymongo-signature");
-  const rawBody = await request.text();
+  let rawBody: string;
+  try {
+    rawBody = await readRequestText(request, 1_048_576);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "Webhook payload too large" }, { status: 413 });
+    }
+    return NextResponse.json({ error: "Invalid webhook payload" }, { status: 400 });
+  }
 
   let event: PaymongoEvent;
   try {

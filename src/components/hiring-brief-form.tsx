@@ -380,7 +380,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
           </div>
         </> : <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />}
 
-        <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+        {problemFirst ? <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div> : null}
         <TurnstileWidget />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">
           {problemFirst ? <>Get my VA recommendation <ArrowRight size={16} /></> : <>Get your free virtual assistant match <ArrowRight size={16} /></>}

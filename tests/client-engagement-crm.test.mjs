@@ -91,3 +91,36 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.match(css, /\.clientSignals/);
   assert.match(css, /\.signalUnread/);
 });
+
+
+test("recruiter CRM can bulk assign follow-up ownership without duplicating search", async () => {
+  const [pipeline, action, selection, css] = await Promise.all([
+    read("src/app/workspace/recruiter/crm/page.tsx"),
+    read("src/app/actions/crm.ts"),
+    read("src/components/recruiter-crm-selection-control.tsx"),
+    read("src/app/workspace/recruiter/crm/crm.module.css"),
+  ]);
+
+  assert.equal((pipeline.match(/name="q"/g) || []).length, 1);
+  assert.match(pipeline, /RecruiterCrmSelectionControl/);
+  assert.match(pipeline, /name="bulk_owner_id"/);
+  assert.match(pipeline, /name="bulk_follow_up_at"/);
+  assert.match(pipeline, /name="lead_id"/);
+  assert.match(pipeline, /<b>Reply<\/b>/);
+  assert.match(pipeline, /shortlist_opened_at/);
+  assert.match(pipeline, /last_shortlist_activity_at/);
+
+  assert.match(selection, /Select all visible/);
+  assert.match(selection, /Clear selection/);
+
+  assert.match(action, /bulkUpdateCrmLeadsAction/);
+  assert.match(action, /lead_bulk_followup_updated/);
+  assert.match(action, /\.eq\("lead_type", "client_hiring"\)/);
+  assert.match(action, /CRM_BULK_LEAD_LIMIT = 200/);
+  assert.match(action, /Follow-up dates can only be set on active clients/);
+  assert.match(action, /\["won", "lost"\]/);
+
+  assert.match(css, /\.bulkBar/);
+  assert.match(css, /\.nextStepLink/);
+  assert.match(css, /\.rowCheckbox/);
+});

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isLeadCrmStage, legacyLeadStatus } from "@/lib/lead-crm";
+import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 const CRM_OBJECTS = new Set(["lead", "company", "contact"]);
 const FIELD_TYPES = new Set(["text", "number", "date", "boolean", "select"]);
@@ -243,6 +244,100 @@ export async function updateCrmContactAction(formData: FormData) {
   redirect(withParam(returnTo, "contact_saved"));
 }
 
+
+
+const CRM_BULK_LEAD_LIMIT = 200;
+
+export async function bulkUpdateCrmLeadsAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm");
+  const leadIds = [...new Set(formData.getAll("lead_id").map(String).filter(Boolean))];
+  const ownerRaw = String(formData.get("bulk_owner_id") || "").trim();
+  const followUpRaw = String(formData.get("bulk_follow_up_at") || "").trim();
+
+  const fail = (message: string): never => redirect(withParam(returnTo, "bulk_error", message));
+  if (!leadIds.length) fail("Select at least one client record.");
+  if (leadIds.length > CRM_BULK_LEAD_LIMIT) fail(`Bulk updates are limited to ${CRM_BULK_LEAD_LIMIT} client records at a time.`);
+  if (!ownerRaw && !followUpRaw) fail("Choose an owner or follow-up date to update.");
+
+  const admin = createAdminClient();
+  const patch: Record<string, unknown> = {};
+  let ownerId: string | null | undefined;
+
+  if (ownerRaw) {
+    if (ownerRaw === "__unassigned") {
+      ownerId = null;
+    } else {
+      const { data: owner, error: ownerError } = await admin
+        .from("profiles")
+        .select("id,role,account_status")
+        .eq("id", ownerRaw)
+        .maybeSingle();
+      if (ownerError) fail(ownerError.message);
+      if (!owner || !["recruiter", "admin"].includes(String(owner.role)) || owner.account_status !== "active") {
+        fail("Choose an active recruiter or admin.");
+      }
+      ownerId = owner!.id;
+    }
+    patch.owner_id = ownerId;
+  }
+
+  let followUpAt: string | undefined;
+  if (followUpRaw) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)) fail("Choose a valid follow-up date.");
+    const parsed = new Date(`${followUpRaw}T09:00:00+08:00`);
+    if (!Number.isFinite(parsed.getTime())) fail("Choose a valid follow-up date.");
+    followUpAt = parsed.toISOString();
+    patch.next_follow_up_at = followUpAt;
+  }
+
+  const { data: selectedLeads, error: selectedError } = await admin
+    .from("lead_intake")
+    .select("id,crm_stage")
+    .eq("lead_type", "client_hiring")
+    .in("id", leadIds);
+  if (selectedError) fail(selectedError.message);
+  const validatedLeads = selectedLeads || [];
+  if (!validatedLeads.length) fail("No client hiring records matched that selection.");
+
+  if (followUpAt) {
+    const closedCount = validatedLeads.filter((lead) => ["won", "lost"].includes(String(lead.crm_stage || ""))).length;
+    if (closedCount) {
+      fail(`Follow-up dates can only be set on active clients. ${closedCount} selected record${closedCount === 1 ? " is" : "s are"} already closed.`);
+    }
+  }
+
+  const selectedLeadIds = validatedLeads.map((lead) => String(lead.id));
+  const { data: updated, error } = await admin
+    .from("lead_intake")
+    .update(patch)
+    .eq("lead_type", "client_hiring")
+    .in("id", selectedLeadIds)
+    .select("id");
+  if (error) fail(error.message || "Could not update the selected client records.");
+
+  const updatedIds = (updated || []).map((row) => String(row.id));
+  await Promise.all(
+    updatedIds.map((leadId) =>
+      writeRecruiterActivity({
+        subjectType: "lead",
+        subjectId: leadId,
+        action: "lead_bulk_followup_updated",
+        description: "Recruiter updated client follow-up controls from the CRM pipeline.",
+        actorId: user.id,
+        metadata: {
+          owner_id: ownerRaw ? ownerId ?? null : undefined,
+          next_follow_up_at: followUpAt,
+        },
+      })
+    )
+  );
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/today");
+  redirect(withParam(returnTo, "bulk_saved", String(updatedIds.length)));
+}
 
 function normalizeCompanyName(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");

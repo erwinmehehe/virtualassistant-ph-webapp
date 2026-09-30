@@ -179,6 +179,9 @@ export default async function RoleControlCenter({
       needsAvailability: gaps.includes("Confirm availability") || gaps.includes("Refresh availability"),
     };
   }).sort((a, b) => a.gaps.length - b.gaps.length || a.name.localeCompare(b.name));
+  const poolBlockedIds = blockedReadinessRows.filter((row) => row.needsPool).map((row) => row.vaId);
+  const workSetupBlockedCount = blockedReadinessRows.filter((row) => row.needsWorkSetup).length;
+  const availabilityBlockedCount = blockedReadinessRows.filter((row) => row.needsAvailability).length;
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
   const activeOffers = offers.filter((x) => !["declined", "cancelled"].includes(x.status));
@@ -439,9 +442,25 @@ export default async function RoleControlCenter({
                 These are recruiter-selected candidates only. Clear the exact blocker before sending anyone to the client.
               </p>
             </div>
-            <Link className="btn btn-primary" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>
-              Open scoped work readiness
-            </Link>
+            <div className="row wrap">
+              {poolBlockedIds.length > 1 ? (
+                <form action={bulkRecruiterVaAction}>
+                  <input type="hidden" name="bulk_action" value="bench"/>
+                  <input type="hidden" name="selection_scope" value="selected"/>
+                  <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}`}/>
+                  {poolBlockedIds.map((vaId) => <input type="hidden" name="va_id" value={vaId} key={vaId}/>)}
+                  <button className="btn" type="submit">Add {poolBlockedIds.length} to talent pool</button>
+                </form>
+              ) : null}
+              <Link className="btn btn-primary" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>
+                Open scoped work readiness {workSetupBlockedCount ? `(${workSetupBlockedCount})` : ""}
+              </Link>
+            </div>
+          </div>
+          <div className="row wrap" style={{ marginTop: 10 }}>
+            {poolBlockedIds.length ? <span className="small muted">{poolBlockedIds.length} need talent-pool membership</span> : null}
+            {workSetupBlockedCount ? <span className="small muted">{workSetupBlockedCount} need verified work setup</span> : null}
+            {availabilityBlockedCount ? <span className="small muted">{availabilityBlockedCount} need availability confirmation</span> : null}
           </div>
           <div className="stack" style={{ marginTop: 14 }}>
             {blockedReadinessRows.map((candidate) => (

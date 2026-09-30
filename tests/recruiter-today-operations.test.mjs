@@ -34,3 +34,15 @@ test("Recruiter Today stays mobile-friendly after removing the duplicate talent 
   assert.doesNotMatch(css, /\.operationsGrid|\.signalRow|\.compactPeople/);
   assert.match(css, /@media \(max-width: 640px\)/);
 });
+
+
+test("Recruiter Today promotes human shortlist conversion into the command center", async () => {
+  const page = await read("src/app/workspace/recruiter/today/page.tsx");
+
+  assert.match(page, /getRecruiterRolesSummary/);
+  assert.match(page, /shortlistConversionRoles/);
+  assert.match(page, /Send client-ready shortlists/);
+  assert.match(page, /Clear shortlist readiness blockers/);
+  assert.match(page, /Shortlists to move/);
+  assert.match(page, /not automatic match suggestions/);
+});

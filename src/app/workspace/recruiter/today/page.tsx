@@ -7,6 +7,7 @@ import { withServerTiming } from "@/lib/server-timing";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
+import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
 import styles from "./today.module.css";
 
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
@@ -110,10 +111,27 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId }));
+  const [todaySummary, roleSummary] = await Promise.all([
+    withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId })),
+    getRecruiterRolesSummary(userId),
+  ]);
+  const { data: summaryData, error: summaryError } = todaySummary;
   if (summaryError) throw summaryError;
+  if (roleSummary.error) throw roleSummary.error;
 
   const summary = (summaryData || {}) as Record<string,any>;
+  const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
+  const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
+  const readyToSendRoles = shortlistConversionRoles.filter((job) => {
+    const accessReady = ["paid", "comped"].includes(String(job.candidate_access_status || ""));
+    return job.client_ready_proposed_count === job.proposed_count
+      && Boolean(job.client_id)
+      && job.status === "published"
+      && job.commercial_status === "accepted"
+      && accessReady;
+  });
+  const blockedShortlistRoles = shortlistConversionRoles.filter((job) => job.blocked_proposed_count > 0);
+  const handoffBlockedRoles = shortlistConversionRoles.filter((job) => job.blocked_proposed_count === 0 && !readyToSendRoles.some((ready) => ready.id === job.id));
   const newHiringRoles = (Array.isArray(summary.new_hiring_roles) ? summary.new_hiring_roles : []) as NewHiringRoleRow[];
   const clientReplies = (Array.isArray(summary.client_replies) ? summary.client_replies : []) as Array<{
     lead_id:string;
@@ -169,6 +187,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
     {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
+    {count:readyToSendRoles.length,title:"Send client-ready shortlists",copy:"Recruiter-selected candidates are ready and all release gates are clear. Preview the client view and send them now.",href:"/workspace/recruiter/roles?view=ready_to_send&sort=urgent",cta:"Send shortlists",icon:<UserRoundCheck size={20}/>},
+    {count:blockedShortlistRoles.length,title:"Clear shortlist readiness blockers",copy:"Recruiter-selected candidates are waiting on talent-pool, availability, or verified work-setup readiness.",href:"/workspace/recruiter/roles?view=shortlist_blocked&sort=urgent",cta:"Clear blockers",icon:<RefreshCw size={20}/>},
+    {count:handoffBlockedRoles.length,title:"Clear client handoff gates",copy:"The shortlist itself is ready, but the client link, role publication, service terms, or candidate access still blocks release.",href:"/workspace/recruiter/roles?view=client_review&sort=urgent",cta:"Open blocked handoffs",icon:<BriefcaseBusiness size={20}/>},
     {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
     {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
     {count:interviewsDue,title:"Handle interview actions",copy:"Interviews or interview feedback need attention today.",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Open interviews",icon:<CalendarDays size={20}/>}
@@ -238,6 +259,35 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           </div>
         </article>)}
       </div>
+    </section> : null}
+
+    {shortlistConversionRoles.length ? <section id="shortlist-conversion" className={`card dashboard-section-card ${styles.sectionShell}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>Shortlists to move</h2><p>These are recruiter-selected candidates, not automatic match suggestions. Clear the blocker, then move the role into client review.</p></div>
+        <div className="row wrap"><span className="badge">{readyToSendRoles.length} ready to send</span><span className={`badge ${blockedShortlistRoles.length ? "badge-warning" : "badge-success"}`}>{blockedShortlistRoles.length} readiness blocked</span></div>
+      </div>
+      <div className={styles.compactList}>
+        {shortlistConversionRoles.slice(0,6).map((role)=>{
+          const accessReady=["paid","comped"].includes(String(role.candidate_access_status||""));
+          const ready=role.client_ready_proposed_count===role.proposed_count&&Boolean(role.client_id)&&role.status==="published"&&role.commercial_status==="accepted"&&accessReady;
+          const blockers=[
+            role.blocked_proposed_count>0?`${role.blocked_proposed_count} VA readiness blocker${role.blocked_proposed_count===1?"":"s"}`:null,
+            !role.client_id?"client account not linked":null,
+            role.status!=="published"?"role not published":null,
+            role.commercial_status!=="accepted"?"service terms not accepted":null,
+            !accessReady?"candidate access not active":null,
+          ].filter(Boolean);
+          return <div className={styles.compactRow} key={`conversion-${role.id}`}>
+            <div className={styles.compactCopy}>
+              <strong>{role.title||"Client role"}</strong>
+              <small>{role.company_name||"Client"} · {role.client_ready_proposed_count}/{role.proposed_count} shortlisted VAs client-ready</small>
+              <small>{ready?"Ready for client review":blockers.join(" · ")||"Review release gates"}</small>
+            </div>
+            <Link className={`btn btn-sm ${ready?"btn-primary":""}`} href={`/workspace/recruiter/roles/${role.id}${role.blocked_proposed_count>0?"#matching":"#client-handoff"}`}>{ready?"Send to client":"Fix blockers"}</Link>
+          </div>;
+        })}
+      </div>
+      {shortlistConversionRoles.length>6?<Link prefetch={false} className={styles.moreLink} href="/workspace/recruiter/roles?view=shortlist_blocked&sort=urgent">+{shortlistConversionRoles.length-6} more shortlist roles</Link>:null}
     </section> : null}
 
     {interviewRequests.length ? <section id="interview-requests" className={`card dashboard-section-card ${styles.sectionShell}`}>

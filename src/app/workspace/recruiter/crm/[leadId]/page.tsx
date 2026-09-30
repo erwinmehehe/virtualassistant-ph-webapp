@@ -425,7 +425,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         shortlistOpened={shortlistOpenedAt ? fmt(shortlistOpenedAt, true) : "Not tracked yet"}
         shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
         decision={decisionSummary}
-        lastClientReply={lastClientReplyAt ? fmt(lastClientReplyAt, true) : "No email reply logged"}
+        lastClientReply={lastClientReplyAt ? fmt(lastClientReplyAt, true) : "No email or chat reply logged"}
         replyStatus={replyStatusLabel}
       />
 

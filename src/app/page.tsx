@@ -37,7 +37,7 @@ import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/o
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
   description:
-    "Find vetted Filipino virtual assistants matched to your role, tools, schedule and budget. Get recruiter support from shortlist through successful placement.",
+    "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",

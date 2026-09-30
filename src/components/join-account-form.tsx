@@ -111,7 +111,7 @@ export function JoinAccountForm({
             <span className="small muted">Use uppercase, lowercase, a number, and a symbol.</span>
           </div>
 
-          <TurnstileWidget/>
+          <TurnstileWidget action="join"/>
           <JoinSubmitButton role={role}/>
           <div className="auth-after-submit-note">
             {client

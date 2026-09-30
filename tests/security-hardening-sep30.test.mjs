@@ -118,3 +118,80 @@ test("security.txt exposes a responsible disclosure contact", async () => {
   assert.match(source, /^Contact: https:\/\/virtualassistant\.com\.ph\/contact/m);
   assert.match(source, /^Canonical: https:\/\/virtualassistant\.com\.ph\/\.well-known\/security\.txt/m);
 });
+
+
+test("Turnstile fails closed on partial configuration and binds tokens to sensitive auth actions", async () => {
+  const [turnstile, widget, auth, resend, login, join, forgot] = await Promise.all([
+    read("src/lib/turnstile.ts"),
+    read("src/components/turnstile-widget.tsx"),
+    read("src/app/actions/auth.ts"),
+    read("src/app/actions/resend-confirmation.ts"),
+    read("src/app/auth/login/page.tsx"),
+    read("src/components/join-account-form.tsx"),
+    read("src/app/auth/forgot/page.tsx"),
+  ]);
+
+  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
+  assert.match(turnstile, /token\.length > 2_048/);
+  assert.match(turnstile, /remoteip/);
+  assert.match(turnstile, /AbortSignal\.timeout\(5_000\)/);
+  assert.match(turnstile, /result\.action !== expectedAction/);
+  assert.match(widget, /data-action=\{action\}/);
+
+  assert.match(auth, /verifyTurnstile\(formData, "login"\)/);
+  assert.match(auth, /verifyTurnstile\(formData, "join"\)/);
+  assert.match(auth, /verifyTurnstile\(formData, "password_reset"\)/);
+  assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
+  assert.match(login, /TurnstileWidget action="login"/);
+  assert.match(login, /TurnstileWidget[^>]*action="resend_confirmation"/);
+  assert.match(join, /TurnstileWidget action="join"/);
+  assert.match(forgot, /TurnstileWidget action="password_reset"/);
+});
+
+test("auth routes are no-store and deployment preflight checks independent security secrets", async () => {
+  const [nextConfig, runtimeConfig] = await Promise.all([
+    read("next.config.ts"),
+    read("scripts/check-runtime-config.mjs"),
+  ]);
+
+  assert.match(nextConfig, /source: "\/auth\/:path\*"[\s\S]*Cache-Control"[\s\S]*private, no-store, max-age=0[\s\S]*Referrer-Policy"[\s\S]*no-referrer/);
+  assert.match(runtimeConfig, /name: "CRON_SECRET"/);
+  assert.match(runtimeConfig, /name: "CAPABILITY_SIGNING_SECRET"/);
+  assert.match(runtimeConfig, /name: "TURNSTILE"/);
+  assert.match(runtimeConfig, /partial configuration is unsafe/);
+  assert.match(runtimeConfig, /name: "RESEND_WEBHOOK_SECRET"/);
+});
+
+
+test("lead discovery briefs remain explicitly server-only", async () => {
+  const migration = await read("supabase/migrations/20260930130450_harden_lead_discovery_briefs.sql");
+
+  assert.match(migration, /revoke all on table public\.lead_discovery_briefs from anon, authenticated/);
+  assert.match(migration, /grant all on table public\.lead_discovery_briefs to service_role/);
+  assert.match(migration, /create policy "lead_discovery_briefs_server_only"/);
+  assert.match(migration, /as restrictive[\s\S]*to anon, authenticated[\s\S]*using \(false\)[\s\S]*with check \(false\)/);
+});
+
+
+test("all public Turnstile forms bind server validation to a specific action", async () => {
+  const [leads, trainingAuth, contact, booking, hiring, trainingJoin] = await Promise.all([
+    read("src/app/actions/leads.ts"),
+    read("src/app/actions/training-auth.ts"),
+    read("src/app/contact/page.tsx"),
+    read("src/components/client-booking-form.tsx"),
+    read("src/components/hiring-brief-form.tsx"),
+    read("src/components/training-join-form.tsx"),
+  ]);
+
+  for (const action of ["service_match", "industry_match", "role_brief", "contact", "discovery_booking"]) {
+    assert.match(leads, new RegExp(`verifyTurnstile\\(formData, "${action}"\\)`));
+  }
+  assert.match(trainingAuth, /verifyTurnstile\(formData, "training_join"\)/);
+  assert.match(contact, /TurnstileWidget action="contact"/);
+  assert.match(booking, /TurnstileWidget action="discovery_booking"/);
+  assert.match(hiring, /"service_match"[\s\S]*"industry_match"/);
+  assert.match(hiring, /TurnstileWidget action="role_brief"/);
+  assert.match(trainingJoin, /TurnstileWidget[^>]*action="training_join"/);
+  assert.match(trainingJoin, /TurnstileWidget action="resend_confirmation"/);
+});

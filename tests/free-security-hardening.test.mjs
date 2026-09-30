@@ -87,7 +87,7 @@ test("VA application entry points require moderated public jobs and keep private
   }
 });
 
-test("Turnstile remains optional but production key names are documented", async () => {
+test("Turnstile stays optional only when both keys are absent and fails closed on partial configuration", async () => {
   const [env, turnstile] = await Promise.all([
     read(".env.example"),
     read("src/lib/turnstile.ts"),
@@ -95,6 +95,6 @@ test("Turnstile remains optional but production key names are documented", async
 
   assert.match(env, /^NEXT_PUBLIC_TURNSTILE_SITE_KEY=$/m);
   assert.match(env, /^TURNSTILE_SECRET_KEY=$/m);
-  assert.match(turnstile, /if \(!secret\) return true/);
-  assert.match(turnstile, /if \(!siteKey\)/);
+  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
 });

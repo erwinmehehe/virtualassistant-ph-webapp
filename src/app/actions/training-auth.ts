@@ -75,7 +75,7 @@ export async function joinTrainingAction(
     );
   }
 
-  if (!(await verifyTurnstile(formData))) {
+  if (!(await verifyTurnstile(formData, "training_join"))) {
     return joinError(
       previousState,
       "Please complete the security check and try again.",

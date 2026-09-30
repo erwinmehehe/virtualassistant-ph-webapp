@@ -10,7 +10,8 @@ import {
   ExternalLink,
   Sparkles,
 } from "lucide-react";
-import { requireAnyRole } from "@/lib/auth";
+import { requireAnyRoleFast } from "@/lib/auth";
+import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveDiscoveryWorkspaceAction } from "@/app/actions/discovery-workspace";
 import styles from "./discovery.module.css";
@@ -53,19 +54,6 @@ function leadAge(createdAt: string) {
   return `${Math.floor(hours / 24)} days`;
 }
 
-function fmt(value?: string | null, timeZone = "Asia/Manila") {
-  if (!value) return "—";
-  try {
-    return new Intl.DateTimeFormat("en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone,
-    }).format(new Date(value));
-  } catch {
-    return new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-  }
-}
-
 function known(value?: string | null) {
   const clean = String(value || "").trim().toLowerCase();
   return Boolean(clean && clean !== "not sure yet" && !clean.startsWith("to confirm"));
@@ -80,7 +68,7 @@ export default async function DiscoveryWorkspacePage({
 }) {
   const { leadId } = await params;
   const query = await searchParams;
-  await requireAnyRole(["recruiter", "admin"]);
+  await requireAnyRoleFast(["recruiter", "admin"]);
   const admin = createAdminClient();
 
   const { data: lead, error: leadError } = await admin
@@ -127,7 +115,11 @@ export default async function DiscoveryWorkspacePage({
   const skills = brief?.recommended_skills?.length ? brief.recommended_skills : (job?.required_skills || []);
   const tools = brief?.recommended_tools?.length ? brief.recommended_tools : (job?.required_tools || []);
   const recommendedHours = brief?.recommended_hours || job?.hours_per_week || null;
-  const clientTimeZone = known(lead.timezone) ? lead.timezone : (job?.timezone || "Asia/Manila");
+  const clientTimeZone = isValidTimeZone(lead.timezone)
+    ? String(lead.timezone)
+    : isValidTimeZone(job?.timezone)
+      ? String(job?.timezone)
+      : "";
 
   const qualification = [
     ["Business problem understood", Boolean(initialPain)],
@@ -164,8 +156,8 @@ export default async function DiscoveryWorkspacePage({
         </div>
         <div className={styles.callMeta}>
           <span>Discovery</span>
-          <strong>{lead.discovery_scheduled_at ? fmt(lead.discovery_scheduled_at, clientTimeZone) : "Not booked"}</strong>
-          <small>{clientTimeZone}</small>
+          <strong>{lead.discovery_scheduled_at ? formatDateTimeInTimeZone(lead.discovery_scheduled_at, clientTimeZone) : "Not booked"}</strong>
+          <small>{clientTimeZone || "Client timezone not confirmed"}</small>
         </div>
       </header>
 

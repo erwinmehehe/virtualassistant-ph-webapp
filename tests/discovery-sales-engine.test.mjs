@@ -16,6 +16,9 @@ test("homepage and hire use problem-first hiring intake modes", async () => {
   assert.match(home, /<HiringBriefForm variant="general" sourcePath="\/" \/>/);
   assert.match(form, /resolvedMode = mode === "default" && sourcePath === "\/" \? "homepage" : mode/);
   assert.match(form, /Get my VA recommendation/);
+  assert.match(form, /Hours per week/);
+  assert.match(form, /Hourly budget range/);
+  assert.match(form, />Timezone<\/label>/);
   assert.match(hire, /mode="hire"/);
   assert.match(hire, /Get your hiring recommendation/);
   assert.match(form, /What&apos;s taking up your time right now\?/);

@@ -81,7 +81,14 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
       <main className="app-main" id="main-content">
         <div className="app-topbar">
           <div className="app-topbar-inner">
-            <div className="app-topbar-title"><Link className="app-topbar-workspace-home" href={workspaceHome[role]}>{roleLabel} workspace</Link><strong className="app-topbar-page-title">{title}</strong></div>
+            <div className="app-topbar-title">
+              {title.trim().toLowerCase() === `${roleLabel.toLowerCase()} workspace`
+                ? <strong className="app-topbar-page-title">{title}</strong>
+                : <>
+                    <Link className="app-topbar-workspace-home" href={workspaceHome[role]}>{roleLabel} workspace</Link>
+                    <strong className="app-topbar-page-title">{title}</strong>
+                  </>}
+            </div>
           </div>
         </div>
         <div className="app-content">{children}</div>

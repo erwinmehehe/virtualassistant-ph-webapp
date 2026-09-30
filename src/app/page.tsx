@@ -216,15 +216,15 @@ export default async function HomePage() {
                 Hire a Vetted Virtual Assistant <em>in the Philippines</em>
               </h1>
               <p className="pva-hero-lede">
-                Tell us what you need off your plate. We will help scope the role and match you with a Filipino virtual assistant who fits the work, tools, schedule, and way your team operates.
+                Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working.
               </p>
               <p className="pva-hero-sub">
-                You do not need to know the exact job title. Our recruiting team reviews the workload first, then prepares a focused shortlist of vetted candidates.
+                We shortlist vetted candidates, you choose who to hire, and Client Success helps make the handoff smooth from day one.
               </p>
 
               <div className="pva-hero-actions">
                 <a className="pva-btn pva-btn-primary" href="#hero-hiring-form" data-track="hero_hiring_request">
-                  Get my VA recommendation <ArrowRight size={18} />
+                  Get your free VA match <ArrowRight size={18} />
                 </a>
                 <a className="pva-btn pva-btn-secondary" href={BOOKING_URL} data-track="booking_click">
                   <span className="pva-call-icon"><PhoneCall size={14} /></span> Discuss your VA needs

@@ -27,6 +27,11 @@ type Row = {
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
+  trainingCredentials?: Array<{
+    credentialCode: string;
+    courseTitle: string;
+    courseSlug: string;
+  }>;
 };
 
 type FormAction = (formData: FormData) => void | Promise<void>;
@@ -47,6 +52,14 @@ function matchReasons(row: Row) {
   if(job.hours_per_week&&row.va.weekly_hours>=job.hours_per_week) reasons.push(`${row.va.weekly_hours} hrs/week available`);
   if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Schedule overlap available");
   return reasons.slice(0,4);
+}
+
+function trainingBadgeLabel(title: string) {
+  return title
+    .replace(/ Workflows for Virtual Assistants$/i, "")
+    .replace(/ for Virtual Assistants$/i, "")
+    .replace(/ Virtual Assistant(s)?$/i, "")
+    .trim();
 }
 
 function decisionLabel(value?: string | null) {
@@ -87,7 +100,7 @@ export function MatchingCandidateTable({
     const q = query.trim().toLowerCase();
     if (!q) return pool;
     return pool.filter((row) => {
-      const haystack = [row.account?.full_name,row.va.headline,row.va.primary_category,...(row.va.categories || []),...(row.va.skills || []),...(row.hardFailures||[]),...(row.evidenceGaps||[])].filter(Boolean).join(" ").toLowerCase();
+      const haystack = [row.account?.full_name,row.va.headline,row.va.primary_category,...(row.va.categories || []),...(row.va.skills || []),...(row.trainingCredentials || []).map((credential) => credential.courseTitle),...(row.hardFailures||[]),...(row.evidenceGaps||[])].filter(Boolean).join(" ").toLowerCase();
       return haystack.includes(q);
     });
   }, [pool, query]);
@@ -209,6 +222,7 @@ export function MatchingCandidateTable({
           <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || selectionBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
+            {(row.trainingCredentials || []).length ? <div className="pill-list compact-pills" style={{marginTop:6}} aria-label="Verified training"><span className="small muted" style={{marginRight:2}}>Training:</span>{(row.trainingCredentials || []).slice(0,3).map((credential) => <span className="badge badge-success" key={credential.credentialCode}>✓ {trainingBadgeLabel(credential.courseTitle)}</span>)}{(row.trainingCredentials || []).length > 3 ? <span className="badge">+{(row.trainingCredentials || []).length - 3}</span> : null}</div> : null}
             {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:readinessBlocked?<div className="info-banner" style={{marginTop:8,padding:10}}><div className="row"><AlertTriangle size={15}/><strong>Not client-ready yet</strong></div>{(row.readinessGaps||["Complete talent readiness"]).map((gap)=><small key={gap} style={{display:"block",marginTop:4}}>• {gap}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
             {(row.evidenceGaps||[]).length?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Verify before sending:</strong>{(row.evidenceGaps||[]).map((gap)=><span key={gap} style={{display:"block"}}>• {gap}</span>)}</div>:null}
             {hasConflict?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Placement risk:</strong>{row.otherClientReviews ? ` also with ${row.otherClientReviews} client role${row.otherClientReviews===1?"":"s"}.` : ""}{row.activeProcessCount ? ` ${row.activeProcessCount} active interview/offer process${row.activeProcessCount===1?"":"es"}.` : ""}{row.potentialCommittedHours ? ` ${row.potentialCommittedHours} hrs/week potentially committed.` : ""}</div>:null}

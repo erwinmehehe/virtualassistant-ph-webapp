@@ -61,7 +61,7 @@ export function zonedDateTimeToUtc(value: string, timeZone: string) {
   const minute = Number(match[5]);
   const wallTime = Date.UTC(year, month - 1, day, hour, minute);
 
-  let probe = new Date(wallTime);
+  const probe = new Date(wallTime);
   let offset = offsetMinutesAt(probe, timeZone);
   if (offset == null) return null;
 

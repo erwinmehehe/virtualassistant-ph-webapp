@@ -34,15 +34,15 @@ try {
     await page.getByRole("heading", { name: "Choose a time" }).waitFor();
     await page.getByRole("link", { name: /Looking for VA work\? Apply here/ }).waitFor();
 
-    const timezoneSelect = page.locator("#booking-timezone");
-    await timezoneSelect.waitFor();
+    const timezoneField = page.locator('input[name="timezone"]');
+    await timezoneField.waitFor({ state: "attached" });
     await page.waitForFunction(
-      (expected) => document.querySelector("#booking-timezone")?.value === expected,
+      (expected) => document.querySelector('input[name="timezone"]')?.value === expected,
       fixture.timeZoneId,
       { timeout: 15000 },
     );
-    if (await timezoneSelect.inputValue() !== fixture.timeZoneId) {
-      throw new Error(`${fixture.name} detected ${await timezoneSelect.inputValue()} instead of ${fixture.timeZoneId}`);
+    if (await timezoneField.inputValue() !== fixture.timeZoneId) {
+      throw new Error(`${fixture.name} detected ${await timezoneField.inputValue()} instead of ${fixture.timeZoneId}`);
     }
 
     if (await page.locator(".booking-show-times").count()) {
@@ -57,15 +57,11 @@ try {
     const firstSlot = page.locator(".booking-time-grid button").first();
     await firstSlot.click();
     await page.locator(".booking-selected-slot").waitFor();
-
-    const alternateZone = fixture.timeZoneId === "Australia/Sydney" ? "America/Chicago" : "Australia/Sydney";
-    await timezoneSelect.selectOption(alternateZone);
-    if (await timezoneSelect.inputValue() !== alternateZone) {
-      throw new Error(`${fixture.name} manual timezone override failed.`);
+    if (!(await page.locator('input[name="scheduled_at"]').inputValue())) {
+      throw new Error(`${fixture.name} did not persist the selected booking slot.`);
     }
-    await page.locator(".booking-time-grid button").first().waitFor();
 
-    await page.screenshot({ path: path.join(outputDir, `booking-timezone-override-${fixture.name}.png`), fullPage: true });
+    await page.screenshot({ path: path.join(outputDir, `booking-selected-${fixture.name}.png`), fullPage: true });
 
     if (consoleErrors.length) throw new Error(`${fixture.name} console errors:\n${consoleErrors.join("\n")}`);
     await context.close();

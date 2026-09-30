@@ -5,9 +5,10 @@ import { readFile } from "node:fs/promises";
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("Discovery Workspace generates an editable recommendation instead of re-entering the role",async()=>{
-  const [page,action]=await Promise.all([
+  const [page,action,nextStepMigration]=await Promise.all([
     read("src/app/workspace/recruiter/crm/[leadId]/discovery/page.tsx"),
     read("src/app/actions/discovery-workspace.ts"),
+    read("supabase/migrations/20260930222500_allow_proposal_discovery_next_step.sql"),
   ]);
   assert.match(page,/Generate recommendation/);
   assert.match(page,/name="intent" value="proposal"/);
@@ -18,6 +19,8 @@ test("Discovery Workspace generates an editable recommendation instead of re-ent
   assert.match(action,/salary_min/);
   assert.match(action,/commercial_note/);
   assert.match(action,/proposal\?generated=1/);
+  assert.match(action,/const NEXT_STEPS = new Set\(\["save", "proposal", "qualified", "follow_up", "nurture"\]\)/);
+  assert.match(nextStepMigration,/next_step is null or next_step in \('proposal','qualified','follow_up','nurture'\)/);
 });
 
 test("proposal editor supports Draft to Sent to Viewed to Changes requested to Accepted or Lost",async()=>{

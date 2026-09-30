@@ -240,7 +240,7 @@ export default async function HomePage() {
             </div>
 
             <div id="hero-hiring-form" className="pva-hero-form-shell">
-              <HiringBriefForm variant="general" sourcePath="/" mode="homepage" title="Get your VA recommendation" />
+              <HiringBriefForm variant="general" sourcePath="/" />
             </div>
           </div>
         </section>

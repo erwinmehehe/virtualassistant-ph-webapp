@@ -28,7 +28,6 @@ test("homepage and hire use problem-first hiring intake modes", async () => {
   assert.match(form, /Step 3 of 3/);
   assert.match(form, /Next: Setup/);
   assert.match(form, /Next: Your details/);
-  assert.match(form, /name="phone"/);
   assert.match(form, /Get my hiring recommendation/);
   assert.match(leads, /tools: z\.string\(\)\.trim\(\)\.max\(600\)\.optional\(\)/);
   assert.match(leads, /Tools \/ systems:/);

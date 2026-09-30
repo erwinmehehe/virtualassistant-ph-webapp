@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, Check, LockKeyhole, Users } from "lucide-react";
 import { type ServiceMatchState } from "@/app/actions/leads";
@@ -266,6 +266,8 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 function GeneralVariant({ sourcePath, title = "Get your free virtual assistant match", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime, mode = "default" }: { sourcePath: string } & GeneralOptions) {
   const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string; feedback?: string }>({ sent: false });
   const [detectedTimeZone, setDetectedTimeZone] = useState("To confirm on discovery call");
+  const [hireStep, setHireStep] = useState<1 | 2 | 3>(1);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -285,110 +287,267 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;
   const resolvedMode = mode === "default" && sourcePath === "/" ? "homepage" : mode;
-  const problemFirst = resolvedMode === "homepage" || resolvedMode === "hire";
-  const headSub = resolvedMode === "homepage"
+  const isHomepage = resolvedMode === "homepage";
+  const isHire = resolvedMode === "hire";
+  const problemFirst = isHomepage || isHire;
+
+  const advanceHireStep = (next: 2 | 3) => {
+    const form = formRef.current;
+    if (!form) return;
+    const current = form.querySelector<HTMLElement>(`[data-hire-step="${hireStep}"]`);
+    const controls = Array.from(current?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input, select, textarea") || []);
+    const invalid = controls.find((control) => !control.checkValidity());
+    if (invalid) {
+      invalid.reportValidity();
+      invalid.focus();
+      return;
+    }
+    setHireStep(next);
+    form.closest("#hire-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const headSub = isHomepage
     ? "Tell us what is taking up your time. We will help scope the right role before we shortlist anyone."
-    : resolvedMode === "hire"
+    : isHire
       ? "Share the workload, tools, schedule, and budget. Our recruiting team will turn it into a focused hiring brief."
       : "Share a quick brief, and we will show you matching Filipino virtual assistants.";
 
   return (
-    <div className="hb-card" id="hiring-brief">
-      <Head title={title} sub={headSub} />
-      <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
+    <div className={`hb-card ${isHomepage ? "hb-card-home" : ""} ${isHire ? "hb-card-hire" : ""}`} id="hiring-brief">
+      {isHire ? (
+        <div className="hb-hire-head">
+          <span className="hb-hire-kicker">Hire a Virtual Assistant</span>
+          <h2>{title}</h2>
+          <p>{headSub}</p>
+          <ol className="hb-hire-steps" aria-label="Hiring brief progress">
+            {[
+              [1, "The problem"],
+              [2, "The setup"],
+              [3, "Your details"],
+            ].map(([step, label]) => (
+              <li key={step} className={hireStep === step ? "is-active" : hireStep > Number(step) ? "is-done" : ""}>
+                <span>{hireStep > Number(step) ? <Check size={12} strokeWidth={3} /> : step}</span>
+                <em>{label}</em>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : (
+        <div className={isHomepage ? "hb-home-head" : ""}>
+          <Head title={isHomepage ? "Get your VA recommendation" : title} sub={headSub} />
+        </div>
+      )}
+
+      <form ref={formRef} id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        {resolvedMode === "hire" ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
-        {resolvedMode === "homepage" ? <>
+        {isHire ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
+        {isHomepage ? <>
           <input type="hidden" name="hours" value="Not sure yet" />
           <input type="hidden" name="budget" value="Not sure yet" />
           <input type="hidden" name="start_time" value="Not sure yet" />
         </> : null}
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}
         {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
-        {defaultStartTime && mode !== "hire" && mode !== "homepage" ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
+        {defaultStartTime && !isHire && !isHomepage ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
         {url.error ? <div className="hb-error" role="alert">{url.error}</div> : null}
 
-        <div className="hb-field">
-          <label htmlFor={`${id}-category`}>{problemFirst ? "What do you need help with?" : "Type of help"}</label>
-          <select id={`${id}-category`} name="category" required defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
-            <option value="" disabled>Select a specialty</option>
-            {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
-          </select>
-        </div>
+        {isHire ? (
+          <>
+            <section className={`hb-hire-step ${hireStep === 1 ? "is-active" : ""}`} data-hire-step="1" aria-hidden={hireStep !== 1}>
+              <div className="hb-step-copy">
+                <span>Step 1 of 3</span>
+                <h3>What are you trying to get off your plate?</h3>
+                <p>Tell us what is taking your time, what is not getting done, or what you need someone to own. You do not need to know the exact role yet.</p>
+              </div>
 
-        {problemFirst ? <>
-          <div className="hb-field">
-            <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>
-            <textarea
-              id={`${id}-message`}
-              name="message"
-              rows={4}
-              required
-              minLength={40}
-              maxLength={3000}
-              placeholder="Tell us what keeps landing back on your plate, what is not getting done, or what you want someone else to own."
-            />
-            <small className="hb-field-hint">Minimum 40 characters. You do not need to know the exact job title yet.</small>
-          </div>
-          {resolvedMode === "hire" ? <>
+              <div className="hb-field">
+                <label htmlFor={`${id}-message`}>Describe your current workload or main challenges</label>
+                <textarea
+                  id={`${id}-message`}
+                  name="message"
+                  rows={5}
+                  required={hireStep === 1}
+                  minLength={40}
+                  maxLength={3000}
+                  placeholder="e.g. I'm still handling customer enquiries, scheduling, invoicing, following up unpaid jobs and updating ServiceM8."
+                />
+                <small className="hb-field-hint">Minimum 40 characters.</small>
+              </div>
+
+              <div className="hb-row">
+                <div className="hb-field">
+                  <label htmlFor={`${id}-category`}>Which area is this closest to?</label>
+                  <select id={`${id}-category`} name="category" required={hireStep === 1} defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
+                    <option value="" disabled>Select a specialty</option>
+                    {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="hb-field">
+                  <label htmlFor={`${id}-tools`}>Tools or systems involved <span className="hb-optional">(optional)</span></label>
+                  <input id={`${id}-tools`} name="tools" maxLength={600} placeholder="e.g. ServiceM8, Xero, HubSpot, Cliniko" />
+                </div>
+              </div>
+
+              <div className="hb-hire-nav hb-hire-nav-first">
+                <Link href={BOOKING_URL} className="hb-hire-text-link">Prefer to talk it through?</Link>
+                <button type="button" className="hb-submit hb-next" onClick={() => advanceHireStep(2)}>Next: Setup <ArrowRight size={16} /></button>
+              </div>
+            </section>
+
+            <section className={`hb-hire-step ${hireStep === 2 ? "is-active" : ""}`} data-hire-step="2" aria-hidden={hireStep !== 2}>
+              <div className="hb-step-copy">
+                <span>Step 2 of 3</span>
+                <h3>Set the working setup.</h3>
+                <p>Give us enough context to recommend a realistic role and shortlist people who can actually fit your schedule.</p>
+              </div>
+
+              <div className="hb-row">
+                <div className="hb-field">
+                  <label htmlFor={`${id}-hours`}>Hours needed</label>
+                  <select id={`${id}-hours`} name="hours" required={hireStep === 2} defaultValue={HOURS.includes(defaultHours || "") ? defaultHours : ""}>
+                    <option value="" disabled>Select hours</option>
+                    {HOURS.map((h) => <option key={h}>{h}</option>)}
+                  </select>
+                </div>
+                <div className="hb-field">
+                  <label htmlFor={`${id}-budget`}>Hourly budget</label>
+                  <select id={`${id}-budget`} name="budget" required={hireStep === 2} defaultValue={BUDGETS.includes(defaultBudget || "") ? defaultBudget : ""}>
+                    <option value="" disabled>Select budget</option>
+                    {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="hb-row">
+                <div className="hb-field">
+                  <label htmlFor={`${id}-timezone`}>Working timezone / overlap</label>
+                  <input id={`${id}-timezone`} name="timezone" required={hireStep === 2} maxLength={120} defaultValue={detectedTimeZone} placeholder="e.g. Australia/Sydney" />
+                </div>
+                <div className="hb-field">
+                  <label htmlFor={`${id}-start`}>Preferred start</label>
+                  <select id={`${id}-start`} name="start_time" required={hireStep === 2} defaultValue={START_TIMES.includes(defaultStartTime || "") ? defaultStartTime : ""}>
+                    <option value="" disabled>Select timing</option>
+                    {START_TIMES.map((value) => <option key={value}>{value}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="hb-hire-tip">
+                <strong>Not sure about the exact hours or budget?</strong>
+                <span>Choose the closest option. Your recruiter can refine it with you during discovery.</span>
+              </div>
+
+              <div className="hb-hire-nav">
+                <button type="button" className="hb-back" onClick={() => setHireStep(1)}>Back</button>
+                <button type="button" className="hb-submit hb-next" onClick={() => advanceHireStep(3)}>Next: Your details <ArrowRight size={16} /></button>
+              </div>
+            </section>
+
+            <section className={`hb-hire-step ${hireStep === 3 ? "is-active" : ""}`} data-hire-step="3" aria-hidden={hireStep !== 3}>
+              <div className="hb-step-copy">
+                <span>Step 3 of 3</span>
+                <h3>Where should we send your recommendation?</h3>
+                <p>Your recruiter will use these details to follow up on the brief. No account is required to start.</p>
+              </div>
+
+              <div className="hb-row">
+                <div className="hb-field">
+                  <label htmlFor={`${id}-name`}>Your name</label>
+                  <input id={`${id}-name`} name="name" required={hireStep === 3} maxLength={100} autoComplete="name" placeholder="Your name" />
+                </div>
+                <div className="hb-field">
+                  <label htmlFor={`${id}-email`}>Work email</label>
+                  <input id={`${id}-email`} name="email" type="email" required={hireStep === 3} autoComplete="email" placeholder="you@company.com" />
+                </div>
+              </div>
+              <div className="hb-row">
+                <div className="hb-field">
+                  <label htmlFor={`${id}-company`}>Company</label>
+                  <input id={`${id}-company`} name="company" required={hireStep === 3} maxLength={160} autoComplete="organization" placeholder="Your company" />
+                </div>
+                <div className="hb-field">
+                  <label htmlFor={`${id}-phone`}>Phone / WhatsApp <span className="hb-optional">(optional)</span></label>
+                  <input id={`${id}-phone`} name="phone" type="tel" maxLength={50} autoComplete="tel" placeholder="+61 / +1 / +63" />
+                </div>
+              </div>
+
+              <TurnstileWidget />
+              <div className="hb-hire-nav">
+                <button type="button" className="hb-back" onClick={() => setHireStep(2)}>Back</button>
+                <button className="hb-submit hb-final-submit" type="submit" data-track="role_brief_submit">Get my hiring recommendation <ArrowRight size={16} /></button>
+              </div>
+              <Foot />
+            </section>
+          </>
+        ) : problemFirst ? (
+          <>
             <div className="hb-field">
-              <label htmlFor={`${id}-tools`}>Tools or systems involved <span>(optional)</span></label>
-              <input id={`${id}-tools`} name="tools" maxLength={600} placeholder="e.g. ServiceM8, Xero, HubSpot, Cliniko" />
+              <label htmlFor={`${id}-category`}>What do you need help with?</label>
+              <select id={`${id}-category`} name="category" required defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
+                <option value="" disabled>Select a specialty</option>
+                {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
+              </select>
+            </div>
+            <div className="hb-field">
+              <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>
+              <textarea
+                id={`${id}-message`}
+                name="message"
+                rows={4}
+                required
+                minLength={40}
+                maxLength={3000}
+                placeholder="e.g. I'm handling customer calls, scheduling, invoicing and following up unpaid jobs."
+              />
+              <small className="hb-field-hint">Minimum 40 characters. You do not need to know the exact job title yet.</small>
             </div>
             <div className="hb-row">
               <div className="hb-field">
-                <label htmlFor={`${id}-hours`}>Hours needed</label>
-                <select id={`${id}-hours`} name="hours" required defaultValue={HOURS.includes(defaultHours || "") ? defaultHours : ""}>
-                  <option value="" disabled>Select hours</option>
-                  {HOURS.map((h) => <option key={h}>{h}</option>)}
-                </select>
+                <label htmlFor={`${id}-name`}>Your name</label>
+                <input id={`${id}-name`} name="name" required maxLength={100} autoComplete="name" placeholder="Your name" />
               </div>
               <div className="hb-field">
-                <label htmlFor={`${id}-budget`}>Hourly budget</label>
-                <select id={`${id}-budget`} name="budget" required defaultValue={BUDGETS.includes(defaultBudget || "") ? defaultBudget : ""}>
-                  <option value="" disabled>Select budget</option>
-                  {BUDGETS.map((b) => <option key={b}>{b}</option>)}
-                </select>
+                <label htmlFor={`${id}-email`}>Work email</label>
+                <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
               </div>
-            </div>
-            <div className="hb-row">
-              <div className="hb-field">
-                <label htmlFor={`${id}-timezone`}>Working timezone / overlap</label>
-                <input id={`${id}-timezone`} name="timezone" required maxLength={120} defaultValue={detectedTimeZone} placeholder="e.g. Australia/Sydney" />
-              </div>
-              <div className="hb-field">
-                <label htmlFor={`${id}-start`}>Preferred start</label>
-                <select id={`${id}-start`} name="start_time" required defaultValue={START_TIMES.includes(defaultStartTime || "") ? defaultStartTime : ""}>
-                  <option value="" disabled>Select timing</option>
-                  {START_TIMES.map((value) => <option key={value}>{value}</option>)}
-                </select>
-              </div>
-            </div>
-          </> : null}
-          <div className="hb-row">
-            <div className="hb-field">
-              <label htmlFor={`${id}-name`}>First name</label>
-              <input id={`${id}-name`} name="name" required maxLength={100} autoComplete="given-name" placeholder="Your first name" />
             </div>
             <div className="hb-field">
-              <label htmlFor={`${id}-email`}>Work email</label>
-              <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
+              <label htmlFor={`${id}-company`}>Company</label>
+              <input id={`${id}-company`} name="company" required maxLength={160} autoComplete="organization" placeholder="Your company" />
             </div>
-          </div>
-          <div className="hb-field">
-            <label htmlFor={`${id}-company`}>Company name</label>
-            <input id={`${id}-company`} name="company" required maxLength={160} autoComplete="organization" placeholder="Your company" />
-          </div>
-        </> : <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />}
+            <TurnstileWidget />
+            <button className="hb-submit" type="submit" data-track="role_brief_submit">Get my VA recommendation <ArrowRight size={16} /></button>
+            <Foot />
+          </>
+        ) : (
+          <>
+            <div className="hb-field">
+              <label htmlFor={`${id}-category`}>Type of help</label>
+              <select id={`${id}-category`} name="category" required defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
+                <option value="" disabled>Select a specialty</option>
+                {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
+              </select>
+            </div>
+            <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+            <TurnstileWidget />
+            <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
+            <Foot />
+          </>
+        )}
 
         {problemFirst ? <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div> : null}
-        <TurnstileWidget />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">
-          {problemFirst ? <>Get my VA recommendation <ArrowRight size={16} /></> : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
-        </button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
-        <Foot />
       </form>
+
+      {isHire ? (
+        <div className="hb-hire-help">
+          <div>
+            <strong>Not sure what role you need?</strong>
+            <span>That&apos;s fine. Your recruiter will scope it with you.</span>
+          </div>
+          <Link href={BOOKING_URL}>Book a discovery call <ArrowRight size={14} /></Link>
+        </div>
+      ) : null}
     </div>
   );
 }

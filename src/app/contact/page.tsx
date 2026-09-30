@@ -134,7 +134,7 @@ export default async function ContactPage({
           </div>
         </div>
 
-        <TurnstileWidget />
+        <TurnstileWidget action="contact" />
 
         <div className="contact-form-actions">
           <button className="contact-primary-button" type="submit">

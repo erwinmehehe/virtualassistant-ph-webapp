@@ -22,7 +22,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 import { PublicAvatar } from "@/components/public-avatar";
 import { canonicalPath } from "@/lib/seo-url";
-import { HiringBriefForm } from "@/components/hiring-brief-form";
 
 const HIRING_CALL_URL = "/book-client-call";
 
@@ -61,7 +60,6 @@ export default async function HirePage({
     .filter(Boolean)
     .slice(0, 5);
   const lead = params.lead?.trim();
-  const sourcePath = params.source?.startsWith("/") && !params.source.startsWith("//") ? params.source : "/hire";
   const supabase = await createClient();
   const { data: requested } = talent
     ? await supabase
@@ -151,43 +149,28 @@ export default async function HirePage({
               ) : null}
             </div>
 
-            <section id="hire-form" className="pvh-form-shell" aria-label="Hiring request form">
+            <aside className="pvh-form-shell" aria-label="Start hiring">
               <div className="pvh-form-glow" aria-hidden="true" />
               <div className="pvh-form-card">
-                {params.sent ? (
-                  <div className="pvh-success">
-                    <div className="pvh-success-icon"><CheckCircle2 size={30} /></div>
-                    <span className="pvh-kicker">Request received</span>
-                    <h2>Your hiring request is with our team.</h2>
-                    <p>A recruiter will review the role and use it to screen relevant candidates. We will follow up using the contact details you provide, and you do not need an account to get started.</p>
+                <div className="pvh-success">
+                  <div className="pvh-success-icon"><CalendarDays size={30} /></div>
+                  <span className="pvh-kicker">Talk through the role</span>
+                  <h2>Not sure exactly who you need?</h2>
+                  <p>Book a discovery call and we&apos;ll help you define the role, hours, budget, tools, and working overlap before we build a shortlist.</p>
 
-                    <div className="pvh-success-next">
-                      <div><span>01</span><p><strong>We review the brief</strong><small>Responsibilities, schedule, tools, budget, and must-have experience.</small></p></div>
-                      <div><span>02</span><p><strong>We screen for fit</strong><small>Relevant skills, communication, availability, and working overlap.</small></p></div>
-                      <div><span>03</span><p><strong>We follow up</strong><small>We bring you the strongest next step for the role.</small></p></div>
-                    </div>
-
-                    <div className="pvh-success-actions">
-                      <a className="pvh-btn pvh-btn-primary" href={HIRING_CALL_URL} data-track="booking_click">Book a client call <ArrowRight size={16} /></a>
-                      <Link className="pvh-btn pvh-btn-secondary" href="/find-talent">Browse vetted talent</Link>
-                      {lead ? <Link className="pvh-text-link" href="/auth/login?next=%2Fworkspace%2Fclient">Already a client? Open Client Portal</Link> : null}
-                    </div>
+                  <div className="pvh-success-next">
+                    <div><span>01</span><p><strong>Explain the workload</strong><small>Tell us what is taking up your time and what you want off your plate.</small></p></div>
+                    <div><span>02</span><p><strong>We scope the role</strong><small>We turn the work into a practical hiring brief and screening criteria.</small></p></div>
+                    <div><span>03</span><p><strong>Meet the shortlist</strong><small>Your recruiter brings you the strongest candidates worth interviewing.</small></p></div>
                   </div>
-                ) : (
-                  <HiringBriefForm
-                    variant="general"
-                    sourcePath={sourcePath}
-                    title="Tell us who you need"
-                    defaultCategory={requested?.primary_category || selectedShortlist[0]?.primary_category || params.category || ""}
-                    defaultHours={params.hours}
-                    defaultBudget={params.budget}
-                    talent={talent}
-                    shortlist={selectedShortlist.length ? selectedShortlist.map((candidate: any) => candidate.slug).join(",") : undefined}
-                    defaultStartTime={params.start_time}
-                  />
-                )}
+
+                  <div className="pvh-success-actions">
+                    <a className="pvh-btn pvh-btn-primary" href={HIRING_CALL_URL} data-track="booking_click">Book a discovery call <ArrowRight size={16} /></a>
+                    <Link className="pvh-btn pvh-btn-secondary" href="/find-talent">Browse vetted talent</Link>
+                  </div>
+                </div>
               </div>
-            </section>
+            </aside>
           </div>
         </section>
 
@@ -260,12 +243,12 @@ export default async function HirePage({
           <div className="pvh-final-grid-pattern" aria-hidden="true" />
           <div className="container pvh-final-inner">
             <div>
-              <span className="pvh-final-kicker"><MessageSquareText size={14} /> Start with a private role brief</span>
+              <span className="pvh-final-kicker"><MessageSquareText size={14} /> Start with a discovery call</span>
               <h2>Ready to stop sorting applicants and start meeting the right people?</h2>
               <p>Tell us the role and our recruiting team will review the workload, budget, schedule, and experience you need.</p>
             </div>
             <div className="pvh-final-actions">
-              <a className="pvh-btn pvh-btn-light" href="#hire-form">Start your hiring request <ArrowRight size={16} /></a>
+              <a className="pvh-btn pvh-btn-light" href={HIRING_CALL_URL} data-track="booking_click">Book a discovery call <ArrowRight size={16} /></a>
               <a className="pvh-btn pvh-btn-ghost" href={HIRING_CALL_URL} data-track="booking_click">Book a client call</a>
             </div>
           </div>

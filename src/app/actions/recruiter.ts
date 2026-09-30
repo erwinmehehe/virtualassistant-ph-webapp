@@ -15,6 +15,7 @@ import { applyRecruiterTalentFilters, RECRUITER_BULK_LIMIT, type RecruiterTalent
 import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { VA_CATEGORIES } from "@/lib/constants";
+import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "request_address", "hide", "assign", "remind"]);
 
@@ -673,25 +674,35 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   const requestId = String(formData.get("request_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
   const raw = String(formData.get("discovery_scheduled_at") || "").trim();
+  const submittedTimeZone = String(formData.get("discovery_timezone") || "").trim();
   const duration = Math.max(15, Math.min(120, Number(formData.get("discovery_duration_minutes") || 30)));
   const meetingUrl = String(formData.get("discovery_meeting_url") || "").trim().slice(0, 1000);
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
 
   if (!leadId || !raw) return fail("Choose a discovery call date and time.");
   if (!isRequestId(requestId)) return fail("This booking form expired. Refresh the page and try again.");
-  const scheduled = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)
-    ? new Date(`${raw}:00+08:00`)
-    : new Date(raw);
-  if (!Number.isFinite(scheduled.getTime())) return fail("Choose a valid discovery call date and time.");
-  if (scheduled.getTime() < Date.now() - 15 * 60000) return fail("Discovery calls must be scheduled in the future.");
   if (meetingUrl && !/^https?:\/\//i.test(meetingUrl)) return fail("Meeting link must start with http:// or https://.");
 
   const admin = createAdminClient();
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,name,email,company,owner_id,crm_stage,discovery_calendar_event_id,discovery_scheduled_at,discovery_meeting_url,discovery_completed_at,discovery_cancelled_at")
+    .select("id,name,email,company,timezone,owner_id,crm_stage,discovery_calendar_event_id,discovery_scheduled_at,discovery_meeting_url,discovery_completed_at,discovery_cancelled_at")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
+
+  const bookingTimeZone = isValidTimeZone(submittedTimeZone)
+    ? submittedTimeZone
+    : isValidTimeZone(lead.timezone)
+      ? String(lead.timezone)
+      : "";
+  const scheduled = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)
+    ? (bookingTimeZone ? zonedDateTimeToUtc(raw, bookingTimeZone) : null)
+    : new Date(raw);
+  if (!bookingTimeZone && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+    return fail("Confirm the client's timezone before scheduling the discovery call.");
+  }
+  if (!scheduled || !Number.isFinite(scheduled.getTime())) return fail("Choose a valid discovery call date and time for the client's timezone.");
+  if (scheduled.getTime() < Date.now() - 15 * 60000) return fail("Discovery calls must be scheduled in the future.");
 
   const scheduledIso = scheduled.toISOString();
   const sameActiveBooking = Boolean(
@@ -740,7 +751,8 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     status: "new",
     owner_id: lead.owner_id || user.id,
     next_follow_up_at: followUp,
-    stage_updated_at: now
+    stage_updated_at: now,
+    ...(bookingTimeZone ? { timezone: bookingTimeZone } : {}),
   }).eq("id", leadId);
   if (error) {
     if (generatedEventId) {
@@ -756,11 +768,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     await runCrmStageWorkflows({ leadId, stage: "discovery_booked", actorId: user.id });
   }
 
-  const scheduledLabel = new Intl.DateTimeFormat("en-PH", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Manila"
-  }).format(scheduled);
+  const scheduledLabel = formatDateTimeInTimeZone(scheduled.toISOString(), bookingTimeZone);
 
   let emailResult: Awaited<ReturnType<typeof sendDiscoveryBookingEmail>>;
   try {

@@ -17,6 +17,7 @@ import { verifyTurnstile } from "@/lib/turnstile";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
 import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
+import { isValidTimeZone } from "@/lib/timezone";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -31,6 +32,11 @@ export type ServiceMatchState = {
 
 const DUPLICATE_SUBMISSION_WINDOW_MINUTES = 24 * 60;
 const MATCH_FEEDBACK_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+function safeVisitorTimeZone(value?: string | null) {
+  const timeZone = String(value || "").trim();
+  return isValidTimeZone(timeZone) ? timeZone : null;
+}
 
 function matchFeedbackToken(leadId: string) {
   return createSignedCapability({
@@ -98,6 +104,7 @@ const serviceMatchSchema = z.object({
   phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
   budget: z.string().trim().max(100).optional(),
+  timezone: z.string().trim().max(100).optional(),
   message: z.string().trim().min(10).max(3000),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") && !value.startsWith("//")),
   session_id: z.string().uuid().or(z.literal("")).optional(),
@@ -282,6 +289,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
   if (!(await verifyTurnstile(formData, "service_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_service_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
+  const timeZone = safeVisitorTimeZone(parsed.data.timezone);
 
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
@@ -321,6 +329,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       service: service.name,
       hours: parsed.data.hours,
       budget: parsed.data.budget || null,
+      timezone: timeZone,
       message: briefMessage,
       source_page: sourcePage,
       page_url: pageUrl,
@@ -337,6 +346,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       service: service.directoryCategory,
       company: parsed.data.company?.trim() || null,
       hours: parsed.data.hours,
+      timezone: timeZone,
       message: briefMessage,
       budget: parsed.data.budget
     });
@@ -358,6 +368,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
         phone: parsed.data.phone?.trim() || null,
         service: service.name,
         hours: parsed.data.hours,
+        timezone: timeZone,
         message: briefMessage,
         sourcePage,
         pageUrl
@@ -400,6 +411,7 @@ const industryMatchSchema = z.object({
   phone: z.string().trim().max(50).optional(),
   hours: z.string().trim().min(1).max(80),
   budget: z.string().trim().max(100).optional(),
+  timezone: z.string().trim().max(100).optional(),
   message: z.string().trim().max(3000).optional().default(""),
   tasks: z.array(z.string().trim().min(2).max(140)).max(6).optional().default([]),
   source_path: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/industries/") && !value.startsWith("//")),
@@ -433,6 +445,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
   if (!(await verifyTurnstile(formData, "industry_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_industry_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
+  const timeZone = safeVisitorTimeZone(parsed.data.timezone);
 
   if (looksLikeVaApplication(parsed.data.message)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: `Industry: ${parsed.data.slug}`, hours: parsed.data.hours, message: parsed.data.message, sourcePath: parsed.data.source_path, sessionId: parsed.data.session_id });
@@ -474,6 +487,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       service: serviceLabel,
       hours: parsed.data.hours,
       budget: parsed.data.budget || null,
+      timezone: timeZone,
       message: combinedMessage,
       source_page: "industry_match_request",
       page_url: pageUrl,
@@ -490,6 +504,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       service: category,
       company: parsed.data.company?.trim() || null,
       hours: parsed.data.hours,
+      timezone: timeZone,
       message: combinedMessage,
       budget: parsed.data.budget
     });
@@ -511,6 +526,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
         phone: parsed.data.phone?.trim() || null,
         service: serviceLabel,
         hours: parsed.data.hours,
+        timezone: timeZone,
         message: combinedMessage,
         sourcePage: "industry_match_request",
         pageUrl
@@ -547,7 +563,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
 const roleBriefSchema = z.object({
   category: z.string().min(2).max(100),
   hours: z.string().min(1).max(80),
-  timezone: z.string().min(2).max(120),
+  timezone: z.string().trim().max(120).optional(),
   budget: z.string().min(1).max(100),
   email: z.string().email(),
   phone: z.string().trim().max(50).optional(),
@@ -607,6 +623,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   if (!(await verifyTurnstile(formData, "role_brief"))) redirect(`${returnTo}?error=${encodeURIComponent("Please complete the security check.")}`);
   try { await enforceEmailAndIpRateLimit("public_role_brief", parsed.data.email, 4, 10, 60); }
   catch { redirect(`${returnTo}?error=${encodeURIComponent("Too many requests. Please try again later.")}`); }
+  const timeZone = safeVisitorTimeZone(parsed.data.timezone);
 
   if (looksLikeVaApplication(parsed.data.message, parsed.data.company)) {
     await routeVaApplicant({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone, service: parsed.data.category, hours: parsed.data.hours, message: parsed.data.message, sourcePath: returnTo, sessionId: parsed.data.session_id });
@@ -653,7 +670,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     hours: parsed.data.hours,
     budget: parsed.data.budget,
     start_time: parsed.data.start_time?.trim() || null,
-    timezone: parsed.data.timezone,
+    timezone: timeZone,
     message,
     source_page: sourcePage,
     page_url: pageUrl,
@@ -693,7 +710,7 @@ export async function submitRoleBriefAction(formData: FormData) {
       service: category,
       company: parsed.data.company?.trim() || null,
       hours: parsed.data.hours,
-      timezone: parsed.data.timezone,
+      timezone: timeZone,
       startTime: parsed.data.start_time?.trim() || null,
       message,
       budget: parsed.data.budget,
@@ -723,7 +740,7 @@ export async function submitRoleBriefAction(formData: FormData) {
       company: parsed.data.company?.trim() || null,
       service: category,
       hours: parsed.data.hours,
-      timezone: parsed.data.timezone,
+      timezone: timeZone,
       message,
       sourcePage,
       pageUrl
@@ -753,6 +770,7 @@ const contactSchema = z.object({
   email: z.string().email(),
   phone: z.string().trim().max(50).optional(),
   company: z.string().max(160).optional(),
+  timezone: z.string().trim().max(100).optional(),
   topic: z.string().min(2).max(100),
   message: z.string().min(20).max(3000),
   website: z.string().max(200).optional()
@@ -771,6 +789,7 @@ export async function submitContactAction(formData: FormData) {
   if (!(await verifyTurnstile(formData, "contact"))) redirect("/contact?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_contact", parsed.data.email, 3, 8, 60); }
   catch { redirect("/contact?error=Too%20many%20requests.%20Please%20try%20again%20later."); }
+  const timeZone = safeVisitorTimeZone(parsed.data.timezone);
   const admin = createAdminClient();
   const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/contact`;
   const { data: lead, error } = await admin.from("lead_intake").insert({
@@ -779,6 +798,7 @@ export async function submitContactAction(formData: FormData) {
     phone: parsed.data.phone?.trim() || null,
     company: parsed.data.company?.trim() || null,
     service: parsed.data.topic.trim(),
+    timezone: timeZone,
     message: parsed.data.message.trim(),
     source_page: "contact",
     page_url: pageUrl
@@ -799,6 +819,7 @@ export async function submitContactAction(formData: FormData) {
       phone: parsed.data.phone?.trim() || null,
       company: parsed.data.company?.trim() || null,
       service: parsed.data.topic.trim(),
+      timezone: timeZone,
       message: parsed.data.message.trim(),
       sourcePage: "contact",
       pageUrl

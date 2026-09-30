@@ -162,3 +162,13 @@ test("auth routes are no-store and deployment preflight checks independent secur
   assert.match(runtimeConfig, /partial configuration is unsafe/);
   assert.match(runtimeConfig, /name: "RESEND_WEBHOOK_SECRET"/);
 });
+
+
+test("lead discovery briefs remain explicitly server-only", async () => {
+  const migration = await read("supabase/migrations/20260930130450_harden_lead_discovery_briefs.sql");
+
+  assert.match(migration, /revoke all on table public\.lead_discovery_briefs from anon, authenticated/);
+  assert.match(migration, /grant all on table public\.lead_discovery_briefs to service_role/);
+  assert.match(migration, /create policy "lead_discovery_briefs_server_only"/);
+  assert.match(migration, /as restrictive[\s\S]*to anon, authenticated[\s\S]*using \(false\)[\s\S]*with check \(false\)/);
+});

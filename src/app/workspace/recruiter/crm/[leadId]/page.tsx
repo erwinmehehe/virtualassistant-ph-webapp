@@ -542,7 +542,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={15}/> Discovery workspace</Link>
           {lead.client_id ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
           {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Clients</Link>
         </div>
       </header>
 

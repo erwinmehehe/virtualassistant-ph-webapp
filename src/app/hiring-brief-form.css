@@ -168,7 +168,7 @@
 }
 .hb-card-home .hb-form { gap: 13px; margin-top: 20px; }
 .hb-card-home .hb-field label { color: #263247; font-weight: 720; }
-.hb-card-home .hb-field textarea { min-height: 102px; }
+.hb-card-home .hb-field textarea { min-height: 84px; }
 .hb-card-home .hb-submit {
   min-height: 50px;
   margin-top: 2px;

@@ -487,13 +487,16 @@ export async function acceptLeadProposalAction(formData: FormData) {
   const slug = job?.slug || await uniqueJobSlug(admin, proposal.role_title);
   const description = cleanJobDescription(proposal.summary || lead.message);
   const fallbackSummary = `Virtual Assistant support requested for ${proposal.role_title || lead.service || "business operations"}.`;
+  const proposalResponsibilities = Array.isArray(proposal.responsibilities) ? proposal.responsibilities.filter(Boolean).slice(0, 16) : [];
+  const proposalSkills = Array.isArray(proposal.required_skills) ? proposal.required_skills.filter(Boolean).slice(0, 20) : [];
+  const proposalTools = Array.isArray(proposal.required_tools) ? proposal.required_tools.filter(Boolean).slice(0, 20) : [];
   const jobPayload = {
     title: proposal.role_title,
     slug,
     company_name: lead.company || null,
     summary: cleanJobSummary(proposal.summary || lead.message, fallbackSummary),
     description,
-    responsibilities: description ? [description] : [],
+    responsibilities: proposalResponsibilities.length ? proposalResponsibilities : description ? [description] : [],
     categories: inferCategories(lead.service, proposal.summary || lead.message),
     hours_per_week: proposal.hours_per_week || inferHours(lead.hours),
     min_hourly_rate: proposal.va_rate_min || MIN_HOURLY_RATE,
@@ -504,7 +507,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     onboarding_plan: "Client onboarding and tool access to be confirmed before placement.",
     direct_feedback: true,
     engagement_length: "Long-term preferred",
-    start_timing: proposal.start_timing || lead.start_time || null
+    start_timing: proposal.recommended_start_date || proposal.start_timing || lead.start_time || null
   };
 
   const handoff = await ensureAcceptedLeadClientWorkspace({
@@ -553,6 +556,16 @@ export async function acceptLeadProposalAction(formData: FormData) {
       // is already committed by the atomic database transaction.
     }
   }
+
+  const matchingPatch: Record<string, unknown> = {
+    hiring_stage: "ready_to_recruit",
+    hiring_stage_entered_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  if (proposalResponsibilities.length) matchingPatch.responsibilities = proposalResponsibilities;
+  if (proposalSkills.length) matchingPatch.required_skills = proposalSkills;
+  if (proposalTools.length) matchingPatch.required_tools = proposalTools;
+  await admin.from("jobs").update(matchingPatch).eq("id", acceptedJobId);
 
   if (clientId) {
     try {

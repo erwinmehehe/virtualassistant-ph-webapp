@@ -14,6 +14,7 @@ import {
   Phone,
   Send,
   UserRound,
+  FileText,
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -192,6 +193,20 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const customValueMap = new Map(((customValuesResult.data || []) as CustomValue[]).map(item=>[item.field_id,item.value]));
   const emailEvents = (emailResult.data || []) as EmailEvent[];
   const proposals = (proposalResult.data || []) as Proposal[];
+  const latestProposal = proposals[0] || null;
+  const proposalPipelineStatus = latestProposal
+    ? latestProposal.status === "accepted"
+      ? "Accepted"
+      : latestProposal.status === "changes_requested"
+        ? "Changes requested"
+        : latestProposal.status === "declined"
+          ? "Lost"
+          : latestProposal.status === "sent" && latestProposal.viewed_at
+            ? "Viewed"
+            : latestProposal.status === "sent"
+              ? "Sent"
+              : "Draft"
+    : null;
   const shortlists = (shortlistResult.data || []) as Shortlist[];
   const interviews = (interviewResult.data || []) as Interview[];
   const offers = (offerResult.data || []) as Offer[];
@@ -308,8 +323,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     new:[{value:"contacted",label:"Mark contacted"}],
     contacted:[{value:"qualified",label:"Mark qualified"},{value:"nurture",label:"Move to nurture"}],
     discovery_booked:[{value:"qualified",label:"Mark qualified"},{value:"nurture",label:"Move to nurture"}],
-    qualified:[{value:"terms_sent",label:"Terms sent"},{value:"nurture",label:"Move to nurture"}],
-    terms_sent:[{value:"shortlist_sent",label:"Shortlist sent"},{value:"nurture",label:"Move to nurture"}],
+    qualified:[{value:"nurture",label:"Move to nurture"}],
+    terms_sent:[{value:"nurture",label:"Move to nurture"}],
     shortlist_sent:[{value:"won",label:"Mark won"},{value:"nurture",label:"Move to nurture"}],
     nurture:[{value:"contacted",label:"Reopen as contacted"}],
   };
@@ -317,12 +332,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const hasInterview = interviews.length > 0;
   const hasOffer = offers.length > 0;
   const hasHire = workrooms.length > 0 || job?.status === "filled";
-  const workflowSteps = ["Enquiry", "Call", "Role", "Shortlist", "Interview", "Offer", "Hire"] as const;
+  const workflowSteps = ["Enquiry", "Discovery", "Proposal", "Shortlist", "Interview", "Offer", "Hire"] as const;
   const workflowIndex = hasHire ? 6
     : hasOffer ? 5
       : hasInterview ? 4
         : hasReleasedShortlist ? 3
-          : job ? 2
+          : latestProposal ? 2
             : (lead.discovery_scheduled_at || lead.discovery_completed_at) ? 1
               : 0;
 
@@ -349,9 +364,17 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           ? { label: "Review decision", href: job ? `/workspace/recruiter/roles/${job.id}#client-handoff` : returnTo, detail: "The client has responded to the shortlist. Process that decision before sending more candidates." }
           : hasReleasedShortlist
             ? { label: "Follow up", href: lead.client_id ? `/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}` : returnTo, detail: "The shortlist is with the client. Follow up on a decision instead of adding more internal suggestions." }
-            : job
-              ? { label: "Send client-ready shortlist", href: `/workspace/recruiter/roles/${job.id}#matching`, detail: "Review client-ready candidates and release only the shortlist you are prepared to recommend." }
-              : { label: "Finish role setup", href: returnTo, detail: "Create or link the hiring role before matching candidates." };
+            : latestProposal?.status === "accepted" && job
+              ? { label: "Review matches", href: `/workspace/recruiter/matching/${job.id}`, detail: "The recommendation is accepted. Review the strongest matching VAs and prepare the shortlist." }
+              : latestProposal?.status === "changes_requested"
+                ? { label: "Revise proposal", href: `/workspace/recruiter/crm/${lead.id}/proposal`, detail: "The client requested changes. Update the recommendation and resend it without rebuilding the role." }
+                : latestProposal?.status === "sent"
+                  ? { label: "Follow up on proposal", href: `/workspace/recruiter/crm/${lead.id}/proposal`, detail: latestProposal.viewed_at ? "The client viewed the proposal but has not responded yet." : "The proposal is sent but has not been viewed yet." }
+                  : latestProposal
+                    ? { label: "Finish proposal", href: `/workspace/recruiter/crm/${lead.id}/proposal`, detail: "Review the generated recommendation, confirm the commercial terms, and send it to the client." }
+                    : lead.discovery_completed_at
+                      ? { label: "Generate recommendation", href: `/workspace/recruiter/crm/${lead.id}/discovery`, detail: "Discovery is complete. Turn the call into a client-ready recommendation before moving to shortlist." }
+                      : { label: "Complete discovery", href: `/workspace/recruiter/crm/${lead.id}/discovery`, detail: "Diagnose the role and client outcome before preparing a recommendation." };
 
   return (
     <div className={styles.detailPage}>
@@ -425,6 +448,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
 
         <div className={styles.actionLinks}>
           <Link href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={14}/> Discovery</Link>
+          <Link href={`/workspace/recruiter/crm/${lead.id}/proposal`}><FileText size={14}/> Proposal{proposalPipelineStatus ? ` · ${proposalPipelineStatus}` : ""}</Link>
           {lead.client_id ? <Link href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={14}/> Chat</Link> : null}
           {job ? <Link href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={14}/> Role</Link> : null}
           {job ? <Link href={`/workspace/recruiter/matching/${job.id}`}><UserRound size={14}/> Matching</Link> : null}

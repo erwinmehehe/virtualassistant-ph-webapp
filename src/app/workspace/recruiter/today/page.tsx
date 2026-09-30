@@ -131,31 +131,16 @@ function actionLabel(item:any) {
 export default async function RecruiterTodayPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
-  const admin = createAdminClient();
-  const now = new Date();
-  const discoveryWindowEnd = new Date(now.getTime() + 48 * 3600000);
-  const [todaySummary, roleSummary, upcomingDiscoveryResult] = await Promise.all([
-    withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId })),
-    getRecruiterRolesSummary(userId),
-    admin
-      .from("lead_intake")
-      .select("id,company,service,message,created_at,discovery_scheduled_at,discovery_meeting_url,job_id")
-      .eq("lead_type", "client_hiring")
-      .eq("owner_id", userId)
-      .is("discovery_completed_at", null)
-      .is("discovery_cancelled_at", null)
-      .gte("discovery_scheduled_at", now.toISOString())
-      .lt("discovery_scheduled_at", discoveryWindowEnd.toISOString())
-      .order("discovery_scheduled_at", { ascending: true })
-      .limit(8),
-  ]);
-  const { data: summaryData, error: summaryError } = todaySummary;
+  const { data: summaryData, error: summaryError } = await withServerTiming(
+    "recruiter.today_summary",
+    () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId }),
+  );
+  const roleSummary = await getRecruiterRolesSummary(userId);
   if (summaryError) throw summaryError;
   if (roleSummary.error) throw roleSummary.error;
-  if (upcomingDiscoveryResult.error) throw upcomingDiscoveryResult.error;
 
-  const upcomingDiscoveryCalls = (upcomingDiscoveryResult.data || []) as UpcomingDiscoveryRow[];
   const summary = (summaryData || {}) as Record<string,any>;
+  const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
   const readyToSendRoles = shortlistConversionRoles.filter((job) => {

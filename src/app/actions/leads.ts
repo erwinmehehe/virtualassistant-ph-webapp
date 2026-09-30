@@ -279,7 +279,7 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     return { status: "error", message: label ? `Please fill in: ${label}` : "Please complete the required fields so we can match the role accurately." };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
-  if (!(await verifyTurnstile(formData))) return { status: "error", message: "Please complete the security check." };
+  if (!(await verifyTurnstile(formData, "service_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_service_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
 
@@ -430,7 +430,7 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     return { status: "error", message };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
-  if (!(await verifyTurnstile(formData))) return { status: "error", message: "Please complete the security check." };
+  if (!(await verifyTurnstile(formData, "industry_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_industry_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
 
@@ -604,7 +604,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
-  if (!(await verifyTurnstile(formData))) redirect(`${returnTo}?error=${encodeURIComponent("Please complete the security check.")}`);
+  if (!(await verifyTurnstile(formData, "role_brief"))) redirect(`${returnTo}?error=${encodeURIComponent("Please complete the security check.")}`);
   try { await enforceEmailAndIpRateLimit("public_role_brief", parsed.data.email, 4, 10, 60); }
   catch { redirect(`${returnTo}?error=${encodeURIComponent("Too many requests. Please try again later.")}`); }
 
@@ -768,7 +768,7 @@ export async function submitContactAction(formData: FormData) {
     topic: parsed.data.topic,
     message: parsed.data.message,
   })) redirect("/contact?sent=1");
-  if (!(await verifyTurnstile(formData))) redirect("/contact?error=Please%20complete%20the%20security%20check");
+  if (!(await verifyTurnstile(formData, "contact"))) redirect("/contact?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_contact", parsed.data.email, 3, 8, 60); }
   catch { redirect("/contact?error=Too%20many%20requests.%20Please%20try%20again%20later."); }
   const admin = createAdminClient();
@@ -850,7 +850,7 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
-  if (!(await verifyTurnstile(formData))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");
+  if (!(await verifyTurnstile(formData, "discovery_booking"))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_discovery_booking", parsed.data.email, 3, 6, 60); }
   catch { redirect("/book-client-call?error=Too%20many%20booking%20attempts.%20Please%20try%20again%20later."); }
   if (!isAllowedDiscoverySlot(parsed.data.scheduled_at)) {

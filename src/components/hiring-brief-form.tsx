@@ -31,6 +31,7 @@ import { TurnstileWidget } from "@/components/turnstile-widget";
 const BOOKING_URL = "/book-client-call";
 const HOURS = ["Under 10 hours/week", "10 to 20 hours/week", "20 to 30 hours/week", "30 to 40 hours/week", "40+ hours/week", "Not sure yet"];
 const BUDGETS = [`USD ${MIN_HOURLY_RATE} to 8/hour`, "USD 8 to 12/hour", "USD 12 to 18/hour", "USD 18 to 25/hour", "USD 25+/hour", "Not sure yet"];
+const START_TIMES = ["ASAP", "Within 2 weeks", "Within 30 days", "1 to 3 months", "Not sure yet"];
 const initialState: ServiceMatchState = { status: "idle" };
 const initialFeedbackState: MatchFeedbackState = { status: "idle" };
 
@@ -49,6 +50,7 @@ type GeneralOptions = {
   talent?: string;
   shortlist?: string;
   defaultStartTime?: string;
+  mode?: "default" | "homepage" | "hire";
 };
 
 function Steps({ done }: { done: boolean }) {
@@ -261,8 +263,10 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   );
 }
 
-function GeneralVariant({ sourcePath, title = "Get your free virtual assistant match", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
+function GeneralVariant({ sourcePath, title = "Get your free virtual assistant match", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime, mode = "default" }: { sourcePath: string } & GeneralOptions) {
   const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string; feedback?: string }>({ sent: false });
+  const [detectedTimeZone, setDetectedTimeZone] = useState("To confirm on discovery call");
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setUrl({
@@ -272,32 +276,115 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
       category: params.get("cat") || undefined,
       feedback: new URLSearchParams(window.location.hash.replace(/^#/, "")).get("feedback") || undefined
     });
+    const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTimeZone) setDetectedTimeZone(browserTimeZone);
   }, []);
 
   if (url.sent) return <Success category={url.category} leadId={url.lead} feedbackToken={url.feedback} />;
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;
+  const problemFirst = mode === "homepage" || mode === "hire";
+  const headSub = mode === "homepage"
+    ? "Tell us what is taking up your time. We will help scope the right role before we shortlist anyone."
+    : mode === "hire"
+      ? "Share the workload, tools, schedule, and budget. Our recruiting team will turn it into a focused hiring brief."
+      : "Share a quick brief, and we will show you matching Filipino virtual assistants.";
+
   return (
     <div className="hb-card" id="hiring-brief">
-      <Head title={title} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
+      <Head title={title} sub={headSub} />
       <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        <input type="hidden" name="timezone" value="To confirm on discovery call" />
+        {mode === "hire" ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
+        {mode === "homepage" ? <>
+          <input type="hidden" name="hours" value="Not sure yet" />
+          <input type="hidden" name="budget" value="Not sure yet" />
+          <input type="hidden" name="start_time" value="Not sure yet" />
+        </> : null}
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}
         {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
-        {defaultStartTime ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
+        {defaultStartTime && mode !== "hire" && mode !== "homepage" ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
         {url.error ? <div className="hb-error" role="alert">{url.error}</div> : null}
+
         <div className="hb-field">
-          <label htmlFor={`${id}-category`}>Type of help</label>
+          <label htmlFor={`${id}-category`}>{problemFirst ? "What do you need help with?" : "Type of help"}</label>
           <select id={`${id}-category`} name="category" required defaultValue={categories.includes(defaultCategory) ? defaultCategory : ""}>
             <option value="" disabled>Select a specialty</option>
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+
+        {problemFirst ? <>
+          <div className="hb-field">
+            <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>
+            <textarea
+              id={`${id}-message`}
+              name="message"
+              rows={4}
+              required
+              minLength={40}
+              maxLength={3000}
+              placeholder="Tell us what keeps landing back on your plate, what is not getting done, or what you want someone else to own."
+            />
+            <small className="hb-field-hint">Minimum 40 characters. You do not need to know the exact job title yet.</small>
+          </div>
+          {mode === "hire" ? <>
+            <div className="hb-field">
+              <label htmlFor={`${id}-tools`}>Tools or systems involved <span>(optional)</span></label>
+              <input id={`${id}-tools`} name="tools" maxLength={600} placeholder="e.g. ServiceM8, Xero, HubSpot, Cliniko" />
+            </div>
+            <div className="hb-row">
+              <div className="hb-field">
+                <label htmlFor={`${id}-hours`}>Hours needed</label>
+                <select id={`${id}-hours`} name="hours" required defaultValue={HOURS.includes(defaultHours || "") ? defaultHours : ""}>
+                  <option value="" disabled>Select hours</option>
+                  {HOURS.map((h) => <option key={h}>{h}</option>)}
+                </select>
+              </div>
+              <div className="hb-field">
+                <label htmlFor={`${id}-budget`}>Hourly budget</label>
+                <select id={`${id}-budget`} name="budget" required defaultValue={BUDGETS.includes(defaultBudget || "") ? defaultBudget : ""}>
+                  <option value="" disabled>Select budget</option>
+                  {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="hb-row">
+              <div className="hb-field">
+                <label htmlFor={`${id}-timezone`}>Working timezone / overlap</label>
+                <input id={`${id}-timezone`} name="timezone" required maxLength={120} defaultValue={detectedTimeZone} placeholder="e.g. Australia/Sydney" />
+              </div>
+              <div className="hb-field">
+                <label htmlFor={`${id}-start`}>Preferred start</label>
+                <select id={`${id}-start`} name="start_time" required defaultValue={START_TIMES.includes(defaultStartTime || "") ? defaultStartTime : ""}>
+                  <option value="" disabled>Select timing</option>
+                  {START_TIMES.map((value) => <option key={value}>{value}</option>)}
+                </select>
+              </div>
+            </div>
+          </> : null}
+          <div className="hb-row">
+            <div className="hb-field">
+              <label htmlFor={`${id}-name`}>First name</label>
+              <input id={`${id}-name`} name="name" required maxLength={100} autoComplete="given-name" placeholder="Your first name" />
+            </div>
+            <div className="hb-field">
+              <label htmlFor={`${id}-email`}>Work email</label>
+              <input id={`${id}-email`} name="email" type="email" required autoComplete="email" placeholder="you@company.com" />
+            </div>
+          </div>
+          <div className="hb-field">
+            <label htmlFor={`${id}-company`}>Company name</label>
+            <input id={`${id}-company`} name="company" required maxLength={160} autoComplete="organization" placeholder="Your company" />
+          </div>
+        </> : <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />}
+
+        <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
         <TurnstileWidget />
-        <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
+        <button className="hb-submit" type="submit" data-track="role_brief_submit">
+          {problemFirst ? <>Get my VA recommendation <ArrowRight size={16} /></> : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
+        </button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />
       </form>

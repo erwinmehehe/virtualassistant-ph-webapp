@@ -55,10 +55,22 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
     discovery_booked:count(data.journey?.discovery_booked),
     discovery_attended:count(data.journey?.discovery_attended),
     qualified:count(data.journey?.qualified),
+    proposal_sent:count(data.journey?.proposal_sent),
+    proposal_accepted:count(data.journey?.proposal_accepted),
     shortlisted:count(data.journey?.shortlisted),
     interviewed:count(data.journey?.interviewed),
     offered:count(data.journey?.offered),
     hired:count(data.journey?.hired),
+  };
+  const proposal={
+    sent:count(data.proposal?.sent),
+    viewed:count(data.proposal?.viewed),
+    responded:count(data.proposal?.responded),
+    changes_requested:count(data.proposal?.changes_requested),
+    accepted:count(data.proposal?.accepted),
+    declined:count(data.proposal?.declined),
+    median_hours_to_view:count(data.proposal?.median_hours_to_view),
+    median_hours_to_decision:count(data.proposal?.median_hours_to_decision),
   };
   const recruiting={
     job_orders:count(data.recruiting?.job_orders),
@@ -82,6 +94,8 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
     {label:"Discovery booked",value:journey.discovery_booked,note:"Discovery call scheduled"},
     {label:"Discovery attended",value:journey.discovery_attended,note:"Call attended or later-stage evidence exists"},
     {label:"Qualified",value:journey.qualified,note:"Confirmed hiring opportunity"},
+    {label:"Proposal sent",value:journey.proposal_sent,note:"Proposal sent, or later-stage evidence for legacy roles"},
+    {label:"Proposal accepted",value:journey.proposal_accepted,note:"Proposal accepted, or later-stage evidence for legacy roles"},
     {label:"Shortlist",value:journey.shortlisted,note:"At least one candidate released to the client"},
     {label:"Interview",value:journey.interviewed,note:"Candidate interview reached"},
     {label:"Offer",value:journey.offered,note:"Placement offer reached"},
@@ -106,6 +120,11 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const enquiryToHire=percent(journey.hired,journey.enquiries);
   const retained30=percent(retention.retained_30d,retention.eligible_30d);
   const retained90=percent(retention.retained_90d,retention.eligible_90d);
+  const proposalViewRate=percent(proposal.viewed,proposal.sent);
+  const proposalResponseRate=percent(proposal.responded,proposal.sent);
+  const proposalAcceptanceRate=percent(proposal.accepted,proposal.sent);
+  const proposalDecisions=proposal.accepted+proposal.declined;
+  const hourMetric=(value:number,hasData:boolean)=>hasData?`${value}h`:"—";
 
   return <div className="agency-funnel-page">
     <div className="page-head agency-funnel-head">
@@ -133,6 +152,21 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
           <strong>{biggestDrop?`${biggestDrop.from} → ${biggestDrop.to}`:"Not enough data"}</strong>
           <small>{biggestDrop&&biggestDrop.lossRate!=null?`${biggestDrop.lossRate}% drop-off · ${biggestDrop.lost} records`:"A previous stage needs volume before a drop-off can be calculated."}</small>
         </div>
+      </div>
+    </section>
+
+    <section className="agency-funnel-section">
+      <div className="agency-funnel-section-head">
+        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Proposal conversion</h2><p>Actual proposal events only. This separates proposal engagement from legacy later-stage evidence used in the end-to-end funnel.</p></div></div>
+        <Link className="text-link" href={leadsPath}>Review client pipeline →</Link>
+      </div>
+      <div className="agency-health-grid agency-operations-grid">
+        <OpsMetric label="View rate" value={proposalViewRate==null?"—":`${proposalViewRate}%`} note={`${proposal.viewed} viewed of ${proposal.sent} sent`}/>
+        <OpsMetric label="Response rate" value={proposalResponseRate==null?"—":`${proposalResponseRate}%`} note={`${proposal.responded} client responses · ${proposal.changes_requested} change request${proposal.changes_requested===1?"":"s"}`}/>
+        <OpsMetric label="Acceptance rate" value={proposalAcceptanceRate==null?"—":`${proposalAcceptanceRate}%`} note={`${proposal.accepted} accepted · ${proposal.declined} declined`}/>
+        <OpsMetric label="Time to view" value={hourMetric(proposal.median_hours_to_view,proposal.viewed>0)} note="Median proposal sent → first client view"/>
+        <OpsMetric label="Time to decision" value={hourMetric(proposal.median_hours_to_decision,proposalDecisions>0)} note="Median proposal sent → accept or decline"/>
+        <OpsMetric label="Open decision gap" value={Math.max(0,proposal.sent-proposal.accepted-proposal.declined)} note="Sent proposals without a final accept / decline decision"/>
       </div>
     </section>
 

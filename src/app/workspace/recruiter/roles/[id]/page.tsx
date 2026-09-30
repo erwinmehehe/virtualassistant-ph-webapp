@@ -453,7 +453,7 @@ export default async function RoleControlCenter({
                 </form>
               ) : null}
               <Link className="btn btn-primary" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>
-                Work readiness {workSetupBlockedCount ? `(${workSetupBlockedCount})` : ""}
+                Open scoped work readiness {workSetupBlockedCount ? `(${workSetupBlockedCount})` : ""}
               </Link>
             </div>
           </div>

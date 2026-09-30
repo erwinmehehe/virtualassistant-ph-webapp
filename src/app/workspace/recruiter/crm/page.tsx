@@ -232,7 +232,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
           <p>One client record per hiring request. Move it from enquiry to call, then work the linked role through shortlist, interview, and hire.</p>
         </div>
         <div className={styles.headerActions}>
-          <Link className={styles.primaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Open roles</Link>
+          <Link className={styles.primaryButton} href="/workspace/recruiter/discovery"><CheckCircle2 size={15}/> Discovery calls</Link>
+          <Link className={styles.secondaryButton} href="/workspace/recruiter/roles"><BriefcaseBusiness size={15}/> Open roles</Link>
         </div>
       </header>
 
@@ -297,7 +298,12 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                   const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
                   return <tr key={lead.id}>
                     <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
-                    <td><span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span></td>
+                    <td>
+                      <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
+                      {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (
+                        <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open discovery</Link>
+                      ) : null}
+                    </td>
                     <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
                     <td>
                       <div className={styles.clientSignals}>

@@ -76,3 +76,25 @@ test("VA profile save refreshes the availability confirmation used by client-rea
   assert.match(profile, /availability_confirmed_at: new Date\(\)\.toISOString\(\)/);
   assert.match(profile, /availability_status: String\(formData\.get\("availability_status"\)/);
 });
+
+
+test("Work Readiness can scope directly to recruiter-selected candidates for one role", async () => {
+  const page = await read("src/app/workspace/recruiter/work-readiness/page.tsx");
+  assert.match(page, /const jobId = String\(query\.job \|\| ""\)\.trim\(\)/);
+  assert.match(page, /job_shortlist_candidates/);
+  assert.match(page, /shortlist_status", "proposed"/);
+  assert.match(page, /\.not\("created_by", "is", null\)/);
+  assert.match(page, /Shortlist work readiness/);
+  assert.match(page, /All shortlisted/);
+  assert.match(page, /Back to role shortlist/);
+  assert.match(page, /work_setup_submitted_at/);
+});
+
+test("Role Control Center turns blocked shortlist readiness into direct actions", async () => {
+  const page = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
+  assert.match(page, /Shortlist readiness blockers/);
+  assert.match(page, /Open scoped work readiness/);
+  assert.match(page, /bulkRecruiterVaAction/);
+  assert.match(page, /Add to talent pool/);
+  assert.match(page, /work-readiness\?job=/);
+});

@@ -112,7 +112,7 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         <input type="hidden" name="phone" value="" />
         <input type="hidden" name="company_url" value="" />
         <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-        <TurnstileWidget />
+        <TurnstileWidget action="discovery_booking" />
 
         {error ? <div className="booking-error" role="alert">{error}</div> : null}
 

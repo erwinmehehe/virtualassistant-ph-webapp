@@ -246,7 +246,8 @@ export async function saveCrmClosingControlAction(formData: FormData) {
     .maybeSingle();
   if (leadError) fail(leadError.message);
   if (!lead) fail("Client record not found.");
-  if (["won", "lost"].includes(String(lead.crm_stage || ""))) fail("Closed clients do not need a closing follow-up plan.");
+  const validatedLead = lead!;
+  if (["won", "lost"].includes(String(validatedLead.crm_stage || ""))) fail("Closed clients do not need a closing follow-up plan.");
 
   const qualificationStatus = nextStep === "nurture"
     ? "nurture"
@@ -267,7 +268,7 @@ export async function saveCrmClosingControlAction(formData: FormData) {
   if (briefError) fail(briefError.message || "Could not save the closing plan.");
 
   const leadPatch: Record<string, unknown> = {
-    owner_id: lead.owner_id || user.id,
+    owner_id: validatedLead.owner_id || user.id,
   };
   if (nextFollowUpAt !== undefined) leadPatch.next_follow_up_at = nextFollowUpAt;
   const { error: leadUpdateError } = await admin.from("lead_intake").update(leadPatch).eq("id", leadId).eq("lead_type", "client_hiring");
@@ -280,9 +281,9 @@ export async function saveCrmClosingControlAction(formData: FormData) {
     description: "Recruiter updated objections, closing notes, next move, or follow-up timing.",
     actorId: user.id,
     metadata: {
-      job_id: lead.job_id || null,
+      job_id: validatedLead.job_id || null,
       next_step: nextStep,
-      next_follow_up_at: nextFollowUpAt === undefined ? lead.next_follow_up_at : nextFollowUpAt,
+      next_follow_up_at: nextFollowUpAt === undefined ? validatedLead.next_follow_up_at : nextFollowUpAt,
       has_objection_notes: Boolean(failureRisks),
       has_closing_notes: Boolean(additionalNotes),
       quick_followup_days: quickDaysRaw ? Number(quickDaysRaw) : null,

@@ -88,3 +88,14 @@ test("role queues only mark fully client-ready human shortlists as ready to send
   assert.match(detail, /Fix shortlist readiness/);
   assert.match(detail, /isTalentAgencyCertified/);
 });
+
+
+test("quick shortlist preparation only chooses client-ready talent", async () => {
+  const action = await read("src/app/actions/matching.ts");
+  assert.match(action, /isTalentAgencyCertified/);
+  assert.match(action, /bench_memberships/);
+  assert.match(action, /activePoolIds/);
+  assert.match(action, /availabilityConfirmedAt: va\.availability_confirmed_at/);
+  assert.match(action, /workSetupVerifiedAt: va\.work_setup_verified_at/);
+  assert.match(action, /No client-ready 60%\+ matches are available yet/);
+});

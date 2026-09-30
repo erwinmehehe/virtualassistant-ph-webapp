@@ -99,3 +99,13 @@ test("quick shortlist preparation only chooses client-ready talent", async () =>
   assert.match(action, /workSetupVerifiedAt: va\.work_setup_verified_at/);
   assert.match(action, /No client-ready 60%\+ matches are available yet/);
 });
+
+
+test("role readiness blockers support one bulk talent-pool action without auto-verifying evidence", async () => {
+  const detail = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
+  assert.match(detail, /poolBlockedIds/);
+  assert.match(detail, /Add \{poolBlockedIds\.length\} to talent pool/);
+  assert.match(detail, /workSetupBlockedCount/);
+  assert.match(detail, /Work readiness/);
+  assert.doesNotMatch(detail, /work_setup_verified_at:\s*new Date/);
+});

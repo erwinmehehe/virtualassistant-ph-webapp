@@ -185,7 +185,7 @@ test("all public Turnstile forms bind server validation to a specific action", a
   ]);
 
   for (const action of ["service_match", "industry_match", "role_brief", "contact", "discovery_booking"]) {
-    assert.match(leads, new RegExp(`verifyTurnstile\\\\(formData, "${action}"\\\\)`));
+    assert.match(leads, new RegExp(`verifyTurnstile\\(formData, "${action}"\\)`));
   }
   assert.match(trainingAuth, /verifyTurnstile\(formData, "training_join"\)/);
   assert.match(contact, /TurnstileWidget action="contact"/);

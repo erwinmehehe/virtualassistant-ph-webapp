@@ -284,10 +284,11 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;
-  const problemFirst = mode === "homepage" || mode === "hire";
-  const headSub = mode === "homepage"
+  const resolvedMode = mode === "default" && sourcePath === "/" ? "homepage" : mode;
+  const problemFirst = resolvedMode === "homepage" || resolvedMode === "hire";
+  const headSub = resolvedMode === "homepage"
     ? "Tell us what is taking up your time. We will help scope the right role before we shortlist anyone."
-    : mode === "hire"
+    : resolvedMode === "hire"
       ? "Share the workload, tools, schedule, and budget. Our recruiting team will turn it into a focused hiring brief."
       : "Share a quick brief, and we will show you matching Filipino virtual assistants.";
 
@@ -296,8 +297,8 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
       <Head title={title} sub={headSub} />
       <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        {mode === "hire" ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
-        {mode === "homepage" ? <>
+        {resolvedMode === "hire" ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
+        {resolvedMode === "homepage" ? <>
           <input type="hidden" name="hours" value="Not sure yet" />
           <input type="hidden" name="budget" value="Not sure yet" />
           <input type="hidden" name="start_time" value="Not sure yet" />
@@ -329,7 +330,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
             />
             <small className="hb-field-hint">Minimum 40 characters. You do not need to know the exact job title yet.</small>
           </div>
-          {mode === "hire" ? <>
+          {resolvedMode === "hire" ? <>
             <div className="hb-field">
               <label htmlFor={`${id}-tools`}>Tools or systems involved <span>(optional)</span></label>
               <input id={`${id}-tools`} name="tools" maxLength={600} placeholder="e.g. ServiceM8, Xero, HubSpot, Cliniko" />

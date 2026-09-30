@@ -60,13 +60,6 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
     offered:count(data.journey?.offered),
     hired:count(data.journey?.hired),
   };
-  const sales={
-    leads:count(data.sales?.leads),
-    calls_booked:count(data.sales?.calls_booked),
-    qualified:count(data.sales?.qualified),
-    proposals:count(data.sales?.proposals),
-    clients_won:count(data.sales?.clients_won),
-  };
   const recruiting={
     job_orders:count(data.recruiting?.job_orders),
     shortlisted:count(data.recruiting?.shortlisted),

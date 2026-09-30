@@ -8,7 +8,6 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   Check,
-  CheckCircle2,
   Clock3,
   Headphones,
   MessageSquareText,
@@ -59,7 +58,6 @@ export default async function HirePage({
     .map((item) => item.trim())
     .filter(Boolean)
     .slice(0, 5);
-  const lead = params.lead?.trim();
   const supabase = await createClient();
   const { data: requested } = talent
     ? await supabase
@@ -145,7 +143,7 @@ export default async function HirePage({
                   <Link href={`/va/${requested.slug}`}>Review profile <ArrowRight size={14} /></Link>
                 </div>
               ) : talent ? (
-                <div className="alert">We could not find that talent profile, but you can still send your role brief.</div>
+                <div className="alert">We could not find that talent profile. You can still book a discovery call and we&apos;ll help you find the right fit.</div>
               ) : null}
             </div>
 
@@ -249,7 +247,7 @@ export default async function HirePage({
             </div>
             <div className="pvh-final-actions">
               <a className="pvh-btn pvh-btn-light" href={HIRING_CALL_URL} data-track="booking_click">Book a discovery call <ArrowRight size={16} /></a>
-              <a className="pvh-btn pvh-btn-ghost" href={HIRING_CALL_URL} data-track="booking_click">Book a client call</a>
+              <Link className="pvh-btn pvh-btn-ghost" href="/find-talent">Browse vetted talent</Link>
             </div>
           </div>
         </section>

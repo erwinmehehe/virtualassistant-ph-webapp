@@ -525,7 +525,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
 
     if (lead?.email && proposal.public_token) {
       try {
-        await sendTransactionalEventEmail({
+        const delivery = await sendTransactionalEventEmail({
           to: lead.email,
           subject: proposal.viewed_at ? `Any questions about your ${proposal.role_title} recommendation?` : `Your ${proposal.role_title} recommendation is ready to review`,
           heading: proposal.viewed_at ? "Any questions before you decide?" : "Your hiring recommendation is waiting",
@@ -538,7 +538,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
           idempotencyKey: `proposal-client-followup-2d-${proposal.id}`,
           eventType: "client_hiring_proposal_followup",
         });
-        clientProposalFollowups++;
+        if (delivery.sent) clientProposalFollowups++;
       } catch (error) {
         console.error("[email] Proposal client follow-up failed", error);
       }

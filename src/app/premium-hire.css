@@ -616,3 +616,6 @@
     padding: 3.4rem 0;
   }
 }
+
+/* /hire only: keep draft persistence but hide its status line. */
+.pva-hire .form-draft-note { display: none; }

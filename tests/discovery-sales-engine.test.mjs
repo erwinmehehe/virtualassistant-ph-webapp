@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage and hire use problem-first hiring intake modes", async () => {
+test("homepage and hire use the restored compact hiring brief", async () => {
   const [home, hire, form, leads, role] = await Promise.all([
     read("src/app/page.tsx"),
     read("src/app/hire/page.tsx"),
@@ -14,26 +14,16 @@ test("homepage and hire use problem-first hiring intake modes", async () => {
   ]);
 
   assert.match(home, /<HiringBriefForm variant="general" sourcePath="\/" \/>/);
-  assert.match(form, /resolvedMode = mode === "default" && sourcePath === "\/" \? "homepage" : mode/);
-  assert.match(form, /Get my VA recommendation/);
+  assert.match(form, /Get your free virtual assistant match/);
+  assert.match(form, /Type of help/);
   assert.match(form, /Hours per week/);
-  assert.match(form, /Hourly budget range/);
-  assert.match(form, />Timezone<\/label>/);
-  assert.match(hire, /mode="hire"/);
-  assert.match(hire, /Get your hiring recommendation/);
-  assert.match(form, /What&apos;s taking up your time right now\?/);
-  assert.match(form, /You do not need to know the exact job title yet/);
-  assert.match(form, /name="tools"/);
-  assert.match(form, /name="timezone"/);
-  assert.match(form, /name="start_time"/);
-  assert.match(form, /Step 1 of 3/);
-  assert.match(form, /Step 2 of 3/);
-  assert.match(form, /Step 3 of 3/);
-  assert.match(form, /Next: Setup/);
-  assert.match(form, /Next: Your details/);
-  assert.match(form, /Get my hiring recommendation/);
+  assert.match(form, /Hourly budget/);
+  assert.match(form, /What should your VA handle\?/);
+  assert.match(form, /name="timezone" value="To confirm on discovery call"/);
+  assert.doesNotMatch(form, /Step 1 of 3/);
+  assert.doesNotMatch(form, /mode="hire"/);
+  assert.match(hire, /title="Tell us who you need"/);
   assert.match(leads, /tools: z\.string\(\)\.trim\(\)\.max\(600\)\.optional\(\)/);
-  assert.match(leads, /Tools \/ systems:/);
   assert.match(role, /required_tools: args\.tools \|\| \[\]/);
 });
 

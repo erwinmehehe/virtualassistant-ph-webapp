@@ -1992,3 +1992,282 @@
     white-space: normal;
   }
 }
+
+/* Recruiter pre-call / closing brief */
+.closingBrief {
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid #e2e4ea;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .03);
+}
+
+.closingBriefHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+  border-bottom: 1px solid #eceef2;
+  background: linear-gradient(180deg, #fcfcfd 0%, #fff 100%);
+}
+
+.closingBriefHead h2 {
+  margin: 3px 0 4px;
+  color: #20212a;
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+
+.closingBriefHead p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--crm-muted);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.closingBriefActions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.closingProgressOpen,
+.closingProgressReady {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid #e1e4ea;
+  border-radius: 999px;
+  background: #f8f9fb;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.closingProgressReady {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.closingProgressOpen {
+  border-color: #fedf89;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.closingFactGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid #eceef2;
+}
+
+.closingFactGrid > div {
+  min-width: 0;
+  padding: 12px 14px;
+  border-right: 1px solid #eceef2;
+  border-bottom: 1px solid #eceef2;
+}
+
+.closingFactGrid > div:nth-child(4n) {
+  border-right: 0;
+}
+
+.closingFactGrid > div:nth-last-child(-n + 4) {
+  border-bottom: 0;
+}
+
+.closingFactGrid span,
+.closingNeed > span,
+.closingChecklistHead span {
+  display: block;
+  margin-bottom: 4px;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.closingFactGrid strong {
+  display: block;
+  overflow: hidden;
+  color: #292b34;
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closingBriefBody {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
+  gap: 0;
+}
+
+.closingNeed {
+  padding: 15px 16px;
+  border-right: 1px solid #eceef2;
+}
+
+.closingNeed p {
+  margin: 0;
+  color: #40434d;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.closingChecklist {
+  padding: 15px 16px;
+}
+
+.closingChecklistHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.closingChecklistHead strong {
+  display: block;
+  color: #292b34;
+  font-size: 12px;
+}
+
+.closingChecklistHead small {
+  color: #98a2b3;
+  font-size: 9.5px;
+  white-space: nowrap;
+}
+
+.closingChecklistItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.closingChecklistMissing,
+.closingChecklistComplete {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #eceef2;
+  border-radius: 9px;
+  background: #fbfcfd;
+}
+
+.closingChecklistMissing > span,
+.closingChecklistComplete > span {
+  display: grid;
+  flex: 0 0 19px;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.closingChecklistMissing > span {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.closingChecklistComplete > span {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.closingChecklistMissing strong,
+.closingChecklistComplete strong {
+  display: block;
+  color: #344054;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.closingChecklistMissing small,
+.closingChecklistComplete small {
+  display: block;
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+@media (max-width: 980px) {
+  .closingFactGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .closingFactGrid > div,
+  .closingFactGrid > div:nth-child(4n) {
+    border-right: 1px solid #eceef2;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFactGrid > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .closingFactGrid > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .closingBriefBody {
+    grid-template-columns: 1fr;
+  }
+
+  .closingNeed {
+    border-right: 0;
+    border-bottom: 1px solid #eceef2;
+  }
+}
+
+@media (max-width: 760px) {
+  .closingBriefHead,
+  .closingBriefActions,
+  .closingChecklistHead {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .closingBriefActions {
+    width: 100%;
+  }
+
+  .closingBriefActions .primaryButton {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .closingFactGrid,
+  .closingChecklistItems {
+    grid-template-columns: 1fr;
+  }
+
+  .closingFactGrid > div,
+  .closingFactGrid > div:nth-child(2n),
+  .closingFactGrid > div:nth-child(4n) {
+    border-right: 0;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFactGrid > div:last-child {
+    border-bottom: 0;
+  }
+
+  .closingChecklistHead small {
+    white-space: normal;
+  }
+}

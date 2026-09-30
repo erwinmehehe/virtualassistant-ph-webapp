@@ -52,14 +52,20 @@ test("client proposal is a decision-ready recommendation",async()=>{
   assert.match(publicProposal,/Request changes/);
 });
 
-test("accepted proposals hand recommendation data straight into matching",async()=>{
-  const actions=await read("src/app/actions/proposals.ts");
+test("accepted proposals hand recommendation data straight into matching atomically",async()=>{
+  const [actions,migration]=await Promise.all([
+    read("src/app/actions/proposals.ts"),
+    read("supabase/migrations/20260930204500_atomic_proposal_matching_handoff.sql"),
+  ]);
   assert.match(actions,/proposalResponsibilities/);
   assert.match(actions,/proposalSkills/);
   assert.match(actions,/proposalTools/);
-  assert.match(actions,/hiring_stage: "ready_to_recruit"/);
-  assert.match(actions,/required_skills = proposalSkills/);
-  assert.match(actions,/required_tools = proposalTools/);
+  assert.match(actions,/required_skills: proposalSkills/);
+  assert.match(actions,/required_tools: proposalTools/);
+  assert.doesNotMatch(actions.slice(actions.indexOf("export async function acceptLeadProposalAction")),/from\("jobs"\)\.update/);
+  assert.match(migration,/required_skills = v_required_skills/);
+  assert.match(migration,/required_tools = v_required_tools/);
+  assert.match(migration,/hiring_stage = 'ready_to_recruit'/);
   assert.match(actions,/autoReleaseTopMatches/);
 });
 
@@ -69,7 +75,7 @@ test("sales maintenance follows discovery and proposals without duplicate sends"
   assert.match(maintenance,/Prepare recommendation today/);
   assert.match(maintenance,/proposal-client-followup-2d-/);
   assert.match(maintenance,/client_hiring_proposal_followup/);
-  assert.match(maintenance,/proposal\.viewed_at \? "Viewed proposal still open" : "Proposal not viewed"/);
+  assert.match(maintenance,/title: proposal\.viewed_at \? `Viewed proposal still open:/);
 });
 
 test("proposal recommendation snapshot remains server-only",async()=>{

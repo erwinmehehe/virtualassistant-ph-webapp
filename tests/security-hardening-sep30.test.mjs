@@ -172,3 +172,26 @@ test("lead discovery briefs remain explicitly server-only", async () => {
   assert.match(migration, /create policy "lead_discovery_briefs_server_only"/);
   assert.match(migration, /as restrictive[\s\S]*to anon, authenticated[\s\S]*using \(false\)[\s\S]*with check \(false\)/);
 });
+
+
+test("all public Turnstile forms bind server validation to a specific action", async () => {
+  const [leads, trainingAuth, contact, booking, hiring, trainingJoin] = await Promise.all([
+    read("src/app/actions/leads.ts"),
+    read("src/app/actions/training-auth.ts"),
+    read("src/app/contact/page.tsx"),
+    read("src/components/client-booking-form.tsx"),
+    read("src/components/hiring-brief-form.tsx"),
+    read("src/components/training-join-form.tsx"),
+  ]);
+
+  for (const action of ["service_match", "industry_match", "role_brief", "contact", "discovery_booking"]) {
+    assert.match(leads, new RegExp(`verifyTurnstile\\\\(formData, "${action}"\\\\)`));
+  }
+  assert.match(trainingAuth, /verifyTurnstile\(formData, "training_join"\)/);
+  assert.match(contact, /TurnstileWidget action="contact"/);
+  assert.match(booking, /TurnstileWidget action="discovery_booking"/);
+  assert.match(hiring, /"service_match"[\s\S]*"industry_match"/);
+  assert.match(hiring, /TurnstileWidget action="role_brief"/);
+  assert.match(trainingJoin, /TurnstileWidget action="training_join"/);
+  assert.match(trainingJoin, /TurnstileWidget action="resend_confirmation"/);
+});

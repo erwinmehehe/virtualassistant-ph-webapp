@@ -96,10 +96,10 @@ export default async function HirePage({
               </div>
 
               <h1>
-                Tell us what&apos;s taking up your time. <em>We&apos;ll help you scope the right role.</em>
+                Tell us the role. <em>We&apos;ll help you hire the right Virtual Assistant.</em>
               </h1>
               <p className="pvh-lede">
-                Share the workload, tools, schedule, and budget. Our recruiting team turns that into a practical hiring brief, recommends the role, and helps you meet vetted Filipino Virtual Assistants worth interviewing.
+                Share the work, hours, timezone, and budget. Our recruiting team reviews the role, screens for fit, and helps you meet vetted Filipino Virtual Assistants worth interviewing.
               </p>
 
               <div className="pvh-proof-list">
@@ -159,7 +159,7 @@ export default async function HirePage({
                     <div className="pvh-success-icon"><CheckCircle2 size={30} /></div>
                     <span className="pvh-kicker">Request received</span>
                     <h2>Your hiring request is with our team.</h2>
-                    <p>A recruiter will review the workload, recommend the right role, and use the brief to screen relevant candidates. We will follow up using the contact details you provide, and you do not need an account to get started.</p>
+                    <p>A recruiter will review the role and use it to screen relevant candidates. We will follow up using the contact details you provide, and you do not need an account to get started.</p>
 
                     <div className="pvh-success-next">
                       <div><span>01</span><p><strong>We review the brief</strong><small>Responsibilities, schedule, tools, budget, and must-have experience.</small></p></div>
@@ -177,8 +177,7 @@ export default async function HirePage({
                   <HiringBriefForm
                     variant="general"
                     sourcePath={sourcePath}
-                    title="Get your hiring recommendation"
-                    mode="hire"
+                    title="Tell us who you need"
                     defaultCategory={requested?.primary_category || selectedShortlist[0]?.primary_category || params.category || ""}
                     defaultHours={params.hours}
                     defaultBudget={params.budget}
@@ -263,7 +262,7 @@ export default async function HirePage({
             <div>
               <span className="pvh-final-kicker"><MessageSquareText size={14} /> Start with a private role brief</span>
               <h2>Ready to stop sorting applicants and start meeting the right people?</h2>
-              <p>Tell us what you need off your plate and our recruiting team will scope the role, review the budget and schedule, and prepare the right next step.</p>
+              <p>Tell us the role and our recruiting team will review the workload, budget, schedule, and experience you need.</p>
             </div>
             <div className="pvh-final-actions">
               <a className="pvh-btn pvh-btn-light" href="#hire-form">Start your hiring request <ArrowRight size={16} /></a>

@@ -226,6 +226,21 @@ function Foot() {
   return <p className="hb-foot"><LockKeyhole size={13} />Private request · No obligation · About 30 seconds</p>;
 }
 
+function friendlyTimeZoneLabel(timeZone: string) {
+  if (!timeZone || timeZone === "To confirm on discovery call") return "Detected from your device";
+  try {
+    const city = (timeZone.split("/").pop() || timeZone).replaceAll("_", " ");
+    const offset = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      timeZoneName: "shortOffset",
+    }).formatToParts(new Date()).find((part) => part.type === "timeZoneName")?.value?.replace("GMT", "UTC");
+    return offset ? `${city} (${offset})` : city;
+  } catch {
+    return (timeZone.split("/").pop() || timeZone).replaceAll("_", " ");
+  }
+}
+
+
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
   const action = props.variant === "service" ? submitServiceMatchWithAiAction : submitIndustryMatchWithAiAction;
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -416,8 +431,15 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
 
               <div className="hb-row">
                 <div className="hb-field">
-                  <label htmlFor={`${id}-timezone`}>Working timezone / overlap</label>
-                  <input id={`${id}-timezone`} name="timezone" required={hireStep === 2} maxLength={120} defaultValue={detectedTimeZone} placeholder="e.g. Australia/Sydney" />
+                  <label htmlFor={`${id}-timezone-display`}>Working timezone / overlap</label>
+                  <input type="hidden" name="timezone" value={detectedTimeZone} />
+                  <input
+                    id={`${id}-timezone-display`}
+                    value={friendlyTimeZoneLabel(detectedTimeZone)}
+                    readOnly
+                    aria-describedby={`${id}-timezone-hint`}
+                  />
+                  <small id={`${id}-timezone-hint`} className="hb-field-hint">Detected automatically from this device.</small>
                 </div>
                 <div className="hb-field">
                   <label htmlFor={`${id}-start`}>Preferred start</label>
@@ -495,23 +517,22 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
               </div>
             </div>
             <div className="hb-field">
-              <label htmlFor={`${id}-timezone`}>Timezone</label>
+              <label htmlFor={`${id}-timezone-display`}>Timezone</label>
+              <input type="hidden" name="timezone" value={detectedTimeZone} />
               <input
-                id={`${id}-timezone`}
-                name="timezone"
-                required
-                maxLength={120}
-                value={detectedTimeZone}
-                onChange={(event) => setDetectedTimeZone(event.target.value)}
-                placeholder="e.g. Australia/Sydney"
+                id={`${id}-timezone-display`}
+                value={friendlyTimeZoneLabel(detectedTimeZone)}
+                readOnly
+                aria-describedby={`${id}-timezone-hint`}
               />
+              <small id={`${id}-timezone-hint`} className="hb-field-hint">Detected automatically from this device.</small>
             </div>
             <div className="hb-field">
               <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>
               <textarea
                 id={`${id}-message`}
                 name="message"
-                rows={4}
+                rows={3}
                 required
                 minLength={40}
                 maxLength={3000}

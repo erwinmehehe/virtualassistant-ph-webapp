@@ -16,6 +16,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { submitContactAction } from "@/app/actions/leads";
 import { canonicalPath } from "@/lib/seo-url";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { BrowserTimeZoneField } from "@/components/browser-timezone-field";
 import "./contact.css";
 
 export const metadata: Metadata = {
@@ -89,6 +90,7 @@ export default async function ContactPage({
         <div className="contact-honeypot" aria-hidden="true">
           <label>Website<input name="website" tabIndex={-1} /></label>
         </div>
+        <BrowserTimeZoneField />
 
         {q.error ? <div className="contact-error" role="alert">{q.error}</div> : null}
 

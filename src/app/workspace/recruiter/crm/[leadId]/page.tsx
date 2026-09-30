@@ -139,6 +139,24 @@ function leadAge(createdAt: string) {
   return `${Math.floor(hours / 24)} days`;
 }
 
+function describeTimeZone(value?: string | null) {
+  if (!isValidTimeZone(value)) return null;
+  const timeZone = String(value);
+  const city = (timeZone.split("/").pop() || timeZone).replaceAll("_", " ");
+  const localTime = new Intl.DateTimeFormat("en-AU", {
+    weekday: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone,
+  }).format(new Date());
+  const zoneName = new Intl.DateTimeFormat("en-AU", {
+    hour: "numeric",
+    timeZone,
+    timeZoneName: "short",
+  }).formatToParts(new Date()).find((part) => part.type === "timeZoneName")?.value || "";
+  return { timeZone, city, localTime, zoneName };
+}
+
 function known(value?: string | null) {
   const clean = String(value || "").trim().toLowerCase();
   return Boolean(clean && clean !== "not sure yet" && !clean.startsWith("to confirm"));
@@ -220,6 +238,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     : isValidTimeZone(job?.timezone)
       ? String(job?.timezone)
       : "";
+  const clientTimeZoneDetails = describeTimeZone(clientTimeZone);
   const owners = (ownersResult.data || []) as Owner[];
   const activities = (activityResult.data || []) as Activity[];
   const notes = (notesResult.data || []) as Note[];
@@ -523,7 +542,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={15}/> Discovery workspace</Link>
           {lead.client_id ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
           {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
-          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Clients</Link>
         </div>
       </header>
 
@@ -553,7 +571,11 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <div><span>Role / need</span><strong>{resolvedRole}</strong></div>
           <div><span>Hours</span><strong>{resolvedHours}</strong></div>
           <div><span>Budget</span><strong>{resolvedBudget}</strong></div>
-          <div><span>Timezone</span><strong>{lead.timezone || job?.timezone || "—"}</strong></div>
+          <div>
+            <span>Timezone</span>
+            <strong>{clientTimeZoneDetails ? `${clientTimeZoneDetails.city}${clientTimeZoneDetails.zoneName ? ` · ${clientTimeZoneDetails.zoneName}` : ""}` : "Not detected"}</strong>
+            {clientTimeZoneDetails ? <small>{clientTimeZoneDetails.localTime} local · {clientTimeZoneDetails.timeZone}</small> : null}
+          </div>
           <div><span>Preferred start</span><strong>{resolvedStart}</strong></div>
           <div><span>Source</span><strong>{String(lead.source_page || "Direct").replaceAll("_", " ")}</strong></div>
           <div><span>Lead age</span><strong>{leadAge(lead.created_at)}</strong></div>

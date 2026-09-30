@@ -2541,3 +2541,220 @@
     width: 100%;
   }
 }
+
+
+/* Recruiter CRM lead detail mobile polish */
+@media (max-width: 760px) {
+  .detailPage {
+    padding-bottom: 8px;
+  }
+
+  .detailBack {
+    min-height: 32px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .detailHeader {
+    gap: 14px;
+    padding-bottom: 14px;
+  }
+
+  .detailIdentity {
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .detailIdentity > div {
+    min-width: 0;
+  }
+
+  .detailAvatar {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .detailHeader h1 {
+    font-size: clamp(26px, 8vw, 32px);
+    overflow-wrap: anywhere;
+  }
+
+  .detailHeader p {
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .detailHeader .headerActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+  }
+
+  .detailHeader .headerActions .primaryButton {
+    grid-column: 1 / -1;
+  }
+
+  .detailHeader .headerActions .primaryButton,
+  .detailHeader .headerActions .secondaryButton {
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 11.5px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .workflow {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0;
+    margin: 12px 0 14px;
+    padding: 8px;
+    overflow-x: auto;
+    border-radius: 12px;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workflow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workflow span {
+    flex: 0 0 82px;
+    gap: 4px;
+    padding: 5px 3px;
+    scroll-snap-align: start;
+  }
+
+  .workflow span:not(:last-child)::after {
+    display: block;
+    top: 15px;
+    left: calc(50% + 12px);
+    width: calc(100% - 24px);
+  }
+
+  .workflow i {
+    width: 22px;
+    height: 22px;
+    font-size: 8.5px;
+  }
+
+  .workflow em {
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
+
+  .closingBrief {
+    margin-top: 12px;
+    border-radius: 13px;
+  }
+
+  .closingBriefHead {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .closingBriefHead h2 {
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .closingBriefHead p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .closingBriefActions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .closingBriefActions .primaryButton {
+    width: auto;
+    min-height: 40px;
+  }
+
+  .closingFactGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .closingFactGrid > div,
+  .closingFactGrid > div:nth-child(2n),
+  .closingFactGrid > div:nth-child(4n) {
+    border-right: 1px solid #eceef2;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFactGrid > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .closingFactGrid > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .closingFactGrid strong {
+    overflow: visible;
+    font-size: 11px;
+    line-height: 1.35;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .closingFactGrid small {
+    display: block;
+    margin-top: 3px;
+    color: #98a2b3;
+    font-size: 9px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .closingChecklistItems {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .detailHeader .headerActions {
+    grid-template-columns: 1fr;
+  }
+
+  .detailHeader .headerActions .primaryButton {
+    grid-column: auto;
+  }
+
+  .workflow span {
+    flex-basis: 74px;
+  }
+
+  .closingBriefActions {
+    grid-template-columns: 1fr;
+  }
+
+  .closingFactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .closingFactGrid > div,
+  .closingFactGrid > div:nth-child(2n),
+  .closingFactGrid > div:nth-child(4n) {
+    border-right: 0;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFactGrid > div:last-child {
+    border-bottom: 0;
+  }
+}

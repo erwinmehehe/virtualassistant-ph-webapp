@@ -23,3 +23,9 @@ test("public hiring budget uses the canonical minimum-rate constant", () => {
   assert.match(form, /`USD \$\{MIN_HOURLY_RATE\} to 8\/hour`/);
   assert.doesNotMatch(form, /"USD 6 to 8\/hour"/);
 });
+
+
+test("public hiring brief captures the browser timezone automatically", () => {
+  assert.match(form, /BrowserTimeZoneField/);
+  assert.doesNotMatch(form, /To confirm on discovery call/);
+});

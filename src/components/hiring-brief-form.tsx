@@ -19,6 +19,7 @@ import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { indefiniteArticleFor } from "@/lib/content-language";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { BrowserTimeZoneField } from "@/components/browser-timezone-field";
 
 /**
  * The one hiring form used across the site's hiring pages (service, software,
@@ -249,6 +250,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         {props.variant === "service" ? <input type="hidden" name="category" value={props.category} /> : null}
         <input type="hidden" name="source_path" value={sourcePath} />
         <input type="hidden" name="session_id" value={sessionId} />
+        <BrowserTimeZoneField />
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
         <TurnstileWidget action={props.variant === "service" ? "service_match" : "industry_match"} />
@@ -283,7 +285,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
       <Head title={title} sub="Share a quick brief, and we will show you matching Filipino virtual assistants." />
       <form id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        <input type="hidden" name="timezone" value="To confirm on discovery call" />
+        <BrowserTimeZoneField />
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}
         {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
         {defaultStartTime ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}

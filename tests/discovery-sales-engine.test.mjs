@@ -62,7 +62,7 @@ test("discovery workspace stores structured notes server-side and hands qualifie
 
 test("qualifying requires an actionable recommendation instead of a generic call note", async () => {
   const action = await read("src/app/actions/discovery-workspace.ts");
-  assert.match(action, /recommended role/);
+  assert.match(action, /recommended%20role/);
   assert.match(action, /ownership/);
   assert.match(action, /90-day/);
   assert.match(action, /discovery_workspace_qualified/);

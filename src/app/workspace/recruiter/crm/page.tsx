@@ -12,6 +12,8 @@ import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
 import { clientReplyNeedsAction, clientReplyStatusLabel } from "@/lib/client-reply-state";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
+import { RecruiterCrmSelectionControl } from "@/components/recruiter-crm-selection-control";
+import { bulkUpdateCrmLeadsAction } from "@/app/actions/crm";
 import styles from "./crm.module.css";
 
 type LeadRow = {
@@ -244,6 +246,9 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         <div><span>Active</span><strong>{active.length}</strong></div>
       </section>
 
+      {params.bulk_saved ? <div className={styles.successBanner}>Updated {params.bulk_saved} selected client record{params.bulk_saved === "1" ? "" : "s"}.</div> : null}
+      {params.bulk_error ? <div className={styles.errorBanner}>{params.bulk_error}</div> : null}
+
       <main className={styles.pipelineWorkspace}>
         <nav className={styles.pipelineViews} aria-label="Pipeline views">
           {SYSTEM_VIEWS.map(([value, label]) => (
@@ -283,51 +288,76 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         {mode === "board" ? (
           <div className={styles.boardWrap}><RecruiterLeadKanban initialLeads={pipelineLeads}/></div>
         ) : (
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead><tr><th>Client</th><th>Stage</th><th>Role</th><th>Client activity</th><th>Owner</th><th>Next step</th></tr></thead>
-              <tbody>
-                {visible.map((lead) => {
-                  const job = lead.job_id ? jobMap.get(lead.job_id) : null;
-                  const overdue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(lead.crm_stage || "new"));
-                  const activity = activityMap.get(lead.id);
-                  const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
-                  const unreadChat = Number(activity?.unread_chat || 0);
-                  const vaViews = Number(activity?.va_views || 0);
-                  const needsMoreOptions = activity?.latest_decision === "need_more_options";
-                  const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
-                  return <tr key={lead.id}>
-                    <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
-                    <td>
-                      <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
-                      {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (
-                        <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open discovery</Link>
-                      ) : null}
-                    </td>
-                    <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
-                    <td>
-                      <div className={styles.clientSignals}>
-                        <span><b>Login</b>{shortDate(activity?.last_login_at, "Never")}</span>
-                        <span title="Distinct VAs viewed by this client for this hiring role"><b>VA views</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
-                        <span><b>Shortlist</b>{shortDate(activity?.last_shortlist_activity_at)}</span>
-                        {activity?.latest_decision ? <span className={styles.signalDecision}><b>Decision</b>{decisionLabel(activity.latest_decision)}</span> : null}
-                        {unreadChat ? <span className={styles.signalUnread}><b>Chat</b>{unreadChat} unread</span> : null}
-                      </div>
-                    </td>
-                    <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                    <td className={overdue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
-                      <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
-                        {unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
-                        {nextStepLabel}
-                      </span>
-                      <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
-                    </td>
-                  </tr>;
-                })}
-              </tbody>
-            </table>
-            {!visible.length ? <div className={styles.empty}>Nothing needs attention in this view.</div> : null}
-          </div>
+          <form id="recruiter-crm-bulk-form" action={bulkUpdateCrmLeadsAction} className={styles.bulkForm}>
+            <input type="hidden" name="return_to" value={buildHref({})}/>
+            <div className={styles.bulkBar}>
+              <RecruiterCrmSelectionControl formId="recruiter-crm-bulk-form" rowCount={visible.length}/>
+              <div className={styles.bulkFields}>
+                <label>
+                  <span>Owner</span>
+                  <select name="bulk_owner_id" defaultValue="">
+                    <option value="">Keep current owner</option>
+                    <option value="__unassigned">Set unassigned</option>
+                    {owners.map((item) => <option key={item.id} value={item.id}>{item.full_name || item.role}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Follow-up</span>
+                  <input type="date" name="bulk_follow_up_at"/>
+                </label>
+                <button type="submit">Update selected</button>
+              </div>
+            </div>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead><tr><th aria-label="Select"></th><th>Client</th><th>Stage</th><th>Role</th><th>Client activity</th><th>Owner</th><th>Next step</th></tr></thead>
+                <tbody>
+                  {visible.map((lead) => {
+                    const job = lead.job_id ? jobMap.get(lead.job_id) : null;
+                    const overdue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(lead.crm_stage || "new"));
+                    const activity = activityMap.get(lead.id);
+                    const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
+                    const unreadChat = Number(activity?.unread_chat || 0);
+                    const vaViews = Number(activity?.va_views || 0);
+                    const needsMoreOptions = activity?.latest_decision === "need_more_options";
+                    const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
+                    return <tr key={lead.id}>
+                      <td className={styles.selectCell}><input className={styles.rowCheckbox} type="checkbox" name="lead_id" value={lead.id} aria-label={`Select ${lead.name || lead.company || lead.email || "client"}`}/></td>
+                      <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
+                      <td>
+                        <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
+                        {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (
+                          <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open discovery</Link>
+                        ) : null}
+                      </td>
+                      <td>{job ? <Link className={styles.inlineLink} href={`/workspace/recruiter/roles/${job.id}`}>{job.title || "Open role"}</Link> : <span className={styles.muted}>Not linked</span>}</td>
+                      <td>
+                        <div className={styles.clientSignals}>
+                          <span><b>Login</b>{shortDate(activity?.last_login_at, "Never")}</span>
+                          <span title="Distinct VAs viewed by this client for this hiring role"><b>VA views</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
+                          <span title={activity?.last_shortlist_activity_at ? `Last shortlist activity ${shortDate(activity.last_shortlist_activity_at)}` : "No shortlist activity"}><b>Shortlist</b>{activity?.shortlist_opened_at ? shortDate(activity.shortlist_opened_at) : "Not opened"}</span>
+                          <span className={replyStatus === "needs_action" ? styles.signalUnread : undefined}><b>Reply</b>{shortDate(activity?.last_client_reply_at, "None")}</span>
+                          {activity?.latest_decision ? <span className={styles.signalDecision}><b>Decision</b>{decisionLabel(activity.latest_decision)}</span> : null}
+                          {unreadChat ? <span className={styles.signalUnread}><b>Chat</b>{unreadChat} unread</span> : null}
+                        </div>
+                      </td>
+                      <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
+                      <td className={overdue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
+                        <Link className={styles.nextStepLink} href={`/workspace/recruiter/crm/${lead.id}`}>
+                          <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
+                            {unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
+                            {nextStepLabel}
+                          </span>
+                          <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
+                        </Link>
+                      </td>
+                    </tr>;
+                  })}
+                </tbody>
+              </table>
+              {!visible.length ? <div className={styles.empty}>Nothing needs attention in this view.</div> : null}
+            </div>
+          </form>
         )}
       </main>
     </div>

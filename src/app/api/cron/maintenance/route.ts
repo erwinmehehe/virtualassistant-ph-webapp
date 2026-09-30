@@ -465,15 +465,39 @@ async function runTalentHealthNudges(admin: ReturnType<typeof createAdminClient>
 async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>) {
   const now = new Date().toISOString();
   const proposalCutoff = daysAgo(2);
-  const [{ data: staff }, { data: leads }, { data: proposals }] = await Promise.all([
+  const discoveryCutoff = daysAgo(1);
+  const [{ data: staff }, { data: leads }, { data: proposals }, { data: completedDiscoveries }, { data: recentProposalRefs }] = await Promise.all([
     admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active"),
-    admin.from("lead_intake").select("id,name,company,crm_stage,owner_id,next_follow_up_at").in("crm_stage", ["new","contacted","discovery_booked","qualified","shortlist_sent","nurture"]).not("next_follow_up_at", "is", null).lte("next_follow_up_at", now).gte("next_follow_up_at", daysAgo(14)).limit(300),
-    admin.from("lead_proposals").select("id,lead_id,role_title,status,sent_at,viewed_at").eq("status", "sent").not("sent_at", "is", null).lte("sent_at", proposalCutoff).gte("sent_at", daysAgo(30)).limit(300)
+    admin.from("lead_intake").select("id,name,company,crm_stage,owner_id,next_follow_up_at").in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","shortlist_sent","nurture"]).not("next_follow_up_at", "is", null).lte("next_follow_up_at", now).gte("next_follow_up_at", daysAgo(14)).limit(300),
+    admin.from("lead_proposals").select("id,lead_id,role_title,status,sent_at,viewed_at,public_token").eq("status", "sent").not("sent_at", "is", null).lte("sent_at", proposalCutoff).gte("sent_at", daysAgo(30)).limit(300),
+    admin.from("lead_intake").select("id,name,company,owner_id,discovery_completed_at").eq("lead_type","client_hiring").eq("crm_stage","qualified").not("discovery_completed_at","is",null).gte("discovery_completed_at", discoveryCutoff).lte("discovery_completed_at", now).limit(300),
+    admin.from("lead_proposals").select("lead_id").gte("created_at", daysAgo(30)).limit(1000)
   ]);
   const staffIds = (staff || []).map((row: any) => row.id);
+  const recentProposalLeadIds = new Set((recentProposalRefs || []).map((row: any) => String(row.lead_id)));
   const leadIds = [...new Set((proposals || []).map((row: any) => row.lead_id))];
-  const { data: proposalLeads } = leadIds.length ? await admin.from("lead_intake").select("id,name,company,owner_id").in("id", leadIds) : { data: [] as any[] };
+  const { data: proposalLeads } = leadIds.length ? await admin.from("lead_intake").select("id,name,email,company,owner_id").in("id", leadIds) : { data: [] as any[] };
   const proposalLeadMap = new Map((proposalLeads || []).map((row: any) => [row.id, row]));
+
+  let proposalDueToday = 0;
+  for (const lead of completedDiscoveries || []) {
+    if (recentProposalLeadIds.has(String(lead.id))) continue;
+    const recipients = lead.owner_id ? [lead.owner_id] : staffIds;
+    for (const recipientId of recipients) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "lead",
+        subjectId: lead.id,
+        recipientId,
+        action: "proposal_due_after_discovery",
+        title: `Prepare recommendation today: ${lead.company || lead.name || "client"}`,
+        body: "Discovery is complete and qualified. Turn the call into a client-ready recommendation while the conversation is still fresh.",
+        href: `/workspace/recruiter/crm/${lead.id}/discovery`,
+        repeatDays: 30,
+        maxReminders: 1,
+        notificationType: "sales_follow_up"
+      })) proposalDueToday++;
+    }
+  }
 
   let leadReminders = 0;
   for (const lead of leads || []) {
@@ -484,6 +508,8 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   }
 
   let proposalReminders = 0;
+  let clientProposalFollowups = 0;
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   for (const proposal of proposals || []) {
     const lead: any = proposalLeadMap.get(proposal.lead_id);
     const recipients = lead?.owner_id ? [lead.owner_id] : staffIds;
@@ -493,11 +519,32 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
         action: proposal.viewed_at ? "viewed_proposal_open" : "proposal_not_viewed",
         title: proposal.viewed_at ? `Viewed proposal still open: ${proposal.role_title}` : `Proposal not viewed: ${proposal.role_title}`,
         body: proposal.viewed_at ? `${lead?.company || lead?.name || "The client"} viewed the proposal but has not responded. Follow up while intent is still warm.` : `${lead?.company || lead?.name || "The client"} has not viewed the proposal sent at least two days ago.`,
-        href: "/workspace/recruiter/leads?view=qualified", repeatDays: 2
+        href: `/workspace/recruiter/crm/${proposal.lead_id}/proposal`, repeatDays: 2
       })) proposalReminders++;
     }
+
+    if (lead?.email && proposal.public_token) {
+      try {
+        await sendTransactionalEventEmail({
+          to: lead.email,
+          subject: proposal.viewed_at ? `Any questions about your ${proposal.role_title} recommendation?` : `Your ${proposal.role_title} recommendation is ready to review`,
+          heading: proposal.viewed_at ? "Any questions before you decide?" : "Your hiring recommendation is waiting",
+          body: proposal.viewed_at
+            ? "You reviewed the recommendation but have not responded yet. If the scope, hours, compensation, or timing needs to change, you can request changes directly from the proposal."
+            : "We sent your hiring recommendation two days ago. Review the proposed role, scope, compensation, VAPH fee, and next steps when you are ready.",
+          href: `${appUrl}/proposal/${proposal.public_token}`,
+          hrefLabel: "Review recommendation",
+          priority: "standard",
+          idempotencyKey: `proposal-client-followup-2d-${proposal.id}`,
+          eventType: "client_hiring_proposal_followup",
+        });
+        clientProposalFollowups++;
+      } catch (error) {
+        console.error("[email] Proposal client follow-up failed", error);
+      }
+    }
   }
-  return { leadReminders, proposalReminders };
+  return { leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
 }
 
 async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAdminClient>) {

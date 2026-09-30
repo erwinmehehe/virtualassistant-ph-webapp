@@ -51,6 +51,7 @@ test("discovery workspace stores structured notes server-side and hands qualifie
   assert.match(action, /crm_stage: stage/);
   assert.match(action, /required_skills/);
   assert.match(action, /required_tools/);
+  assert.doesNotMatch(action, /jobPatch\.must_have_skills = values\.recommendedSkills/);
   assert.match(action, /\/workspace\/recruiter\/matching\/\$\{lead\.job_id\}/);
   assert.match(crm, /Discovery workspace/);
 

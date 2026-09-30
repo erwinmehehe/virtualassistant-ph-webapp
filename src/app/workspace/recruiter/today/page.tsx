@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, ListTodo, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, ListTodo, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { DashHeader } from "@/components/dash-ui";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -60,6 +60,20 @@ type UpcomingDiscoveryRow = {
   job_id: string | null;
 };
 
+type ProposalActionRow = {
+  proposal_id: string;
+  lead_id: string;
+  role_title: string | null;
+  status: string;
+  sent_at: string | null;
+  viewed_at: string | null;
+  changes_requested_at: string | null;
+  name: string | null;
+  company: string | null;
+  action_kind: "changes_requested" | "viewed_waiting" | "unopened";
+  action_at: string | null;
+};
+
 function ageLabel(hours: number | null | undefined) {
   const value = Math.max(0, Number(hours || 0));
   if (value < 24) return `${Math.max(1, Math.round(value))}h`;
@@ -112,6 +126,7 @@ function exactActionHref(item:any) {
   const meta=item?.metadata||{};
   if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
+  if(item.kind==="proposal_action"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
@@ -123,6 +138,7 @@ function exactActionHref(item:any) {
 function actionLabel(item:any) {
   if(item.kind==="discovery") return "Open Discovery Workspace";
   if(item.kind==="client_email_reply") return "Reply to client";
+  if(item.kind==="proposal_action") return "Open proposal";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
   if(item.kind==="interview_requested") return "Schedule interview";
@@ -169,6 +185,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     last_client_reply_at?:string|null;
     reply_status?:string|null;
   }>;
+  const proposalActions = (Array.isArray(summary.proposal_actions) ? summary.proposal_actions : []) as ProposalActionRow[];
+  const proposalChangesRequested = Number(summary.proposal_changes_requested || 0);
+  const proposalViewedWaiting = Number(summary.proposal_viewed_waiting || 0);
+  const proposalUnopened = Number(summary.proposal_unopened || 0);
 
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
@@ -181,6 +201,24 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       due_at: row.last_client_reply_at,
       priority: "high",
       href: `/workspace/recruiter/crm/${row.lead_id}`,
+    })),
+    ...proposalActions.map((row) => ({
+      kind: "proposal_action",
+      id: row.lead_id,
+      title: row.action_kind === "changes_requested"
+        ? `Changes requested: ${row.role_title || "hiring recommendation"}`
+        : row.action_kind === "viewed_waiting"
+          ? `Viewed proposal needs follow-up: ${row.role_title || "hiring recommendation"}`
+          : `Proposal not opened: ${row.role_title || "hiring recommendation"}`,
+      subtitle: row.action_kind === "changes_requested"
+        ? `${row.company || row.name || "Client"} asked for changes. Revise and resend the recommendation.`
+        : row.action_kind === "viewed_waiting"
+          ? `${row.company || row.name || "Client"} viewed the proposal at least 24 hours ago and has not responded.`
+          : `${row.company || row.name || "Client"} has not opened the proposal after 48 hours.`,
+      due_at: row.action_at,
+      priority: row.action_kind === "changes_requested" ? "urgent" : row.action_kind === "viewed_waiting" ? "high" : "normal",
+      href: `/workspace/recruiter/crm/${row.lead_id}/proposal`,
+      metadata: { proposal_id: row.proposal_id, action_kind: row.action_kind },
     })),
     ...nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind))),
   ];
@@ -209,6 +247,11 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const nextActionCandidates = [
     {count:upcomingDiscoveryCalls.length,title:"Prepare upcoming discovery calls",copy:"Review the client pain, role, and known context before the call starts.",href:"#upcoming-discovery-calls",cta:"Open call prep",icon:<CalendarDays size={20}/>},
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"/workspace/recruiter/crm?view=attention",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:proposalActions.length,title:"Move open proposals",copy:proposalChangesRequested
+      ? `${proposalChangesRequested} client change request${proposalChangesRequested===1?"":"s"} need revision now.`
+      : proposalViewedWaiting
+        ? `${proposalViewedWaiting} viewed proposal${proposalViewedWaiting===1?" is":"s are"} waiting for a decision.`
+        : `${proposalUnopened} proposal${proposalUnopened===1?" has":"s have"} not been opened after 48 hours.`,href:proposalActions[0]?`/workspace/recruiter/crm/${proposalActions[0].lead_id}/proposal`:"/workspace/recruiter/crm?view=attention",cta:"Open proposal queue",icon:<FileText size={20}/>},
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},

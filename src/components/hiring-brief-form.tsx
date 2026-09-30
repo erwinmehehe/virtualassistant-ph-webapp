@@ -340,12 +340,8 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
 
       <form ref={formRef} id={id} action={submitRoleBriefWithAiAction} className="hb-form">
         <AttributionFields sourcePath={sourcePath} />
-        {isHire ? null : <input type="hidden" name="timezone" value={detectedTimeZone} />}
-        {isHomepage ? <>
-          <input type="hidden" name="hours" value="Not sure yet" />
-          <input type="hidden" name="budget" value="Not sure yet" />
-          <input type="hidden" name="start_time" value="Not sure yet" />
-        </> : null}
+        {!isHire && !isHomepage ? <input type="hidden" name="timezone" value={detectedTimeZone} /> : null}
+        {isHomepage ? <input type="hidden" name="start_time" value="Not sure yet" /> : null}
         {talent ? <input type="hidden" name="talent" value={talent} /> : null}
         {shortlist ? <input type="hidden" name="shortlist" value={shortlist} /> : null}
         {defaultStartTime && !isHire && !isHomepage ? <input type="hidden" name="start_time" value={defaultStartTime} /> : null}
@@ -481,6 +477,34 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
                 <option value="" disabled>Select a specialty</option>
                 {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
               </select>
+            </div>
+            <div className="hb-row hb-home-qualifiers">
+              <div className="hb-field">
+                <label htmlFor={`${id}-hours`}>Hours per week</label>
+                <select id={`${id}-hours`} name="hours" required defaultValue={HOURS.includes(defaultHours || "") ? defaultHours : ""}>
+                  <option value="" disabled>Select hours</option>
+                  {HOURS.map((h) => <option key={h}>{h}</option>)}
+                </select>
+              </div>
+              <div className="hb-field">
+                <label htmlFor={`${id}-budget`}>Hourly budget range</label>
+                <select id={`${id}-budget`} name="budget" required defaultValue={BUDGETS.includes(defaultBudget || "") ? defaultBudget : ""}>
+                  <option value="" disabled>Select budget</option>
+                  {BUDGETS.map((b) => <option key={b}>{b}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="hb-field">
+              <label htmlFor={`${id}-timezone`}>Timezone</label>
+              <input
+                id={`${id}-timezone`}
+                name="timezone"
+                required
+                maxLength={120}
+                value={detectedTimeZone}
+                onChange={(event) => setDetectedTimeZone(event.target.value)}
+                placeholder="e.g. Australia/Sydney"
+              />
             </div>
             <div className="hb-field">
               <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>

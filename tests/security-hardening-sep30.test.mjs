@@ -118,3 +118,47 @@ test("security.txt exposes a responsible disclosure contact", async () => {
   assert.match(source, /^Contact: https:\/\/virtualassistant\.com\.ph\/contact/m);
   assert.match(source, /^Canonical: https:\/\/virtualassistant\.com\.ph\/\.well-known\/security\.txt/m);
 });
+
+
+test("Turnstile fails closed on partial configuration and binds tokens to sensitive auth actions", async () => {
+  const [turnstile, widget, auth, resend, login, join, forgot] = await Promise.all([
+    read("src/lib/turnstile.ts"),
+    read("src/components/turnstile-widget.tsx"),
+    read("src/app/actions/auth.ts"),
+    read("src/app/actions/resend-confirmation.ts"),
+    read("src/app/auth/login/page.tsx"),
+    read("src/components/join-account-form.tsx"),
+    read("src/app/auth/forgot/page.tsx"),
+  ]);
+
+  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
+  assert.match(turnstile, /token\.length > 2_048/);
+  assert.match(turnstile, /remoteip/);
+  assert.match(turnstile, /AbortSignal\.timeout\(5_000\)/);
+  assert.match(turnstile, /result\.action !== expectedAction/);
+  assert.match(widget, /data-action=\{action\}/);
+
+  assert.match(auth, /verifyTurnstile\(formData, "login"\)/);
+  assert.match(auth, /verifyTurnstile\(formData, "join"\)/);
+  assert.match(auth, /verifyTurnstile\(formData, "password_reset"\)/);
+  assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
+  assert.match(login, /TurnstileWidget action="login"/);
+  assert.match(login, /TurnstileWidget action="resend_confirmation"/);
+  assert.match(join, /TurnstileWidget action="join"/);
+  assert.match(forgot, /TurnstileWidget action="password_reset"/);
+});
+
+test("auth routes are no-store and deployment preflight checks independent security secrets", async () => {
+  const [nextConfig, runtimeConfig] = await Promise.all([
+    read("next.config.ts"),
+    read("scripts/check-runtime-config.mjs"),
+  ]);
+
+  assert.match(nextConfig, /source: "\/auth\/:path\*"[\s\S]*Cache-Control"[\s\S]*private, no-store, max-age=0[\s\S]*Referrer-Policy"[\s\S]*no-referrer/);
+  assert.match(runtimeConfig, /name: "CRON_SECRET"/);
+  assert.match(runtimeConfig, /name: "CAPABILITY_SIGNING_SECRET"/);
+  assert.match(runtimeConfig, /name: "TURNSTILE"/);
+  assert.match(runtimeConfig, /partial configuration is unsafe/);
+  assert.match(runtimeConfig, /name: "RESEND_WEBHOOK_SECRET"/);
+});

@@ -154,8 +154,10 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     if (values.recommendedRole) jobPatch.title = values.recommendedRole;
     if (values.recommendedHours !== null) jobPatch.hours_per_week = Math.round(values.recommendedHours);
     if (values.recommendedSkills.length) {
+      // Discovery recommendations are screening criteria, not automatic hard blockers.
+      // Preserve any explicitly configured must-have skills instead of converting
+      // every recommendation into a must-have and accidentally eliminating the pool.
       jobPatch.required_skills = values.recommendedSkills;
-      jobPatch.must_have_skills = values.recommendedSkills;
     }
     if (values.recommendedTools.length) jobPatch.required_tools = values.recommendedTools;
     if (values.ownershipNeeded) {

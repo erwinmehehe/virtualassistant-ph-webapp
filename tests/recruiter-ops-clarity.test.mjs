@@ -31,11 +31,12 @@ test("categories are consolidated into Roles talent coverage",async()=>{
   assert.match(action,/workspace\/recruiter\/roles\?categorized=/);
 });
 
-test("agency funnel explains stage-to-stage sales conversion and separates operations",async()=>{
+test("agency funnel explains stage-to-stage hiring conversion and separates operations",async()=>{
   const component=await read("src/components/agency-funnel-dashboard.tsx");
-  assert.match(component,/Every percentage compares the stage with the one immediately before it/);
+  assert.match(component,/Every percentage compares the same lead cohort with the stage immediately before it/);
   assert.match(component,/did not move forward/);
-  for(const stage of ["Leads","Calls booked","Qualified","Proposals","Clients won"]) assert.match(component,new RegExp(stage));
+  for(const stage of ["Enquiries","Discovery booked","Discovery attended","Qualified","Shortlist","Interview","Offer","Hire"]) assert.match(component,new RegExp(stage));
+  assert.match(component,/Discovery → hire/);
   assert.match(component,/Biggest drop-off/);
   assert.match(component,/Delivery operations/);
   assert.match(component,/Retention operations/);

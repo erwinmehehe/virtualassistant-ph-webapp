@@ -110,3 +110,16 @@ test("live and server profile readiness use the same core requirements", async (
   assert.doesNotMatch(live, /Add your preferred schedule", "#availability"/);
   assert.match(profile, /hasAvatar=\{Boolean\(profile\.avatar_url\)\}/);
 });
+
+
+test("recruiter matching surfaces verified training badges as supporting evidence", async () => {
+  const matching = await source("src/components/staff-job-matching.tsx");
+  const table = await source("src/components/matching-candidate-table.tsx");
+
+  assert.match(matching, /getTrainingCredentialsForUsers\(ids\)/);
+  assert.match(matching, /trainingCredentials:trainingByUser\.get\(va\.user_id\)\|\|\[\]/);
+  assert.match(table, /aria-label="Verified training"/);
+  assert.match(table, /badge badge-success/);
+  assert.match(table, /training completed/);
+  assert.match(table, /credential\.courseTitle/);
+});

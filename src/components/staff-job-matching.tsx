@@ -8,6 +8,7 @@ import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { isTalentAgencyCertified, talentReadinessActions } from "@/lib/talent-operations";
+import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 
 type Props={job:any;viewerRole:"admin"|"recruiter";returnTo:string};
 
@@ -31,6 +32,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     admin.from("bench_memberships").select("va_id").in("va_id",ids).eq("status","active")
   ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
 
+  const trainingByUser = ids.length ? await getTrainingCredentialsForUsers(ids) : new Map();
   const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
   const stageMap=new Map((vettingRows||[]).map((row:any)=>[row.va_id,row.stage]));
   const activePoolIds=new Set((activeMemberships||[]).map((row:any)=>row.va_id));
@@ -55,7 +57,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     };
     const clientReady=isTalentAgencyCertified(readinessInput);
     const readinessGaps=clientReady?[]:talentReadinessActions(readinessInput);
-    return{va,account,shortlist,job,interest,...assessment,clientReady,readinessGaps,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
+    return{va,account,shortlist,job,interest,trainingCredentials:trainingByUser.get(va.user_id)||[],...assessment,clientReady,readinessGaps,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
   }).sort((a:any,b:any)=>Number(b.clientReady)-Number(a.clientReady)||b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
 
   const suggestedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed"&&!row.created_by).length;

@@ -16,6 +16,12 @@ test("recruiter My Day stays compact and thumb-safe on mobile", async () => {
   assert.match(css, /Recruiter mobile pass: My Day, Leads, Roles/);
   assert.match(css, /\.recruiter-today-page \.dash-header-actions[\s\S]*repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(css, /\.recruiter-today-page \.dashboard-section-card input,[\s\S]*font-size: 16px/);
+  assert.match(page, /Upcoming discovery calls/);
+  assert.match(page, /Open Discovery Workspace/);
+  assert.match(page, /Join Google Meet/);
+  assert.match(page, /lead age/);
+  assert.match(page, /discovery_scheduled_at/);
+  assert.match(page, /discovery_meeting_url/);
 });
 
 test("recruiter leads uses mobile metrics, tabs, filters, and lead cards", async () => {

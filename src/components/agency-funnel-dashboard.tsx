@@ -50,12 +50,15 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const {data,error}=await getAgencyFunnelMetrics(recruiterId,days);
   if(error)throw error;
 
-  const sales={
-    leads:count(data.sales?.leads),
-    calls_booked:count(data.sales?.calls_booked),
-    qualified:count(data.sales?.qualified),
-    proposals:count(data.sales?.proposals),
-    clients_won:count(data.sales?.clients_won),
+  const journey={
+    enquiries:count(data.journey?.enquiries),
+    discovery_booked:count(data.journey?.discovery_booked),
+    discovery_attended:count(data.journey?.discovery_attended),
+    qualified:count(data.journey?.qualified),
+    shortlisted:count(data.journey?.shortlisted),
+    interviewed:count(data.journey?.interviewed),
+    offered:count(data.journey?.offered),
+    hired:count(data.journey?.hired),
   };
   const recruiting={
     job_orders:count(data.recruiting?.job_orders),
@@ -75,11 +78,14 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   };
 
   const stages:FunnelStage[]=[
-    {label:"Leads",value:sales.leads,note:"Client hiring enquiries received"},
-    {label:"Calls booked",value:sales.calls_booked,note:"Discovery call scheduled or later-stage evidence exists"},
-    {label:"Qualified",value:sales.qualified,note:"Confirmed hiring opportunity"},
-    {label:"Proposals",value:sales.proposals,note:"Proposal sent, revised, or accepted"},
-    {label:"Clients won",value:sales.clients_won,note:"CRM won or proposal accepted"},
+    {label:"Enquiries",value:journey.enquiries,note:"Client hiring enquiries received"},
+    {label:"Discovery booked",value:journey.discovery_booked,note:"Discovery call scheduled"},
+    {label:"Discovery attended",value:journey.discovery_attended,note:"Call attended or later-stage evidence exists"},
+    {label:"Qualified",value:journey.qualified,note:"Confirmed hiring opportunity"},
+    {label:"Shortlist",value:journey.shortlisted,note:"At least one candidate released to the client"},
+    {label:"Interview",value:journey.interviewed,note:"Candidate interview reached"},
+    {label:"Offer",value:journey.offered,note:"Placement offer reached"},
+    {label:"Hire",value:journey.hired,note:"Placement / workroom created"},
   ];
   const transitions=stages.slice(1).map((stage,index)=>{
     const previous=stages[index];
@@ -96,7 +102,8 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const biggestDrop=transitions
     .filter((row)=>row.lossRate!=null)
     .sort((a,b)=>Number(b.lossRate)-Number(a.lossRate)||b.lost-a.lost)[0]||null;
-  const leadToWon=percent(sales.clients_won,sales.leads);
+  const discoveryToHire=percent(journey.hired,journey.discovery_attended);
+  const enquiryToHire=percent(journey.hired,journey.enquiries);
   const retained30=percent(retention.retained_30d,retention.eligible_30d);
   const retained90=percent(retention.retained_90d,retention.eligible_90d);
 
@@ -104,8 +111,8 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
     <div className="page-head agency-funnel-head">
       <div>
         <div className="kicker">Agency funnel</div>
-        <h1>Sales funnel</h1>
-        <p>{scopeLabel}. The sales funnel now follows one client lead cohort from enquiry to won client. Recruiting delivery and retention sit separately below so operational volume is not mixed into sales conversion.</p>
+        <h1>Hiring funnel</h1>
+        <p>{scopeLabel}. Follow one client lead cohort from enquiry through discovery, shortlist, interview, offer, and hire. Delivery and retention operations remain separate below.</p>
       </div>
       <div className="role-filter-tabs agency-range-tabs" aria-label="Funnel date range">
         {[30,90,180].map((range)=><Link prefetch={false} key={range} className={days===range?"active":""} href={basePath+"?days="+range}>{range} days</Link>)}
@@ -114,12 +121,13 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="agency-funnel-section agency-sales-funnel-section">
       <div className="agency-funnel-section-head">
-        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Lead → client won</h2><p>Every percentage compares the stage with the one immediately before it.</p></div></div>
+        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Enquiry → hire</h2><p>Every percentage compares the same lead cohort with the stage immediately before it.</p></div></div>
         <Link className="text-link" href={leadsPath}>Review leads →</Link>
       </div>
       <FunnelFlow stages={stages} dropTarget={biggestDrop?.targetIndex??null}/>
       <div className="agency-sales-summary">
-        <div><span>Lead → won</span><strong>{leadToWon==null?"—":`${leadToWon}%`}</strong><small>{sales.clients_won} won of {sales.leads} leads</small></div>
+        <div><span>Discovery → hire</span><strong>{discoveryToHire==null?"—":`${discoveryToHire}%`}</strong><small>{journey.hired} hires from {journey.discovery_attended} attended discoveries</small></div>
+        <div><span>Enquiry → hire</span><strong>{enquiryToHire==null?"—":`${enquiryToHire}%`}</strong><small>{journey.hired} hires from {journey.enquiries} enquiries</small></div>
         <div className={biggestDrop?"is-warning":""}>
           <span>Biggest drop-off</span>
           <strong>{biggestDrop?`${biggestDrop.from} → ${biggestDrop.to}`:"Not enough data"}</strong>
@@ -155,7 +163,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="agency-funnel-explainer">
       <AlertTriangle size={18}/>
-      <div><strong>Keep the cohorts separate.</strong><span>Sales counts client leads. Delivery counts published roles. Retention counts milestone-eligible placements. A lower number identifies where to inspect next, not the cause of the drop.</span></div>
+      <div><strong>Read the funnel as stage evidence, not attribution.</strong><span>The end-to-end funnel follows client leads and counts the furthest verified hiring stage they reached. Delivery still counts published role operations separately, and retention counts milestone-eligible placements.</span></div>
     </section>
   </div>;
 }

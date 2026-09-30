@@ -5,6 +5,16 @@ import { withServerTiming } from "@/lib/server-timing";
 
 export type AgencyFunnelData = {
   days:number;
+  journey:{
+    enquiries:number;
+    discovery_booked:number;
+    discovery_attended:number;
+    qualified:number;
+    shortlisted:number;
+    interviewed:number;
+    offered:number;
+    hired:number;
+  };
   sales:{
     leads:number;
     calls_booked:number;

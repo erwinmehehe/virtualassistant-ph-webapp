@@ -113,7 +113,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <input id="password" type="password" name="password" minLength={8} required autoComplete="current-password" placeholder="Enter your password"/>
         </div>
 
-        <TurnstileWidget/>
+        <TurnstileWidget action="login"/>
         <button className="btn btn-primary auth-primary-submit" type="submit" data-track="login_submit">
           {trainingLogin ? "Log in to training" : "Log in"}
         </button>
@@ -132,6 +132,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             {lead ? <input type="hidden" name="lead" value={lead}/> : null}
             <label htmlFor="confirmation-email" className="sr-only">Confirmation email</label>
             <input id="confirmation-email" type="email" name="email" required autoComplete="email" placeholder="Email address"/>
+            <TurnstileWidget action="resend_confirmation"/>
             <button className="btn btn-sm" type="submit">Resend</button>
           </form>
         </div>

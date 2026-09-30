@@ -82,6 +82,7 @@ export function TrainingJoinForm({
           <form action={resendSignupConfirmationAction}>
             <input type="hidden" name="email" value={state.email || email}/>
             <input type="hidden" name="next" value={state.next || destination}/>
+            <TurnstileWidget action="resend_confirmation"/>
             <button className="btn" type="submit">
               <RotateCcw size={15}/> Resend confirmation email
             </button>
@@ -216,7 +217,7 @@ export function TrainingJoinForm({
           </div>
         </div>
 
-        <TurnstileWidget key={state.attempt}/>
+        <TurnstileWidget key={state.attempt} action="training_join"/>
         <button
           className="btn btn-primary"
           type="submit"

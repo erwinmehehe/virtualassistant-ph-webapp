@@ -275,11 +275,12 @@ export default async function DiscoveryWorkspacePage({
               </div>
 
               <div className={styles.actions}>
-                <button type="submit" name="intent" value="qualified" className={styles.primaryButton}>
-                  Qualified · Open matching <ArrowRight size={15}/>
+                <button type="submit" name="intent" value="proposal" className={styles.primaryButton}>
+                  Generate recommendation <ArrowRight size={15}/>
                 </button>
                 <button type="submit" name="intent" value="save" className={styles.secondaryButton}>Save workspace</button>
                 <div className={styles.secondaryActions}>
+                  <button type="submit" name="intent" value="qualified">Qualified · Open matching</button>
                   <button type="submit" name="intent" value="follow_up">Follow up</button>
                   <button type="submit" name="intent" value="nurture">Nurture</button>
                 </div>

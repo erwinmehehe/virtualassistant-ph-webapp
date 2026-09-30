@@ -8,7 +8,7 @@ import { legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
-const NEXT_STEPS = new Set(["save", "qualified", "follow_up", "nurture"]);
+const NEXT_STEPS = new Set(["save", "proposal", "qualified", "follow_up", "nurture"]);
 
 function textValue(formData: FormData, key: string, max = 5000) {
   return String(formData.get(key) || "").trim().slice(0, max);
@@ -96,8 +96,8 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   ) {
     redirect(safeReturn(leadId, "?error=Maximum%20salary%20cannot%20be%20lower%20than%20minimum%20salary."));
   }
-  if (intent === "qualified" && (!values.recommendedRole || !values.ownershipNeeded || !values.success90Days)) {
-    redirect(safeReturn(leadId, "?error=Before%20qualifying%2C%20add%20the%20recommended%20role%2C%20ownership%2C%20and%2090-day%20success%20outcome."));
+  if (["proposal", "qualified"].includes(intent) && (!values.recommendedRole || !values.ownershipNeeded || !values.success90Days)) {
+    redirect(safeReturn(leadId, "?error=Before%20proceeding%2C%20add%20the%20recommended%20role%2C%20ownership%2C%20and%2090-day%20success%20outcome."));
   }
 
   const admin = createAdminClient();
@@ -114,7 +114,7 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
 
   const now = new Date();
   const nextStep = intent === "save" ? null : intent;
-  const qualificationStatus = intent === "qualified"
+  const qualificationStatus = ["proposal", "qualified"].includes(intent)
     ? "ready"
     : intent === "follow_up"
       ? "follow_up"
@@ -177,8 +177,8 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   const summary = discoverySummary(values);
 
   if (intent !== "save") {
-    const stage: LeadCrmStage = intent === "qualified" ? "qualified" : "nurture";
-    const nextFollowUpAt = intent === "qualified"
+    const stage: LeadCrmStage = ["proposal", "qualified"].includes(intent) ? "qualified" : "nurture";
+    const nextFollowUpAt = ["proposal", "qualified"].includes(intent)
       ? new Date(now.getTime() + 86400000).toISOString()
       : intent === "follow_up"
         ? new Date(now.getTime() + 2 * 86400000).toISOString()
@@ -186,7 +186,7 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
 
     const { error: leadUpdateError } = await admin.from("lead_intake").update({
       discovery_completed_at: now.toISOString(),
-      discovery_outcome: intent === "qualified" ? "qualified" : "attended",
+      discovery_outcome: ["proposal", "qualified"].includes(intent) ? "qualified" : "attended",
       discovery_notes: summary || values.additionalNotes || "Discovery workspace completed.",
       crm_stage: stage,
       status: legacyLeadStatus(stage),
@@ -206,8 +206,10 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     subjectType: "lead",
     subjectId: leadId,
     action: intent === "save" ? "discovery_workspace_saved" : `discovery_workspace_${intent}`,
-    description: intent === "qualified"
-      ? "Discovery qualified and handed to matching"
+    description: intent === "proposal"
+      ? "Discovery qualified and recommendation draft generated"
+      : intent === "qualified"
+        ? "Discovery qualified and handed to matching"
       : intent === "follow_up"
         ? "Discovery saved for follow-up"
         : intent === "nurture"
@@ -228,9 +230,66 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath(`/workspace/recruiter/crm/${leadId}/discovery`);
+  revalidatePath(`/workspace/recruiter/crm/${leadId}/proposal`);
   if (lead.job_id) {
     revalidatePath(`/workspace/recruiter/roles/${lead.job_id}`);
     revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  }
+
+  if (intent === "proposal") {
+    const responsibilities = values.ownershipNeeded
+      .split(/\n|;/)
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .slice(0, 12);
+
+    const proposalPayload = {
+      role_title: values.recommendedRole,
+      summary: values.currentPain || values.whyNow || values.ownershipNeeded || "Virtual Assistant hiring recommendation",
+      hours_per_week: values.recommendedHours,
+      responsibilities,
+      required_skills: values.recommendedSkills,
+      required_tools: values.recommendedTools,
+      salary_min: values.recommendedSalaryMin,
+      salary_max: values.recommendedSalaryMax,
+      salary_currency: values.salaryCurrency,
+      commercial_note: values.vaphFeeNote || null,
+      recommended_start_date: values.recommendedStartDate,
+      start_timing: values.recommendedStartDate || lead.start_time || null,
+      job_id: lead.job_id || null,
+      updated_at: now.toISOString(),
+    };
+
+    const { data: existingDraft } = await admin
+      .from("lead_proposals")
+      .select("id,status")
+      .eq("lead_id", leadId)
+      .in("status", ["draft", "changes_requested"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingDraft) {
+      const { error: proposalError } = await admin
+        .from("lead_proposals")
+        .update({ ...proposalPayload, status: "draft" })
+        .eq("id", existingDraft.id);
+      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
+    } else {
+      const { error: proposalError } = await admin
+        .from("lead_proposals")
+        .insert({
+          lead_id: leadId,
+          status: "draft",
+          service_model: "curated_placement",
+          created_by: user.id,
+          ...proposalPayload,
+        });
+      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
+    }
+
+    revalidatePath(`/workspace/recruiter/crm/${leadId}/proposal`);
+    redirect(`/workspace/recruiter/crm/${leadId}/proposal?generated=1`);
   }
 
   if (intent === "qualified" && lead.job_id) {

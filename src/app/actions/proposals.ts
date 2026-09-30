@@ -33,6 +33,225 @@ async function uniqueJobSlug(admin: ReturnType<typeof createAdminClient>, title:
   return `${base}-${crypto.randomUUID().slice(0, 6)}`;
 }
 
+function listText(value: FormDataEntryValue | null, limit = 20) {
+  return [...new Set(
+    String(value || "")
+      .split(/[,;\n]/)
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )].slice(0, limit);
+}
+
+function proposalReturnPath(leadId: string, suffix = "") {
+  return `/workspace/recruiter/crm/${encodeURIComponent(leadId)}/proposal${suffix}`;
+}
+
+function proposalEditorFields(formData: FormData) {
+  const salaryCurrency = String(formData.get("salary_currency") || "PHP").trim().toUpperCase();
+  return {
+    roleTitle: String(formData.get("role_title") || "").trim().slice(0, 160),
+    summary: String(formData.get("summary") || "").trim().slice(0, 5000),
+    responsibilities: listText(formData.get("responsibilities"), 16),
+    requiredSkills: listText(formData.get("required_skills"), 20),
+    requiredTools: listText(formData.get("required_tools"), 20),
+    hoursPerWeek: numberValue(formData.get("hours_per_week")),
+    salaryMin: numberValue(formData.get("salary_min")),
+    salaryMax: numberValue(formData.get("salary_max")),
+    salaryCurrency: ["PHP", "AUD", "USD"].includes(salaryCurrency) ? salaryCurrency : "PHP",
+    serviceModel: String(formData.get("service_model") || "curated_placement") === "managed_service" ? "managed_service" : "curated_placement",
+    placementFee: numberValue(formData.get("placement_fee")),
+    managedMarkupPercent: numberValue(formData.get("managed_markup_percent")),
+    commercialNote: String(formData.get("commercial_note") || "").trim().slice(0, 1000),
+    recommendedStartDate: String(formData.get("recommended_start_date") || "").trim().slice(0, 20) || null,
+    expiresDays: Math.max(3, Math.min(30, Number(formData.get("expires_days") || 7))),
+  };
+}
+
+function validateProposalEditorFields(fields: ReturnType<typeof proposalEditorFields>, sending = false) {
+  if (fields.roleTitle.length < 3) return "Add a clear recommended role.";
+  if (!fields.summary) return "Add a short client-facing recommendation summary.";
+  if (!fields.hoursPerWeek || fields.hoursPerWeek < 1 || fields.hoursPerWeek > 80) return "Set weekly hours between 1 and 80.";
+  if (fields.salaryMin != null && fields.salaryMin < 0) return "Salary minimum cannot be negative.";
+  if (fields.salaryMax != null && fields.salaryMax < 0) return "Salary maximum cannot be negative.";
+  if (fields.salaryMin != null && fields.salaryMax != null && fields.salaryMax < fields.salaryMin) return "Salary maximum must be at least the minimum.";
+  if (!sending) return null;
+  if (fields.serviceModel === "curated_placement" && (!fields.placementFee || fields.placementFee <= 0)) return "Add the one-time VAPH placement fee before sending.";
+  if (fields.serviceModel === "managed_service" && (!fields.managedMarkupPercent || fields.managedMarkupPercent <= 0)) return "Add the managed-service margin before sending.";
+  return null;
+}
+
+export async function saveProposalDraftAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const proposalId = String(formData.get("proposal_id") || "").trim();
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const fields = proposalEditorFields(formData);
+  const validation = validateProposalEditorFields(fields);
+  if (!proposalId || !leadId) redirect("/workspace/recruiter/crm?proposal_error=Proposal%20not%20found.");
+  if (validation) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(validation)}`));
+
+  const admin = createAdminClient();
+  const { data: proposal, error: proposalError } = await admin
+    .from("lead_proposals")
+    .select("id,lead_id,status")
+    .eq("id", proposalId)
+    .eq("lead_id", leadId)
+    .maybeSingle();
+  if (proposalError || !proposal) redirect(proposalReturnPath(leadId, "?error=Proposal%20not%20found."));
+  if (!["draft", "changes_requested"].includes(String(proposal.status))) {
+    redirect(proposalReturnPath(leadId, "?error=Only%20drafts%20or%20requested%20revisions%20can%20be%20edited."));
+  }
+
+  const now = new Date().toISOString();
+  const { error } = await admin.from("lead_proposals").update({
+    status: "draft",
+    role_title: fields.roleTitle,
+    summary: fields.summary,
+    responsibilities: fields.responsibilities,
+    required_skills: fields.requiredSkills,
+    required_tools: fields.requiredTools,
+    hours_per_week: Math.round(fields.hoursPerWeek || 0),
+    salary_min: fields.salaryMin,
+    salary_max: fields.salaryMax,
+    salary_currency: fields.salaryCurrency,
+    service_model: fields.serviceModel,
+    placement_fee: fields.serviceModel === "curated_placement" ? fields.placementFee : null,
+    managed_markup_percent: fields.serviceModel === "managed_service" ? fields.managedMarkupPercent : null,
+    commercial_note: fields.commercialNote || null,
+    recommended_start_date: fields.recommendedStartDate,
+    start_timing: fields.recommendedStartDate,
+    updated_at: now,
+  }).eq("id", proposalId);
+  if (error) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(error.message || "Could not save the proposal.")}`));
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "proposal_draft_saved",
+    description: `Recommendation draft saved for ${fields.roleTitle}`,
+    actorId: user.id,
+    metadata: { proposal_id: proposalId },
+  });
+
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath(proposalReturnPath(leadId));
+  redirect(proposalReturnPath(leadId, "?saved=1"));
+}
+
+export async function sendProposalToClientAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const proposalId = String(formData.get("proposal_id") || "").trim();
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const fields = proposalEditorFields(formData);
+  const validation = validateProposalEditorFields(fields, true);
+  if (!proposalId || !leadId) redirect("/workspace/recruiter/crm?proposal_error=Proposal%20not%20found.");
+  if (validation) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(validation)}`));
+
+  const admin = createAdminClient();
+  const [{ data: proposal, error: proposalError }, { data: lead, error: leadError }] = await Promise.all([
+    admin.from("lead_proposals")
+      .select("id,lead_id,status,public_token,send_count,job_id")
+      .eq("id", proposalId)
+      .eq("lead_id", leadId)
+      .maybeSingle(),
+    admin.from("lead_intake")
+      .select("id,name,email,company,owner_id")
+      .eq("id", leadId)
+      .eq("lead_type", "client_hiring")
+      .maybeSingle(),
+  ]);
+  if (proposalError || !proposal || leadError || !lead?.email) {
+    redirect(proposalReturnPath(leadId, "?error=The%20client%20email%20or%20proposal%20could%20not%20be%20verified."));
+  }
+  if (!["draft", "changes_requested"].includes(String(proposal.status))) {
+    redirect(proposalReturnPath(leadId, "?error=This%20proposal%20is%20not%20waiting%20to%20be%20sent."));
+  }
+
+  const now = new Date();
+  const nextSendCount = Number(proposal.send_count || 0) + 1;
+  const expiresAt = new Date(now.getTime() + fields.expiresDays * 86400000);
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const proposalUrl = `${appUrl}/proposal/${proposal.public_token}`;
+
+  const { error: saveError } = await admin.from("lead_proposals").update({
+    role_title: fields.roleTitle,
+    summary: fields.summary,
+    responsibilities: fields.responsibilities,
+    required_skills: fields.requiredSkills,
+    required_tools: fields.requiredTools,
+    hours_per_week: Math.round(fields.hoursPerWeek || 0),
+    salary_min: fields.salaryMin,
+    salary_max: fields.salaryMax,
+    salary_currency: fields.salaryCurrency,
+    service_model: fields.serviceModel,
+    placement_fee: fields.serviceModel === "curated_placement" ? fields.placementFee : null,
+    managed_markup_percent: fields.serviceModel === "managed_service" ? fields.managedMarkupPercent : null,
+    commercial_note: fields.commercialNote || null,
+    recommended_start_date: fields.recommendedStartDate,
+    start_timing: fields.recommendedStartDate,
+    updated_at: now.toISOString(),
+  }).eq("id", proposalId);
+  if (saveError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(saveError.message || "Could not save the proposal.")}`));
+
+  try {
+    const delivery = await sendTransactionalEventEmail({
+      to: lead.email,
+      subject: `Your ${fields.roleTitle} hiring recommendation`,
+      heading: "Your hiring recommendation is ready",
+      body: `Based on our discovery conversation, we prepared a recommended role and commercial proposal for ${lead.company || lead.name || "your business"}. Review the scope, compensation range, VAPH fee, and next steps, then approve it or request changes.`,
+      href: proposalUrl,
+      hrefLabel: "Review recommendation",
+      priority: "critical",
+      idempotencyKey: `proposal-send-${proposalId}-${nextSendCount}`,
+      eventType: "client_hiring_proposal",
+    });
+    if (!delivery.sent) throw new Error("Proposal email could not be delivered.");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Proposal email could not be sent.";
+    redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(message)}`));
+  }
+
+  const { error: sentError } = await admin.from("lead_proposals").update({
+    status: "sent",
+    sent_at: now.toISOString(),
+    viewed_at: null,
+    expires_at: expiresAt.toISOString(),
+    send_count: nextSendCount,
+    updated_at: now.toISOString(),
+  }).eq("id", proposalId);
+  if (sentError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(sentError.message || "Proposal email sent, but status could not be updated.")}`));
+
+  await admin.from("lead_intake").update({
+    crm_stage: "terms_sent",
+    status: "converted",
+    owner_id: lead.owner_id || user.id,
+    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
+    stage_updated_at: now.toISOString(),
+    lost_at: null,
+    lost_reason: null,
+  }).eq("id", leadId);
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "proposal_sent",
+    description: `Hiring recommendation sent for ${fields.roleTitle}`,
+    actorId: user.id,
+    metadata: {
+      proposal_id: proposalId,
+      send_count: nextSendCount,
+      expires_at: expiresAt.toISOString(),
+      service_model: fields.serviceModel,
+    },
+  });
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath(proposalReturnPath(leadId));
+  redirect(proposalReturnPath(leadId, "?sent=1"));
+}
+
 export async function createAndSendProposalAction(formData: FormData) {
   const { user } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
@@ -269,14 +488,19 @@ export async function acceptLeadProposalAction(formData: FormData) {
   const slug = job?.slug || await uniqueJobSlug(admin, proposal.role_title);
   const description = cleanJobDescription(proposal.summary || lead.message);
   const fallbackSummary = `Virtual Assistant support requested for ${proposal.role_title || lead.service || "business operations"}.`;
+  const proposalResponsibilities = Array.isArray(proposal.responsibilities) ? proposal.responsibilities.filter(Boolean).slice(0, 16) : [];
+  const proposalSkills = Array.isArray(proposal.required_skills) ? proposal.required_skills.filter(Boolean).slice(0, 20) : [];
+  const proposalTools = Array.isArray(proposal.required_tools) ? proposal.required_tools.filter(Boolean).slice(0, 20) : [];
   const jobPayload = {
     title: proposal.role_title,
     slug,
     company_name: lead.company || null,
     summary: cleanJobSummary(proposal.summary || lead.message, fallbackSummary),
     description,
-    responsibilities: description ? [description] : [],
+    responsibilities: proposalResponsibilities.length ? proposalResponsibilities : description ? [description] : [],
     categories: inferCategories(lead.service, proposal.summary || lead.message),
+    required_skills: proposalSkills,
+    required_tools: proposalTools,
     hours_per_week: proposal.hours_per_week || inferHours(lead.hours),
     min_hourly_rate: proposal.va_rate_min || MIN_HOURLY_RATE,
     max_hourly_rate: proposal.va_rate_max || null,
@@ -286,7 +510,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     onboarding_plan: "Client onboarding and tool access to be confirmed before placement.",
     direct_feedback: true,
     engagement_length: "Long-term preferred",
-    start_timing: proposal.start_timing || lead.start_time || null
+    start_timing: proposal.recommended_start_date || proposal.start_timing || lead.start_time || null
   };
 
   const handoff = await ensureAcceptedLeadClientWorkspace({

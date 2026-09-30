@@ -63,7 +63,7 @@ test("CRM activity panel combines email and in-app chat signals and exposes one 
   assert.match(page, /last_client_contact_at/);
   assert.match(page, /lastClientReplyAt/);
   assert.match(panel, /Last email reply \/ chat reply/);
-  for (const label of ["Follow up", "Review decision", "Schedule interview", "Close role", "Send client-ready shortlist"]) {
+  for (const label of ["Follow up", "Review decision", "Schedule interview", "Close role", "Generate recommendation", "Finish proposal", "Revise proposal"]) {
     assert.match(page, new RegExp(label));
   }
   assert.match(page, /nextAction\.detail/);

@@ -46,7 +46,7 @@ test("client record prioritizes the hiring workflow and collapses secondary CRM 
 
   assert.match(page, /Move this hire forward/);
   assert.match(page, /Hiring workflow/);
-  for (const label of ["Enquiry", "Call", "Role", "Shortlist", "Interview", "Offer", "Hire"]) {
+  for (const label of ["Enquiry", "Discovery", "Proposal", "Shortlist", "Interview", "Offer", "Hire"]) {
     assert.match(page, new RegExp(`"${label}"`));
   }
   assert.match(page, /Record settings/);

@@ -291,11 +291,27 @@ export async function bulkUpdateCrmLeadsAction(formData: FormData) {
     patch.next_follow_up_at = followUpAt;
   }
 
+  const { data: selectedLeads, error: selectedError } = await admin
+    .from("lead_intake")
+    .select("id,crm_stage")
+    .eq("lead_type", "client_hiring")
+    .in("id", leadIds);
+  if (selectedError) fail(selectedError.message);
+  if (!selectedLeads?.length) fail("No client hiring records matched that selection.");
+
+  if (followUpAt) {
+    const closedCount = selectedLeads.filter((lead) => ["won", "lost"].includes(String(lead.crm_stage || ""))).length;
+    if (closedCount) {
+      fail(`Follow-up dates can only be set on active clients. ${closedCount} selected record${closedCount === 1 ? " is" : "s are"} already closed.`);
+    }
+  }
+
+  const selectedLeadIds = selectedLeads.map((lead) => String(lead.id));
   const { data: updated, error } = await admin
     .from("lead_intake")
     .update(patch)
     .eq("lead_type", "client_hiring")
-    .in("id", leadIds)
+    .in("id", selectedLeadIds)
     .select("id");
   if (error) fail(error.message || "Could not update the selected client records.");
 

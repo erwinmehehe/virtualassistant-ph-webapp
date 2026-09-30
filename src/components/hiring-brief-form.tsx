@@ -431,15 +431,18 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
 
               <div className="hb-row">
                 <div className="hb-field">
-                  <label htmlFor={`${id}-timezone-display`}>Working timezone / overlap</label>
-                  <input type="hidden" name="timezone" value={detectedTimeZone} />
+                  <label htmlFor={`${id}-timezone`}>Your timezone</label>
                   <input
-                    id={`${id}-timezone-display`}
-                    value={friendlyTimeZoneLabel(detectedTimeZone)}
-                    readOnly
+                    id={`${id}-timezone`}
+                    name="timezone"
+                    required={hireStep === 2}
+                    maxLength={120}
+                    value={detectedTimeZone === "To confirm on discovery call" ? "" : detectedTimeZone}
+                    onChange={(event) => setDetectedTimeZone(event.target.value)}
+                    placeholder="Detected from your device, e.g. Australia/Sydney"
                     aria-describedby={`${id}-timezone-hint`}
                   />
-                  <small id={`${id}-timezone-hint`} className="hb-field-hint">Detected automatically from this device.</small>
+                  <small id={`${id}-timezone-hint`} className="hb-field-hint">We detect this from the client&apos;s device. You can change it if needed.</small>
                 </div>
                 <div className="hb-field">
                   <label htmlFor={`${id}-start`}>Preferred start</label>
@@ -517,15 +520,18 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
               </div>
             </div>
             <div className="hb-field">
-              <label htmlFor={`${id}-timezone-display`}>Timezone</label>
-              <input type="hidden" name="timezone" value={detectedTimeZone} />
+              <label htmlFor={`${id}-timezone`}>Your timezone</label>
               <input
-                id={`${id}-timezone-display`}
-                value={friendlyTimeZoneLabel(detectedTimeZone)}
-                readOnly
+                id={`${id}-timezone`}
+                name="timezone"
+                required
+                maxLength={120}
+                value={detectedTimeZone === "To confirm on discovery call" ? "" : detectedTimeZone}
+                onChange={(event) => setDetectedTimeZone(event.target.value)}
+                placeholder="Detected from your device, e.g. Australia/Sydney"
                 aria-describedby={`${id}-timezone-hint`}
               />
-              <small id={`${id}-timezone-hint`} className="hb-field-hint">Detected automatically from this device.</small>
+              <small id={`${id}-timezone-hint`} className="hb-field-hint">Detected from the client&apos;s device and editable.</small>
             </div>
             <div className="hb-field">
               <label htmlFor={`${id}-message`}>What&apos;s taking up your time right now?</label>

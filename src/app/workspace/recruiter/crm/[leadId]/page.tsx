@@ -7,6 +7,7 @@ import {
   CalendarDays,
   CalendarPlus,
   Check,
+  ClipboardList,
   ListTodo,
   Mail,
   MessageSquareText,
@@ -376,7 +377,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </div>
         </div>
         <div className={styles.headerActions}>
-          {lead.client_id ? <Link className={styles.primaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
+          <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={15}/> Discovery workspace</Link>
+          {lead.client_id ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
           {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
           <Link className={styles.secondaryButton} href="/workspace/recruiter/crm"><UserRound size={15}/> Clients</Link>
         </div>
@@ -416,6 +418,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <div className={styles.actionLinks}>
+          <Link href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={14}/> Discovery</Link>
           {lead.client_id ? <Link href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={14}/> Chat</Link> : null}
           {job ? <Link href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={14}/> Role</Link> : null}
           {job ? <Link href={`/workspace/recruiter/matching/${job.id}`}><UserRound size={14}/> Matching</Link> : null}

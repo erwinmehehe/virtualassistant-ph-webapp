@@ -193,17 +193,18 @@ export async function sendProposalToClientAction(formData: FormData) {
   if (saveError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(saveError.message || "Could not save the proposal.")}`));
 
   try {
-    await sendTransactionalEventEmail({
+    const delivery = await sendTransactionalEventEmail({
       to: lead.email,
       subject: `Your ${fields.roleTitle} hiring recommendation`,
       heading: "Your hiring recommendation is ready",
       body: `Based on our discovery conversation, we prepared a recommended role and commercial proposal for ${lead.company || lead.name || "your business"}. Review the scope, compensation range, VAPH fee, and next steps, then approve it or request changes.`,
       href: proposalUrl,
       hrefLabel: "Review recommendation",
-      priority: "high",
+      priority: "critical",
       idempotencyKey: `proposal-send-${proposalId}-${nextSendCount}`,
       eventType: "client_hiring_proposal",
     });
+    if (!delivery.sent) throw new Error("Proposal email could not be delivered.");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Proposal email could not be sent.";
     redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(message)}`));

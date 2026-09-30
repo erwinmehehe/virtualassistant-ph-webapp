@@ -251,7 +251,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         <input type="hidden" name="session_id" value={sessionId} />
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
-        <TurnstileWidget />
+        <TurnstileWidget action={props.variant === "service" ? "service_match" : "industry_match"} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
           {pending ? "Matching..." : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
         </button>
@@ -296,7 +296,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
           </select>
         </div>
         <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
-        <TurnstileWidget />
+        <TurnstileWidget action="role_brief" />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />

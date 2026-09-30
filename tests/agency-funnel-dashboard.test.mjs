@@ -45,7 +45,7 @@ test("delivery and retention stay separate from sales conversion", () => {
   assert.match(dashboard,/Delivery operations/);
   assert.match(dashboard,/These are not sales conversion stages/);
   assert.match(dashboard,/Retention operations/);
-  assert.match(dashboard,/Sales counts client leads/);
+  assert.match(dashboard,/end-to-end funnel follows client leads/);
 });
 
 test("recruiter and admin funnel views have correct scope and fast auth", () => {

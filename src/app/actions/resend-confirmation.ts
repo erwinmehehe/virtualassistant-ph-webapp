@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
 import { sendAccountConfirmationEmail } from "@/lib/email";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 function safePath(value: string) {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;
@@ -72,6 +73,14 @@ export async function resendSignupConfirmationAction(formData: FormData) {
   } catch {
     redirect(loginRedirect({
       message: "If that account still needs confirmation, please wait before requesting another email.",
+      next,
+      lead
+    }));
+  }
+
+  if (!(await verifyTurnstile(formData, "resend_confirmation"))) {
+    redirect(loginRedirect({
+      error: "Please complete the security check before requesting another confirmation email.",
       next,
       lead
     }));

@@ -8,6 +8,7 @@ import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
+import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
@@ -160,6 +161,24 @@ export default async function RoleControlCenter({
       workSetupVerifiedAt: profile?.work_setup_verified_at,
     });
   }))];
+  const blockedReadinessRows = blockedProposed.map((row) => {
+    const profile = proposedProfile.get(row.va_id) as any;
+    const gaps = talentReadinessActions({
+      stage: proposedStage.get(row.va_id) as string | null | undefined,
+      activePool: proposedPoolIds.has(row.va_id),
+      availabilityStatus: profile?.availability_status,
+      availabilityConfirmedAt: profile?.availability_confirmed_at,
+      workSetupVerifiedAt: profile?.work_setup_verified_at,
+    });
+    return {
+      vaId: row.va_id,
+      name: vaMap.get(row.va_id) || "VA",
+      gaps,
+      needsPool: gaps.includes("Add to talent pool"),
+      needsWorkSetup: gaps.includes("Verify work setup"),
+      needsAvailability: gaps.includes("Confirm availability") || gaps.includes("Refresh availability"),
+    };
+  }).sort((a, b) => a.gaps.length - b.gaps.length || a.name.localeCompare(b.name));
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
   const activeOffers = offers.filter((x) => !["declined", "cancelled"].includes(x.status));
@@ -212,7 +231,7 @@ export default async function RoleControlCenter({
           : waiting.length > 0
             ? { label: "Follow up", href: "#client-handoff", detail: "The shortlist is with the client. Follow up for a decision rather than building more internal suggestions." }
             : blockedProposed.length > 0
-              ? { label: "Fix shortlist readiness", href: "#matching", detail: `${blockedProposed.length} of ${proposed.length} recruiter-selected candidate${proposed.length === 1 ? "" : "s"} cannot be released yet. ${readinessActions.slice(0, 3).join(" · ") || "Complete talent readiness first"}.` }
+              ? { label: "Fix shortlist readiness", href: `/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`, detail: `${blockedProposed.length} of ${proposed.length} recruiter-selected candidate${proposed.length === 1 ? "" : "s"} cannot be released yet. ${readinessActions.slice(0, 3).join(" · ") || "Complete talent readiness first"}.` }
               : proposed.length > 0
                 ? { label: "Send to client", href: "#matching", detail: "Every recruiter-selected candidate is client-ready. Clear any remaining role gates, preview the shortlist, then release it." }
                 : { label: "Review client-ready matches", href: "#matching", detail: NEXT[job.hiring_stage] || "Review the role and move it forward." };
@@ -410,6 +429,53 @@ export default async function RoleControlCenter({
           ) : null}
         </section>
       </div>
+
+      {blockedReadinessRows.length ? (
+        <section className="card" style={{ marginTop: 18 }}>
+          <div className="row-between wrap">
+            <div>
+              <h2 style={{ margin: 0 }}>Shortlist readiness blockers</h2>
+              <p className="small muted" style={{ margin: "5px 0 0" }}>
+                These are recruiter-selected candidates only. Clear the exact blocker before sending anyone to the client.
+              </p>
+            </div>
+            <Link className="btn btn-primary" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>
+              Open scoped work readiness
+            </Link>
+          </div>
+          <div className="stack" style={{ marginTop: 14 }}>
+            {blockedReadinessRows.map((candidate) => (
+              <div className="review-answer" key={candidate.vaId}>
+                <div className="row-between wrap">
+                  <div>
+                    <strong>{candidate.name}</strong>
+                    <div className="row wrap" style={{ marginTop: 6 }}>
+                      {candidate.gaps.map((gap) => <span className="badge badge-warning" key={gap}>{gap}</span>)}
+                    </div>
+                  </div>
+                  <div className="row wrap">
+                    {candidate.needsPool ? (
+                      <form action={bulkRecruiterVaAction}>
+                        <input type="hidden" name="bulk_action" value="bench"/>
+                        <input type="hidden" name="selection_scope" value="selected"/>
+                        <input type="hidden" name="va_id" value={candidate.vaId}/>
+                        <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}`}/>
+                        <button className="btn btn-sm" type="submit">Add to talent pool</button>
+                      </form>
+                    ) : null}
+                    {candidate.needsWorkSetup ? (
+                      <Link className="btn btn-sm" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>Work readiness</Link>
+                    ) : null}
+                    {candidate.needsAvailability ? (
+                      <Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${candidate.vaId}`}>Open VA profile</Link>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section id="matching" className="role-workspace-section">
         <div className="role-workspace-section-head">

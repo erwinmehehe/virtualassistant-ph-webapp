@@ -13,8 +13,9 @@ test("homepage and hire use problem-first hiring intake modes", async () => {
     read("src/lib/lead-role.ts"),
   ]);
 
-  assert.match(home, /mode="homepage"/);
-  assert.match(home, /Get my VA recommendation/);
+  assert.match(home, /<HiringBriefForm variant="general" sourcePath="\/" \/>/);
+  assert.match(form, /resolvedMode = mode === "default" && sourcePath === "\/" \? "homepage" : mode/);
+  assert.match(form, /Get my VA recommendation/);
   assert.match(hire, /mode="hire"/);
   assert.match(hire, /Get your hiring recommendation/);
   assert.match(form, /What&apos;s taking up your time right now\?/);
@@ -65,6 +66,6 @@ test("qualifying requires an actionable recommendation instead of a generic call
   assert.match(action, /recommended%20role/);
   assert.match(action, /ownership/);
   assert.match(action, /90-day/);
-  assert.match(action, /discovery_workspace_qualified/);
+  assert.match(action, /discovery_workspace_\$\{intent\}/);
   assert.match(action, /Discovery qualified and handed to matching/);
 });

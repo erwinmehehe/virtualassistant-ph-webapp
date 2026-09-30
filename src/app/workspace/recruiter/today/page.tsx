@@ -102,7 +102,7 @@ function meetingActionLabel(value: unknown) {
 
 function exactActionHref(item:any) {
   const meta=item?.metadata||{};
-  if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
+  if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
@@ -113,7 +113,7 @@ function exactActionHref(item:any) {
 }
 
 function actionLabel(item:any) {
-  if(item.kind==="discovery") return "View booking";
+  if(item.kind==="discovery") return "Open Discovery Workspace";
   if(item.kind==="client_email_reply") return "Reply to client";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";

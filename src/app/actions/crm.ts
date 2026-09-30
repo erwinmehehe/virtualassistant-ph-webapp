@@ -277,7 +277,7 @@ export async function bulkUpdateCrmLeadsAction(formData: FormData) {
       if (!owner || !["recruiter", "admin"].includes(String(owner.role)) || owner.account_status !== "active") {
         fail("Choose an active recruiter or admin.");
       }
-      ownerId = owner.id;
+      ownerId = owner!.id;
     }
     patch.owner_id = ownerId;
   }
@@ -297,16 +297,17 @@ export async function bulkUpdateCrmLeadsAction(formData: FormData) {
     .eq("lead_type", "client_hiring")
     .in("id", leadIds);
   if (selectedError) fail(selectedError.message);
-  if (!selectedLeads?.length) fail("No client hiring records matched that selection.");
+  const validatedLeads = selectedLeads || [];
+  if (!validatedLeads.length) fail("No client hiring records matched that selection.");
 
   if (followUpAt) {
-    const closedCount = selectedLeads.filter((lead) => ["won", "lost"].includes(String(lead.crm_stage || ""))).length;
+    const closedCount = validatedLeads.filter((lead) => ["won", "lost"].includes(String(lead.crm_stage || ""))).length;
     if (closedCount) {
       fail(`Follow-up dates can only be set on active clients. ${closedCount} selected record${closedCount === 1 ? " is" : "s are"} already closed.`);
     }
   }
 
-  const selectedLeadIds = selectedLeads.map((lead) => String(lead.id));
+  const selectedLeadIds = validatedLeads.map((lead) => String(lead.id));
   const { data: updated, error } = await admin
     .from("lead_intake")
     .update(patch)

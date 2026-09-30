@@ -98,6 +98,21 @@ type Interview = { id:string; va_id:string; status:string; created_at:string; sc
 type Offer = { id:string; va_id:string; status:string; created_at:string; va_accepted_at:string|null; client_confirmed_at:string|null; declined_at:string|null; start_date:string|null };
 type Workroom = { id:string; va_id:string; status:string; placement_stage:string|null; created_at:string; placement_stage_entered_at:string|null; handoff_completed_at:string|null; ended_at:string|null };
 type TimelineEvent = { id:string; at:string; kind:string; title:string; detail?:string|null };
+type DiscoveryBrief = {
+  current_pain: string | null;
+  why_now: string | null;
+  ownership_needed: string | null;
+  success_90_days: string | null;
+  decision_process: string | null;
+  recommended_role: string | null;
+  recommended_hours: number | null;
+  recommended_salary_min: number | null;
+  recommended_salary_max: number | null;
+  salary_currency: string | null;
+  recommended_start_date: string | null;
+  qualification_status: string | null;
+  updated_at: string | null;
+};
 
 function fmt(value?: string | null, withTime = false) {
   if (!value) return "—";
@@ -111,6 +126,19 @@ function fmt(value?: string | null, withTime = false) {
 function stageClass(stage?: string | null) {
   const value = String(stage || "new").replace(/[^a-z0-9_-]/gi, "");
   return `${styles.stage} ${styles[`stage_${value}`] || ""}`;
+}
+
+function leadAge(createdAt: string) {
+  const ms = Math.max(0, Date.now() - new Date(createdAt).getTime());
+  const hours = Math.floor(ms / 3600000);
+  if (hours < 1) return "Less than 1 hour";
+  if (hours < 48) return `${hours} hours`;
+  return `${Math.floor(hours / 24)} days`;
+}
+
+function known(value?: string | null) {
+  const clean = String(value || "").trim().toLowerCase();
+  return Boolean(clean && clean !== "not sure yet" && !clean.startsWith("to confirm"));
 }
 
 function activityTitle(action: string) {
@@ -144,7 +172,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (!leadData) notFound();
   const lead = leadData as Lead;
 
-  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult] = await Promise.all([
+  const [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult, discoveryBriefResult] = await Promise.all([
     lead.job_id
       ? admin.from("jobs").select("id,title,company_name,status,hiring_stage,hours_per_week,min_hourly_rate,max_hourly_rate,timezone").eq("id", lead.job_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -174,8 +202,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       .select("lead_id,owner_id,job_id,name,company,crm_stage,last_client_reply_at,last_recruiter_response_at,last_recruiter_response_action,reply_status")
       .eq("lead_id", leadId)
       .maybeSingle(),
+    admin.from("lead_discovery_briefs")
+      .select("current_pain,why_now,ownership_needed,success_90_days,decision_process,recommended_role,recommended_hours,recommended_salary_min,recommended_salary_max,salary_currency,recommended_start_date,qualification_status,updated_at")
+      .eq("lead_id", leadId)
+      .maybeSingle(),
   ]);
-  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult]) {
+  for (const result of [jobResult, ownersResult, activityResult, notesResult, tasksResult, customFieldsResult, customValuesResult, emailResult, proposalResult, shortlistResult, interviewResult, offerResult, workroomResult, replyStateResult, discoveryBriefResult]) {
     if (result.error) throw result.error;
   }
 
@@ -212,6 +244,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const offers = (offerResult.data || []) as Offer[];
   const workrooms = (workroomResult.data || []) as Workroom[];
   const replyState = replyStateResult.data as ClientReplyStateRow | null;
+  const discoveryBrief = discoveryBriefResult.data as DiscoveryBrief | null;
 
   const { data: engagementRows, error: engagementError } = await admin
     .rpc("recruiter_client_activity_snapshot", { lead_ids: [leadId] });
@@ -354,6 +387,27 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const interviewRequested = shortlists.some((item) => item.client_decision === "interview");
   const clientDecisionReceived = shortlists.some((item) => Boolean(item.client_decision_at));
   const openInterview = interviews.some((item) => !["cancelled", "completed"].includes(item.status));
+  const resolvedRole = discoveryBrief?.recommended_role || job?.title || lead.service || "—";
+  const resolvedHours = discoveryBrief?.recommended_hours
+    ? `${discoveryBrief.recommended_hours}/week`
+    : lead.hours || (job?.hours_per_week ? `${job.hours_per_week}/week` : "—");
+  const resolvedBudget = discoveryBrief?.recommended_salary_min || discoveryBrief?.recommended_salary_max
+    ? `${discoveryBrief.salary_currency || "PHP"} ${discoveryBrief.recommended_salary_min ?? "—"}${discoveryBrief.recommended_salary_max ? `–${discoveryBrief.recommended_salary_max}` : ""}`
+    : lead.budget || (job?.min_hourly_rate ? `${job.min_hourly_rate}–${job.max_hourly_rate || job.min_hourly_rate}/hr` : "—");
+  const resolvedStart = discoveryBrief?.recommended_start_date || lead.start_time || "—";
+  const callReadiness = [
+    { label: "Business problem understood", complete: Boolean(discoveryBrief?.current_pain || lead.message), prompt: "Clarify the operational pain this hire must remove." },
+    { label: "Why now captured", complete: Boolean(discoveryBrief?.why_now), prompt: "Ask what changed and why the hire matters now." },
+    { label: "Responsibilities defined", complete: Boolean(discoveryBrief?.ownership_needed), prompt: "Define what the VA should fully own." },
+    { label: "Hours known", complete: Boolean(discoveryBrief?.recommended_hours || known(lead.hours) || job?.hours_per_week), prompt: "Confirm weekly hours and working overlap." },
+    { label: "Budget discussed", complete: known(lead.budget) || Boolean(discoveryBrief?.recommended_salary_min || discoveryBrief?.recommended_salary_max || job?.min_hourly_rate), prompt: "Confirm the working budget and commercial fit." },
+    { label: "Start timeframe known", complete: known(lead.start_time) || Boolean(discoveryBrief?.recommended_start_date), prompt: "Confirm when the client wants the VA to start." },
+    { label: "90-day success defined", complete: Boolean(discoveryBrief?.success_90_days), prompt: "Define what success should look like after 90 days." },
+    { label: "Decision process known", complete: Boolean(discoveryBrief?.decision_process), prompt: "Confirm who decides, interview steps, and approval timing." },
+  ];
+  const missingCallItems = callReadiness.filter((item) => !item.complete);
+  const completedCallItems = callReadiness.length - missingCallItems.length;
+
   const nextAction = hasHire
     ? { label: "Close role", href: job ? `/workspace/recruiter/roles/${job.id}#overview` : returnTo, detail: "A placement exists. Close the role when no additional hiring is needed." }
     : hasOffer
@@ -416,6 +470,59 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       <nav className={styles.workflow} aria-label="Hiring workflow">
         {workflowSteps.map((label,index)=><span key={label} className={index < workflowIndex ? styles.workflowDone : index === workflowIndex ? styles.workflowCurrent : undefined}><i>{index < workflowIndex ? "✓" : index + 1}</i><em>{label}</em></span>)}
       </nav>
+
+      <section className={styles.closingBrief}>
+        <div className={styles.closingBriefHead}>
+          <div>
+            <span className={styles.kicker}>Pre-call / closing brief</span>
+            <h2>Know the client before the conversation starts.</h2>
+            <p>Use this as the closer&apos;s one-screen briefing. Missing discovery answers are called out before they become proposal or follow-up problems.</p>
+          </div>
+          <div className={styles.closingBriefActions}>
+            <span className={missingCallItems.length ? styles.closingProgressOpen : styles.closingProgressReady}>
+              {completedCallItems}/{callReadiness.length} known
+            </span>
+            <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>
+              <ClipboardList size={15}/> Open discovery
+            </Link>
+          </div>
+        </div>
+
+        <div className={styles.closingFactGrid}>
+          <div><span>Company</span><strong>{lead.company || job?.company_name || "—"}</strong></div>
+          <div><span>Role / need</span><strong>{resolvedRole}</strong></div>
+          <div><span>Hours</span><strong>{resolvedHours}</strong></div>
+          <div><span>Budget</span><strong>{resolvedBudget}</strong></div>
+          <div><span>Timezone</span><strong>{lead.timezone || job?.timezone || "—"}</strong></div>
+          <div><span>Preferred start</span><strong>{resolvedStart}</strong></div>
+          <div><span>Source</span><strong>{String(lead.source_page || "Direct").replaceAll("_", " ")}</strong></div>
+          <div><span>Lead age</span><strong>{leadAge(lead.created_at)}</strong></div>
+        </div>
+
+        <div className={styles.closingBriefBody}>
+          <div className={styles.closingNeed}>
+            <span>Original hiring need</span>
+            <p>{discoveryBrief?.current_pain || lead.message || "No detailed workload was supplied yet."}</p>
+          </div>
+          <div className={styles.closingChecklist}>
+            <div className={styles.closingChecklistHead}>
+              <div>
+                <span>What we need to learn</span>
+                <strong>{missingCallItems.length ? `${missingCallItems.length} item${missingCallItems.length === 1 ? "" : "s"} still unclear` : "Discovery inputs complete"}</strong>
+              </div>
+              {discoveryBrief?.updated_at ? <small>Updated {fmt(discoveryBrief.updated_at, true)}</small> : <small>Not yet saved in Discovery</small>}
+            </div>
+            <div className={styles.closingChecklistItems}>
+              {(missingCallItems.length ? missingCallItems : callReadiness).map((item) => (
+                <div key={item.label} className={item.complete ? styles.closingChecklistComplete : styles.closingChecklistMissing}>
+                  <span aria-hidden="true">{item.complete ? "✓" : "?"}</span>
+                  <div><strong>{item.label}</strong><small>{item.complete ? "Captured" : item.prompt}</small></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <ClientEngagementPanel
         linked={Boolean(lead.client_id)}

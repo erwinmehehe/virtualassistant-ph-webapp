@@ -499,6 +499,8 @@ export async function acceptLeadProposalAction(formData: FormData) {
     description,
     responsibilities: proposalResponsibilities.length ? proposalResponsibilities : description ? [description] : [],
     categories: inferCategories(lead.service, proposal.summary || lead.message),
+    required_skills: proposalSkills,
+    required_tools: proposalTools,
     hours_per_week: proposal.hours_per_week || inferHours(lead.hours),
     min_hourly_rate: proposal.va_rate_min || MIN_HOURLY_RATE,
     max_hourly_rate: proposal.va_rate_max || null,
@@ -557,16 +559,6 @@ export async function acceptLeadProposalAction(formData: FormData) {
       // is already committed by the atomic database transaction.
     }
   }
-
-  const matchingPatch: Record<string, unknown> = {
-    hiring_stage: "ready_to_recruit",
-    hiring_stage_entered_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  if (proposalResponsibilities.length) matchingPatch.responsibilities = proposalResponsibilities;
-  if (proposalSkills.length) matchingPatch.required_skills = proposalSkills;
-  if (proposalTools.length) matchingPatch.required_tools = proposalTools;
-  await admin.from("jobs").update(matchingPatch).eq("id", acceptedJobId);
 
   if (clientId) {
     try {

@@ -159,7 +159,7 @@ async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: 
 export async function loginAction(formData: FormData) {
   const rawEmail = String(formData.get("email") || "").trim().toLowerCase();
   await limitOrRedirect("auth_login", rawEmail, 8, 30, 15, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
-  if (!(await verifyTurnstile(formData))) redirect("/auth/login?error=Please%20complete%20the%20security%20check");
+  if (!(await verifyTurnstile(formData, "login"))) redirect("/auth/login?error=Please%20complete%20the%20security%20check");
   const rawNext = String(formData.get("next") || "").trim();
   const rawLead = String(formData.get("lead") || "").trim();
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
@@ -221,7 +221,7 @@ export async function loginAction(formData: FormData) {
 export async function joinAction(formData: FormData) {
   const rawEmailForLimit = String(formData.get("email") || "").trim().toLowerCase();
   await limitOrRedirect("auth_join", rawEmailForLimit, 5, 15, 60, (message) => joinErrorPath(String(formData.get("role")) === "client" ? "client" : "va", message));
-  if (!(await verifyTurnstile(formData))) {
+  if (!(await verifyTurnstile(formData, "join"))) {
     const roleForError = String(formData.get("role")) === "client" ? "client" : "va";
     redirect(joinErrorPath(roleForError, "Please complete the security check"));
   }
@@ -404,7 +404,8 @@ export async function logoutAction() {
 
 export async function requestPasswordResetAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  await limitOrRedirect("password_reset", email, 4, 12, 60, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
+  await limitOrRedirect("password_reset", email, 4, 12, 60, (message) => `/auth/forgot?error=${encodeURIComponent(message)}`);
+  if (!(await verifyTurnstile(formData, "password_reset"))) redirect("/auth/forgot?error=Please%20complete%20the%20security%20check");
 
   if (email) {
     let brandedRecoverySent = false;

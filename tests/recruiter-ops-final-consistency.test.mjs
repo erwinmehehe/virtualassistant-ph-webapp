@@ -20,12 +20,13 @@ test("Work Readiness keeps one fast queue and three obvious priority states",asy
   assert.match(loader,/withServerTiming\("recruiter\.work_readiness"/);
 });
 
-test("Agency Funnel is sales-first and separates operations",async()=>{
+test("Agency Funnel follows the hiring journey and separates operations",async()=>{
   const component=await read("src/components/agency-funnel-dashboard.tsx");
-  for(const label of ["Leads","Calls booked","Qualified","Proposals","Clients won"]){
+  for(const label of ["Enquiries","Discovery booked","Discovery attended","Qualified","Shortlist","Interview","Offer","Hire"]){
     assert.match(component,new RegExp(`label:"${label}"`));
   }
   assert.match(component,/conversion=previous\?percent\(stage\.value,previous\.value\):null/);
+  assert.match(component,/Discovery → hire/);
   assert.match(component,/Biggest drop-off/);
   assert.match(component,/Delivery operations/);
   assert.match(component,/Retention operations/);

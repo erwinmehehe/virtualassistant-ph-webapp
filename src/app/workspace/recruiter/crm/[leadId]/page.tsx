@@ -18,7 +18,8 @@ import {
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LEAD_CRM_STAGES, leadStageLabel } from "@/lib/lead-crm";
-import { dateInputValue as dateInput, dateTimeInputValue as dateTimeInput } from "@/lib/format";
+import { dateInputValue as dateInput } from "@/lib/format";
+import { dateTimeInputValueInTimeZone, formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import {
   updateLeadCrmAction,
   addRecruiterNoteAction,
@@ -178,6 +179,11 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   }
 
   const job = jobResult.data as Job | null;
+  const clientTimeZone = isValidTimeZone(lead.timezone)
+    ? String(lead.timezone)
+    : isValidTimeZone(job?.timezone)
+      ? String(job?.timezone)
+      : "";
   const owners = (ownersResult.data || []) as Owner[];
   const activities = (activityResult.data || []) as Activity[];
   const notes = (notesResult.data || []) as Note[];
@@ -440,13 +446,22 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </details>
 
           <details className={styles.actionCard} open={stage === "contacted" && !lead.discovery_scheduled_at}>
-            <summary><span className={styles.actionIcon}><CalendarPlus size={16}/></span><span><strong>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? "Reschedule discovery" : "Book discovery"}</strong><small>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? fmt(lead.discovery_scheduled_at,true) : "Create the meeting only when a call is actually needed."}</small></span><ArrowRight size={15}/></summary>
+            <summary><span className={styles.actionIcon}><CalendarPlus size={16}/></span><span><strong>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? "Reschedule discovery" : "Book discovery"}</strong><small>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? formatDateTimeInTimeZone(lead.discovery_scheduled_at, clientTimeZone) : "Create the meeting only when a call is actually needed."}</small></span><ArrowRight size={15}/></summary>
             <div className={styles.actionFormStack}>
               <form action={scheduleDiscoveryAction} className={styles.actionForm}>
                 <input type="hidden" name="lead_id" value={lead.id}/>
                 <input type="hidden" name="request_id" value={crypto.randomUUID()}/>
                 <input type="hidden" name="return_to" value={returnTo}/>
-                <label>Date & time <span className={styles.muted}>(Manila)</span><input type="datetime-local" name="discovery_scheduled_at" required defaultValue={dateTimeInput(lead.discovery_scheduled_at)}/></label>
+                <label>Client timezone
+                  <input
+                    name="discovery_timezone"
+                    required
+                    defaultValue={clientTimeZone}
+                    placeholder="e.g. Australia/Sydney or America/Chicago"
+                  />
+                  <span className={styles.formHint}>{clientTimeZone ? "The call time below is entered in this timezone." : "Confirm the client's timezone before scheduling."}</span>
+                </label>
+                <label>Date & time <span className={styles.muted}>(client local time)</span><input type="datetime-local" name="discovery_scheduled_at" required defaultValue={dateTimeInputValueInTimeZone(lead.discovery_scheduled_at, clientTimeZone)}/></label>
                 <label>Duration<select name="discovery_duration_minutes" defaultValue={String(lead.discovery_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label>
                 <label>Meeting link <span className={styles.muted}>(optional)</span><input type="url" name="discovery_meeting_url" defaultValue={lead.discovery_meeting_url || ""} placeholder="Leave blank to create Google Meet"/></label>
                 <button type="submit"><CalendarPlus size={14}/> Save booking</button>

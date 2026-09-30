@@ -147,11 +147,25 @@ export default async function ProposalPage({
           </div>
 
           {proposal.service_model === "managed_service" ? <div className="proposal-price-grid">
-            <div><span>Estimated VA pay</span><strong>{lowVaMonthly === highVaMonthly ? `${usd(lowVaMonthly)}/mo` : `${usd(lowVaMonthly)}–${usd(highVaMonthly)}/mo`}</strong></div>
+            <div><span>Recommended VA compensation</span><strong>{hasSalaryRange
+              ? salaryMin === salaryMax && salaryMin != null
+                ? `${money(salaryMin, salaryCurrency)}/month`
+                : `${salaryMin != null ? money(salaryMin, salaryCurrency) : "—"}–${salaryMax != null ? money(salaryMax, salaryCurrency) : "—"}/month`
+              : lowVaMonthly
+                ? lowVaMonthly === highVaMonthly ? `${usd(lowVaMonthly)}/mo` : `${usd(lowVaMonthly)}–${usd(highVaMonthly)}/mo`
+                : "To confirm"}</strong></div>
             <div><span>Managed-service margin</span><strong>{Number(proposal.managed_markup_percent || 0)}%</strong></div>
-            <div className="primary"><span>Estimated monthly total</span><strong>{lowClientMonthly === highClientMonthly ? `${usd(lowClientMonthly)}/mo` : `${usd(lowClientMonthly)}–${usd(highClientMonthly)}/mo`}</strong></div>
+            <div className="primary"><span>Estimated monthly total</span><strong>{lowClientMonthly
+              ? lowClientMonthly === highClientMonthly ? `${usd(lowClientMonthly)}/mo` : `${usd(lowClientMonthly)}–${usd(highClientMonthly)}/mo`
+              : "Confirmed after final VA compensation"}</strong></div>
           </div> : <div className="proposal-price-grid">
-            <div><span>Estimated VA compensation</span><strong>{lowVaMonthly === highVaMonthly ? `${usd(lowVaMonthly)}/mo` : `${usd(lowVaMonthly)}–${usd(highVaMonthly)}/mo`}</strong></div>
+            <div><span>Recommended VA compensation</span><strong>{hasSalaryRange
+              ? salaryMin === salaryMax && salaryMin != null
+                ? `${money(salaryMin, salaryCurrency)}/month`
+                : `${salaryMin != null ? money(salaryMin, salaryCurrency) : "—"}–${salaryMax != null ? money(salaryMax, salaryCurrency) : "—"}/month`
+              : lowVaMonthly
+                ? lowVaMonthly === highVaMonthly ? `${usd(lowVaMonthly)}/mo` : `${usd(lowVaMonthly)}–${usd(highVaMonthly)}/mo`
+                : "To confirm"}</strong></div>
             <div><span>One-time placement fee</span><strong>{usd(proposal.placement_fee)}</strong></div>
             <div className="primary"><span>Ongoing service fee</span><strong>None</strong></div>
           </div>}

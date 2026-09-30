@@ -48,7 +48,11 @@ test("client CRM record opens reply action and shows reply workflow state", asyn
   ]);
 
   assert.match(record, /recruiter_client_reply_state/);
-  assert.match(record, /open=\{replyStatus === "needs_action"\}/);
+  assert.match(record, /open=\{replyStatus === "needs_action" \|\|/);
+  assert.match(record, /followUpOverdue/);
+  assert.match(record, /proposalViewedWaiting/);
+  assert.match(record, /proposalUnopened/);
+  assert.match(record, /noResponseStall/);
   assert.match(record, /Reply to client/);
   assert.match(record, /replyStatus=\{replyStatusLabel\}/);
   assert.match(panel, /Reply status/);

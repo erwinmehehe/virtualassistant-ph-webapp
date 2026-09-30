@@ -2271,3 +2271,273 @@
     white-space: normal;
   }
 }
+
+
+/* Recruiter sales closing control */
+.closingControl {
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid #e2e4ea;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.closingControlHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #eceef2;
+  background: linear-gradient(180deg, #fcfcfd 0%, #fff 100%);
+}
+
+.closingControlHead h2 {
+  margin: 3px 0 4px;
+  color: #20212a;
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+
+.closingControlHead p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--crm-muted);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.recoveryUrgent,
+.recoveryWaiting,
+.recoveryClear {
+  display: grid;
+  flex: 0 0 260px;
+  gap: 2px;
+  padding: 9px 11px;
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.recoveryUrgent {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.recoveryWaiting {
+  border-color: #fedf89;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.recoveryClear {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.recoveryUrgent strong,
+.recoveryWaiting strong,
+.recoveryClear strong {
+  font-size: 10.5px;
+}
+
+.recoveryUrgent span,
+.recoveryWaiting span,
+.recoveryClear span {
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.recoveryUrgent a,
+.recoveryWaiting a,
+.recoveryClear a {
+  margin-top: 3px;
+  color: inherit;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.closingFlow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-bottom: 1px solid #eceef2;
+}
+
+.closingFlow > div {
+  min-width: 0;
+  padding: 12px 13px;
+  border-right: 1px solid #eceef2;
+}
+
+.closingFlow > div:last-child {
+  border-right: 0;
+}
+
+.closingFlow span {
+  display: block;
+  margin-bottom: 4px;
+  color: #98a2b3;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.closingFlow strong {
+  display: block;
+  color: #292b34;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.closingFlow small {
+  display: -webkit-box;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #98a2b3;
+  font-size: 9px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.closingControlForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.closingControlForm label {
+  display: grid;
+  gap: 5px;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.closingControlForm textarea,
+.closingControlForm input,
+.closingControlForm select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #dfe2e8;
+  border-radius: 9px;
+  background: #fff;
+  color: #292b34;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.closingControlForm input,
+.closingControlForm select {
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.closingControlForm textarea {
+  min-height: 82px;
+  padding: 9px 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.closingWide {
+  grid-column: span 1;
+}
+
+.closingFormActions {
+  display: flex;
+  align-items: center;
+  grid-column: 1 / -1;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.closingFormActions button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid #444ce7;
+  border-radius: 8px;
+  background: #444ce7;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.closingFormActions .secondaryFormButton {
+  border-color: #dfe2e8;
+  background: #fff;
+  color: #475467;
+}
+
+.closingClosed {
+  padding: 13px 16px;
+  color: #667085;
+  font-size: 11px;
+  background: #f8f9fb;
+}
+
+@media (max-width: 980px) {
+  .closingFlow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .closingFlow > div {
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFlow > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .closingFlow > div:last-child {
+    grid-column: 1 / -1;
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .closingControlHead {
+    flex-direction: column;
+  }
+
+  .recoveryUrgent,
+  .recoveryWaiting,
+  .recoveryClear {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .closingFlow,
+  .closingControlForm {
+    grid-template-columns: 1fr;
+  }
+
+  .closingFlow > div,
+  .closingFlow > div:nth-child(2n),
+  .closingFlow > div:last-child {
+    grid-column: auto;
+    border-right: 0;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  .closingFlow > div:last-child {
+    border-bottom: 0;
+  }
+
+  .closingFormActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .closingFormActions button {
+    width: 100%;
+  }
+}

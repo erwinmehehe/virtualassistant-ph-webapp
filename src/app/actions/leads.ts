@@ -554,6 +554,7 @@ const roleBriefSchema = z.object({
   name: z.string().max(100).optional(),
   company: z.string().max(160).optional(),
   start_time: z.string().max(100).optional(),
+  tools: z.string().trim().max(600).optional(),
   message: z.string().trim().min(15).max(3000),
   talent: z.string().max(160).optional(),
   shortlist: z.string().max(800).optional(),
@@ -575,6 +576,7 @@ const roleBriefFieldLabels: Record<string, string> = {
   hours: "Hours / week",
   timezone: "Timezone / overlap",
   budget: "Hourly budget",
+  tools: "Tools or systems",
   email: "Work email",
   message: "What should this Virtual Assistant own"
 };
@@ -620,7 +622,13 @@ export async function submitRoleBriefAction(formData: FormData) {
   const candidateContext = parsed.data.talent ? `Requested talent profile: ${parsed.data.talent}.` : "";
   const shortlistContext = shortlistSlugs.length ? `Client-selected shortlist: ${shortlistSlugs.join(", ")}.` : "";
   const budgetContext = `Virtual Assistant budget: ${parsed.data.budget}.`;
-  const message = [candidateContext, shortlistContext, budgetContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
+  const tools = String(parsed.data.tools || "")
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 20);
+  const toolsContext = tools.length ? `Tools / systems: ${tools.join(", ")}.` : "";
+  const message = [candidateContext, shortlistContext, budgetContext, toolsContext, parsed.data.message?.trim()].filter(Boolean).join("\n\n") || null;
   const admin = createAdminClient();
   const sourcePath = parsed.data.source_path || "/hire";
   const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -689,6 +697,7 @@ export async function submitRoleBriefAction(formData: FormData) {
       startTime: parsed.data.start_time?.trim() || null,
       message,
       budget: parsed.data.budget,
+      tools,
       requestedVaId
     });
   } catch {
@@ -701,7 +710,7 @@ export async function submitRoleBriefAction(formData: FormData) {
     jobId,
     path: sourcePath,
     sessionId: parsed.data.session_id || null,
-    metadata: { service: category, source_page: sourcePage, shortlist: shortlistSlugs }
+    metadata: { service: category, source_page: sourcePage, shortlist: shortlistSlugs, tools }
   });
 
   try {

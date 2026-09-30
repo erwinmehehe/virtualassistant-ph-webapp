@@ -96,8 +96,11 @@ export function formatDateTimeInTimeZone(
     return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
   }
   return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     timeZone: String(timeZone),
     timeZoneName: "short",
   }).format(new Date(value));

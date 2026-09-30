@@ -19,6 +19,9 @@ test("homepage and hire use problem-first hiring intake modes", async () => {
   assert.match(form, /Hours per week/);
   assert.match(form, /Hourly budget range/);
   assert.match(form, />Timezone<\/label>/);
+  assert.match(form, /friendlyTimeZoneLabel/);
+  assert.match(form, /Detected automatically from this device/);
+  assert.match(form, /rows=\{3\}/);
   assert.match(hire, /mode="hire"/);
   assert.match(hire, /Get your hiring recommendation/);
   assert.match(form, /What&apos;s taking up your time right now\?/);

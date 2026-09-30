@@ -139,7 +139,14 @@ export async function oauthAction(formData: FormData) {
       scopes: parsed.data.provider === "azure" ? "email openid profile" : undefined
     }
   });
-  if (error || !data.url) redirect(`/auth/login?error=${encodeURIComponent(error?.message || "Could not start social login")}`);
+  if (error || !data.url) {
+    console.warn("[auth_oauth] start_failed", {
+      provider: parsed.data.provider,
+      code: String((error as { code?: string } | null)?.code || "") || null,
+      status: (error as { status?: number } | null)?.status || null,
+    });
+    redirect("/auth/login?error=Could%20not%20start%20social%20login.%20Please%20try%20again.");
+  }
   redirect(data.url);
 }
 
@@ -175,8 +182,13 @@ export async function loginAction(formData: FormData) {
   if (error) {
     const errorCode = String((error as { code?: string }).code || "");
     const needsConfirmation = errorCode === "email_not_confirmed" || /email.*not.*confirm/i.test(error.message);
+    console.info("[auth_login] failed", {
+      code: errorCode || null,
+      status: (error as { status?: number }).status || null,
+      needsConfirmation,
+    });
     const params = new URLSearchParams({
-      error: needsConfirmation ? "Confirm your email before logging in." : error.message
+      error: needsConfirmation ? "Confirm your email before logging in." : "Email or password is incorrect."
     });
     if (needsConfirmation) params.set("confirm", "1");
     if (parsed.data.next) params.set("next", parsed.data.next);
@@ -278,7 +290,7 @@ export async function joinAction(formData: FormData) {
       if (parsed.data.lead) loginParams.set("lead", parsed.data.lead);
       redirect(`/auth/login?${loginParams.toString()}`);
     }
-    redirect(joinErrorPath(parsed.data.role, error?.message || "We could not create your account. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
+    redirect(joinErrorPath(parsed.data.role, "We could not create your account. Please try again.", { talent: parsed.data.talent, lead: parsed.data.lead, next: parsed.data.next }));
   }
 
   const tokenHash = tokenFromGeneratedActionLink(data.properties?.action_link);
@@ -461,7 +473,13 @@ export async function updatePasswordAction(formData: FormData) {
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) redirect(`/auth/update-password?error=${encodeURIComponent(error.message)}`);
+  if (error) {
+    console.warn("[auth_password_update] failed", {
+      code: String((error as { code?: string }).code || "") || null,
+      status: (error as { status?: number }).status || null,
+    });
+    redirect("/auth/update-password?error=We%20could%20not%20update%20your%20password.%20Please%20request%20a%20new%20recovery%20link%20and%20try%20again.");
+  }
   const { data: { user } } = await supabase.auth.getUser();
   const profile = user ? await getOrBootstrapProfile(user) : null;
   if (user?.email) { try { const { sendTransactionalEventEmail } = await import("@/lib/email"); await sendTransactionalEventEmail({ to: user.email, subject: "Your password was changed", heading: "Password updated", body: "The password for your VirtualAssistant.com.ph account was changed. If you did not do this, contact support immediately.", archive: false }); } catch {} }

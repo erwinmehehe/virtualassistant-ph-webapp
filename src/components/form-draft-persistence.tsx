@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const DRAFT_PREFIX = "va_role_brief_v1:";
 
 export function FormDraftPersistence({ formId, storageKey }: { formId: string; storageKey: string }) {
-  const [restored, setRestored] = useState(false);
-
   useEffect(() => {
     const form = document.getElementById(formId) as HTMLFormElement | null;
     if (!form) return;
@@ -21,7 +19,6 @@ export function FormDraftPersistence({ formId, storageKey }: { formId: string; s
         const field = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
         if (field && field.type !== "file" && !field.value) field.value = value;
       }
-      setRestored(Object.keys(saved).length > 0);
     } catch { /* storage may be unavailable */ }
 
     const save = () => {
@@ -38,5 +35,5 @@ export function FormDraftPersistence({ formId, storageKey }: { formId: string; s
     return () => { form.removeEventListener("input", save); form.removeEventListener("change", save); };
   }, [formId, storageKey]);
 
-  return <p className="form-draft-note" aria-live="polite">{restored ? "Draft restored from this device." : "Your progress is saved on this device."}</p>;
+  return null;
 }

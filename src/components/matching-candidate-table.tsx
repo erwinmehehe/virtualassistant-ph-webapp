@@ -48,6 +48,9 @@ function matchReasons(row: Row) {
   if(matchingSkills.length) reasons.push(`${matchingSkills.slice(0,2).join(", ")} skill${matchingSkills.length>1?"s":""}`);
   const matchingTools=(job.required_tools || []).filter((item:string)=>tools.has(item.toLowerCase()));
   if(matchingTools.length) reasons.push(`${matchingTools.slice(0,2).join(", ")} experience`);
+  const trainingTitles=(row.trainingCredentials || []).map((credential)=>credential.courseTitle.toLowerCase());
+  const trainedTools=(job.required_tools || []).filter((tool:string)=>trainingTitles.some((title)=>title.includes(tool.toLowerCase())));
+  if(trainedTools.length) reasons.push(`${trainedTools.slice(0,2).join(", ")} training completed`);
   if(row.va.availability_status==="available") reasons.push("Available now");
   if(job.hours_per_week&&row.va.weekly_hours>=job.hours_per_week) reasons.push(`${row.va.weekly_hours} hrs/week available`);
   if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Schedule overlap available");

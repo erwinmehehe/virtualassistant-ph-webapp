@@ -12,6 +12,7 @@ const FIELD_TYPES = new Set(["text", "number", "date", "boolean", "select"]);
 const WORKFLOW_ACTIONS = new Set(["create_task", "set_follow_up"]);
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
 const DASHBOARD_WIDGETS = new Set(["active", "needs_action", "discovery", "qualified", "pipeline_value"]);
+const CLOSING_NEXT_STEPS = new Set(["proposal", "qualified", "follow_up", "nurture"]);
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -205,6 +206,94 @@ export async function setCrmCustomValueAction(formData: FormData) {
   if (error) redirect(withParam(returnTo, "field_error", error.message));
   revalidatePath(returnTo.split("?")[0]);
   redirect(withParam(returnTo, "field_value_saved"));
+}
+
+export async function saveCrmClosingControlAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), leadId ? `/workspace/recruiter/crm/${leadId}` : "/workspace/recruiter/crm");
+  const failureRisks = String(formData.get("failure_risks") || "").trim().slice(0, 5000) || null;
+  const additionalNotes = String(formData.get("additional_notes") || "").trim().slice(0, 5000) || null;
+  const nextStep = String(formData.get("closing_next_step") || "follow_up").trim();
+  const followUpRaw = String(formData.get("next_follow_up_at") || "").trim();
+  const quickDaysRaw = String(formData.get("quick_followup_days") || "").trim();
+
+  const fail = (message: string): never => redirect(withParam(returnTo, "closing_error", message));
+  if (!leadId) fail("Client record not found.");
+  if (!CLOSING_NEXT_STEPS.has(nextStep)) fail("Choose a valid closing next step.");
+
+  let nextFollowUpAt: string | null | undefined;
+  if (quickDaysRaw) {
+    const days = Number(quickDaysRaw);
+    if (![2, 7, 14].includes(days)) fail("Choose a valid follow-up interval.");
+    const followUp = new Date();
+    followUp.setDate(followUp.getDate() + days);
+    followUp.setHours(9, 0, 0, 0);
+    nextFollowUpAt = followUp.toISOString();
+  } else if (followUpRaw) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)) fail("Choose a valid follow-up date.");
+    const parsed = new Date(`${followUpRaw}T09:00:00+08:00`);
+    if (!Number.isFinite(parsed.getTime())) fail("Choose a valid follow-up date.");
+    nextFollowUpAt = parsed.toISOString();
+  }
+
+  const admin = createAdminClient();
+  const { data: lead, error: leadError } = await admin
+    .from("lead_intake")
+    .select("id,crm_stage,owner_id,job_id,next_follow_up_at")
+    .eq("id", leadId)
+    .eq("lead_type", "client_hiring")
+    .maybeSingle();
+  if (leadError) fail(leadError.message);
+  if (!lead) fail("Client record not found.");
+  if (["won", "lost"].includes(String(lead.crm_stage || ""))) fail("Closed clients do not need a closing follow-up plan.");
+
+  const qualificationStatus = nextStep === "nurture"
+    ? "nurture"
+    : nextStep === "follow_up"
+      ? "follow_up"
+      : "ready";
+  const now = new Date().toISOString();
+
+  const { error: briefError } = await admin.from("lead_discovery_briefs").upsert({
+    lead_id: leadId,
+    failure_risks: failureRisks,
+    additional_notes: additionalNotes,
+    next_step: nextStep,
+    qualification_status: qualificationStatus,
+    updated_by: user.id,
+    updated_at: now,
+  }, { onConflict: "lead_id" });
+  if (briefError) fail(briefError.message || "Could not save the closing plan.");
+
+  const leadPatch: Record<string, unknown> = {
+    owner_id: lead.owner_id || user.id,
+  };
+  if (nextFollowUpAt !== undefined) leadPatch.next_follow_up_at = nextFollowUpAt;
+  const { error: leadUpdateError } = await admin.from("lead_intake").update(leadPatch).eq("id", leadId).eq("lead_type", "client_hiring");
+  if (leadUpdateError) fail(leadUpdateError.message || "Closing notes saved, but the follow-up date could not be updated.");
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "closing_control_updated",
+    description: "Recruiter updated objections, closing notes, next move, or follow-up timing.",
+    actorId: user.id,
+    metadata: {
+      job_id: lead.job_id || null,
+      next_step: nextStep,
+      next_follow_up_at: nextFollowUpAt === undefined ? lead.next_follow_up_at : nextFollowUpAt,
+      has_objection_notes: Boolean(failureRisks),
+      has_closing_notes: Boolean(additionalNotes),
+      quick_followup_days: quickDaysRaw ? Number(quickDaysRaw) : null,
+    },
+  });
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
+  redirect(withParam(returnTo, "closing_saved"));
 }
 
 export async function updateCrmCompanyAction(formData: FormData) {

@@ -4,6 +4,7 @@ import { bulkWorkReadinessAction, verifyVaWorkSetupAction } from "@/app/actions/
 import { PublicAvatar } from "@/components/public-avatar";
 import { WorkReadinessBulkSelect } from "@/components/work-readiness-bulk-select";
 import { requireAnyRoleFast } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getWorkReadinessQueue, type WorkReadinessQueueRow } from "@/lib/work-readiness-queue";
 
 function dateLabel(value?: string | null) {
@@ -51,7 +52,57 @@ export default async function WorkReadinessPage({
   const { rows, error } = await getWorkReadinessQueue(userId);
   if (error) throw error;
 
-  const annotated = rows.map((setup) => ({ setup, missing: missingEvidence(setup) }));
+  const jobId = String(query.job || "").trim();
+  let scopedRows = rows;
+  let scopedJobTitle: string | null = null;
+
+  if (jobId) {
+    const admin = createAdminClient();
+    const [{ data: job }, { data: shortlistRows }] = await Promise.all([
+      admin.from("jobs").select("id,title").eq("id", jobId).maybeSingle(),
+      admin
+        .from("job_shortlist_candidates")
+        .select("va_id")
+        .eq("job_id", jobId)
+        .eq("shortlist_status", "proposed")
+        .not("created_by", "is", null),
+    ]);
+    scopedJobTitle = job?.title || "Role shortlist";
+    const scopedIds = [...new Set((shortlistRows || []).map((row: any) => String(row.va_id)).filter(Boolean))];
+
+    if (!scopedIds.length) {
+      scopedRows = [];
+    } else {
+      const queueMap = new Map(rows.map((row) => [String(row.user_id), row]));
+      const missingIds = scopedIds.filter((id) => !queueMap.has(id));
+      let missingRows: WorkReadinessQueueRow[] = [];
+
+      if (missingIds.length) {
+        const [{ data: profiles }, { data: setupRows }] = await Promise.all([
+          admin.from("profiles").select("id,full_name,avatar_url").in("id", missingIds),
+          admin
+            .from("va_profiles")
+            .select("user_id,work_setup_computer,work_setup_os,work_setup_ram_gb,primary_internet,backup_internet,backup_power,headset_ready,webcam_ready,quiet_workspace,work_setup_submitted_at,work_setup_verified_at,work_setup_verification_notes")
+            .in("user_id", missingIds),
+        ]);
+        const profileMap = new Map((profiles || []).map((row: any) => [String(row.id), row]));
+        missingRows = (setupRows || []).map((setup: any) => {
+          const profile = profileMap.get(String(setup.user_id)) as any;
+          return {
+            ...setup,
+            full_name: profile?.full_name || null,
+            avatar_url: profile?.avatar_url || null,
+          } as WorkReadinessQueueRow;
+        });
+      }
+
+      const completeMap = new Map<string, WorkReadinessQueueRow>();
+      for (const row of [...rows, ...missingRows]) completeMap.set(String(row.user_id), row);
+      scopedRows = scopedIds.map((id) => completeMap.get(id)).filter(Boolean) as WorkReadinessQueueRow[];
+    }
+  }
+
+  const annotated = scopedRows.map((setup) => ({ setup, missing: missingEvidence(setup) }));
   const ready = annotated.filter(({ setup, missing }) => !setup.work_setup_verified_at && missing.length === 0);
   const incomplete = annotated.filter(({ setup, missing }) => !setup.work_setup_verified_at && missing.length > 0);
   const verified = annotated.filter(({ setup }) => Boolean(setup.work_setup_verified_at));
@@ -103,10 +154,10 @@ export default async function WorkReadinessPage({
     <div className="page-head recruiter-readiness-head">
       <div>
         <div className="kicker">Talent operations</div>
-        <h1>Work readiness</h1>
-        <p>Verify complete setups first, then clear overdue and incomplete evidence without scanning the full VA directory.</p>
+        <h1>{jobId ? "Shortlist work readiness" : "Work readiness"}</h1>
+        <p>{jobId ? `Clear work-readiness blockers for ${scopedJobTitle}. Only recruiter-selected candidates for this role are shown.` : "Verify complete setups first, then clear overdue and incomplete evidence without scanning the full VA directory."}</p>
       </div>
-      <Link className="btn" href="/workspace/recruiter/talent">Open Talent directory</Link>
+      {jobId ? <Link className="btn" href={`/workspace/recruiter/roles/${jobId}#matching`}>Back to role shortlist</Link> : <Link className="btn" href="/workspace/recruiter/talent">Open Talent directory</Link>}
     </div>
 
     <div className="recruiter-readiness-summary" aria-label="Work readiness priorities">
@@ -135,7 +186,7 @@ export default async function WorkReadinessPage({
         </div>
         <div className="recruiter-readiness-tabs" aria-label="Secondary work readiness views">
           <Link href={queueHref(query,{view:"verified",missing:undefined})} className={view === "verified" ? "active" : ""}>Verified <span>{verified.length}</span></Link>
-          <Link href={queueHref(query,{view:"all"})} className={view === "all" ? "active" : ""}>All submitted <span>{rows.length}</span></Link>
+          <Link href={queueHref(query,{view:"all"})} className={view === "all" ? "active" : ""}>{jobId ? "All shortlisted" : "All submitted"} <span>{scopedRows.length}</span></Link>
         </div>
       </div>
 

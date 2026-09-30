@@ -47,6 +47,17 @@ type NewHiringRoleRow = {
   created_at: string;
 };
 
+type UpcomingDiscoveryRow = {
+  id: string;
+  company: string | null;
+  service: string | null;
+  message: string | null;
+  created_at: string;
+  discovery_scheduled_at: string;
+  discovery_meeting_url: string | null;
+  job_id: string | null;
+};
+
 function ageLabel(hours: number | null | undefined) {
   const value = Math.max(0, Number(hours || 0));
   if (value < 24) return `${Math.max(1, Math.round(value))}h`;
@@ -63,6 +74,16 @@ function stageAge(value?: string | null) {
 function manilaTime(value?: string | null) {
   if (!value) return "No due time";
   return new Intl.DateTimeFormat("en-PH", { dateStyle:"medium", timeStyle:"short", timeZone:"Asia/Manila" }).format(new Date(value));
+}
+
+function discoveryPain(message?: string | null) {
+  const clean = String(message || "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^(Requested talent profile|Client-selected shortlist|Virtual Assistant budget|Tools \/ systems):/i.test(line))
+    .join(" ");
+  return clean ? clean.slice(0, 220) : "No pain or workload note captured yet.";
 }
 
 function meetingActionLabel(value: unknown) {
@@ -111,14 +132,29 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const [todaySummary, roleSummary] = await Promise.all([
+  const now = new Date();
+  const discoveryWindowEnd = new Date(now.getTime() + 48 * 3600000);
+  const [todaySummary, roleSummary, upcomingDiscoveryResult] = await Promise.all([
     withServerTiming("recruiter.today_summary", () => admin.rpc("recruiter_today_summary", { p_user_id:userId })),
     getRecruiterRolesSummary(userId),
+    admin
+      .from("lead_intake")
+      .select("id,company,service,message,created_at,discovery_scheduled_at,discovery_meeting_url,job_id")
+      .eq("lead_type", "client_hiring")
+      .eq("owner_id", userId)
+      .is("discovery_completed_at", null)
+      .is("discovery_cancelled_at", null)
+      .gte("discovery_scheduled_at", now.toISOString())
+      .lt("discovery_scheduled_at", discoveryWindowEnd.toISOString())
+      .order("discovery_scheduled_at", { ascending: true })
+      .limit(8),
   ]);
   const { data: summaryData, error: summaryError } = todaySummary;
   if (summaryError) throw summaryError;
   if (roleSummary.error) throw roleSummary.error;
+  if (upcomingDiscoveryResult.error) throw upcomingDiscoveryResult.error;
 
+  const upcomingDiscoveryCalls = (upcomingDiscoveryResult.data || []) as UpcomingDiscoveryRow[];
   const summary = (summaryData || {}) as Record<string,any>;
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
@@ -181,6 +217,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewsDue = Number(summary.interviews_due || 0);
 
   const nextActionCandidates = [
+    {count:upcomingDiscoveryCalls.length,title:"Prepare upcoming discovery calls",copy:"Review the client pain, role, and known context before the call starts.",href:"#upcoming-discovery-calls",cta:"Open call prep",icon:<CalendarDays size={20}/>},
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"/workspace/recruiter/crm?view=attention",cta:"Open client replies",icon:<MessageSquare size={20}/>},
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
@@ -234,6 +271,29 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
     </section>
+
+    {upcomingDiscoveryCalls.length ? <section id="upcoming-discovery-calls" className={`card dashboard-section-card ${styles.sectionShell}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>Upcoming discovery calls</h2><p>Open the call workspace with the client context already in front of you.</p></div>
+        <span className="badge">{upcomingDiscoveryCalls.length} next 48h</span>
+      </div>
+      <div className={styles.discoveryList}>
+        {upcomingDiscoveryCalls.map((lead) => <article className={styles.discoveryRow} key={lead.id}>
+          <div className={styles.discoveryMain}>
+            <div className={styles.discoveryMeta}>
+              <span><CalendarDays size={13}/>{manilaTime(lead.discovery_scheduled_at)}</span>
+              <span><Clock3 size={13}/>{ageLabel((Date.now()-new Date(lead.created_at).getTime())/3600000)} lead age</span>
+            </div>
+            <h3>{lead.company || "Client"} <em>· {lead.service || "Virtual Assistant role"}</em></h3>
+            <p>{discoveryPain(lead.message)}</p>
+          </div>
+          <div className={styles.discoveryActions}>
+            <Link className="btn btn-sm btn-primary" href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open Discovery Workspace</Link>
+            {lead.discovery_meeting_url ? <a className="btn btn-sm" href={lead.discovery_meeting_url} target="_blank" rel="noreferrer">{meetingActionLabel(lead.discovery_meeting_url)} <ExternalLink size={13}/></a> : null}
+          </div>
+        </article>)}
+      </div>
+    </section> : null}
 
     {newHiringRoles.length ? <section id="new-hiring-enquiries" className={`card dashboard-section-card ${styles.sectionShell}`}>
       <div className={`dashboard-section-head ${styles.sectionHead}`}>

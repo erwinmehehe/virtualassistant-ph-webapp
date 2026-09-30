@@ -35,7 +35,7 @@ test("client CRM defaults to a simple pipeline with fixed views and focused acti
   for (const label of ["Active", "Mine", "Needs action", "Discovery", "Qualified", "Won", "Closed"]) {
     assert.match(page, new RegExp(`"${label}"`));
   }
-  assert.match(page, /<th>Client<\/th><th>Stage<\/th><th>Role<\/th><th>Client activity<\/th><th>Owner<\/th><th>Next step<\/th>/);
+  assert.match(page, /<th aria-label="Select"><\/th><th>Client<\/th><th>Stage<\/th><th>Role<\/th><th>Client activity<\/th><th>Owner<\/th><th>Next step<\/th>/);
   assert.match(page, /VA views/);
   assert.doesNotMatch(page, /Account-wide/);
   assert.doesNotMatch(page, /Customize dashboard|Save current view|Attio-style|Pipeline value|objectBar/);

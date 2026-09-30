@@ -426,13 +426,18 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       && latestProposal.sent_at
       && nowMs - new Date(latestProposal.sent_at).getTime() >= 48 * 3600000
   );
-  const lastOutboundAt = lead.last_contact_at || latestProposal?.sent_at || lead.discovery_completed_at || null;
+  const outboundTouchTimes = [lead.last_contact_at, latestProposal?.sent_at || null, lead.discovery_completed_at]
+    .filter(Boolean)
+    .map((value) => new Date(String(value)).getTime())
+    .filter(Number.isFinite);
+  const lastOutboundAtMs = outboundTouchTimes.length ? Math.max(...outboundTouchTimes) : 0;
+  const lastClientReplyAtMs = lastClientReplyAt ? new Date(lastClientReplyAt).getTime() : 0;
   const noResponseStall = Boolean(
     !isClosedLead
-      && !lastClientReplyAt
-      && lastOutboundAt
+      && lastOutboundAtMs > 0
+      && (!lastClientReplyAtMs || lastClientReplyAtMs < lastOutboundAtMs)
       && ["contacted", "qualified", "terms_sent"].includes(stage)
-      && nowMs - new Date(lastOutboundAt).getTime() >= 72 * 3600000
+      && nowMs - lastOutboundAtMs >= 72 * 3600000
   );
   const discoveryOutcomeLabel = lead.discovery_outcome
     ? ({

@@ -4,8 +4,7 @@ import { bulkWorkReadinessAction, verifyVaWorkSetupAction } from "@/app/actions/
 import { PublicAvatar } from "@/components/public-avatar";
 import { WorkReadinessBulkSelect } from "@/components/work-readiness-bulk-select";
 import { requireAnyRoleFast } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { getWorkReadinessQueue, type WorkReadinessQueueRow } from "@/lib/work-readiness-queue";
+import { getRoleShortlistWorkReadinessQueue, getWorkReadinessQueue, type WorkReadinessQueueRow } from "@/lib/work-readiness-queue";
 
 function dateLabel(value?: string | null) {
   if (!value) return "Not submitted";
@@ -49,58 +48,15 @@ export default async function WorkReadinessPage({
 }) {
   const query = await searchParams;
   const { userId } = await requireAnyRoleFast(["recruiter", "admin"]);
-  const { rows, error } = await getWorkReadinessQueue(userId);
+  const jobId = String(query.job || "").trim();
+  const queue = jobId
+    ? await getRoleShortlistWorkReadinessQueue(userId, jobId)
+    : await getWorkReadinessQueue(userId);
+  const { rows, error } = queue;
   if (error) throw error;
 
-  const jobId = String(query.job || "").trim();
-  let scopedRows = rows;
-  let scopedJobTitle: string | null = null;
-
-  if (jobId) {
-    const admin = createAdminClient();
-    const [{ data: job }, { data: shortlistRows }] = await Promise.all([
-      admin.from("jobs").select("id,title").eq("id", jobId).maybeSingle(),
-      admin
-        .from("job_shortlist_candidates")
-        .select("va_id")
-        .eq("job_id", jobId)
-        .eq("shortlist_status", "proposed")
-        .not("created_by", "is", null),
-    ]);
-    scopedJobTitle = job?.title || "Role shortlist";
-    const scopedIds = [...new Set((shortlistRows || []).map((row: any) => String(row.va_id)).filter(Boolean))];
-
-    if (!scopedIds.length) {
-      scopedRows = [];
-    } else {
-      const queueMap = new Map(rows.map((row) => [String(row.user_id), row]));
-      const missingIds = scopedIds.filter((id) => !queueMap.has(id));
-      let missingRows: WorkReadinessQueueRow[] = [];
-
-      if (missingIds.length) {
-        const [{ data: profiles }, { data: setupRows }] = await Promise.all([
-          admin.from("profiles").select("id,full_name,avatar_url").in("id", missingIds),
-          admin
-            .from("va_profiles")
-            .select("user_id,work_setup_computer,work_setup_os,work_setup_ram_gb,primary_internet,backup_internet,backup_power,headset_ready,webcam_ready,quiet_workspace,work_setup_submitted_at,work_setup_verified_at,work_setup_verification_notes")
-            .in("user_id", missingIds),
-        ]);
-        const profileMap = new Map((profiles || []).map((row: any) => [String(row.id), row]));
-        missingRows = (setupRows || []).map((setup: any) => {
-          const profile = profileMap.get(String(setup.user_id)) as any;
-          return {
-            ...setup,
-            full_name: profile?.full_name || null,
-            avatar_url: profile?.avatar_url || null,
-          } as WorkReadinessQueueRow;
-        });
-      }
-
-      const completeMap = new Map<string, WorkReadinessQueueRow>();
-      for (const row of [...rows, ...missingRows]) completeMap.set(String(row.user_id), row);
-      scopedRows = scopedIds.map((id) => completeMap.get(id)).filter(Boolean) as WorkReadinessQueueRow[];
-    }
-  }
+  const scopedRows = rows;
+  const scopedJobTitle = "jobTitle" in queue ? queue.jobTitle : null;
 
   const annotated = scopedRows.map((setup) => ({ setup, missing: missingEvidence(setup) }));
   const ready = annotated.filter(({ setup, missing }) => !setup.work_setup_verified_at && missing.length === 0);

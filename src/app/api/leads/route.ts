@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendLeadNotificationEmail } from "@/lib/email";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
+import { RequestBodyTooLargeError, readRequestJson } from "@/lib/http-security";
 
 const schema = z.object({
   name: z.string().optional().nullable(),
@@ -40,8 +41,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const parsed = schema.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "Invalid lead payload", details: parsed.error.flatten() }, { status: 400 });
+  let rawBody: unknown;
+  try {
+    rawBody = await readRequestJson(request, 65_536);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "Lead payload too large" }, { status: 413 });
+    }
+    return NextResponse.json({ error: "Invalid lead payload" }, { status: 400 });
+  }
+  const parsed = schema.safeParse(rawBody);
+  if (!parsed.success) return NextResponse.json({ error: "Invalid lead payload" }, { status: 400 });
   if (parsed.data.source_page === "contact" && shouldSilentlyDropContactSubmission({
     email: parsed.data.email,
     company: parsed.data.company,
@@ -52,7 +62,10 @@ export async function POST(request: Request) {
   }
   const admin = createAdminClient();
   const { data, error } = await admin.from("lead_intake").insert(parsed.data).select("id").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("[lead-ingest] insert failed", { code: error.code });
+    return NextResponse.json({ error: "Could not store lead" }, { status: 500 });
+  }
   try {
     await sendLeadNotificationEmail({
       leadId: data.id,

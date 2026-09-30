@@ -10,11 +10,18 @@ type CapabilityPayload = {
 };
 
 function capabilitySecret() {
-  const secret =
-    process.env.CAPABILITY_SIGNING_SECRET?.trim() ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!secret) throw new Error("Capability signing secret is not configured.");
-  return secret;
+  const independentSecret = process.env.CAPABILITY_SIGNING_SECRET?.trim();
+  if (independentSecret) return Buffer.from(independentSecret, "utf8");
+
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!serviceRoleKey) throw new Error("Capability signing secret is not configured.");
+
+  // Domain-separate the fallback instead of using the database service-role key
+  // directly as an HMAC key. An independent CAPABILITY_SIGNING_SECRET remains
+  // preferred because it can be rotated without touching database credentials.
+  return createHmac("sha256", serviceRoleKey)
+    .update("virtualassistant.com.ph:public-capability:v1")
+    .digest();
 }
 
 function signatureFor(encodedPayload: string) {

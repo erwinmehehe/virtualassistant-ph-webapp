@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
 import { getStripe } from "@/lib/stripe";
+import { RequestBodyTooLargeError, readRequestText } from "@/lib/http-security";
 
 export const runtime = "nodejs";
 
@@ -38,15 +39,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Webhook not configured" }, { status: 400 });
   }
 
-  const body = await request.text();
+  let body: string;
+  try {
+    body = await readRequestText(request, 1_048_576);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "Webhook payload too large" }, { status: 413 });
+    }
+    return NextResponse.json({ error: "Invalid webhook payload" }, { status: 400 });
+  }
   let event;
   try {
     event = getStripe().webhooks.constructEvent(body, signature, secret);
-  } catch (err) {
-    return NextResponse.json(
-      { error: "Signature verification failed: " + (err as Error).message },
-      { status: 400 },
-    );
+  } catch {
+    console.warn("[stripe-webhook] signature verification failed");
+    return NextResponse.json({ error: "Signature verification failed" }, { status: 400 });
   }
 
   if (event.type !== "checkout.session.completed") {

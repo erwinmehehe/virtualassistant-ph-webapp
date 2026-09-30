@@ -11,5 +11,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ leadId: st
   if (!lead?.attachment_path) return NextResponse.json({ error: "No client document" }, { status: 404 });
   const { data, error } = await admin.storage.from("lead-attachments").createSignedUrl(lead.attachment_path, 60);
   if (error || !data?.signedUrl) return NextResponse.json({ error: "Document unavailable" }, { status: 404 });
-  return NextResponse.redirect(data.signedUrl);
+  const response = NextResponse.redirect(data.signedUrl);
+  response.headers.set("Cache-Control", "private, no-store, max-age=0");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  return response;
 }

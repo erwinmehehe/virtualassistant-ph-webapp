@@ -1,0 +1,4 @@
+Contact: https://virtualassistant.com.ph/contact
+Expires: 2027-09-30T00:00:00Z
+Preferred-Languages: en
+Canonical: https://virtualassistant.com.ph/.well-known/security.txt

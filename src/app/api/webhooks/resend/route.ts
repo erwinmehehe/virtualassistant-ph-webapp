@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { RequestBodyTooLargeError, readRequestText } from "@/lib/http-security";
 
 type ResendEvent = {
   type?: string;
@@ -227,7 +228,15 @@ export async function POST(request: Request) {
   const secret = process.env.RESEND_WEBHOOK_SECRET?.trim();
   if (!secret) return Response.json({ error: "Webhook not configured" }, { status: 503 });
 
-  const payload = await request.text();
+  let payload: string;
+  try {
+    payload = await readRequestText(request, 1_048_576);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Webhook payload too large" }, { status: 413 });
+    }
+    return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+  }
   let event: ResendEvent;
   try {
     event = new Webhook(secret).verify(payload, {

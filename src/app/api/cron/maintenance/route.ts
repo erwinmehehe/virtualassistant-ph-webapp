@@ -7,6 +7,7 @@ import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
 import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
 import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
+import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -692,8 +693,10 @@ async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Prom
 
 export async function GET(request: Request) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
-  const authHeader = request.headers.get("authorization");
-  if (!expectedSecret || authHeader !== `Bearer ${expectedSecret}`) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const suppliedSecret = bearerTokenFromRequest(request);
+  if (!timingSafeSecretMatches(suppliedSecret, expectedSecret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const admin = createAdminClient();
   const { autoQuoteStraightforwardJobs } = await import("@/lib/auto-publish");

@@ -1,12 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
 
 export const runtime = "nodejs";
 
 async function isAuthorized(request: Request) {
   const expectedSecret = process.env.CRON_SECRET?.trim();
-  const authorization = request.headers.get("authorization");
-  if (expectedSecret && authorization === `Bearer ${expectedSecret}`) return true;
+  if (timingSafeSecretMatches(bearerTokenFromRequest(request), expectedSecret)) return true;
 
   const schedulerToken = request.headers.get("x-discovery-cron-token")?.trim();
   if (!schedulerToken) return false;

@@ -144,7 +144,7 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
   assert.match(auth, /verifyTurnstile\(formData, "password_reset"\)/);
   assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
   assert.match(login, /TurnstileWidget action="login"/);
-  assert.match(login, /TurnstileWidget action="resend_confirmation"/);
+  assert.match(login, /TurnstileWidget[^>]*action="resend_confirmation"/);
   assert.match(join, /TurnstileWidget action="join"/);
   assert.match(forgot, /TurnstileWidget action="password_reset"/);
 });
@@ -192,6 +192,6 @@ test("all public Turnstile forms bind server validation to a specific action", a
   assert.match(booking, /TurnstileWidget action="discovery_booking"/);
   assert.match(hiring, /"service_match"[\s\S]*"industry_match"/);
   assert.match(hiring, /TurnstileWidget action="role_brief"/);
-  assert.match(trainingJoin, /TurnstileWidget action="training_join"/);
+  assert.match(trainingJoin, /TurnstileWidget[^>]*action="training_join"/);
   assert.match(trainingJoin, /TurnstileWidget action="resend_confirmation"/);
 });

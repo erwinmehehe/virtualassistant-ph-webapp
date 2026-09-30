@@ -30,7 +30,7 @@ import {
   completeDiscoveryAction,
   cancelRecruiterDiscoveryAction,
 } from "@/app/actions/recruiter";
-import { createCrmCustomFieldAction, setCrmCustomValueAction } from "@/app/actions/crm";
+import { createCrmCustomFieldAction, saveCrmClosingControlAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import styles from "../crm.module.css";
 import { ClientEngagementPanel } from "@/components/client-engagement-panel";
@@ -104,6 +104,9 @@ type DiscoveryBrief = {
   ownership_needed: string | null;
   success_90_days: string | null;
   decision_process: string | null;
+  failure_risks: string | null;
+  additional_notes: string | null;
+  next_step: string | null;
   recommended_role: string | null;
   recommended_hours: number | null;
   recommended_salary_min: number | null;
@@ -203,7 +206,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       .eq("lead_id", leadId)
       .maybeSingle(),
     admin.from("lead_discovery_briefs")
-      .select("current_pain,why_now,ownership_needed,success_90_days,decision_process,recommended_role,recommended_hours,recommended_salary_min,recommended_salary_max,salary_currency,recommended_start_date,qualification_status,updated_at")
+      .select("current_pain,why_now,ownership_needed,success_90_days,decision_process,failure_risks,additional_notes,next_step,recommended_role,recommended_hours,recommended_salary_min,recommended_salary_max,salary_currency,recommended_start_date,qualification_status,updated_at")
       .eq("lead_id", leadId)
       .maybeSingle(),
   ]);
@@ -408,6 +411,56 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   const missingCallItems = callReadiness.filter((item) => !item.complete);
   const completedCallItems = callReadiness.length - missingCallItems.length;
 
+  const nowMs = Date.now();
+  const isClosedLead = ["won", "lost"].includes(stage);
+  const followUpAtMs = lead.next_follow_up_at ? new Date(lead.next_follow_up_at).getTime() : 0;
+  const followUpOverdue = !isClosedLead && followUpAtMs > 0 && followUpAtMs <= nowMs;
+  const proposalViewedWaiting = Boolean(
+    latestProposal?.status === "sent"
+      && latestProposal.viewed_at
+      && nowMs - new Date(latestProposal.viewed_at).getTime() >= 24 * 3600000
+  );
+  const proposalUnopened = Boolean(
+    latestProposal?.status === "sent"
+      && !latestProposal.viewed_at
+      && latestProposal.sent_at
+      && nowMs - new Date(latestProposal.sent_at).getTime() >= 48 * 3600000
+  );
+  const lastOutboundAt = lead.last_contact_at || latestProposal?.sent_at || lead.discovery_completed_at || null;
+  const noResponseStall = Boolean(
+    !isClosedLead
+      && !lastClientReplyAt
+      && lastOutboundAt
+      && ["contacted", "qualified", "terms_sent"].includes(stage)
+      && nowMs - new Date(lastOutboundAt).getTime() >= 72 * 3600000
+  );
+  const discoveryOutcomeLabel = lead.discovery_outcome
+    ? ({
+        qualified: "Qualified",
+        attended: "Attended · follow-up needed",
+        no_show: "No-show",
+        cancelled: "Cancelled",
+        rescheduled: "Rescheduled",
+      } as Record<string, string>)[lead.discovery_outcome] || String(lead.discovery_outcome).replaceAll("_", " ")
+    : lead.discovery_completed_at
+      ? "Completed"
+      : "Not recorded";
+  const closingRecovery = isClosedLead
+    ? null
+    : replyStatus === "needs_action"
+      ? { label: "Client replied", detail: "Reply before doing more outreach.", href: "#client-followup", tone: "urgent" as const }
+      : latestProposal?.status === "changes_requested"
+        ? { label: "Changes requested", detail: "Revise the proposal while the client is engaged.", href: `/workspace/recruiter/crm/${lead.id}/proposal`, tone: "urgent" as const }
+        : followUpOverdue
+          ? { label: "Follow-up overdue", detail: "The scheduled follow-up date has passed. Send a specific next-step message now.", href: "#client-followup", tone: "urgent" as const }
+          : proposalViewedWaiting
+            ? { label: "Proposal viewed · no decision", detail: "The client viewed the terms more than 24 hours ago. Follow up on the decision.", href: "#client-followup", tone: "waiting" as const }
+            : proposalUnopened
+              ? { label: "Proposal unopened", detail: "The proposal has been sitting unopened for more than 48 hours. Confirm receipt.", href: "#client-followup", tone: "waiting" as const }
+              : noResponseStall
+                ? { label: "No response · 72h+", detail: "There has been no client response after the last outbound touch. Re-engage or move to nurture.", href: "#client-followup", tone: "waiting" as const }
+                : { label: "On track", detail: "No stalled or overdue closing signal is active.", href: null, tone: "clear" as const };
+
   const nextAction = hasHire
     ? { label: "Close role", href: job ? `/workspace/recruiter/roles/${job.id}#overview` : returnTo, detail: "A placement exists. Close the role when no additional hiring is needed." }
     : hasOffer
@@ -447,6 +500,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {query.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
       {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}
+      {query.closing_saved ? <div className="success-banner">Closing plan updated.</div> : null}
+      {query.closing_error ? <div className="alert" role="alert">{query.closing_error}</div> : null}
 
       <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to clients</Link>
 
@@ -524,6 +579,83 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
       </section>
 
+      <section className={styles.closingControl}>
+        <div className={styles.closingControlHead}>
+          <div>
+            <span className={styles.kicker}>Closing workflow</span>
+            <h2>Call outcome → objections → terms → follow-up → recovery.</h2>
+            <p>Keep the closer&apos;s next move explicit. This uses the existing discovery brief, proposal state, and CRM follow-up date.</p>
+          </div>
+          {closingRecovery ? (
+            <div className={closingRecovery.tone === "urgent" ? styles.recoveryUrgent : closingRecovery.tone === "waiting" ? styles.recoveryWaiting : styles.recoveryClear}>
+              <strong>{closingRecovery.label}</strong>
+              <span>{closingRecovery.detail}</span>
+              {closingRecovery.href ? <a href={closingRecovery.href}>Take action</a> : null}
+            </div>
+          ) : null}
+        </div>
+
+        <div className={styles.closingFlow}>
+          <div>
+            <span>1 · Call outcome</span>
+            <strong>{discoveryOutcomeLabel}</strong>
+            <small>{lead.discovery_completed_at ? fmt(lead.discovery_completed_at, true) : "Complete Discovery to record the outcome."}</small>
+          </div>
+          <div>
+            <span>2 · Objections / risks</span>
+            <strong>{discoveryBrief?.failure_risks ? "Captured" : "None captured"}</strong>
+            <small>{discoveryBrief?.failure_risks || "Record the real reason the client may not move forward."}</small>
+          </div>
+          <div>
+            <span>3 · Proposal / terms</span>
+            <strong>{proposalPipelineStatus || "Not prepared"}</strong>
+            <small>{latestProposal?.viewed_at ? `Viewed ${fmt(latestProposal.viewed_at, true)}` : latestProposal?.sent_at ? `Sent ${fmt(latestProposal.sent_at, true)}` : "Generate the recommendation after discovery."}</small>
+          </div>
+          <div>
+            <span>4 · Next follow-up</span>
+            <strong>{lead.next_follow_up_at ? fmt(lead.next_follow_up_at) : "Not scheduled"}</strong>
+            <small>{followUpOverdue ? "Overdue · recover now" : lead.next_follow_up_at ? "Scheduled in CRM" : "Set the next decision point."}</small>
+          </div>
+          <div>
+            <span>5 · Recovery</span>
+            <strong>{closingRecovery?.label || "Closed"}</strong>
+            <small>{closingRecovery?.detail || "No recovery action needed."}</small>
+          </div>
+        </div>
+
+        {!isClosedLead ? (
+          <form action={saveCrmClosingControlAction} className={styles.closingControlForm}>
+            <input type="hidden" name="lead_id" value={lead.id}/>
+            <input type="hidden" name="return_to" value={returnTo}/>
+            <label className={styles.closingWide}>Objections / risks
+              <textarea name="failure_risks" maxLength={5000} defaultValue={discoveryBrief?.failure_risks || ""} placeholder="Budget concern, timing, trust, scope uncertainty, wants to compare providers, internal approval…"/>
+            </label>
+            <label className={styles.closingWide}>Closing notes
+              <textarea name="additional_notes" maxLength={5000} defaultValue={discoveryBrief?.additional_notes || ""} placeholder="Decision-maker context, agreed next step, terms discussed, what would unblock the client…"/>
+            </label>
+            <label>Next move
+              <select name="closing_next_step" defaultValue={discoveryBrief?.next_step || (latestProposal ? "follow_up" : lead.discovery_completed_at ? "proposal" : "follow_up")}>
+                <option value="proposal">Prepare / revise proposal</option>
+                <option value="qualified">Ready to proceed</option>
+                <option value="follow_up">Follow up</option>
+                <option value="nurture">Nurture</option>
+              </select>
+            </label>
+            <label>Next follow-up
+              <input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/>
+            </label>
+            <div className={styles.closingFormActions}>
+              <button type="submit">Save closing plan</button>
+              <button type="submit" name="quick_followup_days" value="2" className={styles.secondaryFormButton}>Follow up +2 days</button>
+              <button type="submit" name="quick_followup_days" value="7" className={styles.secondaryFormButton}>+7 days</button>
+              <button type="submit" name="quick_followup_days" value="14" className={styles.secondaryFormButton}>Nurture +14 days</button>
+            </div>
+          </form>
+        ) : (
+          <div className={styles.closingClosed}>This lead is closed. Follow-up scheduling is disabled.</div>
+        )}
+      </section>
+
       <ClientEngagementPanel
         linked={Boolean(lead.client_id)}
         lastLogin={clientLastLoginAt ? fmt(clientLastLoginAt, true) : "Never / not linked"}
@@ -563,7 +695,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <div className={styles.actionGrid}>
-          <details className={styles.actionCard} open={replyStatus === "needs_action"}>
+          <details id="client-followup" className={styles.actionCard} open={replyStatus === "needs_action" || followUpOverdue || proposalViewedWaiting || proposalUnopened || noResponseStall}>
             <summary><span className={styles.actionIcon}><Mail size={16}/></span><span><strong>{replyStatus === "needs_action" ? "Reply to client" : "Email client"}</strong><small>{replyStatus === "needs_action" ? "The client replied. Respond here or record the action you took." : "Only send when you need clarification or have a concrete update."}</small></span><ArrowRight size={15}/></summary>
             <form action={sendClientFollowupAction} className={styles.actionForm}>
               <input type="hidden" name="lead_id" value={lead.id}/>

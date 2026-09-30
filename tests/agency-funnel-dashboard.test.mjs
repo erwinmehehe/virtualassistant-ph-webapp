@@ -2,23 +2,26 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const migration = fs.readFileSync("supabase/migrations/20260922230014_workspace_ops_readiness_funnel.sql", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20260930145500_end_to_end_hiring_funnel.sql", "utf8");
 const dashboard = fs.readFileSync("src/components/agency-funnel-dashboard.tsx", "utf8");
 const loader = fs.readFileSync("src/lib/agency-funnel-metrics.ts", "utf8");
 const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/funnel/page.tsx", "utf8");
 const adminPage = fs.readFileSync("src/app/workspace/admin/funnel/page.tsx", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 
-test("sales funnel follows one lead cohort through the five owner stages", () => {
-  for (const field of ["calls_booked","qualified","proposals","clients_won"]) {
+test("hiring funnel follows one lead cohort from enquiry through hire", () => {
+  for (const field of ["discovery_booked","discovery_attended","qualified","shortlisted","interviewed","offered","hired"]) {
     assert.match(migration,new RegExp(field));
   }
-  assert.match(migration,/lead_proposals/);
-  assert.match(migration,/accepted_at/);
-  assert.match(migration,/crm_stage='won'/);
-  for (const stage of ["Leads","Calls booked","Qualified","Proposals","Clients won"]) {
+  assert.match(migration,/job_shortlist_candidates/);
+  assert.match(migration,/candidate_interviews/);
+  assert.match(migration,/placement_offers/);
+  assert.match(migration,/workrooms/);
+  for (const stage of ["Enquiries","Discovery booked","Discovery attended","Qualified","Shortlist","Interview","Offer","Hire"]) {
     assert.match(dashboard,new RegExp(`label:"${stage}"`));
   }
+  assert.match(dashboard,/Discovery → hire/);
+  assert.match(dashboard,/discoveryToHire/);
   assert.match(dashboard,/Biggest drop-off/);
   assert.match(dashboard,/lossRate/);
   assert.match(dashboard,/conversion/);
@@ -35,9 +38,8 @@ test("funnel database function stays server-only and timed", () => {
 
 test("delivery and retention stay separate from sales conversion", () => {
   assert.match(migration,/shortlist_status='released'/);
-  assert.match(migration,/candidate_interviews/);
-  assert.match(migration,/placement_offers/);
-  assert.match(migration,/workrooms/);
+  assert.match(migration,/recruiting_cohort/);
+  assert.match(migration,/retention_base/);
   assert.match(migration,/start_date\+30 between/);
   assert.match(migration,/start_date\+90 between/);
   assert.match(dashboard,/Delivery operations/);

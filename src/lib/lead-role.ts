@@ -16,6 +16,7 @@ export type EnsurePendingRoleForLeadArgs = {
   startTime?: string | null;
   message?: string | null;
   budget?: string | null;
+  tools?: string[];
   requestedVaId?: string | null;
   clientId?: string | null;
   recruiterId?: string | null;
@@ -118,6 +119,7 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
     summary: cleanJobSummary(args.message, fallbackSummary),
     description,
     responsibilities: description ? [description] : [],
+    required_tools: args.tools || [],
     categories,
     hours_per_week: inferHours(args.hours),
     min_hourly_rate: rates.min,

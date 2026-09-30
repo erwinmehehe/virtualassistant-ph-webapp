@@ -460,15 +460,9 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
                   <input id={`${id}-email`} name="email" type="email" required={hireStep === 3} autoComplete="email" placeholder="you@company.com" />
                 </div>
               </div>
-              <div className="hb-row">
-                <div className="hb-field">
-                  <label htmlFor={`${id}-company`}>Company</label>
-                  <input id={`${id}-company`} name="company" required={hireStep === 3} maxLength={160} autoComplete="organization" placeholder="Your company" />
-                </div>
-                <div className="hb-field">
-                  <label htmlFor={`${id}-phone`}>Phone / WhatsApp <span className="hb-optional">(optional)</span></label>
-                  <input id={`${id}-phone`} name="phone" type="tel" maxLength={50} autoComplete="tel" placeholder="+61 / +1 / +63" />
-                </div>
+              <div className="hb-field">
+                <label htmlFor={`${id}-company`}>Company</label>
+                <input id={`${id}-company`} name="company" required={hireStep === 3} maxLength={160} autoComplete="organization" placeholder="Your company" />
               </div>
 
               <TurnstileWidget />

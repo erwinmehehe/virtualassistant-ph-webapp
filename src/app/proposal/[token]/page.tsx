@@ -15,6 +15,19 @@ function usd(value?: number | null) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value));
 }
 
+function money(value: number | null | undefined, currency = "PHP") {
+  if (value == null) return "—";
+  try {
+    return new Intl.NumberFormat(currency === "PHP" ? "en-PH" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(Number(value));
+  } catch {
+    return `${currency} ${Number(value).toLocaleString()}`;
+  }
+}
+
 export default async function ProposalPage({
   params,
   searchParams
@@ -42,6 +55,13 @@ export default async function ProposalPage({
   const highVaMonthly = proposalMonthlyVaCost(hours, highRate);
   const lowClientMonthly = proposalClientMonthlyTotal({ hoursPerWeek: hours, vaRate: lowRate, serviceModel: proposal.service_model, managedMarkupPercent: proposal.managed_markup_percent });
   const highClientMonthly = proposalClientMonthlyTotal({ hoursPerWeek: hours, vaRate: highRate, serviceModel: proposal.service_model, managedMarkupPercent: proposal.managed_markup_percent });
+  const salaryCurrency = proposal.salary_currency || "PHP";
+  const salaryMin = proposal.salary_min == null ? null : Number(proposal.salary_min);
+  const salaryMax = proposal.salary_max == null ? null : Number(proposal.salary_max);
+  const hasSalaryRange = salaryMin != null || salaryMax != null;
+  const responsibilities = Array.isArray(proposal.responsibilities) ? proposal.responsibilities : [];
+  const requiredSkills = Array.isArray(proposal.required_skills) ? proposal.required_skills : [];
+  const requiredTools = Array.isArray(proposal.required_tools) ? proposal.required_tools : [];
   const expiresLabel = proposal.expires_at
     ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }).format(new Date(proposal.expires_at))
     : null;
@@ -91,10 +111,31 @@ export default async function ProposalPage({
           </div>
           <div className="proposal-facts">
             <div><span>Hours</span><strong>{hours ? `${hours}/week` : "Flexible"}</strong></div>
-            <div><span>VA compensation</span><strong>{lowRate === highRate ? `${usd(lowRate)}/hr` : `${usd(lowRate)}–${usd(highRate)}/hr`}</strong></div>
-            <div><span>Start timing</span><strong>{proposal.start_timing || "To be confirmed"}</strong></div>
+            <div><span>Recommended compensation</span><strong>{hasSalaryRange
+              ? salaryMin === salaryMax && salaryMin != null
+                ? `${money(salaryMin, salaryCurrency)}/month`
+                : `${salaryMin != null ? money(salaryMin, salaryCurrency) : "—"}–${salaryMax != null ? money(salaryMax, salaryCurrency) : "—"}/month`
+              : lowRate
+                ? lowRate === highRate ? `${usd(lowRate)}/hr` : `${usd(lowRate)}–${usd(highRate)}/hr`
+                : "To be confirmed"}</strong></div>
+            <div><span>Start timing</span><strong>{proposal.recommended_start_date || proposal.start_timing || "To be confirmed"}</strong></div>
           </div>
         </section>
+
+        {responsibilities.length ? <section className="proposal-summary-card">
+          <div>
+            <span className="small muted">What this person will own</span>
+            <ul>{responsibilities.map((item: string) => <li key={item}>{item}</li>)}</ul>
+          </div>
+        </section> : null}
+
+        {requiredSkills.length || requiredTools.length ? <section className="proposal-summary-card">
+          <div>
+            <span className="small muted">Fit requirements</span>
+            {requiredSkills.length ? <p><strong>Skills:</strong> {requiredSkills.join(", ")}</p> : null}
+            {requiredTools.length ? <p><strong>Tools:</strong> {requiredTools.join(", ")}</p> : null}
+          </div>
+        </section> : null}
 
         <section className="proposal-price-card">
           <div className="proposal-price-head">
@@ -120,6 +161,19 @@ export default async function ProposalPage({
               ? "The estimate changes with the final VA rate and approved working hours."
               : "The placement fee is separate from the Virtual Assistant’s ongoing compensation."}
           </p>
+          {proposal.commercial_note ? <p className="proposal-price-note"><strong>Commercial note:</strong> {proposal.commercial_note}</p> : null}
+        </section>
+
+        <section className="proposal-summary-card">
+          <div>
+            <span className="small muted">What happens next</span>
+            <ol>
+              <li>Approve this recommendation or request changes.</li>
+              <li>Your recruiter reviews the strongest matching Virtual Assistants.</li>
+              <li>You receive a curated shortlist and choose who to interview.</li>
+              <li>VAPH coordinates the offer and onboarding handoff.</li>
+            </ol>
+          </div>
         </section>
 
         {status === "sent" ? <>

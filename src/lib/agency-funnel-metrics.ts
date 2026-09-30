@@ -10,6 +10,8 @@ export type AgencyFunnelData = {
     discovery_booked:number;
     discovery_attended:number;
     qualified:number;
+    proposal_sent:number;
+    proposal_accepted:number;
     shortlisted:number;
     interviewed:number;
     offered:number;
@@ -23,6 +25,16 @@ export type AgencyFunnelData = {
     proposals:number;
     clients_won:number;
     active_job_orders:number;
+  };
+  proposal:{
+    sent:number;
+    viewed:number;
+    responded:number;
+    changes_requested:number;
+    accepted:number;
+    declined:number;
+    median_hours_to_view:number;
+    median_hours_to_decision:number;
   };
   recruiting:{
     job_orders:number;

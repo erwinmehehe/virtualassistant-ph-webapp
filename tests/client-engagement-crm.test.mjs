@@ -117,6 +117,8 @@ test("recruiter CRM can bulk assign follow-up ownership without duplicating sear
   assert.match(action, /lead_bulk_followup_updated/);
   assert.match(action, /\.eq\("lead_type", "client_hiring"\)/);
   assert.match(action, /CRM_BULK_LEAD_LIMIT = 200/);
+  assert.match(action, /Follow-up dates can only be set on active clients/);
+  assert.match(action, /\["won", "lost"\]/);
 
   assert.match(css, /\.bulkBar/);
   assert.match(css, /\.nextStepLink/);

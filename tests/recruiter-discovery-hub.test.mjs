@@ -27,7 +27,9 @@ test("recruiters have an obvious Discovery destination and direct workspace link
   assert.match(crm, /Open discovery/);
 
   assert.match(workspace, /requireAnyRoleFast\(\["recruiter", "admin"\]\)/);
-  assert.match(workspace, /Qualified · Open matching/);
+  assert.doesNotMatch(workspace, /Qualified · Open matching/);
+  assert.match(workspace, /Generate recommendation/);
+  assert.match(workspace, /send the proposal before matching/);
 });
 
 test("manual discovery scheduling uses the client's timezone and never assumes Manila", async () => {

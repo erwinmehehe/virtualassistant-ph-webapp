@@ -111,14 +111,6 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!sameInstant(lead.discovery_scheduled_at, parsed.scheduledAt)) {
-    return NextResponse.json({
-      ok: true,
-      done: true,
-      reason: "stale_schedule",
-    });
-  }
-
   const stage = String(lead.crm_stage || "new");
   const outcome = String(lead.discovery_outcome || "");
   const terminal =
@@ -132,6 +124,14 @@ export async function POST(request: Request) {
       ok: true,
       done: true,
       reason: "discovery_closed",
+    });
+  }
+
+  if (!sameInstant(lead.discovery_scheduled_at, parsed.scheduledAt)) {
+    return NextResponse.json({
+      ok: true,
+      done: true,
+      reason: "stale_schedule",
     });
   }
 

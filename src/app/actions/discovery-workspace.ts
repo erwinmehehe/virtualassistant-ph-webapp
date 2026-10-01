@@ -8,7 +8,7 @@ import { legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
-const NEXT_STEPS = new Set(["save", "proposal", "qualified", "follow_up", "nurture"]);
+const NEXT_STEPS = new Set(["save", "proposal", "follow_up", "nurture"]);
 
 function textValue(formData: FormData, key: string, max = 5000) {
   return String(formData.get(key) || "").trim().slice(0, max);
@@ -96,7 +96,7 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   ) {
     redirect(safeReturn(leadId, "?error=Maximum%20salary%20cannot%20be%20lower%20than%20minimum%20salary."));
   }
-  if (["proposal", "qualified"].includes(intent) && (!values.recommendedRole || !values.ownershipNeeded || !values.success90Days)) {
+  if (intent === "proposal" && (!values.recommendedRole || !values.ownershipNeeded || !values.success90Days)) {
     redirect(safeReturn(leadId, "?error=Before%20proceeding%2C%20add%20the%20recommended%20role%2C%20ownership%2C%20and%2090-day%20success%20outcome."));
   }
 
@@ -108,13 +108,9 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     .eq("lead_type", "client_hiring")
     .maybeSingle();
   if (leadError || !lead) redirect("/workspace/recruiter/crm?discovery_error=Lead%20not%20found.");
-  if (intent === "qualified" && !lead.job_id) {
-    redirect(safeReturn(leadId, "?error=This%20lead%20does%20not%20have%20a%20linked%20role%20yet."));
-  }
-
   const now = new Date();
   const nextStep = intent === "save" ? null : intent;
-  const qualificationStatus = ["proposal", "qualified"].includes(intent)
+  const qualificationStatus = intent === "proposal"
     ? "ready"
     : intent === "follow_up"
       ? "follow_up"
@@ -177,8 +173,8 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   const summary = discoverySummary(values);
 
   if (intent !== "save") {
-    const stage: LeadCrmStage = ["proposal", "qualified"].includes(intent) ? "qualified" : "nurture";
-    const nextFollowUpAt = ["proposal", "qualified"].includes(intent)
+    const stage: LeadCrmStage = intent === "proposal" ? "qualified" : "nurture";
+    const nextFollowUpAt = intent === "proposal"
       ? new Date(now.getTime() + 86400000).toISOString()
       : intent === "follow_up"
         ? new Date(now.getTime() + 2 * 86400000).toISOString()
@@ -186,7 +182,7 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
 
     const { error: leadUpdateError } = await admin.from("lead_intake").update({
       discovery_completed_at: now.toISOString(),
-      discovery_outcome: ["proposal", "qualified"].includes(intent) ? "qualified" : "attended",
+      discovery_outcome: intent === "proposal" ? "qualified" : "attended",
       discovery_notes: summary || values.additionalNotes || "Discovery workspace completed.",
       crm_stage: stage,
       status: legacyLeadStatus(stage),
@@ -208,8 +204,6 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     action: intent === "save" ? "discovery_workspace_saved" : `discovery_workspace_${intent}`,
     description: intent === "proposal"
       ? "Discovery qualified and recommendation draft generated"
-      : intent === "qualified"
-        ? "Discovery qualified and handed to matching"
       : intent === "follow_up"
         ? "Discovery saved for follow-up"
         : intent === "nurture"
@@ -292,9 +286,6 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     redirect(`/workspace/recruiter/crm/${leadId}/proposal?generated=1`);
   }
 
-  if (intent === "qualified" && lead.job_id) {
-    redirect(`/workspace/recruiter/matching/${lead.job_id}?discovery=qualified`);
-  }
   if (intent === "follow_up" || intent === "nurture") {
     redirect(`/workspace/recruiter/crm/${leadId}?discovery_completed=1`);
   }

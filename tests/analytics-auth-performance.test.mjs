@@ -25,3 +25,13 @@ test("invalid analytics payloads are dropped without polluting production 4xx mo
   assert.match(route,/dropped: "invalid_event"/);
   assert.doesNotMatch(route,/\{ ok: false \}.*status: 400/s);
 });
+
+
+test("analytics limiter infrastructure failures stay out of error-level production logs",()=>{
+  const limiter=readFileSync("src/lib/rate-limit.ts","utf8");
+  assert.match(route,/enforceActionRateLimit\("public_analytics:ip", requestIp\(request\), 240, 10, false\)/);
+  assert.match(route,/enforceActionRateLimit\("public_analytics:session", parsed\.data\.session_id, 120, 10, false\)/);
+  assert.match(limiter,/logInfrastructureFailure = true/);
+  assert.match(limiter,/console\.warn\("\[rate-limit\] atomic limiter unavailable"/);
+  assert.match(limiter,/if \(logInfrastructureFailure\)[\s\S]*console\.error\("\[rate-limit\] atomic limiter failed"/);
+});

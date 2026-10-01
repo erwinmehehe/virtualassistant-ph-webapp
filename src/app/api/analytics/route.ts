@@ -128,9 +128,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    await enforceActionRateLimit("public_analytics:ip", requestIp(request), 240, 10);
+    await enforceActionRateLimit("public_analytics:ip", requestIp(request), 240, 10, false);
     if (parsed.data.session_id) {
-      await enforceActionRateLimit("public_analytics:session", parsed.data.session_id, 120, 10);
+      await enforceActionRateLimit("public_analytics:session", parsed.data.session_id, 120, 10, false);
     }
   } catch {
     return NextResponse.json({ ok: true, dropped: "rate_limited" }, { status: 202 });

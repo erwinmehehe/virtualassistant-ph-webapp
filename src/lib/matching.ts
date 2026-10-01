@@ -32,7 +32,6 @@ const TAXONOMY_ALIASES: Record<string, string> = {
   "general va": "administrative support",
   "appointment scheduling": "appointment setting",
   "calendar scheduling": "calendar management",
-  "social media": "social media management",
   "social media marketing": "social media management",
   "book keeper": "bookkeeping",
   "book keeping": "bookkeeping",

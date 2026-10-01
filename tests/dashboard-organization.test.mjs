@@ -30,7 +30,7 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
     "Clients",
     "Roles",
     "Talent",
-    "Placements",
+    "Performance",
     "Finance",
     "Analytics",
     "Users",

@@ -120,7 +120,11 @@ export async function queueDiscoveryOutcomeAutomation(
 export function proposalAutomationConfigured() {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
   const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
-  return triggerSecret.length >= 20 && callbackSecret.length >= 32;
+  return (
+    process.env.TRIGGER_AUTOMATIONS_ACTIVE === "1" &&
+    triggerSecret.length >= 20 &&
+    callbackSecret.length >= 32
+  );
 }
 
 async function queueTriggerTask(args: {

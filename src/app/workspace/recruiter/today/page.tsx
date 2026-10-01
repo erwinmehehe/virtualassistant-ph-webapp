@@ -93,6 +93,42 @@ type CleanupLeadRow = {
   due_at: string | null;
 };
 
+type ActiveLeadActionRow = {
+  id: string;
+  name: string | null;
+  company: string | null;
+  service: string | null;
+  crm_stage: string;
+  owner_id: string | null;
+  job_id: string | null;
+  created_at: string;
+  first_contact_at: string | null;
+  last_contact_at: string | null;
+  next_follow_up_at: string | null;
+  discovery_scheduled_at: string | null;
+  discovery_completed_at: string | null;
+  timezone: string | null;
+  timezone_valid: boolean;
+  proposal_status: string | null;
+  action_key:
+    | "first_contact"
+    | "record_discovery_outcome"
+    | "revise_proposal"
+    | "follow_up_proposal"
+    | "reengage_nurture"
+    | "follow_up"
+    | "prepare_discovery"
+    | "prepare_proposal"
+    | "review_client_decision"
+    | "wait_proposal"
+    | "wait_follow_up"
+    | "set_discovery_or_follow_up"
+    | "set_nurture_follow_up"
+    | "review_client";
+  priority: "urgent" | "high" | "normal" | "low";
+  action_at: string | null;
+};
+
 function ageLabel(hours: number | null | undefined) {
   const value = Math.max(0, Number(hours || 0));
   if (value < 24) return `${Math.max(1, Math.round(value))}h`;
@@ -139,6 +175,91 @@ function meetingActionLabel(value: unknown) {
     // Unknown or malformed URLs get a provider-neutral label below.
   }
   return "Join call";
+}
+function clientLeadActionLabel(item: ActiveLeadActionRow) {
+  switch (item.action_key) {
+    case "first_contact": return "Make first contact";
+    case "record_discovery_outcome": return "Record discovery outcome";
+    case "revise_proposal": return "Revise the proposal";
+    case "follow_up_proposal": return "Follow up on the proposal";
+    case "reengage_nurture": return "Re-engage this lead";
+    case "follow_up": return "Follow up now";
+    case "prepare_discovery": return "Prepare for discovery";
+    case "prepare_proposal": return "Prepare the proposal";
+    case "review_client_decision": return "Get the client decision";
+    case "wait_proposal": return "Await proposal response";
+    case "wait_follow_up": return "Follow-up is scheduled";
+    case "set_discovery_or_follow_up": return "Set the next sales step";
+    case "set_nurture_follow_up": return "Schedule the nurture touch";
+    default: return "Review this client";
+  }
+}
+
+function clientLeadActionDetail(item: ActiveLeadActionRow) {
+  const timezoneNote = item.timezone_valid ? "" : " Confirm the client timezone while you are there.";
+  switch (item.action_key) {
+    case "first_contact":
+      return "Open the client record, make the first human contact, and set a clear next step." + timezoneNote;
+    case "record_discovery_outcome":
+      return "The call time has passed. Save the outcome now so proposal or recovery work can continue.";
+    case "revise_proposal":
+      return "The client requested changes. Update the recommendation and resend it.";
+    case "follow_up_proposal":
+      return "The proposal has reached its follow-up threshold. Ask for a decision or unblock the next step.";
+    case "reengage_nurture":
+      return "The nurture follow-up is due. Re-open the conversation with one specific next step." + timezoneNote;
+    case "follow_up":
+      return "The CRM follow-up is due. Contact the client and record the next decision point." + timezoneNote;
+    case "prepare_discovery":
+      return item.timezone_valid
+        ? "Review the brief and known gaps before the scheduled discovery call."
+        : "Review the brief and confirm the client timezone before the scheduled discovery call.";
+    case "prepare_proposal":
+      return "Discovery is complete and no proposal is active. Prepare the recommendation next.";
+    case "review_client_decision":
+      return "The client has candidates to review. Get the decision needed to move interviews forward.";
+    case "wait_proposal":
+      return "No chase is due yet. Keep the proposal response as the next expected event.";
+    case "wait_follow_up":
+      return item.timezone_valid
+        ? "The next follow-up is already scheduled. No extra outreach is needed before then."
+        : "The follow-up is scheduled, but confirm the client timezone before sending it.";
+    case "set_discovery_or_follow_up":
+      return "The lead has been contacted but has no next step. Book discovery or schedule a follow-up." + timezoneNote;
+    case "set_nurture_follow_up":
+      return "The lead is in nurture without a future touch. Schedule one now." + timezoneNote;
+    default:
+      return "Open the client record and choose the next sales step." + timezoneNote;
+  }
+}
+
+function clientLeadActionHref(item: ActiveLeadActionRow) {
+  if (["record_discovery_outcome", "prepare_discovery"].includes(item.action_key)) return "/workspace/recruiter/crm/" + item.id + "/discovery";
+  if (["revise_proposal", "follow_up_proposal", "prepare_proposal", "wait_proposal"].includes(item.action_key)) return "/workspace/recruiter/crm/" + item.id + "/proposal";
+  return "/workspace/recruiter/crm/" + item.id + "#client-followup";
+}
+
+function clientLeadActionCta(item: ActiveLeadActionRow) {
+  if (item.action_key === "record_discovery_outcome") return "Record outcome";
+  if (item.action_key === "prepare_discovery") return "Open discovery";
+  if (item.action_key === "revise_proposal") return "Revise proposal";
+  if (["follow_up_proposal", "prepare_proposal", "wait_proposal"].includes(item.action_key)) return "Open proposal";
+  if (item.action_key === "first_contact") return "Contact client";
+  if (item.action_key === "wait_follow_up") return "Open client";
+  return "Open next step";
+}
+
+function clientLeadActionTiming(item: ActiveLeadActionRow) {
+  if (!item.action_at) return null;
+  if (["wait_follow_up", "follow_up", "reengage_nurture"].includes(item.action_key)) {
+    return isValidTimeZone(item.timezone)
+      ? formatDateTimeInTimeZone(item.action_at, item.timezone)
+      : manilaTime(item.action_at);
+  }
+  if (["prepare_discovery", "record_discovery_outcome"].includes(item.action_key)) {
+    return discoveryTime(item.action_at, item.timezone);
+  }
+  return ageLabel((Date.now() - new Date(item.action_at).getTime()) / 3600000);
 }
 
 function exactActionHref(item:any) {
@@ -187,6 +308,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const summary = (summaryData || {}) as Record<string,any>;
   const timezoneNeedsConfirmation = Number(summary.timezone_confirmation_count || 0);
+  const activeLeadActions = (Array.isArray(summary.active_lead_actions) ? summary.active_lead_actions : []) as ActiveLeadActionRow[];
+  const firstContactActions = activeLeadActions.filter((item) => item.action_key === "first_contact");
+  const dueClientActions = activeLeadActions.filter((item) => ["urgent", "high"].includes(item.priority) && item.action_key !== "first_contact");
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
@@ -329,6 +453,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nextActionCandidates = [
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:firstContactActions.length,title:"Contact new client leads",copy:`${firstContactActions.length} assigned enquir${firstContactActions.length===1?"y has":"ies have"} not had a first human contact yet. Work these before matching or routine sourcing.`,href:"#client-next-actions",cta:"Open first contacts",icon:<MessageSquare size={20}/>},
+    {count:dueClientActions.length,title:"Move due client leads",copy:`${dueClientActions.length} assigned client${dueClientActions.length===1?" has":"s have"} a due discovery, proposal, follow-up, or nurture action.`,href:"#client-next-actions",cta:"Open client actions",icon:<Clock3 size={20}/>},
     {count:timezoneNeedsConfirmation,title:"Confirm client timezones",copy:`${timezoneNeedsConfirmation} active client${timezoneNeedsConfirmation===1?" has":"s have"} no valid scheduling timezone. Confirm it before discovery or local-time follow-up.`,href:"/workspace/recruiter/crm?view=timezone",cta:"Review timezones",icon:<Clock3 size={20}/>},
     {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
     {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},
@@ -443,6 +569,34 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <span>{closingActionLeadIds.size ? "Work these before routine sourcing and profile review." : "No discovery, proposal, reply, overdue follow-up, or stalled-lead signal is active."}</span>
       </div>
     </section>
+
+    {activeLeadActions.length ? <section id="client-next-actions" className={`card dashboard-section-card ${styles.sectionShell} ${styles.clientActionSection}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>Client next actions</h2><p>One concrete sales step per active client assigned to you. Work the top row first, then keep moving down.</p></div>
+        <span className="badge badge-warning">{activeLeadActions.length} active</span>
+      </div>
+      <div className={styles.clientActionList}>
+        {activeLeadActions.map((lead) => {
+          const timing = clientLeadActionTiming(lead);
+          const stage = String(lead.crm_stage || "new").replaceAll("_", " ");
+          return <article className={`${styles.clientActionRow} ${lead.priority === "urgent" ? styles.clientActionUrgent : lead.priority === "high" ? styles.clientActionHigh : ""}`} key={lead.id}>
+            <div className={styles.clientActionCopy}>
+              <div className={styles.clientActionMeta}>
+                <span className={styles.clientActionStage}>{stage}</span>
+                <span>{lead.priority === "urgent" ? "Urgent" : lead.priority === "high" ? "Due" : lead.priority === "normal" ? "Next" : "Scheduled"}</span>
+                {!lead.timezone_valid ? <span className={styles.clientActionTimezone}>Timezone needed</span> : null}
+                {timing ? <span>{timing}</span> : null}
+              </div>
+              <h3>{lead.company || lead.name || "Client lead"} <em>· {lead.service || "Virtual Assistant role"}</em></h3>
+              <p><strong>{clientLeadActionLabel(lead)}.</strong> {clientLeadActionDetail(lead)}</p>
+            </div>
+            <div className={styles.clientActionButtons}>
+              <Link className={`btn btn-sm ${["urgent","high"].includes(lead.priority) ? "btn-primary" : ""}`} href={clientLeadActionHref(lead)}>{clientLeadActionCta(lead)}<ArrowRight size={13}/></Link>
+            </div>
+          </article>;
+        })}
+      </div>
+    </section> : null}
 
     {upcomingDiscoveryCalls.length ? <section id="upcoming-discovery-calls" className={`card dashboard-section-card ${styles.sectionShell}`}>
       <div className={`dashboard-section-head ${styles.sectionHead}`}>

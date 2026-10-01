@@ -64,11 +64,10 @@ export async function createRoleFromLeadAndMatchAction(formData: FormData): Prom
     action: "role_prepared_from_lead",
     description: "Prepared the linked recruiting role and opened matching from the client CRM",
     actorId: user.id,
-    metadata: { lead_id: lead.id, job_id: jobId, source: "hiring_inbox" },
+    metadata: { lead_id: lead.id, job_id: jobId, source: "client_crm" },
   });
 
   revalidatePath("/workspace/recruiter/crm");
-  revalidatePath("/workspace/recruiter/leads");
   revalidatePath("/workspace/recruiter/roles");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);

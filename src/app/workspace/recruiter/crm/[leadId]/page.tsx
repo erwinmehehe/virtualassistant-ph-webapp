@@ -513,6 +513,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
     <div className={styles.detailPage}>
       {query.crm_saved ? <div className="success-banner">CRM record updated.</div> : null}
       {query.crm_error ? <div className="alert" role="alert">{query.crm_error}</div> : null}
+{query.role_error ? <div className="alert" role="alert">{query.role_error}</div> : null}
       {query.note_saved ? <div className="success-banner">Private note added.</div> : null}
       {query.task_saved ? <div className="success-banner">Task created.</div> : null}
       {query.task_error ? <div className="alert" role="alert">{query.task_error}</div> : null}

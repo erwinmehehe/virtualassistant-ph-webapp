@@ -17,6 +17,8 @@ test("legacy recruiter lead surfaces redirect into the canonical CRM", async () 
   assert.match(nextConfig, /source: "\/workspace\/recruiter\/leads\/board", destination: "\/workspace\/recruiter\/crm\?mode=board"/);
   assert.match(crm, /"nurture", "all"/);
   assert.match(role, /\/workspace\/recruiter\/crm/);
+  assert.match(role, /\/workspace\/client-success\/\$\{room\.id\}/);
+  assert.doesNotMatch(role, /\/workspace\/recruiter\/placements\/\$\{room\.id\}/);
   assert.match(closeLead, /\/workspace\/recruiter\/crm/);
   assert.match(hiring, /\/workspace\/recruiter\/crm/);
   assert.match(crmRecord, /createRoleFromLeadAndMatchAction/);

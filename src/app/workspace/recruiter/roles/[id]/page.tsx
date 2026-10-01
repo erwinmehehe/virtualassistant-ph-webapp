@@ -280,7 +280,7 @@ export default async function RoleControlCenter({
             Match & shortlist
           </a>
           {room ? (
-            <Link className="btn" href={`/workspace/recruiter/placements/${room.id}`}>
+            <Link className="btn" href={`/workspace/client-success/${room.id}`}>
               Open placement
             </Link>
           ) : null}

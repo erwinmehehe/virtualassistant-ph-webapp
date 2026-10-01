@@ -62,8 +62,6 @@ export async function moveLeadStageAction(leadIdRaw: string, stageRaw: string) {
   });
 
   revalidatePath("/workspace/recruiter/crm");
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/recruiter/leads/board");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/admin/leads");

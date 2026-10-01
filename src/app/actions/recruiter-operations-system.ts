@@ -183,7 +183,7 @@ export async function submitExpandedScorecardAction(formData: FormData) {
   await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: "screening_scorecard_saved", description: `Screening result: ${screeningResult.replaceAll("_", " ")} (${total}%)`, actorId: user.id, metadata: { total_score: total, screening_result: screeningResult } });
   revalidatePath(`/workspace/recruiter/candidates/${vaId}`);
   revalidatePath(`/workspace/recruiter/candidates/${vaId}/screening`);
-  revalidatePath("/workspace/recruiter/queue");
+  revalidatePath("/workspace/recruiter/talent");
   revalidatePath("/workspace/recruiter/today");
   redirect(`/workspace/recruiter/candidates/${vaId}/screening?saved=1`);
 }

@@ -43,7 +43,7 @@ export default async function RecruiterFinancePage(){
     return(rank[a.result.status]??9)-(rank[b.result.status]??9);
   });
 
-  return <>
+  return <div className="dash-page recruiter-finance-page">
     <div className="page-head"><div><h1>Margin review</h1><p>See whether your placements meet the agency margin guardrail. Detailed agency costs stay private to finance/admin.</p></div></div>
     <div className="card" style={{marginBottom:24}}><div className="row-between wrap"><div><strong>Guardrail</strong><p className="small muted" style={{margin:"4px 0 0"}}>Minimum acceptable margin {minMargin.toFixed(1)}% · target {targetMargin.toFixed(1)}%. If the client or role economics force the placement below the floor, request an owner exception instead of quietly discounting it.</p></div><span className="badge">{rows.length} placement{rows.length===1?"":"s"}</span></div></div>
     {rows.length?<div className="stack">{rows.map(({room,profile,result,job})=><section className="card" key={room.id}><div className="row-between wrap" style={{gap:16}}><div><strong>{job?.title||"Managed placement"}</strong><p className="small muted" style={{margin:"4px 0"}}>{room.client?.full_name||"Client"} → {room.va?.full_name||"VA"}</p><span className={`badge ${result.status==="healthy"?"badge-success":result.status==="approval_required"?"badge-danger":"badge-warning"}`}>{financeStatusLabel(result.status,result.marginPercent)}</span></div><div style={{textAlign:"right"}}><span className="small muted">Projected margin</span><strong style={{display:"block",fontSize:24}}>{profile?`${result.marginPercent.toFixed(1)}%`:"Not set"}</strong></div></div>
@@ -53,5 +53,5 @@ export default async function RecruiterFinancePage(){
       {profile?.exception_status==="rejected"?<div className="alert" style={{marginTop:14}}><strong>Exception rejected.</strong>{profile.exception_review_note?` ${profile.exception_review_note}`:" Adjust the role or commercial terms before proceeding."}</div>:null}
       {result.status==="needs_setup"?<p className="small muted" style={{marginBottom:0}}>Finance/admin has not configured the placement economics yet.</p>:null}
     </section>)}</div>:<div className="card empty">No active managed placements are assigned to you yet.</div>}
-  </>;
+  </div>;
 }

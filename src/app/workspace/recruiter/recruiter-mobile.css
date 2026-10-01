@@ -881,3 +881,72 @@
     gap: 7px;
   }
 }
+
+
+/* Canonical recruiter Performance + Finance mobile QA */
+@media (max-width: 680px) {
+  .recruiter-performance-page,
+  .recruiter-finance-page {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .recruiter-performance-page .dash-header h1,
+  .recruiter-finance-page .page-head h1 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .recruiter-performance-page .role-filter-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recruiter-performance-page .role-filter-tabs a {
+    flex: 0 0 auto;
+    min-height: 38px;
+    scroll-snap-align: start;
+  }
+
+  .recruiter-finance-page .page-head,
+  .recruiter-finance-page .card > .row-between {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px !important;
+  }
+
+  .recruiter-finance-page .card > .row-between > div:last-child {
+    text-align: left !important;
+  }
+
+  .recruiter-finance-page .badge {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .recruiter-finance-page textarea {
+    min-width: 0;
+    width: 100%;
+    min-height: 112px;
+    font-size: 16px;
+  }
+
+  .recruiter-finance-page form .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .recruiter-performance-page .dash-header h1,
+  .recruiter-finance-page .page-head h1 {
+    font-size: 25px;
+  }
+}

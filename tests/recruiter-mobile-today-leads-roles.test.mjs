@@ -131,3 +131,21 @@ test("recruiter CRM and both message channels remain usable at 375px", async () 
   assert.match(clientMessages, /Client messages/);
   assert.match(vaMessages, /RecruiterVaChatPage/);
 });
+
+
+test("recruiter Performance and Finance remain phone-safe at 375px", async () => {
+  const [performance, finance, mobileCss, clarityCss] = await Promise.all([
+    read("src/app/workspace/recruiter/performance/page.tsx"),
+    read("src/app/workspace/recruiter/finance/page.tsx"),
+    read("src/app/workspace/recruiter/recruiter-mobile.css"),
+    read("src/app/workspace/recruiter-ops-clarity.css"),
+  ]);
+
+  assert.match(performance, /recruiter-performance-page/);
+  assert.match(finance, /recruiter-finance-page/);
+  assert.match(mobileCss, /\.recruiter-performance-page \.role-filter-tabs[\s\S]*overflow-x: auto/);
+  assert.match(mobileCss, /\.recruiter-finance-page \.card > \.row-between[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(mobileCss, /\.recruiter-finance-page textarea[\s\S]*font-size: 16px/);
+  assert.match(clarityCss, /@media \(max-width: 680px\)[\s\S]*\.agency-sales-summary,[\s\S]*grid-template-columns: 1fr/);
+  assert.match(clarityCss, /@media \(max-width: 680px\)[\s\S]*\.agency-funnel-flow[\s\S]*grid-template-columns: 1fr/);
+});

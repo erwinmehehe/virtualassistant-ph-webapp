@@ -134,6 +134,7 @@ export default async function DiscoveryWorkspacePage({
   return (
     <main className={styles.page}>
       {query.saved ? <div className={styles.success}>Discovery workspace saved.</div> : null}
+      {query.discovery_completed ? <div className={styles.success}>Discovery marked qualified. Finish the recommendation and send the proposal before matching.</div> : null}
       {query.error ? <div className={styles.error} role="alert">{query.error}</div> : null}
 
       <div className={styles.topbar}>
@@ -280,7 +281,6 @@ export default async function DiscoveryWorkspacePage({
                 </button>
                 <button type="submit" name="intent" value="save" className={styles.secondaryButton}>Save workspace</button>
                 <div className={styles.secondaryActions}>
-                  <button type="submit" name="intent" value="qualified">Qualified · Open matching</button>
                   <button type="submit" name="intent" value="follow_up">Follow up</button>
                   <button type="submit" name="intent" value="nurture">Nurture</button>
                 </div>

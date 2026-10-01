@@ -21,14 +21,20 @@ test("recruiter CRM exposes a dedicated timezone confirmation queue", async () =
   assert.match(css, /\.timezoneWarning/);
 });
 
-test("Recruiter Today elevates invalid active client timezones as a next action", async () => {
-  const page = await read("src/app/workspace/recruiter/today/page.tsx");
+test("Recruiter Today elevates invalid active client timezones from the existing summary RPC", async () => {
+  const [page, migration] = await Promise.all([
+    read("src/app/workspace/recruiter/today/page.tsx"),
+    read("supabase/migrations/20261001193000_recruiter_today_timezone_summary.sql"),
+  ]);
 
-  assert.match(page, /activeLeadTimeZones/);
-  assert.match(page, /!\["won", "lost"\]\.includes\(stage\)/);
-  assert.match(page, /!isValidTimeZone\(lead\.timezone\)/);
+  assert.match(page, /summary\.timezone_confirmation_count/);
   assert.match(page, /title:"Confirm client timezones"/);
   assert.match(page, /href:"\/workspace\/recruiter\/crm\?view=timezone"/);
+  assert.doesNotMatch(page, /from\("lead_intake"\)/);
+  assert.match(migration, /timezone_confirmation as/);
+  assert.match(migration, /pg_catalog\.pg_timezone_names/);
+  assert.match(migration, /'timezone_confirmation_count', tzc\.total/);
+  assert.match(migration, /cross join timezone_confirmation tzc/);
 });
 
 test("public discovery booking rejects non-IANA timezone strings", async () => {

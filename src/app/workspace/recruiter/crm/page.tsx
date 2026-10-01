@@ -32,6 +32,7 @@ type LeadRow = {
   owner_id: string | null;
   client_id: string | null;
   job_id: string | null;
+  acknowledgement_sent_at: string | null;
   first_contact_at: string | null;
   last_contact_at: string | null;
   next_follow_up_at: string | null;
@@ -118,7 +119,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
   let leadQuery = admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,stage_updated_at,created_at")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,acknowledgement_sent_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,stage_updated_at,created_at")
     .eq("lead_type", "client_hiring")
     .order("created_at", { ascending: false })
     .limit(500);
@@ -342,6 +343,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                       <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                       <td>
                         <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
+                        {(lead.crm_stage || "new") === "new" && lead.acknowledgement_sent_at && !lead.first_contact_at ? <span className={styles.acknowledgedBadge}>Acknowledged · recruiter contact due</span> : null}
                         {!isValidTimeZone(lead.timezone) && isOpenLeadStage(lead.crm_stage || "new") ? <span className={styles.timezoneWarning}>Timezone needed</span> : null}
                         {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (
                           <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open discovery</Link>

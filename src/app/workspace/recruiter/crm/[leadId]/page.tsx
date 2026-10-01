@@ -7,6 +7,7 @@ import {
   CalendarDays,
   CalendarPlus,
   Check,
+  Clock3,
   ClipboardList,
   ListTodo,
   Mail,
@@ -539,6 +540,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </div>
         </div>
         <div className={styles.headerActions}>
+          {clientTimeZoneDetails ? (
+            <span className={styles.clientLocalClock}>
+              <Clock3 size={15}/>
+              <span><strong>Client local time</strong><small>{clientTimeZoneDetails.city} · {clientTimeZoneDetails.localTime}{clientTimeZoneDetails.zoneName ? ` · ${clientTimeZoneDetails.zoneName}` : ""}</small></span>
+            </span>
+          ) : null}
           <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={15}/> Discovery workspace</Link>
           {lead.client_id ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
           {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
@@ -640,8 +647,12 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </div>
           <div>
             <span>4 · Next follow-up</span>
-            <strong>{lead.next_follow_up_at ? fmt(lead.next_follow_up_at) : "Not scheduled"}</strong>
-            <small>{followUpOverdue ? "Overdue · recover now" : lead.next_follow_up_at ? "Scheduled in CRM" : "Set the next decision point."}</small>
+            <strong>{lead.next_follow_up_at
+              ? clientTimeZone
+                ? formatDateTimeInTimeZone(lead.next_follow_up_at, clientTimeZone)
+                : fmt(lead.next_follow_up_at, true)
+              : "Not scheduled"}</strong>
+            <small>{followUpOverdue ? "Overdue · recover now" : lead.next_follow_up_at ? clientTimeZoneDetails ? `${clientTimeZoneDetails.city} local time` : "Scheduled in CRM" : "Set the next decision point."}</small>
           </div>
           <div>
             <span>5 · Recovery</span>
@@ -668,8 +679,19 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <option value="nurture">Nurture</option>
               </select>
             </label>
-            <label>Next follow-up
-              <input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/>
+            <label>Next follow-up date
+              <input
+                type="date"
+                name="next_follow_up_at"
+                defaultValue={clientTimeZone
+                  ? dateTimeInputValueInTimeZone(lead.next_follow_up_at, clientTimeZone).slice(0, 10)
+                  : dateInput(lead.next_follow_up_at)}
+              />
+              <small className={styles.followUpTimeZoneHint}>
+                {clientTimeZoneDetails
+                  ? `Schedules for 9:00 AM in ${clientTimeZoneDetails.city}${clientTimeZoneDetails.zoneName ? ` (${clientTimeZoneDetails.zoneName})` : ""}.`
+                  : "Timezone not detected. Schedules for 9:00 AM Manila time."}
+              </small>
             </label>
             <div className={styles.closingFormActions}>
               <button type="submit">Save closing plan</button>

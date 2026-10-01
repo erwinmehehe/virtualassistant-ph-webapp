@@ -18,7 +18,7 @@ import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
 import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
 import { isValidTimeZone } from "@/lib/timezone";
-import { queueLeadSlaAutomation } from "@/lib/trigger-automation";
+import { queueDiscoveryOutcomeAutomation, queueLeadSlaAutomation } from "@/lib/trigger-automation";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -1063,6 +1063,16 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       // Updating the confirmed booking must not fail because an internal alert failed.
     }
 
+    try {
+      await queueDiscoveryOutcomeAutomation(
+        activeBooking.id,
+        parsed.data.scheduled_at,
+        DISCOVERY_DURATION_MINUTES,
+      );
+    } catch {
+      // Booking remains valid if durable automation is temporarily unavailable.
+    }
+
     redirect(`/book-client-call?booked=1&when=${encodeURIComponent(parsed.data.scheduled_at)}&tz=${encodeURIComponent(parsed.data.timezone)}&updated=1`);
   }
 
@@ -1267,6 +1277,16 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     } catch {
       // Do not lose the booking because an internal alert failed.
     }
+  }
+
+  try {
+    await queueDiscoveryOutcomeAutomation(
+      leadId,
+      parsed.data.scheduled_at,
+      DISCOVERY_DURATION_MINUTES,
+    );
+  } catch {
+    // Booking remains valid if durable automation is temporarily unavailable.
   }
 
   redirect(`/book-client-call?booked=1&when=${encodeURIComponent(parsed.data.scheduled_at)}&tz=${encodeURIComponent(parsed.data.timezone)}`);

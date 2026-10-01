@@ -35,7 +35,12 @@ test("interview scheduling can be completed by client or staff without client em
   const block=action.slice(start,end);
   assert.match(block,/requireAnyRole\(\["client", "recruiter", "admin"\]\)/);
   assert.match(block,/profile\.role === "client" && row\.client_id !== user\.id/);
-  assert.match(block,/attendeeEmails = \[vaAuth\.user\?\.email\]/);
+  assert.match(block,/scheduled_local/);
+  assert.match(block,/zonedDateTimeToUtc/);
+  assert.match(block,/isValidTimeZone/);
+  assert.match(block,/clientAuth/);
+  assert.match(block,/attendeeEmails = \[vaAuth\.user\?\.email, clientAuth\.user\?\.email\]/);
+  assert.match(block,/formatDateTimeInTimeZone/);
   assert.match(block,/user_id: row\.client_id/);
   assert.match(block,/interview_scheduled/);
   assert.match(block,/candidate_interview_scheduled/);

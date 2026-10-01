@@ -38,7 +38,7 @@ test("recruiter booking auto-creates Google Meet when no manual meeting URL is s
 test("existing linkless bookings expose a silent Google Meet retry action",async()=>{
   const [action,page]=await Promise.all([
     read("src/app/actions/recruiter.ts"),
-    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
   ]);
   assert.match(action,/export async function createDiscoveryGoogleMeetLinkAction/);
   assert.match(action,/notifyAttendees: false/);

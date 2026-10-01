@@ -133,4 +133,12 @@ test("closing follow-ups use the client timezone and expose local time to recrui
   assert.match(page, /formatDateTimeInTimeZone\(lead\.next_follow_up_at, clientTimeZone\)/);
   assert.match(css, /\.clientLocalClock/);
   assert.match(css, /\.followUpTimeZoneHint/);
+  assert.match(actions, /export async function updateLeadTimeZoneAction/);
+  assert.match(actions, /Set the client's timezone before scheduling a follow-up/);
+  assert.doesNotMatch(closingAction, /followUpTimeZone = "Asia\/Manila"/);
+  assert.match(page, /Set timezone/);
+  assert.match(page, /Australia\/Sydney/);
+  assert.match(page, /Use a city-based timezone so daylight-saving changes stay accurate/);
+  assert.match(css, /padding-bottom: calc\(108px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /@media \(max-width: 430px\)/);
 });

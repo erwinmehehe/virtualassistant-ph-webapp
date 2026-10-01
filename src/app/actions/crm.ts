@@ -232,6 +232,63 @@ export async function setCrmCustomValueAction(formData: FormData) {
   redirect(withParam(returnTo, "field_value_saved"));
 }
 
+export async function updateLeadTimeZoneAction(formData: FormData) {
+  const { user } = await requireAnyRole(["recruiter", "admin"]);
+  const leadId = String(formData.get("lead_id") || "").trim();
+  const returnTo = safePath(formData.get("return_to"), leadId ? `/workspace/recruiter/crm/${leadId}` : "/workspace/recruiter/crm");
+  const timeZone = String(formData.get("timezone") || "").trim();
+
+  const fail = (message: string): never => redirect(withParam(returnTo, "timezone_error", message));
+  if (!leadId) fail("Client record not found.");
+  if (!isValidTimeZone(timeZone)) fail("Enter a valid timezone such as Australia/Sydney.");
+
+  const admin = createAdminClient();
+  const { data: lead, error: leadError } = await admin
+    .from("lead_intake")
+    .select("id,job_id,timezone")
+    .eq("id", leadId)
+    .eq("lead_type", "client_hiring")
+    .maybeSingle();
+  if (leadError) fail(leadError.message);
+  if (!lead) fail("Client record not found.");
+  const validatedLead = lead!;
+
+  const previousTimeZone = isValidTimeZone(validatedLead.timezone) ? String(validatedLead.timezone) : null;
+  const { error: updateError } = await admin
+    .from("lead_intake")
+    .update({ timezone: timeZone })
+    .eq("id", leadId)
+    .eq("lead_type", "client_hiring");
+  if (updateError) fail(updateError.message || "Could not update the client timezone.");
+
+  if (validatedLead.job_id) {
+    const { error: jobTimeZoneError } = await admin
+      .from("jobs")
+      .update({ timezone: timeZone })
+      .eq("id", validatedLead.job_id);
+    if (jobTimeZoneError) fail("Client timezone saved, but the linked role timezone could not be updated.");
+  }
+
+  await writeRecruiterActivity({
+    subjectType: "lead",
+    subjectId: leadId,
+    action: "lead_timezone_updated",
+    description: "Recruiter corrected the client timezone used for local-time display and follow-up scheduling.",
+    actorId: user.id,
+    metadata: {
+      job_id: validatedLead.job_id || null,
+      previous_timezone: previousTimeZone,
+      timezone: timeZone,
+    },
+  });
+
+  revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${leadId}`);
+  revalidatePath("/workspace/recruiter/today");
+  redirect(withParam(returnTo, "timezone_saved"));
+}
+
 export async function saveCrmClosingControlAction(formData: FormData) {
   const { user } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
@@ -268,7 +325,10 @@ export async function saveCrmClosingControlAction(formData: FormData) {
       .maybeSingle();
     if (!linkedJobError && isValidTimeZone(linkedJob?.timezone)) followUpTimeZone = String(linkedJob?.timezone);
   }
-  if (!followUpTimeZone) followUpTimeZone = "Asia/Manila";
+  const schedulingRequested = Boolean(quickDaysRaw || quickNurtureDaysRaw || followUpRaw);
+  if (!followUpTimeZone && schedulingRequested) {
+    fail("Set the client's timezone before scheduling a follow-up.");
+  }
 
   let nextFollowUpAt: string | null | undefined;
   if (quickDaysRaw && quickNurtureDaysRaw) fail("Choose one follow-up shortcut.");

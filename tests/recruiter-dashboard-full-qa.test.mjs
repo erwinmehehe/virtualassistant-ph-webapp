@@ -73,17 +73,23 @@ test("recruiter finance fails loudly instead of rendering false zero states", as
   ]) assert.ok(page.includes(snippet));
 });
 
-test("recruiter notification actions rewrite legacy destinations and reject cross-role workspace links", async () => {
-  const actions=await read("src/app/actions/recruiter-ops.ts");
-  assert.ok(actions.includes("function recruiterActionPath"));
-  assert.ok(actions.includes("const legacyMatch = path.match("));
-  assert.ok(actions.includes("const adminJob = path.match("));
-  assert.ok(actions.includes("legacyMatch[1]"));
-  assert.ok(actions.includes("adminJob[1]"));
-  assert.ok(actions.includes('path.startsWith("/workspace/recruiter/")'));
-  assert.ok(actions.includes('path === "/workspace/client-success"'));
+test("recruiter notifications, tasks, agenda, and Today normalize historical destinations", async () => {
+  const [actions,routes,tasks,agenda,today]=await Promise.all([
+    read("src/app/actions/recruiter-ops.ts"),
+    read("src/lib/recruiter-routes.ts"),
+    read("src/app/workspace/recruiter/tasks/page.tsx"),
+    read("src/app/workspace/recruiter/agenda/page.tsx"),
+    read("src/app/workspace/recruiter/today/page.tsx"),
+  ]);
+  assert.ok(actions.includes("canonicalRecruiterHref"));
   assert.ok(actions.includes('redirect(recruiterActionPath(notification.href, "/workspace/recruiter/notifications"))'));
   assert.ok(actions.includes('const href = recruiterActionPath(formData.get("href"), "")'));
+  for (const legacy of ["leads","queue","activity","funnel","analytics","placements","matching","client-review"]) assert.ok(routes.includes(legacy));
+  assert.ok(routes.includes('url.pathname = "/workspace/recruiter/crm"'));
+  assert.ok(routes.includes('url.pathname = "/workspace/recruiter/talent"'));
+  assert.ok(routes.includes('url.pathname = "/workspace/recruiter/performance"'));
+  assert.ok(routes.includes('url.pathname = "/workspace/client-success"'));
+  for (const page of [tasks,agenda,today]) assert.ok(page.includes("canonicalRecruiterHref"));
 });
 
 test("maintenance creates canonical recruiter links and keeps client reminders in-app only", async () => {

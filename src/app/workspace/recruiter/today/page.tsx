@@ -9,6 +9,7 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import styles from "./today.module.css";
 
@@ -145,12 +146,12 @@ function exactActionHref(item:any) {
   if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(item.kind==="proposal_action"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
   if(item.kind==="closing_followup"&&item.id) return `/workspace/recruiter/crm/${item.id}#client-followup`;
-  if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
+  if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return canonicalRecruiterHref(item.href,null);
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
   if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_requested","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
   if(item.kind==="candidate_capacity_conflict"&&item.id) return `/workspace/recruiter/candidates/${item.id}`;
-  return item.href||null;
+  return canonicalRecruiterHref(item.href,null);
 }
 
 function actionLabel(item:any) {

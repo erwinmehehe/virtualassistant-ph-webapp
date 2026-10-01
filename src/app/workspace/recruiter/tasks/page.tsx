@@ -4,12 +4,13 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, createRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 
 function manilaLabel(value?:string|null){return value?new Intl.DateTimeFormat("en-PH",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Manila"}).format(new Date(value)):"No due time";}
 function exactTaskHref(task:any){
   if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/roles/${task.subject_id}`;
   if(task.subject_type==="va"&&task.subject_id)return `/workspace/recruiter/candidates/${task.subject_id}`;
-  return task.href||null;
+  return canonicalRecruiterHref(task.href, null);
 }
 
 export default async function RecruiterTasksPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){

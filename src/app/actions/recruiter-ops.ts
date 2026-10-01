@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
 const REPEAT_RULES = new Set(["none", "daily", "weekly"]);
@@ -15,11 +16,8 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
 }
 
 function recruiterActionPath(value: FormDataEntryValue | string | null, fallback: string) {
-  const path = safePath(value as FormDataEntryValue | null, fallback);
-  const legacyMatch = path.match(/^\/workspace\/recruiter\/matching\/([^/?#]+)(.*)$/);
-  if (legacyMatch) return `/workspace/recruiter/roles/${legacyMatch[1]}${legacyMatch[2] || ""}`;
-  const adminJob = path.match(/^\/workspace\/admin\/jobs\/([^/?#]+)(.*)$/);
-  if (adminJob) return `/workspace/recruiter/roles/${adminJob[1]}${adminJob[2] || ""}`;
+  const raw = safePath(value as FormDataEntryValue | null, fallback);
+  const path = canonicalRecruiterHref(raw, fallback) || fallback;
   if (
     path === "/workspace/client-success" ||
     path.startsWith("/workspace/client-success/") ||

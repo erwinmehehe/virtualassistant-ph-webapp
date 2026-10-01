@@ -4,6 +4,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 
 type AgendaTaskRow = { id: string; title: string; description: string | null; due_at: string; priority: string | null; href: string | null; repeat_rule: string | null; subject_type: string | null; subject_id: string | null };
 type AgendaItem = {
@@ -26,7 +27,7 @@ type AgendaItem = {
 function timeLabel(value:string,zone:string){try{return new Intl.DateTimeFormat("en-PH",{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:zone}).format(new Date(value));}catch{return new Intl.DateTimeFormat("en-PH",{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"Asia/Manila"}).format(new Date(value));}}
 function ymdInManila(date:Date){return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).format(date);}
 function weekRange(){const ymd=ymdInManila(new Date());const [y,m,d]=ymd.split("-").map(Number);const weekday=new Date(Date.UTC(y,m-1,d)).getUTCDay();const mondayOffset=weekday===0?-6:1-weekday;const start=new Date(`${ymd}T00:00:00+08:00`);start.setUTCDate(start.getUTCDate()+mondayOffset);const end=new Date(start.getTime()+7*86400000);return{start,end};}
-function taskHref(task:AgendaTaskRow){if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/roles/${task.subject_id}`;if(task.subject_type==="va"&&task.subject_id)return `/workspace/recruiter/candidates/${task.subject_id}`;return task.href||null;}
+function taskHref(task:AgendaTaskRow){if(task.subject_type==="job"&&task.subject_id)return `/workspace/recruiter/roles/${task.subject_id}`;if(task.subject_type==="va"&&task.subject_id)return `/workspace/recruiter/candidates/${task.subject_id}`;return canonicalRecruiterHref(task.href,null);}
 function meetingActionLabel(value?:string|null){try{const host=new URL(String(value||"")).hostname.toLowerCase();if(host==="meet.google.com")return "Join Google Meet";if(host==="zoom.us"||host.endsWith(".zoom.us"))return "Join Zoom";if(host==="teams.microsoft.com"||host.endsWith(".teams.microsoft.com")||host==="teams.live.com")return "Join Teams";}catch{}return "Join call";}
 
 export default async function RecruiterAgendaPage(){

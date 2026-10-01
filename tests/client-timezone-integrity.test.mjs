@@ -21,7 +21,7 @@ test("recruiter CRM exposes a dedicated timezone confirmation queue", async () =
   assert.match(css, /\.timezoneWarning/);
 });
 
-test("Recruiter Today elevates invalid active client timezones from the existing summary RPC", async () => {
+test("Recruiter Today elevates invalid active client timezones from the single summary RPC", async () => {
   const [page, migration] = await Promise.all([
     read("src/app/workspace/recruiter/today/page.tsx"),
     read("supabase/migrations/20261001193000_recruiter_today_timezone_summary.sql"),

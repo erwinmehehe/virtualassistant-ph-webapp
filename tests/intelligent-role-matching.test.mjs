@@ -12,7 +12,7 @@ test("matching gives role title and category identity the strongest combined wei
   assert.match(matching, /assessedWeight \+= 35/);
   assert.match(matching, /score \+= Math\.round\(roleMatch\.pointsRatio \* 35\)/);
   assert.match(matching, /assessedWeight \+= 20/);
-  assert.match(matching, /if \(categoryMatch\.matched\) score \+= 20/);
+  assert.match(matching, /score \+= Math\.round\(categoryMatch\.pointsRatio \* 20\)/);
   assert.match(matching, /matchedKeywords/);
   assert.match(matching, /roleSources = \[/);
   assert.match(matching, /va\.headline/);

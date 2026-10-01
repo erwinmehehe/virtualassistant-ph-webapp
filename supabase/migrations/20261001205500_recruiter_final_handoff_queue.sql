@@ -501,7 +501,7 @@ cross join proposal_actions pa
 cross join proposal_health ph
 cross join stale_roles sr
 cross join action_counts a;
-$function$
+$function$;
 
 
 revoke execute on function public.recruiter_today_summary(uuid) from public,anon,authenticated;

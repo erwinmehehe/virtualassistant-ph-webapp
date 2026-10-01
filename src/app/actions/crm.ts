@@ -265,8 +265,7 @@ export async function saveCrmClosingControlAction(formData: FormData) {
       .select("timezone")
       .eq("id", validatedLead.job_id)
       .maybeSingle();
-    if (linkedJobError) fail(linkedJobError.message);
-    if (isValidTimeZone(linkedJob?.timezone)) followUpTimeZone = String(linkedJob?.timezone);
+    if (!linkedJobError && isValidTimeZone(linkedJob?.timezone)) followUpTimeZone = String(linkedJob?.timezone);
   }
   if (!followUpTimeZone) followUpTimeZone = "Asia/Manila";
 

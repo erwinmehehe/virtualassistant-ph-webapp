@@ -537,7 +537,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
     summary: cleanJobSummary(proposal.summary || lead.message, fallbackSummary),
     description,
     responsibilities: proposalResponsibilities.length ? proposalResponsibilities : description ? [description] : [],
-    categories: inferCategories(lead.service, proposal.summary || lead.message),
+    categories: inferCategories(proposal.role_title, lead.service, proposal.summary || lead.message),
     required_skills: proposalSkills,
     required_tools: proposalTools,
     hours_per_week: proposal.hours_per_week || inferHours(lead.hours),

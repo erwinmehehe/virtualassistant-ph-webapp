@@ -61,7 +61,7 @@ test("shortlist decisions and interview changes resolve obsolete recruiter and V
   assert.match(shortlist, /done_at: now/);
 });
 
-test("candidate interviews use explicit IANA wall time and include both client and VA calendar attendees", async () => {
+test("candidate interviews use explicit IANA wall time without adding pre-shortlist client email", async () => {
   const [scheduler, operations, role] = await Promise.all([
     read("src/components/candidate-interview-scheduler.tsx"),
     read("src/app/actions/recruiter-operations-system.ts"),
@@ -77,8 +77,8 @@ test("candidate interviews use explicit IANA wall time and include both client a
   assert.match(scheduler, /timeZone: preferredTimeZone/);
   assert.match(block, /zonedDateTimeToUtc\(scheduledLocal, timezone\)/);
   assert.match(block, /Confirm a valid timezone before scheduling the interview/);
-  assert.match(block, /clientAuth/);
-  assert.match(block, /attendeeEmails = \[vaAuth\.user\?\.email, clientAuth\.user\?\.email\]/);
+  assert.match(block, /attendeeEmails = \[vaAuth\.user\?\.email\]/);
+  assert.doesNotMatch(block, /clientAuth\.user\?\.email/);
   assert.match(block, /formatDateTimeInTimeZone\(scheduledAt\.toISOString\(\), timezone\)/);
   assert.doesNotMatch(block, /\$\{when\} UTC/);
   assert.match(role, /const roleTimeZone = isValidTimeZone\(job\.timezone\)/);

@@ -13,6 +13,8 @@ test("client gets one acknowledgement while automated pre-shortlist nudges stay 
   const acknowledgement=email.slice(acknowledgementStart,acknowledgementStart+2200);
   assert.doesNotMatch(acknowledgement,/client_email_deferred_until_shortlist/);
   assert.match(acknowledgement,/Activate my hiring workspace/);
+  assert.match(acknowledgement,/Thanks for reaching out about hiring for the/);
+  assert.doesNotMatch(acknowledgement,/hiring a \$\{service\}/);
   assert.doesNotMatch(acknowledgement,/Book a 20-minute call/);
 
   for (const fn of [

@@ -134,7 +134,7 @@ export default async function RoleControlCenter({
   const [{ data: proposedVetting }, { data: proposedProfiles }, { data: proposedPool }] = proposedVaIds.length
     ? await Promise.all([
         admin.from("va_vetting").select("va_id,stage").in("va_id", proposedVaIds),
-        admin.from("va_profiles").select("user_id,availability_status,availability_confirmed_at,work_setup_verified_at").in("user_id", proposedVaIds),
+        admin.from("va_profiles").select("user_id,availability_status,availability_confirmed_at").in("user_id", proposedVaIds),
         admin.from("bench_memberships").select("va_id").in("va_id", proposedVaIds).eq("status", "active"),
       ])
     : [{ data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }];
@@ -172,12 +172,10 @@ export default async function RoleControlCenter({
       name: vaMap.get(row.va_id) || "VA",
       gaps,
       needsPool: gaps.includes("Add to talent pool"),
-      needsWorkSetup: gaps.includes("Verify work setup"),
       needsAvailability: gaps.includes("Confirm availability") || gaps.includes("Refresh availability"),
     };
   }).sort((a, b) => a.gaps.length - b.gaps.length || a.name.localeCompare(b.name));
   const poolBlockedIds = blockedReadinessRows.filter((row) => row.needsPool).map((row) => row.vaId);
-  const workSetupBlockedCount = blockedReadinessRows.filter((row) => row.needsWorkSetup).length;
   const availabilityBlockedCount = blockedReadinessRows.filter((row) => row.needsAvailability).length;
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
@@ -449,14 +447,10 @@ export default async function RoleControlCenter({
                   <button className="btn" type="submit">Add {poolBlockedIds.length} to talent pool</button>
                 </form>
               ) : null}
-              <Link className="btn btn-primary" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>
-                Open scoped work readiness {workSetupBlockedCount ? `(${workSetupBlockedCount})` : ""}
-              </Link>
             </div>
           </div>
           <div className="row wrap" style={{ marginTop: 10 }}>
             {poolBlockedIds.length ? <span className="small muted">{poolBlockedIds.length} need talent-pool membership</span> : null}
-            {workSetupBlockedCount ? <span className="small muted">{workSetupBlockedCount} need verified work setup</span> : null}
             {availabilityBlockedCount ? <span className="small muted">{availabilityBlockedCount} need availability confirmation</span> : null}
           </div>
           <div className="stack" style={{ marginTop: 14 }}>
@@ -479,10 +473,7 @@ export default async function RoleControlCenter({
                         <button className="btn btn-sm" type="submit">Add to talent pool</button>
                       </form>
                     ) : null}
-                    {candidate.needsWorkSetup ? (
-                      <Link className="btn btn-sm" href={`/workspace/recruiter/work-readiness?job=${encodeURIComponent(id)}&view=all`}>Work readiness</Link>
-                    ) : null}
-                    {candidate.needsAvailability ? (
+                                        {candidate.needsAvailability ? (
                       <Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${candidate.vaId}`}>Open VA profile</Link>
                     ) : null}
                   </div>

@@ -308,6 +308,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const summary = (summaryData || {}) as Record<string,any>;
   const timezoneNeedsConfirmation = Number(summary.timezone_confirmation_count || 0);
+  const activeLeadActions = (Array.isArray(summary.active_lead_actions) ? summary.active_lead_actions : []) as ActiveLeadActionRow[];
+  const firstContactActions = activeLeadActions.filter((item) => item.action_key === "first_contact");
+  const dueClientActions = activeLeadActions.filter((item) => ["urgent", "high"].includes(item.priority) && item.action_key !== "first_contact");
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
@@ -450,6 +453,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nextActionCandidates = [
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:firstContactActions.length,title:"Contact new client leads",copy:`${firstContactActions.length} assigned enquir${firstContactActions.length===1?"y has":"ies have"} not had a first human contact yet. Work these before matching or routine sourcing.`,href:"#client-next-actions",cta:"Open first contacts",icon:<MessageSquare size={20}/>},
+    {count:dueClientActions.length,title:"Move due client leads",copy:`${dueClientActions.length} assigned client${dueClientActions.length===1?" has":"s have"} a due discovery, proposal, follow-up, or nurture action.`,href:"#client-next-actions",cta:"Open client actions",icon:<Clock3 size={20}/>},
     {count:timezoneNeedsConfirmation,title:"Confirm client timezones",copy:`${timezoneNeedsConfirmation} active client${timezoneNeedsConfirmation===1?" has":"s have"} no valid scheduling timezone. Confirm it before discovery or local-time follow-up.`,href:"/workspace/recruiter/crm?view=timezone",cta:"Review timezones",icon:<Clock3 size={20}/>},
     {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
     {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},
@@ -564,6 +569,34 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <span>{closingActionLeadIds.size ? "Work these before routine sourcing and profile review." : "No discovery, proposal, reply, overdue follow-up, or stalled-lead signal is active."}</span>
       </div>
     </section>
+
+    {activeLeadActions.length ? <section id="client-next-actions" className={`card dashboard-section-card ${styles.sectionShell} ${styles.clientActionSection}`}>
+      <div className={`dashboard-section-head ${styles.sectionHead}`}>
+        <div><h2>Client next actions</h2><p>One concrete sales step per active client assigned to you. Work the top row first, then keep moving down.</p></div>
+        <span className="badge badge-warning">{activeLeadActions.length} active</span>
+      </div>
+      <div className={styles.clientActionList}>
+        {activeLeadActions.map((lead) => {
+          const timing = clientLeadActionTiming(lead);
+          const stage = String(lead.crm_stage || "new").replaceAll("_", " ");
+          return <article className={`${styles.clientActionRow} ${lead.priority === "urgent" ? styles.clientActionUrgent : lead.priority === "high" ? styles.clientActionHigh : ""}`} key={lead.id}>
+            <div className={styles.clientActionCopy}>
+              <div className={styles.clientActionMeta}>
+                <span className={styles.clientActionStage}>{stage}</span>
+                <span>{lead.priority === "urgent" ? "Urgent" : lead.priority === "high" ? "Due" : lead.priority === "normal" ? "Next" : "Scheduled"}</span>
+                {!lead.timezone_valid ? <span className={styles.clientActionTimezone}>Timezone needed</span> : null}
+                {timing ? <span>{timing}</span> : null}
+              </div>
+              <h3>{lead.company || lead.name || "Client lead"} <em>· {lead.service || "Virtual Assistant role"}</em></h3>
+              <p><strong>{clientLeadActionLabel(lead)}.</strong> {clientLeadActionDetail(lead)}</p>
+            </div>
+            <div className={styles.clientActionButtons}>
+              <Link className={`btn btn-sm ${["urgent","high"].includes(lead.priority) ? "btn-primary" : ""}`} href={clientLeadActionHref(lead)}>{clientLeadActionCta(lead)}<ArrowRight size={13}/></Link>
+            </div>
+          </article>;
+        })}
+      </div>
+    </section> : null}
 
     {upcomingDiscoveryCalls.length ? <section id="upcoming-discovery-calls" className={`card dashboard-section-card ${styles.sectionShell}`}>
       <div className={`dashboard-section-head ${styles.sectionHead}`}>

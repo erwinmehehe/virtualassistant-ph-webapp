@@ -524,6 +524,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.contact_already_sent ? <div className="success-banner">That email was already sent. A duplicate was prevented.</div> : null}
       {query.contact_error ? <div className="alert" role="alert">{query.contact_error}</div> : null}
       {query.discovery_saved ? <div className="success-banner">Discovery booking saved.</div> : null}
+      {query.meet_link_created ? <div className="success-banner">Google Meet created. No client email was sent.</div> : null}
       {query.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {query.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
       {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}

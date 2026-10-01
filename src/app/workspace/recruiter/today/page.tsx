@@ -189,7 +189,7 @@ function meetingActionLabel(value: unknown) {
 }
 function clientLeadActionLabel(item: ActiveLeadActionRow) {
   switch (item.action_key) {
-    case "first_contact": return "Make first contact";
+    case "first_contact": return "Recruiter contact due";
     case "record_discovery_outcome": return "Record discovery outcome";
     case "revise_proposal": return "Revise the proposal";
     case "follow_up_proposal": return "Follow up on the proposal";
@@ -210,7 +210,7 @@ function clientLeadActionDetail(item: ActiveLeadActionRow) {
   const timezoneNote = item.timezone_valid ? "" : " Confirm the client timezone while you are there.";
   switch (item.action_key) {
     case "first_contact":
-      return "Open the client record, make the first human contact, and set a clear next step." + timezoneNote;
+      return "The automatic acknowledgement confirms receipt only. A recruiter still needs to contact the client and set the next step." + timezoneNote;
     case "record_discovery_outcome":
       return "The call time has passed. Save the outcome now so proposal or recovery work can continue.";
     case "revise_proposal":

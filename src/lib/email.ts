@@ -660,6 +660,19 @@ export async function sendLeadAcknowledgementEmail(args: {
       ctaLabel: "Activate my hiring workspace"
     })
   }, "lead_acknowledgement", { archive: false, priority: "critical", idempotencyKey: args.leadId ? `lead-acknowledgement-${args.leadId}` : undefined });
+
+  if (delivery.sent && args.leadId) {
+    try {
+      await createAdminClient()
+        .from("lead_intake")
+        .update({ acknowledgement_sent_at: new Date().toISOString() })
+        .eq("id", args.leadId)
+        .is("acknowledgement_sent_at", null);
+    } catch {
+      // Delivery succeeded. Do not turn an operational timestamp failure into a client-facing email error.
+    }
+  }
+
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

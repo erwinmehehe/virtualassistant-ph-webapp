@@ -1610,6 +1610,19 @@
   text-decoration: none;
 }
 
+.acknowledgedBadge {
+  display: block;
+  width: fit-content;
+  margin-top: 5px;
+  padding: 3px 6px;
+  border: 1px solid #d9d6fe;
+  border-radius: 6px;
+  background: #f4f3ff;
+  color: #5925dc;
+  font-size: 9px;
+  font-weight: 760;
+}
+
 .timezoneWarning {
   display: block;
   width: fit-content;

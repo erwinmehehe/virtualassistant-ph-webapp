@@ -127,9 +127,6 @@ export async function closeLeadAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/crm");
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/recruiter/leads/board");
-  revalidatePath("/workspace/recruiter/queue");
   revalidatePath("/workspace/recruiter/agenda");
   revalidatePath("/workspace/recruiter/stalled");
   revalidatePath("/workspace/admin/leads");

@@ -2821,3 +2821,135 @@
     grid-column: auto;
   }
 }
+
+
+/* Recruiter lead timezone correction + mobile QA */
+.timeZoneFact {
+  min-width: 0;
+}
+
+.timeZoneEditor {
+  margin-top: 7px;
+}
+
+.timeZoneEditor summary {
+  width: fit-content;
+  cursor: pointer;
+  color: #4f46e5;
+  font-size: 10px;
+  font-weight: 750;
+  list-style: none;
+}
+
+.timeZoneEditor summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeZoneEditor summary::after {
+  content: " ›";
+}
+
+.timeZoneEditor[open] summary::after {
+  content: " ↓";
+}
+
+.timeZoneEditor form {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 9px;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  background: #f8f9fb;
+}
+
+.timeZoneEditor label {
+  color: #667085;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.timeZoneEditor form > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.timeZoneEditor input {
+  min-width: 0;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #101828;
+  font: inherit;
+  font-size: 11px;
+}
+
+.timeZoneEditor button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.timeZoneEditor form > small {
+  color: #98a2b3;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .detailPage {
+    padding-bottom: calc(108px + env(safe-area-inset-bottom));
+  }
+
+  .closingBriefHead p {
+    display: none;
+  }
+
+  .closingBriefActions {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .closingProgressOpen,
+  .closingProgressReady {
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
+
+  .timeZoneEditor form > div {
+    grid-template-columns: 1fr;
+  }
+
+  .timeZoneEditor button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .detailHeader {
+    gap: 10px;
+  }
+
+  .workflow {
+    margin-top: 8px;
+  }
+
+  .closingBriefHead {
+    padding: 12px;
+  }
+
+  .closingBriefHead h2 {
+    font-size: 17px;
+  }
+}

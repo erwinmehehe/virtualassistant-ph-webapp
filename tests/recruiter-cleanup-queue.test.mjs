@@ -11,7 +11,8 @@ const migration = read("supabase/migrations/20260917004500_recruiter_cleanup_que
 test("My Day removes duplicate lead work and routes cleanup into CRM Needs action", () => {
   assert.match(page, /recruiter_today_summary/);
   assert.match(page, /LEAD_QUEUE_KINDS = new Set\(\["lead_first_contact", "lead_followup"\]\)/);
-  assert.match(page, /\.filter\(\(item:any\)=>!LEAD_QUEUE_KINDS\.has\(String\(item\.kind\)\)\)/);
+  assert.match(page, /!LEAD_QUEUE_KINDS\.has\(String\(item\.kind\)\)/);
+  assert.match(page, /!CONVERSION_QUEUE_KINDS\.has\(String\(item\.kind\)\)/);
   assert.match(page, /workspace\/recruiter\/crm\?view=attention/);
   assert.doesNotMatch(page, /<h2>Sales cleanup<\/h2>/);
 });

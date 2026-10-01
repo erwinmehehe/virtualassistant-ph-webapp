@@ -19,7 +19,9 @@ test("Discovery Workspace generates an editable recommendation instead of re-ent
   assert.match(action,/salary_min/);
   assert.match(action,/commercial_note/);
   assert.match(action,/proposal\?generated=1/);
-  assert.match(action,/const NEXT_STEPS = new Set\(\["save", "proposal", "qualified", "follow_up", "nurture"\]\)/);
+  assert.match(action,/const NEXT_STEPS = new Set\(\["save", "proposal", "follow_up", "nurture"\]\)/);
+  assert.doesNotMatch(page,/Qualified · Open matching/);
+  assert.doesNotMatch(action,/intent === "qualified"/);
   assert.match(nextStepMigration,/next_step is null or next_step in \('proposal','qualified','follow_up','nurture'\)/);
 });
 

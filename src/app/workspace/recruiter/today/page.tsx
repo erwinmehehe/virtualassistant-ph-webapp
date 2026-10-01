@@ -16,6 +16,7 @@ import styles from "./today.module.css";
 const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"badge-warning", normal:"", low:"" };
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
 const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
+const CONVERSION_QUEUE_KINDS = new Set(["discovery", "proposal_missing", "proposal_draft"]);
 
 type DailyActionRow = {
   priority: string | null;
@@ -145,6 +146,8 @@ function exactActionHref(item:any) {
   if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(item.kind==="proposal_action"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
+  if(item.kind==="proposal_draft"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
+  if(item.kind==="proposal_missing"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="closing_followup"&&item.id) return `/workspace/recruiter/crm/${item.id}#client-followup`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return canonicalRecruiterHref(item.href,null);
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
@@ -158,6 +161,8 @@ function actionLabel(item:any) {
   if(item.kind==="discovery") return "Open Discovery Workspace";
   if(item.kind==="client_email_reply") return "Reply to client";
   if(item.kind==="proposal_action") return "Open proposal";
+  if(item.kind==="proposal_draft") return "Finish proposal";
+  if(item.kind==="proposal_missing") return "Prepare proposal";
   if(item.kind==="closing_followup") return "Open closing record";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
@@ -210,10 +215,21 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const proposalViewedWaiting = Number(summary.proposal_viewed_waiting || 0);
   const proposalUnopened = Number(summary.proposal_unopened || 0);
   const cleanupQueue = (Array.isArray(summary.cleanup_queue) ? summary.cleanup_queue : []) as CleanupLeadRow[];
+  const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
+  const overdueDiscoveryActions = rawQueue.filter((item:any) =>
+    item.kind === "discovery" &&
+    item.due_at &&
+    new Date(item.due_at).getTime() < Date.now()
+  );
+  const proposalDraftActions = rawQueue.filter((item:any) => item.kind === "proposal_draft");
+  const proposalMissingActions = rawQueue.filter((item:any) => item.kind === "proposal_missing");
 
   const higherPriorityClosingLeadIds = new Set([
     ...clientReplies.map((row) => row.lead_id),
     ...proposalActions.map((row) => row.lead_id),
+    ...overdueDiscoveryActions.map((row:any) => String(row.id)),
+    ...proposalDraftActions.map((row:any) => String(row.id)),
+    ...proposalMissingActions.map((row:any) => String(row.id)),
   ]);
   const closingCleanupSignals = cleanupQueue
     .filter((row) => !higherPriorityClosingLeadIds.has(row.id))
@@ -224,11 +240,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const closingActionLeadIds = new Set([
     ...clientReplies.map((row) => row.lead_id),
     ...proposalActions.map((row) => row.lead_id),
+    ...overdueDiscoveryActions.map((row:any) => String(row.id)),
+    ...proposalDraftActions.map((row:any) => String(row.id)),
+    ...proposalMissingActions.map((row:any) => String(row.id)),
     ...closingCleanupSignals.map((row) => row.id),
   ]);
 
-  const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
-  const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
+  const nonLeadQueue = rawQueue.filter((item:any)=>
+    !LEAD_QUEUE_KINDS.has(String(item.kind)) &&
+    !CONVERSION_QUEUE_KINDS.has(String(item.kind))
+  );
   const queue = [
     ...clientReplies.map((row) => ({
       kind: "client_email_reply",
@@ -239,6 +260,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       priority: "high",
       href: `/workspace/recruiter/crm/${row.lead_id}`,
     })),
+    ...overdueDiscoveryActions,
+    ...proposalMissingActions,
+    ...proposalDraftActions,
     ...proposalActions.map((row) => ({
       kind: "proposal_action",
       id: row.lead_id,
@@ -304,6 +328,9 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nextActionCandidates = [
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
+    {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},
+    {count:proposalDraftActions.length,title:"Send proposal drafts",copy:`${proposalDraftActions.length} proposal draft${proposalDraftActions.length===1?" has":"s have"} been sitting unsent for at least two hours.`,href:"#needs-action",cta:"Finish proposals",icon:<FileText size={20}/>},
     {count:proposalActions.length,title:"Move open proposals",copy:proposalChangesRequested
       ? `${proposalChangesRequested} client change request${proposalChangesRequested===1?"":"s"} need revision now.`
       : proposalViewedWaiting
@@ -367,11 +394,23 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <div>
           <span>Sales closing</span>
           <h2 id="sales-closing-heading">Close the loop before leads go cold.</h2>
-          <p>Replies, proposal decisions, overdue follow-ups, and stalled client leads from the same Recruiter Today summary.</p>
+          <p>Discovery outcomes, proposal handoffs, replies, and overdue follow-ups from the same Recruiter Today summary.</p>
         </div>
         <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/crm?view=attention">Open CRM <ArrowRight size={13}/></Link>
       </div>
       <div className={styles.closingSignalGrid}>
+        <a href="#needs-action" className={overdueDiscoveryActions.length ? styles.closingSignalHot : styles.closingSignalClear}>
+          <CalendarDays size={15}/>
+          <span>Discovery outcomes</span>
+          <strong>{overdueDiscoveryActions.length}</strong>
+          <small>{overdueDiscoveryActions.length ? "Past call · outcome missing" : "Clear"}</small>
+        </a>
+        <a href="#needs-action" className={(proposalMissingActions.length + proposalDraftActions.length) ? styles.closingSignalWarm : styles.closingSignalClear}>
+          <FileText size={15}/>
+          <span>Proposal handoff</span>
+          <strong>{proposalMissingActions.length + proposalDraftActions.length}</strong>
+          <small>{proposalMissingActions.length ? `${proposalMissingActions.length} missing proposal` : proposalDraftActions.length ? `${proposalDraftActions.length} draft unsent` : "Clear"}</small>
+        </a>
         <a href="#needs-action" className={clientReplies.length ? styles.closingSignalHot : styles.closingSignalClear}>
           <MessageSquare size={15}/>
           <span>Client replies</span>
@@ -399,7 +438,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
       <div className={styles.closingCommandFoot}>
         <strong>{closingActionLeadIds.size ? `${closingActionLeadIds.size} client lead${closingActionLeadIds.size===1?"":"s"} need closing attention` : "Closing queue is clear"}</strong>
-        <span>{closingActionLeadIds.size ? "Work these before routine sourcing and profile review." : "No reply, proposal, overdue follow-up, or stalled-lead signal is active."}</span>
+        <span>{closingActionLeadIds.size ? "Work these before routine sourcing and profile review." : "No discovery, proposal, reply, overdue follow-up, or stalled-lead signal is active."}</span>
       </div>
     </section>
 

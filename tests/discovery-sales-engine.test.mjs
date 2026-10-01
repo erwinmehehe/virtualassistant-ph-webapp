@@ -28,7 +28,7 @@ test("homepage and hire use the restored compact hiring brief", async () => {
   assert.match(role, /required_tools: args\.tools \|\| \[\]/);
 });
 
-test("discovery workspace stores structured notes server-side and hands qualified calls to matching", async () => {
+test("discovery workspace stores structured notes server-side and sends qualified calls through proposal", async () => {
   const [page, action, migration, crm] = await Promise.all([
     read("src/app/workspace/recruiter/crm/[leadId]/discovery/page.tsx"),
     read("src/app/actions/discovery-workspace.ts"),
@@ -45,7 +45,8 @@ test("discovery workspace stores structured notes server-side and hands qualifie
     "Who decides and what happens next?",
   ]) assert.match(page, new RegExp(prompt.replace(/[?]/g, "\\?")));
 
-  assert.match(page, /Qualified · Open matching/);
+  assert.doesNotMatch(page, /Qualified · Open matching/);
+  assert.match(page, /Generate recommendation/);
   assert.match(page, /Business problem understood/);
   assert.match(page, /Budget discussed/);
   assert.match(action, /lead_discovery_briefs/);
@@ -53,7 +54,8 @@ test("discovery workspace stores structured notes server-side and hands qualifie
   assert.match(action, /required_skills/);
   assert.match(action, /required_tools/);
   assert.doesNotMatch(action, /jobPatch\.must_have_skills = values\.recommendedSkills/);
-  assert.match(action, /\/workspace\/recruiter\/matching\/\$\{lead\.job_id\}/);
+  assert.match(action, /proposal\?generated=1/);
+  assert.doesNotMatch(action, /intent === "qualified"/);
   assert.match(crm, /Discovery workspace/);
 
   assert.match(migration, /create table if not exists public\.lead_discovery_briefs/);
@@ -68,5 +70,5 @@ test("qualifying requires an actionable recommendation instead of a generic call
   assert.match(action, /ownership/);
   assert.match(action, /90-day/);
   assert.match(action, /discovery_workspace_\$\{intent\}/);
-  assert.match(action, /Discovery qualified and handed to matching/);
+  assert.match(action, /Discovery qualified and recommendation draft generated/);
 });

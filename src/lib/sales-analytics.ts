@@ -73,7 +73,7 @@ export async function getSalesAnalytics(args: {
 
   let leadQuery = admin
     .from("lead_intake")
-    .select("id,name,company,source_page,page_url,crm_stage,created_at,first_contact_at,discovery_scheduled_at,discovery_completed_at,owner_id,estimated_value_usd,won_at,lost_at,lost_reason")
+    .select("id,name,company,source_page,page_url,crm_stage,created_at,first_contact_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,discovery_outcome,owner_id,estimated_value_usd,won_at,lost_at,lost_reason")
     .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(5000);
@@ -115,9 +115,11 @@ export async function getSalesAnalytics(args: {
   const sentLeadIds = new Set<string>();
   const viewedLeadIds = new Set<string>();
   const acceptedLeadIds = new Set<string>();
+  const draftLeadIds = new Set<string>();
   const changesLeadIds = new Set<string>();
   for (const proposal of proposalRows) {
     if (proposal.sent_at || proposal.status !== "draft") sentLeadIds.add(proposal.lead_id);
+    if (proposal.status === "draft" && !proposal.sent_at) draftLeadIds.add(proposal.lead_id);
     if (proposal.viewed_at) viewedLeadIds.add(proposal.lead_id);
     if (proposal.accepted_at || proposal.status === "accepted") acceptedLeadIds.add(proposal.lead_id);
     if (proposal.changes_requested_at || proposal.status === "changes_requested") changesLeadIds.add(proposal.lead_id);
@@ -133,6 +135,19 @@ export async function getSalesAnalytics(args: {
   const contacted = leadRows.filter((lead: any) => lead.first_contact_at).length;
   const discoveryBooked = leadRows.filter((lead: any) => lead.discovery_scheduled_at).length;
   const discoveryCompleted = leadRows.filter((lead: any) => lead.discovery_completed_at).length;
+  const discoveryReached = leadRows.filter((lead: any) => lead.discovery_scheduled_at || lead.discovery_completed_at || lead.discovery_cancelled_at).length;
+  const discoveryResolved = leadRows.filter((lead: any) => lead.discovery_completed_at || lead.discovery_cancelled_at).length;
+  const discoveryPastDue = leadRows.filter((lead: any) => {
+    if (!lead.discovery_scheduled_at || lead.discovery_completed_at || lead.discovery_cancelled_at) return false;
+    const scheduled = new Date(lead.discovery_scheduled_at).getTime();
+    return Number.isFinite(scheduled) && scheduled < Date.now();
+  }).length;
+  const discoveryQualified = leadRows.filter((lead: any) => lead.discovery_completed_at && lead.discovery_outcome === "qualified").length;
+  const qualifiedWithoutProposal = leadRows.filter((lead: any) =>
+    (lead.discovery_outcome === "qualified" || lead.crm_stage === "qualified") &&
+    !sentLeadIds.has(lead.id) &&
+    !draftLeadIds.has(lead.id)
+  ).length;
   const qualified = leadRows.filter((lead: any) => isQualifiedStage(lead.crm_stage) || sentLeadIds.has(lead.id)).length;
   const won = leadRows.filter((lead: any) => lead.crm_stage === "won" || acceptedLeadIds.has(lead.id)).length;
   const lost = leadRows.filter((lead: any) => lead.crm_stage === "lost").length;
@@ -271,8 +286,16 @@ export async function getSalesAnalytics(args: {
       discoveryCompleted,
       qualified,
       proposalsSent: sentLeadIds.size,
+      proposalDrafts: draftLeadIds.size,
       proposalsViewed: viewedLeadIds.size,
       proposalChanges: changesLeadIds.size,
+      proposalsAccepted: acceptedLeadIds.size,
+      discoveryReached,
+      discoveryResolved,
+      discoveryPastDue,
+      discoveryQualified,
+      qualifiedWithoutProposal,
+      discoveryOutcomeRate: pct(discoveryResolved, discoveryReached),
       won,
       lost,
       hires: hiredLeadIds.size,
@@ -282,9 +305,15 @@ export async function getSalesAnalytics(args: {
       firstResponseWithinThirtyRate: pct(withinThirty, responseMinutes.length),
       medianDaysToWin: median(closeDays),
       leadToWinRate: pct(won, leadRows.length),
-      proposalAcceptanceRate: pct(won, sentLeadIds.size),
+      proposalAcceptanceRate: pct(acceptedLeadIds.size, sentLeadIds.size),
       proposalViewRate: pct(viewedLeadIds.size, sentLeadIds.size)
     },
+    verifiedFunnel: [
+      { key: "discovery_completed", label: "Discovery completed", count: discoveryCompleted },
+      { key: "proposal_sent", label: "Proposal sent", count: sentLeadIds.size },
+      { key: "proposal_accepted", label: "Proposal accepted", count: acceptedLeadIds.size },
+      { key: "hire", label: "Hire", count: hiredLeadIds.size }
+    ],
     funnel,
     timeline,
     sources,

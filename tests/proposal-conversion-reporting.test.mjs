@@ -77,3 +77,21 @@ test("proposal action queue stays inside the existing Recruiter Today summary RP
   assert.doesNotMatch(page,/from\("lead_proposals"\)/);
   assert.doesNotMatch(page,/rpc\("proposal_/);
 });
+
+
+test("sales analytics separates verified conversion from inferred historical stages", async()=>{
+  const [loader,dashboard]=await Promise.all([
+    read("src/lib/sales-analytics.ts"),
+    read("src/components/sales-analytics-dashboard.tsx"),
+  ]);
+  for(const metric of ["discoveryPastDue","proposalDrafts","qualifiedWithoutProposal","proposalsAccepted","discoveryOutcomeRate","verifiedFunnel"]){
+    assert.match(loader,new RegExp(metric));
+  }
+  assert.match(loader,/proposalAcceptanceRate: pct\(acceptedLeadIds\.size, sentLeadIds\.size\)/);
+  assert.match(dashboard,/Verified conversion control/);
+  assert.match(dashboard,/Only explicit saved events are counted here/);
+  assert.match(dashboard,/Discovery outcomes overdue/);
+  assert.match(dashboard,/Proposal drafts not sent/);
+  assert.match(dashboard,/Qualified without proposal/);
+  assert.match(dashboard,/data\.totals\.proposalsAccepted/);
+});

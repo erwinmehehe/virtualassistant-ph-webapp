@@ -1,0 +1,16 @@
+{
+  "name": "@vaph/trigger-automations",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@trigger.dev/sdk": "4.6.4"
+  },
+  "devDependencies": {
+    "trigger.dev": "4.6.4",
+    "typescript": "^5.7.2"
+  }
+}

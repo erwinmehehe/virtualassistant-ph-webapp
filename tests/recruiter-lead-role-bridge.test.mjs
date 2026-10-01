@@ -8,7 +8,7 @@ test("recruiter can prepare a missing hiring role and open matching without dupl
   const [action,helper,page]=await Promise.all([
     read("src/app/actions/recruiter-hiring.ts"),
     read("src/lib/lead-role.ts"),
-    read("src/app/workspace/recruiter/leads/page.tsx")
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx")
   ]);
 
   assert.match(action,/requireRole\("recruiter"\)/);
@@ -18,7 +18,7 @@ test("recruiter can prepare a missing hiring role and open matching without dupl
   assert.match(action,/recruiterId: user\.id/);
   assert.match(action,/ownerId: user\.id/);
   assert.match(action,/writeRecruiterActivity/);
-  assert.match(action,/source: "hiring_inbox"/);
+  assert.match(action,/source: "client_crm"/);
   assert.match(action,/redirect\(`\/workspace\/recruiter\/roles\/\$\{jobId\}#matching`\)/);
   assert.doesNotMatch(action,/\.from\("jobs"\)[\s\S]*\.insert\(/);
   assert.match(helper,/\.is\("owner_id", null\)/);

@@ -17,6 +17,7 @@ const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"ba
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
 const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
 const CONVERSION_QUEUE_KINDS = new Set(["discovery", "proposal_missing", "proposal_draft"]);
+const CLIENT_SUCCESS_QUEUE_KINDS = new Set(["placement_checkin", "placement_risk"]);
 
 type DailyActionRow = {
   priority: string | null;
@@ -270,7 +271,7 @@ function exactActionHref(item:any) {
   if(item.kind==="proposal_draft"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
   if(item.kind==="proposal_missing"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="closing_followup"&&item.id) return `/workspace/recruiter/crm/${item.id}#client-followup`;
-  if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return canonicalRecruiterHref(item.href,null);
+  if(item.kind==="placement_handoff"&&item.href) return canonicalRecruiterHref(item.href,null);
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
   if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_requested","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
@@ -290,8 +291,6 @@ function actionLabel(item:any) {
   if(item.kind==="interview_requested") return "Schedule interview";
   if(["interview_today","interview_feedback_missing"].includes(String(item.kind))) return "Open interview";
   if(["offer_waiting_va","offer_waiting_client"].includes(String(item.kind))) return "Open offer";
-  if(item.kind==="placement_checkin") return "Complete check-in";
-  if(item.kind==="placement_risk") return "Open placement";
   if(item.kind==="placement_handoff") return "Complete handoff";
   if(item.kind==="candidate_capacity_conflict") return "Review VA";
   if(item.kind==="task") return "Act now";
@@ -373,7 +372,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nonLeadQueue = rawQueue.filter((item:any)=>
     !LEAD_QUEUE_KINDS.has(String(item.kind)) &&
-    !CONVERSION_QUEUE_KINDS.has(String(item.kind))
+    !CONVERSION_QUEUE_KINDS.has(String(item.kind)) &&
+    !CLIENT_SUCCESS_QUEUE_KINDS.has(String(item.kind))
   );
   const queue = [
     ...clientReplies.map((row) => ({

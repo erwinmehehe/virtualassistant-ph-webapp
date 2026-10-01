@@ -134,7 +134,7 @@ export async function SalesAnalyticsDashboard({
           <div><span>Sent</span><strong>{data.totals.proposalsSent}</strong></div>
           <div><span>Viewed</span><strong>{data.totals.proposalsViewed}</strong><small>{data.totals.proposalViewRate}% view rate</small></div>
           <div><span>Changes requested</span><strong>{data.totals.proposalChanges}</strong></div>
-          <div><span>Accepted</span><strong>{data.totals.won}</strong><small>{data.totals.proposalAcceptanceRate}% acceptance</small></div>
+          <div><span>Accepted</span><strong>{data.totals.proposalsAccepted}</strong><small>{data.totals.proposalAcceptanceRate}% acceptance</small></div>
         </div>
         <div className="sales-data-quality">
           <div className={data.dataQuality.missingSource ? "warn" : "ok"}><span>Missing source</span><strong>{data.dataQuality.missingSource}</strong></div>

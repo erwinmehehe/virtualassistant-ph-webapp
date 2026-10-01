@@ -34,9 +34,11 @@ export function isTalentAgencyCertified(
   const approved = stage === "approved" || stage === "bench";
   const available = input.availabilityStatus === "available";
   const freshAvailability = freshSince(input.availabilityConfirmedAt, freshnessDays, nowMs);
-  const setupVerified = Boolean(input.workSetupVerifiedAt);
 
-  return approved && input.activePool && available && freshAvailability && setupVerified;
+  // Work-setup verification is operational evidence, not a matching gate.
+  // Approved VAs in the active pool can be matched and released once their
+  // availability is current; work readiness can be completed in parallel.
+  return approved && input.activePool && available && freshAvailability;
 }
 
 export function talentReadiness(
@@ -66,7 +68,6 @@ export function talentReadinessActions(
   if ((stage === "approved" || stage === "bench") && !input.activePool) actions.push("Add to talent pool");
   if (input.availabilityStatus !== "available") actions.push("Confirm availability");
   else if (!freshSince(input.availabilityConfirmedAt, freshnessDays, nowMs)) actions.push("Refresh availability");
-  if (!input.workSetupVerifiedAt) actions.push("Verify work setup");
   return actions;
 }
 

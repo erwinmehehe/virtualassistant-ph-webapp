@@ -184,7 +184,6 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
         activePool: activePoolIds.has(vaId),
         availabilityStatus: va.availability_status,
         availabilityConfirmedAt: va.availability_confirmed_at,
-        workSetupVerifiedAt: va.work_setup_verified_at,
       });
     })
     .map((va: any) => ({ va, assessment: matchAssessment(job, va) }))
@@ -193,7 +192,7 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
     .slice(0, needed);
 
   if (!candidates.length) {
-    return fail("No client-ready 60%+ matches are available yet. Clear talent-pool, availability, or work-readiness blockers first.");
+    return fail("No client-ready 60%+ matches are available yet. Check talent-pool membership, availability, and the role requirements.");
   }
 
   const startOrder = existingHuman.reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);
@@ -326,7 +325,7 @@ export async function saveJobShortlistAction(formData: FormData) {
     const message = String(error.message || "");
     if (message.includes("Agency Certified")) {
       console.info("[shortlist] blocked by release-readiness guardrail");
-      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership and verified work setup first.");
+      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership and current availability first.");
     }
     if (message.includes("Client review is not ready yet")) {
       console.info("[shortlist] blocked by client-review guardrail");

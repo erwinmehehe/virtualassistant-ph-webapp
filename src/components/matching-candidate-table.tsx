@@ -24,6 +24,10 @@ type Row = {
   readinessGaps?: string[];
   hardFailures?: string[];
   evidenceGaps?: string[];
+  roleMatch?: { assessed?: boolean; pointsRatio?: number; matchedKeywords?: string[] };
+  categoryMatched?: boolean;
+  matchedSkills?: string[];
+  matchedTools?: string[];
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
@@ -39,15 +43,16 @@ type FormAction = (formData: FormData) => void | Promise<void>;
 function matchReasons(row: Row) {
   const job = row.job;
   if (!job) return [];
-  const values = (items: string[] | null | undefined) => new Set((items || []).map((item) => item.toLowerCase()));
-  const skills = values(row.va.skills);
-  const tools = values(row.va.tools);
+
   const reasons: string[] = [];
-  if (([row.va.primary_category, ...(row.va.categories || [])].filter(Boolean) as string[]).some((item) => values(job.categories).has(item.toLowerCase()))) reasons.push("Relevant specialty");
-  const matchingSkills=(job.required_skills || []).filter((item:string)=>skills.has(item.toLowerCase()));
-  if(matchingSkills.length) reasons.push(`${matchingSkills.slice(0,2).join(", ")} skill${matchingSkills.length>1?"s":""}`);
-  const matchingTools=(job.required_tools || []).filter((item:string)=>tools.has(item.toLowerCase()));
-  if(matchingTools.length) reasons.push(`${matchingTools.slice(0,2).join(", ")} experience`);
+  if (row.roleMatch?.assessed && Number(row.roleMatch.pointsRatio || 0) >= 0.7) {
+    const keywords = (row.roleMatch.matchedKeywords || []).slice(0, 3);
+    reasons.push(keywords.length ? `Role/title match: ${keywords.join(", ")}` : "Strong role/title match");
+  }
+  if (row.categoryMatched) reasons.push("Exact/relevant specialty match");
+  if ((row.matchedSkills || []).length) reasons.push(`${(row.matchedSkills || []).slice(0, 2).join(", ")} skill${(row.matchedSkills || []).length > 1 ? "s" : ""}`);
+  if ((row.matchedTools || []).length) reasons.push(`${(row.matchedTools || []).slice(0, 2).join(", ")} tool experience`);
+
   const trainingTitles=(row.trainingCredentials || []).map((credential)=>credential.courseTitle.toLowerCase());
   const trainedTools=(job.required_tools || []).filter((tool:string)=>trainingTitles.some((title)=>title.includes(tool.toLowerCase())));
   if(trainedTools.length) reasons.push(`${trainedTools.slice(0,2).join(", ")} training completed`);

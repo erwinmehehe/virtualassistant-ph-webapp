@@ -52,8 +52,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
       stage:stageMap.get(va.user_id),
       activePool:activePoolIds.has(va.user_id),
       availabilityStatus:va.availability_status,
-      availabilityConfirmedAt:va.availability_confirmed_at,
-      workSetupVerifiedAt:va.work_setup_verified_at
+      availabilityConfirmedAt:va.availability_confirmed_at
     };
     const clientReady=isTalentAgencyCertified(readinessInput);
     const readinessGaps=clientReady?[]:talentReadinessActions(readinessInput);
@@ -93,7 +92,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
     {interested.length?<div className="info-banner" style={{marginBottom:14}}><strong>{interested.length} vetted VA{interested.length===1?" has":"s have"} expressed interest</strong><p style={{margin:"5px 0 8px"}}>Interest is internal. Review their evidence and fit before adding them to the recruiter shortlist.</p><div className="row wrap">{interested.slice(0,8).map((row:any)=><Link className="badge" key={row.va.user_id} href={`/workspace/recruiter/candidates/${row.va.user_id}`}>{row.account?.full_name||"VA candidate"} · {row.score}% internal match</Link>)}</div></div>:null}
 
-    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Only client-ready VAs are recommended here: approved talent-pool members with fresh availability and recruiter-verified work setup. Match scores remain recruiter-only screening aids.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
+    {recommended.length?<div className="recommended-match-panel"><div><span className="small">Recommended starting point</span><h3>Review the strongest {recommended.length} matches</h3><p>Only client-ready VAs are recommended here: approved talent-pool members with fresh availability. Work-setup verification is tracked separately and no longer blocks matching. Match scores remain recruiter-only screening aids.</p></div><div className="recommended-match-names">{recommended.map((row:any)=><span key={row.va.user_id}><strong>{row.account?.full_name||"Virtual Assistant candidate"}</strong> · {row.score}% internal match{row.interest?" · interested":""}</span>)}</div></div>:null}
 
     <div className="matching-summary-grid"><div className="matching-summary-card"><span>Match suggestions</span><strong>{suggestedCount}</strong><small>Automatic · not shortlisted</small></div><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Selected internally</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms + candidate access active":!candidateAccessReady&&job.client_id?"Candidate access must be activated":"Client + approved terms required"}</small></div></div>
 

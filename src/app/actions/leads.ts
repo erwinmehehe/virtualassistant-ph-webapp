@@ -18,6 +18,7 @@ import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
 import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
 import { isValidTimeZone } from "@/lib/timezone";
+import { queueLeadSlaAutomation } from "@/lib/trigger-automation";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -408,6 +409,11 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     } catch {
       // Lead storage is the source of truth; acknowledgement email is best effort.
     }
+    try {
+      await queueLeadSlaAutomation(lead.id);
+    } catch {
+      // Durable automation is best effort; lead capture remains the source of truth.
+    }
 
     return {
       status: "success",
@@ -565,6 +571,11 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       });
     } catch {
       // Lead storage is the source of truth; acknowledgement email is best effort.
+    }
+    try {
+      await queueLeadSlaAutomation(lead.id);
+    } catch {
+      // Durable automation is best effort; lead capture remains the source of truth.
     }
 
     return {
@@ -779,6 +790,11 @@ export async function submitRoleBriefAction(formData: FormData) {
     });
   } catch {
     // Lead storage is the source of truth; acknowledgement email is best effort.
+  }
+  try {
+    await queueLeadSlaAutomation(lead.id);
+  } catch {
+    // Durable automation is best effort; lead capture remains the source of truth.
   }
 
   if (clientId) redirect(`/workspace/client/jobs/${jobId}?created_from_brief=1`);

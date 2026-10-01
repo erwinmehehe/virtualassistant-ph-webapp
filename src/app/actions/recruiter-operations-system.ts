@@ -11,6 +11,7 @@ import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, upd
 import { sendTransactionalEventEmail } from "@/lib/email";
 import { VETTING_SCORECARD_PASS } from "@/lib/constants";
 import { recordProductEvent } from "@/lib/product-events";
+import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 
 const SCREEN_RESULTS = new Set(["client_ready", "needs_development", "role_specific", "do_not_present"]);
 const INTERVIEW_DECISIONS = new Set(["proceed", "hold", "pass"]);
@@ -252,13 +253,19 @@ export async function generateRecruiterCopilotAction(args: { jobId: string; task
 export async function scheduleCandidateInterviewAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["client", "recruiter", "admin"]);
   const interviewId = String(formData.get("interview_id") || "");
-  const scheduledIso = String(formData.get("scheduled_at_iso") || "");
-  const timezone = String(formData.get("timezone") || "").trim().slice(0, 100) || "Local time";
+  const scheduledLocal = String(formData.get("scheduled_local") || "").trim();
+  const scheduledIso = String(formData.get("scheduled_at_iso") || "").trim();
+  const timezone = String(formData.get("timezone") || "").trim().slice(0, 100);
   const duration = Math.min(60, Math.max(15, Number(formData.get("duration_minutes") || 30)));
   const fallback = profile.role === "client" ? "/workspace/client/interviews" : profile.role === "recruiter" ? "/workspace/recruiter/today" : "/workspace/admin/today";
   const returnTo = safePath(formData.get("return_to"), fallback);
-  const scheduledAt = new Date(scheduledIso);
-  if (!interviewId || !Number.isFinite(scheduledAt.getTime())) throw new Error("Choose a valid interview time.");
+  if (!interviewId || !isValidTimeZone(timezone)) throw new Error("Confirm a valid timezone before scheduling the interview.");
+  const scheduledAt = scheduledLocal
+    ? zonedDateTimeToUtc(scheduledLocal, timezone)
+    : scheduledIso
+      ? new Date(scheduledIso)
+      : null;
+  if (!scheduledAt || !Number.isFinite(scheduledAt.getTime())) throw new Error("Choose a valid interview time.");
   if (scheduledAt.getTime() < Date.now() + 24 * 60 * 60 * 1000) throw new Error("Please schedule candidate interviews at least 24 hours in advance.");
 
   const admin = createAdminClient();
@@ -268,8 +275,11 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
 
   const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
   const jobTitle = jobRecord?.title;
-  const { data: vaAuth } = await admin.auth.admin.getUserById(row.va_id);
-  const attendeeEmails = [vaAuth.user?.email].filter((value): value is string => Boolean(value));
+  const [{ data: vaAuth }, { data: clientAuth }] = await Promise.all([
+    admin.auth.admin.getUserById(row.va_id),
+    admin.auth.admin.getUserById(row.client_id),
+  ]);
+  const attendeeEmails = [vaAuth.user?.email, clientAuth.user?.email].filter((value): value is string => Boolean(value));
   const previousEventId = String(row.calendar_event_id || "").trim() || null;
   const meet = previousEventId
     ? await updateGoogleMeetDiscoveryMeeting({
@@ -310,7 +320,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   if (row.application_id) await admin.from("applications").update({ status: "interview", updated_at: now }).eq("id", row.application_id);
   await admin.from("jobs").update({ hiring_stage: "interviewing", hiring_stage_entered_at: now }).eq("id", row.job_id).in("hiring_stage", ["client_review", "internal_review"]);
 
-  const when = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "UTC" }).format(scheduledAt);
+  const when = formatDateTimeInTimeZone(scheduledAt.toISOString(), timezone);
   const interviewTitle = jobTitle || "client role";
   await Promise.all([
     resolveOpenNotifications(admin, {
@@ -327,8 +337,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
     }),
   ]);
   await admin.from("notifications").insert([
-    { user_id: row.va_id, title: `Interview scheduled: ${interviewTitle}`, body: `${when} UTC. Open Interviews for the Google Meet link and details.`, href: "/workspace/va/interviews", type: "interview", priority: "high" },
-    { user_id: row.client_id, title: `Interview scheduled: ${interviewTitle}`, body: `${when} UTC.`, href: "/workspace/client/interviews", type: "interview", priority: "normal" }
+    { user_id: row.va_id, title: `Interview scheduled: ${interviewTitle}`, body: `${when}. Open Interviews for the Google Meet link and details.`, href: "/workspace/va/interviews", type: "interview", priority: "high" },
+    { user_id: row.client_id, title: `Interview scheduled: ${interviewTitle}`, body: `${when}.`, href: "/workspace/client/interviews", type: "interview", priority: "normal" }
   ]);
 
   try {
@@ -336,7 +346,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
       subjectType: "job",
       subjectId: row.job_id,
       action: row.scheduled_at ? "candidate_interview_rescheduled" : "candidate_interview_scheduled",
-      description: `${jobTitle || "Candidate interview"} scheduled for ${when} UTC`,
+      description: `${jobTitle || "Candidate interview"} scheduled for ${when}`,
       actorId: user.id,
       metadata: { interview_id: interviewId, va_id: row.va_id, scheduled_at: scheduledAt.toISOString(), scheduled_by_role: profile.role },
     });
@@ -349,7 +359,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   });
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when} UTC. The Google Meet link is available in your workspace and on the calendar invitation.`;
+  const body = `Your candidate interview for ${jobTitle || "the role"} is scheduled for ${when}. The Google Meet link is available in your workspace and on the calendar invitation.`;
   try {
     await sendTransactionalEventEmail({
       to: vaAuth.user?.email,
@@ -465,9 +475,6 @@ export async function createPlacementOfferAction(formData: FormData) {
   if (!jobId || !vaId || !Number.isFinite(hourlyRate) || hourlyRate < 5 || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80 || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || schedule.length < 3) {
     throw new Error("Complete the final rate, weekly hours, schedule, and start date.");
   }
-  const todayManila = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  if (startDate < todayManila) throw new Error("Start date cannot be in the past.");
-
   const admin = createAdminClient();
   const [
     { data: job },
@@ -476,7 +483,7 @@ export async function createPlacementOfferAction(formData: FormData) {
     { data: application },
     { data: activeOffer },
   ] = await Promise.all([
-    admin.from("jobs").select("id,title,client_id,status").eq("id", jobId).single(),
+    admin.from("jobs").select("id,title,client_id,status,timezone").eq("id", jobId).single(),
     admin.from("va_vetting").select("stage").eq("va_id", vaId).maybeSingle(),
     admin.from("candidate_interviews")
       .select("id,client_decision,status")
@@ -498,6 +505,9 @@ export async function createPlacementOfferAction(formData: FormData) {
   ]);
 
   if (!job?.client_id || job.status === "closed") throw new Error("This role is not ready for an offer.");
+  const startDateZone = isValidTimeZone(job.timezone) ? String(job.timezone) : "UTC";
+  const todayForRole = new Intl.DateTimeFormat("en-CA", { timeZone: startDateZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (startDate < todayForRole) throw new Error("Start date cannot be in the past for the client timezone.");
   if (!vetted || !["approved", "bench"].includes(vetted.stage)) throw new Error("Only vetted VAs can receive placement offers.");
   if (!proceedInterview) throw new Error("Complete a client interview with Proceed before preparing an offer.");
   if (activeOffer && activeOffer.va_id !== vaId) throw new Error("Another candidate already has an active placement offer for this role.");

@@ -211,8 +211,18 @@
   .factGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 680px) {
+  .page { padding-bottom: calc(116px + env(safe-area-inset-bottom)); }
   .topbar,.header { align-items:stretch; flex-direction:column; }
   .topActions { justify-content:flex-start; flex-wrap:wrap; }
+  .topActions .secondaryButton { flex: 1 1 180px; }
+  .header h1 { font-size: 28px; line-height: 1.08; }
   .callMeta { min-width:0; }
-  .factGrid,.twoCol { grid-template-columns:1fr; }
+  .factGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .factGrid strong { overflow:visible; text-overflow:clip; white-space:normal; overflow-wrap:anywhere; }
+  .twoCol { grid-template-columns:1fr; }
+  .preCall,.discovery,.recommendationCard { padding:14px; }
+}
+
+@media (max-width: 380px) {
+  .factGrid { grid-template-columns:1fr; }
 }

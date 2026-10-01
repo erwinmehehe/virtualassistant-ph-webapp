@@ -148,7 +148,6 @@ export default async function RoleControlCenter({
       activePool: proposedPoolIds.has(row.va_id),
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
-      workSetupVerifiedAt: profile?.work_setup_verified_at,
     });
   });
   const readinessActions = [...new Set(blockedProposed.flatMap((row) => {
@@ -158,7 +157,6 @@ export default async function RoleControlCenter({
       activePool: proposedPoolIds.has(row.va_id),
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
-      workSetupVerifiedAt: profile?.work_setup_verified_at,
     });
   }))];
   const blockedReadinessRows = blockedProposed.map((row) => {
@@ -168,7 +166,6 @@ export default async function RoleControlCenter({
       activePool: proposedPoolIds.has(row.va_id),
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
-      workSetupVerifiedAt: profile?.work_setup_verified_at,
     });
     return {
       vaId: row.va_id,

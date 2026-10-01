@@ -19,7 +19,8 @@ test("homepage and hire use the restored compact hiring brief", async () => {
   assert.match(form, /Hours per week/);
   assert.match(form, /Hourly budget/);
   assert.match(form, /What should your VA handle\?/);
-  assert.match(form, /name="timezone" value="To confirm on discovery call"/);
+  assert.match(form, /BrowserTimeZoneField/);
+  assert.doesNotMatch(form, /To confirm on discovery call/);
   assert.doesNotMatch(form, /Step 1 of 3/);
   assert.doesNotMatch(form, /mode="hire"/);
   assert.match(hire, /title="Tell us who you need"/);

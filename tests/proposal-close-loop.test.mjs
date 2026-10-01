@@ -38,6 +38,11 @@ test("proposal editor supports Draft to Sent to Viewed to Changes requested to A
   assert.match(page,/Send to client/);
   assert.match(actions,/crm_stage: "terms_sent"/);
   assert.match(actions,/client_hiring_proposal/);
+  assert.match(actions,/proposalFollowUpTimeZone/);
+  assert.match(actions,/followUpAtClientNine/);
+  assert.match(actions,/next_follow_up_at: proposalFollowUpAt/);
+  assert.match(actions,/follow_up_timezone: proposalFollowUpTimeZone/);
+  assert.doesNotMatch(actions,/\/workspace\/recruiter\/leads/);
   assert.match(crm,/proposalPipelineStatus/);
   assert.match(crm,/Generate recommendation/);
   assert.match(crm,/Follow up on proposal/);

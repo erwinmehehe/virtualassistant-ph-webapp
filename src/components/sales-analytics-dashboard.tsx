@@ -62,9 +62,28 @@ export async function SalesAnalyticsDashboard({
 
     <div className="sales-health-strip">
       <div><span>Median first response</span><strong>{duration(data.totals.medianFirstResponseMinutes)}</strong><small>{data.totals.firstResponseWithinThirtyRate}% within 30 min</small></div>
-      <div><span>Proposal acceptance</span><strong>{data.totals.proposalAcceptanceRate}%</strong><small>{data.totals.won} wins from {data.totals.proposalsSent} sent proposals</small></div>
+      <div><span>Proposal acceptance</span><strong>{data.totals.proposalAcceptanceRate}%</strong><small>{data.totals.proposalsAccepted} accepted from {data.totals.proposalsSent} sent proposals</small></div>
       <div><span>Won value</span><strong>{usd(data.totals.wonValue)}</strong><small>{data.totals.medianDaysToWin == null ? "Close time not measurable yet" : String(data.totals.medianDaysToWin) + " median days to win"}</small></div>
     </div>
+
+    <section className="card sales-funnel-card">
+      <div className="dashboard-section-head">
+        <div>
+          <h2>Verified conversion control</h2>
+          <p>Only explicit saved events are counted here. Historical stage inference does not backfill this path, so gaps point to workflow or tracking that still needs action.</p>
+        </div>
+        <span className="badge">{days} day window</span>
+      </div>
+      <div className="sales-stage-summary">
+        {data.verifiedFunnel.map((stage) => <div key={stage.key}><span>{stage.label}</span><strong>{stage.count}</strong></div>)}
+      </div>
+      <div className="sales-data-quality">
+        <div className={data.totals.discoveryPastDue ? "warn" : "ok"}><span>Discovery outcomes overdue</span><strong>{data.totals.discoveryPastDue}</strong></div>
+        <div className={data.totals.proposalDrafts ? "warn" : "ok"}><span>Proposal drafts not sent</span><strong>{data.totals.proposalDrafts}</strong></div>
+        <div className={data.totals.qualifiedWithoutProposal ? "warn" : "ok"}><span>Qualified without proposal</span><strong>{data.totals.qualifiedWithoutProposal}</strong></div>
+        <div className={data.totals.discoveryOutcomeRate < 100 ? "warn" : "ok"}><span>Discovery outcome coverage</span><strong>{data.totals.discoveryOutcomeRate}%</strong></div>
+      </div>
+    </section>
 
     <div className="grid-2 sales-analysis-grid">
       <section className="card">

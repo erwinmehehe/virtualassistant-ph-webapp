@@ -535,6 +535,136 @@
 }
 
 
+.clientActionSection {
+  overflow: hidden;
+}
+
+.clientActionList {
+  display: grid;
+  background: #fff;
+}
+
+.clientActionRow {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid #f2f4f7;
+}
+
+.clientActionRow:first-child {
+  border-top: 0;
+}
+
+.clientActionRow:hover {
+  background: #fcfcfd;
+}
+
+.clientActionUrgent {
+  background: #fffafa;
+}
+
+.clientActionHigh {
+  background: #fffdf7;
+}
+
+.clientActionCopy {
+  min-width: 0;
+}
+
+.clientActionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  color: #98a2b3;
+  font-size: 9.5px;
+  font-weight: 750;
+}
+
+.clientActionMeta > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #f8f9fb;
+}
+
+.clientActionStage {
+  color: #475467;
+  text-transform: capitalize;
+}
+
+.clientActionTimezone {
+  background: #fffaeb !important;
+  color: #b54708;
+}
+
+.clientActionCopy h3 {
+  margin: 6px 0 3px;
+  overflow: hidden;
+  color: #101828;
+  font-size: 14px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clientActionCopy h3 em {
+  color: #667085;
+  font-style: normal;
+  font-weight: 650;
+}
+
+.clientActionCopy p {
+  max-width: 840px;
+  margin: 0;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.clientActionCopy p strong {
+  color: #344054;
+}
+
+.clientActionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.clientActionButtons :global(.btn) {
+  gap: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .clientActionRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .clientActionCopy h3 {
+    white-space: normal;
+  }
+
+  .clientActionButtons {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .clientActionButtons :global(.btn) {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+}
+
+
 .discoveryList {
   display: grid;
   background: #fff;

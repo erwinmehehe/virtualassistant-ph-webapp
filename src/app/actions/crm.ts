@@ -46,7 +46,7 @@ function localDateKey(date: Date, timeZone: string) {
 
 function addDaysToDateKey(value: string, days: number) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
+  if (!match) throw new Error("Invalid local date key");
   const next = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + days));
   const pad = (part: number) => String(part).padStart(2, "0");
   return `${next.getUTCFullYear()}-${pad(next.getUTCMonth() + 1)}-${pad(next.getUTCDate())}`;
@@ -274,7 +274,6 @@ export async function saveCrmClosingControlAction(formData: FormData) {
     const days = Number(quickDaysRaw);
     if (![2, 7, 14].includes(days)) fail("Choose a valid follow-up interval.");
     const clientDate = addDaysToDateKey(localDateKey(new Date(), followUpTimeZone), days);
-    if (!clientDate) fail("Could not calculate the client follow-up date.");
     nextFollowUpAt = followUpAtClientNine(clientDate, followUpTimeZone);
     if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
   } else if (followUpRaw) {

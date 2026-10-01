@@ -35,9 +35,9 @@ import "./homepage-reference-polish.css";
 import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | VirtualAssistant.com.ph" },
+  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
   description:
-    "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.",
+    "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",

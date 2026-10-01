@@ -134,13 +134,13 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
       <section className="card">
         <div className="row-between wrap">
           <div>
-            <div className="small muted">Private address</div>
+            <div className="small muted">Address</div>
             <h3 style={{margin:"4px 0"}}>{candidateVa.address?"Recorded":"Missing"}</h3>
           </div>
           <ShieldCheck size={20}/>
         </div>
         {candidateVa.address ? (
-          <p className="small muted">The current private address is recorded for recruiter/admin hiring operations only.</p>
+          <p className="small muted">The current address is recorded for recruiter/admin hiring operations and is not shown publicly.</p>
         ) : (
           <>
             <p className="small muted">
@@ -155,7 +155,7 @@ export default async function RecruiterCandidate({params,searchParams}:{params:P
             <form action={requestVaPrivateAddressAction}>
               <input type="hidden" name="va_id" value={id}/>
               <input type="hidden" name="return_to" value={`/workspace/recruiter/candidates/${id}`}/>
-              <button className="btn btn-primary btn-sm" type="submit">Request private address</button>
+              <button className="btn btn-primary btn-sm" type="submit">Request address</button>
             </form>
           </>
         )}

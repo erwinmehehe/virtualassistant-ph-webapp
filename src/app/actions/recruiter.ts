@@ -16,6 +16,8 @@ import { isLeadCrmStage, legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
+import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
+import { ensureDiscoveryOutcomeNextAction, resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "request_address", "hide", "assign", "remind"]);
 
@@ -800,6 +802,18 @@ export async function scheduleDiscoveryAction(formData: FormData) {
     metadata: { scheduled_at: scheduled.toISOString(), duration_minutes: duration, meeting_url: generatedMeetingUrl, email_sent: emailResult.sent }
   });
 
+  try {
+    await resolveDiscoveryOutcomeArtifacts(admin, leadId);
+  } catch {
+    // Rescheduling remains valid if stale reminder cleanup fails.
+  }
+
+  try {
+    await queueDiscoveryOutcomeAutomation(leadId, scheduled.toISOString(), duration);
+  } catch {
+    // The saved discovery booking does not depend on durable automation.
+  }
+
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
@@ -896,6 +910,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
     await runCrmStageWorkflows({ leadId, stage: "nurture", actorId: user.id });
   }
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
+  try { await resolveDiscoveryOutcomeArtifacts(admin, leadId); } catch { /* cancellation remains valid if stale reminder cleanup fails */ }
   await writeRecruiterActivity({
     subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
     description: "Discovery booking cancelled by recruiter", actorId: user.id,
@@ -941,7 +956,7 @@ export async function completeDiscoveryAction(formData: FormData) {
   if (notes.length < 3) return fail("Add a short discovery note so the next recruiter knows what was agreed.");
 
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,crm_stage,job_id").eq("id", leadId).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,crm_stage,job_id,owner_id,name,email,company").eq("id", leadId).maybeSingle();
   if (!lead) return fail("Lead not found.");
 
   const now = new Date();
@@ -979,6 +994,21 @@ export async function completeDiscoveryAction(formData: FormData) {
     actorId: user.id,
     metadata: { previous_stage: lead.crm_stage || null, notes, lost_reason: stage === "lost" ? lostReason : null }
   });
+
+  try {
+    await ensureDiscoveryOutcomeNextAction({
+      admin,
+      leadId,
+      ownerId: lead.owner_id,
+      subject: lead.company || lead.name || lead.email || "Client",
+      outcome,
+    });
+  } catch (automationError) {
+    console.error("[automation] discovery outcome next action failed", {
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");

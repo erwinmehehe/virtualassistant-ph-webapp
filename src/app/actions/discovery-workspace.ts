@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { legacyLeadStatus, type LeadCrmStage } from "@/lib/lead-crm";
 import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 
 const NEXT_STEPS = new Set(["save", "proposal", "follow_up", "nurture"]);
 
@@ -195,6 +196,14 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
 
     if (stage !== String(lead.crm_stage || "new")) {
       await runCrmStageWorkflows({ leadId, stage, actorId: user.id });
+    }
+    try {
+      await resolveDiscoveryOutcomeArtifacts(admin, leadId);
+    } catch (automationError) {
+      console.error("[automation] discovery outcome cleanup failed", {
+        leadId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
     }
   }
 

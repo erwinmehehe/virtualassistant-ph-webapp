@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
 import { cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { isAllowedDiscoverySlot } from "@/lib/discovery-booking";
+import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
+import { resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 
 function managePath(token: string, result: string) {
   return `/book-client-call/manage?token=${encodeURIComponent(token)}&${result}`;
@@ -20,6 +22,7 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const { error } = await admin.from("lead_intake").update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now }).eq("id", lead.id);
   if (error) redirect(managePath(token, "error=cancel"));
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* the CRM cancellation remains valid if Google Calendar is temporarily unavailable */ }
+  try { await resolveDiscoveryOutcomeArtifacts(admin, lead.id); } catch { /* cancellation remains valid if stale reminder cleanup fails */ }
   redirect(managePath(token, "cancelled=1"));
 }
 
@@ -77,6 +80,22 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
       try { await cancelGoogleMeetDiscoveryMeeting(meeting.eventId); } catch { /* best-effort cleanup of the unsaved new event */ }
     }
     redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
+  }
+
+  try {
+    await resolveDiscoveryOutcomeArtifacts(admin, lead.id);
+  } catch {
+    // Rescheduling remains valid if stale reminder cleanup fails.
+  }
+
+  try {
+    await queueDiscoveryOutcomeAutomation(
+      lead.id,
+      scheduledAt,
+      lead.discovery_duration_minutes || 30,
+    );
+  } catch {
+    // Rescheduling remains valid if durable automation is temporarily unavailable.
   }
 
   redirect(managePath(token, "rescheduled=1"));

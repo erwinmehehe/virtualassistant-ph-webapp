@@ -292,10 +292,16 @@ export async function saveCrmClosingControlAction(formData: FormData) {
     if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
   }
 
-  if (["follow_up", "nurture"].includes(nextStep) && nextFollowUpAt === undefined && !validatedLead.next_follow_up_at) {
-    fail(nextStep === "nurture"
-      ? "Set a nurture follow-up date so this client does not disappear from the pipeline."
-      : "Set a follow-up date so this client has a clear next decision point.");
+  if (["follow_up", "nurture"].includes(nextStep)) {
+    const effectiveFollowUpAt = nextFollowUpAt === undefined ? validatedLead.next_follow_up_at : nextFollowUpAt;
+    if (!effectiveFollowUpAt) {
+      fail(nextStep === "nurture"
+        ? "Set a nurture follow-up date so this client does not disappear from the pipeline."
+        : "Set a follow-up date so this client has a clear next decision point.");
+    }
+    if (new Date(effectiveFollowUpAt).getTime() <= Date.now()) {
+      fail("Choose a future follow-up date so the closing plan does not become overdue immediately.");
+    }
   }
 
   const qualificationStatus = nextStep === "nurture"

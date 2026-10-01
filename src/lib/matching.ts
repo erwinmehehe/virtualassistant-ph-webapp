@@ -138,57 +138,66 @@ function roleIdentityFit(job: JobLike, va: Partial<VaProfile>) {
   const title = normalize(String(job.title || ""));
   const titleTokens = [...new Set(roleTokens(job.title))];
   if (!titleTokens.length) {
-    return { assessed: false, pointsRatio: 0, matchedKeywords: [] as string[] };
+    return { assessed: false, pointsRatio: 0, matchedKeywords: [] as string[], strongestSource: null as string | null };
   }
 
-  const roleSources = [
-    va.headline,
-    va.primary_category,
-    ...(va.categories ?? []),
-    ...(va.skills ?? []),
+  const weightedSources = [
+    { source: va.headline, weight: 1, label: "headline" },
+    { source: va.primary_category, weight: 0.95, label: "primary category" },
+    ...(va.categories ?? []).map((source) => ({ source, weight: 0.6, label: "additional category" })),
+    ...(va.skills ?? []).map((source) => ({ source, weight: 0.5, label: "skill" })),
   ]
-    .filter(Boolean)
-    .map((value) => normalize(String(value)))
-    .filter(Boolean);
+    .filter((item) => Boolean(item.source))
+    .map((item) => ({ ...item, normalized: normalize(String(item.source)) }))
+    .filter((item) => Boolean(item.normalized));
 
   let best = 0;
-  for (const source of roleSources) {
-    if (source === title) {
-      best = 1;
-      break;
+  let strongestSource: string | null = null;
+  for (const item of weightedSources) {
+    let sourceFit = 0;
+    if (item.normalized === title) {
+      sourceFit = 1;
+    } else {
+      const sourceTokens = new Set(roleTokens(item.normalized));
+      const shared = titleTokens.filter((token) => sourceTokens.has(token));
+      if (shared.length && (phraseContained(title, item.normalized) || phraseContained(item.normalized, title))) {
+        sourceFit = 0.95;
+      } else if (shared.length) {
+        sourceFit = shared.length / titleTokens.length;
+      }
     }
 
-    const sourceTokens = new Set(roleTokens(source));
-    const shared = titleTokens.filter((token) => sourceTokens.has(token));
-    if (shared.length && (phraseContained(title, source) || phraseContained(source, title))) {
-      best = Math.max(best, 0.95);
+    const weightedFit = sourceFit * item.weight;
+    if (weightedFit > best) {
+      best = weightedFit;
+      strongestSource = item.label;
     }
   }
 
-  const sourceTokenSet = new Set(roleSources.flatMap((source) => roleTokens(source)));
+  const sourceTokenSet = new Set(weightedSources.flatMap((item) => roleTokens(item.normalized)));
   const matchedKeywords = titleTokens.filter((token) => sourceTokenSet.has(token));
-  const keywordRecall = matchedKeywords.length / titleTokens.length;
-  best = Math.max(best, keywordRecall);
 
   return {
     assessed: true,
     pointsRatio: Math.max(0, Math.min(1, best)),
     matchedKeywords,
+    strongestSource,
   };
 }
 
 function categoryFit(job: JobLike, va: Partial<VaProfile>) {
   const need = normalizedValues(job.categories);
-  if (!need.length) return { assessed: false, matched: false };
+  if (!need.length) return { assessed: false, matched: false, pointsRatio: 0 };
 
-  const supplied = [va.primary_category, ...(va.categories ?? [])]
-    .filter(Boolean)
-    .map((value) => normalize(String(value)))
-    .filter(Boolean);
+  const primary = normalize(String(va.primary_category || ""));
+  const secondary = normalizedValues(va.categories).filter((value) => value !== primary);
+  const primaryMatched = Boolean(primary) && need.some((category) => termsMatch(category, primary));
+  const secondaryMatched = need.some((category) => secondary.some((candidate) => termsMatch(category, candidate)));
 
   return {
     assessed: true,
-    matched: need.some((category) => supplied.some((candidate) => termsMatch(category, candidate))),
+    matched: primaryMatched || secondaryMatched,
+    pointsRatio: primaryMatched ? 1 : secondaryMatched ? 0.7 : 0,
   };
 }
 
@@ -231,7 +240,7 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   const categoryMatch = categoryFit(job, va);
   if (categoryMatch.assessed) {
     assessedWeight += 20;
-    if (categoryMatch.matched) score += 20;
+    score += Math.round(categoryMatch.pointsRatio * 20);
   }
 
   const skills = overlapRatio(job.required_skills, va.skills);

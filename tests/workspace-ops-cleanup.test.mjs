@@ -6,11 +6,9 @@ const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 
 test("frequent workspace GET pages use fast verified role guards",async()=>{
   const paths=[
-    "src/app/workspace/recruiter/activity/page.tsx",
-    "src/app/workspace/recruiter/analytics/page.tsx",
+    "src/components/recruiter-performance-analytics.tsx",
+    "src/components/recruiter-performance-funnel.tsx",
     "src/app/workspace/recruiter/finance/page.tsx",
-    "src/app/workspace/recruiter/funnel/page.tsx",
-    "src/app/workspace/recruiter/queue/page.tsx",
     "src/app/workspace/recruiter/work-readiness/page.tsx",
     "src/app/workspace/admin/analytics/page.tsx",
     "src/app/workspace/admin/audit/page.tsx",
@@ -39,20 +37,18 @@ test("legacy recruiter matching list redirects into canonical Roles",async()=>{
   assert.match(matching,/LEGACY_VIEW_MAP/);
   assert.match(matching,/waiting_client: "waiting_client"/);
   assert.match(matching,/redirect\(\`\/workspace\/recruiter\/roles\?view=\$\{view\}&sort=\$\{sort\}\`\)/);
-  assert.doesNotMatch(activity,/href="\/workspace\/recruiter\/matching"/);
-  assert.match(activity,/href="\/workspace\/recruiter\/roles\?view=needs_candidates&sort=urgent"/);
+  assert.match(activity,/redirect\("\/workspace\/recruiter\/today"\)/);
   for(const label of ["Bench","Stalled","Categories","Queue"]){
     assert.doesNotMatch(nav,new RegExp(`\\["${label}",`));
   }
 });
 
 test("internal talent and user lists display saved profile photos",async()=>{
-  const [readiness,queue,users]=await Promise.all([
+  const [readiness,users]=await Promise.all([
     read("src/app/workspace/recruiter/work-readiness/page.tsx"),
-    read("src/app/workspace/recruiter/queue/page.tsx"),
     read("src/app/workspace/admin/users/page.tsx"),
   ]);
-  for(const source of [readiness,queue,users]){
+  for(const source of [readiness,users]){
     assert.match(source,/PublicAvatar/);
     assert.match(source,/avatar_url/);
   }

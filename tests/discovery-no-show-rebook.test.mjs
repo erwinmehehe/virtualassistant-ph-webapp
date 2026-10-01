@@ -27,7 +27,7 @@ test("no-show rebooking action is no-show only and blocks duplicate sends before
 });
 
 test("marking no-show keeps the recruiter queue visible without client email", async () => {
-  const page = await read("src/app/workspace/recruiter/leads/page.tsx");
+  const page = await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
   assert.match(page, /Client missed the call/);
   assert.match(page, /No automatic rebooking email is sent/);
   assert.doesNotMatch(page, /Send rebooking email/);

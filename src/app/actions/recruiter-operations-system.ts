@@ -275,11 +275,8 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
 
   const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
   const jobTitle = jobRecord?.title;
-  const [{ data: vaAuth }, { data: clientAuth }] = await Promise.all([
-    admin.auth.admin.getUserById(row.va_id),
-    admin.auth.admin.getUserById(row.client_id),
-  ]);
-  const attendeeEmails = [vaAuth.user?.email, clientAuth.user?.email].filter((value): value is string => Boolean(value));
+  const { data: vaAuth } = await admin.auth.admin.getUserById(row.va_id);
+  const attendeeEmails = [vaAuth.user?.email].filter((value): value is string => Boolean(value));
   const previousEventId = String(row.calendar_event_id || "").trim() || null;
   const meet = previousEventId
     ? await updateGoogleMeetDiscoveryMeeting({

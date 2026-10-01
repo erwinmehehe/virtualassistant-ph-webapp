@@ -38,7 +38,7 @@ const SAVED_VIEWS = [
   { key: "email_unconfirmed", label: "Email unconfirmed", filters: { classification: undefined, registration: "email_unconfirmed" } },
   { key: "profile_incomplete", label: "Profile incomplete", filters: { classification: undefined, registration: "profile_incomplete" } },
   { key: "missing_resume", label: "Missing resume", filters: { classification: undefined, resume: "no" } },
-  { key: "missing_address", label: "Missing private address", filters: { classification: undefined, address: "missing" } },
+  { key: "missing_address", label: "Missing address", filters: { classification: undefined, address: "missing" } },
   { key: "address_review", label: "Resume address review", filters: { classification: undefined, address: "review" } },
 ] as const;
 
@@ -264,7 +264,7 @@ export default async function RecruiterTalentDirectory({
         : params.view === "email_unconfirmed"
           ? "Unconfirmed VA emails"
           : params.view === "missing_address"
-            ? "Missing private addresses"
+            ? "Missing addresses"
             : params.view === "address_review"
               ? "Resume address review"
               : "Talent pool";
@@ -277,7 +277,7 @@ export default async function RecruiterTalentDirectory({
         : params.view === "email_unconfirmed"
           ? "VA registrations that have not confirmed their email address yet."
           : params.view === "missing_address"
-            ? "Private address is missing. Resume-backed recovery runs automatically when a safe labeled address is available."
+            ? "Address is missing. Resume-backed recovery runs automatically when a safe labeled address is available."
             : params.view === "address_review"
               ? "A resume appears to contain a location, but it was not explicit enough to save automatically."
               : "Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue.";
@@ -287,7 +287,7 @@ export default async function RecruiterTalentDirectory({
       ? { key: "classification", label: classificationLabels[effective.classification] || effective.classification }
       : null,
     effective.registration ? { key: "registration", label: effective.registration === "email_unconfirmed" ? "Email unconfirmed" : effective.registration === "never_started" ? "Never started" : "Profile incomplete" } : null,
-    effective.address ? { key: "address", label: effective.address === "review" ? "Resume address review" : "Missing private address" } : null,
+    effective.address ? { key: "address", label: effective.address === "review" ? "Resume address review" : "Missing address" } : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
     effective.readiness ? { key: "readiness", label: readinessLabels[effective.readiness] || effective.readiness } : null,
     effective.photo ? { key: "photo", label: effective.photo === "yes" ? "Has photo" : "Missing photo" } : null,
@@ -336,7 +336,7 @@ export default async function RecruiterTalentDirectory({
         <div>
           <div className="kicker">Profile health</div>
           <h2>Fix the exact missing thing</h2>
-          <p>Email confirmation, profile completion, and private address are separate health signals. A VA can have one problem without being treated as 0% or incomplete everywhere.</p>
+          <p>Email confirmation, profile completion, and address are separate health signals. A VA can have one problem without being treated as 0% or incomplete everywhere.</p>
         </div>
         <ShieldCheck size={20} />
       </div>
@@ -351,7 +351,7 @@ export default async function RecruiterTalentDirectory({
           <span className="small muted">Missing resume</span><strong>{Number(missingResumeCount || 0)}</strong><small className="muted">Client-readiness blocker</small>
         </Link>
         <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_address">
-          <span className="small muted">Private address missing</span><strong>{Number(missingAddressCount || 0)}</strong><small className="muted">Never public</small>
+          <span className="small muted">Address missing</span><strong>{Number(missingAddressCount || 0)}</strong><small className="muted">Never public</small>
         </Link>
         <Link className="stat-card" href="/workspace/recruiter/talent?view=address_review">
           <span className="small muted">Resume address review</span><strong>{Number(addressReviewCount || 0)}</strong><small className="muted">Needs recruiter judgment</small>
@@ -467,7 +467,7 @@ export default async function RecruiterTalentDirectory({
           <label className="filter-field"><span>Readiness</span><select name="readiness" defaultValue={effective.readiness || ""}><option value="">Any readiness</option><option value="zero">Not started</option><option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option><option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option><option value="approval_cleanup">Approved below {APPROVAL_MIN_COMPLETION}%</option><option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option><option value="vetted_hidden">Approved, not public</option></select></label>
           <label className="filter-field"><span>Classification</span><select name="classification" defaultValue={effective.classification || ""}><option value="">Any classification state</option><option value="classified">Classified talent</option><option value="ready_to_classify">Ready to classify</option><option value="incomplete_profile">Incomplete profile</option></select></label>
           <label className="filter-field"><span>Registration</span><select name="registration" defaultValue={effective.registration || ""}><option value="">Any registration state</option><option value="never_started">Never started</option><option value="email_unconfirmed">Email unconfirmed</option><option value="profile_incomplete">Profile incomplete</option></select></label>
-          <label className="filter-field"><span>Private address</span><select name="address" defaultValue={effective.address || ""}><option value="">Any address state</option><option value="missing">Missing address</option><option value="review">Resume needs review</option></select></label>
+          <label className="filter-field"><span>Address</span><select name="address" defaultValue={effective.address || ""}><option value="">Any address state</option><option value="missing">Missing address</option><option value="review">Resume needs review</option></select></label>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
           <label className="filter-field"><span>Activity</span><select name="stale" defaultValue={effective.stale || ""}><option value="">Any</option><option value="30">Inactive 30+ days</option><option value="60">Inactive 60+ days</option><option value="90">Inactive 90+ days</option></select></label>
@@ -521,7 +521,7 @@ export default async function RecruiterTalentDirectory({
           <option value="approve_publish">Approve + publish if public-ready</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>
           <option value="request_changes">Request profile changes</option>
-          <option value="request_address">Request private address</option>
+          <option value="request_address">Request address</option>
           <option value="remind">Email completion reminder</option>
           <option value="hide">Hide from public directory</option>
           <option value="reject">Reject</option>
@@ -613,7 +613,7 @@ export default async function RecruiterTalentDirectory({
                     : "";
               const addressStatus = String(row.address_resume_status || "");
               const addressCopy = hasPrivateAddress
-                ? "Private address recorded"
+                ? "Address recorded"
                 : addressStatus === "review"
                   ? "Resume address needs recruiter review"
                   : addressStatus === "no_match"
@@ -623,8 +623,8 @@ export default async function RecruiterTalentDirectory({
                       : addressStatus === "error"
                         ? "Resume address check failed"
                         : row.has_resume
-                          ? "Private address missing · resume pending"
-                          : "Private address missing · no resume source";
+                          ? "Address missing · resume pending"
+                          : "Address missing · no resume source";
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>

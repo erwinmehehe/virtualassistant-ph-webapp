@@ -11,7 +11,7 @@ import { inferCategories, inferHours } from "@/lib/category-inference";
 import { sendDiscoveryMeetingSetupFailureEmail, sendInternalDiscoveryBookingNotificationEmail, sendLeadAcknowledgementEmail, sendLeadNotificationEmail, sendPublicDiscoveryBookingEmail, sendVaApplicantRedirectEmail } from "@/lib/email";
 import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-applicant-detection";
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
-import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
+import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
@@ -208,6 +208,28 @@ async function mergeBookingIntoRecentClientLead(args: {
     leadId: String(mergedLeadId || related.id),
     jobId: String(related.job_id),
   };
+}
+
+async function findActiveDiscoveryBooking(
+  admin: ReturnType<typeof createAdminClient>,
+  email: string,
+  company: string,
+) {
+  const floor = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { data, error } = await admin
+    .from("lead_intake")
+    .select("id,job_id,owner_id,name,email,phone,company,service,hours,budget,start_time,timezone,message,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_meeting_provider,discovery_notes,discovery_rescheduled_at")
+    .eq("lead_type", "client_hiring")
+    .ilike("email", email.trim())
+    .ilike("company", company.trim())
+    .is("discovery_cancelled_at", null)
+    .not("discovery_scheduled_at", "is", null)
+    .gte("discovery_scheduled_at", floor)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
 async function createBookingHandoffRecoveryTask(args: {
@@ -879,6 +901,153 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const clientMessage = parsed.data.message || `Booked a discovery call to discuss hiring a ${parsed.data.service}.`;
+  const clientDetails = [
+    `Company website: ${parsed.data.company_url || "Not provided"}`,
+    `Hours per week: ${parsed.data.hours || "To discuss"}`,
+    `Hourly VA budget: ${parsed.data.budget || "To discuss"}`,
+    `Preferred start: ${parsed.data.start_time || "To discuss"}`,
+    `Visitor timezone: ${parsed.data.timezone}`,
+    "",
+    clientMessage,
+  ].join("\n");
+
+  // A repeat booking from the same client/company should update the existing
+  // discovery event instead of creating a second lead, role, and Google Meet.
+  const activeBooking = await findActiveDiscoveryBooking(admin, parsed.data.email, parsed.data.company);
+  if (activeBooking?.id && activeBooking.discovery_scheduled_at) {
+    const manage = createBookingManageToken();
+    const sameSlot = new Date(activeBooking.discovery_scheduled_at).getTime() === new Date(parsed.data.scheduled_at).getTime();
+    let meetingUrl = activeBooking.discovery_meeting_url || null;
+    let calendarEventId = activeBooking.discovery_calendar_event_id || null;
+
+    try {
+      if (!sameSlot && calendarEventId) {
+        const updatedMeeting = await updateGoogleMeetDiscoveryMeeting({
+          eventId: calendarEventId,
+          startsAt: parsed.data.scheduled_at,
+          durationMinutes: DISCOVERY_DURATION_MINUTES,
+          attendeeEmails: [parsed.data.email],
+          notifyAttendees: false,
+        });
+        meetingUrl = updatedMeeting.joinUrl;
+        calendarEventId = updatedMeeting.eventId;
+      } else if (!calendarEventId) {
+        const createdMeeting = await createGoogleMeetDiscoveryMeeting({
+          topic: `VirtualAssistant.com.ph discovery call with ${parsed.data.company}`,
+          startsAt: parsed.data.scheduled_at,
+          durationMinutes: DISCOVERY_DURATION_MINUTES,
+          attendeeEmails: [parsed.data.email],
+          notifyAttendees: false,
+        });
+        meetingUrl = createdMeeting.joinUrl;
+        calendarEventId = createdMeeting.eventId;
+      }
+    } catch {
+      redirect(`/book-client-call?error=${encodeURIComponent("We found your existing booking but could not update its calendar event. Please use the booking management link or contact us.")}`);
+    }
+
+    const previousSchedule = activeBooking.discovery_scheduled_at;
+    const note = sameSlot
+      ? "Repeat booking submission detected and attached to the existing discovery booking."
+      : `Discovery time updated by repeat booking submission. Previous time: ${previousSchedule}.`;
+    const { error: updateError } = await admin
+      .from("lead_intake")
+      .update({
+        name: parsed.data.name,
+        phone: parsed.data.phone || activeBooking.phone || null,
+        company: parsed.data.company,
+        service: parsed.data.service,
+        hours: parsed.data.hours || activeBooking.hours || null,
+        budget: parsed.data.budget || activeBooking.budget || null,
+        start_time: parsed.data.start_time || activeBooking.start_time || null,
+        timezone: parsed.data.timezone,
+        message: clientDetails,
+        crm_stage: "discovery_booked",
+        discovery_scheduled_at: parsed.data.scheduled_at,
+        discovery_duration_minutes: DISCOVERY_DURATION_MINUTES,
+        discovery_meeting_url: meetingUrl,
+        discovery_calendar_event_id: calendarEventId,
+        discovery_meeting_provider: calendarEventId ? "google_meet" : activeBooking.discovery_meeting_provider,
+        discovery_manage_token: null,
+        discovery_manage_token_hash: manage.hash,
+        discovery_manage_token_id: manage.tokenId,
+        discovery_manage_token_expires_at: manage.expiresAt,
+        discovery_rescheduled_at: sameSlot ? activeBooking.discovery_rescheduled_at : new Date().toISOString(),
+        discovery_notes: [activeBooking.discovery_notes, note].filter(Boolean).join("\n\n"),
+      })
+      .eq("id", activeBooking.id);
+    if (updateError) {
+      if (!sameSlot && activeBooking.discovery_calendar_event_id && previousSchedule) {
+        try {
+          await updateGoogleMeetDiscoveryMeeting({
+            eventId: activeBooking.discovery_calendar_event_id,
+            startsAt: previousSchedule,
+            durationMinutes: activeBooking.discovery_duration_minutes || DISCOVERY_DURATION_MINUTES,
+            attendeeEmails: [parsed.data.email],
+            notifyAttendees: false,
+          });
+        } catch {
+          // Best effort rollback; the recruiter can still recover from the stored booking.
+        }
+      }
+      redirect(`/book-client-call?error=${encodeURIComponent("We found your existing booking but could not save the updated time. Please try again.")}`);
+    }
+
+    if (activeBooking.job_id) {
+      const rates = rateRangeFromBudget(parsed.data.budget);
+      const hoursPerWeek = inferHours(parsed.data.hours);
+      await admin.from("jobs").update({
+        title: parsed.data.service,
+        company_name: parsed.data.company,
+        ...(hoursPerWeek ? { hours_per_week: hoursPerWeek } : {}),
+        min_hourly_rate: rates.min,
+        max_hourly_rate: rates.max,
+        timezone: parsed.data.timezone,
+        start_timing: parsed.data.start_time || null,
+      }).eq("id", activeBooking.job_id);
+    }
+
+    await admin.from("analytics_events").insert({
+      event_name: sameSlot ? "booking_duplicate_reused" : "booking_rescheduled_via_duplicate_guard",
+      path: "/book-client-call",
+      metadata: {
+        lead_id: activeBooking.id,
+        job_id: activeBooking.job_id || null,
+        service: parsed.data.service,
+        previous_scheduled_at: previousSchedule,
+        scheduled_at: parsed.data.scheduled_at,
+      },
+    });
+
+    const clientLabel = formatDiscoverySlot(parsed.data.scheduled_at, parsed.data.timezone);
+    const manilaLabel = formatDiscoverySlot(parsed.data.scheduled_at);
+    try {
+      await sendInternalDiscoveryBookingNotificationEmail({
+        leadId: activeBooking.id,
+        clientName: parsed.data.name,
+        clientEmail: parsed.data.email,
+        company: parsed.data.company,
+        service: parsed.data.service,
+        hours: parsed.data.hours || "To discuss",
+        budget: parsed.data.budget || "To discuss",
+        startTime: parsed.data.start_time || "To discuss",
+        message: clientMessage,
+        clientLabel,
+        manilaLabel,
+        meetingUrl,
+        manageUrl: bookingManageUrl(manage.token),
+        jobId: activeBooking.job_id || null,
+        handoffIssue: null,
+      });
+    } catch {
+      // Updating the confirmed booking must not fail because an internal alert failed.
+    }
+
+    redirect(`/book-client-call?booked=1&when=${encodeURIComponent(parsed.data.scheduled_at)}&tz=${encodeURIComponent(parsed.data.timezone)}&updated=1`);
+  }
+
   const manage = createBookingManageToken();
   let meeting: Awaited<ReturnType<typeof createGoogleMeetDiscoveryMeeting>> | null = null;
   let meetingError: string | null = null;
@@ -893,17 +1062,6 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
   } catch (error) {
     meetingError = error instanceof Error ? error.message : "Unknown Google Meet setup error.";
   }
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const clientMessage = parsed.data.message || `Booked a discovery call to discuss hiring a ${parsed.data.service}.`;
-  const clientDetails = [
-    `Company website: ${parsed.data.company_url || "Not provided"}`,
-    `Hours per week: ${parsed.data.hours || "To discuss"}`,
-    `Hourly VA budget: ${parsed.data.budget || "To discuss"}`,
-    `Preferred start: ${parsed.data.start_time || "To discuss"}`,
-    `Visitor timezone: ${parsed.data.timezone}`,
-    "",
-    clientMessage,
-  ].join("\n");
 
   const { data: lead, error } = await admin.from("lead_intake").insert({
     name: parsed.data.name,

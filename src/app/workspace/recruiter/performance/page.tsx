@@ -12,7 +12,7 @@ export default async function RecruiterPerformancePage({
   const childParams = Promise.resolve(params);
 
   return (
-    <div className="dash-page">
+    <div className="dash-page recruiter-performance-page">
       <div className="dash-header">
         <div>
           <div className="dash-kicker">Recruiter performance</div>

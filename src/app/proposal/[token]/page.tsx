@@ -79,6 +79,7 @@ export default async function ProposalPage({
           <p>{job?.status === "published"
             ? "Your role is active and our recruiting team can begin preparing your shortlist. Check your email for a secure link to your client workspace."
             : "Your recruiter has your approval and will complete any remaining workspace handoff."}</p>
+          {job?.id && lead?.client_id ? <a className="btn btn-primary" href={`/workspace/client/jobs/${job.id}?proposal_accepted=1`}>Open client workspace</a> : null}
         </div>
       </div> : query.changes_requested || status === "changes_requested" ? <div className="proposal-success proposal-revision-state">
         <CheckCircle2 size={34}/>

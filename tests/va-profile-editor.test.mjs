@@ -131,7 +131,7 @@ test("VA address is private, required, and can be suggested from a resume", asyn
   assert.match(profilePage, /name="address"/);
   assert.match(profilePage, /Current home address/);
   assert.match(profilePage, /never shown on your public profile/);
-  assert.match(profilePage, /Add your private home address/);
+  assert.match(profilePage, /Add your address/);
   assert.match(profileAction, /formData\.get\("address"\)/);
   assert.match(profileAction, /Enter your current address/);
   assert.match(onboarding, /name="address"/);

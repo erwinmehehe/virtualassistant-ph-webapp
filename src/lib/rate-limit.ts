@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function enforceActionRateLimit(actionKey: string, subject: string, maxAttempts: number, windowMinutes: number) {
+export async function enforceActionRateLimit(actionKey: string, subject: string, maxAttempts: number, windowMinutes: number, logInfrastructureFailure = true) {
   const normalized = subject.trim().toLowerCase();
   if (!normalized) return;
 
@@ -18,7 +18,11 @@ export async function enforceActionRateLimit(actionKey: string, subject: string,
   });
 
   if (error) {
-    console.error("[rate-limit] atomic limiter failed", { actionKey, code: error.code });
+    if (logInfrastructureFailure) {
+      console.error("[rate-limit] atomic limiter failed", { actionKey, code: error.code });
+    } else {
+      console.warn("[rate-limit] atomic limiter unavailable", { actionKey, code: error.code });
+    }
     throw new Error("We could not verify this request safely. Please try again.");
   }
   if (!data) {

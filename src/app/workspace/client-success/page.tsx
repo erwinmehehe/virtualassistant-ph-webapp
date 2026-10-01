@@ -82,7 +82,7 @@ export default async function ClientSuccessTodayPage(){
     <DashHeader
       kicker="Client Success Today"
       title="Who needs attention today?"
-      subtitle="Healthy placements stay quiet. Launches, missed check-ins, ownership gaps, and at-risk accounts rise to the top."
+      subtitle="Recruitment ends at the formal handoff. From there, Client Success owns launch, check-ins, support, recovery, retention, replacement, and expansion."
     />
 
     <div className="dash-stats">

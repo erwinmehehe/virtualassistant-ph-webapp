@@ -102,8 +102,8 @@ export async function resolvePlacementSupportRequestAction(formData: FormData) {
   if (["resolved", "declined"].includes(status) && (!resolution || resolution.length < 5)) throw new Error("Record the resolution before closing the request.");
 
   const { admin, room, job } = await getPlacement(workroomId);
-  if (profile.role !== "admin" && job.recruiter_id !== user.id && room.client_success_owner_id !== user.id) {
-    throw new Error("This placement is assigned to another agency owner.");
+  if (profile.role !== "admin" && room.client_success_owner_id !== user.id) {
+    throw new Error("Placement support belongs to the assigned Client Success owner.");
   }
   const { data: request } = await admin.from("placement_support_requests").select("*").eq("id", requestId).eq("workroom_id", workroomId).maybeSingle();
   if (!request) throw new Error("Support request not found.");

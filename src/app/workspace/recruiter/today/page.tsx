@@ -17,6 +17,7 @@ const PRIORITY_CLASS: Record<string,string> = { urgent:"badge-warning", high:"ba
 const LEAD_QUEUE_KINDS = new Set(["lead_first_contact", "lead_followup"]);
 const FOLLOW_THROUGH_KINDS = new Set(["client_shortlist_waiting", "client_response_overdue"]);
 const CONVERSION_QUEUE_KINDS = new Set(["discovery", "proposal_missing", "proposal_draft"]);
+const CLIENT_SUCCESS_QUEUE_KINDS = new Set(["placement_checkin", "placement_risk"]);
 
 type DailyActionRow = {
   priority: string | null;
@@ -37,6 +38,16 @@ type ActiveRoleRow = {
   hiring_stage: string | null;
   hiring_stage_entered_at: string | null;
   updated_at: string | null;
+  created_at: string;
+};
+
+type PlacementHandoffRow = {
+  workroom_id: string;
+  job_id: string;
+  job_title: string | null;
+  company_name: string | null;
+  placement_stage: string | null;
+  start_date: string | null;
   created_at: string;
 };
 
@@ -270,7 +281,7 @@ function exactActionHref(item:any) {
   if(item.kind==="proposal_draft"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
   if(item.kind==="proposal_missing"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="closing_followup"&&item.id) return `/workspace/recruiter/crm/${item.id}#client-followup`;
-  if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return canonicalRecruiterHref(item.href,null);
+  if(item.kind==="placement_handoff"&&item.href) return canonicalRecruiterHref(item.href,null);
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
   if(["role_review","role_without_shortlist","role_needs_terms","client_terms_waiting","client_account_missing","client_shortlist_waiting","all_candidates_passed","client_response_overdue","interview_requested","interview_today","interview_feedback_missing","offer_waiting_va","offer_waiting_client"].includes(String(item.kind))&&item.id) return `/workspace/recruiter/roles/${item.id}`;
@@ -290,8 +301,6 @@ function actionLabel(item:any) {
   if(item.kind==="interview_requested") return "Schedule interview";
   if(["interview_today","interview_feedback_missing"].includes(String(item.kind))) return "Open interview";
   if(["offer_waiting_va","offer_waiting_client"].includes(String(item.kind))) return "Open offer";
-  if(item.kind==="placement_checkin") return "Complete check-in";
-  if(item.kind==="placement_risk") return "Open placement";
   if(item.kind==="placement_handoff") return "Complete handoff";
   if(item.kind==="candidate_capacity_conflict") return "Review VA";
   if(item.kind==="task") return "Act now";
@@ -311,6 +320,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const activeLeadActions = (Array.isArray(summary.active_lead_actions) ? summary.active_lead_actions : []) as ActiveLeadActionRow[];
   const firstContactActions = activeLeadActions.filter((item) => item.action_key === "first_contact");
   const dueClientActions = activeLeadActions.filter((item) => ["urgent", "high"].includes(item.priority) && item.action_key !== "first_contact");
+  const placementHandoffs = (Array.isArray(summary.placement_handoffs) ? summary.placement_handoffs : []) as PlacementHandoffRow[];
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
@@ -373,7 +383,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nonLeadQueue = rawQueue.filter((item:any)=>
     !LEAD_QUEUE_KINDS.has(String(item.kind)) &&
-    !CONVERSION_QUEUE_KINDS.has(String(item.kind))
+    !CONVERSION_QUEUE_KINDS.has(String(item.kind)) &&
+    !CLIENT_SUCCESS_QUEUE_KINDS.has(String(item.kind))
   );
   const queue = [
     ...clientReplies.map((row) => ({
@@ -428,6 +439,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       href: `/workspace/recruiter/crm/${row.id}#client-followup`,
       metadata: { primary_reason: row.primary_reason, crm_stage: row.crm_stage },
     })),
+    ...placementHandoffs.map((row) => ({
+      kind: "placement_handoff",
+      id: row.workroom_id,
+      title: `Complete recruiter handoff: ${row.job_title || "placement"}`,
+      subtitle: "Recruiting is finished. Transfer the selection context to Client Success, then post-start ownership leaves the recruiter queue.",
+      due_at: row.start_date || row.created_at,
+      priority: "high",
+      href: `/workspace/client-success/${row.workroom_id}`,
+      metadata: { subject_type: "job", subject_id: row.job_id },
+    })),
     ...nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind))),
   ];
   const dailyActions = (Array.isArray(summary.daily_actions) ? summary.daily_actions : []) as DailyActionRow[];
@@ -455,6 +476,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
     {count:firstContactActions.length,title:"Contact new client leads",copy:`${firstContactActions.length} assigned enquir${firstContactActions.length===1?"y has":"ies have"} not had a first human contact yet. Work these before matching or routine sourcing.`,href:"#client-next-actions",cta:"Open first contacts",icon:<MessageSquare size={20}/>},
     {count:dueClientActions.length,title:"Move due client leads",copy:`${dueClientActions.length} assigned client${dueClientActions.length===1?" has":"s have"} a due discovery, proposal, follow-up, or nurture action.`,href:"#client-next-actions",cta:"Open client actions",icon:<Clock3 size={20}/>},
+    {count:placementHandoffs.length,title:"Complete recruiter handoffs",copy:`${placementHandoffs.length} placement${placementHandoffs.length===1?" is":"s are"} waiting for the formal recruiter → Client Success transfer. This is the recruiter's final post-hire action.`,href:"#needs-action",cta:"Complete handoff",icon:<UserRoundCheck size={20}/>},
     {count:timezoneNeedsConfirmation,title:"Confirm client timezones",copy:`${timezoneNeedsConfirmation} active client${timezoneNeedsConfirmation===1?" has":"s have"} no valid scheduling timezone. Confirm it before discovery or local-time follow-up.`,href:"/workspace/recruiter/crm?view=timezone",cta:"Review timezones",icon:<Clock3 size={20}/>},
     {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
     {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},

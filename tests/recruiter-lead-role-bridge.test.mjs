@@ -23,5 +23,5 @@ test("recruiter can prepare a missing hiring role and open matching without dupl
   assert.doesNotMatch(action,/\.from\("jobs"\)[\s\S]*\.insert\(/);
   assert.match(helper,/\.is\("owner_id", null\)/);
   assert.match(action,/role_error=/);
-  assert.match(page,/params\.role_error/);
+  assert.match(page,/query\.role_error/);
 });

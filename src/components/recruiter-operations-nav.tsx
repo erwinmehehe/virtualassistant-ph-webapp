@@ -21,7 +21,7 @@ export function RecruiterOperationsNav({
   return (
     <nav className="role-filter-tabs" aria-label="My Day views">
       {items.map(([key, label, href]) => (
-        <Link key={key} href={href} className={current === key ? "active" : ""} aria-current={current === key ? "page" : undefined}>
+        <Link key={key} prefetch={false} href={href} className={current === key ? "active" : ""} aria-current={current === key ? "page" : undefined}>
           {label}
         </Link>
       ))}

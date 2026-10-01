@@ -62,6 +62,37 @@ async function resolveClientShortlistFollowups(
   if (error) throw error;
 }
 
+async function resolveRecruiterClientReviewNotifications(
+  admin: ReturnType<typeof createAdminClient>,
+  jobId: string,
+) {
+  const now = new Date().toISOString();
+  const { error } = await admin
+    .from("notifications")
+    .update({ done_at: now, read_at: now, snoozed_until: null })
+    .eq("type", "client_review")
+    .like("href", `/workspace/recruiter/roles/${jobId}%`)
+    .is("done_at", null);
+  if (error) throw error;
+}
+
+async function resolveVaInterviewRequestNotification(
+  admin: ReturnType<typeof createAdminClient>,
+  vaId: string,
+  jobTitle: string,
+) {
+  const now = new Date().toISOString();
+  const { error } = await admin
+    .from("notifications")
+    .update({ done_at: now, read_at: now, snoozed_until: null })
+    .eq("user_id", vaId)
+    .eq("type", "interview")
+    .eq("href", "/workspace/va/interviews")
+    .eq("title", `Interview requested for ${jobTitle}`)
+    .is("done_at", null);
+  if (error) throw error;
+}
+
 async function requireApprovedVa(vaId: string) {
   const admin = createAdminClient();
   const { data: vetting } = await admin
@@ -217,6 +248,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
 
     if (!interviewId) throw new Error("The interview request could not be created.");
     if (interviewCreated) {
+      await resolveVaInterviewRequestNotification(admin, vaId, job.title);
       await admin.from("notifications").insert({
         user_id: vaId,
         title: `Interview requested for ${job.title}`,
@@ -235,6 +267,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       .eq("va_id", vaId)
       .eq("status", "requested")
       .is("scheduled_at", null);
+    await resolveVaInterviewRequestNotification(admin, vaId, job.title);
   }
 
   await recordProductEvent("client_shortlist_decision", {
@@ -270,6 +303,8 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       : decision === "hold"
         ? "Client placed a VA on hold"
         : "Client passed on a VA";
+  await resolveRecruiterClientReviewNotifications(admin, jobId);
+  await resolveRecruiterClientReviewNotifications(admin, jobId);
   const recipientIds = new Set<string>();
   if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
   if (!recipientIds.size) {

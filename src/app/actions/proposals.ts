@@ -251,11 +251,18 @@ export async function sendProposalToClientAction(formData: FormData) {
     const { data: linkedJob } = await admin.from("jobs").select("timezone").eq("id", lead.job_id).maybeSingle();
     if (isValidTimeZone(linkedJob?.timezone)) proposalFollowUpTimeZone = String(linkedJob?.timezone);
   }
-  if (!proposalFollowUpTimeZone) proposalFollowUpTimeZone = "Asia/Manila";
-  const proposalFollowUpAt = followUpAtClientNine(
-    addDaysToDateKey(localDateKey(now, proposalFollowUpTimeZone), 2),
-    proposalFollowUpTimeZone,
-  ) || new Date(now.getTime() + 2 * 86400000).toISOString();
+  const proposalFollowUpAt = proposalFollowUpTimeZone
+    ? followUpAtClientNine(
+        addDaysToDateKey(localDateKey(now, proposalFollowUpTimeZone), 2),
+        proposalFollowUpTimeZone,
+      ) || new Date(now.getTime() + 2 * 86400000).toISOString()
+    : new Date(now.getTime() + 2 * 86400000).toISOString();
+
+  await admin.from("notifications")
+    .update({ done_at: now.toISOString(), read_at: now.toISOString(), snoozed_until: null })
+    .eq("href", proposalReturnPath(leadId))
+    .like("title", "Proposal changes requested:%")
+    .is("done_at", null);
 
   await admin.from("lead_intake").update({
     crm_stage: "terms_sent",
@@ -279,7 +286,8 @@ export async function sendProposalToClientAction(formData: FormData) {
       expires_at: expiresAt.toISOString(),
       service_model: fields.serviceModel,
       next_follow_up_at: proposalFollowUpAt,
-      follow_up_timezone: proposalFollowUpTimeZone,
+      follow_up_timezone: proposalFollowUpTimeZone || null,
+      follow_up_mode: proposalFollowUpTimeZone ? "client_local_9am" : "relative_48h",
     },
   });
 
@@ -422,7 +430,7 @@ export async function respondToLeadProposalAction(formData: FormData) {
   await admin.from("lead_intake").update({
     crm_stage: askingForChanges ? "qualified" : "lost",
     status: askingForChanges ? "converted" : "archived",
-    next_follow_up_at: askingForChanges ? now.toISOString() : null,
+    next_follow_up_at: null,
     stage_updated_at: now.toISOString(),
     lost_at: askingForChanges ? null : now.toISOString(),
     lost_reason: askingForChanges ? null : reason
@@ -448,7 +456,9 @@ export async function respondToLeadProposalAction(formData: FormData) {
       user_id: userId,
       title: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
       body: reason,
-      href: recruiterHref
+      href: recruiterHref,
+      type: "proposal",
+      priority: askingForChanges ? "high" : "normal"
     })));
   }
 

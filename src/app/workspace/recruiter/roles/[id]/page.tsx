@@ -14,6 +14,7 @@ import { StaffJobMatching } from "@/components/staff-job-matching";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { isTalentAgencyCertified, talentReadinessActions } from "@/lib/talent-operations";
+import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import type { CandidateInterviewRow, PlacementOfferRow, ProfileSummaryRow, RecruiterActivityRow, ShortlistCandidateRow, StaffProfileRow } from "@/lib/workspace-rows";
 
 const STAGES: Record<string, string> = {
@@ -76,6 +77,7 @@ export default async function RoleControlCenter({
   const { data: job, error } = await admin.from("jobs").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
   if (!job) notFound();
+  const roleTimeZone = isValidTimeZone(job.timezone) ? String(job.timezone) : "UTC";
   const [
     { data: lead },
     { data: commercial },
@@ -614,9 +616,7 @@ export default async function RoleControlCenter({
                         <strong>{vaMap.get(x.va_id) || "VA"}</strong>
                         <div className="small muted">
                           {x.scheduled_at
-                            ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(
-                                new Date(x.scheduled_at),
-                              )
+                            ? formatDateTimeInTimeZone(x.scheduled_at, roleTimeZone)
                             : "Scheduling pending"}
                         </div>
                       </div>
@@ -639,7 +639,7 @@ export default async function RoleControlCenter({
                         <div style={{ width: "100%" }}>
                           <strong>Client requested this interview</strong>
                           <p className="small muted" style={{ margin: "4px 0 10px" }}>Choose a time here so the request cannot get lost in a separate scheduling queue. The client also retains self-service scheduling in their Interview workspace.</p>
-                          <CandidateInterviewScheduler interviewId={x.id} returnTo={`/workspace/recruiter/roles/${job.id}`} compact />
+                          <CandidateInterviewScheduler interviewId={x.id} returnTo={`/workspace/recruiter/roles/${job.id}`} timeZone={roleTimeZone} compact />
                         </div>
                       </div>
                     ) : null}
@@ -650,14 +650,14 @@ export default async function RoleControlCenter({
                           <div className="row-between wrap">
                             <div>
                               <strong>Interview scheduled</strong>
-                              <p className="small muted" style={{ margin: "4px 0 0" }}>{x.scheduled_at ? new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(x.scheduled_at)) : "Time unavailable"} · {x.duration_minutes || 30} minutes</p>
+                              <p className="small muted" style={{ margin: "4px 0 0" }}>{x.scheduled_at ? formatDateTimeInTimeZone(x.scheduled_at, roleTimeZone) : "Time unavailable"} · {x.duration_minutes || 30} minutes</p>
                             </div>
                             {x.meeting_url ? <a className="btn btn-sm" href={x.meeting_url} target="_blank" rel="noreferrer">Open Google Meet</a> : null}
                           </div>
                           <details style={{ marginTop: 10 }}>
                             <summary className="text-button">Reschedule from this role</summary>
                             <div style={{ marginTop: 10 }}>
-                              <CandidateInterviewScheduler interviewId={x.id} currentIso={x.scheduled_at} returnTo={`/workspace/recruiter/roles/${job.id}`} compact />
+                              <CandidateInterviewScheduler interviewId={x.id} currentIso={x.scheduled_at} returnTo={`/workspace/recruiter/roles/${job.id}`} timeZone={roleTimeZone} compact />
                             </div>
                           </details>
                         </div>

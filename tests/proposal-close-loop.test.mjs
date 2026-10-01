@@ -97,3 +97,25 @@ test("proposal recommendation snapshot remains server-only",async()=>{
   assert.match(migration,/revoke all on table public\.lead_proposals from anon, authenticated/);
   assert.match(migration,/grant select, insert, update, delete on table public\.lead_proposals to service_role/);
 });
+
+
+test("accepted proposals hand clients into a reusable workspace with proposal history",async()=>{
+  const [actions,publicProposal,clientProposals,nav]=await Promise.all([
+    read("src/app/actions/proposals.ts"),
+    read("src/app/proposal/[token]/page.tsx"),
+    read("src/app/workspace/client/proposals/page.tsx"),
+    read("src/components/app-nav-links.tsx"),
+  ]);
+
+  assert.match(actions,/Your client workspace is ready/);
+  assert.match(actions,/hrefLabel: "Open client workspace"/);
+  assert.match(actions,/client_workspace_ready/);
+  assert.match(actions,/revalidatePath\("\/workspace\/client\/proposals"\)/);
+  assert.match(actions,/acceptedBySignedInClient/);
+  assert.match(publicProposal,/Open client workspace/);
+  assert.match(clientProposals,/Your proposals/);
+  assert.match(clientProposals,/lead_proposals/);
+  assert.match(clientProposals,/\.eq\("client_id", userId\)/);
+  assert.match(clientProposals,/View proposal/);
+  assert.match(nav,/\["Proposals", "\/workspace\/client\/proposals", FileText\]/);
+});

@@ -14,7 +14,7 @@ test("Recruiter Today exposes a dedicated sales closing command center", async (
     "Proposal actions",
     "Overdue follow-ups",
     "Stalled / no next step",
-    "needs closing attention",
+    "Closing queue is clear",
   ]) {
     assert.ok(page.includes(copy), `expected closing command center copy: ${copy}`);
   }

@@ -27,10 +27,10 @@ function safePath(value: FormDataEntryValue | null, fallback: string) {
 function activeReturnPath(returnTo: string, role: string) {
   if (role !== "recruiter") return returnTo;
   const url = new URL(returnTo, "https://virtualassistant.com.ph");
-  if (url.pathname !== "/workspace/recruiter/leads") return returnTo;
+  if (url.pathname !== "/workspace/recruiter/crm") return returnTo;
   const view = url.searchParams.get("view");
   if (!view || view === "recent") {
-    url.searchParams.set("view", "open");
+    url.searchParams.set("view", "active");
     url.searchParams.delete("page");
   }
   return `${url.pathname}${url.search}`;
@@ -43,7 +43,7 @@ export async function closeLeadAction(formData: FormData) {
   const closeLinkedRole = String(formData.get("close_linked_role") || "") === "1";
   const returnTo = safePath(
     formData.get("return_to"),
-    profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads"
+    profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm"
   );
   const fail = (message: string) =>
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_error=${encodeURIComponent(message)}`);
@@ -126,8 +126,8 @@ export async function closeLeadAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/today");
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/recruiter/leads/board");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/crm/board");
   revalidatePath("/workspace/recruiter/queue");
   revalidatePath("/workspace/recruiter/agenda");
   revalidatePath("/workspace/recruiter/stalled");

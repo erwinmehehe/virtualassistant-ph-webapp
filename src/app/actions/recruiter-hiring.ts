@@ -9,9 +9,9 @@ import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 function safeReturnPath(value: FormDataEntryValue | null) {
   const path = String(value || "").trim();
-  return path.startsWith("/workspace/recruiter/leads") && !path.startsWith("//")
+  return path.startsWith("/workspace/recruiter/crm") && !path.startsWith("//")
     ? path
-    : "/workspace/recruiter/leads";
+    : "/workspace/recruiter/crm";
 }
 
 function withError(path: string, message: string) {
@@ -62,12 +62,12 @@ export async function createRoleFromLeadAndMatchAction(formData: FormData): Prom
     subjectType: "lead",
     subjectId: lead.id,
     action: "role_prepared_from_lead",
-    description: "Prepared the linked recruiting role and opened matching from the Hiring inbox",
+    description: "Prepared the linked recruiting role and opened matching from the client CRM",
     actorId: user.id,
-    metadata: { lead_id: lead.id, job_id: jobId, source: "hiring_inbox" },
+    metadata: { lead_id: lead.id, job_id: jobId, source: "client_crm" },
   });
 
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/roles");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);

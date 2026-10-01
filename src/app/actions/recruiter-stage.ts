@@ -61,8 +61,8 @@ export async function moveLeadStageAction(leadIdRaw: string, stageRaw: string) {
     metadata: { previous_stage: previousStage, crm_stage: stage, source: "pipeline_board" }
   });
 
-  revalidatePath("/workspace/recruiter/leads");
-  revalidatePath("/workspace/recruiter/leads/board");
+  revalidatePath("/workspace/recruiter/crm");
+  revalidatePath("/workspace/recruiter/crm/board");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/admin/leads");

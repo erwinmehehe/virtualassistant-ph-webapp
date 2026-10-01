@@ -29,6 +29,7 @@ import {
   sendClientFollowupAction,
   scheduleDiscoveryAction,
   completeDiscoveryAction,
+  createDiscoveryGoogleMeetLinkAction,
   cancelRecruiterDiscoveryAction,
 } from "@/app/actions/recruiter";
 import { createCrmCustomFieldAction, saveCrmClosingControlAction, setCrmCustomValueAction } from "@/app/actions/crm";
@@ -524,6 +525,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.contact_already_sent ? <div className="success-banner">That email was already sent. A duplicate was prevented.</div> : null}
       {query.contact_error ? <div className="alert" role="alert">{query.contact_error}</div> : null}
       {query.discovery_saved ? <div className="success-banner">Discovery booking saved.</div> : null}
+      {query.meet_link_created ? <div className="success-banner">Google Meet created. No client email was sent.</div> : null}
       {query.discovery_completed ? <div className="success-banner">Discovery outcome saved.</div> : null}
       {query.discovery_cancelled ? <div className="success-banner">Discovery booking cancelled.</div> : null}
       {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}
@@ -782,6 +784,11 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
               </form>
 
               {lead.discovery_scheduled_at && !lead.discovery_completed_at && !lead.discovery_cancelled_at ? <div className={styles.actionSubsection}>
+                {!lead.discovery_meeting_url ? <form action={createDiscoveryGoogleMeetLinkAction}>
+                  <input type="hidden" name="lead_id" value={lead.id}/>
+                  <input type="hidden" name="return_to" value={returnTo}/>
+                  <button type="submit"><CalendarPlus size={14}/> Create Google Meet</button>
+                </form> : null}
                 <form action={completeDiscoveryAction} className={styles.actionForm}>
                   <input type="hidden" name="lead_id" value={lead.id}/>
                   <input type="hidden" name="return_to" value={returnTo}/>
@@ -790,12 +797,22 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                   <label>Lost reason <span className={styles.muted}>(only if lost)</span><input name="lost_reason" maxLength={1000} placeholder="Budget, timing, hired elsewhere…"/></label>
                   <button type="submit">Complete discovery</button>
                 </form>
-                <form action={cancelRecruiterDiscoveryAction}>
-                  <input type="hidden" name="lead_id" value={lead.id}/>
-                  <input type="hidden" name="return_to" value={returnTo}/>
-                  <button className={styles.textButton} type="submit">Cancel booking</button>
-                </form>
+                <div className={styles.quickStages}>
+                  <form action={completeDiscoveryAction}>
+                    <input type="hidden" name="lead_id" value={lead.id}/>
+                    <input type="hidden" name="return_to" value={returnTo}/>
+                    <input type="hidden" name="outcome" value="no_show"/>
+                    <input type="hidden" name="discovery_notes" value={lead.discovery_notes || "Client did not attend the scheduled discovery call."}/>
+                    <button type="submit">Mark no-show</button>
+                  </form>
+                  <form action={cancelRecruiterDiscoveryAction}>
+                    <input type="hidden" name="lead_id" value={lead.id}/>
+                    <input type="hidden" name="return_to" value={returnTo}/>
+                    <button className={styles.textButton} type="submit">Cancel booking</button>
+                  </form>
+                </div>
               </div> : null}
+              {lead.discovery_outcome === "no_show" ? <div className={styles.formHint}>Client missed the call. No automatic rebooking email is sent; keep the follow-up recruiter-led.</div> : null}
             </div>
           </details>
 
